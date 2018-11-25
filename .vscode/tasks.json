@@ -5,7 +5,10 @@
       "label": "build",
       "command": "dotnet",
       "type": "process",
-      "args": ["build", "${workspaceFolder}/nhitomi.csproj"],
+      "args": [
+        "build",
+        "${workspaceFolder}/nhitomi.Discord/nhitomi.Discord.csproj"
+      ],
       "problemMatcher": []
     }
   ]
