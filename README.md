@@ -2,6 +2,8 @@
 
 WIP Discord Bot for doujinshi
 
+Join the [Discord server](https://discord.gg/bf3q7RM).
+
 # Setup
 
 Requirements:
