@@ -9,7 +9,7 @@ Requirements:
 - [.NET Core SDK 2.1](https://www.microsoft.com/net/learn/get-started) or higher.
 - For development: a text editor or a C# IDE. [Visual Studio Code](https://code.visualstudio.com) is recommended to greatly simplify the development process.
 
-Create a file named `appsecrets.json` alongside `appsettings.json`, which is intentionally omitted from source control. Paste the following code, replacing the token string with your own.
+Create a file named `appsecrets.json` alongside `appsettings.json`. This file was intentionally omitted from source control. Then paste the following code, replacing the token string with your own.
 
 ```json
 {
