@@ -4,7 +4,7 @@ WIP Discord Bot for doujinshi
 
 Join the [Discord server](https://discord.gg/bf3q7RM) or invite [nhitomi](https://discordapp.com/oauth2/authorize?client_id=515386276543725568&scope=bot&permissions=347200).
 
-# Setup
+## Setup
 
 Requirements:
 
@@ -27,6 +27,6 @@ Then run the following commands:
 2. `dotnet build` — builds the bot.
 3. `dotnet run` — runs the bot.
 
-# Licence
+## Licence
 
 This project is licensed under the [MIT licence](https://opensource.org/licenses/MIT). Please see the [licence](LICENCE) for more information.
