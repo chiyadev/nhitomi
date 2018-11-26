@@ -82,7 +82,7 @@ namespace nhitomi
             {
                 case "/":
                     const string index_txt = @"
-nhitomi — Discord doujinshi bot by phosphene47#7788
+nhitomi - Discord doujinshi bot by phosphene47#7788
 
 - Discord: https://discord.gg/bf3q7RM
 - Github: https://github.com/phosphene47/nhitomi";
