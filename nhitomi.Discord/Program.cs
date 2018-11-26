@@ -13,12 +13,9 @@ namespace nhitomi
 {
     public class Program
     {
-        public const string Invite = "https://discordapp.com/oauth2/authorize?client_id=515386276543725568&scope=bot&permissions=347200";
-
         static async Task setupAsync()
         {
             await Console.Out.WriteLineAsync($"nhitomi — Discord doujinshi bot");
-            await Console.Out.WriteLineAsync($"Invite nhitomi: {Invite}");
 
             if (File.Exists("appsecrets.json"))
                 return;
