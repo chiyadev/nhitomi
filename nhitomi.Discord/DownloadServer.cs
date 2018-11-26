@@ -91,7 +91,11 @@ nhitomi - Discord doujinshi bot by phosphene47#7788
                         await writer.WriteAsync(index_txt.Trim());
                         await writer.FlushAsync();
                     }
-                    return;
+                    break;
+
+                default:
+                    response.StatusCode = (int)HttpStatusCode.NotFound;
+                    break;
             }
         }
 
