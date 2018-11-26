@@ -38,5 +38,11 @@ namespace nhitomi
         {
             public int UpdateInterval { get; set; }
         }
+
+        public HttpSettings Http { get; set; }
+        public sealed class HttpSettings
+        {
+            public int Concurrency { get; set; }
+        }
     }
 }

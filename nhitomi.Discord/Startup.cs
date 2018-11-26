@@ -58,10 +58,12 @@ namespace nhitomi
             // Background services
             .AddSingleton<StatusUpdater>()
             .AddSingleton<DoujinClientUpdater>()
+            .AddSingleton<DownloadServer>()
             .AddSingleton<ISet<IBackgroundService>>(s => new HashSet<IBackgroundService>
             {
                 s.GetService<StatusUpdater>(),
-                s.GetService<DoujinClientUpdater>()
+                s.GetService<DoujinClientUpdater>(),
+                s.GetService<DownloadServer>()
             });
     }
 }
