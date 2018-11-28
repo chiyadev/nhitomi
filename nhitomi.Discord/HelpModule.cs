@@ -25,15 +25,9 @@ namespace nhitomi
         [Summary("Shows this help message.")]
         public async Task HelpAsync()
         {
-            // Let the user know
-            await ReplyAsync($"**nhitomi**: Help sent in DM!");
-
-            // Create DM channel for the requester
-            var channel = await Context.User.GetOrCreateDMChannelAsync();
-
-            // Send embedded help message
-            await channel.SendMessageAsync(
-                text: string.Empty,
+            // Reply with embedded help message
+            await ReplyAsync(
+                message: string.Empty,
                 embed: _formatter.EmbedHelp(
                     commands: _commands.Commands,
                     clients: _clients
