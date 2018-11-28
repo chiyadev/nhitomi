@@ -45,7 +45,10 @@ namespace nhitomi
             await Commands.AddModulesAsync(typeof(Program).Assembly);
 
             // Login
-            await Socket.LoginAsync(TokenType.Bot, _settings.Discord.Token);
+            await Socket.LoginAsync(
+                TokenType.Bot, Environment.GetEnvironmentVariable("TOKEN")
+                ?? _settings.Discord.Token
+            );
             await Socket.StartAsync();
         }
 
