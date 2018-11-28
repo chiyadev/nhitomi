@@ -106,9 +106,9 @@ namespace nhitomi
                     using (var textReader = new StringReader(await response.Content.ReadAsStringAsync()))
                     using (var jsonReader = new JsonTextReader(textReader))
                     {
-                        var doujin = _json.Deserialize<DoujinData>(jsonReader);
-                        _logger.LogInformation($"Got doujin {id}: {doujin.title.pretty}");
-                        return doujin;
+                        var data = _json.Deserialize<DoujinData>(jsonReader);
+                        _logger.LogInformation($"Got doujin {id}: {data.title.pretty}");
+                        return data;
                     }
                 }
                 catch (HttpRequestException) { return null; }

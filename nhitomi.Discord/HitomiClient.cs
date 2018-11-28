@@ -162,7 +162,10 @@ namespace nhitomi
                         // We don't want anime
                         var type = root.SelectSingleNode(Hitomi.XPath.Type)?.InnerText.Trim();
                         if (type == null || type.Equals("anime", StringComparison.OrdinalIgnoreCase))
+                        {
+                            _logger.LogInformation($"Skipping {id} because it is type 'anime'.");
                             return null;
+                        }
                     }
 
                     using (var response = await _http.GetAsync(Hitomi.GalleryInfo(intId)))
