@@ -31,10 +31,9 @@ namespace nhitomi
 
             // Register as log provider
             if (Environment.GetEnvironmentVariable("ENVIRONMENT") == "PRODUCTION")
-            {
                 loggerFactory.AddProvider(new DiscordLogRedirector(options, this));
-                _logger = loggerFactory.CreateLogger<DiscordService>();
-            }
+
+            _logger = loggerFactory.CreateLogger<DiscordService>();
         }
 
         public async Task StartSessionAsync()
