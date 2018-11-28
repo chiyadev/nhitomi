@@ -54,15 +54,14 @@ namespace nhitomi
             var builder = new StringBuilder();
             var embed = new EmbedBuilder()
                 .WithTitle("**nhitomi**: Help")
-                .WithUrl("https://github.com/phosphene47/nhitomi")
-                .WithDescription("**nhitomi** is a Discord bot for searching and downloading doujinshi on Discord!");
+                .WithDescription("nhitomi is a Discord bot for searching and downloading doujinshi on Discord!");
 
             foreach (var command in commands)
             {
                 builder.Append($"- **n!{command.Name}**");
                 if (command.Parameters.Count > 0)
-                    builder.Append($" *{string.Join(" ", command.Parameters.Select(p => p.Name))}*");
-                builder.Append($": {command.Summary}");
+                    builder.Append($" __{string.Join("__ __", command.Parameters.Select(p => p.Name))}__");
+                builder.Append($" — {command.Summary}");
                 builder.AppendLine();
             }
             embed.AddField("Commands", builder);
@@ -70,7 +69,7 @@ namespace nhitomi
 
             foreach (var client in clients)
             {
-                builder.Append($"- **{client.Name.ToLowerInvariant()}**: {client.Url}");
+                builder.Append($"- **{client.Name.ToLowerInvariant()}** — {client.Url}");
                 builder.AppendLine();
             }
             embed.AddField("Supported sources", builder);
