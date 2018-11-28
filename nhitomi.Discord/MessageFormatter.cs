@@ -11,7 +11,7 @@ namespace nhitomi
 
         const string DateFormat = "dddd, dd MMMM yyyy";
 
-        public Embed CreateEmbed(IDoujin doujin)
+        public Embed EmbedDoujin(IDoujin doujin)
         {
             var builder = new EmbedBuilder()
                 .WithTitle(doujin.PrettyName ?? "Untitled")
@@ -43,5 +43,7 @@ namespace nhitomi
 
             return builder.Build();
         }
+
+
     }
 }

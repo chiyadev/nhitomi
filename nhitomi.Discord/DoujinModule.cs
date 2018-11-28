@@ -65,7 +65,7 @@ namespace nhitomi
             else
                 await response.ModifyAsync(
                     content: $"**{client.Name}**: Loaded __{id}__ in {elapsed.Format()}",
-                    embed: _formatter.CreateEmbed(doujin)
+                    embed: _formatter.EmbedDoujin(doujin)
                 );
         }
 
@@ -124,7 +124,7 @@ namespace nhitomi
             // Update content as the current doujin
             Task updateView(string content = null) => response.ModifyAsync(
                 content: content ?? $"**{doujin.Source.Name}**: **[{browser.Index + 1}]** Loaded __{doujin.Id}__ in {elapsed.Format()}",
-                embed: _formatter.CreateEmbed(doujin)
+                embed: _formatter.EmbedDoujin(doujin)
             );
 
             // Load next doujin
