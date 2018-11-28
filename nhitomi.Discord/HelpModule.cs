@@ -33,7 +33,7 @@ namespace nhitomi
 
             // Send embedded help message
             await channel.SendMessageAsync(
-                text: null,
+                text: string.Empty,
                 embed: _formatter.EmbedHelp(
                     commands: _commands.Commands,
                     clients: _clients
