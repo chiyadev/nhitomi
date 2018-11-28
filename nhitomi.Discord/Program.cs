@@ -91,7 +91,7 @@ namespace nhitomi
                 using (var process = Process.GetCurrentProcess())
                     _logger.LogInformation($"Process {process.Id}: memory usage {GC.GetTotalMemory(true).GetBytesReadable()} (managed)");
 
-                await Task.Delay(TimeSpan.FromMinutes(10), token);
+                await Task.Delay(TimeSpan.FromMinutes(30), token);
             }
         }
     }
