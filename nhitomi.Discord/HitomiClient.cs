@@ -52,6 +52,7 @@ namespace nhitomi
     public sealed class HitomiClient : IDoujinClient
     {
         public string Name => nameof(Hitomi);
+        public string Url => "https://hitomi.la/";
         public string IconUrl => "https://ltn.hitomi.la/favicon-160x160.png";
 
         readonly IMemoryCache _cache;

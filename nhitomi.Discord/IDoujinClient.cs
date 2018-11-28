@@ -7,6 +7,7 @@ namespace nhitomi
     public interface IDoujinClient : IDisposable
     {
         string Name { get; }
+        string Url { get; }
         string IconUrl { get; }
 
         Task<IDoujin> GetAsync(string id);

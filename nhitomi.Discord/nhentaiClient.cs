@@ -26,6 +26,7 @@ namespace nhitomi
     public sealed class nhentaiClient : IDoujinClient
     {
         public string Name => nameof(nhentai);
+        public string Url => "https://nhentai.net/";
         public string IconUrl => "https://cdn.cybrhome.com/media/website/live/icon/icon_nhentai.net_57f740.png";
 
         readonly IMemoryCache _cache;
