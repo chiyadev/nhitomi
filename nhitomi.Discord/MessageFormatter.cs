@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using Discord;
+using Discord.Commands;
 
 namespace nhitomi
 {
@@ -13,7 +15,7 @@ namespace nhitomi
 
         public Embed EmbedDoujin(IDoujin doujin)
         {
-            var builder = new EmbedBuilder()
+            var embed = new EmbedBuilder()
                 .WithTitle(doujin.PrettyName ?? "Untitled")
                 .WithDescription(
                     doujin.PrettyName != doujin.OriginalName
@@ -31,19 +33,50 @@ namespace nhitomi
                 .WithFooter($"Uploaded on {doujin.UploadTime.ToString(DateFormat)}");
 
             if (doujin.Language != null)
-                builder.AddInlineField("Language", doujin.Language);
+                embed.AddInlineField("Language", doujin.Language);
             if (doujin.ParodyOf != null)
-                builder.AddInlineField("Parody of", doujin.ParodyOf);
+                embed.AddInlineField("Parody of", doujin.ParodyOf);
             if (doujin.Categories != null)
-                builder.AddInlineField("Categories", join(doujin.Categories));
+                embed.AddInlineField("Categories", join(doujin.Categories));
             if (doujin.Characters != null)
-                builder.AddInlineField("Characters", join(doujin.Characters));
+                embed.AddInlineField("Characters", join(doujin.Characters));
             if (doujin.Tags != null)
-                builder.AddInlineField("Tags", join(doujin.Tags));
+                embed.AddInlineField("Tags", join(doujin.Tags));
 
-            return builder.Build();
+            return embed.Build();
         }
 
+        public Embed EmbedHelp(
+            IEnumerable<CommandInfo> commands,
+            IEnumerable<IDoujinClient> clients
+        )
+        {
+            var builder = new StringBuilder();
+            var embed = new EmbedBuilder()
+                .WithTitle("**nhitomi**: Help")
+                .WithUrl("https://github.com/phosphene47/nhitomi")
+                .WithDescription("**nhitomi** is a Discord bot for searching and downloading doujinshi on Discord!");
 
+            foreach (var command in commands)
+            {
+                builder.Append($"- **n!{command.Name}**");
+                if (command.Parameters.Count > 0)
+                    builder.Append($" *{string.Join(" ", command.Parameters.Select(p => p.Name))}*");
+                builder.Append($": {command.Summary}");
+                builder.AppendLine();
+            }
+            embed.AddField("Commands", builder);
+            builder.Clear();
+
+            foreach (var client in clients)
+            {
+                builder.Append($"- **{client.Name.ToLowerInvariant()}**: {client.Url}");
+                builder.AppendLine();
+            }
+            embed.AddField("Supported sources", builder);
+            builder.Clear();
+
+            return embed.Build();
+        }
     }
 }
