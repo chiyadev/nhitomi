@@ -26,7 +26,7 @@ namespace nhitomi
         }
 
         [Command("get")]
-        [Summary("Gets a doujin from the specified source.")]
+        [Summary("Retrieves doujin information from the specified source.")]
         public async Task GetAsync(
             string source,
             [Remainder] string id
@@ -68,7 +68,7 @@ namespace nhitomi
         }
 
         [Command("search")]
-        [Summary("Searches for doujins that match the specified query.")]
+        [Summary("Searches for doujins by the title and tags across the supported sources that match the specified query.")]
         public async Task SearchAsync(
             [Remainder]
             string query
