@@ -179,6 +179,7 @@ namespace nhitomi
                         data.images = _json.Deserialize<DoujinData.Image[]>(jsonReader);
                     }
 
+                    _logger.LogInformation($"Got doujin {id}: {data.name}");
                     return data;
                 }
                 catch (HttpRequestException) { return null; }
@@ -212,6 +213,8 @@ namespace nhitomi
         {
             try
             {
+                _logger.LogInformation($"Updating db from chunk {chunkIndex}...");
+
                 var loadCount = 0;
                 double[] elapsed;
 
@@ -300,7 +303,7 @@ namespace nhitomi
                     .Select(d => d.id);
             else
             {
-                var tags = query.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                var keywords = query.Split(' ', StringSplitOptions.RemoveEmptyEntries);
 
                 filtered = _db
                     .ToDictionary(
@@ -309,7 +312,7 @@ namespace nhitomi
                             query.DamLev(d.name),
                             d.tags.Length == 0
                                 ? int.MaxValue
-                                : d.tags.Min(t0 => tags.Min(t1 => t0.DamLev(t1)))
+                                : d.tags.Min(t0 => keywords.Min(t1 => t0.DamLev(t1)))
                         )
                     )
                     .Where(d => d.Value < SearchInterest)
