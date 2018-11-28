@@ -22,7 +22,7 @@ namespace nhitomi
         }
 
         [Command("help")]
-        [Summary("Shows the help message.")]
+        [Summary("Shows this help message.")]
         public async Task HelpAsync()
         {
             // Let the user know
