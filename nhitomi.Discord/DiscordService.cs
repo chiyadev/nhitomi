@@ -30,8 +30,11 @@ namespace nhitomi
             Commands = new CommandService(_settings.Discord.Command);
 
             // Register as log provider
-            loggerFactory.AddProvider(new DiscordLogRedirector(options, this));
-            _logger = loggerFactory.CreateLogger<DiscordService>();
+            if (Environment.GetEnvironmentVariable("ENVIRONMENT") == "PRODUCTION")
+            {
+                loggerFactory.AddProvider(new DiscordLogRedirector(options, this));
+                _logger = loggerFactory.CreateLogger<DiscordService>();
+            }
         }
 
         public async Task StartSessionAsync()
