@@ -28,10 +28,8 @@ namespace nhitomi
         [Command("get")]
         [Summary("Gets a doujin from the specified source.")]
         public async Task GetAsync(
-            [Summary("The source to retrieve from.")]
             string source,
-            [Remainder, Summary("Doujin identifier.")]
-            string id
+            [Remainder] string id
         )
         {
             source = source?.Trim();
@@ -72,7 +70,7 @@ namespace nhitomi
         [Command("search")]
         [Summary("Searches for doujins that match the specified query.")]
         public async Task SearchAsync(
-            [Remainder, Summary("Search query.")]
+            [Remainder]
             string query
         )
         {
