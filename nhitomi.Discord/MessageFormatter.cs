@@ -7,13 +7,13 @@ using Discord.Commands;
 
 namespace nhitomi
 {
-    public class MessageFormatter
+    public static class MessageFormatter
     {
         static string join(IEnumerable<string> values) => values == null || !values.Any() ? null : string.Join(", ", values);
 
         const string DateFormat = "dddd, dd MMMM yyyy";
 
-        public Embed EmbedDoujin(IDoujin doujin)
+        public static Embed EmbedDoujin(IDoujin doujin)
         {
             var embed = new EmbedBuilder()
                 .WithTitle(doujin.PrettyName ?? "Untitled")
@@ -46,7 +46,7 @@ namespace nhitomi
             return embed.Build();
         }
 
-        public Embed EmbedHelp(
+        public static Embed EmbedHelp(
             IEnumerable<CommandInfo> commands,
             IEnumerable<IDoujinClient> clients
         )

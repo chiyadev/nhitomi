@@ -10,17 +10,14 @@ namespace nhitomi
 {
     public class DoujinModule : ModuleBase
     {
-        readonly MessageFormatter _formatter;
         readonly InteractiveScheduler _interactive;
         readonly ISet<IDoujinClient> _clients;
 
         public DoujinModule(
-            MessageFormatter formatter,
             InteractiveScheduler interactive,
             ISet<IDoujinClient> clients
         )
         {
-            _formatter = formatter;
             _interactive = interactive;
             _clients = clients;
         }
@@ -63,7 +60,7 @@ namespace nhitomi
             else
                 await response.ModifyAsync(
                     content: $"**{client.Name}**: Loaded __{id}__ in {elapsed.Format()}",
-                    embed: _formatter.EmbedDoujin(doujin)
+                    embed: MessageFormatter.EmbedDoujin(doujin)
                 );
         }
 
@@ -86,10 +83,22 @@ namespace nhitomi
             var response = await ReplyAsync($"**nhitomi**: Searching __{query}__...");
 
             // Interleave results from each client
-            var browser = new EnumerableBrowser<IDoujin>(
-                Extensions.Interleave(_clients.Select(c => c.Search(query)))
-                    .GetEnumerator()
+            await DisplayListAsync(
+                request: Context.Message,
+                response: response,
+                results: Extensions.Interleave(_clients.Select(c => c.Search(query))),
+                interactive: _interactive
             );
+        }
+
+        public static async Task DisplayListAsync(
+            IUserMessage request,
+            IUserMessage response,
+            IAsyncEnumerable<IDoujin> results,
+            InteractiveScheduler interactive
+        )
+        {
+            var browser = new EnumerableBrowser<IDoujin>(results.GetEnumerator());
 
             IDoujin doujin;
             double[] elapsed;
@@ -108,8 +117,8 @@ namespace nhitomi
                 }
 
             // Create interactive
-            await _interactive.CreateInteractiveAsync(
-                context: Context,
+            await interactive.CreateInteractiveAsync(
+                requester: request.Author,
                 response: response,
                 triggers: add => add(
                     ("\u25c0", loadPrevious),
@@ -122,7 +131,7 @@ namespace nhitomi
             // Update content as the current doujin
             Task updateView(string content = null) => response.ModifyAsync(
                 content: content ?? $"**{doujin.Source.Name}**: **[{browser.Index + 1}]** Loaded __{doujin.Id}__ in {elapsed.Format()}",
-                embed: _formatter.EmbedDoujin(doujin)
+                embed: MessageFormatter.EmbedDoujin(doujin)
             );
 
             // Load next doujin

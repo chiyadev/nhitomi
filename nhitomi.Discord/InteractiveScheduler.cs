@@ -11,20 +11,15 @@ using System.Threading.Tasks;
 
 namespace nhitomi
 {
-    public class InteractiveScheduler : IDisposable
+    public class InteractiveScheduler
     {
         readonly AppSettings _settings;
-        readonly DiscordService _discord;
 
         public InteractiveScheduler(
-            IOptions<AppSettings> options,
-            DiscordService discord
+            IOptions<AppSettings> options
         )
         {
             _settings = options.Value;
-            _discord = discord;
-            _discord.Socket.ReactionAdded += handleReaction;
-            _discord.Socket.ReactionRemoved += handleReaction;
         }
 
         readonly ConcurrentDictionary<ulong, Interactive> _interactives = new ConcurrentDictionary<ulong, Interactive>();
@@ -47,7 +42,7 @@ namespace nhitomi
         public delegate void AddTriggers(params (string emoji, Func<Task> onTrigger)[] triggers);
 
         public async Task CreateInteractiveAsync(
-            ICommandContext context,
+            IUser requester,
             IUserMessage response,
             Action<AddTriggers> triggers,
             Func<Task> onExpire = null,
@@ -56,7 +51,7 @@ namespace nhitomi
         {
             // Create interactive
             var interactive = new Interactive(
-                requester: context.User.Id,
+                requester: requester.Id,
                 response: response.Id
             );
 
@@ -124,7 +119,11 @@ namespace nhitomi
                 await response.AddReactionAsync(trigger);
         }
 
-        async Task handleReaction(Cacheable<IUserMessage, ulong> cacheable, ISocketMessageChannel channel, SocketReaction reaction)
+        public async Task HandleReaction(
+            Cacheable<IUserMessage, ulong> cacheable,
+            ISocketMessageChannel channel,
+            SocketReaction reaction
+        )
         {
             if (!_interactives.TryGetValue(reaction.MessageId, out var interactive) ||  // Message must be interactive
                 reaction.UserId != interactive.RequesterId ||                           // Reaction must be by the original requester
@@ -133,12 +132,6 @@ namespace nhitomi
 
             // Execute callback
             await callback();
-        }
-
-        public void Dispose()
-        {
-            _discord.Socket.ReactionAdded -= handleReaction;
-            _discord.Socket.ReactionRemoved -= handleReaction;
         }
     }
 }

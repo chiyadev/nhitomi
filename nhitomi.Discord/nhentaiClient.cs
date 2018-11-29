@@ -13,8 +13,6 @@ namespace nhitomi
 {
     public static class nhentai
     {
-        public static readonly Regex GalleryRegex = new Regex(@"^(http|https):\/\/nhentai.net\/g\/[0-9]{1,6}\/?$", RegexOptions.Compiled);
-
         public static string Gallery(int id) => $"https://nhentai.net/api/gallery/{id}";
         public static string All(int index = 0) => $"https://nhentai.net/api/galleries/all?page={index + 1}";
         public static string Search(string query, int index = 0) => $"https://nhentai.net/api/galleries/search?query={query}&page={index + 1}";
@@ -28,6 +26,8 @@ namespace nhitomi
         public string Name => nameof(nhentai);
         public string Url => "https://nhentai.net/";
         public string IconUrl => "https://cdn.cybrhome.com/media/website/live/icon/icon_nhentai.net_57f740.png";
+
+        public Regex GalleryRegex { get; } = new Regex(@"(?:http|https):\/\/nhentai.net\/g\/(?<nhentai>[0-9]{1,6})\/?", RegexOptions.Compiled);
 
         readonly IMemoryCache _cache;
         readonly HttpClient _http;

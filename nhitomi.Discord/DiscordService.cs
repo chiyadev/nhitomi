@@ -1,17 +1,22 @@
-using System;
-using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 
 namespace nhitomi
 {
-    public class DiscordService
+    public class DiscordService : IDisposable
     {
         readonly IServiceProvider _services;
         readonly AppSettings _settings;
+        readonly ISet<IDoujinClient> _clients;
+        readonly InteractiveScheduler _interactive;
         readonly ILogger _logger;
 
         public DiscordSocketClient Socket { get; }
@@ -20,11 +25,20 @@ namespace nhitomi
         public DiscordService(
             IServiceProvider services,
             IOptions<AppSettings> options,
+            ISet<IDoujinClient> clients,
+            InteractiveScheduler interactive,
             ILoggerFactory loggerFactory
         )
         {
             _services = services;
             _settings = options.Value;
+            _clients = clients;
+            _interactive = interactive;
+
+            _galleryRegex = new Regex(
+                pattern: $"({string.Join(")|(", clients.Select(c => c.GalleryRegex))})",
+                options: RegexOptions.Compiled
+            );
 
             Socket = new DiscordSocketClient(_settings.Discord);
             Commands = new CommandService(_settings.Discord.Command);
@@ -42,6 +56,9 @@ namespace nhitomi
             Socket.Log += handleLogAsync;
             Socket.MessageReceived += handleMessageReceivedAsync;
             Commands.Log += handleLogAsync;
+
+            Socket.ReactionAdded += _interactive.HandleReaction;
+            Socket.ReactionRemoved += _interactive.HandleReaction;
 
             // Add modules
             await Commands.AddModulesAsync(typeof(Program).Assembly);
@@ -61,10 +78,15 @@ namespace nhitomi
             await Socket.LogoutAsync();
 
             // Unregister events
+            Socket.ReactionAdded -= _interactive.HandleReaction;
+            Socket.ReactionRemoved -= _interactive.HandleReaction;
+
             Socket.Log -= handleLogAsync;
             Socket.MessageReceived += handleMessageReceivedAsync;
             Commands.Log -= handleLogAsync;
         }
+
+        readonly Regex _galleryRegex;
 
         async Task handleMessageReceivedAsync(SocketMessage message)
         {
@@ -84,6 +106,52 @@ namespace nhitomi
                 // If not successful, reply with error
                 if (!result.IsSuccess)
                     await context.Channel.SendMessageAsync(result.ToString());
+            }
+            else
+            {
+                // Find all recognised gallery urls and disply info
+                var matches = _galleryRegex
+                    .Matches(message.Content)
+                    .Cast<Match>();
+
+                if (!matches.Any())
+                    return;
+
+                var response = await userMessage.Channel.SendMessageAsync(
+                    text: "**nhitomi**: Loading..."
+                );
+
+                var results = AsyncEnumerable.CreateEnumerable(() =>
+                {
+                    var enumerator = matches.GetEnumerator();
+                    var current = (IDoujin)null;
+
+                    return AsyncEnumerable.CreateEnumerator(
+                        moveNext: async token =>
+                        {
+                            if (!enumerator.MoveNext())
+                                return false;
+
+                            var group = enumerator.Current.Groups.First(g =>
+                                g.Success &&
+                                _clients.Any(c => c.Name == g.Name));
+
+                            current = await _clients
+                                .First(c => c.Name == group.Name)
+                                .GetAsync(group.Value);
+                            return true;
+                        },
+                        current: () => current,
+                        dispose: enumerator.Dispose
+                    );
+                });
+
+                await DoujinModule.DisplayListAsync(
+                    request: userMessage,
+                    response: response,
+                    results: results,
+                    interactive: _interactive
+                );
             }
         }
 
@@ -108,5 +176,7 @@ namespace nhitomi
 
             return Task.CompletedTask;
         }
+
+        public void Dispose() => Socket.Dispose();
     }
 }

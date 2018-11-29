@@ -7,17 +7,14 @@ namespace nhitomi
     public class HelpModule : ModuleBase
     {
         readonly CommandService _commands;
-        readonly MessageFormatter _formatter;
         readonly ISet<IDoujinClient> _clients;
 
         public HelpModule(
             CommandService commands,
-            MessageFormatter formatter,
             ISet<IDoujinClient> clients
         )
         {
             _commands = commands;
-            _formatter = formatter;
             _clients = clients;
         }
 
@@ -28,7 +25,7 @@ namespace nhitomi
             // Reply with embedded help message
             await ReplyAsync(
                 message: string.Empty,
-                embed: _formatter.EmbedHelp(
+                embed: MessageFormatter.EmbedHelp(
                     commands: _commands.Commands,
                     clients: _clients
                 )

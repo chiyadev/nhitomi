@@ -3,13 +3,11 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System;
-using System.Collections;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
-using System.Threading;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace nhitomi
@@ -54,6 +52,8 @@ namespace nhitomi
         public string Name => nameof(Hitomi);
         public string Url => "https://hitomi.la/";
         public string IconUrl => "https://ltn.hitomi.la/favicon-160x160.png";
+
+        public Regex GalleryRegex { get; } = new Regex(@"(?:http|https):\/\/hitomi.la\/galleries\/(?<Hitomi>[0-9]{1,7})\.html", RegexOptions.Compiled);
 
         readonly IMemoryCache _cache;
         readonly HttpClient _http;

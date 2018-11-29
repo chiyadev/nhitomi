@@ -40,7 +40,6 @@ namespace nhitomi
 
             // Formatters
             .AddTransient<JsonSerializer>(s => JsonSerializer.CreateDefault())
-            .AddTransient<MessageFormatter>()
 
             // Discord
             .AddSingleton<DiscordService>()

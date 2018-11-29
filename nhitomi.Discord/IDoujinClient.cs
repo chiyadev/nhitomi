@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace nhitomi
@@ -9,6 +10,8 @@ namespace nhitomi
         string Name { get; }
         string Url { get; }
         string IconUrl { get; }
+
+        Regex GalleryRegex { get; }
 
         Task<IDoujin> GetAsync(string id);
         IAsyncEnumerable<IDoujin> Search(string query);
