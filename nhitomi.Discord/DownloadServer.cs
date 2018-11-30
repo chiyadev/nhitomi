@@ -115,7 +115,7 @@ nhitomi - Discord doujinshi bot by phosphene47#7788
 
                 // Parse token
                 if (token != null &&
-                    !TokenGenerator.TryDeserializeToken(
+                    TokenGenerator.TryDeserializeToken(
                         token: token,
                         secret: _settings.Discord.Token,
                         sourceName: out var sourceName,
