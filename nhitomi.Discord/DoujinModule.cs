@@ -123,7 +123,7 @@ namespace nhitomi
 
             // Load first item manually
             using (Extensions.Measure(out elapsed))
-                if (await browser.MoveNext(CancellationToken.None))
+                if (await browser.MoveNext())
                 {
                     doujin = browser.Current;
                     await updateView();
@@ -134,7 +134,21 @@ namespace nhitomi
                     return;
                 }
 
-            // Create interactive
+            // Don't proceed creating list interactive if there is only one result
+            if (!await browser.MoveNext())
+            {
+                await interactive.CreateInteractiveAsync(
+                    requester: request.Author,
+                    response: response,
+                    allowTrash: true
+                );
+
+                browser.Dispose();
+                return;
+            }
+            else browser.MovePrevious();
+
+            // Create list interactive
             await interactive.CreateInteractiveAsync(
                 requester: request.Author,
                 response: response,
@@ -158,7 +172,7 @@ namespace nhitomi
                 await response.ModifyAsync($"**nhitomi**: **[{browser.Index + 2}]** Loading...");
 
                 using (Extensions.Measure(out elapsed))
-                    if (!await browser.MoveNext(CancellationToken.None))
+                    if (!await browser.MoveNext())
                     {
                         await updateView($"**nhitomi**: **[{browser.Index + 1}]** Reached the end of list!");
                         return;
