@@ -4,7 +4,7 @@ using System.IO;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace nhitomi.Discord
+namespace nhitomi
 {
     public static class TokenGenerator
     {
