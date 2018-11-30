@@ -44,7 +44,7 @@ namespace nhitomi
         public async Task CreateInteractiveAsync(
             IUser requester,
             IUserMessage response,
-            Action<AddTriggers> triggers,
+            Action<AddTriggers> triggers = null,
             Func<Task> onExpire = null,
             bool allowTrash = false
         )
@@ -56,14 +56,15 @@ namespace nhitomi
             );
 
             // Add triggers
-            triggers(collection =>
-            {
-                foreach (var trigger in collection)
-                    interactive.Triggers.Add(
-                        key: new Emoji(trigger.emoji),
-                        value: trigger.onTrigger
-                    );
-            });
+            if (triggers != null)
+                triggers(collection =>
+                {
+                    foreach (var trigger in collection)
+                        interactive.Triggers.Add(
+                            key: new Emoji(trigger.emoji),
+                            value: trigger.onTrigger
+                        );
+                });
 
             // Register interactive
             _interactives.AddOrUpdate(
