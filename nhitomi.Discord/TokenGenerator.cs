@@ -6,7 +6,7 @@ using System.Text;
 
 namespace nhitomi.Discord
 {
-    public static class DoujinExtensions
+    public static class TokenGenerator
     {
         public struct TokenPayload
         {
