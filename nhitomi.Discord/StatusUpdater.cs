@@ -30,7 +30,7 @@ namespace nhitomi
             do { next = _rand.Next(_settings.Games.Length); }
             while (next == index);
 
-            _current = _settings.Games[next];
+            _current = _settings.Games[next] + " [n!help]";
         }
 
         public async Task RunAsync(CancellationToken token)
