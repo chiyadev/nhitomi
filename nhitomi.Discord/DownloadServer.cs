@@ -1,11 +1,11 @@
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 
 namespace nhitomi
 {
@@ -24,8 +24,7 @@ namespace nhitomi
             _http = new HttpListener();
             _logger = logger;
 
-            var port = int.TryParse(Environment.GetEnvironmentVariable("PORT"), out var p) ? p : 5000;
-            var prefix = $"http://+:{port}/";
+            var prefix = $"http://+:{_settings.Port}/";
             _http.Prefixes.Add(prefix);
 
             _logger.LogInformation($"HTTP listening at '{prefix}'.");

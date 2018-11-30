@@ -44,7 +44,7 @@ namespace nhitomi
             Commands = new CommandService(_settings.Discord.Command);
 
             // Register as log provider
-            if (Environment.GetEnvironmentVariable("ENVIRONMENT") == "PRODUCTION")
+            if (_settings.CurrentEnvironment == "PRODUCTION")
                 loggerFactory.AddProvider(new DiscordLogRedirector(options, this));
 
             _logger = loggerFactory.CreateLogger<DiscordService>();
@@ -64,10 +64,7 @@ namespace nhitomi
             await Commands.AddModulesAsync(typeof(Program).Assembly);
 
             // Login
-            await Socket.LoginAsync(
-                TokenType.Bot, Environment.GetEnvironmentVariable("TOKEN")
-                ?? _settings.Discord.Token
-            );
+            await Socket.LoginAsync(TokenType.Bot, _settings.Discord.Token);
             await Socket.StartAsync();
         }
 
