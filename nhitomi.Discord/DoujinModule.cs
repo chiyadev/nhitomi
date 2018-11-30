@@ -54,14 +54,32 @@ namespace nhitomi
 
             // Show result
             if (doujin == null)
+            {
                 await response.ModifyAsync(
                     content: $"**{client.Name}**: No such doujin!"
                 );
-            else
-                await response.ModifyAsync(
-                    content: $"**{client.Name}**: Loaded __{id}__ in {elapsed.Format()}",
-                    embed: MessageFormatter.EmbedDoujin(doujin)
-                );
+                return;
+            }
+
+            await response.ModifyAsync(
+                content: $"**{client.Name}**: Loaded __{id}__ in {elapsed.Format()}",
+                embed: MessageFormatter.EmbedDoujin(doujin)
+            );
+
+            // Create interactive
+            await _interactive.CreateInteractiveAsync(
+                requester: Context.User,
+                response: response,
+                triggers: add => add(
+                    ("\uD83D\uDCBE", sendDownload)
+                ),
+                allowTrash: true
+            );
+
+            async Task sendDownload()
+            {
+
+            }
         }
 
         [Command("search")]
