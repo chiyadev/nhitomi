@@ -20,7 +20,7 @@ namespace nhitomi
             string secret,
             Encoding encoding = null,
             JsonSerializer serializer = null,
-            double expiryTime = double.PositiveInfinity
+            double expiresIn = double.PositiveInfinity
         )
         {
             encoding = encoding ?? Encoding.UTF8;
@@ -31,9 +31,9 @@ namespace nhitomi
             {
                 Source = doujin.Source.Name,
                 Id = doujin.Id,
-                Expires = double.IsInfinity(expiryTime)
+                Expires = double.IsInfinity(expiresIn)
                     ? (DateTime?)null
-                    : DateTime.UtcNow.AddMinutes(expiryTime)
+                    : DateTime.UtcNow.AddMinutes(expiresIn)
             };
 
             // Serialize payload
