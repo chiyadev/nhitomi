@@ -5,19 +5,23 @@ using System.Threading;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
+using Microsoft.Extensions.Options;
 
 namespace nhitomi
 {
     public class DoujinModule : ModuleBase
     {
+        readonly AppSettings _settings;
         readonly InteractiveScheduler _interactive;
         readonly ISet<IDoujinClient> _clients;
 
         public DoujinModule(
+            IOptions<AppSettings> options,
             InteractiveScheduler interactive,
             ISet<IDoujinClient> clients
         )
         {
+            _settings = options.Value;
             _interactive = interactive;
             _clients = clients;
         }
@@ -71,14 +75,21 @@ namespace nhitomi
                 requester: Context.User,
                 response: response,
                 triggers: add => add(
-                    ("\uD83D\uDCBE", sendDownload)
+                    ("\uD83D\uDCBE", showDownload)
                 ),
                 allowTrash: true
             );
 
-            async Task sendDownload()
+            async Task showDownload()
             {
+                var downloadToken = doujin.CreateToken(
+                    secret: _settings.Discord.Token,
+                    expiresIn: _settings.Doujin.TokenValidLength
+                );
 
+                await ReplyAsync(
+                    message: $"**nhitomi**: {_settings.Http.Url}/dl/{downloadToken}"
+                );
             }
         }
 

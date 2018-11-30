@@ -7,12 +7,22 @@ namespace nhitomi
     public sealed class AppSettings
     {
         public string Prefix { get; set; }
-        public string CurrentEnvironment { get; set; } = Environment.GetEnvironmentVariable("ENVIRONMENT") ?? "DEVELOPMENT";
+        public string CurrentEnvironment { get; set; }
+
+        public AppSettings()
+        {
+            CurrentEnvironment = Environment.GetEnvironmentVariable("ENVIRONMENT") ?? "DEVELOPMENT";
+        }
 
         public DiscordSettings Discord { get; set; }
         public sealed class DiscordSettings : DiscordSocketConfig
         {
-            public string Token { get; set; } = Environment.GetEnvironmentVariable("TOKEN");
+            public string Token { get; set; }
+
+            public DiscordSettings()
+            {
+                Token = Environment.GetEnvironmentVariable("TOKEN");
+            }
 
             public ServerSettings Server { get; set; }
             public sealed class ServerSettings
@@ -39,13 +49,21 @@ namespace nhitomi
         public sealed class DoujinSettings
         {
             public double UpdateInterval { get; set; }
+            public double TokenValidLength { get; set; }
         }
 
         public HttpSettings Http { get; set; }
         public sealed class HttpSettings
         {
-            public int Port { get; set; } = int.TryParse(Environment.GetEnvironmentVariable("PORT"), out var port) ? port : 5000;
+            public int Port { get; set; }
+            public string Url { get; set; }
             public int Concurrency { get; set; }
+
+            public HttpSettings()
+            {
+                Port = int.TryParse(Environment.GetEnvironmentVariable("PORT"), out var port) ? port : 5000;
+                Url = Environment.GetEnvironmentVariable("URL") ?? $"http://localhost:{Port}";
+            }
         }
     }
 }
