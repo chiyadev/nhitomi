@@ -13,23 +13,8 @@ namespace nhitomi
 {
     public class Program
     {
-        static async Task setupAsync()
-        {
-            await Console.Out.WriteLineAsync($"nhitomi — Discord doujinshi bot");
-
-            if (File.Exists("appsecrets.json"))
-                return;
-
-            await Console.Out.WriteAsync($"Bot token: ");
-
-            var token = await Console.In.ReadLineAsync();
-            await File.WriteAllTextAsync("appsecrets.json", "{\"discord\":{\"token\":\"" + token + "\"}}");
-        }
-
         static async Task Main(string[] args)
         {
-            await setupAsync();
-
             // Configure services
             var services = new ServiceCollection();
             var startup = new Startup
