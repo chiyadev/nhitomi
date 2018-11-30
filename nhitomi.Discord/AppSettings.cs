@@ -22,21 +22,21 @@ namespace nhitomi
             public StatusSettings Status { get; set; }
             public sealed class StatusSettings
             {
-                public int UpdateInterval { get; set; }
+                public double UpdateInterval { get; set; }
                 public string[] Games { get; set; }
             }
 
             public CommandSettings Command { get; set; }
             public sealed class CommandSettings : CommandServiceConfig
             {
-                public int InteractiveExpiry { get; set; }
+                public double InteractiveExpiry { get; set; }
             }
         }
 
         public DoujinSettings Doujin { get; set; }
         public sealed class DoujinSettings
         {
-            public int UpdateInterval { get; set; }
+            public double UpdateInterval { get; set; }
         }
 
         public HttpSettings Http { get; set; }
