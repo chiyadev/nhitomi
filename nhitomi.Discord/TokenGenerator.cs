@@ -43,6 +43,8 @@ namespace nhitomi
             using (var writer = new StreamWriter(stream, encoding))
             {
                 serializer.Serialize(writer, payloadData);
+                writer.Flush();
+
                 payload = Convert.ToBase64String(stream.ToArray());
             }
 
