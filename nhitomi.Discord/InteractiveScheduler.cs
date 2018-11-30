@@ -105,7 +105,7 @@ namespace nhitomi
 
             if (allowTrash)
                 interactive.Triggers.Add(
-                    key: new Emoji("\u274e"),
+                    key: new Emoji("\uD83D\uDDD1"),
                     value: () =>
                     {
                         expiryDelete = true;
