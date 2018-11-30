@@ -101,7 +101,7 @@ namespace nhitomi
 
                 // Test expiry time
                 if (validateExpiry &&
-                    payloadData.Expires >= DateTime.UtcNow)
+                    DateTime.UtcNow >= payloadData.Expires)
                 {
                     sourceName = null;
                     id = null;
