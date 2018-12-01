@@ -164,7 +164,11 @@ namespace nhitomi
             AppSettings settings
         )
         {
-            var browser = new EnumerableBrowser<IDoujin>(results.GetEnumerator());
+            var browser = new EnumerableBrowser<IDoujin>(
+                results
+                    .Where(d => d != null)
+                    .GetEnumerator()
+            );
 
             IDoujin doujin;
             double[] elapsed;
