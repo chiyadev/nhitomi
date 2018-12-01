@@ -294,7 +294,7 @@ namespace nhitomi
 
         const int SearchInterest = 8;
 
-        public IAsyncEnumerable<IDoujin> Search(string query)
+        public Task<IAsyncEnumerable<IDoujin>> SearchAsync(string query)
         {
             IEnumerable<int> filtered;
 
@@ -339,7 +339,8 @@ namespace nhitomi
                     current: () => current,
                     dispose: enumerator.Dispose
                 );
-            });
+            })
+            .AsCompletedTask();
         }
 
         public override string ToString() => Name;

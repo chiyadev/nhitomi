@@ -105,6 +105,8 @@ namespace nhitomi
             );
         });
 
+        public static Task<T> AsCompletedTask<T>(this T obj) => Task.FromResult(obj);
+
         /// Computes and returns the Damerau-Levenshtein edit distance between two strings, 
         /// i.e. the number of insertion, deletion, sustitution, and transposition edits
         /// required to transform one string to the other. This value will be >= 0, where 0

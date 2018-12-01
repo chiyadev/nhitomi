@@ -14,7 +14,7 @@ namespace nhitomi
         Regex GalleryRegex { get; }
 
         Task<IDoujin> GetAsync(string id);
-        IAsyncEnumerable<IDoujin> Search(string query);
+        Task<IAsyncEnumerable<IDoujin>> SearchAsync(string query);
 
         Task UpdateAsync();
     }

@@ -126,7 +126,7 @@ namespace nhitomi
             public int per_page;
         }
 
-        public IAsyncEnumerable<IDoujin> Search(string query) =>
+        public Task<IAsyncEnumerable<IDoujin>> SearchAsync(string query) =>
             AsyncEnumerable.CreateEnumerable(() =>
             {
                 ListData current = null;
@@ -170,7 +170,8 @@ namespace nhitomi
                     dispose: () => { }
                 );
             })
-            .SelectMany(l => l.result.Select(wrap).ToAsyncEnumerable());
+            .SelectMany(l => l.result.Select(wrap).ToAsyncEnumerable())
+            .AsCompletedTask();
 
         public Task UpdateAsync() => Task.CompletedTask;
 

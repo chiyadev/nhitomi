@@ -110,12 +110,13 @@ namespace nhitomi
 
             // Send placeholder message
             var response = await ReplyAsync($"**nhitomi**: Searching __{query}__...");
+            var results = await Task.WhenAll(_clients.Select(c => c.SearchAsync(query)));
 
             // Interleave results from each client
             await DisplayListAsync(
                 request: Context.Message,
                 response: response,
-                results: Extensions.Interleave(_clients.Select(c => c.Search(query))),
+                results: Extensions.Interleave(results),
                 interactive: _interactive
             );
         }
