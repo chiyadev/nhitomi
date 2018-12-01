@@ -173,7 +173,7 @@ namespace nhitomi
 
             // Update content as the current doujin
             Task updateView(string content = null) => response.ModifyAsync(
-                content: content ?? $"**{doujin.Source.Name}**: **[{browser.Index + 1}]** Loaded __{doujin.Id}__ in {elapsed.Format()}",
+                content: content ?? $"**{doujin.Source.Name}**: Loaded __{doujin.Id}__ in {elapsed.Format()}",
                 embed: MessageFormatter.EmbedDoujin(doujin)
             );
 
