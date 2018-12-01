@@ -1,4 +1,9 @@
-﻿using HtmlAgilityPack;
+﻿// Copyright (c) 2018 phosphene47
+// 
+// This software is released under the MIT License.
+// https://opensource.org/licenses/MIT
+
+using HtmlAgilityPack;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;

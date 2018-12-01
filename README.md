@@ -1,3 +1,10 @@
+<!--
+ Copyright (c) 2018 phosphene47
+
+ This software is released under the MIT License.
+ https://opensource.org/licenses/MIT
+-->
+
 # nhitomi
 
 ![nhitomi](nhitomi_rounded.png)
