@@ -123,7 +123,7 @@ namespace nhitomi
 
             return wrap(
                 await _cache.GetOrCreateAsync<DoujinData>(
-                    key: id,
+                    key: $"{Name}/{id}",
                     factory: entry =>
                     {
                         entry.AbsoluteExpirationRelativeToNow = DoujinCacheOptions.Expiration;
