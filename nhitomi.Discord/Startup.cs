@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
+using PersistentMemoryCache;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -29,7 +30,14 @@ namespace nhitomi
             .AddHttpClient()
 
             // Caching
-            .AddTransient<IMemoryCache, MemoryCache>()
+            .AddSingleton<IMemoryCache>(s => new PersistentMemoryCache.PersistentMemoryCache(
+                options: new PersistentMemoryCacheOptions(
+                    cacheName: nameof(nhitomi),
+                    persistentStore: new LiteDbStore(new LiteDbOptions(
+                        fileName: $"{nameof(nhitomi)}.db"
+                    ))
+                )
+            ))
 
             // Logging
             .AddLogging(
