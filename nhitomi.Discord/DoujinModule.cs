@@ -32,6 +32,7 @@ namespace nhitomi
         }
 
         [Command("get")]
+        [Alias("g")]
         [Summary("Retrieves doujin information from the specified source.")]
         [Remarks("n!get nhentai 177013")]
         public async Task GetAsync(
@@ -113,6 +114,7 @@ namespace nhitomi
         }
 
         [Command("search")]
+        [Alias("s")]
         [Summary("Searches for doujins by the title and tags across the supported sources that match the specified query.")]
         [Remarks("n!search glasses loli")]
         public async Task SearchAsync(
