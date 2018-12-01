@@ -113,7 +113,7 @@ namespace nhitomi
             var embed = new EmbedBuilder()
                 .WithTitle("**nhitomi**: Error")
                 .WithDescription(
-                    "Sorry, we encountered an unexpected error and has been reported to the developers! " +
+                    "Sorry, we encountered an unexpected error and have reported it to the developers! " +
                     "Please join our official server for further assistance: https://discord.gg/JFNga7q"
                 )
                 .WithColor(Color.Red)
