@@ -97,7 +97,7 @@ namespace nhitomi
             embed.AddField("— Note —",
                 "All content uploaded by this bot are sourced directly from the respective websites listed above. " +
                 "These contents may be, but not limited to, offensive, profane, depressing, harassing and/or gory. " +
-                "Please leave immediately if you find this type of content distressing.");
+                "Please refrain from using this bot if you find this type of content distressing.");
 
             // Contribution
             embed.AddField("— Contribution —",
