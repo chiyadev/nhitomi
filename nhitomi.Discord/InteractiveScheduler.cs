@@ -104,7 +104,11 @@ namespace nhitomi
 
                 // Expiry event
                 if (onExpire != null)
-                    await onExpire();
+                {
+                    var task = onExpire();
+                    if (task != null)
+                        await task;
+                }
 
                 expiryDelayToken.Dispose();
             }
