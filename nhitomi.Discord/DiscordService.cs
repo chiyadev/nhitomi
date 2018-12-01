@@ -96,63 +96,73 @@ namespace nhitomi
                 message.Author.Id == Socket.CurrentUser.Id)
                 return;
 
-            var argIndex = 0;
-
-            if (userMessage.HasStringPrefix(_settings.Prefix, ref argIndex) ||
-                userMessage.HasMentionPrefix(Socket.CurrentUser, ref argIndex))
+            try
             {
-                // Execute command
-                var context = new SocketCommandContext(Socket, userMessage);
-                var result = await Commands.ExecuteAsync(context, argIndex, _services);
+                var argIndex = 0;
 
-                // If not successful, reply with error
-                if (!result.IsSuccess)
-                    await context.Channel.SendMessageAsync(result.ToString());
-            }
-            else
-            {
-                // Find all recognised gallery urls and disply info
-                var matches = _galleryRegex
-                    .Matches(message.Content)
-                    .Cast<Match>();
-
-                if (!matches.Any())
-                    return;
-
-                var response = await userMessage.Channel.SendMessageAsync(
-                    text: "**nhitomi**: Loading..."
-                );
-
-                var results = AsyncEnumerable.CreateEnumerable(() =>
+                if (userMessage.HasStringPrefix(_settings.Prefix, ref argIndex) ||
+                    userMessage.HasMentionPrefix(Socket.CurrentUser, ref argIndex))
                 {
-                    var enumerator = matches.GetEnumerator();
-                    var current = (IDoujin)null;
+                    // Execute command
+                    var context = new SocketCommandContext(Socket, userMessage);
 
-                    return AsyncEnumerable.CreateEnumerator(
-                        moveNext: async token =>
-                        {
-                            if (!enumerator.MoveNext())
-                                return false;
+                    await Commands.ExecuteAsync(context, argIndex, _services);
+                }
+                else
+                {
+                    // Find all recognised gallery urls and disply info
+                    var matches = _galleryRegex
+                        .Matches(userMessage.Content)
+                        .Cast<Match>();
 
-                            var group = enumerator.Current.Groups.First(g =>
-                                g.Success &&
-                                _clients.Any(c => c.Name == g.Name));
+                    if (!matches.Any())
+                        return;
 
-                            current = await _clients
-                                .First(c => c.Name == group.Name)
-                                .GetAsync(group.Value);
-                            return true;
-                        },
-                        current: () => current,
-                        dispose: enumerator.Dispose
+                    var response = await userMessage.Channel.SendMessageAsync(
+                        text: "**nhitomi**: Loading..."
                     );
-                });
 
-                await DoujinModule.DisplayListAsync(
-                    request: userMessage,
-                    response: response,
-                    results: results,
-                    interactive: _interactive
+                    var results = AsyncEnumerable.CreateEnumerable(() =>
+                    {
+                        var enumerator = matches.GetEnumerator();
+                        var current = (IDoujin)null;
+
+                        return AsyncEnumerable.CreateEnumerator(
+                            moveNext: async token =>
+                            {
+                                if (!enumerator.MoveNext())
+                                    return false;
+
+                                var group = enumerator.Current.Groups.First(g =>
+                                    g.Success &&
+                                    _clients.Any(c => c.Name == g.Name));
+
+                                current = await _clients
+                                    .First(c => c.Name == group.Name)
+                                    .GetAsync(group.Value);
+                                return true;
+                            },
+                            current: () => current,
+                            dispose: enumerator.Dispose
+                        );
+                    });
+
+                    await DoujinModule.DisplayListAsync(
+                        request: userMessage,
+                        response: response,
+                        results: results,
+                        interactive: _interactive
+                    );
+                }
+            }
+            catch (Exception e)
+            {
+                // Log
+
+                // Send error message
+                await userMessage.Channel.SendMessageAsync(
+                    text: string.Empty,
+                    embed: MessageFormatter.EmbedError()
                 );
             }
         }

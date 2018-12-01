@@ -59,7 +59,8 @@ namespace nhitomi
             var builder = new StringBuilder();
             var embed = new EmbedBuilder()
                 .WithTitle("**nhitomi**: Help")
-                .WithDescription("nhitomi is a Discord bot for searching and downloading doujinshi on Discord!");
+                .WithDescription("nhitomi is a Discord bot for searching and downloading doujinshi on Discord!")
+                .WithCurrentTimestamp();
 
             foreach (var command in commands)
             {
@@ -79,6 +80,19 @@ namespace nhitomi
             }
             embed.AddField("Supported sources", builder);
             builder.Clear();
+
+            return embed.Build();
+        }
+
+        public static Embed EmbedError()
+        {
+            var embed = new EmbedBuilder()
+                .WithTitle("**nhitomi**: Error")
+                .WithDescription(
+                    "Sorry, we encountered an unexpected error and has been reported to the developers! " +
+                    "Please join our official server for further assistance: https://discord.gg/JFNga7q"
+                )
+                .WithCurrentTimestamp();
 
             return embed.Build();
         }
