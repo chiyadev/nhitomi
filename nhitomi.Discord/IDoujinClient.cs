@@ -29,7 +29,7 @@ namespace nhitomi
     {
         sealed class SynchronizedClient : IDoujinClient
         {
-            readonly SemaphoreSlim _semaphore;
+            readonly SemaphoreSlim _semaphore = new SemaphoreSlim(1);
             readonly IDoujinClient _impl;
 
             public SynchronizedClient(IDoujinClient impl)
