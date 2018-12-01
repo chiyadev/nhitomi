@@ -89,20 +89,33 @@ namespace nhitomi
                 embed: MessageFormatter.EmbedDoujin(doujin)
             );
 
+            // Message for download toggling
+            var downloadMessage = (IUserMessage)null;
+
             // Create interactive
             await _interactive.CreateInteractiveAsync(
                 requester: Context.User,
                 response: response,
                 triggers: add => add(
-                    ("\uD83D\uDCBE", showDownload)
+                    ("\uD83D\uDCBE", toggleDownload)
                 ),
-                allowTrash: true
+                allowTrash: true,
+                onExpire: () => downloadMessage?.DeleteAsync()
             );
 
-            Task showDownload() => ShowDownload(doujin, response.Channel, _settings);
+            async Task toggleDownload()
+            {
+                if (downloadMessage != null)
+                {
+                    await downloadMessage.DeleteAsync();
+                    downloadMessage = null;
+                }
+                else
+                    downloadMessage = await ShowDownload(doujin, response.Channel, _settings);
+            }
         }
 
-        public static async Task ShowDownload(
+        public static Task<IUserMessage> ShowDownload(
             IDoujin doujin,
             IMessageChannel channel,
             AppSettings settings
@@ -115,7 +128,7 @@ namespace nhitomi
             var downloadToken = doujin.CreateToken(secret, expiresIn: validLength);
 
             // Send download message
-            await channel.SendMessageAsync(
+            return channel.SendMessageAsync(
                 text: string.Empty,
                 embed: MessageFormatter.EmbedDownload(
                     doujinName: doujin.PrettyName,
@@ -170,14 +183,12 @@ namespace nhitomi
                     .GetEnumerator()
             );
 
-            IDoujin doujin;
             double[] elapsed;
 
             // Load first item manually
             using (Extensions.Measure(out elapsed))
                 if (await browser.MoveNext())
                 {
-                    doujin = browser.Current;
                     await updateView();
                 }
                 else
@@ -186,6 +197,9 @@ namespace nhitomi
                     return;
                 }
 
+            // Message for download toggling
+            var downloadMessage = (IUserMessage)null;
+
             // Don't proceed creating list interactive if there is only one result
             if (!await browser.MoveNext())
             {
@@ -193,9 +207,10 @@ namespace nhitomi
                     requester: request.Author,
                     response: response,
                     triggers: add => add(
-                        ("\uD83D\uDCBE", showDownload)
+                        ("\uD83D\uDCBE", toggleDownload)
                     ),
-                    allowTrash: true
+                    allowTrash: true,
+                    onExpire: () => downloadMessage?.DeleteAsync()
                 );
 
                 browser.Dispose();
@@ -210,16 +225,20 @@ namespace nhitomi
                 triggers: add => add(
                     ("\u25c0", loadPrevious),
                     ("\u25b6", loadNext),
-                    ("\uD83D\uDCBE", showDownload)
+                    ("\uD83D\uDCBE", toggleDownload)
                 ),
-                onExpire: () => { browser.Dispose(); return Task.CompletedTask; },
+                onExpire: () =>
+                {
+                    browser.Dispose();
+                    return downloadMessage?.DeleteAsync();
+                },
                 allowTrash: true
             );
 
             // Update content as the current doujin
             Task updateView(string content = null) => response.ModifyAsync(
-                content: content ?? $"**{doujin.Source.Name}**: Loaded __{doujin.Id}__ in {elapsed.Format()}",
-                embed: MessageFormatter.EmbedDoujin(doujin)
+                content: content ?? $"**{browser.Current.Source.Name}**: Loaded __{browser.Current.Id}__ in {elapsed.Format()}",
+                embed: MessageFormatter.EmbedDoujin(browser.Current)
             );
 
             // Load next doujin
@@ -234,8 +253,8 @@ namespace nhitomi
                         return;
                     }
 
-                doujin = browser.Current;
                 await updateView();
+                await updateDownload();
             }
 
             // Load previous doujin
@@ -250,11 +269,41 @@ namespace nhitomi
                         return;
                     }
 
-                doujin = browser.Current;
                 await updateView();
+                await updateDownload();
             }
 
-            Task showDownload() => ShowDownload(doujin, response.Channel, settings);
+            async Task toggleDownload()
+            {
+                if (downloadMessage != null)
+                {
+                    await downloadMessage.DeleteAsync();
+                    downloadMessage = null;
+                }
+                else
+                    downloadMessage = await ShowDownload(browser.Current, response.Channel, settings);
+            }
+
+            async Task updateDownload()
+            {
+                if (downloadMessage == null)
+                    return;
+
+                var secret = settings.Discord.Token;
+                var validLength = settings.Doujin.TokenValidLength;
+
+                // Create token
+                var downloadToken = browser.Current.CreateToken(secret, expiresIn: validLength);
+
+                await downloadMessage.ModifyAsync(
+                    content: string.Empty,
+                    embed: MessageFormatter.EmbedDownload(
+                        doujinName: browser.Current.PrettyName,
+                        link: $"{settings.Http.Url}/dl/{downloadToken}",
+                        validLength: validLength
+                    )
+                );
+            }
         }
 
         [Command("download")]
