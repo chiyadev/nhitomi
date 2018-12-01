@@ -158,7 +158,8 @@ namespace nhitomi
                         request: userMessage,
                         response: response,
                         results: results,
-                        interactive: _interactive
+                        interactive: _interactive,
+                        settings: _settings
                     );
                 }
             }

@@ -86,24 +86,30 @@ namespace nhitomi
                 allowTrash: true
             );
 
-            async Task showDownload()
-            {
-                var secret = _settings.Discord.Token;
-                var validLength = _settings.Doujin.TokenValidLength;
+            Task showDownload() => ShowDownload(doujin, response.Channel, _settings);
+        }
 
-                // Create token
-                var downloadToken = doujin.CreateToken(secret, expiresIn: validLength);
+        public static async Task ShowDownload(
+            IDoujin doujin,
+            IMessageChannel channel,
+            AppSettings settings
+        )
+        {
+            var secret = settings.Discord.Token;
+            var validLength = settings.Doujin.TokenValidLength;
 
-                // Send download message
-                await response.Channel.SendMessageAsync(
-                    text: string.Empty,
-                    embed: MessageFormatter.EmbedDownload(
-                        doujinName: doujin.PrettyName,
-                        link: $"{_settings.Http.Url}/dl/{downloadToken}",
-                        validLength: validLength
-                    )
-                );
-            }
+            // Create token
+            var downloadToken = doujin.CreateToken(secret, expiresIn: validLength);
+
+            // Send download message
+            await channel.SendMessageAsync(
+                text: string.Empty,
+                embed: MessageFormatter.EmbedDownload(
+                    doujinName: doujin.PrettyName,
+                    link: $"{settings.Http.Url}/dl/{downloadToken}",
+                    validLength: validLength
+                )
+            );
         }
 
         [Command("search")]
@@ -131,7 +137,8 @@ namespace nhitomi
                 request: Context.Message,
                 response: response,
                 results: Extensions.Interleave(results),
-                interactive: _interactive
+                interactive: _interactive,
+                settings: _settings
             );
         }
 
@@ -139,7 +146,8 @@ namespace nhitomi
             IUserMessage request,
             IUserMessage response,
             IAsyncEnumerable<IDoujin> results,
-            InteractiveScheduler interactive
+            InteractiveScheduler interactive,
+            AppSettings settings
         )
         {
             var browser = new EnumerableBrowser<IDoujin>(results.GetEnumerator());
@@ -166,6 +174,9 @@ namespace nhitomi
                 await interactive.CreateInteractiveAsync(
                     requester: request.Author,
                     response: response,
+                    triggers: add => add(
+                        ("\uD83D\uDCBE", showDownload)
+                    ),
                     allowTrash: true
                 );
 
@@ -180,7 +191,8 @@ namespace nhitomi
                 response: response,
                 triggers: add => add(
                     ("\u25c0", loadPrevious),
-                    ("\u25b6", loadNext)
+                    ("\u25b6", loadNext),
+                    ("\uD83D\uDCBE", showDownload)
                 ),
                 onExpire: () => { browser.Dispose(); return Task.CompletedTask; },
                 allowTrash: true
@@ -223,6 +235,8 @@ namespace nhitomi
                 doujin = browser.Current;
                 await updateView();
             }
+
+            Task showDownload() => ShowDownload(doujin, response.Channel, settings);
         }
     }
 }
