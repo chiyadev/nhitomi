@@ -56,30 +56,54 @@ namespace nhitomi
             IEnumerable<IDoujinClient> clients
         )
         {
-            var builder = new StringBuilder();
             var embed = new EmbedBuilder()
                 .WithTitle("**nhitomi**: Help")
-                .WithDescription("nhitomi is a Discord bot for searching and downloading doujinshi on Discord!")
+                .WithDescription(
+                    "nhitomi is a Discord bot for searching and downloading doujinshi on Discord! " +
+                    "Join our Discord server: https://discord.gg/JFNga7q"
+                )
+                .WithColor(Color.Purple)
                 .WithCurrentTimestamp();
+
+            // Commands
+            var builder = new StringBuilder();
 
             foreach (var command in commands)
             {
                 builder.Append($"- **n!{command.Name}**");
+
                 if (command.Parameters.Count > 0)
-                    builder.Append($" __{string.Join("__ __", command.Parameters.Select(p => p.Name))}__");
+                    builder.Append($" __{string.Join("__, __", command.Parameters.Select(p => p.Name))}__");
+
                 builder.Append($" — {command.Summary}");
+
+                if (command.Remarks != null)
+                    builder.Append($" e.g. `{command.Remarks}`.");
+
                 builder.AppendLine();
             }
-            embed.AddField("Commands", builder);
+            embed.AddField("— Commands —", builder);
             builder.Clear();
 
+            // Supported sources
             foreach (var client in clients)
             {
                 builder.Append($"- **{client.Name.ToLowerInvariant()}** — {client.Url}");
                 builder.AppendLine();
             }
-            embed.AddField("Supported sources", builder);
-            builder.Clear();
+            embed.AddField("— Supported sources —", builder);
+
+            // Note
+            embed.AddField("— Note —",
+                "All content uploaded by this bot are sourced directly from the respective websites listed above. " +
+                "These contents may be, but not limited to, offensive, profane, depressing, harassing and/or gory. " +
+                "Please leave immediately if you find this type of content distressing.");
+
+            // Contribution
+            embed.AddField("— Contribution —",
+                "This project is licensed under the MIT License. " +
+                "Contributions are welcome! " +
+                "https://github.com/phosphene47/nhitomi");
 
             return embed.Build();
         }
@@ -92,6 +116,7 @@ namespace nhitomi
                     "Sorry, we encountered an unexpected error and has been reported to the developers! " +
                     "Please join our official server for further assistance: https://discord.gg/JFNga7q"
                 )
+                .WithColor(Color.Red)
                 .WithCurrentTimestamp();
 
             return embed.Build();
