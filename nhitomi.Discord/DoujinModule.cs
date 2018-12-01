@@ -31,30 +31,25 @@ namespace nhitomi
             _clients = clients;
         }
 
-        [Command("get")]
-        [Alias("g")]
-        [Summary("Retrieves doujin information from the specified source.")]
-        [Remarks("n!get nhentai 177013")]
-        public async Task GetAsync(
-            string source,
-            [Remainder] string id
-        )
+        async Task<(IDoujinClient, IDoujin, double[], IUserMessage)> getAsync(string source, string id)
         {
             source = source?.Trim();
 
             // Find matching client
             var client = _clients.FirstOrDefault(c => source.Equals(c.Name, StringComparison.OrdinalIgnoreCase));
 
+            IUserMessage response;
+
             if (client == null)
             {
-                await ReplyAsync(
+                response = await ReplyAsync(
                     $"**nhitomi**: Source __{source}__ is not supported. Please see refer to the manual (**n!help**) for a full list of supported sources."
                 );
-                return;
+                return (null, null, null, response);
             }
 
             // Send placeholder message
-            var response = await ReplyAsync($"**{client.Name}**: Loading __{id}__...");
+            response = await ReplyAsync($"**{client.Name}**: Loading __{id}__...");
 
             // Load doujin
             IDoujin doujin;
@@ -69,8 +64,25 @@ namespace nhitomi
                 await response.ModifyAsync(
                     content: $"**{client.Name}**: No such doujin!"
                 );
-                return;
+                return (client, null, elapsed, response);
             }
+
+            return (client, doujin, elapsed, response);
+        }
+
+        [Command("get")]
+        [Alias("g")]
+        [Summary("Retrieves doujin information from the specified source.")]
+        [Remarks("n!get nhentai 177013")]
+        public async Task GetAsync(
+            string source,
+            [Remainder] string id
+        )
+        {
+            var (client, doujin, elapsed, response) = await getAsync(source, id);
+
+            if (doujin == null)
+                return;
 
             await response.ModifyAsync(
                 content: $"**{client.Name}**: Loaded __{id}__ in {elapsed.Format()}",
@@ -239,6 +251,36 @@ namespace nhitomi
             }
 
             Task showDownload() => ShowDownload(doujin, response.Channel, settings);
+        }
+
+        [Command("download")]
+        [Alias("dl")]
+        [Summary("Sends a download link for the specified doujin.")]
+        [Remarks("n!download nhentai 177013")]
+        public async Task DownloadAsync(
+            string source,
+            [Remainder] string id
+        )
+        {
+            var (client, doujin, elapsed, response) = await getAsync(source, id);
+
+            if (doujin == null)
+                return;
+
+            var secret = _settings.Discord.Token;
+            var validLength = _settings.Doujin.TokenValidLength;
+
+            // Create token
+            var downloadToken = doujin.CreateToken(secret, expiresIn: validLength);
+
+            await response.ModifyAsync(
+                content: string.Empty,
+                embed: MessageFormatter.EmbedDownload(
+                    doujinName: doujin.PrettyName,
+                    link: $"{_settings.Http.Url}/dl/{downloadToken}",
+                    validLength: validLength
+                )
+            );
         }
     }
 }
