@@ -58,8 +58,8 @@ namespace nhitomi
             .AddSingleton<HitomiClient>()
             .AddSingleton<ISet<IDoujinClient>>(s => new HashSet<IDoujinClient>
             {
-                s.GetService<nhentaiClient>(),
-                s.GetService<HitomiClient>()
+                s.GetService<nhentaiClient>().Synchronized(),
+                s.GetService<HitomiClient>().Synchronized()
             })
 
             // Background services
