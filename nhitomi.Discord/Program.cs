@@ -56,8 +56,7 @@ namespace nhitomi
             try
             {
                 var tasks = _services
-                    .Select(s => s.RunAsync(token))
-                    .Append(reportInternal(token));
+                    .Select(s => s.RunAsync(token));
 
                 // Run background services
                 await Task.WhenAll(tasks);
@@ -66,17 +65,6 @@ namespace nhitomi
             {
                 // Stop session
                 await _discord.StopSessionAsync();
-            }
-        }
-
-        async Task reportInternal(CancellationToken token)
-        {
-            while (!token.IsCancellationRequested)
-            {
-                using (var process = Process.GetCurrentProcess())
-                    _logger.LogInformation($"Process {process.Id}: memory usage {GC.GetTotalMemory(true).GetBytesReadable()} (managed)");
-
-                await Task.Delay(TimeSpan.FromMinutes(30), token);
             }
         }
     }
