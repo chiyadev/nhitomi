@@ -60,7 +60,7 @@ namespace nhitomi
                 .WithTitle("**nhitomi**: Help")
                 .WithDescription(
                     "nhitomi is a Discord bot for searching and downloading doujinshi on Discord! " +
-                    "Join our Discord server: https://discord.gg/JFNga7q"
+                    "Join our server: https://discord.gg/JFNga7q"
                 )
                 .WithColor(Color.Purple)
                 .WithCurrentTimestamp();
