@@ -39,7 +39,7 @@ namespace nhitomi
                 options: new PersistentMemoryCacheOptions(
                     cacheName: nameof(nhitomi),
                     persistentStore: new LiteDbStore(new LiteDbOptions(
-                        fileName: $"{nameof(nhitomi)}.db"
+                        fileName: $"nhitomi_cache.db"
                     ))
                 )
             ))
