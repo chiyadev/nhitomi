@@ -58,7 +58,7 @@ namespace nhitomi
         public string Url => "https://hitomi.la/";
         public string IconUrl => "https://ltn.hitomi.la/favicon-160x160.png";
 
-        public Regex GalleryRegex { get; } = new Regex(@"(?:http|https):\/\/hitomi.la\/galleries\/(?<Hitomi>[0-9]{1,7})\.html", RegexOptions.Compiled);
+        public Regex GalleryRegex { get; } = new Regex(@"((http|https):\/\/)?hitomi(.la)?\/(galleries\/)?(?<hitomi>[0-9]{1,7})", RegexOptions.Compiled);
 
         readonly IMemoryCache _cache;
         readonly HttpClient _http;
