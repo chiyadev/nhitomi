@@ -105,8 +105,15 @@ namespace nhitomi
                 {
                     // Execute command
                     var context = new SocketCommandContext(Socket, userMessage);
+                    var result = await Commands.ExecuteAsync(context, argIndex, _services);
 
-                    await Commands.ExecuteAsync(context, argIndex, _services);
+                    if (result.Error.HasValue)
+                        switch (result.Error.Value)
+                        {
+                            case CommandError.Exception:
+                                var executionResult = (ExecuteResult)result;
+                                throw executionResult.Exception;
+                        }
                 }
                 else
                 {
@@ -158,6 +165,7 @@ namespace nhitomi
             catch (Exception e)
             {
                 // Log
+                _logger.LogWarning(e, $"Caught exception while handling message {userMessage.Id}: {e.Message}");
 
                 // Send error message
                 await userMessage.Channel.SendMessageAsync(
