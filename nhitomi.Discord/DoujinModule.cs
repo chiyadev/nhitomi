@@ -244,12 +244,12 @@ namespace nhitomi
             // Load next doujin
             async Task loadNext()
             {
-                await response.ModifyAsync($"**nhitomi**: **[{browser.Index + 2}]** Loading...");
+                await response.ModifyAsync($"**nhitomi**: Loading...");
 
                 using (Extensions.Measure(out elapsed))
                     if (!await browser.MoveNext())
                     {
-                        await updateView($"**nhitomi**: **[{browser.Index + 1}]** Reached the end of list!");
+                        await updateView($"**nhitomi**: Reached the end of list!");
                         return;
                     }
 
@@ -260,12 +260,12 @@ namespace nhitomi
             // Load previous doujin
             async Task loadPrevious()
             {
-                await response.ModifyAsync($"**nhitomi**: **[{browser.Index}]** Loading...");
+                await response.ModifyAsync($"**nhitomi**: Loading...");
 
                 using (Extensions.Measure(out elapsed))
                     if (!browser.MovePrevious())
                     {
-                        await updateView($"**nhitomi**: **[{browser.Index + 1}]** Reached the start of list!");
+                        await updateView($"**nhitomi**: Reached the start of list!");
                         return;
                     }
 
