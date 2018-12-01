@@ -60,7 +60,7 @@ namespace nhitomi
                 .WithTitle("**nhitomi**: Help")
                 .WithDescription(
                     "nhitomi is a Discord bot for searching and downloading doujinshi on Discord! " +
-                    "Join our server: https://discord.gg/JFNga7q"
+                    "Join our official server: https://discord.gg/JFNga7q"
                 )
                 .WithColor(Color.Purple)
                 .WithCurrentTimestamp();
@@ -117,6 +117,25 @@ namespace nhitomi
                     "Please join our official server for further assistance: https://discord.gg/JFNga7q"
                 )
                 .WithColor(Color.Red)
+                .WithCurrentTimestamp();
+
+            return embed.Build();
+        }
+
+        public static Embed EmbedDownload(
+            string doujinName,
+            string link,
+            double validLength
+        )
+        {
+            var embed = new EmbedBuilder()
+                .WithTitle($"**nhitomi**: {doujinName}")
+                .WithUrl(link)
+                .WithDescription(
+                    $"Click the link above to start downloading `{doujinName}`. " +
+                    $"Downloads are valid for {validLength} minutes."
+                )
+                .WithColor(Color.LightOrange)
                 .WithCurrentTimestamp();
 
             return embed.Build();

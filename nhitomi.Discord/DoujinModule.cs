@@ -88,13 +88,20 @@ namespace nhitomi
 
             async Task showDownload()
             {
-                var downloadToken = doujin.CreateToken(
-                    secret: _settings.Discord.Token,
-                    expiresIn: _settings.Doujin.TokenValidLength
-                );
+                var secret = _settings.Discord.Token;
+                var validLength = _settings.Doujin.TokenValidLength;
 
-                await ReplyAsync(
-                    message: $"**nhitomi**: {_settings.Http.Url}/dl/{downloadToken}"
+                // Create token
+                var downloadToken = doujin.CreateToken(secret, expiresIn: validLength);
+
+                // Send download message
+                await response.Channel.SendMessageAsync(
+                    text: string.Empty,
+                    embed: MessageFormatter.EmbedDownload(
+                        doujinName: doujin.PrettyName,
+                        link: $"{_settings.Http.Url}/dl/{downloadToken}",
+                        validLength: validLength
+                    )
                 );
             }
         }
