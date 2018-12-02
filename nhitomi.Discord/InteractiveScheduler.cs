@@ -60,6 +60,9 @@ namespace nhitomi
                 response: response.Id
             );
 
+            // Interactive expiry time
+            var expiryTime = DateTime.Now.AddMinutes(_settings.Discord.Command.InteractiveExpiry);
+
             // Add triggers
             if (triggers != null)
                 triggers(collection =>
@@ -67,7 +70,13 @@ namespace nhitomi
                     foreach (var trigger in collection)
                         interactive.Triggers.Add(
                             key: new Emoji(trigger.emoji),
-                            value: trigger.onTrigger
+                            value: () =>
+                            {
+                                // Delay expiry on trigger
+                                expiryTime = DateTime.Now.AddMinutes(_settings.Discord.Command.InteractiveExpiry);
+
+                                return trigger.onTrigger();
+                            }
                         );
                 });
 
@@ -88,10 +97,13 @@ namespace nhitomi
                 try
                 {
                     // Wait until expiry
-                    await Task.Delay(
-                        TimeSpan.FromMinutes(_settings.Discord.Command.InteractiveExpiry),
-                        expiryDelayToken.Token
-                    );
+                    while (expiryTime > DateTime.Now)
+                    {
+                        await Task.Delay(
+                            expiryTime - DateTime.Now,
+                            expiryDelayToken.Token
+                        );
+                    }
                 }
                 catch (TaskCanceledException) { }
 
