@@ -31,22 +31,30 @@ namespace nhitomi
             _clients = clients;
         }
 
-        async Task<(IDoujinClient, IDoujin, double[], IUserMessage)> getAsync(string source, string id)
+        async Task<(IDoujinClient, IUserMessage)> getClientAsync(string source)
         {
             source = source?.Trim();
 
             // Find matching client
-            var client = _clients.FirstOrDefault(c => source.Equals(c.Name, StringComparison.OrdinalIgnoreCase));
+            var client = _clients.FirstOrDefault(c => c.Name.Equals(source, StringComparison.OrdinalIgnoreCase));
 
-            IUserMessage response;
+            IUserMessage response = null;
 
             if (client == null)
-            {
                 response = await ReplyAsync(
-                    $"**nhitomi**: Source __{source}__ is not supported. Please see refer to the manual (**n!help**) for a full list of supported sources."
+                    $"**nhitomi**: Source __{source}__ is not supported. " +
+                    "Please see refer to the manual (**n!help**) for a full list of supported sources."
                 );
-                return (null, null, null, response);
-            }
+
+            return (client, response);
+        }
+
+        async Task<(IDoujinClient, IDoujin, double[], IUserMessage)> getAsync(string source, string id)
+        {
+            var (client, response) = await getClientAsync(source);
+
+            if (client == null)
+                return (client, null, null, response);
 
             // Send placeholder message
             response = await ReplyAsync($"**{client.Name}**: Loading __{id}__...");
@@ -140,19 +148,40 @@ namespace nhitomi
 
         [Command("all")]
         [Alias("a")]
-        [Summary("Displays all doujins from the supported sources uploaded recently.")]
-        [Remarks("n!search glasses loli")]
-        public async Task ListAsync()
+        [Summary("Displays all doujins from the specified source uploaded recently.")]
+        [Remarks("n!all hitomi")]
+        public async Task ListAsync(
+            [Remainder]
+            string source = null
+        )
         {
-            // Send placeholder message
-            var response = await ReplyAsync($"**nhitomi**: Loading...");
-            var results = await Task.WhenAll(_clients.Select(c => c.SearchAsync(null)));
+            IUserMessage response;
+            IAsyncEnumerable<IDoujin> results;
+
+            if (string.IsNullOrWhiteSpace(source))
+            {
+                response = await ReplyAsync($"**nhitomi**: Loading...");
+                results = Extensions.Interleave(
+                    await Task.WhenAll(_clients.Select(c => c.SearchAsync(null)))
+                );
+            }
+            else
+            {
+                // Get client
+                IDoujinClient client;
+                (client, response) = await getClientAsync(source);
+
+                if (client == null)
+                    return;
+
+                results = await client.SearchAsync(null);
+            }
 
             // Interleave results from each client
             await DisplayListAsync(
                 request: Context.Message,
                 response: response,
-                results: Extensions.Interleave(results),
+                results: results,
                 interactive: _interactive,
                 settings: _settings
             );
