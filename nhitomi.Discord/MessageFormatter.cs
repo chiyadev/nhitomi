@@ -48,6 +48,8 @@ namespace nhitomi
             if (doujin.Tags != null)
                 embed.AddInlineField("Tags", join(doujin.Tags));
 
+            embed.AddInlineField("Content", $"{doujin.PageUrls.Count()} pages");
+
             return embed.Build();
         }
 
