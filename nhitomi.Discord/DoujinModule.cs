@@ -138,6 +138,26 @@ namespace nhitomi
             );
         }
 
+        [Command("all")]
+        [Alias("a")]
+        [Summary("Displays all doujins from the supported sources uploaded recently.")]
+        [Remarks("n!search glasses loli")]
+        public async Task ListAsync()
+        {
+            // Send placeholder message
+            var response = await ReplyAsync($"**nhitomi**: Loading...");
+            var results = await Task.WhenAll(_clients.Select(c => c.SearchAsync(null)));
+
+            // Interleave results from each client
+            await DisplayListAsync(
+                request: Context.Message,
+                response: response,
+                results: Extensions.Interleave(results),
+                interactive: _interactive,
+                settings: _settings
+            );
+        }
+
         [Command("search")]
         [Alias("s")]
         [Summary("Searches for doujins by the title and tags across the supported sources that match the specified query.")]
