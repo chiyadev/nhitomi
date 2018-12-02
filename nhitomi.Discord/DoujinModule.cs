@@ -174,6 +174,7 @@ namespace nhitomi
                 if (client == null)
                     return;
 
+                response = await ReplyAsync($"**{client.Name}**: Loading...");
                 results = await client.SearchAsync(null);
             }
 
