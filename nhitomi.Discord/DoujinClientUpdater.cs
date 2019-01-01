@@ -80,16 +80,26 @@ namespace nhitomi
                                         embed: MessageFormatter.EmbedDoujin(doujin)
                                     ),
                                     triggers: add => add(
-                                        ("\uD83D\uDCBE", sendDownload)
+                                        ("\u2764\uFE0F", sendDoujin)
                                     ),
                                     allowTrash: false
                                 );
 
-                                async Task sendDownload(SocketReaction reaction) =>
-                                    await DoujinModule.ShowDownload(
+                                async Task sendDoujin(SocketReaction reaction)
+                                {
+                                    var requester = _discord.Socket.GetUser(reaction.UserId);
+
+                                    await DoujinModule.ShowDoujin(
+                                        interactive: _interactive,
+                                        requester: requester,
+                                        response: await (await requester.GetOrCreateDMChannelAsync()).SendMessageAsync(
+                                            text: string.Empty,
+                                            embed: MessageFormatter.EmbedDoujin(doujin)
+                                        ),
                                         doujin: doujin,
-                                        channel: await _discord.Socket.GetUser(reaction.UserId).GetOrCreateDMChannelAsync(),
-                                        settings: _settings);
+                                        settings: _settings
+                                    );
+                                }
 
                                 count++;
                             }
