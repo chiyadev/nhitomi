@@ -67,13 +67,11 @@ namespace nhitomi
             using (Extensions.Measure(out elapsed))
                 doujin = await client.GetAsync(id);
 
-            // Show result
             if (doujin == null)
             {
                 await response.ModifyAsync(
                     content: $"**{client.Name}**: No such doujin!"
                 );
-                return (client, null, elapsed, response);
             }
 
             return (client, doujin, elapsed, response);
