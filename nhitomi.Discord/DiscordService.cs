@@ -72,9 +72,23 @@ namespace nhitomi
 
             _logger.LogDebug($"Loaded commands: {string.Join(", ", Commands.Commands.Select(c => c.Name))}");
 
+            var connectionSource = new TaskCompletionSource<object>();
+
+            Socket.Connected += handleConnect;
+            Task handleConnect()
+            {
+                connectionSource.SetResult(null);
+                return Task.CompletedTask;
+            }
+
             // Login
             await Socket.LoginAsync(TokenType.Bot, _settings.Discord.Token);
             await Socket.StartAsync();
+
+            // Wait until fully connected
+            await connectionSource.Task;
+
+            Socket.Connected -= handleConnect;
         }
 
         public async Task StopSessionAsync()
