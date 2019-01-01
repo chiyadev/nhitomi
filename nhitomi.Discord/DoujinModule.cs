@@ -96,12 +96,29 @@ namespace nhitomi
                 embed: MessageFormatter.EmbedDoujin(doujin)
             );
 
+            await ShowDoujin(
+                interactive: _interactive,
+                requester: Context.User,
+                response: response,
+                doujin: doujin,
+                settings: _settings
+            );
+        }
+
+        public static async Task ShowDoujin(
+            InteractiveScheduler interactive,
+            IUser requester,
+            IUserMessage response,
+            IDoujin doujin,
+            AppSettings settings
+        )
+        {
             // Message for download toggling
             var downloadMessage = (IUserMessage)null;
 
             // Create interactive
-            await _interactive.CreateInteractiveAsync(
-                requester: Context.User,
+            await interactive.CreateInteractiveAsync(
+                requester: requester,
                 response: response,
                 triggers: add => add(
                     ("\uD83D\uDCBE", toggleDownload)
@@ -118,7 +135,11 @@ namespace nhitomi
                     downloadMessage = null;
                 }
                 else
-                    downloadMessage = await ShowDownload(doujin, response.Channel, _settings);
+                    downloadMessage = await ShowDownload(
+                        doujin: doujin,
+                        channel: response.Channel,
+                        settings: settings
+                    );
             }
         }
 
