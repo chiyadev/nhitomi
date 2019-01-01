@@ -97,7 +97,9 @@ namespace nhitomi
                         else
                         {
                             await doujins.MoveNext(token);
-                            _lastDoujins[c] = doujins.Current;
+
+                            if (doujins.Current != null)
+                                _lastDoujins[c] = doujins.Current;
                         }
 
                         _logger.LogDebug($"Updated client '{c.Name}', alerted {count} doujins.");
