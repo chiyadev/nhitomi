@@ -33,7 +33,7 @@ namespace nhitomi
                         .WithIconUrl(doujin.Source.IconUrl)
                 )
                 .WithUrl(doujin.SourceUrl)
-                .WithImageUrl(doujin.PageUrls.First())
+                .WithImageUrl(doujin.PageUrls?.First())
                 .WithColor(Color.Green)
                 .WithFooter($"Uploaded on {doujin.UploadTime.ToString(DateFormat)}");
 
