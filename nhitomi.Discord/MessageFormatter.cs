@@ -61,8 +61,7 @@ namespace nhitomi
             var embed = new EmbedBuilder()
                 .WithTitle("**nhitomi**: Help")
                 .WithDescription(
-                    "nhitomi is a Discord bot for searching and downloading doujinshi on Discord! " +
-                    "Join our official server: https://discord.gg/JFNga7q"
+                    "nhitomi is a Discord bot for searching and downloading doujinshi on Discord! https://discord.gg/JFNga7q"
                 )
                 .WithColor(Color.Purple)
                 .WithCurrentTimestamp();
