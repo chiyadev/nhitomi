@@ -4,6 +4,7 @@
 // https://opensource.org/licenses/MIT
 
 using Discord.WebSocket;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Concurrent;
@@ -20,18 +21,21 @@ namespace nhitomi
         readonly ISet<IDoujinClient> _clients;
         readonly DiscordService _discord;
         readonly InteractiveScheduler _interactive;
+        readonly ILogger _logger;
 
         public DoujinClientUpdater(
             IOptions<AppSettings> options,
             ISet<IDoujinClient> clients,
             DiscordService discord,
-            InteractiveScheduler interactive
+            InteractiveScheduler interactive,
+            ILogger<DoujinClientUpdater> logger
         )
         {
             _settings = options.Value;
             _clients = clients;
             _discord = discord;
             _interactive = interactive;
+            _logger = logger;
         }
 
         readonly ConcurrentDictionary<IDoujinClient, IDoujin> _lastDoujins = new ConcurrentDictionary<IDoujinClient, IDoujin>();
@@ -43,6 +47,8 @@ namespace nhitomi
                 .GetGuild(_settings.Discord.Server.ServerId)
                 .GetTextChannel(_settings.Discord.Server.AlertChannelId);
 
+            _logger.LogDebug($"Found alert channel: {channel.Name} ({channel.Guild.Name})");
+
             while (!token.IsCancellationRequested)
             {
                 await Task.WhenAll(_clients.Select(async c =>
@@ -52,11 +58,10 @@ namespace nhitomi
 
                     // Find new uploads
                     var doujins = (await c.SearchAsync(null)).GetEnumerator();
+                    var count = 0;
 
                     if (_lastDoujins.TryGetValue(c, out var lastDoujin))
                     {
-                        var count = 0;
-
                         // Limit maximum alerts from each client to 20
                         while (count < 20 && await doujins.MoveNext(token))
                         {
@@ -95,6 +100,8 @@ namespace nhitomi
                         await doujins.MoveNext(token);
                         _lastDoujins[c] = doujins.Current;
                     }
+
+                    _logger.LogDebug($"Updated client '{c.Name}', alerted {count} doujins.");
                 }));
 
                 // Sleep

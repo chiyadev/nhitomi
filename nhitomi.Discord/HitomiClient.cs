@@ -169,7 +169,7 @@ namespace nhitomi
                         var type = root.SelectSingleNode(Hitomi.XPath.Type)?.InnerText.Trim();
                         if (type == null || type.Equals("anime", StringComparison.OrdinalIgnoreCase))
                         {
-                            _logger.LogInformation($"Skipping {id} because it is type 'anime'.");
+                            _logger.LogWarning($"Skipping {id} because it is type 'anime'.");
                             return null;
                         }
                     }
@@ -185,7 +185,8 @@ namespace nhitomi
                         data.images = _json.Deserialize<DoujinData.Image[]>(jsonReader);
                     }
 
-                    _logger.LogInformation($"Got doujin {id}: {data.name}");
+                    _logger.LogDebug($"Got doujin {id}: {data.name}");
+
                     return data;
                 }
                 catch (HttpRequestException) { return null; }
@@ -288,7 +289,7 @@ namespace nhitomi
                             ++loadCount;
                     }
 
-                _logger.LogInformation($"Loaded {loadCount} new items from chunk {chunkIndex} in {elapsed.Format()}.");
+                _logger.LogDebug($"Loaded {loadCount} new items from chunk {chunkIndex} in {elapsed.Format()}.");
             }
             catch (HttpRequestException) { }
         }

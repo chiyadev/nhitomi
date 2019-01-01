@@ -44,12 +44,12 @@ namespace nhitomi
             var prefix = $"http://+:{_settings.Http.Port}/";
             HttpListener.Prefixes.Add(prefix);
 
-            _logger.LogInformation($"HTTP listening at '{prefix}'.");
+            _logger.LogDebug($"HTTP listening at '{prefix}'.");
         }
 
         public async Task RunAsync(CancellationToken token)
         {
-            _logger.LogInformation($"Starting HTTP server.");
+            _logger.LogDebug($"Starting HTTP server.");
 
             HttpListener.Start();
 
@@ -118,6 +118,8 @@ nhitomi - Discord doujinshi bot by phosphene47#7788
                 var match = _dlRegex.Match(path);
                 var token = match.Groups.FirstOrDefault(g => g.Success && g.Name == "token")?.Value;
 
+                _logger.LogDebug($"Received download request: token {token}");
+
                 // Parse token
                 if (token != null &&
                     TokenGenerator.TryDeserializeToken(
@@ -132,6 +134,7 @@ nhitomi - Discord doujinshi bot by phosphene47#7788
                     var doujin = await client.GetAsync(id);
 
                     // Send zip to client
+                    // TODO: Caching
                     using (var zip = new ZipArchive(response.OutputStream, ZipArchiveMode.Create, leaveOpen: true))
                     {
                         foreach (var pageUrl in doujin.PageUrls)

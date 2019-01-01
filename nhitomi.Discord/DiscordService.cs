@@ -53,6 +53,8 @@ namespace nhitomi
                 loggerFactory.AddProvider(new DiscordLogRedirector(options, this));
 
             _logger = loggerFactory.CreateLogger<DiscordService>();
+
+            _logger.LogDebug($"Gallery match regex: {_galleryRegex}");
         }
 
         public async Task StartSessionAsync()
@@ -67,6 +69,8 @@ namespace nhitomi
 
             // Add modules
             await Commands.AddModulesAsync(typeof(Program).Assembly);
+
+            _logger.LogDebug($"Loaded commands: {string.Join(", ", Commands.Commands.Select(c => c.Name))}");
 
             // Login
             await Socket.LoginAsync(TokenType.Bot, _settings.Discord.Token);
@@ -166,7 +170,7 @@ namespace nhitomi
             catch (Exception e)
             {
                 // Log
-                _logger.LogWarning(e, $"Caught exception while handling message {userMessage.Id}: {e.Message}");
+                _logger.LogWarning(e, $"Exception while handling message {userMessage.Id}: {e.Message}");
 
                 // Send error message
                 await userMessage.Channel.SendMessageAsync(

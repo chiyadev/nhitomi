@@ -113,7 +113,7 @@ namespace nhitomi
                     using (var jsonReader = new JsonTextReader(textReader))
                     {
                         var data = _json.Deserialize<DoujinData>(jsonReader);
-                        _logger.LogInformation($"Got doujin {id}: {data.title.pretty}");
+                        _logger.LogDebug($"Got doujin {id}: {data.title.pretty}");
                         return data;
                     }
                 }
@@ -154,7 +154,7 @@ namespace nhitomi
                             using (var jsonReader = new JsonTextReader(textReader))
                                 current = _json.Deserialize<ListData>(jsonReader);
 
-                            _logger.LogInformation($"Got page {index}: {current.result?.Length ?? 0} items");
+                            _logger.LogDebug($"Got page {index}: {current.result?.Length ?? 0} items");
 
                             if (Array.IsNullOrEmpty(current.result))
                                 return false;
