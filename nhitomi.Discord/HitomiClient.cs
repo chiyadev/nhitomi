@@ -219,8 +219,6 @@ namespace nhitomi
         {
             try
             {
-                _logger.LogInformation($"Updating db from chunk {chunkIndex}...");
-
                 var loadCount = 0;
                 double[] elapsed;
 
