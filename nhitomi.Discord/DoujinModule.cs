@@ -10,6 +10,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
+using Discord.WebSocket;
 using Microsoft.Extensions.Options;
 
 namespace nhitomi
@@ -111,7 +112,7 @@ namespace nhitomi
                 onExpire: () => downloadMessage?.DeleteAsync()
             );
 
-            async Task toggleDownload()
+            async Task toggleDownload(SocketReaction reaction)
             {
                 if (downloadMessage != null)
                 {
@@ -292,7 +293,7 @@ namespace nhitomi
             );
 
             // Load next doujin
-            async Task loadNext()
+            async Task loadNext(SocketReaction reaction)
             {
                 await response.ModifyAsync($"**nhitomi**: Loading...");
 
@@ -308,7 +309,7 @@ namespace nhitomi
             }
 
             // Load previous doujin
-            async Task loadPrevious()
+            async Task loadPrevious(SocketReaction reactiom)
             {
                 await response.ModifyAsync($"**nhitomi**: Loading...");
 
@@ -323,7 +324,7 @@ namespace nhitomi
                 await updateDownload();
             }
 
-            async Task toggleDownload()
+            async Task toggleDownload(SocketReaction reaction)
             {
                 if (downloadMessage != null)
                 {
