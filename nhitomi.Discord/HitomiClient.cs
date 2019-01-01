@@ -169,7 +169,7 @@ namespace nhitomi
                         var type = root.SelectSingleNode(Hitomi.XPath.Type)?.InnerText.Trim();
                         if (type == null || type.Equals("anime", StringComparison.OrdinalIgnoreCase))
                         {
-                            _logger.LogWarning($"Skipping {id} because it is type 'anime'.");
+                            _logger.LogWarning($"Skipping {id} because it is of type 'anime'.");
                             return null;
                         }
                     }
