@@ -42,13 +42,13 @@ namespace nhitomi
 
         public async Task RunAsync(CancellationToken token)
         {
-            // Alert channel
-            var channel = _discord.Socket
-                .GetGuild(_settings.Discord.Server.ServerId)
-                .GetTextChannel(_settings.Discord.Server.AlertChannelId);
-
             while (!token.IsCancellationRequested)
             {
+                // Get alert channel
+                var channel = _discord.Socket
+                    .GetGuild(_settings.Discord.Server.ServerId)
+                    .GetTextChannel(_settings.Discord.Server.AlertChannelId);
+
                 await Task.WhenAll(_clients.Select(async c =>
                 {
                     // Update client
