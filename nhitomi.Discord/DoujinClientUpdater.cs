@@ -47,8 +47,6 @@ namespace nhitomi
                 .GetGuild(_settings.Discord.Server.ServerId)
                 .GetTextChannel(_settings.Discord.Server.AlertChannelId);
 
-            _logger.LogDebug($"Found alert channel: {channel.Name} ({channel.Guild.Name})");
-
             while (!token.IsCancellationRequested)
             {
                 await Task.WhenAll(_clients.Select(async c =>
