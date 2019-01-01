@@ -39,7 +39,7 @@ namespace nhitomi
         public IEnumerable<string> Artists => _d.artists;
         public IEnumerable<string> Tags => _d.tags?.Select(t => t.Value);
 
-        public IEnumerable<string> PageUrls => _d.images.Select(i => Hitomi.Image(_d.id, i.name));
+        public IEnumerable<string> PageUrls => _d.images?.Select(i => Hitomi.Image(_d.id, i.name));
 
         public override string ToString() => PrettyName;
     }
