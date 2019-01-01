@@ -55,51 +55,53 @@ namespace nhitomi
                     await c.UpdateAsync();
 
                     // Find new uploads
-                    var doujins = (await c.SearchAsync(null)).GetEnumerator();
-                    var count = 0;
-
-                    if (_lastDoujins.TryGetValue(c, out var lastDoujin))
+                    using (var doujins = (await c.SearchAsync(null)).GetEnumerator())
                     {
-                        // Limit maximum alerts from each client to 20
-                        while (count < 20 && await doujins.MoveNext(token))
+                        var count = 0;
+
+                        if (_lastDoujins.TryGetValue(c, out var lastDoujin))
                         {
-                            var doujin = doujins.Current;
+                            // Limit maximum alerts from each client to 20
+                            while (count < 20 && await doujins.MoveNext(token))
+                            {
+                                var doujin = doujins.Current;
 
-                            if (doujin.Id == lastDoujin.Id)
-                                break;
+                                if (doujin.Id == lastDoujin.Id)
+                                    break;
 
-                            if (count == 0)
-                                _lastDoujins[c] = doujin;
+                                if (count == 0)
+                                    _lastDoujins[c] = doujin;
 
-                            // Create interactive
-                            await _interactive.CreateInteractiveAsync(
-                                requester: null,
-                                response: await channel.SendMessageAsync(
-                                    text: string.Empty,
-                                    embed: MessageFormatter.EmbedDoujin(doujin)
-                                ),
-                                triggers: add => add(
-                                    ("\uD83D\uDCBE", sendDownload)
-                                ),
-                                allowTrash: false
-                            );
+                                // Create interactive
+                                await _interactive.CreateInteractiveAsync(
+                                    requester: null,
+                                    response: await channel.SendMessageAsync(
+                                        text: string.Empty,
+                                        embed: MessageFormatter.EmbedDoujin(doujin)
+                                    ),
+                                    triggers: add => add(
+                                        ("\uD83D\uDCBE", sendDownload)
+                                    ),
+                                    allowTrash: false
+                                );
 
-                            async Task sendDownload(SocketReaction reaction) =>
-                                await DoujinModule.ShowDownload(
-                                    doujin: doujin,
-                                    channel: await _discord.Socket.GetUser(reaction.UserId).GetOrCreateDMChannelAsync(),
-                                    settings: _settings);
+                                async Task sendDownload(SocketReaction reaction) =>
+                                    await DoujinModule.ShowDownload(
+                                        doujin: doujin,
+                                        channel: await _discord.Socket.GetUser(reaction.UserId).GetOrCreateDMChannelAsync(),
+                                        settings: _settings);
 
-                            count++;
+                                count++;
+                            }
                         }
-                    }
-                    else
-                    {
-                        await doujins.MoveNext(token);
-                        _lastDoujins[c] = doujins.Current;
-                    }
+                        else
+                        {
+                            await doujins.MoveNext(token);
+                            _lastDoujins[c] = doujins.Current;
+                        }
 
-                    _logger.LogDebug($"Updated client '{c.Name}', alerted {count} doujins.");
+                        _logger.LogDebug($"Updated client '{c.Name}', alerted {count} doujins.");
+                    }
                 }));
 
                 // Sleep
