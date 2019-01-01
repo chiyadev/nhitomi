@@ -28,7 +28,7 @@ namespace nhitomi
                         : null
                 )
                 .WithAuthor(
-                    authoer => authoer
+                    author => author
                         .WithName(join(doujin.Artists) ?? doujin.Source.Name)
                         .WithIconUrl(doujin.Source.IconUrl)
                 )
