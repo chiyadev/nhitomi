@@ -3,6 +3,7 @@
 // This software is released under the MIT License.
 // https://opensource.org/licenses/MIT
 
+using Discord;
 using Discord.WebSocket;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -49,78 +50,91 @@ namespace nhitomi
                     .GetGuild(_settings.Discord.Server.ServerId)
                     .GetTextChannel(_settings.Discord.Server.AlertChannelId);
 
-                await Task.WhenAll(_clients.Select(async c =>
-                {
-                    // Update client
-                    await c.UpdateAsync();
-
-                    // Find new uploads
-                    using (var doujins = (await c.SearchAsync(null)).GetEnumerator())
+                if (channel != null)
+                    await Task.WhenAll(_clients.Select(async c =>
                     {
-                        var count = 0;
-
-                        if (_lastDoujins.TryGetValue(c, out var lastDoujin))
+                        try
                         {
-                            // Limit maximum alerts from each client to 20
-                            while (count < 20 && await doujins.MoveNext(token))
-                            {
-                                var doujin = doujins.Current;
-
-                                if (doujin.Id == lastDoujin.Id)
-                                    break;
-
-                                if (count == 0)
-                                    _lastDoujins[c] = doujin;
-
-                                // Create interactive
-                                await _interactive.CreateInteractiveAsync(
-                                    requester: null,
-                                    response: await channel.SendMessageAsync(
-                                        text: string.Empty,
-                                        embed: MessageFormatter.EmbedDoujin(doujin)
-                                    ),
-                                    triggers: add => add(
-                                        ("\u2764\uFE0F", sendDoujin)
-                                    ),
-                                    allowTrash: false
-                                );
-
-                                async Task sendDoujin(SocketReaction reaction)
-                                {
-                                    var requester = _discord.Socket.GetUser(reaction.UserId);
-
-                                    await DoujinModule.ShowDoujin(
-                                        interactive: _interactive,
-                                        requester: requester,
-                                        response: await (await requester.GetOrCreateDMChannelAsync()).SendMessageAsync(
-                                            text: string.Empty,
-                                            embed: MessageFormatter.EmbedDoujin(doujin)
-                                        ),
-                                        doujin: doujin,
-                                        settings: _settings
-                                    );
-                                }
-
-                                count++;
-                            }
+                            await updateClient(c, channel, token);
                         }
-                        else
+                        catch (Exception e)
                         {
-                            await doujins.MoveNext(token);
-
-                            if (doujins.Current != null)
-                                _lastDoujins[c] = doujins.Current;
+                            _logger.LogWarning(e, $"Exception while updating client '{c.Name}': {e.Message}.");
                         }
-
-                        _logger.LogDebug($"Updated client '{c.Name}', alerted {count} doujins.");
-                    }
-                }));
+                    }));
 
                 // Sleep
                 await Task.Delay(
                     TimeSpan.FromMinutes(_settings.Doujin.UpdateInterval),
                     token
                 );
+            }
+        }
+
+        async Task updateClient(IDoujinClient client, ITextChannel channel, CancellationToken token)
+        {
+            // Update client
+            await client.UpdateAsync();
+
+            // Find new uploads
+            using (var doujins = (await client.SearchAsync(null)).GetEnumerator())
+            {
+                var count = 0;
+
+                if (_lastDoujins.TryGetValue(client, out var lastDoujin))
+                {
+                    // Limit maximum alerts from each client to 20
+                    while (count < 20 && await doujins.MoveNext(token))
+                    {
+                        var doujin = doujins.Current;
+
+                        if (doujin.Id == lastDoujin.Id)
+                            break;
+
+                        if (count == 0)
+                            _lastDoujins[client] = doujin;
+
+                        // Create interactive
+                        await _interactive.CreateInteractiveAsync(
+                            requester: null,
+                            response: await channel.SendMessageAsync(
+                                text: string.Empty,
+                                embed: MessageFormatter.EmbedDoujin(doujin)
+                            ),
+                            triggers: add => add(
+                                ("\u2764\uFE0F", sendDoujin)
+                            ),
+                            allowTrash: false
+                        );
+
+                        async Task sendDoujin(SocketReaction reaction)
+                        {
+                            var requester = _discord.Socket.GetUser(reaction.UserId);
+
+                            await DoujinModule.ShowDoujin(
+                                interactive: _interactive,
+                                requester: requester,
+                                response: await (await requester.GetOrCreateDMChannelAsync()).SendMessageAsync(
+                                    text: string.Empty,
+                                    embed: MessageFormatter.EmbedDoujin(doujin)
+                                ),
+                                doujin: doujin,
+                                settings: _settings
+                            );
+                        }
+
+                        count++;
+                    }
+                }
+                else
+                {
+                    await doujins.MoveNext(token);
+
+                    if (doujins.Current != null)
+                        _lastDoujins[client] = doujins.Current;
+                }
+
+                _logger.LogDebug($"Updated client '{client.Name}', alerted {count} doujins.");
             }
         }
     }
