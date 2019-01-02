@@ -78,15 +78,23 @@ namespace nhitomi
             // Listen for request
             var context = await HttpListener.GetContextAsync();
 
-            switch (context.Request.HttpMethod)
+            try
             {
-                case "GET":
-                    await HandleGetAsync(context.Request, context.Response);
-                    break;
+                switch (context.Request.HttpMethod)
+                {
+                    case "GET":
+                        await HandleGetAsync(context.Request, context.Response);
+                        break;
 
-                default:
-                    context.Response.StatusCode = (int)HttpStatusCode.MethodNotAllowed;
-                    break;
+                    default:
+                        context.Response.StatusCode = (int)HttpStatusCode.MethodNotAllowed;
+                        break;
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.LogWarning(e, $"Exception while handling HTTP request: {e.Message}");
+                context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
             }
 
             context.Response.Close();
