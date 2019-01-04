@@ -31,8 +31,21 @@ namespace nhitomi
         public string SourceUrl => $"https://hitomi.la/galleries/{Id}.html";
 
         public string Scanlator => null;
-        public string Language => _d.language;
+        public string Language => convertLanguage(_d.language);
         public string ParodyOf => _d.series;
+
+        static string convertLanguage(string lang)
+        {
+            switch (lang)
+            {
+                case "日本語":
+                    return "japanese";
+                case "한국어":
+                    return "korean";
+                default:
+                    return lang;
+            }
+        }
 
         public IEnumerable<string> Characters => _d.characters;
         public IEnumerable<string> Categories => null;
