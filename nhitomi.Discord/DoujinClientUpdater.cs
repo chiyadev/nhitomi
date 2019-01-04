@@ -112,7 +112,7 @@ namespace nhitomi
                                     embed: MessageFormatter.EmbedDoujin(doujin)
                                 ),
                                 triggers: add => add(
-                                    ("\u2764\uFE0F", sendDoujin)
+                                    ("\u2764", sendDoujin)
                                 ),
                                 allowTrash: false
                             );
