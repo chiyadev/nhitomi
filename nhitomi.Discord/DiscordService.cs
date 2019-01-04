@@ -68,7 +68,7 @@ namespace nhitomi
             Socket.ReactionRemoved += _interactive.HandleReaction;
 
             // Add modules
-            await Commands.AddModulesAsync(typeof(Program).Assembly);
+            await Commands.AddModulesAsync(typeof(Program).Assembly, _services);
 
             _logger.LogDebug($"Loaded commands: {string.Join(", ", Commands.Commands.Select(c => c.Name))}");
 
