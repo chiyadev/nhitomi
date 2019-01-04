@@ -81,6 +81,9 @@ namespace nhitomi
             // Update client
             await client.UpdateAsync();
 
+            if (channels == null)
+                return;
+
             // Find new uploads
             using (var doujins = (await client.SearchAsync(null)).GetEnumerator())
             {
