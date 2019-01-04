@@ -74,8 +74,8 @@ namespace nhitomi
 
             var connectionSource = new TaskCompletionSource<object>();
 
-            Socket.Connected += handleConnect;
-            Task handleConnect()
+            Socket.Ready += handleReady;
+            Task handleReady()
             {
                 connectionSource.SetResult(null);
                 return Task.CompletedTask;
@@ -88,7 +88,7 @@ namespace nhitomi
             // Wait until fully connected
             await connectionSource.Task;
 
-            Socket.Connected -= handleConnect;
+            Socket.Connected -= handleReady;
         }
 
         public async Task StopSessionAsync()
