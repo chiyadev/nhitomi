@@ -48,7 +48,8 @@ namespace nhitomi
                 // Get feed channels
                 var channels =
                     (_discord.Socket.GetChannel(_settings.Discord.Server.FeedCategoryId) as SocketCategoryChannel).Channels
-                    .ToDictionary(c => c.Name.ToLowerInvariant(), c => c as ITextChannel);
+                    .OfType<ITextChannel>()
+                    .ToDictionary(c => c.Name.ToLowerInvariant(), c => c);
 
                 if (channels != null)
                     _logger.LogDebug($"Found {channels.Count} feed channels: {string.Join(", ", channels.Select(c => c.Key))}");
