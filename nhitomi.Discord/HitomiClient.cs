@@ -199,16 +199,19 @@ namespace nhitomi
             public readonly int id;
             public readonly string name;
             public readonly string[] tags;
+            public readonly string author;
 
             public ChunkItemData(
                 int i,
                 string n,
-                string[] t
+                string[] t,
+                string a
             )
             {
                 id = i;
                 name = n;
                 tags = t;
+                author = a;
             }
 
             public override bool Equals(object obj) => obj is ChunkItemData other ? id == other.id : false;
@@ -239,6 +242,7 @@ namespace nhitomi
                         var name = (string)null;
                         var type = (string)null;
                         var tags = new List<string>();
+                        var author = (string)null;
 
                         string property = null;
                         while (await jsonReader.ReadAsync())
@@ -275,6 +279,14 @@ namespace nhitomi
                                                 }
                                             endTags:
                                             break;
+                                        case "a":
+                                            await jsonReader.ReadAsync();
+                                            author = (string)jsonReader.Value;
+
+                                            while (await jsonReader.ReadAsync())
+                                                if (jsonReader.TokenType == JsonToken.EndArray)
+                                                    break;
+                                            break;
                                     }
                                     break;
                                 case JsonToken.EndObject:
@@ -284,10 +296,11 @@ namespace nhitomi
 
                         if (id < 0 ||
                             string.IsNullOrWhiteSpace(name) ||
+                            string.IsNullOrWhiteSpace(author) ||
                             type.Equals("anime", StringComparison.OrdinalIgnoreCase))
                             continue;
 
-                        if (db.Add(new ChunkItemData(id, name, tags.ToArray())))
+                        if (db.Add(new ChunkItemData(id, name, tags.ToArray(), author)))
                             ++loadCount;
                     }
 
@@ -318,6 +331,7 @@ namespace nhitomi
 
                 filtered = _db
                     .OrderByDescending(d => keywords.Intersect(d.name.Split(' ', StringSplitOptions.RemoveEmptyEntries)).Count())
+                    .ThenByDescending(d => keywords.Intersect(d.author.Split(' ', StringSplitOptions.RemoveEmptyEntries)).Count())
                     .ThenByDescending(d => keywords.Intersect(d.tags).Count())
                     .Select(d => d.id);
             }
