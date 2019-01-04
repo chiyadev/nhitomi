@@ -296,8 +296,6 @@ namespace nhitomi
 
         public Task UpdateAsync() => updateDbAsync(0);
 
-        const int SearchInterest = 8;
-
         public Task<IAsyncEnumerable<IDoujin>> SearchAsync(string query)
         {
             IEnumerable<int> filtered;
@@ -311,19 +309,9 @@ namespace nhitomi
                 var keywords = query.Split(' ', StringSplitOptions.RemoveEmptyEntries);
 
                 filtered = _db
-                    .ToDictionary(
-                        d => d.id,
-                        d => Math.Min(
-                            query.DamLev(d.name),
-                            d.tags.Length == 0
-                                ? int.MaxValue
-                                : d.tags.Min(t0 => keywords.Min(t1 => t0.DamLev(t1)))
-                        )
-                    )
-                    .Where(d => d.Value < SearchInterest)
-                    .OrderBy(p => p.Value)
-                    .ThenByDescending(p => p.Key)
-                    .Select(p => p.Key);
+                    .OrderByDescending(d => d.name.Split(' ', StringSplitOptions.RemoveEmptyEntries).Intersect(keywords).Count())
+                    .ThenByDescending(d => d.tags.Intersect(keywords).Count())
+                    .Select(d => d.id);
             }
 
             return AsyncEnumerable.CreateEnumerable(() =>
