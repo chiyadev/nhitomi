@@ -113,9 +113,19 @@ namespace nhitomi
                 if (!IsEnabled(logLevel))
                     return;
 
-                _provider._queue.Enqueue(
-                    $"{DateTimeOffset.Now.ToString("HH:mm:ss zzz")} __{logLevel}__ **{_category}**: {formatter(state, exception)}"
-                );
+                var text = new StringBuilder()
+                    .Append(DateTimeOffset.Now.ToString("HH:mm:ss zzz"))
+                    .Append($" __{logLevel}__ ")
+                    .Append($" **{_category}**: ")
+                    .Append(formatter(state, exception));
+
+                if (exception.StackTrace != null)
+                    text
+                        .AppendLine()
+                        .Append($"Trace: ")
+                        .Append(exception.StackTrace);
+
+                _provider._queue.Enqueue(text.ToString());
             }
         }
 
