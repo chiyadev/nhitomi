@@ -284,7 +284,7 @@ namespace nhitomi
 
                         if (id < 0 ||
                             string.IsNullOrWhiteSpace(name) ||
-                            type == "anime")
+                            type.Equals("anime", StringComparison.OrdinalIgnoreCase))
                             continue;
 
                         if (db.Add(new ChunkItemData(id, name, tags.ToArray())))
