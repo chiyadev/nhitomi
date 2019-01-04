@@ -51,7 +51,10 @@ namespace nhitomi
                     .FirstOrDefault(c => c.Id == _settings.Discord.Server.FeedCategoryId)?.Channels
                     .ToDictionary(c => c.Name.ToLowerInvariant(), c => c as ITextChannel);
 
-                _logger.LogDebug($"Found {channels?.Count ?? 0} feed channels: {string.Join(", ", channels?.Select(c => c.Key))}");
+                if (channels != null)
+                    _logger.LogDebug($"Found {channels.Count} feed channels: {string.Join(", ", channels.Select(c => c.Key))}");
+                else
+                    _logger.LogDebug($"No feed channels were found.");
 
                 await Task.WhenAll(_clients.Select(async c =>
                 {
