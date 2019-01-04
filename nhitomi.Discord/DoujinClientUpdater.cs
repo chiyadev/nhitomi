@@ -46,9 +46,8 @@ namespace nhitomi
             while (!token.IsCancellationRequested)
             {
                 // Get feed channels
-                var channels = _discord.Socket
-                    .GetGuild(_settings.Discord.Server.ServerId).CategoryChannels
-                    .FirstOrDefault(c => c.Id == _settings.Discord.Server.FeedCategoryId)?.Channels
+                var channels =
+                    (_discord.Socket.GetChannel(_settings.Discord.Server.FeedCategoryId) as SocketCategoryChannel).Channels
                     .ToDictionary(c => c.Name.ToLowerInvariant(), c => c as ITextChannel);
 
                 if (channels != null)
