@@ -119,7 +119,7 @@ namespace nhitomi
                     .Append($" **{_category}**: ")
                     .Append(formatter(state, exception));
 
-                if (exception.StackTrace != null)
+                if (exception?.StackTrace != null)
                     text
                         .AppendLine()
                         .Append($"Trace: ")
