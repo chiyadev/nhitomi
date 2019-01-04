@@ -61,7 +61,21 @@ namespace nhitomi
             try
             {
                 var tasks = _services
-                    .Select(s => s.RunAsync(token));
+                    .Select(async s =>
+                    {
+                    runService:
+                        try
+                        {
+                            await s.RunAsync(token);
+                        }
+                        catch (Exception e)
+                        {
+                            _logger.LogError(e, $"Uncaught exception from service '{s.GetType().Name}': {e.Message}");
+
+                            await Task.Delay(TimeSpan.FromSeconds(10));
+                            goto runService;
+                        }
+                    });
 
                 // Run background services
                 await Task.WhenAll(tasks);
