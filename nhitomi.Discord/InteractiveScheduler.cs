@@ -89,6 +89,7 @@ namespace nhitomi
 
             // Schedule expiry
             var expiryDelayToken = new CancellationTokenSource();
+            var expireDelete = false;
             var expiryTask = expire();
 
             async Task expire()
@@ -110,7 +111,8 @@ namespace nhitomi
                 _interactives.TryRemove(interactive.ResponseId, out _);
 
                 // Delete interactive
-                await response.DeleteAsync();
+                if (expireDelete)
+                    await response.DeleteAsync();
 
                 // Expiry event
                 if (onExpire != null)
@@ -128,6 +130,7 @@ namespace nhitomi
                     key: new Emoji("\uD83D\uDDD1"),
                     value: reaction =>
                     {
+                        expireDelete = true;
                         expiryDelayToken.Cancel();
                         return expiryTask;
                     }
