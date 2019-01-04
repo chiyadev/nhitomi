@@ -306,7 +306,7 @@ namespace nhitomi
                     .Select(d => d.id);
             else
             {
-                var keywords = query.Split(' ', StringSplitOptions.RemoveEmptyEntries).Distinct();
+                var keywords = query.Split(' ', StringSplitOptions.RemoveEmptyEntries);
 
                 filtered = _db
                     .OrderByDescending(d => keywords.Intersect(d.name.Split(' ', StringSplitOptions.RemoveEmptyEntries)).Count())
