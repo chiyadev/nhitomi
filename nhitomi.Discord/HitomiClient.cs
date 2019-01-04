@@ -220,6 +220,8 @@ namespace nhitomi
         {
             try
             {
+                var db = _db;
+
                 var loadCount = 0;
                 double[] elapsed;
 
@@ -285,7 +287,7 @@ namespace nhitomi
                             type == "anime")
                             continue;
 
-                        if (_db.Add(new ChunkItemData(id, name, tags.ToArray())))
+                        if (db.Add(new ChunkItemData(id, name, tags.ToArray())))
                             ++loadCount;
                     }
 
