@@ -50,22 +50,18 @@ namespace nhitomi
             return (client, response);
         }
 
-        async Task<(IDoujinClient, IDoujin, double[], IUserMessage)> getAsync(string source, string id)
+        async Task<(IDoujinClient, IDoujin, IUserMessage)> getAsync(string source, string id)
         {
             var (client, response) = await getClientAsync(source);
 
             if (client == null)
-                return (client, null, null, response);
+                return (client, null, response);
 
             // Send placeholder message
             response = await ReplyAsync($"**{client.Name}**: Loading __{id}__...");
 
             // Load doujin
-            IDoujin doujin;
-            double[] elapsed;
-
-            using (Extensions.Measure(out elapsed))
-                doujin = await client.GetAsync(id);
+            var doujin = await client.GetAsync(id);
 
             if (doujin == null)
             {
@@ -74,7 +70,7 @@ namespace nhitomi
                 );
             }
 
-            return (client, doujin, elapsed, response);
+            return (client, doujin, response);
         }
 
         [Command("get")]
@@ -86,13 +82,13 @@ namespace nhitomi
             [Remainder] string id
         )
         {
-            var (client, doujin, elapsed, response) = await getAsync(source, id);
+            var (client, doujin, response) = await getAsync(source, id);
 
             if (doujin == null)
                 return;
 
             await response.ModifyAsync(
-                content: $"**{client.Name}**: Loaded __{id}__ in {elapsed.Format()}",
+                content: $"**{client.Name}**: __{id}__",
                 embed: MessageFormatter.EmbedDoujin(doujin)
             );
 
@@ -253,19 +249,16 @@ namespace nhitomi
                     .GetEnumerator()
             );
 
-            double[] elapsed;
-
             // Load first item manually
-            using (Extensions.Measure(out elapsed))
-                if (await browser.MoveNext())
-                {
-                    await updateView();
-                }
-                else
-                {
-                    await response.ModifyAsync("**nhitomi**: No results...");
-                    return;
-                }
+            if (await browser.MoveNext())
+            {
+                await updateView();
+            }
+            else
+            {
+                await response.ModifyAsync("**nhitomi**: No results...");
+                return;
+            }
 
             // Message for download toggling
             var downloadMessage = (IUserMessage)null;
@@ -307,7 +300,7 @@ namespace nhitomi
 
             // Update content as the current doujin
             Task updateView(string content = null) => response.ModifyAsync(
-                content: content ?? $"**{browser.Current.Source.Name}**: Loaded __{browser.Current.Id}__ in {elapsed.Format()}",
+                content: content ?? $"**{browser.Current.Source.Name}**: __{browser.Current.Id}__",
                 embed: MessageFormatter.EmbedDoujin(browser.Current)
             );
 
@@ -316,12 +309,11 @@ namespace nhitomi
             {
                 await response.ModifyAsync($"**nhitomi**: Loading...");
 
-                using (Extensions.Measure(out elapsed))
-                    if (!await browser.MoveNext())
-                    {
-                        await updateView($"**nhitomi**: Reached the end of list!");
-                        return;
-                    }
+                if (!await browser.MoveNext())
+                {
+                    await updateView($"**nhitomi**: Reached the end of list!");
+                    return;
+                }
 
                 await updateView();
                 await updateDownload();
@@ -332,12 +324,11 @@ namespace nhitomi
             {
                 await response.ModifyAsync($"**nhitomi**: Loading...");
 
-                using (Extensions.Measure(out elapsed))
-                    if (!browser.MovePrevious())
-                    {
-                        await updateView($"**nhitomi**: Reached the start of list!");
-                        return;
-                    }
+                if (!browser.MovePrevious())
+                {
+                    await updateView($"**nhitomi**: Reached the start of list!");
+                    return;
+                }
 
                 await updateView();
                 await updateDownload();
@@ -385,7 +376,7 @@ namespace nhitomi
             [Remainder] string id
         )
         {
-            var (client, doujin, elapsed, response) = await getAsync(source, id);
+            var (client, doujin, response) = await getAsync(source, id);
 
             if (doujin == null)
                 return;
@@ -397,7 +388,7 @@ namespace nhitomi
             var downloadToken = doujin.CreateToken(secret, expiresIn: validLength);
 
             await response.ModifyAsync(
-                content: $"**{client.Name}**: Loaded __{id}__ in {elapsed.Format()}",
+                content: $"**{client.Name}**: Loaded __{id}__",
                 embed: MessageFormatter.EmbedDownload(
                     doujinName: doujin.PrettyName,
                     link: $"{_settings.Http.Url}/dl/{downloadToken}",
