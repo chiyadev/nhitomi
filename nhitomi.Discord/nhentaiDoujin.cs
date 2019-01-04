@@ -31,8 +31,8 @@ namespace nhitomi
         public string SourceUrl => $"https://nhentai.net/g/{Id}/";
 
         public string Scanlator => string.IsNullOrWhiteSpace(_d.scanlator) ? null : _d.scanlator;
-        public string Language => _d.tags?.FirstOrDefault(t => t.type == "language" && t.name != "translated")?.name;
-        public string ParodyOf => _d.tags?.FirstOrDefault(t => t.type == "parody")?.name;
+        public string Language => _d.tags?.FirstOrDefault(t => t.type == "language" && t.name != "translated").name;
+        public string ParodyOf => _d.tags?.FirstOrDefault(t => t.type == "parody").name;
 
         public IEnumerable<string> Characters => _d.tags?.Where(t => t.type == "character").Select(t => t.name).NullIfEmpty();
         public IEnumerable<string> Categories => _d.tags?.Where(t => t.type == "category" && t.name != "doujinshi").Select(t => t.name).NullIfEmpty();
