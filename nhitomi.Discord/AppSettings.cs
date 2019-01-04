@@ -34,7 +34,7 @@ namespace nhitomi
             {
                 public ulong ServerId { get; set; }
                 public ulong LogChannelId { get; set; }
-                public ulong AlertChannelId { get; set; }
+                public ulong FeedCategoryId { get; set; }
             }
 
             public StatusSettings Status { get; set; }

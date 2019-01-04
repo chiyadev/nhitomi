@@ -45,23 +45,23 @@ namespace nhitomi
         {
             while (!token.IsCancellationRequested)
             {
-                // Get alert channel
-                var channel = _discord.Socket
-                    .GetGuild(_settings.Discord.Server.ServerId)
-                    .GetTextChannel(_settings.Discord.Server.AlertChannelId);
+                // Get feed channels
+                var channels = _discord.Socket
+                    .GetGuild(_settings.Discord.Server.ServerId).CategoryChannels
+                    .FirstOrDefault(c => c.Id == _settings.Discord.Server.FeedCategoryId)?.Channels
+                    .ToDictionary(c => c.Name.ToLowerInvariant(), c => c as ITextChannel);
 
-                if (channel != null)
-                    await Task.WhenAll(_clients.Select(async c =>
+                await Task.WhenAll(_clients.Select(async c =>
+                {
+                    try
                     {
-                        try
-                        {
-                            await updateClient(c, channel, token);
-                        }
-                        catch (Exception e)
-                        {
-                            _logger.LogWarning(e, $"Exception while updating client '{c.Name}': {e.Message}.");
-                        }
-                    }));
+                        await updateClient(c, channels, token);
+                    }
+                    catch (Exception e)
+                    {
+                        _logger.LogWarning(e, $"Exception while updating client '{c.Name}': {e.Message}.");
+                    }
+                }));
 
                 // Sleep
                 await Task.Delay(
@@ -71,7 +71,7 @@ namespace nhitomi
             }
         }
 
-        async Task updateClient(IDoujinClient client, ITextChannel channel, CancellationToken token)
+        async Task updateClient(IDoujinClient client, IReadOnlyDictionary<string, ITextChannel> channels, CancellationToken token)
         {
             // Update client
             await client.UpdateAsync();
@@ -95,17 +95,20 @@ namespace nhitomi
                             _lastDoujins[client] = doujin;
 
                         // Create interactive
-                        await _interactive.CreateInteractiveAsync(
-                            requester: null,
-                            response: await channel.SendMessageAsync(
-                                text: string.Empty,
-                                embed: MessageFormatter.EmbedDoujin(doujin)
-                            ),
-                            triggers: add => add(
-                                ("\u2764\uFE0F", sendDoujin)
-                            ),
-                            allowTrash: false
-                        );
+                        foreach (var channel in channels.Where(c => doujin.Tags.Contains(c.Key)).Select(c => c.Value))
+                        {
+                            await _interactive.CreateInteractiveAsync(
+                                requester: null,
+                                response: await channel.SendMessageAsync(
+                                    text: string.Empty,
+                                    embed: MessageFormatter.EmbedDoujin(doujin)
+                                ),
+                                triggers: add => add(
+                                    ("\u2764\uFE0F", sendDoujin)
+                                ),
+                                allowTrash: false
+                            );
+                        }
 
                         async Task sendDoujin(SocketReaction reaction)
                         {
