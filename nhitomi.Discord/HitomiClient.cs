@@ -329,10 +329,13 @@ namespace nhitomi
             {
                 var keywords = query.Split(' ', StringSplitOptions.RemoveEmptyEntries);
 
+                int matches(string str) => matchTags(str.Split(' ', StringSplitOptions.RemoveEmptyEntries));
+                int matchTags(string[] array) => keywords.Intersect(array).Count();
+
                 filtered = _db
-                    .OrderByDescending(d => keywords.Intersect(d.name.Split(' ', StringSplitOptions.RemoveEmptyEntries)).Count())
-                    .ThenByDescending(d => keywords.Intersect(d.author.Split(' ', StringSplitOptions.RemoveEmptyEntries)).Count())
-                    .ThenByDescending(d => keywords.Intersect(d.tags).Count())
+                    .OrderByDescending(d => matches(d.name))
+                    .ThenByDescending(d => matches(d.author))
+                    .ThenByDescending(d => matchTags(d.tags))
                     .Select(d => d.id);
             }
 
