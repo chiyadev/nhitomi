@@ -102,6 +102,10 @@ namespace nhitomi
                         if (count == 0)
                             _lastDoujins[client] = doujin;
 
+                        if (doujin.Tags == null ||
+                            !doujin.Tags.Any())
+                            continue;
+
                         // Create interactive
                         foreach (var channel in channels.Where(c => doujin.Tags.Contains(c.Key.Replace('-', ' '))).Select(c => c.Value))
                         {
