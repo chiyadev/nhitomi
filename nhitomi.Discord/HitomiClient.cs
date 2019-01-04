@@ -314,7 +314,7 @@ namespace nhitomi
         public async Task UpdateAsync()
         {
             for (var i = 0; i < ChunkLoadCount; i++)
-                await updateDbAsync(ChunkLoadCount);
+                await updateDbAsync(i);
         }
 
         public Task<IAsyncEnumerable<IDoujin>> SearchAsync(string query)
