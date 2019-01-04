@@ -103,7 +103,7 @@ namespace nhitomi
                             _lastDoujins[client] = doujin;
 
                         // Create interactive
-                        foreach (var channel in channels.Where(c => doujin.Tags.Contains(c.Key)).Select(c => c.Value))
+                        foreach (var channel in channels.Where(c => doujin.Tags.Contains(c.Key.Replace('-', ' '))).Select(c => c.Value))
                         {
                             await _interactive.CreateInteractiveAsync(
                                 requester: null,
