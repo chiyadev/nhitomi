@@ -306,11 +306,11 @@ namespace nhitomi
                     .Select(d => d.id);
             else
             {
-                var keywords = query.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                var keywords = query.Split(' ', StringSplitOptions.RemoveEmptyEntries).Distinct();
 
                 filtered = _db
-                    .OrderByDescending(d => d.name.Split(' ', StringSplitOptions.RemoveEmptyEntries).Intersect(keywords).Count())
-                    .ThenByDescending(d => d.tags.Intersect(keywords).Count())
+                    .OrderByDescending(d => keywords.Intersect(d.name.Split(' ', StringSplitOptions.RemoveEmptyEntries)).Count())
+                    .ThenByDescending(d => keywords.Intersect(d.tags).Count())
                     .Select(d => d.id);
             }
 
