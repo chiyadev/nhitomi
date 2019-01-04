@@ -296,7 +296,13 @@ namespace nhitomi
             catch (HttpRequestException) { }
         }
 
-        public Task UpdateAsync() => updateDbAsync(0);
+        public int ChunkLoadCount { get; set; } = 3;
+
+        public async Task UpdateAsync()
+        {
+            for (var i = 0; i < ChunkLoadCount; i++)
+                await updateDbAsync(ChunkLoadCount);
+        }
 
         public Task<IAsyncEnumerable<IDoujin>> SearchAsync(string query)
         {
