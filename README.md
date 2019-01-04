@@ -11,7 +11,7 @@
 
 WIP Discord Bot for doujinshi
 
-Join the [Discord server](https://discord.gg/bf3q7RM) or invite [nhitomi](https://discordapp.com/oauth2/authorize?client_id=515386276543725568&scope=bot&permissions=347200).
+Join the [Discord server](https://discord.gg/JFNga7q) or invite [nhitomi](https://discordapp.com/oauth2/authorize?client_id=515386276543725568&scope=bot&permissions=347200).
 
 ## Setup
 
