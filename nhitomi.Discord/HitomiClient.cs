@@ -94,7 +94,7 @@ namespace nhitomi
             public string date;
 
             public Image[] images;
-            public sealed class Image
+            public struct Image
             {
                 public string name;
                 public int width;
@@ -102,7 +102,7 @@ namespace nhitomi
             }
 
             public Tag[] tags;
-            public sealed class Tag
+            public struct Tag
             {
                 public static Tag Parse(string str) => new Tag
                 {

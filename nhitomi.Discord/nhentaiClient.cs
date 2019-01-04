@@ -62,24 +62,24 @@ namespace nhitomi
             public long upload_date;
 
             public Title title;
-            public sealed class Title
+            public struct Title
             {
                 public string japanese;
                 public string pretty;
             }
 
             public Images images;
-            public sealed class Images
+            public struct Images
             {
                 public Image[] pages;
-                public sealed class Image
+                public struct Image
                 {
                     public string t;
                 }
             }
 
             public Tag[] tags;
-            public sealed class Tag
+            public struct Tag
             {
                 public string type;
                 public string name;
