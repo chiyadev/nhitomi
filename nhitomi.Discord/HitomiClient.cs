@@ -337,7 +337,7 @@ namespace nhitomi
                     .ThenByDescending(d => matches(d.author))
                     .ThenByDescending(d => matchTags(d.tags))
                     .ThenByDescending(d => d.id)
-                    .TakeWhile(d => matches(d.name) > 0 && matches(d.author) > 0 && matchTags(d.tags) > 0)
+                    .TakeWhile(d => matches(d.name) > 0 || matches(d.author) > 0 || matchTags(d.tags) > 0)
                     .Select(d => d.id);
             }
 
