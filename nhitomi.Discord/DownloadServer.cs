@@ -111,7 +111,7 @@ namespace nhitomi
                 const string index_txt = @"
 nhitomi - Discord doujinshi bot by phosphene47#7788
 
-- Discord: https://discord.gg/bf3q7RM
+- Discord: https://discord.gg/JFNga7q
 - Github: https://github.com/phosphene47/nhitomi";
                 using (var writer = new StreamWriter(response.OutputStream))
                 {
