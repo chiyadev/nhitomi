@@ -124,7 +124,7 @@ nhitomi - Discord doujinshi bot by phosphene47#7788
             if (path.StartsWith("/dl/"))
             {
                 var match = _dlRegex.Match(path);
-                var token = match.Groups.FirstOrDefault(g => g.Success && g.Name == "token")?.Value;
+                var token = match.Groups["token"].Value;
 
                 _logger.LogDebug($"Received download request: token {token}");
 
