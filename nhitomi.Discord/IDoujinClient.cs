@@ -9,6 +9,7 @@ using System.IO;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 
 namespace nhitomi
 {
@@ -20,6 +21,7 @@ namespace nhitomi
 
         DoujinClientMethod Method { get; }
 
+        [JsonIgnore]
         Regex GalleryRegex { get; }
 
         Task<IDoujin> GetAsync(string id);
