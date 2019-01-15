@@ -40,7 +40,7 @@ namespace nhitomi
             return null;
         }
 
-        public static IEnumerable<T> Select<T>(this IEnumerable<T> source, Func<T, int, T> projection)
+        public static IEnumerable<U> Select<T, U>(this IEnumerable<T> source, Func<T, int, U> projection)
         {
             var index = 0;
             foreach (var item in source)
