@@ -152,5 +152,19 @@ namespace nhitomi
                 _logger.LogDebug($"Updated client '{client.Name}', alerted {count} doujins.");
             }
         }
+
+        static IEnumerable<string> tagsToChannels(IEnumerable<string> tags) =>
+            tags.Select(t =>
+            {
+                var tag = t.ToLowerInvariant().Replace(' ', '-');
+
+                switch (tag)
+                {
+                    default:
+                        return tag;
+                    case "loli":
+                        return "lolicon";
+                }
+            });
     }
 }
