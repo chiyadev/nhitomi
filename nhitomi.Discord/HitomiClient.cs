@@ -155,18 +155,18 @@ namespace nhitomi
                         data = new DoujinData
                         {
                             id = intId,
-                            name = root.SelectSingleNode(Hitomi.XPath.Name)?.InnerText.Trim(),
-                            artists = root.SelectNodes(Hitomi.XPath.Artists)?.Select(n => n.InnerText.Trim()).ToArray(),
-                            groups = root.SelectNodes(Hitomi.XPath.Groups)?.Select(n => n.InnerText.Trim()).ToArray(),
-                            language = root.SelectSingleNode(Hitomi.XPath.Language)?.InnerText.Trim(),
-                            series = root.SelectSingleNode(Hitomi.XPath.Series)?.InnerText.Trim(),
-                            tags = root.SelectNodes(Hitomi.XPath.Tags)?.Select(n => DoujinData.Tag.Parse(n.InnerText.Trim())).ToArray(),
-                            characters = root.SelectNodes(Hitomi.XPath.Characters)?.Select(n => n.InnerText.Trim()).ToArray(),
-                            date = root.SelectSingleNode(Hitomi.XPath.Date)?.InnerText.Trim()
+                            name = innerSanitized(root.SelectSingleNode(Hitomi.XPath.Name)),
+                            artists = root.SelectNodes(Hitomi.XPath.Artists)?.Select(innerSanitized).ToArray(),
+                            groups = root.SelectNodes(Hitomi.XPath.Groups)?.Select(innerSanitized).ToArray(),
+                            language = innerSanitized(root.SelectSingleNode(Hitomi.XPath.Language)),
+                            series = innerSanitized(root.SelectSingleNode(Hitomi.XPath.Series)),
+                            tags = root.SelectNodes(Hitomi.XPath.Tags)?.Select(n => DoujinData.Tag.Parse(innerSanitized(n))).ToArray(),
+                            characters = root.SelectNodes(Hitomi.XPath.Characters)?.Select(innerSanitized).ToArray(),
+                            date = innerSanitized(root.SelectSingleNode(Hitomi.XPath.Date))
                         };
 
                         // We don't want anime
-                        var type = root.SelectSingleNode(Hitomi.XPath.Type)?.InnerText.Trim();
+                        var type = innerSanitized(root.SelectSingleNode(Hitomi.XPath.Type));
                         if (type == null || type.Equals("anime", StringComparison.OrdinalIgnoreCase))
                         {
                             _logger.LogWarning($"Skipping {id} because it is of type 'anime'.");
@@ -192,6 +192,8 @@ namespace nhitomi
                 catch (HttpRequestException) { return null; }
             }
         }
+
+        static string innerSanitized(HtmlNode node) => node == null ? null : HtmlEntity.DeEntitize(node.InnerText).Trim();
 
         readonly HashSet<ChunkItemData> _db = new HashSet<ChunkItemData>();
         internal struct ChunkItemData
