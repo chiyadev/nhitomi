@@ -42,6 +42,8 @@ namespace nhitomi
                     return "japanese";
                 case "한국어":
                     return "korean";
+                case "中文":
+                    return "chinese";
                 default:
                     return lang;
             }
