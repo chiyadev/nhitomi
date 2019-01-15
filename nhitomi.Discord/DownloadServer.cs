@@ -147,18 +147,23 @@ nhitomi - Discord doujinshi bot by phosphene47#7788
                     using (var zip = new ZipArchive(response.OutputStream, ZipArchiveMode.Create, leaveOpen: true))
                     {
                         foreach (var pageUrl in doujin.PageUrls)
-                        {
-                            // Create file in zip
-                            var entry = zip.CreateEntry(
-                                Path.GetFileNameWithoutExtension(pageUrl).PadLeft(3, '0') + Path.GetExtension(pageUrl),
-                                CompressionLevel.Optimal
-                            );
+                            try
+                            {
+                                // Create file in zip
+                                var entry = zip.CreateEntry(
+                                    Path.GetFileNameWithoutExtension(pageUrl).PadLeft(3, '0') + Path.GetExtension(pageUrl),
+                                    CompressionLevel.Optimal
+                                );
 
-                            // Write page contents to entry
-                            using (var dst = entry.Open())
-                            using (var src = await doujin.Source.GetStreamAsync(pageUrl))
-                                await src.CopyToAsync(dst);
-                        }
+                                // Write page contents to entry
+                                using (var dst = entry.Open())
+                                using (var src = await doujin.Source.GetStreamAsync(pageUrl))
+                                    await src.CopyToAsync(dst);
+                            }
+                            catch (Exception e)
+                            {
+                                _logger.LogWarning(e, $"Exception while downloading `{pageUrl}`: {e.Message}");
+                            }
                     }
                     return;
                 }
