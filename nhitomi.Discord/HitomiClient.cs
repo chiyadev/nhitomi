@@ -19,6 +19,8 @@ namespace nhitomi
 {
     public static class Hitomi
     {
+        public const int RequestCooldown = 500;
+
         public static string Gallery(int id) => $"https://hitomi.la/galleries/{id}.html";
         public static string GalleryInfo(int id, char? server = null) => $"https://{server}tn.hitomi.la/galleries/{id}.js";
 
@@ -121,6 +123,8 @@ namespace nhitomi
 
         IDoujin wrap(DoujinData data) => new HitomiDoujin(this, data);
 
+        Task throttle() => Task.Delay(TimeSpan.FromMilliseconds(Hitomi.RequestCooldown));
+
         public async Task<IDoujin> GetAsync(string id)
         {
             if (!int.TryParse(id, out var intId))
@@ -129,10 +133,17 @@ namespace nhitomi
             return wrap(
                 await _cache.GetOrCreateAsync<DoujinData>(
                     key: $"{Name}/{id}",
-                    factory: entry =>
+                    factory: async entry =>
                     {
-                        entry.AbsoluteExpirationRelativeToNow = DoujinCacheOptions.Expiration;
-                        return getAsync();
+                        try
+                        {
+                            entry.AbsoluteExpirationRelativeToNow = DoujinCacheOptions.Expiration;
+                            return await getAsync();
+                        }
+                        finally
+                        {
+                            await throttle();
+                        }
                     }
                 )
             );
@@ -309,6 +320,10 @@ namespace nhitomi
                 _logger.LogDebug($"Loaded {loadCount} new items from chunk {chunkIndex} in {elapsed.Format()}.");
             }
             catch (HttpRequestException) { }
+            finally
+            {
+                await throttle();
+            }
         }
 
         public int ChunkLoadCount { get; set; } = 3;
@@ -366,7 +381,14 @@ namespace nhitomi
 
         public async Task<Stream> GetStreamAsync(string url)
         {
-            return await _http.GetStreamAsync(url);
+            try
+            {
+                return await _http.GetStreamAsync(url);
+            }
+            finally
+            {
+                await throttle();
+            }
         }
 
         public override string ToString() => Name;
