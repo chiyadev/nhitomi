@@ -140,7 +140,7 @@ nhitomi - Discord doujinshi bot by phosphene47#7788
 
                     // Response headers
                     response.ContentType = MediaTypeNames.Application.Zip;
-                    response.AddHeader("Content-disposition", $"attachment; filename=\"{doujin.OriginalName}\"");
+                    response.AddHeader("Content-disposition", $"attachment; filename*=UTF-8''{Uri.EscapeDataString(doujin.OriginalName + ".zip")}");
 
                     // Send zip to client
                     // TODO: Caching
