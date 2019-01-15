@@ -18,6 +18,8 @@ namespace nhitomi
 {
     public static class nhentai
     {
+        public const int RequestCooldown = 500;
+
         public static string Gallery(int id) => $"https://nhentai.net/api/gallery/{id}";
         public static string All(int index = 0) => $"https://nhentai.net/api/galleries/all?page={index + 1}";
         public static string Search(string query, int index = 0) => $"https://nhentai.net/api/galleries/search?query={query}&page={index + 1}";
@@ -88,6 +90,8 @@ namespace nhitomi
 
         IDoujin wrap(DoujinData data) => new nhentaiDoujin(this, data);
 
+        Task throttle() => Task.Delay(TimeSpan.FromMilliseconds(nhentai.RequestCooldown));
+
         public async Task<IDoujin> GetAsync(string id)
         {
             if (!int.TryParse(id, out var intId))
@@ -96,10 +100,17 @@ namespace nhitomi
             return wrap(
                 await _cache.GetOrCreateAsync<DoujinData>(
                     key: $"{Name}/{id}",
-                    factory: entry =>
+                    factory: async entry =>
                     {
-                        entry.AbsoluteExpirationRelativeToNow = DoujinCacheOptions.Expiration;
-                        return getAsync();
+                        try
+                        {
+                            entry.AbsoluteExpirationRelativeToNow = DoujinCacheOptions.Expiration;
+                            return await getAsync();
+                        }
+                        finally
+                        {
+                            await throttle();
+                        }
                     }
                 )
             );
@@ -170,6 +181,10 @@ namespace nhitomi
                             return true;
                         }
                         catch (HttpRequestException) { return false; }
+                        finally
+                        {
+                            await throttle();
+                        }
                     },
                     current: () => current,
                     dispose: () => { }
@@ -182,7 +197,14 @@ namespace nhitomi
 
         public async Task<Stream> GetStreamAsync(string url)
         {
-            return await _http.GetStreamAsync(url);
+            try
+            {
+                return await _http.GetStreamAsync(url);
+            }
+            finally
+            {
+                await throttle();
+            }
         }
 
         public override string ToString() => Name;
