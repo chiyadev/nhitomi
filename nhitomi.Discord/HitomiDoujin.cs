@@ -11,9 +11,9 @@ namespace nhitomi
 {
     public sealed class HitomiDoujin : IDoujin
     {
-        readonly HitomiClient.DoujinData _d;
+        readonly Hitomi.DoujinData _d;
 
-        internal HitomiDoujin(HitomiClient client, HitomiClient.DoujinData data)
+        internal HitomiDoujin(HitomiClient client, Hitomi.DoujinData data)
         {
             Source = client;
             _d = data;

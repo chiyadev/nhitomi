@@ -28,6 +28,50 @@ namespace nhitomi
 
         public static string Image(int mediaId, int index, string ext) => $"https://i.nhentai.net/galleries/{mediaId}/{index}.{ext}";
         public static string ThumbImage(int mediaId, int index, string ext) => $"https://t.nhentai.net/galleries/{mediaId}/{index}t.{ext}";
+
+        public sealed class DoujinData
+        {
+            public readonly DateTime _processed = DateTime.UtcNow;
+
+            public int id;
+            public int media_id;
+            public string scanlator;
+            public long upload_date;
+
+            public Title title;
+            public struct Title
+            {
+                public string japanese;
+                public string pretty;
+            }
+
+            public Images images;
+            public struct Images
+            {
+                public Image[] pages;
+                public struct Image
+                {
+                    public string t;
+                }
+            }
+
+            public Tag[] tags;
+            public struct Tag
+            {
+                public string type;
+                public string name;
+            }
+        }
+
+        public sealed class ListData
+        {
+            public readonly DateTime _processed = DateTime.UtcNow;
+
+            public DoujinData[] result;
+
+            public int num_pages;
+            public int per_page;
+        }
     }
 
     /// <summary>
@@ -64,41 +108,7 @@ namespace nhitomi
             _logger = logger;
         }
 
-        internal sealed class DoujinData
-        {
-            public readonly DateTime _processed = DateTime.UtcNow;
-
-            public int id;
-            public int media_id;
-            public string scanlator;
-            public long upload_date;
-
-            public Title title;
-            public struct Title
-            {
-                public string japanese;
-                public string pretty;
-            }
-
-            public Images images;
-            public struct Images
-            {
-                public Image[] pages;
-                public struct Image
-                {
-                    public string t;
-                }
-            }
-
-            public Tag[] tags;
-            public struct Tag
-            {
-                public string type;
-                public string name;
-            }
-        }
-
-        IDoujin wrap(DoujinData data) => new nhentaiDoujin(this, data);
+        IDoujin wrap(nhentai.DoujinData data) => new nhentaiDoujin(this, data);
 
         Task throttle() => Task.Delay(TimeSpan.FromMilliseconds(nhentai.RequestCooldown));
 
@@ -108,7 +118,7 @@ namespace nhitomi
                 return null;
 
             return wrap(
-                await _cache.GetOrCreateAsync<DoujinData>(
+                await _cache.GetOrCreateAsync<nhentai.DoujinData>(
                     key: $"{Name}/{id}",
                     factory: async entry =>
                     {
@@ -125,7 +135,7 @@ namespace nhitomi
                 )
             );
 
-            async Task<DoujinData> getAsync()
+            async Task<nhentai.DoujinData> getAsync()
             {
                 try
                 {
@@ -133,7 +143,7 @@ namespace nhitomi
                     using (var textReader = new StringReader(await response.Content.ReadAsStringAsync()))
                     using (var jsonReader = new JsonTextReader(textReader))
                     {
-                        var data = _json.Deserialize<DoujinData>(jsonReader);
+                        var data = _json.Deserialize<nhentai.DoujinData>(jsonReader);
                         _logger.LogDebug($"Got doujin {id}: {data.title.pretty}");
                         return data;
                     }
@@ -142,20 +152,10 @@ namespace nhitomi
             }
         }
 
-        internal sealed class ListData
-        {
-            public readonly DateTime _processed = DateTime.UtcNow;
-
-            public DoujinData[] result;
-
-            public int num_pages;
-            public int per_page;
-        }
-
         public Task<IAsyncEnumerable<IDoujin>> SearchAsync(string query) =>
             AsyncEnumerable.CreateEnumerable(() =>
             {
-                ListData current = null;
+                nhentai.ListData current = null;
                 var index = 0;
 
                 return AsyncEnumerable.CreateEnumerator(

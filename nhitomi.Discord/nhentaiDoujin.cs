@@ -11,9 +11,9 @@ namespace nhitomi
 {
     public sealed class nhentaiDoujin : IDoujin
     {
-        readonly nhentaiClient.DoujinData _d;
+        readonly nhentai.DoujinData _d;
 
-        internal nhentaiDoujin(nhentaiClient client, nhentaiClient.DoujinData data)
+        internal nhentaiDoujin(IDoujinClient client, nhentai.DoujinData data)
         {
             Source = client;
             _d = data;

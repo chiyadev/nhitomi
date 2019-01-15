@@ -54,37 +54,8 @@ namespace nhitomi
 
             public const string Item = _GalleryContent + "//a[contains(@href,'/galleries/')]";
         }
-    }
 
-    public sealed class HitomiClient : IDoujinClient
-    {
-        public string Name => nameof(Hitomi);
-        public string Url => "https://hitomi.la/";
-        public string IconUrl => "https://ltn.hitomi.la/favicon-160x160.png";
-
-        public DoujinClientMethod Method => DoujinClientMethod.Html;
-
-        public Regex GalleryRegex { get; } = new Regex(Hitomi.GalleryRegex, RegexOptions.IgnoreCase | RegexOptions.Compiled);
-
-        readonly IMemoryCache _cache;
-        readonly HttpClient _http;
-        readonly JsonSerializer _json;
-        readonly ILogger _logger;
-
-        public HitomiClient(
-            IHttpClientFactory httpFactory,
-            IMemoryCache cache,
-            JsonSerializer json,
-            ILogger<HitomiClient> logger
-        )
-        {
-            _http = httpFactory?.CreateClient(Name);
-            _cache = cache;
-            _json = json;
-            _logger = logger;
-        }
-
-        internal sealed class DoujinData
+        public sealed class DoujinData
         {
             public readonly DateTime _processed = DateTime.UtcNow;
 
@@ -125,93 +96,7 @@ namespace nhitomi
             }
         }
 
-        IDoujin wrap(DoujinData data) => new HitomiDoujin(this, data);
-
-        Task throttle() => Task.Delay(TimeSpan.FromMilliseconds(Hitomi.RequestCooldown));
-
-        public async Task<IDoujin> GetAsync(string id)
-        {
-            if (!int.TryParse(id, out var intId))
-                return null;
-
-            return wrap(
-                await _cache.GetOrCreateAsync<DoujinData>(
-                    key: $"{Name}/{id}",
-                    factory: async entry =>
-                    {
-                        try
-                        {
-                            entry.AbsoluteExpirationRelativeToNow = DoujinCacheOptions.Expiration;
-                            return await getAsync();
-                        }
-                        finally
-                        {
-                            await throttle();
-                        }
-                    }
-                )
-            );
-
-            async Task<DoujinData> getAsync()
-            {
-                try
-                {
-                    DoujinData data;
-
-                    using (var response = await _http.GetAsync(Hitomi.Gallery(intId)))
-                    using (var reader = new StringReader(await response.Content.ReadAsStringAsync()))
-                    {
-                        var doc = new HtmlDocument();
-                        doc.Load(reader);
-
-                        var root = doc.DocumentNode;
-
-                        // Scrape data from HTML using XPath
-                        data = new DoujinData
-                        {
-                            id = intId,
-                            name = innerSanitized(root.SelectSingleNode(Hitomi.XPath.Name)),
-                            artists = root.SelectNodes(Hitomi.XPath.Artists)?.Select(innerSanitized).ToArray(),
-                            groups = root.SelectNodes(Hitomi.XPath.Groups)?.Select(innerSanitized).ToArray(),
-                            language = innerSanitized(root.SelectSingleNode(Hitomi.XPath.Language)),
-                            series = innerSanitized(root.SelectSingleNode(Hitomi.XPath.Series)),
-                            tags = root.SelectNodes(Hitomi.XPath.Tags)?.Select(n => DoujinData.Tag.Parse(innerSanitized(n))).ToArray(),
-                            characters = root.SelectNodes(Hitomi.XPath.Characters)?.Select(innerSanitized).ToArray(),
-                            date = innerSanitized(root.SelectSingleNode(Hitomi.XPath.Date))
-                        };
-
-                        // We don't want anime
-                        var type = innerSanitized(root.SelectSingleNode(Hitomi.XPath.Type));
-                        if (type == null || type.Equals("anime", StringComparison.OrdinalIgnoreCase))
-                        {
-                            _logger.LogWarning($"Skipping {id} because it is of type 'anime'.");
-                            return null;
-                        }
-                    }
-
-                    using (var response = await _http.GetAsync(Hitomi.GalleryInfo(intId)))
-                    using (var textReader = new StringReader(await response.Content.ReadAsStringAsync()))
-                    using (var jsonReader = new JsonTextReader(textReader))
-                    {
-                        // Discard javascript and start at actual json
-                        while ((char)textReader.Peek() != '[')
-                            textReader.Read();
-
-                        data.images = _json.Deserialize<DoujinData.Image[]>(jsonReader);
-                    }
-
-                    _logger.LogDebug($"Got doujin {id}: {data.name}");
-
-                    return data;
-                }
-                catch (HttpRequestException) { return null; }
-            }
-        }
-
-        static string innerSanitized(HtmlNode node) => node == null ? null : HtmlEntity.DeEntitize(node.InnerText).Trim();
-
-        readonly HashSet<ChunkItemData> _db = new HashSet<ChunkItemData>();
-        internal struct ChunkItemData
+        public struct ChunkItemData
         {
             public readonly int id;
             public readonly string name;
@@ -235,6 +120,122 @@ namespace nhitomi
             public override int GetHashCode() => id;
             public override string ToString() => name;
         }
+    }
+
+    public sealed class HitomiClient : IDoujinClient
+    {
+        public string Name => nameof(Hitomi);
+        public string Url => "https://hitomi.la/";
+        public string IconUrl => "https://ltn.hitomi.la/favicon-160x160.png";
+
+        public DoujinClientMethod Method => DoujinClientMethod.Html;
+
+        public Regex GalleryRegex { get; } = new Regex(Hitomi.GalleryRegex, RegexOptions.IgnoreCase | RegexOptions.Compiled);
+
+        readonly IMemoryCache _cache;
+        readonly HttpClient _http;
+        readonly JsonSerializer _json;
+        readonly ILogger _logger;
+
+        public HitomiClient(
+            IHttpClientFactory httpFactory,
+            IMemoryCache cache,
+            JsonSerializer json,
+            ILogger<HitomiClient> logger
+        )
+        {
+            _http = httpFactory?.CreateClient(Name);
+            _cache = cache;
+            _json = json;
+            _logger = logger;
+        }
+
+        IDoujin wrap(Hitomi.DoujinData data) => new HitomiDoujin(this, data);
+
+        Task throttle() => Task.Delay(TimeSpan.FromMilliseconds(Hitomi.RequestCooldown));
+
+        public async Task<IDoujin> GetAsync(string id)
+        {
+            if (!int.TryParse(id, out var intId))
+                return null;
+
+            return wrap(
+                await _cache.GetOrCreateAsync<Hitomi.DoujinData>(
+                    key: $"{Name}/{id}",
+                    factory: async entry =>
+                    {
+                        try
+                        {
+                            entry.AbsoluteExpirationRelativeToNow = DoujinCacheOptions.Expiration;
+                            return await getAsync();
+                        }
+                        finally
+                        {
+                            await throttle();
+                        }
+                    }
+                )
+            );
+
+            async Task<Hitomi.DoujinData> getAsync()
+            {
+                try
+                {
+                    Hitomi.DoujinData data;
+
+                    using (var response = await _http.GetAsync(Hitomi.Gallery(intId)))
+                    using (var reader = new StringReader(await response.Content.ReadAsStringAsync()))
+                    {
+                        var doc = new HtmlDocument();
+                        doc.Load(reader);
+
+                        var root = doc.DocumentNode;
+
+                        // Scrape data from HTML using XPath
+                        data = new Hitomi.DoujinData
+                        {
+                            id = intId,
+                            name = innerSanitized(root.SelectSingleNode(Hitomi.XPath.Name)),
+                            artists = root.SelectNodes(Hitomi.XPath.Artists)?.Select(innerSanitized).ToArray(),
+                            groups = root.SelectNodes(Hitomi.XPath.Groups)?.Select(innerSanitized).ToArray(),
+                            language = innerSanitized(root.SelectSingleNode(Hitomi.XPath.Language)),
+                            series = innerSanitized(root.SelectSingleNode(Hitomi.XPath.Series)),
+                            tags = root.SelectNodes(Hitomi.XPath.Tags)?.Select(n => Hitomi.DoujinData.Tag.Parse(innerSanitized(n))).ToArray(),
+                            characters = root.SelectNodes(Hitomi.XPath.Characters)?.Select(innerSanitized).ToArray(),
+                            date = innerSanitized(root.SelectSingleNode(Hitomi.XPath.Date))
+                        };
+
+                        // We don't want anime
+                        var type = innerSanitized(root.SelectSingleNode(Hitomi.XPath.Type));
+                        if (type == null || type.Equals("anime", StringComparison.OrdinalIgnoreCase))
+                        {
+                            _logger.LogWarning($"Skipping {id} because it is of type 'anime'.");
+                            return null;
+                        }
+                    }
+
+                    using (var response = await _http.GetAsync(Hitomi.GalleryInfo(intId)))
+                    using (var textReader = new StringReader(await response.Content.ReadAsStringAsync()))
+                    using (var jsonReader = new JsonTextReader(textReader))
+                    {
+                        // Discard javascript and start at actual json
+                        while ((char)textReader.Peek() != '[')
+                            textReader.Read();
+
+                        data.images = _json.Deserialize<Hitomi.DoujinData.Image[]>(jsonReader);
+                    }
+
+                    _logger.LogDebug($"Got doujin {id}: {data.name}");
+
+                    return data;
+                }
+                catch (HttpRequestException) { return null; }
+            }
+        }
+
+        static string innerSanitized(HtmlNode node) => node == null ? null : HtmlEntity.DeEntitize(node.InnerText).Trim();
+
+        readonly HashSet<Hitomi.ChunkItemData> _db = new HashSet<Hitomi.ChunkItemData>();
 
         async Task updateDbAsync(int chunkIndex = 0)
         {
@@ -289,7 +290,7 @@ namespace nhitomi
                                                 switch (jsonReader.TokenType)
                                                 {
                                                     case JsonToken.String:
-                                                        tags.Add(DoujinData.Tag.Parse((string)jsonReader.Value).Value);
+                                                        tags.Add(Hitomi.DoujinData.Tag.Parse((string)jsonReader.Value).Value);
                                                         break;
                                                     case JsonToken.EndArray:
                                                         goto endTags;
@@ -317,7 +318,7 @@ namespace nhitomi
                             type.Equals("anime", StringComparison.OrdinalIgnoreCase))
                             continue;
 
-                        if (db.Add(new ChunkItemData(id, name, tags.ToArray(), author)))
+                        if (db.Add(new Hitomi.ChunkItemData(id, name, tags.ToArray(), author)))
                             ++loadCount;
                     }
 
