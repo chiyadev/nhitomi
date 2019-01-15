@@ -52,7 +52,7 @@ namespace nhitomi
             )
 
             // Formatters
-            .AddTransient<JsonSerializer>(s => JsonSerializer.CreateDefault())
+            .AddTransient<JsonSerializer>(s => new nhitomiJsonSerializer())
 
             // Discord
             .AddSingleton<DiscordService>()
