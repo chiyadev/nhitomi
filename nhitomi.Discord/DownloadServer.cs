@@ -149,7 +149,10 @@ nhitomi - Discord doujinshi bot by phosphene47#7788
                         foreach (var pageUrl in doujin.PageUrls)
                         {
                             // Create file in zip
-                            var entry = zip.CreateEntry(Path.GetFileName(pageUrl), CompressionLevel.Optimal);
+                            var entry = zip.CreateEntry(
+                                Path.GetFileNameWithoutExtension(pageUrl).PadLeft(3, '0') + Path.GetExtension(pageUrl),
+                                CompressionLevel.Optimal
+                            );
 
                             // Write page contents to entry
                             using (var dst = entry.Open())
