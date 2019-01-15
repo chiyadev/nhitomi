@@ -22,6 +22,9 @@ namespace nhitomi
 
     internal static class Extensions
     {
+        public static string SubstringFromEnd(this string str, int count) => str.Substring(str.Length - count, count);
+        public static string RemoveFromEnd(this string str, int count) => str.Remove(str.Length - count, count);
+
         public static string Format(this double[] elapsed)
         {
             var time = elapsed[0];
@@ -38,13 +41,6 @@ namespace nhitomi
             if (source.Any())
                 return source;
             return null;
-        }
-
-        public static IEnumerable<U> Select<T, U>(this IEnumerable<T> source, Func<T, int, U> projection)
-        {
-            var index = 0;
-            foreach (var item in source)
-                yield return projection(item, index++);
         }
 
         public static async Task ModifyAsync(this IUserMessage message, string content = null, Embed embed = null)

@@ -59,11 +59,11 @@ namespace nhitomi
             .AddSingleton<InteractiveScheduler>()
 
             // Doujin clients
-            .AddSingleton<nhentaiClient>()
+            .AddSingleton<nhentaiHtmlClient>()
             .AddSingleton<HitomiClient>()
             .AddSingleton<ISet<IDoujinClient>>(s => new HashSet<IDoujinClient>
             {
-                s.GetService<nhentaiClient>().Synchronized(),
+                s.GetService<nhentaiHtmlClient>().Synchronized(),
                 s.GetService<HitomiClient>().Synchronized()
             })
 
