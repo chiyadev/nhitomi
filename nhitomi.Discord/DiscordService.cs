@@ -89,6 +89,9 @@ namespace nhitomi
             await connectionSource.Task;
 
             Socket.Connected -= handleReady;
+
+            _interactive.IgnoreReactionUsers.Clear();
+            _interactive.IgnoreReactionUsers.Add(Socket.CurrentUser.Id);
         }
 
         public async Task StopSessionAsync()

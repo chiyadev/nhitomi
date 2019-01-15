@@ -20,6 +20,8 @@ namespace nhitomi
     {
         readonly AppSettings _settings;
 
+        public ICollection<ulong> IgnoreReactionUsers { get; } = new HashSet<ulong>();
+
         public InteractiveScheduler(
             IOptions<AppSettings> options
         )
@@ -148,11 +150,9 @@ namespace nhitomi
         )
         {
             if (!_interactives.TryGetValue(reaction.MessageId, out var interactive) ||              // Message must be interactive
+                IgnoreReactionUsers.Contains(reaction.UserId) ||                                    // Reaction user must not be ignoring
                 !interactive.Triggers.TryGetValue(reaction.Emote, out var callback))                // Reaction must be a valid trigger
                 return;
-
-            // requester = reactor requirement
-            // (interactive.RequesterId.HasValue && reaction.UserId != interactive.RequesterId) || // Reaction must be by the original requester
 
             // Execute callback
             await callback(reaction);
