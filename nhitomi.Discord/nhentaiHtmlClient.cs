@@ -68,6 +68,7 @@ namespace nhitomi
 
         static Regex _mediaIdRegex = new Regex(@"(?<=galleries\/)\d+(?=\/cover)", RegexOptions.IgnoreCase | RegexOptions.Compiled);
         static Regex _tagUrlRegex = new Regex(@"\/(?<type>.*)\/(?<name>.*)\/", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        static Regex _tagTitleRegex = new Regex(@"\[[^\]]*\]|\([^\)]*\)", RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
         public async Task<IDoujin> GetAsync(string id)
         {
@@ -115,8 +116,8 @@ namespace nhitomi
                             upload_date = 0,
                             title = new nhentai.DoujinData.Title
                             {
-                                japanese = innerSanitized(root.SelectSingleNode(nhentaiHtml.XPath.JapaneseName)),
-                                pretty = innerSanitized(root.SelectSingleNode(nhentaiHtml.XPath.PrettyName))
+                                japanese = _tagTitleRegex.Replace(innerSanitized(root.SelectSingleNode(nhentaiHtml.XPath.JapaneseName)), string.Empty).Trim(),
+                                pretty = _tagTitleRegex.Replace(innerSanitized(root.SelectSingleNode(nhentaiHtml.XPath.PrettyName)), string.Empty).Trim()
                             },
                             images = new nhentai.DoujinData.Images
                             {
