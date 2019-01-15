@@ -21,6 +21,8 @@ namespace nhitomi
     {
         public const int RequestCooldown = 500;
 
+        public const string GalleryRegex = @"((http|https):\/\/)?hitomi(.la)?\/(galleries\/)?(?<hitomi>[0-9]{1,7})";
+
         public static string Gallery(int id) => $"https://hitomi.la/galleries/{id}.html";
         public static string GalleryInfo(int id, char? server = null) => $"https://{server}tn.hitomi.la/galleries/{id}.js";
 
@@ -62,7 +64,7 @@ namespace nhitomi
 
         public DoujinClientMethod Method => DoujinClientMethod.Html;
 
-        public Regex GalleryRegex { get; } = new Regex(@"((http|https):\/\/)?hitomi(.la)?\/(galleries\/)?(?<hitomi>[0-9]{1,7})", RegexOptions.Compiled);
+        public Regex GalleryRegex { get; } = new Regex(Hitomi.GalleryRegex, RegexOptions.Compiled);
 
         readonly IMemoryCache _cache;
         readonly HttpClient _http;
