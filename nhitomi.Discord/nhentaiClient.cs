@@ -173,7 +173,7 @@ namespace nhitomi
                             using (var response = await _http.GetAsync(url))
                             using (var textReader = new StringReader(await response.Content.ReadAsStringAsync()))
                             using (var jsonReader = new JsonTextReader(textReader))
-                                current = _json.Deserialize<ListData>(jsonReader);
+                                current = _json.Deserialize<nhentai.ListData>(jsonReader);
 
                             _logger.LogDebug($"Got page {index}: {current.result?.Length ?? 0} items");
 
