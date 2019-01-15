@@ -64,7 +64,7 @@ namespace nhitomi
                     }
                     catch (Exception e)
                     {
-                        _logger.LogWarning(e, $"Exception while updating client '{c.Name}': {e.Message}.");
+                        _logger.LogWarning(e, $"Exception while updating client '{c.Name}': {e.Message}");
                     }
                 }));
 
