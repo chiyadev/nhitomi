@@ -28,6 +28,12 @@ namespace nhitomi
         public static string ThumbImage(int mediaId, int index, string ext) => $"https://t.nhentai.net/galleries/{mediaId}/{index}t.{ext}";
     }
 
+    /// <summary>
+    /// Legacy nhentai client using the HTTP API endpoints which have been suspended indefinitely as of January 13th 2019.
+    /// https://twitter.com/fuckmaou/status/1084550608097603585
+    /// https://github.com/NHMoeDev/NHentai-android/issues/108
+    /// </summary>
+    [Obsolete]
     public sealed class nhentaiClient : IDoujinClient
     {
         public string Name => nameof(nhentai);
