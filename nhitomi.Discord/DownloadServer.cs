@@ -5,6 +5,7 @@
 
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -22,6 +23,7 @@ namespace nhitomi
     {
         readonly AppSettings _settings;
         readonly ISet<IDoujinClient> _clients;
+        readonly JsonSerializer _serializer;
         readonly ILogger _logger;
 
         public HttpListener HttpListener { get; }
@@ -29,11 +31,13 @@ namespace nhitomi
         public DownloadServer(
             IOptions<AppSettings> options,
             ISet<IDoujinClient> clients,
+            JsonSerializer serializer,
             ILogger<DownloadServer> logger
         )
         {
             _settings = options.Value;
             _clients = clients;
+            _serializer = serializer;
             _logger = logger;
 
             HttpListener = new HttpListener();
@@ -146,6 +150,13 @@ nhitomi - Discord doujinshi bot by phosphene47#7788
                     // TODO: Caching
                     using (var zip = new ZipArchive(response.OutputStream, ZipArchiveMode.Create, leaveOpen: true))
                     {
+                        // Add doujin information file
+                        var infoEntry = zip.CreateEntry("_nhitomi.json", CompressionLevel.Optimal);
+
+                        using (var infoStream = infoEntry.Open())
+                        using (var infoWriter = new StreamWriter(infoStream))
+                            _serializer.Serialize(infoWriter, doujin);
+
                         foreach (var pageUrl in doujin.PageUrls)
                             try
                             {
