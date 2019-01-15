@@ -64,7 +64,7 @@ namespace nhitomi
 
         public DoujinClientMethod Method => DoujinClientMethod.Html;
 
-        public Regex GalleryRegex { get; } = new Regex(Hitomi.GalleryRegex, RegexOptions.Compiled);
+        public Regex GalleryRegex { get; } = new Regex(Hitomi.GalleryRegex, RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
         readonly IMemoryCache _cache;
         readonly HttpClient _http;

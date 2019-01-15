@@ -44,7 +44,7 @@ namespace nhitomi
 
         public DoujinClientMethod Method => DoujinClientMethod.Api;
 
-        public Regex GalleryRegex { get; } = new Regex(nhentai.GalleryRegex, RegexOptions.Compiled);
+        public Regex GalleryRegex { get; } = new Regex(nhentai.GalleryRegex, RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
         readonly IMemoryCache _cache;
         readonly HttpClient _http;
