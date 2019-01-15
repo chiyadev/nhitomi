@@ -18,6 +18,8 @@ namespace nhitomi
         string Url { get; }
         string IconUrl { get; }
 
+        DoujinClientMethod Method { get; }
+
         Regex GalleryRegex { get; }
 
         Task<IDoujin> GetAsync(string id);
@@ -26,6 +28,12 @@ namespace nhitomi
         Task<Stream> GetStreamAsync(string url);
 
         Task UpdateAsync();
+    }
+
+    public enum DoujinClientMethod
+    {
+        Html,
+        Api
     }
 
     public static class DoujinClient
@@ -43,6 +51,8 @@ namespace nhitomi
             public string Name => _impl.Name;
             public string Url => _impl.Url;
             public string IconUrl => _impl.IconUrl;
+
+            public DoujinClientMethod Method => _impl.Method;
 
             public Regex GalleryRegex => _impl.GalleryRegex;
 
