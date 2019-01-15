@@ -11,6 +11,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Net;
+using System.Net.Mime;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -136,6 +137,10 @@ nhitomi - Discord doujinshi bot by phosphene47#7788
                     // Retrieve doujin
                     var client = _clients.First(c => c.Name == sourceName);
                     var doujin = await client.GetAsync(id);
+
+                    // Response headers
+                    response.ContentType = MediaTypeNames.Application.Zip;
+                    response.AddHeader("Content-disposition", $"attachment; filename=\"{doujin.OriginalName}\"");
 
                     // Send zip to client
                     // TODO: Caching
