@@ -364,6 +364,11 @@ namespace nhitomi
             .AsCompletedTask();
         }
 
+        public async Task<Stream> GetStreamAsync(string url)
+        {
+            return await _http.GetStreamAsync(url);
+        }
+
         public override string ToString() => Name;
 
         public void Dispose() { }

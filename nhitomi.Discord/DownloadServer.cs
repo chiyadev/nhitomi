@@ -11,7 +11,6 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Net;
-using System.Net.Http;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -21,7 +20,6 @@ namespace nhitomi
     public class DownloadServer : IBackgroundService, IDisposable
     {
         readonly AppSettings _settings;
-        readonly HttpClient _httpClient;
         readonly ISet<IDoujinClient> _clients;
         readonly ILogger _logger;
 
@@ -29,13 +27,11 @@ namespace nhitomi
 
         public DownloadServer(
             IOptions<AppSettings> options,
-            IHttpClientFactory httpFactory,
             ISet<IDoujinClient> clients,
             ILogger<DownloadServer> logger
         )
         {
             _settings = options.Value;
-            _httpClient = httpFactory.CreateClient(nameof(DownloadServer));
             _clients = clients;
             _logger = logger;
 
@@ -152,7 +148,7 @@ nhitomi - Discord doujinshi bot by phosphene47#7788
 
                             // Write page contents to entry
                             using (var dst = entry.Open())
-                            using (var src = await _httpClient.GetStreamAsync(pageUrl))
+                            using (var src = await doujin.Source.GetStreamAsync(pageUrl))
                                 await src.CopyToAsync(dst);
                         }
                     }

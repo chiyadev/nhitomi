@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -21,6 +22,8 @@ namespace nhitomi
 
         Task<IDoujin> GetAsync(string id);
         Task<IAsyncEnumerable<IDoujin>> SearchAsync(string query);
+
+        Task<Stream> GetStreamAsync(string url);
 
         Task UpdateAsync();
     }
@@ -57,6 +60,15 @@ namespace nhitomi
                 await _semaphore.WaitAsync(); try
                 {
                     return await _impl.SearchAsync(query);
+                }
+                finally { _semaphore.Release(); }
+            }
+
+            public async Task<Stream> GetStreamAsync(string url)
+            {
+                await _semaphore.WaitAsync(); try
+                {
+                    return await _impl.GetStreamAsync(url);
                 }
                 finally { _semaphore.Release(); }
             }
