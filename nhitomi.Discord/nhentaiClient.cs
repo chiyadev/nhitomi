@@ -26,8 +26,8 @@ namespace nhitomi
         public static string All(int index = 0) => $"https://nhentai.net/api/galleries/all?page={index + 1}";
         public static string Search(string query, int index = 0) => $"https://nhentai.net/api/galleries/search?query={query}&page={index + 1}";
 
-        public static string Image(int mediaId, int index, string ext) => $"https://i.nhentai.net/galleries/{mediaId}/{index}.{ext}";
-        public static string ThumbImage(int mediaId, int index, string ext) => $"https://t.nhentai.net/galleries/{mediaId}/{index}t.{ext}";
+        public static string Image(int mediaId, int index, string ext) => $"https://i.nhentai.net/galleries/{mediaId}/{index + 1}.{ext}";
+        public static string ThumbImage(int mediaId, int index, string ext) => $"https://t.nhentai.net/galleries/{mediaId}/{index + 1}t.{ext}";
 
         public sealed class DoujinData
         {

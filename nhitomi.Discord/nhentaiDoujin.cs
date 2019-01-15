@@ -39,7 +39,7 @@ namespace nhitomi
         public IEnumerable<string> Artists => _d.tags?.Where(t => t.type == "artist").Select(t => t.name).NullIfEmpty();
         public IEnumerable<string> Tags => _d.tags?.Where(t => t.type == "tag").Select(t => t.name).NullIfEmpty();
 
-        public IEnumerable<string> PageUrls => _d.images.pages.Select((p, i) => nhentai.Image(_d.media_id, i + 1, p.t[0] == 'p' ? "png" : "jpg"));
+        public IEnumerable<string> PageUrls => _d.images.pages.Select((p, i) => nhentai.Image(_d.media_id, i, p.t[0] == 'p' ? "png" : "jpg"));
 
         public override string ToString() => PrettyName;
     }
