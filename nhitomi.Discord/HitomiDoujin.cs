@@ -32,7 +32,7 @@ namespace nhitomi
 
         public string Scanlator => null;
         public string Language => convertLanguage(_d.language);
-        public string ParodyOf => _d.series;
+        public string ParodyOf => _d.series == "original" ? null : _d.series;
 
         static string convertLanguage(string lang)
         {
