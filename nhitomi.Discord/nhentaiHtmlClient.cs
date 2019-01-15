@@ -150,24 +150,27 @@ namespace nhitomi
 
         static string innerSanitized(HtmlNode node) => node == null ? null : HtmlEntity.DeEntitize(node.InnerText).Trim();
 
-        public Task<Stream> GetStreamAsync(string url)
-        {
-            throw new System.NotImplementedException();
-        }
-
         public Task<IAsyncEnumerable<IDoujin>> SearchAsync(string query)
         {
             throw new System.NotImplementedException();
         }
 
-        public Task UpdateAsync()
+        public async Task<Stream> GetStreamAsync(string url)
         {
-            throw new System.NotImplementedException();
+            try
+            {
+                return await _http.GetStreamAsync(url);
+            }
+            finally
+            {
+                await throttle();
+            }
         }
 
-        public void Dispose()
-        {
-            throw new System.NotImplementedException();
-        }
+        public Task UpdateAsync() => Task.CompletedTask;
+
+        public override string ToString() => Name;
+
+        public void Dispose() { }
     }
 }
