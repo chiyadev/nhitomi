@@ -9,7 +9,7 @@
 
 ![nhitomi](nhitomi_rounded.png)
 
-WIP Discord Bot for doujinshi
+Discord Bot for browsing and downloading doujinshi
 
 Join the [Discord server](https://discord.gg/JFNga7q) or invite [nhitomi](https://discordapp.com/oauth2/authorize?client_id=515386276543725568&scope=bot&permissions=347200).
 
