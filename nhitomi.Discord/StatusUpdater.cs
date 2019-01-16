@@ -12,7 +12,7 @@ namespace nhitomi
 {
     public class StatusUpdater : IBackgroundService
     {
-        readonly AppSettings.DiscordSettings.StatusSettings _settings;
+        readonly AppSettings _settings;
         readonly DiscordService _discord;
 
         public StatusUpdater(
@@ -20,7 +20,7 @@ namespace nhitomi
             DiscordService discord
         )
         {
-            _settings = options.Value.Discord.Status;
+            _settings = options.Value;
             _discord = discord;
         }
 
@@ -29,13 +29,13 @@ namespace nhitomi
 
         void cycleGame()
         {
-            int index = _current == null ? -1 : System.Array.IndexOf(_settings.Games, _current);
+            int index = _current == null ? -1 : System.Array.IndexOf(_settings.Discord.Status.Games, _current);
             int next;
 
-            do { next = _rand.Next(_settings.Games.Length); }
+            do { next = _rand.Next(_settings.Discord.Status.Games.Length); }
             while (next == index);
 
-            _current = _settings.Games[next] + " [n!help]";
+            _current = $"{_settings.Discord.Status.Games[next]} [{_settings.Prefix}help]";
         }
 
         public async Task RunAsync(CancellationToken token)
@@ -50,7 +50,7 @@ namespace nhitomi
 
                 // Sleep
                 await Task.Delay(
-                    TimeSpan.FromMinutes(_settings.UpdateInterval),
+                    TimeSpan.FromMinutes(_settings.Discord.Status.UpdateInterval),
                     token
                 );
             }
