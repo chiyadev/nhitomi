@@ -162,17 +162,10 @@ namespace nhitomi
             return wrap(
                 await _cache.GetOrCreateAsync<Hitomi.DoujinData>(
                     key: $"{Name}/{id}",
-                    factory: async entry =>
+                    factory: entry =>
                     {
-                        try
-                        {
-                            entry.AbsoluteExpirationRelativeToNow = DoujinCacheOptions.Expiration;
-                            return await getAsync();
-                        }
-                        finally
-                        {
-                            await throttle();
-                        }
+                        entry.AbsoluteExpirationRelativeToNow = DoujinCacheOptions.Expiration;
+                        return getAsync();
                     }
                 )
             );
@@ -230,6 +223,10 @@ namespace nhitomi
                     return data;
                 }
                 catch (HttpRequestException) { return null; }
+                finally
+                {
+                    await throttle();
+                }
             }
         }
 

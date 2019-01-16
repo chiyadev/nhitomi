@@ -120,17 +120,10 @@ namespace nhitomi
             return wrap(
                 await _cache.GetOrCreateAsync<nhentai.DoujinData>(
                     key: $"{Name}/{id}",
-                    factory: async entry =>
+                    factory: entry =>
                     {
-                        try
-                        {
-                            entry.AbsoluteExpirationRelativeToNow = DoujinCacheOptions.Expiration;
-                            return await getAsync();
-                        }
-                        finally
-                        {
-                            await throttle();
-                        }
+                        entry.AbsoluteExpirationRelativeToNow = DoujinCacheOptions.Expiration;
+                        return getAsync();
                     }
                 )
             );
@@ -144,11 +137,17 @@ namespace nhitomi
                     using (var jsonReader = new JsonTextReader(textReader))
                     {
                         var data = _json.Deserialize<nhentai.DoujinData>(jsonReader);
+
                         _logger.LogDebug($"Got doujin {id}: {data.title.pretty}");
+
                         return data;
                     }
                 }
                 catch (HttpRequestException) { return null; }
+                finally
+                {
+                    await throttle();
+                }
             }
         }
 
