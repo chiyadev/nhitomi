@@ -44,7 +44,7 @@ namespace nhitomi
             if (client == null)
                 response = await ReplyAsync(
                     $"**nhitomi**: Source __{source}__ is not supported. " +
-                    "Please see refer to the manual (**n!help**) for a full list of supported sources."
+                    $"Please see refer to the manual (**{_settings.Prefix}help**) for a full list of supported sources."
                 );
 
             return (client, response);

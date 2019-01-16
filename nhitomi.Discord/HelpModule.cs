@@ -6,19 +6,23 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Discord.Commands;
+using Microsoft.Extensions.Options;
 
 namespace nhitomi
 {
     public class HelpModule : ModuleBase
     {
+        readonly AppSettings _settings;
         readonly CommandService _commands;
         readonly ISet<IDoujinClient> _clients;
 
         public HelpModule(
+            IOptions<AppSettings> options,
             CommandService commands,
             ISet<IDoujinClient> clients
         )
         {
+            _settings = options.Value;
             _commands = commands;
             _clients = clients;
         }
@@ -32,7 +36,8 @@ namespace nhitomi
                 message: string.Empty,
                 embed: MessageFormatter.EmbedHelp(
                     commands: _commands.Commands,
-                    clients: _clients
+                    clients: _clients,
+                    prefix: _settings.Prefix
                 )
             );
         }

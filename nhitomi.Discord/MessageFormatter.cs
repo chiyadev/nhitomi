@@ -54,6 +54,7 @@ namespace nhitomi
         }
 
         public static Embed EmbedHelp(
+            string prefix,
             IEnumerable<CommandInfo> commands,
             IEnumerable<IDoujinClient> clients
         )
@@ -72,7 +73,7 @@ namespace nhitomi
 
             foreach (var command in commands)
             {
-                builder.Append($"- **n!{command.Name}**");
+                builder.Append($"- **{prefix}{command.Name}**");
 
                 if (command.Parameters.Count > 0)
                     builder.Append($" __{string.Join("__, __", command.Parameters.Select(p => p.Name))}__");
