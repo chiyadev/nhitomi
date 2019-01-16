@@ -67,10 +67,10 @@ namespace nhitomi
 
         Task throttle() => Task.Delay(TimeSpan.FromMilliseconds(nhentai.RequestCooldown));
 
-        static Regex _mediaIdRegex = new Regex(@"(?<=galleries\/)\d+(?=\/cover)", RegexOptions.IgnoreCase | RegexOptions.Compiled);
-        static Regex _tagUrlRegex = new Regex(@"\/(?<type>.*)\/(?<name>.*)\/", RegexOptions.IgnoreCase | RegexOptions.Compiled);
-        static Regex _tagTitleRegex = new Regex(@"\[[^\]]*\]|\([^\)]*\)", RegexOptions.IgnoreCase | RegexOptions.Compiled);
-        static Regex _galleryRegex = new Regex(@"(?<=g\/)\d+(?=\/)", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        static readonly Regex _mediaIdRegex = new Regex(@"(?<=galleries\/)\d+(?=\/cover)", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        static readonly Regex _tagUrlRegex = new Regex(@"\/(?<type>.*)\/(?<name>.*)\/", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        static readonly Regex _tagTitleRegex = new Regex(@"\[[^\]]*\]|\([^\)]*\)", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        static readonly Regex _galleryRegex = new Regex(@"(?<=g\/)\d+(?=\/)", RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
         public async Task<IDoujin> GetAsync(string id)
         {
