@@ -174,7 +174,7 @@ namespace nhitomi
             {
                 try
                 {
-                    Hitomi.DoujinData data;
+                    HtmlNode root;
 
                     using (var response = await _http.GetAsync(Hitomi.Gallery(intId)))
                     using (var reader = new StringReader(await response.Content.ReadAsStringAsync()))
@@ -182,31 +182,32 @@ namespace nhitomi
                         var doc = new HtmlDocument();
                         doc.Load(reader);
 
-                        var root = doc.DocumentNode;
-
-                        // Scrape data from HTML using XPath
-                        data = new Hitomi.DoujinData
-                        {
-                            id = intId,
-                            name = innerSanitized(root.SelectSingleNode(Hitomi.XPath.Name)),
-                            artists = root.SelectNodes(Hitomi.XPath.Artists)?.Select(innerSanitized).ToArray(),
-                            groups = root.SelectNodes(Hitomi.XPath.Groups)?.Select(innerSanitized).ToArray(),
-                            language = innerSanitized(root.SelectSingleNode(Hitomi.XPath.Language)),
-                            series = innerSanitized(root.SelectSingleNode(Hitomi.XPath.Series)),
-                            tags = root.SelectNodes(Hitomi.XPath.Tags)?.Select(n => Hitomi.DoujinData.Tag.Parse(innerSanitized(n))).ToArray(),
-                            characters = root.SelectNodes(Hitomi.XPath.Characters)?.Select(innerSanitized).ToArray(),
-                            date = innerSanitized(root.SelectSingleNode(Hitomi.XPath.Date))
-                        };
-
-                        // We don't want anime
-                        var type = innerSanitized(root.SelectSingleNode(Hitomi.XPath.Type));
-                        if (type == null || type.Equals("anime", StringComparison.OrdinalIgnoreCase))
-                        {
-                            _logger.LogWarning($"Skipping {id} because it is of type 'anime'.");
-                            return null;
-                        }
+                        root = doc.DocumentNode;
                     }
 
+                    // Filter out anime
+                    var type = innerSanitized(root.SelectSingleNode(Hitomi.XPath.Type));
+                    if (type != null && type.Equals("anime", StringComparison.OrdinalIgnoreCase))
+                    {
+                        _logger.LogInformation($"Skipping {id} because it is of type 'anime'.");
+                        return null;
+                    }
+
+                    // Scrape data from HTML using XPath
+                    var data = new Hitomi.DoujinData
+                    {
+                        id = intId,
+                        name = innerSanitized(root.SelectSingleNode(Hitomi.XPath.Name)),
+                        artists = root.SelectNodes(Hitomi.XPath.Artists)?.Select(innerSanitized).ToArray(),
+                        groups = root.SelectNodes(Hitomi.XPath.Groups)?.Select(innerSanitized).ToArray(),
+                        language = innerSanitized(root.SelectSingleNode(Hitomi.XPath.Language)),
+                        series = innerSanitized(root.SelectSingleNode(Hitomi.XPath.Series)),
+                        tags = root.SelectNodes(Hitomi.XPath.Tags)?.Select(n => Hitomi.DoujinData.Tag.Parse(innerSanitized(n))).ToArray(),
+                        characters = root.SelectNodes(Hitomi.XPath.Characters)?.Select(innerSanitized).ToArray(),
+                        date = innerSanitized(root.SelectSingleNode(Hitomi.XPath.Date))
+                    };
+
+                    // Parse images
                     using (var response = await _http.GetAsync(Hitomi.GalleryInfo(intId)))
                     using (var textReader = new StringReader(await response.Content.ReadAsStringAsync()))
                     using (var jsonReader = new JsonTextReader(textReader))

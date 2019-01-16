@@ -132,16 +132,16 @@ namespace nhitomi
             {
                 try
                 {
+                    nhentai.DoujinData data;
+
                     using (var response = await _http.GetAsync(nhentai.Gallery(intId)))
                     using (var textReader = new StringReader(await response.Content.ReadAsStringAsync()))
                     using (var jsonReader = new JsonTextReader(textReader))
-                    {
-                        var data = _json.Deserialize<nhentai.DoujinData>(jsonReader);
+                        data = _json.Deserialize<nhentai.DoujinData>(jsonReader);
 
-                        _logger.LogDebug($"Got doujin {id}: {data.title.pretty}");
+                    _logger.LogDebug($"Got doujin {id}: {data.title.pretty}");
 
-                        return data;
-                    }
+                    return data;
                 }
                 catch (HttpRequestException) { return null; }
                 finally
