@@ -14,7 +14,7 @@ namespace nhitomi
 {
     public static class MessageFormatter
     {
-        static string join(IEnumerable<string> values) => values == null || !values.Any() ? null : string.Join(", ", values);
+        static string join(IEnumerable<string> values) => string.Join(", ", values);
 
         const string DateFormat = "dddd, dd MMMM yyyy";
 
@@ -41,11 +41,11 @@ namespace nhitomi
                 embed.AddField("Language", doujin.Language, inline: true);
             if (doujin.ParodyOf != null)
                 embed.AddField("Parody of", doujin.ParodyOf, inline: true);
-            if (doujin.Categories != null)
+            if (doujin.Categories != null && doujin.Categories.Any())
                 embed.AddField("Categories", join(doujin.Categories), inline: true);
-            if (doujin.Characters != null)
+            if (doujin.Characters != null && doujin.Characters.Any())
                 embed.AddField("Characters", join(doujin.Characters), inline: true);
-            if (doujin.Tags != null)
+            if (doujin.Tags != null && doujin.Tags.Any())
                 embed.AddField("Tags", join(doujin.Tags), inline: true);
 
             embed.AddField("Content", $"{doujin.PageUrls.Count()} pages", inline: true);
