@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace nhitomi
 {
@@ -52,10 +53,12 @@ namespace nhitomi
         public string Language => "english";
         public string ParodyOf => _d.parody;
 
-        public IEnumerable<string> Characters => _d.characters;
-        public IEnumerable<string> Categories => new[] { _d.category };
-        public IEnumerable<string> Artists => new[] { _d.artist };
-        public IEnumerable<string> Tags => _d.tags;
+        public IEnumerable<string> Characters => _d.characters.Select(convertTag);
+        public IEnumerable<string> Categories => new[] { _d.category }.Select(convertTag).Where(c => c != "doujinshi");
+        public IEnumerable<string> Artists => new[] { _d.artist }.Select(convertTag);
+        public IEnumerable<string> Tags => _d.tags.Select(convertTag);
+
+        static string convertTag(string tag) => tag.ToLowerInvariant();
 
         public IEnumerable<string> PageUrls => new string[0];
 
