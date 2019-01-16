@@ -137,7 +137,7 @@ namespace nhitomi
                                 return new nhentai.DoujinData.Tag
                                 {
                                     type = match.Groups["type"].Value,
-                                    name = match.Groups["name"].Value
+                                    name = match.Groups["name"].Value.Replace('-', ' ')
                                 };
                             })
                             .ToArray()
