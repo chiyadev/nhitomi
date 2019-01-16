@@ -110,7 +110,7 @@ namespace nhitomi
 
         IDoujin wrap(Tsumino.DoujinData data) => new TsuminoDoujin(this, data);
 
-        Task throttle() => Task.Delay(TimeSpan.FromMilliseconds(nhentai.RequestCooldown));
+        Task throttle() => Task.Delay(TimeSpan.FromMilliseconds(Tsumino.RequestCooldown));
 
         public async Task<IDoujin> GetAsync(string id)
         {

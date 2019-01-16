@@ -57,7 +57,7 @@ namespace nhitomi
         public IEnumerable<string> Artists => new[] { _d.artist };
         public IEnumerable<string> Tags => _d.tags;
 
-        public IEnumerable<string> PageUrls => throw new NotImplementedException();
+        public IEnumerable<string> PageUrls => new string[0];
 
         public override string ToString() => PrettyName;
     }
