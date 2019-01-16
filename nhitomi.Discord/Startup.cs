@@ -61,10 +61,12 @@ namespace nhitomi
             // Doujin clients
             .AddSingleton<nhentaiHtmlClient>()
             .AddSingleton<HitomiClient>()
+            .AddSingleton<TsuminoClient>()
             .AddSingleton<ISet<IDoujinClient>>(s => new HashSet<IDoujinClient>
             {
                 s.GetService<nhentaiHtmlClient>().Synchronized(),
-                s.GetService<HitomiClient>().Synchronized()
+                s.GetService<HitomiClient>().Synchronized(),
+                s.GetService<TsuminoClient>().Synchronized()
             })
 
             // Background services
