@@ -148,6 +148,10 @@ namespace nhitomi
                     return data;
                 }
                 catch (HttpRequestException) { return null; }
+                finally
+                {
+                    await throttle();
+                }
             }
         }
 
