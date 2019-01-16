@@ -31,6 +31,7 @@ namespace nhitomi
             public const string JapaneseName = @"//*[@id=""info""]/h2";
             public const string ThumbImage = @"//*[@id=""thumbnail-container""]/div/a/img";
             public const string TagAnchor = @"//*[@class=""tags""]/a";
+            public const string SearchItem = @"//*[@class=""gallery""]/a";
         }
     }
 
@@ -69,6 +70,7 @@ namespace nhitomi
         static Regex _mediaIdRegex = new Regex(@"(?<=galleries\/)\d+(?=\/cover)", RegexOptions.IgnoreCase | RegexOptions.Compiled);
         static Regex _tagUrlRegex = new Regex(@"\/(?<type>.*)\/(?<name>.*)\/", RegexOptions.IgnoreCase | RegexOptions.Compiled);
         static Regex _tagTitleRegex = new Regex(@"\[[^\]]*\]|\([^\)]*\)", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        static Regex _galleryRegex = new Regex(@"(?<=g\/)\d+(?=\/)", RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
         public async Task<IDoujin> GetAsync(string id)
         {
@@ -151,10 +153,62 @@ namespace nhitomi
 
         static string innerSanitized(HtmlNode node) => node == null ? null : HtmlEntity.DeEntitize(node.InnerText).Trim();
 
-        public Task<IAsyncEnumerable<IDoujin>> SearchAsync(string query)
-        {
-            throw new System.NotImplementedException();
-        }
+        public Task<IAsyncEnumerable<IDoujin>> SearchAsync(string query) =>
+            AsyncEnumerable.CreateEnumerable(() =>
+            {
+                string[] current = null;
+                var index = 0;
+
+                return AsyncEnumerable.CreateEnumerator(
+                    moveNext: async token =>
+                    {
+                        try
+                        {
+                            var url = string.IsNullOrWhiteSpace(query)
+                                ? nhentaiHtml.All(index)
+                                : nhentaiHtml.Search(query, index);
+
+                            using (var response = await _http.GetAsync(url))
+                            using (var reader = new StringReader(await response.Content.ReadAsStringAsync()))
+                            {
+                                var doc = new HtmlDocument();
+                                doc.Load(reader);
+
+                                var root = doc.DocumentNode;
+
+                                current = root.SelectNodes(nhentaiHtml.XPath.SearchItem).Select(n => _galleryRegex.Match(n.Attributes["href"].Value).Value).ToArray();
+                            }
+
+                            index++;
+
+                            return true;
+                        }
+                        catch (HttpRequestException) { return false; }
+                        finally
+                        {
+                            await throttle();
+                        }
+                    },
+                    current: () => current,
+                    dispose: () => { }
+                );
+            })
+            .SelectMany(list => AsyncEnumerable.CreateEnumerable(() =>
+            {
+                IDoujin current = null;
+                var index = 0;
+
+                return AsyncEnumerable.CreateEnumerator(
+                    moveNext: async token =>
+                    {
+                        current = await GetAsync(list[index++]);
+                        return true;
+                    },
+                    current: () => current,
+                    dispose: () => { }
+                );
+            }))
+            .AsCompletedTask();
 
         public async Task<Stream> GetStreamAsync(string url)
         {
