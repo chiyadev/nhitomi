@@ -162,8 +162,6 @@ namespace nhitomi
                     {
                         try
                         {
-                            index++;
-
                             // Load list
                             var url = string.IsNullOrWhiteSpace(query)
                                 ? nhentai.All(index)
@@ -186,6 +184,8 @@ namespace nhitomi
                                     value: result,
                                     options: new DoujinCacheOptions()
                                 );
+
+                            index++;
 
                             return true;
                         }
