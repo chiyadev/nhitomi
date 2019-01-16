@@ -24,6 +24,8 @@ namespace nhitomi
         public const string GalleryRegex = @"\b((http|https):\/\/)?(www\.)?tsumino(\.com)?\/(Book\/Info\/)?(?<tsumino>[0-9]{1,5})\b";
 
         public static string Book(int id) => $"https://www.tsumino.com/Book/Info/{id}/";
+        public const string ReadLoad = "https://www.tsumino.com/Read/Load";
+        public static string ImageObject(string name) => $"https://www.tsumino.com/Image/Object?name={name}";
 
         public static class XPath
         {
@@ -77,6 +79,18 @@ namespace nhitomi
             public string parody;
             public string[] characters;
             public string[] tags;
+
+            public Reader reader;
+            public struct Reader
+            {
+                public int reader_page_number;
+                public string reader_end_url;
+                public string[] reader_page_urls;
+                public int reader_page_total;
+                public string reader_base_url;
+                public string reader_start_url;
+                public string reader_process_url;
+            }
         }
     }
 
@@ -168,11 +182,24 @@ namespace nhitomi
                         tags = root.SelectNodes(Tsumino.XPath.BookTag)?.Select(innerSanitized).ToArray()
                     };
 
+                    // Parse images
+                    using (var response = await _http.PostAsync(Tsumino.ReadLoad, new FormUrlEncodedContent(new Dictionary<string, string>
+                    {
+                        { "q", id }
+                    })))
+                    using (var textReader = new StringReader(await response.Content.ReadAsStringAsync()))
+                    using (var jsonReader = new JsonTextReader(textReader))
+                        data.reader = _json.Deserialize<Tsumino.DoujinData.Reader>(jsonReader);
+
                     _logger.LogDebug($"Got doujin {id}: {data.title}");
 
                     return data;
                 }
                 catch (HttpRequestException) { return null; }
+                finally
+                {
+                    await throttle();
+                }
             }
         }
 

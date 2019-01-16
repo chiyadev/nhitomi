@@ -53,14 +53,14 @@ namespace nhitomi
         public string Language => "english";
         public string ParodyOf => _d.parody;
 
-        public IEnumerable<string> Characters => _d.characters.Select(convertTag);
+        public IEnumerable<string> Characters => _d.characters?.Select(convertTag);
         public IEnumerable<string> Categories => new[] { _d.category }.Select(convertTag).Where(c => c != "doujinshi");
         public IEnumerable<string> Artists => new[] { _d.artist }.Select(convertTag);
-        public IEnumerable<string> Tags => _d.tags.Select(convertTag);
+        public IEnumerable<string> Tags => _d.tags?.Select(convertTag);
 
         static string convertTag(string tag) => tag.ToLowerInvariant();
 
-        public IEnumerable<string> PageUrls => new string[0];
+        public IEnumerable<string> PageUrls => _d.reader.reader_page_urls.Select(Tsumino.ImageObject);
 
         public override string ToString() => PrettyName;
     }
