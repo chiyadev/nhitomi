@@ -20,7 +20,7 @@ namespace nhitomi
     {
         public const int RequestCooldown = 500;
 
-        public const string GalleryRegex = @"((http|https):\/\/)?nhentai(.net)?\/(g\/)?(?<nhentai>[0-9]{1,6})";
+        public const string GalleryRegex = @"\b((http|https):\/\/)?nhentai(\.net)?\/(g\/)?(?<nhentai>[0-9]{1,6})\b";
 
         public static string Gallery(int id) => $"https://nhentai.net/api/gallery/{id}";
         public static string All(int index = 0) => $"https://nhentai.net/api/galleries/all?page={index + 1}";
