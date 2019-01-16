@@ -25,7 +25,7 @@ namespace nhitomi
         public string OriginalName => _d.title.japanese;
 
         public DateTime UploadTime => DateTimeOffset.FromUnixTimeSeconds(_d.upload_date).UtcDateTime;
-        public DateTime ProcessTime => new DateTimeOffset(_d._processed).UtcDateTime;
+        public DateTime ProcessTime => _d._processed;
 
         public IDoujinClient Source { get; }
         public string SourceUrl => $"https://nhentai.net/g/{Id}/";
