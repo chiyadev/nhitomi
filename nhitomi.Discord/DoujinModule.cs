@@ -388,7 +388,7 @@ namespace nhitomi
             var downloadToken = doujin.CreateToken(secret, expiresIn: validLength);
 
             await response.ModifyAsync(
-                content: $"**{client.Name}**: Loaded __{id}__",
+                content: $"**{client.Name}**: Download __{id}__",
                 embed: MessageFormatter.EmbedDownload(
                     doujinName: doujin.PrettyName,
                     link: $"{_settings.Http.Url}/dl/{downloadToken}",
