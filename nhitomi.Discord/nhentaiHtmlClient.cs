@@ -212,8 +212,12 @@ namespace nhitomi
                 return AsyncEnumerable.CreateEnumerator(
                     moveNext: async token =>
                     {
-                        current = await GetAsync(list[index++]);
-                        return true;
+                        if (index < list.Length)
+                        {
+                            current = await GetAsync(list[index++]);
+                            return true;
+                        }
+                        return false;
                     },
                     current: () => current,
                     dispose: () => { }
