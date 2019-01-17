@@ -307,8 +307,6 @@ namespace nhitomi
             // Load next doujin
             async Task loadNext(SocketReaction reaction)
             {
-                await response.ModifyAsync($"**nhitomi**: Loading...");
-
                 if (!await browser.MoveNext())
                 {
                     await updateView($"**nhitomi**: Reached the end of list!");
@@ -322,8 +320,6 @@ namespace nhitomi
             // Load previous doujin
             async Task loadPrevious(SocketReaction reactiom)
             {
-                await response.ModifyAsync($"**nhitomi**: Loading...");
-
                 if (!browser.MovePrevious())
                 {
                     await updateView($"**nhitomi**: Reached the start of list!");
