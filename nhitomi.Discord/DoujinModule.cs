@@ -309,7 +309,7 @@ namespace nhitomi
             {
                 if (!await browser.MoveNext())
                 {
-                    await updateView($"**nhitomi**: Reached the end of list!");
+                    await updateView($"**nhitomi**: End of list!");
                     return;
                 }
 
@@ -322,7 +322,7 @@ namespace nhitomi
             {
                 if (!browser.MovePrevious())
                 {
-                    await updateView($"**nhitomi**: Reached the start of list!");
+                    await updateView($"**nhitomi**: Start of list!");
                     return;
                 }
 
