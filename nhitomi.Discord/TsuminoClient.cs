@@ -24,8 +24,9 @@ namespace nhitomi
         public const string GalleryRegex = @"\b((http|https):\/\/)?(www\.)?tsumino(\.com)?\/(Book\/Info\/)?(?<tsumino>[0-9]{1,5})\b";
 
         public static string Book(int id) => $"https://www.tsumino.com/Book/Info/{id}/";
-        public const string ReadLoad = "https://www.tsumino.com/Read/Load";
         public static string ImageObject(string name) => $"https://www.tsumino.com/Image/Object?name={name}";
+        public const string ReadLoad = "https://www.tsumino.com/Read/Load";
+        public const string Operate = "https://www.tsumino.com/Books/Operate";
 
         public static class XPath
         {
@@ -91,6 +92,29 @@ namespace nhitomi
                 public string reader_start_url;
                 public string reader_process_url;
             }
+        }
+
+        public sealed class ListData
+        {
+            public ListItem[] Data;
+            public class ListItem
+            {
+                public ListEntry Entry;
+                public struct ListEntry
+                {
+                    public int Id;
+                    public string Title;
+                    public double Rating;
+                    public int Pages;
+                    // Tsumino actually returns more than this but they have no meaning
+                }
+
+                public int Impression;
+                public int HistoryPage;
+            }
+
+            public int PageCount;
+            public int PageNumber;
         }
     }
 
@@ -205,10 +229,64 @@ namespace nhitomi
 
         static string innerSanitized(HtmlNode node) => node == null ? null : HtmlEntity.DeEntitize(node.InnerText).Trim();
 
-        public Task<IAsyncEnumerable<IDoujin>> SearchAsync(string query)
-        {
-            throw new System.NotImplementedException();
-        }
+        public bool CompletelyExcludeHated { get; set; } = true;
+
+        public Task<IAsyncEnumerable<IDoujin>> SearchAsync(string query) =>
+            AsyncEnumerable.CreateEnumerable(() =>
+            {
+                Tsumino.ListData current = null;
+                var index = 0;
+
+                return AsyncEnumerable.CreateEnumerator(
+                    moveNext: async token =>
+                    {
+                        try
+                        {
+                            // Load list
+                            using (var response = await _http.PostAsync(Tsumino.Operate, new FormUrlEncodedContent(new Dictionary<string, string>
+                            {
+                                { "PageNumber", (index + 1).ToString() },
+                                { "Text", query?.Trim() },
+                                { "Sort", "Newest" },
+                                { "CompletelyExcludeHated", CompletelyExcludeHated ? "true" : "false" }
+
+                            })))
+                            using (var textReader = new StringReader(await response.Content.ReadAsStringAsync()))
+                            using (var jsonReader = new JsonTextReader(textReader))
+                                current = _json.Deserialize<Tsumino.ListData>(jsonReader);
+
+                            index++;
+
+                            _logger.LogDebug($"Got page {index}: {current.Data?.Length ?? 0} items");
+
+                            return !Array.IsNullOrEmpty(current.Data);
+                        }
+                        catch (HttpRequestException) { return false; }
+                        finally
+                        {
+                            await throttle();
+                        }
+                    },
+                    current: () => current,
+                    dispose: () => { }
+                );
+            })
+            .SelectMany(list => AsyncEnumerable.CreateEnumerable(() =>
+            {
+                IDoujin current = null;
+                var index = 0;
+
+                return AsyncEnumerable.CreateEnumerator(
+                    moveNext: async token =>
+                    {
+                        current = await GetAsync(list.Data[index++].Entry.Id.ToString());
+                        return true;
+                    },
+                    current: () => current,
+                    dispose: () => { }
+                );
+            }))
+            .AsCompletedTask();
 
         public async Task<Stream> GetStreamAsync(string url)
         {
