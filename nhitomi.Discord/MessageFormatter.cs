@@ -37,15 +37,15 @@ namespace nhitomi
                 .WithFooter($"Uploaded on {doujin.UploadTime.ToString(DateFormat)}");
 
             if (doujin.Language != null)
-                embed.AddField("Language", doujin.Language, inline: true);
+                embed.AddFieldString("Language", doujin.Language, inline: true);
             if (doujin.ParodyOf != null)
-                embed.AddField("Parody of", doujin.ParodyOf, inline: true);
+                embed.AddFieldString("Parody of", doujin.ParodyOf, inline: true);
             if (doujin.Categories != null)
-                embed.AddField("Categories", join(doujin.Categories), inline: true);
+                embed.AddFieldString("Categories", join(doujin.Categories), inline: true);
             if (doujin.Characters != null)
-                embed.AddField("Characters", join(doujin.Characters), inline: true);
+                embed.AddFieldString("Characters", join(doujin.Characters), inline: true);
             if (doujin.Tags != null)
-                embed.AddField("Tags", join(doujin.Tags), inline: true);
+                embed.AddFieldString("Tags", join(doujin.Tags), inline: true);
 
             embed.AddField("Content", $"{doujin.PageUrls.Count()} pages", inline: true);
 

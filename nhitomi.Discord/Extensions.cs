@@ -22,6 +22,14 @@ namespace nhitomi
 
     internal static class Extensions
     {
+        public static EmbedBuilder AddFieldString(this EmbedBuilder builder, string name, string value, bool inline = false)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+                return builder;
+
+            return builder.AddField(name, value, inline);
+        }
+
         public static string SubstringFromEnd(this string str, int count) => str.Substring(str.Length - count, count);
         public static string RemoveFromEnd(this string str, int count) => str.Remove(str.Length - count, count);
 
