@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace nhitomi
 {
-    public class DiscordLogRedirector : ILoggerProvider
+    public class DiscordLogService : ILoggerProvider
     {
         readonly AppSettings.DiscordSettings.ServerSettings _settings;
         readonly DiscordService _discord;
@@ -22,7 +22,7 @@ namespace nhitomi
         readonly Task _worker;
         readonly CancellationTokenSource _tokenSource = new CancellationTokenSource();
 
-        public DiscordLogRedirector(
+        public DiscordLogService(
             IOptions<AppSettings> options,
             DiscordService discord
         )
@@ -87,10 +87,10 @@ namespace nhitomi
         sealed class DiscordLogger : ILogger
         {
             readonly string _category;
-            readonly DiscordLogRedirector _provider;
+            readonly DiscordLogService _provider;
 
             public DiscordLogger(
-                DiscordLogRedirector provider,
+                DiscordLogService provider,
                 string category
             )
             {
