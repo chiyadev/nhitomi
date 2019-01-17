@@ -45,111 +45,91 @@ namespace nhitomi
         {
             while (!token.IsCancellationRequested)
             {
+                // Update clients sequentially
+                foreach (var c in _clients)
+                    try { await c.UpdateAsync(); }
+                    catch (Exception e) { _logger.LogWarning(e, $"Exception while updating client '{c.Name}': {e.Message}"); }
+
+                // Concurrently find recent uploads
+                var newDoujins = AsyncEnumerable.Concat(await Task.WhenAll(_clients.Select(async c =>
+                {
+                    try
+                    {
+                        var list = await c.SearchAsync(null);
+
+                        // Handling first time update
+                        if (!_lastDoujins.ContainsKey(c))
+                            _lastDoujins[c] = await list.First();
+
+                        else
+                        {
+                            // Get all new doujins up to the last one we know
+                            list = list.TakeWhile(d => d.Id != _lastDoujins[c].Id);
+
+                            _lastDoujins[c] = await list.FirstOrDefault() ?? _lastDoujins[c];
+
+                            return list;
+                        }
+                    }
+                    catch (Exception e) { _logger.LogWarning(e, $"Exception while searching client '{c.Name}': {e.Message}"); }
+
+                    return AsyncEnumerable.Empty<IDoujin>();
+                })));
+
                 // Get feed channels
                 var channels =
                     (_discord.Socket.GetChannel(_settings.Discord.Server.FeedCategoryId) as SocketCategoryChannel).Channels
                     .OfType<ITextChannel>()
-                    .ToDictionary(c => c.Name.ToLowerInvariant(), c => c);
+                    .ToArray();
 
                 if (channels != null)
-                    _logger.LogDebug($"Found {channels.Count} feed channels: {string.Join(", ", channels.Select(c => c.Key))}");
+                {
+                    _logger.LogDebug($"Found {channels.Length} feed channels: {string.Join(", ", channels.Select(c => c.Name))}");
+
+                    // Concurrently send new updates
+                    await Task.WhenAll(await newDoujins
+                        .SelectMany(d => channels
+                            .Where(c => tagsToChannels(d.Tags).Contains(c.Name))
+                            .Select(async c =>
+                            {
+                                await _interactive.CreateInteractiveAsync(
+                                    requester: null,
+                                    response: await c.SendMessageAsync(
+                                        text: $"**{c.Name}**: __{d.Id}__",
+                                        embed: MessageFormatter.EmbedDoujin(d)
+                                    ),
+                                    triggers: add => add(
+                                        ("\u2764", async r =>
+                                        {
+                                            var requester = _discord.Socket.GetUser(r.UserId);
+
+                                            await DoujinModule.ShowDoujin(
+                                                interactive: _interactive,
+                                                requester: requester,
+                                                response: await (await requester.GetOrCreateDMChannelAsync()).SendMessageAsync(
+                                                    text: $"**{c.Name}**: __{d.Id}__",
+                                                    embed: MessageFormatter.EmbedDoujin(d)
+                                                ),
+                                                doujin: d,
+                                                settings: _settings
+                                            );
+                                        }
+                                    )
+                                    ),
+                                    allowTrash: false
+                                );
+                            })
+                            .ToAsyncEnumerable())
+                        .ToArray());
+                }
                 else
                     _logger.LogDebug($"No feed channels were found.");
-
-                await Task.WhenAll(_clients.Select(async c =>
-                {
-                    try
-                    {
-                        await updateClient(c, channels, token);
-                    }
-                    catch (Exception e)
-                    {
-                        _logger.LogWarning(e, $"Exception while updating client '{c.Name}': {e.Message}");
-                    }
-                }));
 
                 // Sleep
                 await Task.Delay(
                     TimeSpan.FromMinutes(_settings.Doujin.UpdateInterval),
                     token
                 );
-            }
-        }
-
-        async Task updateClient(IDoujinClient client, IReadOnlyDictionary<string, ITextChannel> channels, CancellationToken token)
-        {
-            // Update client
-            await client.UpdateAsync();
-
-            if (channels == null)
-                return;
-
-            // Find new uploads
-            using (var doujins = (await client.SearchAsync(null)).GetEnumerator())
-            {
-                var count = 0;
-
-                if (_lastDoujins.TryGetValue(client, out var lastDoujin))
-                {
-                    // Limit maximum alerts from each client to 20
-                    while (count < 20 && await doujins.MoveNext(token))
-                    {
-                        var doujin = doujins.Current;
-
-                        if (doujin.Id == lastDoujin.Id)
-                            break;
-
-                        if (count == 0)
-                            _lastDoujins[client] = doujin;
-
-                        if (doujin.Tags == null ||
-                            !doujin.Tags.Any())
-                            continue;
-
-                        // Create interactive
-                        foreach (var channel in channels.Where(c => doujin.Tags.Contains(c.Key.Replace('-', ' '))).Select(c => c.Value))
-                        {
-                            await _interactive.CreateInteractiveAsync(
-                                requester: null,
-                                response: await channel.SendMessageAsync(
-                                    text: string.Empty,
-                                    embed: MessageFormatter.EmbedDoujin(doujin)
-                                ),
-                                triggers: add => add(
-                                    ("\u2764", sendDoujin)
-                                ),
-                                allowTrash: false
-                            );
-                        }
-
-                        async Task sendDoujin(SocketReaction reaction)
-                        {
-                            var requester = _discord.Socket.GetUser(reaction.UserId);
-
-                            await DoujinModule.ShowDoujin(
-                                interactive: _interactive,
-                                requester: requester,
-                                response: await (await requester.GetOrCreateDMChannelAsync()).SendMessageAsync(
-                                    text: string.Empty,
-                                    embed: MessageFormatter.EmbedDoujin(doujin)
-                                ),
-                                doujin: doujin,
-                                settings: _settings
-                            );
-                        }
-
-                        count++;
-                    }
-                }
-                else
-                {
-                    await doujins.MoveNext(token);
-
-                    if (doujins.Current != null)
-                        _lastDoujins[client] = doujins.Current;
-                }
-
-                _logger.LogDebug($"Updated client '{client.Name}', alerted {count} doujins.");
             }
         }
 
