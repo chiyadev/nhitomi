@@ -14,7 +14,7 @@ namespace nhitomi
 {
     public static class MessageFormatter
     {
-        static string join(IEnumerable<string> values) => string.Join(", ", values);
+        static string join(IEnumerable<string> values) => values != null && values.Any() ? string.Join(", ", values) : null;
 
         const string DateFormat = "dddd, dd MMMM yyyy";
 
@@ -27,13 +27,12 @@ namespace nhitomi
                         ? doujin.OriginalName
                         : null
                 )
-                .WithAuthor(
-                    author => author
-                        .WithName(join(doujin.Artists) ?? doujin.Source.Name)
-                        .WithIconUrl(doujin.Source.IconUrl)
+                .WithAuthor(a => a
+                    .WithName(join(doujin.Artists) ?? doujin.Source.Name)
+                    .WithIconUrl(doujin.Source.IconUrl)
                 )
                 .WithUrl(doujin.SourceUrl)
-                .WithImageUrl(doujin.PageUrls?.First())
+                .WithImageUrl(doujin.PageUrls.First())
                 .WithColor(Color.Green)
                 .WithFooter($"Uploaded on {doujin.UploadTime.ToString(DateFormat)}");
 
@@ -41,11 +40,11 @@ namespace nhitomi
                 embed.AddField("Language", doujin.Language, inline: true);
             if (doujin.ParodyOf != null)
                 embed.AddField("Parody of", doujin.ParodyOf, inline: true);
-            if (doujin.Categories != null && doujin.Categories.Any())
+            if (doujin.Categories != null)
                 embed.AddField("Categories", join(doujin.Categories), inline: true);
-            if (doujin.Characters != null && doujin.Characters.Any())
+            if (doujin.Characters != null)
                 embed.AddField("Characters", join(doujin.Characters), inline: true);
-            if (doujin.Tags != null && doujin.Tags.Any())
+            if (doujin.Tags != null)
                 embed.AddField("Tags", join(doujin.Tags), inline: true);
 
             embed.AddField("Content", $"{doujin.PageUrls.Count()} pages", inline: true);
