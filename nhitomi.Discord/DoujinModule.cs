@@ -177,9 +177,7 @@ namespace nhitomi
             if (string.IsNullOrWhiteSpace(source))
             {
                 response = await ReplyAsync($"**nhitomi**: Loading...");
-                results = Extensions.Interleave(
-                    await Task.WhenAll(_clients.Select(c => c.SearchAsync(null)))
-                );
+                results = Extensions.Interleave(await Task.WhenAll(_clients.Select(c => c.SearchAsync(null))));
             }
             else
             {
@@ -223,13 +221,13 @@ namespace nhitomi
 
             // Send placeholder message
             var response = await ReplyAsync($"**nhitomi**: Searching __{query}__...");
-            var results = await Task.WhenAll(_clients.Select(c => c.SearchAsync(query)));
+            var results = Extensions.Interleave(await Task.WhenAll(_clients.Select(c => c.SearchAsync(query))));
 
             // Interleave results from each client
             await DisplayListAsync(
                 request: Context.Message,
                 response: response,
-                results: Extensions.Interleave(results),
+                results: results,
                 interactive: _interactive,
                 settings: _settings
             );
