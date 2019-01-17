@@ -172,11 +172,6 @@ namespace nhitomi
                             using (var jsonReader = new JsonTextReader(textReader))
                                 current = _json.Deserialize<nhentai.ListData>(jsonReader);
 
-                            _logger.LogDebug($"Got page {index}: {current.result?.Length ?? 0} items");
-
-                            if (Array.IsNullOrEmpty(current.result))
-                                return false;
-
                             // Add results to cache
                             foreach (var result in current.result)
                                 _cache.Set(
@@ -187,7 +182,9 @@ namespace nhitomi
 
                             index++;
 
-                            return true;
+                            _logger.LogDebug($"Got page {index}: {current.result?.Length ?? 0} items");
+
+                            return !Array.IsNullOrEmpty(current.result);
                         }
                         catch (HttpRequestException) { return false; }
                         finally

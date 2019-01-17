@@ -185,12 +185,14 @@ namespace nhitomi
 
                             current = root
                                 .SelectNodes(nhentaiHtml.XPath.SearchItem)
-                                .Select(n => _galleryRegex.Match(n.Attributes["href"].Value).Value)
+                                ?.Select(n => _galleryRegex.Match(n.Attributes["href"].Value).Value)
                                 .ToArray();
 
                             index++;
 
-                            return true;
+                            _logger.LogDebug($"Got page {index}: {current?.Length ?? 0} items");
+
+                            return !Array.IsNullOrEmpty(current);
                         }
                         catch (HttpRequestException) { return false; }
                         finally
