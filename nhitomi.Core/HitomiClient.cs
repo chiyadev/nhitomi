@@ -150,7 +150,7 @@ namespace nhitomi
             _logger = logger;
         }
 
-        IDoujin wrap(Hitomi.DoujinData data) => new HitomiDoujin(this, data);
+        IDoujin wrap(Hitomi.DoujinData data) => data == null ? null : new HitomiDoujin(this, data);
 
         Task throttle() => Task.Delay(TimeSpan.FromMilliseconds(Hitomi.RequestCooldown));
 

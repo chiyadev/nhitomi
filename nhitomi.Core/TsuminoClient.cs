@@ -146,7 +146,7 @@ namespace nhitomi
             _logger = logger;
         }
 
-        IDoujin wrap(Tsumino.DoujinData data) => new TsuminoDoujin(this, data);
+        IDoujin wrap(Tsumino.DoujinData data) => data == null ? null : new TsuminoDoujin(this, data);
 
         Task throttle() => Task.Delay(TimeSpan.FromMilliseconds(Tsumino.RequestCooldown));
 

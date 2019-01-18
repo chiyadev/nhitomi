@@ -108,7 +108,7 @@ namespace nhitomi
             _logger = logger;
         }
 
-        IDoujin wrap(nhentai.DoujinData data) => new nhentaiDoujin(this, data);
+        IDoujin wrap(nhentai.DoujinData data) => data == null ? null : new nhentaiDoujin(this, data);
 
         Task throttle() => Task.Delay(TimeSpan.FromMilliseconds(nhentai.RequestCooldown));
 
