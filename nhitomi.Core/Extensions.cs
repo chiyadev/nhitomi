@@ -3,7 +3,6 @@
 // This software is released under the MIT License.
 // https://opensource.org/licenses/MIT
 
-using Discord;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections;
@@ -20,16 +19,8 @@ namespace nhitomi
         public static bool IsNullOrEmpty(System.Array array) => array == null || array.Length == 0;
     }
 
-    internal static class Extensions
+    public static class Extensions
     {
-        public static EmbedBuilder AddFieldString(this EmbedBuilder builder, string name, string value, bool inline = false)
-        {
-            if (string.IsNullOrWhiteSpace(value))
-                return builder;
-
-            return builder.AddField(name, value, inline);
-        }
-
         public static string SubstringFromEnd(this string str, int count) => str.Substring(str.Length - count, count);
         public static string RemoveFromEnd(this string str, int count) => str.Remove(str.Length - count, count);
 
@@ -49,18 +40,6 @@ namespace nhitomi
             if (source.Any())
                 return source;
             return null;
-        }
-
-        public static async Task ModifyAsync(this IUserMessage message, string content = null, Embed embed = null)
-        {
-            if (string.IsNullOrWhiteSpace(content) && embed == null)
-                await message.DeleteAsync();
-            else
-                await message.ModifyAsync(m =>
-                {
-                    m.Content = content;
-                    m.Embed = embed;
-                });
         }
 
         public static IDisposable Measure(out double[] elapsed) => new MeasureContext(elapsed = new double[1]);

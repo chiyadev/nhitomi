@@ -25,7 +25,7 @@ namespace nhitomi
         {
             get
             {
-                var parts = _d.title.Split('/', 2);
+                var parts = _d.title.Split(new[] { '/' }, 2);
 
                 return parts[0].Trim();
             }
@@ -34,7 +34,7 @@ namespace nhitomi
         {
             get
             {
-                var parts = _d.title.Split('/', 2);
+                var parts = _d.title.Split(new[] { '/' }, 2);
 
                 if (parts.Length == 1)
                     return parts[0].Trim();

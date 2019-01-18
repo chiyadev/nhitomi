@@ -88,7 +88,7 @@ namespace nhitomi
                         : str.TrimEnd('♀', '♂', ' '),
                     Sex = str.Contains(':')
                         ? str[0] == 'm' ? '♀' : str[0] == 'f' ? '♂' : (char?)null
-                        : str.EndsWith('♀') ? '♀' : str.EndsWith('♂') ? '♂' : (char?)null
+                        : str.EndsWith("♀") ? '♀' : str.EndsWith("♂") ? '♂' : (char?)null
                 };
 
                 public string Value;
@@ -347,9 +347,9 @@ namespace nhitomi
                     .Select(d => d.id);
             else
             {
-                var keywords = query.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                var keywords = query.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
 
-                int matches(string str) => matchTags(str.Split(' ', StringSplitOptions.RemoveEmptyEntries));
+                int matches(string str) => matchTags(str.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries));
                 int matchTags(string[] array) => keywords.Intersect(array).Count();
 
                 filtered = _db
