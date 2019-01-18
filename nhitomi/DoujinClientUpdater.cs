@@ -48,10 +48,12 @@ namespace nhitomi
 
             while (!stoppingToken.IsCancellationRequested)
             {
-                // Update clients sequentially
-                foreach (var c in _clients)
+                // Concurrently update clients
+                await Task.WhenAll(_clients.Select(async c =>
+                {
                     try { await c.UpdateAsync(); }
                     catch (Exception e) { _logger.LogWarning(e, $"Exception while updating client '{c.Name}': {e.Message}"); }
+                }));
 
                 // Concurrently find recent uploads
                 var newDoujins = AsyncEnumerable.Concat(await Task.WhenAll(_clients.Select(async c =>
