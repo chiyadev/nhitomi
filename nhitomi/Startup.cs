@@ -60,13 +60,6 @@ namespace nhitomi
                     )
                 ))
 
-                // Logging
-                .AddLogging(
-                    logging => logging
-                        .AddConfiguration(_config.GetSection("logging"))
-                        .AddConsole()
-                )
-
                 // Formatters
                 .AddTransient<JsonSerializer>(s => new nhitomiJsonSerializer())
 
