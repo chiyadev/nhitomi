@@ -1,8 +1,3 @@
-// Copyright (c) 2018 phosphene47
-//
-// This software is released under the MIT License.
-// https://opensource.org/licenses/MIT
-
 {
   "version": "2.0.0",
   "tasks": [
@@ -12,9 +7,9 @@
       "type": "process",
       "args": [
         "build",
-        "${workspaceFolder}/nhitomi.Discord/nhitomi.Discord.csproj"
-      ],
-      "problemMatcher": []
+        "--no-restore",
+        "${workspaceFolder}/nhitomi/nhitomi.csproj"
+      ]
     }
   ]
 }

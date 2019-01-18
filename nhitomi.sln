@@ -2,7 +2,9 @@
 # Visual Studio 15
 VisualStudioVersion = 15.0.26124.0
 MinimumVisualStudioVersion = 15.0.26124.0
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "nhitomi.Discord", "nhitomi.Discord\nhitomi.Discord.csproj", "{6ECBEDCB-EE7D-4697-80DF-9CC90C6369BE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "nhitomi", "nhitomi\nhitomi.csproj", "{6ECBEDCB-EE7D-4697-80DF-9CC90C6369BE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "nhitomi.Core", "nhitomi.Core\nhitomi.Core.csproj", "{43251C3A-0508-483D-8859-639DE3B92154}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -29,5 +31,17 @@ Global
 		{6ECBEDCB-EE7D-4697-80DF-9CC90C6369BE}.Release|x64.Build.0 = Release|Any CPU
 		{6ECBEDCB-EE7D-4697-80DF-9CC90C6369BE}.Release|x86.ActiveCfg = Release|Any CPU
 		{6ECBEDCB-EE7D-4697-80DF-9CC90C6369BE}.Release|x86.Build.0 = Release|Any CPU
+		{43251C3A-0508-483D-8859-639DE3B92154}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{43251C3A-0508-483D-8859-639DE3B92154}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{43251C3A-0508-483D-8859-639DE3B92154}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{43251C3A-0508-483D-8859-639DE3B92154}.Debug|x64.Build.0 = Debug|Any CPU
+		{43251C3A-0508-483D-8859-639DE3B92154}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{43251C3A-0508-483D-8859-639DE3B92154}.Debug|x86.Build.0 = Debug|Any CPU
+		{43251C3A-0508-483D-8859-639DE3B92154}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{43251C3A-0508-483D-8859-639DE3B92154}.Release|Any CPU.Build.0 = Release|Any CPU
+		{43251C3A-0508-483D-8859-639DE3B92154}.Release|x64.ActiveCfg = Release|Any CPU
+		{43251C3A-0508-483D-8859-639DE3B92154}.Release|x64.Build.0 = Release|Any CPU
+		{43251C3A-0508-483D-8859-639DE3B92154}.Release|x86.ActiveCfg = Release|Any CPU
+		{43251C3A-0508-483D-8859-639DE3B92154}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
