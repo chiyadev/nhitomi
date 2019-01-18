@@ -63,6 +63,9 @@ namespace nhitomi
                         foreach (var pageUrl in doujin.PageUrls)
                             try
                             {
+                                if (context.HttpContext.RequestAborted.IsCancellationRequested)
+                                    break;
+
                                 // Create file in zip
                                 var entry = archive.CreateEntry(
                                     Path.GetFileNameWithoutExtension(pageUrl).PadLeft(3, '0') + Path.GetExtension(pageUrl),
@@ -72,7 +75,7 @@ namespace nhitomi
                                 // Write page contents to entry
                                 using (var dst = entry.Open())
                                 using (var src = await doujin.Source.GetStreamAsync(pageUrl))
-                                    await src.CopyToAsync(dst);
+                                    await src.CopyToAsync(dst, context.HttpContext.RequestAborted);
                             }
                             catch (Exception e)
                             {
