@@ -1,10 +1,11 @@
-// Copyright (c) 2018 phosphene47
+// Copyright (c) 2019 phosphene47
 // 
 // This software is released under the MIT License.
 // https://opensource.org/licenses/MIT
 
 using Discord;
 using Discord.WebSocket;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
@@ -16,7 +17,7 @@ using System.Threading.Tasks;
 
 namespace nhitomi
 {
-    public class DoujinClientUpdater : IBackgroundService
+    public class DoujinClientUpdater : BackgroundService
     {
         readonly AppSettings _settings;
         readonly ISet<IDoujinClient> _clients;
@@ -41,9 +42,11 @@ namespace nhitomi
 
         readonly ConcurrentDictionary<IDoujinClient, IDoujin> _lastDoujins = new ConcurrentDictionary<IDoujinClient, IDoujin>();
 
-        public async Task RunAsync(CancellationToken token)
+        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            while (!token.IsCancellationRequested)
+            await _discord.EnsureConnectedAsync();
+
+            while (!stoppingToken.IsCancellationRequested)
             {
                 // Update clients sequentially
                 foreach (var c in _clients)
@@ -128,7 +131,7 @@ namespace nhitomi
                 // Sleep
                 await Task.Delay(
                     TimeSpan.FromMinutes(_settings.Doujin.UpdateInterval),
-                    token
+                    stoppingToken
                 );
             }
         }

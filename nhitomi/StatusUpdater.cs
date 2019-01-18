@@ -6,11 +6,12 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 
 namespace nhitomi
 {
-    public class StatusUpdater : IBackgroundService
+    public class StatusUpdater : BackgroundService
     {
         readonly AppSettings _settings;
         readonly DiscordService _discord;
@@ -38,9 +39,11 @@ namespace nhitomi
             _current = $"{_settings.Discord.Status.Games[next]} [{_settings.Prefix}help]";
         }
 
-        public async Task RunAsync(CancellationToken token)
+        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            do
+            await _discord.EnsureConnectedAsync();
+
+            while (!stoppingToken.IsCancellationRequested)
             {
                 // Cycle game
                 cycleGame();
@@ -51,10 +54,9 @@ namespace nhitomi
                 // Sleep
                 await Task.Delay(
                     TimeSpan.FromMinutes(_settings.Discord.Status.UpdateInterval),
-                    token
+                    stoppingToken
                 );
-            }
-            while (!token.IsCancellationRequested);
+            };
         }
     }
 }

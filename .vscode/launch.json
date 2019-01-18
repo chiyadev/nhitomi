@@ -1,3 +1,8 @@
+// Copyright (c) 2019 phosphene47
+//
+// This software is released under the MIT License.
+// https://opensource.org/licenses/MIT
+
 {
   "version": "0.2.0",
   "configurations": [
@@ -8,7 +13,10 @@
       "preLaunchTask": "build",
       "program": "${workspaceFolder}/nhitomi/bin/Debug/netcoreapp2.1/nhitomi.dll",
       "cwd": "${workspaceFolder}/nhitomi",
-      "console": "integratedTerminal"
+      "console": "integratedTerminal",
+      "env": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      }
     }
   ]
 }

@@ -12,6 +12,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace nhitomi
@@ -57,8 +58,22 @@ namespace nhitomi
             _logger.LogDebug($"Gallery match regex: {_galleryRegex}");
         }
 
+        readonly SemaphoreSlim _semaphore = new SemaphoreSlim(1);
+
+        public async Task EnsureConnectedAsync()
+        {
+            await _semaphore.WaitAsync(); try
+            {
+                await StartSessionAsync();
+            }
+            finally { _semaphore.Release(); }
+        }
+
         public async Task StartSessionAsync()
         {
+            if (Socket.ConnectionState == ConnectionState.Connected)
+                return;
+
             // Register events
             Socket.Log += handleLogAsync;
             Socket.MessageReceived += handleMessageReceivedAsync;

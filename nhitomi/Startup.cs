@@ -5,6 +5,8 @@
 
 using Discord.Commands;
 using Discord.WebSocket;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -20,64 +22,72 @@ namespace nhitomi
 {
     public class Startup
     {
-        public IConfigurationRoot Configuration { get; set; }
+        readonly IConfiguration _config;
+
+        public Startup(IConfiguration config)
+        {
+            _config = config;
+        }
 
         public Assembly Assembly => typeof(Program).Assembly;
 
-        public void ConfigureServices(IServiceCollection services) => services
-            // Configuration
-            .Configure<AppSettings>(Configuration)
+        public void ConfigureServices(IServiceCollection services)
+        {
+            services
+                // Framework
+                .AddMvcCore()
+                .AddFormatterMappings()
+                .AddJsonFormatters()
+                .AddCors();
 
-            // Program
-            .AddSingleton<Program>()
+            services
+                // Configuration
+                .Configure<AppSettings>(_config)
 
-            // HTTP client
-            .AddHttpClient()
+                // Program
+                .AddSingleton<Program>()
 
-            // Caching
-            .AddSingleton<IMemoryCache>(s => new PersistentMemoryCache.PersistentMemoryCache(
-                options: new PersistentMemoryCacheOptions(
-                    cacheName: nameof(nhitomi),
-                    persistentStore: new LiteDbStore(new LiteDbOptions(
-                        fileName: $"nhitomi_cache.db"
-                    ))
+                // HTTP client
+                .AddHttpClient()
+
+                // Caching
+                .AddSingleton<IMemoryCache>(s => new PersistentMemoryCache.PersistentMemoryCache(
+                    options: new PersistentMemoryCacheOptions(
+                        cacheName: nameof(nhitomi),
+                        persistentStore: new LiteDbStore(new LiteDbOptions(
+                            fileName: $"nhitomi_cache.db"
+                        ))
+                    )
+                ))
+
+                // Logging
+                .AddLogging(
+                    logging => logging
+                        .AddConfiguration(_config.GetSection("logging"))
+                        .AddConsole()
                 )
-            ))
 
-            // Logging
-            .AddLogging(
-                logging => logging
-                    .AddConfiguration(Configuration.GetSection("logging"))
-                    .AddConsole()
-            )
+                // Formatters
+                .AddTransient<JsonSerializer>(s => new nhitomiJsonSerializer())
 
-            // Formatters
-            .AddTransient<JsonSerializer>(s => new nhitomiJsonSerializer())
+                // Discord
+                .AddSingleton<DiscordService>()
+                .AddSingleton<InteractiveScheduler>()
+                .AddHostedService<StatusUpdater>()
+                .AddHostedService<DoujinClientUpdater>()
 
-            // Discord
-            .AddSingleton<DiscordService>()
-            .AddSingleton<InteractiveScheduler>()
+                // Doujin clients
+                .AddSingleton<nhentaiHtmlClient>()
+                .AddSingleton<HitomiClient>()
+                .AddSingleton<TsuminoClient>()
+                .AddSingleton<ISet<IDoujinClient>>(s => new HashSet<IDoujinClient>
+                {
+                    s.GetService<nhentaiHtmlClient>().Synchronized(),
+                    s.GetService<HitomiClient>().Synchronized(),
+                    s.GetService<TsuminoClient>().Synchronized()
+                });
+        }
 
-            // Doujin clients
-            .AddSingleton<nhentaiHtmlClient>()
-            .AddSingleton<HitomiClient>()
-            .AddSingleton<TsuminoClient>()
-            .AddSingleton<ISet<IDoujinClient>>(s => new HashSet<IDoujinClient>
-            {
-                s.GetService<nhentaiHtmlClient>().Synchronized(),
-                s.GetService<HitomiClient>().Synchronized(),
-                s.GetService<TsuminoClient>().Synchronized()
-            })
-
-            // Background services
-            .AddSingleton<StatusUpdater>()
-            .AddSingleton<DoujinClientUpdater>()
-            .AddSingleton<DownloadServer>()
-            .AddSingleton<ISet<IBackgroundService>>(s => new HashSet<IBackgroundService>
-            {
-                s.GetService<StatusUpdater>(),
-                s.GetService<DoujinClientUpdater>(),
-                s.GetService<DownloadServer>()
-            });
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env) => app.UseMvc();
     }
 }

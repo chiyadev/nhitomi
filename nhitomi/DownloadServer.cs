@@ -19,7 +19,7 @@ using System.Threading.Tasks;
 
 namespace nhitomi
 {
-    public class DownloadServer : IBackgroundService, IDisposable
+    public class DownloadServer : IDisposable
     {
         readonly AppSettings _settings;
         readonly ISet<IDoujinClient> _clients;
