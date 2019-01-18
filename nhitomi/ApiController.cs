@@ -17,7 +17,7 @@ namespace nhitomi
             _clients = clients;
         }
 
-        [HttpGet("{source}/{id}")]
+        [HttpGet("doujin/{source}/{id}")]
         public async Task<IDoujin> GetDoujinAsync(
             string source,
             string id
@@ -32,7 +32,7 @@ namespace nhitomi
         // TODO: appsettings.json
         public const int ItemsPerPage = 20;
 
-        [HttpGet("{source}")]
+        [HttpGet("doujins/{*source}")]
         public async Task<IEnumerable<IDoujin>> EnumerateDoujinsAsync(
             string source = null,
             [FromQuery] string query = null,
