@@ -33,7 +33,7 @@ namespace nhitomi
             _logger = logger;
         }
 
-        [HttpGet("{token")]
+        [HttpGet("{token}")]
         public async Task<ActionResult> GetAsync(string token)
         {
             if (!TokenGenerator.TryDeserializeToken(
