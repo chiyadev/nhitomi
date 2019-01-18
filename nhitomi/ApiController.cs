@@ -18,12 +18,39 @@ namespace nhitomi
         }
 
         [HttpGet("{source}/{id}")]
-        public async Task<IDoujin> GetDoujinAsync(string source, string id)
+        public async Task<IDoujin> GetDoujinAsync(
+            string source,
+            string id
+        )
         {
             // Find client by name
             var client = _clients.First(c => c.Name == source);
 
             return await client.GetAsync(id);
+        }
+
+        // TODO: appsettings.json
+        public const int ItemsPerPage = 20;
+
+        [HttpGet("{source}")]
+        public async Task<IEnumerable<IDoujin>> EnumerateDoujinsAsync(
+            string source = null,
+            [FromQuery] string query = null,
+            [FromQuery] int page = 0
+        )
+        {
+            IAsyncEnumerable<IDoujin> enumerable;
+
+            if (source == null || source == "all")
+                enumerable = Extensions.Interleave(await Task.WhenAll(_clients.Select(c => c.SearchAsync(query))));
+            else
+                enumerable = await _clients.First(c => c.Name == source).SearchAsync(query);
+
+            enumerable = enumerable
+                .Skip(page * ItemsPerPage)
+                .Take(ItemsPerPage);
+
+            return await enumerable.ToArray();
         }
     }
 }
