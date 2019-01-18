@@ -13,7 +13,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
-using PersistentMemoryCache;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -51,14 +51,10 @@ namespace nhitomi
                 .AddHttpClient()
 
                 // Caching
-                .AddSingleton<IMemoryCache>(s => new PersistentMemoryCache.PersistentMemoryCache(
-                    options: new PersistentMemoryCacheOptions(
-                        cacheName: nameof(nhitomi),
-                        persistentStore: new LiteDbStore(new LiteDbOptions(
-                            fileName: $"nhitomi_cache.db"
-                        ))
-                    )
-                ))
+                .AddSingleton<IMemoryCache>(s => new MemoryCache(new MemoryCacheOptions
+                {
+                    ExpirationScanFrequency = TimeSpan.FromMinutes(1)
+                }))
 
                 // Formatters
                 .AddTransient<JsonSerializer>(s => new nhitomiJsonSerializer())
