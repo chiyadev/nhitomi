@@ -52,5 +52,8 @@ namespace nhitomi
 
             return await enumerable.ToArray();
         }
+
+        [HttpGet("sources")]
+        public IEnumerable<IDoujinClient> GetSources() => _clients;
     }
 }
