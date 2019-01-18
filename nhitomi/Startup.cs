@@ -37,7 +37,7 @@ namespace nhitomi
                 // Framework
                 .AddMvcCore()
                 .AddFormatterMappings()
-                .AddJsonFormatters()
+                .AddJsonFormatters(nhitomiSerializerSettings.Apply)
                 .AddCors();
 
             services
@@ -57,7 +57,7 @@ namespace nhitomi
                 }))
 
                 // Formatters
-                .AddTransient<JsonSerializer>(s => new nhitomiJsonSerializer())
+                .AddTransient<JsonSerializer>(s => JsonSerializer.Create(new nhitomiSerializerSettings()))
 
                 // Discord
                 .AddSingleton<DiscordService>()
