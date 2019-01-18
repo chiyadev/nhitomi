@@ -143,7 +143,7 @@ namespace nhitomi
 
                     return data;
                 }
-                catch (HttpRequestException) { return null; }
+                catch (Exception) { return null; }
                 finally
                 {
                     await throttle();
@@ -186,7 +186,7 @@ namespace nhitomi
 
                             return !Array.IsNullOrEmpty(current.result);
                         }
-                        catch (HttpRequestException) { return false; }
+                        catch (Exception) { return false; }
                         finally
                         {
                             await throttle();

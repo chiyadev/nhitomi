@@ -223,7 +223,7 @@ namespace nhitomi
 
                     return data;
                 }
-                catch (HttpRequestException) { return null; }
+                catch (Exception) { return null; }
                 finally
                 {
                     await throttle();
@@ -322,7 +322,7 @@ namespace nhitomi
 
                 _logger.LogDebug($"Loaded {loadCount} new items from chunk {chunkIndex} in {elapsed.Format()}.");
             }
-            catch (HttpRequestException) { }
+            catch (Exception) { }
             finally
             {
                 await throttle();

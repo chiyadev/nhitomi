@@ -19,7 +19,7 @@ namespace nhitomi
 {
     public static class Tsumino
     {
-        public const int RequestCooldown = 500;
+        public const int RequestCooldown = 1000;
 
         public const string GalleryRegex = @"\b((http|https):\/\/)?(www\.)?tsumino(\.com)?\/(Book\/Info\/)?(?<tsumino>[0-9]{1,5})\b";
 
@@ -219,7 +219,7 @@ namespace nhitomi
 
                     return data;
                 }
-                catch (HttpRequestException) { return null; }
+                catch (Exception) { return null; }
                 finally
                 {
                     await throttle();
@@ -261,7 +261,7 @@ namespace nhitomi
 
                             return !Array.IsNullOrEmpty(current.Data);
                         }
-                        catch (HttpRequestException) { return false; }
+                        catch (Exception) { return false; }
                         finally
                         {
                             await throttle();
