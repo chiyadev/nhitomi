@@ -62,10 +62,14 @@ namespace nhitomi
                     {
                         var list = await c.SearchAsync(null);
 
-                        // Handling first time update
                         if (!_lastDoujins.ContainsKey(c))
-                            _lastDoujins[c] = await list.First();
+                        {
+                            // Handling first time update
+                            var doujin = await list.FirstOrDefault();
 
+                            if (doujin != null)
+                                _lastDoujins[c] = doujin;
+                        }
                         else
                         {
                             // Get all new doujins up to the last one we know
