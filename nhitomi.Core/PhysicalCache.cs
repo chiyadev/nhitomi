@@ -5,19 +5,27 @@
 
 using System;
 using System.IO;
+using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 
 namespace nhitomi
 {
     public class PhysicalCache
     {
         public string CachePath { get; set; }
+        public JsonSerializer Serializer { get; set; }
 
-        public PhysicalCache(string name)
+        public PhysicalCache(
+            string name,
+            JsonSerializer serializer = null
+        )
         {
             CachePath = Path.GetTempPath();
             CachePath = getPath(nameof(nhitomi));
             CachePath = getPath(name);
+
+            Serializer = serializer ?? JsonSerializer.CreateDefault();
         }
 
         public async Task<Stream> GetOrCreateStreamAsync(string name, Func<Task<Stream>> getAsync)
@@ -60,6 +68,25 @@ namespace nhitomi
                     // Cache is still being written. Sleep.
                     await Task.Delay(200);
                 }
+        }
+
+        public async Task<T> GetOrCreateAsync<T>(string name, Func<Task<T>> getAsync)
+        {
+            using (var stream = await GetOrCreateStreamAsync(name, async () =>
+            {
+                using (var writer = new StringWriter())
+                using (var jsonWriter = new JsonTextWriter(writer))
+                {
+                    Serializer.Serialize(jsonWriter, await getAsync());
+
+                    return new MemoryStream(Encoding.Default.GetBytes(writer.ToString()));
+                }
+            }))
+            {
+                using (var reader = new StreamReader(stream))
+                using (var jsonReader = new JsonTextReader(reader))
+                    return Serializer.Deserialize<T>(jsonReader);
+            }
         }
 
         string getPath(string name) => Path.Combine(CachePath, processName(name));
