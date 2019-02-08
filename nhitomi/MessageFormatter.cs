@@ -134,8 +134,7 @@ namespace nhitomi
                 .WithTitle($"**nhitomi**: {doujinName}")
                 .WithUrl(link)
                 .WithDescription(
-                    $"Click the link above to start downloading `{doujinName}`.\n" +
-                    $"Downloads are valid for {validLength} minutes."
+                    $"Click the link above to start downloading `{doujinName}`.\n"
                 )
                 .WithColor(Color.LightOrange)
                 .WithCurrentTimestamp();
