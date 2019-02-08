@@ -50,12 +50,6 @@ namespace nhitomi
                 // HTTP client
                 .AddHttpClient()
 
-                // Caching
-                .AddSingleton<IMemoryCache>(s => new MemoryCache(new MemoryCacheOptions
-                {
-                    ExpirationScanFrequency = TimeSpan.FromMinutes(1)
-                }))
-
                 // Formatters
                 .AddTransient<JsonSerializer>(s => JsonSerializer.Create(new nhitomiSerializerSettings()))
 
