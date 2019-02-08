@@ -104,7 +104,7 @@ namespace nhitomi
                                 await _interactive.CreateInteractiveAsync(
                                     requester: null,
                                     response: await c.SendMessageAsync(
-                                        text: $"**{c.Name}**: __{d.Id}__",
+                                        text: $"**{d.Source.Name}**: __{d.Id}__",
                                         embed: MessageFormatter.EmbedDoujin(d)
                                     ),
                                     triggers: add => add(
@@ -116,15 +116,14 @@ namespace nhitomi
                                                 interactive: _interactive,
                                                 requester: requester,
                                                 response: await (await requester.GetOrCreateDMChannelAsync()).SendMessageAsync(
-                                                    text: $"**{c.Name}**: __{d.Id}__",
+                                                    text: $"**{d.Source.Name}**: __{d.Id}__",
                                                     embed: MessageFormatter.EmbedDoujin(d)
                                                 ),
                                                 doujin: d,
                                                 settings: _settings
                                             );
                                         }
-                                    )
-                                    ),
+                                    )),
                                     allowTrash: false
                                 );
                             })
