@@ -159,7 +159,7 @@ namespace nhitomi
 
             return wrap(
                 await _cache.GetOrCreateAsync<Hitomi.DoujinData>(
-                    name: $"{Name}/{id}",
+                    name: id,
                     getAsync: getAsync
                 )
             );
