@@ -74,9 +74,6 @@ namespace nhitomi
 
                             try
                             {
-                                if (context.HttpContext.RequestAborted.IsCancellationRequested)
-                                    break;
-
                                 // Create file in zip
                                 var entry = archive.CreateEntry(
                                     Path.GetFileNameWithoutExtension(pageUrl).PadLeft(3, '0') + Path.GetExtension(pageUrl),
@@ -96,6 +93,7 @@ namespace nhitomi
                             catch (OperationCanceledException)
                             {
                                 // Download was canceled. Whatever.
+                                return;
                             }
                             catch (Exception e)
                             {
