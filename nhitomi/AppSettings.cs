@@ -55,7 +55,6 @@ namespace nhitomi
         {
             public int Port { get; set; }
             public string Url { get; set; }
-            public int Concurrency { get; set; }
 
             public HttpSettings()
             {
