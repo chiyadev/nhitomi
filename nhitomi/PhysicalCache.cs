@@ -51,10 +51,8 @@ namespace nhitomi
                 {
                     return new FileStream(getPath(name), FileMode.Open, FileAccess.Read, FileShare.Read);
                 }
-                catch (FileNotFoundException)
-                {
-                    throw;
-                }
+                catch (FileNotFoundException) { throw; }
+                catch (DirectoryNotFoundException) { throw; }
                 catch (IOException)
                 {
                     // Cache is still being written. Sleep.
