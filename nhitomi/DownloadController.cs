@@ -82,6 +82,10 @@ namespace nhitomi
                                 using (var src = await doujin.Source.GetStreamAsync(pageUrl))
                                     await src.CopyToAsync(dst, context.HttpContext.RequestAborted);
                             }
+                            catch (OperationCanceledException)
+                            {
+                                // Download was canceled. Whatever.
+                            }
                             catch (Exception e)
                             {
                                 _logger.LogWarning(e, $"Exception while downloading `{pageUrl}`: {e.Message}");
