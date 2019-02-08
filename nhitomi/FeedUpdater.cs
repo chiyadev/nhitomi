@@ -17,7 +17,7 @@ using System.Threading.Tasks;
 
 namespace nhitomi
 {
-    public class DoujinClientUpdater : BackgroundService
+    public class FeedUpdater : BackgroundService
     {
         readonly AppSettings _settings;
         readonly ISet<IDoujinClient> _clients;
@@ -25,12 +25,12 @@ namespace nhitomi
         readonly InteractiveScheduler _interactive;
         readonly ILogger _logger;
 
-        public DoujinClientUpdater(
+        public FeedUpdater(
             IOptions<AppSettings> options,
             ISet<IDoujinClient> clients,
             DiscordService discord,
             InteractiveScheduler interactive,
-            ILogger<DoujinClientUpdater> logger
+            ILogger<FeedUpdater> logger
         )
         {
             _settings = options.Value;

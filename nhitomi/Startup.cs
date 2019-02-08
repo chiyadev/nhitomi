@@ -63,7 +63,7 @@ namespace nhitomi
                 .AddSingleton<DiscordService>()
                 .AddSingleton<InteractiveScheduler>()
                 .AddHostedService<StatusUpdater>()
-                .AddHostedService<DoujinClientUpdater>()
+                .AddHostedService<FeedUpdater>()
 
                 // Doujin clients
                 .AddSingleton<nhentaiHtmlClient>()
