@@ -22,6 +22,7 @@ namespace nhitomi
     {
         readonly AppSettings.DiscordSettings _settings;
         readonly ISet<IDoujinClient> _clients;
+        readonly PhysicalCache _cache;
         readonly JsonSerializer _serializer;
         readonly ILogger _logger;
 
@@ -34,6 +35,7 @@ namespace nhitomi
         {
             _settings = options.Value.Discord;
             _clients = clients;
+            _cache = new PhysicalCache(nameof(DownloadController));
             _serializer = serializer;
             _logger = logger;
         }
@@ -59,13 +61,17 @@ namespace nhitomi
                 contentType: MediaTypeHeaderValue.Parse("application/zip"),
                 callback: async (stream, context) =>
                 {
-                    // TODO: downloaded image caching
                     using (var archive = new ZipArchive(stream, ZipArchiveMode.Create, leaveOpen: true))
                     {
                         // Add doujin information file
                         await addDoujinInfoAsync(doujin, archive);
 
-                        foreach (var pageUrl in doujin.PageUrls)
+                        var pageUrls = doujin.PageUrls.ToArray();
+
+                        for (var i = 0; i < pageUrls.Length; i++)
+                        {
+                            var pageUrl = pageUrls[i];
+
                             try
                             {
                                 if (context.HttpContext.RequestAborted.IsCancellationRequested)
@@ -77,9 +83,14 @@ namespace nhitomi
                                     CompressionLevel.Optimal
                                 );
 
+                                Task<Stream> openSrcStream() => _cache.GetOrAddAsync(
+                                    name: $"{doujin.Source.Name}/{doujin.Id}/{i}",
+                                    getFunc: () => doujin.Source.GetStreamAsync(pageUrl)
+                                );
+
                                 // Write page contents to entry
                                 using (var dst = entry.Open())
-                                using (var src = await doujin.Source.GetStreamAsync(pageUrl))
+                                using (var src = await openSrcStream())
                                     await src.CopyToAsync(dst, context.HttpContext.RequestAborted);
                             }
                             catch (OperationCanceledException)
@@ -90,6 +101,7 @@ namespace nhitomi
                             {
                                 _logger.LogWarning(e, $"Exception while downloading `{pageUrl}`: {e.Message}");
                             }
+                        }
                     }
                 })
             {
