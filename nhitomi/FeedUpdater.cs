@@ -108,6 +108,7 @@ namespace nhitomi
                                         embed: MessageFormatter.EmbedDoujin(d)
                                     ),
                                     triggers: add => add(
+                                        // Heart reaction
                                         ("\u2764", async r =>
                                         {
                                             var requester = _discord.Socket.GetUser(r.UserId);
