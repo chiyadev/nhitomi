@@ -56,31 +56,37 @@ namespace nhitomi
                 }));
 
                 // Concurrently find recent uploads
-                var newDoujins = AsyncEnumerable.Concat(await Task.WhenAll(_clients.Select(async c =>
+                var newDoujins = Extensions.Interleave(await Task.WhenAll(_clients.Select(async c =>
                 {
+                    IDoujin current = null;
+
                     try
                     {
-                        var list = await c.SearchAsync(null);
+                        if (!_lastDoujins.TryGetValue(c, out var last))
+                            _lastDoujins[c] = last;
 
-                        if (!_lastDoujins.ContainsKey(c))
-                        {
-                            // Handling first time update
-                            var doujin = await list.FirstOrDefault();
+                        // Get all new doujins up to the last one we know
+                        var list =
+                            (await c.SearchAsync(null))
+                            .TakeWhile(d => d?.Id != last?.Id);
 
-                            if (doujin != null)
-                                _lastDoujins[c] = doujin;
-                        }
-                        else
-                        {
-                            // Get all new doujins up to the last one we know
-                            list = list.TakeWhile(d => d.Id != _lastDoujins[c].Id);
+                        current = await list.FirstOrDefault() ?? last;
 
-                            _lastDoujins[c] = await list.FirstOrDefault() ?? _lastDoujins[c];
-
+                        if (current != last && last != null)
                             return list;
-                        }
                     }
-                    catch (Exception e) { _logger.LogWarning(e, $"Exception while searching client '{c.Name}': {e.Message}"); }
+                    catch (Exception e)
+                    {
+                        _logger.LogWarning(e, $"Exception while listing client '{c.Name}': {e.Message}");
+
+                        current = null;
+                    }
+                    finally
+                    {
+                        _lastDoujins[c] = current;
+
+                        _logger.LogDebug($"Most recent doujin: [{c.Name}] {current?.PrettyName ?? "<null>"}");
+                    }
 
                     return AsyncEnumerable.Empty<IDoujin>();
                 })));
