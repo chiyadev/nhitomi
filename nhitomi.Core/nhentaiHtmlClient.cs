@@ -98,6 +98,9 @@ namespace nhitomi
                     }
 
                     // Scrape data from HTML using XPath
+                    var japaneseTitleNode = root.SelectSingleNode(nhentaiHtml.XPath.JapaneseName);
+                    var prettyTitleNode = root.SelectSingleNode(nhentaiHtml.XPath.PrettyName);
+
                     var data = new nhentai.DoujinData
                     {
                         id = intId,
@@ -106,8 +109,8 @@ namespace nhitomi
                         upload_date = 0,
                         title = new nhentai.DoujinData.Title
                         {
-                            japanese = _tagTitleRegex.Replace(innerSanitized(root.SelectSingleNode(nhentaiHtml.XPath.JapaneseName)), string.Empty).Trim(),
-                            pretty = _tagTitleRegex.Replace(innerSanitized(root.SelectSingleNode(nhentaiHtml.XPath.PrettyName)), string.Empty).Trim()
+                            japanese = japaneseTitleNode == null ? null : _tagTitleRegex.Replace(innerSanitized(japaneseTitleNode), string.Empty).Trim(),
+                            pretty = prettyTitleNode == null ? null : _tagTitleRegex.Replace(innerSanitized(prettyTitleNode), string.Empty).Trim()
                         },
                         images = new nhentai.DoujinData.Images
                         {
