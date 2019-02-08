@@ -80,7 +80,7 @@ namespace nhitomi
                                     CompressionLevel.Optimal
                                 );
 
-                                Task<Stream> openSrcStream() => _cache.GetOrAddAsync(
+                                Task<Stream> openSrcStream() => _cache.GetOrCreateAsync(
                                     name: $"{doujin.Source.Name}/{doujin.Id}/{i}",
                                     getFunc: () => doujin.Source.GetStreamAsync(pageUrl)
                                 );

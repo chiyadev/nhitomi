@@ -20,7 +20,7 @@ namespace nhitomi
             CachePath = getPath(name);
         }
 
-        public async Task<Stream> GetOrAddAsync(string name, Func<Task<Stream>> getFunc)
+        public async Task<Stream> GetOrCreateAsync(string name, Func<Task<Stream>> getFunc)
         {
             try
             {
