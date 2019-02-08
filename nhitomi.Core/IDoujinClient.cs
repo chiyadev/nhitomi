@@ -38,7 +38,7 @@ namespace nhitomi
         Api
     }
 
-    public static class DoujinClient
+    public static class DoujinClientExtensions
     {
         sealed class SynchronizedClient : IDoujinClient
         {
