@@ -143,17 +143,6 @@ namespace nhitomi
         }
 
         static IEnumerable<string> tagsToChannels(IEnumerable<string> tags) =>
-            tags.Select(t =>
-            {
-                var tag = t.ToLowerInvariant().Replace(' ', '-');
-
-                switch (tag)
-                {
-                    default:
-                        return tag;
-                    case "loli":
-                        return "lolicon";
-                }
-            });
+            tags.Select(t => t.ToLowerInvariant().Replace(' ', '-'));
     }
 }
