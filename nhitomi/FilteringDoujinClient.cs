@@ -34,15 +34,39 @@ namespace nhitomi
         public async Task<IDoujin> GetAsync(string id) => filter(await _impl.GetAsync(id));
         public Task<Stream> GetStreamAsync(string url) => _impl.GetStreamAsync(url);
 
+        public const int MaxConsecutiveFilters = 6;
+
         public async Task<IAsyncEnumerable<IDoujin>> SearchAsync(string query)
         {
             if (!string.IsNullOrEmpty(query) &&
                 bannedKeywords.Any(query.Split(' ', StringSplitOptions.RemoveEmptyEntries).Select(k => k.ToLowerInvariant()).Contains))
                 return AsyncEnumerable.Empty<IDoujin>();
 
-            return
-                (await _impl.SearchAsync(query))
-                .Where(d => filter(d) != null);
+            var results = await _impl.SearchAsync(query);
+
+            return AsyncEnumerable.CreateEnumerable(() =>
+            {
+                var enumerator = results.GetEnumerator();
+
+                return AsyncEnumerable.CreateEnumerator(
+                    moveNext: async token =>
+                    {
+                        for (var count = 0; count < MaxConsecutiveFilters && await enumerator.MoveNext(token);)
+                        {
+                            var filtered = filter(enumerator.Current);
+
+                            if (filtered == null)
+                                count++;
+                            else
+                                return true;
+                        }
+
+                        return false;
+                    },
+                    current: () => enumerator.Current,
+                    dispose: enumerator.Dispose
+                );
+            });
         }
 
         static string[] bannedKeywords = new[]
