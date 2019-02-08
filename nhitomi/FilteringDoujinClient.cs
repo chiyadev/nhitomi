@@ -36,7 +36,8 @@ namespace nhitomi
 
         public async Task<IAsyncEnumerable<IDoujin>> SearchAsync(string query)
         {
-            if (bannedKeywords.Any(query.Split(' ', StringSplitOptions.RemoveEmptyEntries).Select(k => k.ToLowerInvariant()).Contains))
+            if (!string.IsNullOrEmpty(query) &&
+                bannedKeywords.Any(query.Split(' ', StringSplitOptions.RemoveEmptyEntries).Select(k => k.ToLowerInvariant()).Contains))
                 return AsyncEnumerable.Empty<IDoujin>();
 
             return
