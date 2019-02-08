@@ -7,18 +7,22 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 
 namespace nhitomi
 {
     [Route("api")]
     public class ApiController : ControllerBase
     {
+        readonly AppSettings.HttpSettings _settings;
         readonly ISet<IDoujinClient> _clients;
 
         public ApiController(
+            IOptions<AppSettings> options,
             ISet<IDoujinClient> clients
         )
         {
+            _settings = options.Value.Http;
             _clients = clients;
         }
 
@@ -33,9 +37,6 @@ namespace nhitomi
 
             return await client.GetAsync(id);
         }
-
-        // TODO: appsettings.json
-        public const int ItemsPerPage = 20;
 
         [HttpGet("doujins/{*source}")]
         public async Task<IEnumerable<IDoujin>> EnumerateDoujinsAsync(
@@ -52,8 +53,8 @@ namespace nhitomi
                 enumerable = await _clients.First(c => c.Name == source).SearchAsync(query);
 
             enumerable = enumerable
-                .Skip(page * ItemsPerPage)
-                .Take(ItemsPerPage);
+                .Skip(page * _settings.ItemsPerPage)
+                .Take(_settings.ItemsPerPage);
 
             return await enumerable.ToArray();
         }
