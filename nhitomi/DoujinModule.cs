@@ -61,7 +61,7 @@ namespace nhitomi
             response = await ReplyAsync($"**{client.Name}**: Loading __{id}__...");
 
             // Load doujin
-            var doujin = filterDoujin(await client.GetAsync(id));
+            var doujin = await client.GetAsync(id);
 
             if (doujin == null)
             {
@@ -71,20 +71,6 @@ namespace nhitomi
             }
 
             return (client, doujin, response);
-        }
-
-        /// <summary>
-        /// Discord Community Guideline: NO LOLICON OR SHOTACON
-        /// </summary>
-        static IDoujin filterDoujin(IDoujin doujin)
-        {
-            if (doujin.Tags.Contains("loli") ||
-                doujin.Tags.Contains("lolicon") ||
-                doujin.Tags.Contains("shota") ||
-                doujin.Tags.Contains("shotacon"))
-                return null;
-
-            return doujin;
         }
 
         [RequireNsfw]
