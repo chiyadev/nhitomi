@@ -28,7 +28,23 @@ namespace nhitomi
             Serializer = serializer ?? JsonSerializer.CreateDefault();
         }
 
-        public async Task<Stream> GetOrCreateStreamAsync(string name, Func<Task<Stream>> getAsync)
+        public async Task<Stream> GetStreamAsync(string name)
+        {
+            while (true)
+                try
+                {
+                    return new FileStream(getPath(name), FileMode.Open, FileAccess.Read, FileShare.Read);
+                }
+                catch (FileNotFoundException) { throw; }
+                catch (DirectoryNotFoundException) { throw; }
+                catch (IOException)
+                {
+                    // Cache is still being written. Sleep.
+                    await Task.Delay(200);
+                }
+        }
+
+        public async Task CreateStreamAsync(string name, Func<Task<Stream>> getAsync)
         {
             try
             {
@@ -50,29 +66,28 @@ namespace nhitomi
             {
                 // Cache already exists
             }
-
-            return await GetAsync(name);
         }
 
-        public async Task<Stream> GetAsync(string name)
+        public async Task<Stream> GetOrCreateStreamAsync(string name, Func<Task<Stream>> getAsync)
         {
-            while (true)
-                try
-                {
-                    return new FileStream(getPath(name), FileMode.Open, FileAccess.Read, FileShare.Read);
-                }
-                catch (FileNotFoundException) { throw; }
-                catch (DirectoryNotFoundException) { throw; }
-                catch (IOException)
-                {
-                    // Cache is still being written. Sleep.
-                    await Task.Delay(200);
-                }
+            await CreateStreamAsync(name, getAsync);
+
+            return await GetStreamAsync(name);
         }
 
-        public async Task<T> GetOrCreateAsync<T>(string name, Func<Task<T>> getAsync)
+        public async Task<T> GetAsync<T>(string name)
         {
-            using (var stream = await GetOrCreateStreamAsync(name, async () =>
+            using (var stream = await GetStreamAsync(name))
+            {
+                using (var reader = new StreamReader(stream))
+                using (var jsonReader = new JsonTextReader(reader))
+                    return Serializer.Deserialize<T>(jsonReader);
+            }
+        }
+
+        public Task CreateAsync<T>(string name, Func<Task<T>> getAsync)
+        {
+            return CreateStreamAsync(name, async () =>
             {
                 using (var writer = new StringWriter())
                 using (var jsonWriter = new JsonTextWriter(writer))
@@ -81,12 +96,14 @@ namespace nhitomi
 
                     return new MemoryStream(Encoding.Default.GetBytes(writer.ToString()));
                 }
-            }))
-            {
-                using (var reader = new StreamReader(stream))
-                using (var jsonReader = new JsonTextReader(reader))
-                    return Serializer.Deserialize<T>(jsonReader);
-            }
+            });
+        }
+
+        public async Task<T> GetOrCreateAsync<T>(string name, Func<Task<T>> getAsync)
+        {
+            await CreateAsync(name, getAsync);
+
+            return await GetAsync<T>(name);
         }
 
         string getPath(string name) => Path.Combine(CachePath, processName(name));
