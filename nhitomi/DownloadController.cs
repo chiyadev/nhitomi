@@ -64,7 +64,7 @@ namespace nhitomi
                     using (var archive = new ZipArchive(stream, ZipArchiveMode.Create, leaveOpen: true))
                     {
                         // Add doujin information file
-                        await addDoujinInfoAsync(doujin, archive);
+                        addDoujinInfo(doujin, archive);
 
                         var pageUrls = doujin.PageUrls.ToArray();
 
@@ -108,7 +108,7 @@ namespace nhitomi
             };
         }
 
-        async Task addDoujinInfoAsync(IDoujin doujin, ZipArchive archive)
+        void addDoujinInfo(IDoujin doujin, ZipArchive archive)
         {
             var infoEntry = archive.CreateEntry("_nhitomi.json", CompressionLevel.Optimal);
 
