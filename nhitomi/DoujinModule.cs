@@ -87,6 +87,7 @@ namespace nhitomi
             return doujin;
         }
 
+        [RequireNsfw]
         [Command("get")]
         [Alias("g")]
         [Summary("Retrieves doujin information from the specified source.")]
@@ -190,6 +191,7 @@ namespace nhitomi
             );
         }
 
+        [RequireNsfw]
         [Command("all")]
         [Alias("a")]
         [Summary("Displays all doujins from the specified source uploaded recently.")]
@@ -231,6 +233,7 @@ namespace nhitomi
             );
         }
 
+        [RequireNsfw]
         [Command("search")]
         [Alias("s")]
         [Summary("Searches for doujins by the title and tags across the supported sources that match the specified query.")]
@@ -398,6 +401,7 @@ namespace nhitomi
             }
         }
 
+        [RequireNsfw]
         [Command("download")]
         [Alias("dl")]
         [Summary("Sends a download link for the specified doujin.")]
