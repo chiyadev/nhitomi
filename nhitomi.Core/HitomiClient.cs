@@ -307,7 +307,7 @@ namespace nhitomi
                         if (id < 0 ||
                             string.IsNullOrWhiteSpace(name) ||
                             string.IsNullOrWhiteSpace(author) ||
-                            type.Equals("anime", StringComparison.OrdinalIgnoreCase))
+                            (type != null && type.Equals("anime", StringComparison.OrdinalIgnoreCase)))
                             continue;
 
                         if (db.Add(new Hitomi.ChunkItemData(id, name, tags.ToArray(), author)))
