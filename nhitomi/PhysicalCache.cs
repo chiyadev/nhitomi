@@ -24,11 +24,13 @@ namespace nhitomi
         {
             try
             {
-                Directory.CreateDirectory(Path.GetDirectoryName(name));
+                var path = getPath(name);
+
+                Directory.CreateDirectory(Path.GetDirectoryName(path));
 
                 // Create new cache if possible
                 // This will fail if cache already exists
-                using (var cacheStream = new FileStream(getPath(name), FileMode.CreateNew, FileAccess.Write, FileShare.None))
+                using (var cacheStream = new FileStream(path, FileMode.CreateNew, FileAccess.Write, FileShare.None))
                 {
                     var stream = await getFunc();
 
