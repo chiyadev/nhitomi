@@ -7,7 +7,7 @@
 
 # nhitomi
 
-![nhitomi](nhitomi_rounded.png)
+![nhitomi](nhitomi.png)
 
 Discord Bot for browsing and downloading doujinshi
 
