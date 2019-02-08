@@ -4,7 +4,6 @@
 // https://opensource.org/licenses/MIT
 
 using HtmlAgilityPack;
-using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System;
@@ -132,20 +131,19 @@ namespace nhitomi
 
         public Regex GalleryRegex { get; } = new Regex(Hitomi.GalleryRegex, RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
-        readonly IMemoryCache _cache;
+        readonly PhysicalCache _cache;
         readonly HttpClient _http;
         readonly JsonSerializer _json;
         readonly ILogger _logger;
 
         public HitomiClient(
             IHttpClientFactory httpFactory,
-            IMemoryCache cache,
             JsonSerializer json,
             ILogger<HitomiClient> logger
         )
         {
             _http = httpFactory?.CreateClient(Name);
-            _cache = cache;
+            _cache = new PhysicalCache(Name, json);
             _json = json;
             _logger = logger;
         }
@@ -161,12 +159,8 @@ namespace nhitomi
 
             return wrap(
                 await _cache.GetOrCreateAsync<Hitomi.DoujinData>(
-                    key: $"{Name}/{id}",
-                    factory: entry =>
-                    {
-                        entry.AbsoluteExpirationRelativeToNow = DoujinCacheOptions.Expiration;
-                        return getAsync();
-                    }
+                    name: $"{Name}/{id}",
+                    getAsync: getAsync
                 )
             );
 

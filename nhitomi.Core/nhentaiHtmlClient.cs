@@ -11,7 +11,6 @@ using System.Net.Http;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using HtmlAgilityPack;
-using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
@@ -45,20 +44,19 @@ namespace nhitomi
 
         public Regex GalleryRegex { get; } = new Regex(nhentai.GalleryRegex, RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
-        readonly IMemoryCache _cache;
+        readonly PhysicalCache _cache;
         readonly HttpClient _http;
         readonly JsonSerializer _json;
         readonly ILogger _logger;
 
         public nhentaiHtmlClient(
             IHttpClientFactory httpFactory,
-            IMemoryCache cache,
             JsonSerializer json,
             ILogger<nhentaiHtmlClient> logger
         )
         {
             _http = httpFactory?.CreateClient(Name);
-            _cache = cache;
+            _cache = new PhysicalCache(Name, json);
             _json = json;
             _logger = logger;
         }
@@ -79,19 +77,8 @@ namespace nhitomi
 
             return wrap(
                 await _cache.GetOrCreateAsync<nhentai.DoujinData>(
-                    key: $"{Name}/{id}",
-                    factory: async entry =>
-                    {
-                        try
-                        {
-                            entry.AbsoluteExpirationRelativeToNow = DoujinCacheOptions.Expiration;
-                            return await getAsync();
-                        }
-                        finally
-                        {
-                            await throttle();
-                        }
-                    }
+                    name: id,
+                    getAsync: getAsync
                 )
             );
 

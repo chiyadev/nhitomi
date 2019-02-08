@@ -3,7 +3,6 @@
 // This software is released under the MIT License.
 // https://opensource.org/licenses/MIT
 
-using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System;
@@ -90,20 +89,19 @@ namespace nhitomi
 
         public Regex GalleryRegex { get; } = new Regex(nhentai.GalleryRegex, RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
-        readonly IMemoryCache _cache;
+        readonly PhysicalCache _cache;
         readonly HttpClient _http;
         readonly JsonSerializer _json;
         readonly ILogger _logger;
 
         public nhentaiClient(
             IHttpClientFactory httpFactory,
-            IMemoryCache cache,
             JsonSerializer json,
             ILogger<nhentaiClient> logger
         )
         {
             _http = httpFactory?.CreateClient(Name);
-            _cache = cache;
+            _cache = new PhysicalCache(Name, json);
             _json = json;
             _logger = logger;
         }
@@ -119,12 +117,8 @@ namespace nhitomi
 
             return wrap(
                 await _cache.GetOrCreateAsync<nhentai.DoujinData>(
-                    key: $"{Name}/{id}",
-                    factory: entry =>
-                    {
-                        entry.AbsoluteExpirationRelativeToNow = DoujinCacheOptions.Expiration;
-                        return getAsync();
-                    }
+                    name: id,
+                    getAsync: getAsync
                 )
             );
 
@@ -174,10 +168,9 @@ namespace nhitomi
 
                             // Add results to cache
                             foreach (var result in current.result)
-                                _cache.Set(
-                                    key: $"{Name}/{result.id}",
-                                    value: result,
-                                    options: new DoujinCacheOptions()
+                                await _cache.CreateAsync<nhentai.DoujinData>(
+                                    name: result.id.ToString(),
+                                    getAsync: () => Task.FromResult(result)
                                 );
 
                             index++;
