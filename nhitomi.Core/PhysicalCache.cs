@@ -20,7 +20,7 @@ namespace nhitomi
             CachePath = getPath(name);
         }
 
-        public async Task<Stream> GetOrCreateAsync(string name, Func<Task<Stream>> getFunc)
+        public async Task<Stream> GetOrCreateStreamAsync(string name, Func<Task<Stream>> getAsync)
         {
             try
             {
@@ -32,7 +32,7 @@ namespace nhitomi
                 // This will fail if cache already exists
                 using (var cacheStream = new FileStream(path, FileMode.CreateNew, FileAccess.Write, FileShare.None))
                 {
-                    var stream = await getFunc();
+                    var stream = await getAsync();
 
                     // Write to cache
                     await stream.CopyToAsync(cacheStream);
