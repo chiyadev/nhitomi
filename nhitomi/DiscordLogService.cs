@@ -16,18 +16,15 @@ namespace nhitomi
 {
     public class DiscordLogService : ILoggerProvider
     {
-        readonly AppSettings.DiscordSettings.ServerSettings _settings;
         readonly DiscordService _discord;
 
         readonly Task _worker;
         readonly CancellationTokenSource _tokenSource = new CancellationTokenSource();
 
         public DiscordLogService(
-            IOptions<AppSettings> options,
             DiscordService discord
         )
         {
-            _settings = options.Value.Discord.Server;
             _discord = discord;
 
             _worker = runAsync(_tokenSource.Token);
@@ -43,8 +40,8 @@ namespace nhitomi
                     goto sleep;
 
                 var channel = _discord.Socket
-                    .GetGuild(_settings.ServerId)
-                    .GetTextChannel(_settings.LogChannelId);
+                    .GetGuild(515395714264858653)
+                    .GetTextChannel(515824554359259138);
 
                 if (channel == null)
                     goto sleep;

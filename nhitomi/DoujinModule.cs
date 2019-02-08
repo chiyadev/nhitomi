@@ -165,7 +165,7 @@ namespace nhitomi
             AppSettings settings
         )
         {
-            var guild = await client.GetGuildAsync(settings.Discord.Server.ServerId);
+            var guild = await client.GetGuildAsync(515395714264858653);
 
             // Allow downloading only for users of guild
             if ((await guild.GetUserAsync(user.Id)) == null)
@@ -407,7 +407,7 @@ namespace nhitomi
             [Remainder] string id
         )
         {
-            var guild = await Context.Client.GetGuildAsync(_settings.Discord.Server.ServerId);
+            var guild = await Context.Client.GetGuildAsync(515395714264858653);
 
             // Allow downloading only for users of guild
             if ((await guild.GetUserAsync(Context.User.Id)) == null)

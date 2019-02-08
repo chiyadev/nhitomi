@@ -29,14 +29,6 @@ namespace nhitomi
                 Token = Environment.GetEnvironmentVariable("TOKEN");
             }
 
-            public ServerSettings Server { get; set; }
-            public sealed class ServerSettings
-            {
-                public ulong ServerId { get; set; }
-                public ulong LogChannelId { get; set; }
-                public ulong FeedCategoryId { get; set; }
-            }
-
             public StatusSettings Status { get; set; }
             public sealed class StatusSettings
             {

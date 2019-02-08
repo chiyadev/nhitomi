@@ -51,7 +51,7 @@ namespace nhitomi
 
             // Register as log provider
             if (_settings.CurrentEnvironment == "PRODUCTION")
-                loggerFactory.AddProvider(new DiscordLogService(options, this));
+                loggerFactory.AddProvider(new DiscordLogService(this));
 
             _logger = loggerFactory.CreateLogger<DiscordService>();
 
