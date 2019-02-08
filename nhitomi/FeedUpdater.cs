@@ -121,6 +121,7 @@ namespace nhitomi
                                                     embed: MessageFormatter.EmbedDoujin(d)
                                                 ),
                                                 doujin: d,
+                                                client: _discord.Socket,
                                                 settings: _settings
                                             );
                                         }

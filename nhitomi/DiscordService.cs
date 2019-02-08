@@ -195,6 +195,7 @@ namespace nhitomi
                         response: response,
                         results: results,
                         interactive: _interactive,
+                        client: Socket,
                         settings: _settings
                     );
                 }

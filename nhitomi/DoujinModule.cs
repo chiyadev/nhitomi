@@ -111,6 +111,7 @@ namespace nhitomi
                 requester: Context.User,
                 response: response,
                 doujin: doujin,
+                client: Context.Client,
                 settings: _settings
             );
         }
@@ -120,6 +121,7 @@ namespace nhitomi
             IUser requester,
             IUserMessage response,
             IDoujin doujin,
+            IDiscordClient client,
             AppSettings settings
         )
         {
@@ -148,17 +150,29 @@ namespace nhitomi
                     downloadMessage = await ShowDownload(
                         doujin: doujin,
                         channel: response.Channel,
+                        user: requester,
+                        client: client,
                         settings: settings
                     );
             }
         }
 
-        public static Task<IUserMessage> ShowDownload(
+        public static async Task<IUserMessage> ShowDownload(
             IDoujin doujin,
             IMessageChannel channel,
+            IUser user,
+            IDiscordClient client,
             AppSettings settings
         )
         {
+            var guild = await client.GetGuildAsync(settings.Discord.Server.ServerId);
+
+            // Allow downloading only for users of guild
+            if ((await guild.GetUserAsync(user.Id)) == null)
+                return await channel.SendMessageAsync(
+                    text: $"**nhitomi**: Please join our server to enable downloading! https://discord.gg/JFNga7q"
+                );
+
             var secret = settings.Discord.Token;
             var validLength = settings.Doujin.TokenValidLength;
 
@@ -166,7 +180,7 @@ namespace nhitomi
             var downloadToken = doujin.CreateToken(secret, expiresIn: validLength);
 
             // Send download message
-            return channel.SendMessageAsync(
+            return await channel.SendMessageAsync(
                 text: string.Empty,
                 embed: MessageFormatter.EmbedDownload(
                     doujinName: doujin.PrettyName,
@@ -212,6 +226,7 @@ namespace nhitomi
                 response: response,
                 results: results,
                 interactive: _interactive,
+                client: Context.Client,
                 settings: _settings
             );
         }
@@ -243,6 +258,7 @@ namespace nhitomi
                 response: response,
                 results: results,
                 interactive: _interactive,
+                client: Context.Client,
                 settings: _settings
             );
         }
@@ -252,6 +268,7 @@ namespace nhitomi
             IUserMessage response,
             IAsyncEnumerable<IDoujin> results,
             InteractiveScheduler interactive,
+            IDiscordClient client,
             AppSettings settings
         )
         {
@@ -350,7 +367,13 @@ namespace nhitomi
                     downloadMessage = null;
                 }
                 else
-                    downloadMessage = await ShowDownload(browser.Current, response.Channel, settings);
+                    downloadMessage = await ShowDownload(
+                        doujin: browser.Current,
+                        channel: response.Channel,
+                        user: request.Author,
+                        client: client,
+                        settings: settings
+                    );
             }
 
             async Task updateDownload()
@@ -384,6 +407,17 @@ namespace nhitomi
             [Remainder] string id
         )
         {
+            var guild = await Context.Client.GetGuildAsync(_settings.Discord.Server.ServerId);
+
+            // Allow downloading only for users of guild
+            if ((await guild.GetUserAsync(Context.User.Id)) == null)
+            {
+                await ReplyAsync(
+                    message: $"**nhitomi**: Please join our server to enable downloading! https://discord.gg/JFNga7q"
+                );
+                return;
+            }
+
             var (client, doujin, response) = await getAsync(source, id);
 
             if (doujin == null)
