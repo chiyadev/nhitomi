@@ -20,7 +20,7 @@ namespace nhitomi
     {
         public const int RequestCooldown = 1000;
 
-        public const string GalleryRegex = @"\b((http|https):\/\/)?(www\.)?tsumino(\.com)?\/(Book\/Info\/)?(?<tsumino>[0-9]{1,5})\b";
+        public const string GalleryRegex = @"\b((http|https):\/\/)?(www\.)?tsumino(\.com)?\/(Book\/Info\/)?(?<Tsumino>[0-9]{1,5})\b";
 
         public static string Book(int id) => $"https://www.tsumino.com/Book/Info/{id}/";
         public static string ImageObject(string name) => $"https://www.tsumino.com/Image/Object?name={name}";
