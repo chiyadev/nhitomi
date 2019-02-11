@@ -119,7 +119,7 @@ namespace nhitomi
 
     public sealed class TsuminoClient : IDoujinClient
     {
-        public string Name => "Tsumino";
+        public string Name => nameof(Tsumino);
         public string Url => "https://www.tsumino.com/";
         public string IconUrl => "https://cdn.discordapp.com/icons/167128230908657664/b2089ee1d26a7e168d63960d6ed31b66.png";
 
