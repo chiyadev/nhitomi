@@ -291,6 +291,8 @@ namespace nhitomi
 
         public Task UpdateAsync() => Task.CompletedTask;
 
+        public override string ToString() => Name;
+
         public void Dispose() { }
     }
 }
