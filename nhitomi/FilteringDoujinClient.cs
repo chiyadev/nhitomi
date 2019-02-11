@@ -80,7 +80,7 @@ namespace nhitomi
             "shotas",
             "shotacon",
             "shotacons",
-            "children",
+            "child",
             "childrens",
             "minor",
             "minors"
