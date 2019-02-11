@@ -5,7 +5,7 @@
  https://opensource.org/licenses/MIT
 -->
 
-# nhitomi
+# nhitomi ![Build status](https://ci.appveyor.com/api/projects/status/vtdjarua2c9i0k5t?svg=true)
 
 ![nhitomi](nhitomi.png)
 
