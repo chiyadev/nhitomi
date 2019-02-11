@@ -88,7 +88,7 @@ namespace nhitomi
 
         IDoujin filter(IDoujin doujin)
         {
-            if (doujin.Tags != null &&
+            if (doujin?.Tags == null ||
                 bannedKeywords.Any(doujin.Tags.Contains))
                 return null;
 
