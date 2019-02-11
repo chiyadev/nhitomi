@@ -236,7 +236,6 @@ namespace nhitomi
                                 { "Text", query?.Trim() },
                                 { "Sort", "Newest" },
                                 { "CompletelyExcludeHated", CompletelyExcludeHated ? "true" : "false" }
-
                             })))
                             using (var textReader = new StringReader(await response.Content.ReadAsStringAsync()))
                             using (var jsonReader = new JsonTextReader(textReader))
