@@ -95,12 +95,6 @@ namespace nhitomi
             }
             embed.AddField("— Supported sources —", builder);
 
-            // Note
-            embed.AddField("— Note —",
-                "All content uploaded by this bot are sourced directly from the respective websites listed above. " +
-                "These contents may be (but not limited to) offensive, profane, depressing, gory and/or causing harassment. " +
-                "Please refrain from using this bot if you find this type of content distressing.");
-
             // Contribution
             embed.AddField("— Contribution —",
                 "This project is licensed under the MIT License. " +
