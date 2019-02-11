@@ -73,9 +73,17 @@ namespace nhitomi
         {
             // Discord Community Guideline: NO LOLICON OR SHOTACON
             "loli",
+            "lolis",
             "lolicon",
+            "lolicons",
             "shota",
-            "shotacon"
+            "shotas",
+            "shotacon",
+            "shotacons",
+            "children",
+            "childrens",
+            "minor",
+            "minors"
         };
 
         IDoujin filter(IDoujin doujin)
