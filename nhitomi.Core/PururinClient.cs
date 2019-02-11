@@ -144,6 +144,21 @@ $@"{{
 
         Task throttle() => Task.Delay(TimeSpan.FromMilliseconds(Pururin.RequestCooldown));
 
+        static readonly Regex _csrfRegex = new Regex(@"<meta name=""csrf-token"" content=""(?<csrf>.*)"">", RegexOptions.Compiled);
+
+        async Task<HttpResponseMessage> postAsync(string url, HttpContent content)
+        {
+            var html = await _http.GetStringAsync(Url);
+            var csrf = _csrfRegex.Match(html).Groups["csrf"].Value;
+
+            var request = new HttpRequestMessage(HttpMethod.Post, url);
+
+            request.Headers.Add("X-CSRF-TOKEN", csrf);
+            request.Content = content;
+
+            return await _http.SendAsync(request);
+        }
+
         public async Task<IDoujin> GetAsync(string id)
         {
             if (!int.TryParse(id, out var intId))
@@ -162,7 +177,7 @@ $@"{{
                 {
                     Pururin.DoujinData data;
 
-                    using (var response = await _http.PostAsync(Pururin.Gallery, new StringContent(Pururin.GalleryRequest(intId))))
+                    using (var response = await postAsync(Pururin.Gallery, new StringContent(Pururin.GalleryRequest(intId))))
                     using (var textReader = new StringReader(await response.Content.ReadAsStringAsync()))
                     using (var jsonReader = new JsonTextReader(textReader))
                         data = _json.Deserialize<Pururin.DoujinData>(jsonReader);
@@ -191,7 +206,7 @@ $@"{{
                         try
                         {
                             // Load list
-                            using (var response = await _http.PostAsync(nextPage, new StringContent(Pururin.SearchRequest(query))))
+                            using (var response = await postAsync(nextPage, new StringContent(Pururin.SearchRequest(query))))
                             using (var textReader = new StringReader(await response.Content.ReadAsStringAsync()))
                             using (var jsonReader = new JsonTextReader(textReader))
                                 current = _json.Deserialize<Pururin.ListData>(jsonReader);
