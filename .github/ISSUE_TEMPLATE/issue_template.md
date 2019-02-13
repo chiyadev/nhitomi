@@ -25,12 +25,12 @@ First, replace the values in quotes below:
 -->
 ### System
 
-* nhitomi Version: `M.m.r.p` 
+* nhitomi Version: `M.m.p` 
 * Platform: `Windows|Heroku`
 <!--
 Example:
 
-* nhitomi Version: `1.3.7.2`
+* nhitomi Version: `1.3.7`
 * Platform: `Windows`
 
 -->
