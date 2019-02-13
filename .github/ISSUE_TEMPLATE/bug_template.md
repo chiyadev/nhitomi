@@ -1,11 +1,11 @@
 ---
-name: Bug_TEMPLATE
-about: Describe this bug template's purpose here.
+name: Bug report
+about: Report a bug
 title: ''
 labels: ''
 assignees: ''
-
 ---
+
 <!--
 Reporting a bug?
 ----------------
@@ -14,8 +14,9 @@ First, replace the values in quotes below:
 
 ### System
 
-* nhitomi Version: `%H` 
+* Commit: `%H` 
 * Platform: `Windows|Heroku`
+
 <!--
 Example:
 
@@ -26,5 +27,4 @@ Example:
 
 ### Description
 
-<!-- 
-    and then describe the bug with as much detail as possible and clear steps to reproduce. Write it below this line. -->
+<!-- and then describe the bug with as much detail as possible and clear steps to reproduce. Write it below this line. -->
