@@ -36,7 +36,7 @@ namespace nhitomi
 
     public sealed class nhentaiHtmlClient : IDoujinClient
     {
-        public string Name => "nhentai";
+        public string Name => nameof(nhentai);
         public string Url => "https://nhentai.net/";
         public string IconUrl => "https://cdn.cybrhome.com/media/website/live/icon/icon_nhentai.net_57f740.png";
 
@@ -202,12 +202,12 @@ namespace nhitomi
                 return AsyncEnumerable.CreateEnumerator(
                     moveNext: async token =>
                     {
-                        if (index < list.Length)
-                        {
-                            current = await GetAsync(list[index++]);
-                            return true;
-                        }
-                        return false;
+                        if (index == list.Length)
+                            return false;
+
+                        current = await GetAsync(list[index++]);
+                        return true;
+
                     },
                     current: () => current,
                     dispose: () => { }

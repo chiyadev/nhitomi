@@ -20,7 +20,7 @@ namespace nhitomi
     {
         public const int RequestCooldown = 1000;
 
-        public const string GalleryRegex = @"\b((http|https):\/\/)?(www\.)?tsumino(\.com)?\/(Book\/Info\/)?(?<tsumino>[0-9]{1,5})\b";
+        public const string GalleryRegex = @"\b((http|https):\/\/)?(www\.)?tsumino(\.com)?\/(Book\/Info\/)?(?<Tsumino>[0-9]{1,5})\b";
 
         public static string Book(int id) => $"https://www.tsumino.com/Book/Info/{id}/";
         public static string ImageObject(string name) => $"https://www.tsumino.com/Image/Object?name={name}";
@@ -119,7 +119,7 @@ namespace nhitomi
 
     public sealed class TsuminoClient : IDoujinClient
     {
-        public string Name => "Tsumino";
+        public string Name => nameof(Tsumino);
         public string Url => "https://www.tsumino.com/";
         public string IconUrl => "https://cdn.discordapp.com/icons/167128230908657664/b2089ee1d26a7e168d63960d6ed31b66.png";
 
@@ -236,7 +236,6 @@ namespace nhitomi
                                 { "Text", query?.Trim() },
                                 { "Sort", "Newest" },
                                 { "CompletelyExcludeHated", CompletelyExcludeHated ? "true" : "false" }
-
                             })))
                             using (var textReader = new StringReader(await response.Content.ReadAsStringAsync()))
                             using (var jsonReader = new JsonTextReader(textReader))
@@ -266,12 +265,11 @@ namespace nhitomi
                 return AsyncEnumerable.CreateEnumerator(
                     moveNext: async token =>
                     {
-                        if (index < list.Data.Length)
-                        {
-                            current = await GetAsync(list.Data[index++].Entry.Id.ToString());
-                            return true;
-                        }
-                        return false;
+                        if (index == list.Data.Length)
+                            return false;
+
+                        current = await GetAsync(list.Data[index++].Entry.Id.ToString());
+                        return true;
                     },
                     current: () => current,
                     dispose: () => { }
@@ -292,6 +290,8 @@ namespace nhitomi
         }
 
         public Task UpdateAsync() => Task.CompletedTask;
+
+        public override string ToString() => Name;
 
         public void Dispose() { }
     }

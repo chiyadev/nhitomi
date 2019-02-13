@@ -20,7 +20,7 @@ namespace nhitomi
     {
         public const int RequestCooldown = 500;
 
-        public const string GalleryRegex = @"\b((http|https):\/\/)?hitomi(\.la)?\/(galleries\/)?(?<hitomi>[0-9]{1,7})\b";
+        public const string GalleryRegex = @"\b((http|https):\/\/)?hitomi(\.la)?\/(galleries\/)?(?<Hitomi>[0-9]{1,7})\b";
 
         public static string Gallery(int id) => $"https://hitomi.la/galleries/{id}.html";
         public static string GalleryInfo(int id, char? server = null) => $"https://{server}tn.hitomi.la/galleries/{id}.js";

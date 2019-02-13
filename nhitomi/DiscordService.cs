@@ -178,11 +178,12 @@ namespace nhitomi
 
                                 var group = enumerator.Current.Groups.First(g =>
                                     g.Success &&
-                                    _clients.Any(c => c.Name.Equals(g.Name, StringComparison.OrdinalIgnoreCase)));
+                                    _clients.Any(c => c.Name == g.Name));
 
                                 current = await _clients
-                                    .First(c => c.Name.Equals(group.Name, StringComparison.OrdinalIgnoreCase))
+                                    .Single(c => c.Name == group.Name)
                                     .GetAsync(group.Value);
+
                                 return true;
                             },
                             current: () => current,
