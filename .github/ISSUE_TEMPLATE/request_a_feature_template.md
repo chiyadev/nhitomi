@@ -1,6 +1,6 @@
 ---
-name: request_a_feature_TEMPLATE
-about: Describe this request_a_feature template's purpose here.
+name: Feature request
+about: Request a feature
 title: ''
 labels: ''
 assignees: ''
@@ -9,23 +9,10 @@ assignees: ''
 <!--
 Requesting a new feature?
 -------------------------
-Please first make sure that your feature hasn't already been Requested on
-Github or discord server.
--->
-
-### System
-
-* nhitomi Version: `%H` 
-* Platform: `Windows|Heroku`
-<!--
-Example:
-
-* nhitomi Version: `c7bcfcbe5596d9f4e5303952f4ff2ebd250665e8`
-* Platform: `Windows`
-
+Please first make sure that your feature hasn't already been requested on
+GitHub or Discord server (https://discord.gg/JFNga7q).
 -->
 
 ### Description
 
-<!-- 
-    Describe. Write it below this line. -->
+<!-- Describe in detail. -->
