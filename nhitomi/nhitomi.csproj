@@ -1,4 +1,4 @@
-<!--
+﻿<!--
  Copyright (c) 2018-2019 phosphene47
  
  This software is released under the MIT License.
@@ -11,6 +11,14 @@
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp2.1</TargetFramework>
     <LangVersion>latest</LangVersion>
+    <Title>nhitomi</Title>
+    <Authors>phosphene47</Authors>
+    <Description>Discord bot for browsing and downloading doujinshi</Description>
+    <Copyright>Copyright (C) phosphene47</Copyright>
+    <PackageProjectUrl>https://github.com/fateloli/nhitomi</PackageProjectUrl>
+    <PackageLicenseUrl>https://opensource.org/licenses/MIT</PackageLicenseUrl>
+    <PackageIconUrl>https://github.com/fateloli/nhitomi/raw/master/nhitomi.png</PackageIconUrl>
+    <RepositoryUrl>https://github.com/fateloli/nhitomi</RepositoryUrl>
   </PropertyGroup>
 
   <ItemGroup>
