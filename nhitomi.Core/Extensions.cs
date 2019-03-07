@@ -115,8 +115,8 @@ namespace nhitomi.Core
         /// to transform one string to the other, or -1 if the distance is greater than the specified maxDistance.</returns>
         public static int DamLev(this string s, string t, int maxDistance = int.MaxValue)
         {
-            if (String.IsNullOrEmpty(s)) return ((t ?? "").Length <= maxDistance) ? (t ?? "").Length : -1;
-            if (String.IsNullOrEmpty(t)) return (s.Length <= maxDistance) ? s.Length : -1;
+            if (string.IsNullOrEmpty(s)) return ((t ?? "").Length <= maxDistance) ? (t ?? "").Length : -1;
+            if (string.IsNullOrEmpty(t)) return (s.Length <= maxDistance) ? s.Length : -1;
 
             // if strings of different lengths, ensure shorter string is in s. This can result in a little
             // faster speed by spending more time spinning just the inner loop during the main processing.
