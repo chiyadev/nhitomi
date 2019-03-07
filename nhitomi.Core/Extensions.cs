@@ -32,12 +32,7 @@ namespace nhitomi.Core
             return $"{Math.Round(time / 60000, 2)}m";
         }
 
-        public static IEnumerable<T> NullIfEmpty<T>(this IEnumerable<T> source)
-        {
-            if (source.Any())
-                return source;
-            return null;
-        }
+        public static IEnumerable<T> NullIfEmpty<T>(this IEnumerable<T> source) => source.Any() ? source : null;
 
         public static IDisposable Measure(out double[] elapsed) => new MeasureContext(elapsed = new double[1]);
         public class MeasureContext : IDisposable
