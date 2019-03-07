@@ -30,7 +30,7 @@ namespace nhitomi
 
         void cycleGame()
         {
-            int index = _current == null ? -1 : System.Array.IndexOf(_settings.Discord.Status.Games, _current);
+            var index = _current == null ? -1 : System.Array.IndexOf(_settings.Discord.Status.Games, _current);
             int next;
 
             do { next = _rand.Next(_settings.Discord.Status.Games.Length); }

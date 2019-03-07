@@ -124,13 +124,13 @@ namespace nhitomi.Core
             {
                 var temp = s; s = t; t = temp; // swap s and t
             }
-            int sLen = s.Length; // this is also the minimun length of the two strings
-            int tLen = t.Length;
+            var sLen = s.Length; // this is also the minimun length of the two strings
+            var tLen = t.Length;
 
             // suffix common to both strings can be ignored
             while ((sLen > 0) && (s[sLen - 1] == t[tLen - 1])) { sLen--; tLen--; }
 
-            int start = 0;
+            var start = 0;
             if ((s[0] == t[0]) || (sLen == 0))
             { // if there's a shared prefix, or all s matches t's suffix
               // prefix common to both strings can be ignored
@@ -144,7 +144,7 @@ namespace nhitomi.Core
 
                 t = t.Substring(start, tLen); // faster than t[start+j] in inner loop below
             }
-            int lenDiff = tLen - sLen;
+            var lenDiff = tLen - sLen;
             if ((maxDistance < 0) || (maxDistance > tLen))
             {
                 maxDistance = tLen;
@@ -157,32 +157,32 @@ namespace nhitomi.Core
             for (j = 0; j < maxDistance; j++) v0[j] = j + 1;
             for (; j < tLen; j++) v0[j] = maxDistance + 1;
 
-            int jStartOffset = maxDistance - (tLen - sLen);
-            bool haveMax = maxDistance < tLen;
-            int jStart = 0;
-            int jEnd = maxDistance;
-            char sChar = s[0];
-            int current = 0;
-            for (int i = 0; i < sLen; i++)
+            var jStartOffset = maxDistance - (tLen - sLen);
+            var haveMax = maxDistance < tLen;
+            var jStart = 0;
+            var jEnd = maxDistance;
+            var sChar = s[0];
+            var current = 0;
+            for (var i = 0; i < sLen; i++)
             {
-                char prevsChar = sChar;
+                var prevsChar = sChar;
                 sChar = s[start + i];
-                char tChar = t[0];
-                int left = i;
+                var tChar = t[0];
+                var left = i;
                 current = left + 1;
-                int nextTransCost = 0;
+                var nextTransCost = 0;
                 // no need to look beyond window of lower right diagonal - maxDistance cells (lower right diag is i - lenDiff)
                 // and the upper left diagonal + maxDistance cells (upper left is i)
                 jStart += (i > jStartOffset) ? 1 : 0;
                 jEnd += (jEnd < tLen) ? 1 : 0;
                 for (j = jStart; j < jEnd; j++)
                 {
-                    int above = current;
-                    int thisTransCost = nextTransCost;
+                    var above = current;
+                    var thisTransCost = nextTransCost;
                     nextTransCost = v2[j];
                     v2[j] = current = left; // cost of diagonal (substitution)
                     left = v0[j];    // left now equals current cost (which will be diagonal at next iteration)
-                    char prevtChar = tChar;
+                    var prevtChar = tChar;
                     tChar = t[j];
                     if (sChar != tChar)
                     {
@@ -210,7 +210,7 @@ namespace nhitomi.Core
         public static string GetBytesReadable(this long i)
         {
             // Get absolute value
-            long absolute_i = (i < 0 ? -i : i);
+            var absolute_i = (i < 0 ? -i : i);
             // Determine the suffix and readable value
             string suffix;
             double readable;
