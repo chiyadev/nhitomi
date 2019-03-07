@@ -3,13 +3,10 @@
 // This software is released under the MIT License.
 // https://opensource.org/licenses/MIT
 
-using Microsoft.Extensions.DependencyInjection;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace nhitomi
