@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
-namespace nhitomi
+namespace nhitomi.Core
 {
     public static class Pururin
     {

@@ -6,7 +6,7 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
-namespace nhitomi
+namespace nhitomi.Core
 {
     public class nhitomiSerializerSettings : JsonSerializerSettings
     {

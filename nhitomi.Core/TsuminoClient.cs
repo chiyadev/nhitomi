@@ -14,7 +14,7 @@ using HtmlAgilityPack;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
-namespace nhitomi
+namespace nhitomi.Core
 {
     public static class Tsumino
     {
@@ -186,7 +186,7 @@ namespace nhitomi
                         rating = new Tsumino.DoujinData.Rating(innerSanitized(root.SelectSingleNode(Tsumino.XPath.BookRating))),
                         category = innerSanitized(root.SelectSingleNode(Tsumino.XPath.BookCategory)),
                         collection = innerSanitized(root.SelectSingleNode(Tsumino.XPath.BookCollection)),
-                        group = innerSanitized(root.SelectSingleNode(Tsumino.XPath.BookGroup)),
+                        @group = innerSanitized(root.SelectSingleNode(Tsumino.XPath.BookGroup)),
                         artist = innerSanitized(root.SelectSingleNode(Tsumino.XPath.BookArtist)),
                         parody = innerSanitized(root.SelectSingleNode(Tsumino.XPath.BookParody)),
                         characters = root.SelectNodes(Tsumino.XPath.BookCharacter)?.Select(innerSanitized).ToArray(),

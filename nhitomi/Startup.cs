@@ -10,6 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Reflection;
+using nhitomi.Core;
 
 namespace nhitomi
 {

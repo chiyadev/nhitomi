@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using Discord;
 using Discord.Commands;
+using nhitomi.Core;
 
 namespace nhitomi
 {

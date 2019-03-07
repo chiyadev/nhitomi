@@ -7,7 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace nhitomi
+namespace nhitomi.Core
 {
     public sealed class nhentaiDoujin : IDoujin
     {

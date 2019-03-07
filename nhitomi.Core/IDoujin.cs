@@ -6,7 +6,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace nhitomi
+namespace nhitomi.Core
 {
     public interface IDoujin
     {

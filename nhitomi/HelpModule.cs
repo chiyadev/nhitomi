@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Discord.Commands;
 using Microsoft.Extensions.Options;
+using nhitomi.Core;
 
 namespace nhitomi
 {

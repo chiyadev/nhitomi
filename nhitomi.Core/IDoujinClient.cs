@@ -11,7 +11,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 
-namespace nhitomi
+namespace nhitomi.Core
 {
     public interface IDoujinClient : IDisposable
     {
