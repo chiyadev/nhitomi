@@ -9,7 +9,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using System.Collections.Generic;
-using System.Reflection;
 using nhitomi.Core;
 
 namespace nhitomi
@@ -22,8 +21,6 @@ namespace nhitomi
         {
             _config = config;
         }
-
-        public Assembly Assembly => typeof(Program).Assembly;
 
         public void ConfigureServices(IServiceCollection services)
         {
