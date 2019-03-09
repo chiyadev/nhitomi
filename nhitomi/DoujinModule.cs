@@ -50,12 +50,12 @@ namespace nhitomi
             return (client, response);
         }
 
-        async Task<(IDoujinClient, IDoujin, IUserMessage)> getAsync(string source, string id)
+        async Task<(IDoujinClient, IDoujin, IUserMessage)> getDoujinAsync(string source, string id)
         {
             var (client, response) = await getClientAsync(source);
 
             if (client == null)
-                return (client, null, response);
+                return (null, null, response);
 
             // Send placeholder message
             response = await ReplyAsync($"**{client.Name}**: Loading __{id}__...");
@@ -65,9 +65,7 @@ namespace nhitomi
 
             if (doujin == null)
             {
-                await response.ModifyAsync(
-                    content: $"**{client.Name}**: No such doujin!"
-                );
+                await response.ModifyAsync($"**{client.Name}**: No such doujin!");
             }
 
             return (client, doujin, response);
@@ -83,24 +81,17 @@ namespace nhitomi
             [Remainder] string id
         )
         {
-            var (client, doujin, response) = await getAsync(source, id);
+            var (client, doujin, response) = await getDoujinAsync(source, id);
 
             if (doujin == null)
                 return;
 
             await response.ModifyAsync(
-                content: $"**{client.Name}**: __{id}__",
-                embed: MessageFormatter.EmbedDoujin(doujin)
+                $"**{client.Name}**: __{id}__",
+                MessageFormatter.EmbedDoujin(doujin)
             );
 
-            await ShowDoujin(
-                interactive: _interactive,
-                requester: Context.User,
-                response: response,
-                doujin: doujin,
-                client: Context.Client,
-                settings: _settings
-            );
+            await ShowDoujin(_interactive, Context.User, response, doujin, Context.Client, _settings);
         }
 
         public static async Task ShowDoujin(
@@ -113,13 +104,13 @@ namespace nhitomi
         )
         {
             // Message for download toggling
-            var downloadMessage = (IUserMessage)null;
+            var downloadMessage = (IUserMessage) null;
 
             // Create interactive
             await interactive.CreateInteractiveAsync(
-                requester: requester,
-                response: response,
-                triggers: add => add(
+                requester,
+                response,
+                add => add(
                     ("\uD83D\uDCBE", toggleDownload)
                 ),
                 allowTrash: true,
@@ -134,13 +125,9 @@ namespace nhitomi
                     downloadMessage = null;
                 }
                 else
-                    downloadMessage = await ShowDownload(
-                        doujin: doujin,
-                        channel: response.Channel,
-                        user: requester,
-                        client: client,
-                        settings: settings
-                    );
+                {
+                    downloadMessage = await ShowDownload(doujin, response.Channel, requester, client, settings);
+                }
             }
         }
 
@@ -157,8 +144,7 @@ namespace nhitomi
             // Allow downloading only for users of guild
             if ((await guild.GetUserAsync(user.Id)) == null)
                 return await channel.SendMessageAsync(
-                    text: $"**nhitomi**: Please join our server to enable downloading! https://discord.gg/JFNga7q"
-                );
+                    $"**nhitomi**: Please join our server to enable downloading! https://discord.gg/JFNga7q");
 
             var secret = settings.Discord.Token;
             var validLength = settings.Doujin.TokenValidLength;
@@ -168,11 +154,11 @@ namespace nhitomi
 
             // Send download message
             return await channel.SendMessageAsync(
-                text: string.Empty,
+                string.Empty,
                 embed: MessageFormatter.EmbedDownload(
-                    doujinName: doujin.PrettyName,
-                    link: $"{settings.Http.Url}/dl/{downloadToken}",
-                    validLength: validLength
+                    doujin.PrettyName,
+                    $"{settings.Http.Url}/dl/{downloadToken}",
+                    validLength
                 )
             );
         }
@@ -183,8 +169,7 @@ namespace nhitomi
         [Summary("Displays all doujins from the specified source uploaded recently.")]
         [Remarks("n!all hitomi")]
         public async Task ListAsync(
-            [Remainder]
-            string source = null
+            [Remainder] string source = null
         )
         {
             IUserMessage response;
@@ -209,24 +194,17 @@ namespace nhitomi
             }
 
             // Interleave results from each client
-            await DisplayListAsync(
-                request: Context.Message,
-                response: response,
-                results: results,
-                interactive: _interactive,
-                client: Context.Client,
-                settings: _settings
-            );
+            await DisplayListAsync(Context.Message, response, results, _interactive, Context.Client, _settings);
         }
 
         [RequireNsfw]
         [Command("search")]
         [Alias("s")]
-        [Summary("Searches for doujins by the title and tags across the supported sources that match the specified query.")]
+        [Summary(
+            "Searches for doujins by the title and tags across the supported sources that match the specified query.")]
         [Remarks("n!search glasses loli")]
         public async Task SearchAsync(
-            [Remainder]
-            string query
+            [Remainder] string query
         )
         {
             query = query?.Trim();
@@ -242,14 +220,7 @@ namespace nhitomi
             var results = Extensions.Interleave(await Task.WhenAll(_clients.Select(c => c.SearchAsync(query))));
 
             // Interleave results from each client
-            await DisplayListAsync(
-                request: Context.Message,
-                response: response,
-                results: results,
-                interactive: _interactive,
-                client: Context.Client,
-                settings: _settings
-            );
+            await DisplayListAsync(Context.Message, response, results, _interactive, Context.Client, _settings);
         }
 
         public static async Task DisplayListAsync(
@@ -279,15 +250,15 @@ namespace nhitomi
             }
 
             // Message for download toggling
-            var downloadMessage = (IUserMessage)null;
+            var downloadMessage = (IUserMessage) null;
 
             // Don't proceed creating list interactive if there is only one result
             if (!await browser.MoveNext())
             {
                 await interactive.CreateInteractiveAsync(
-                    requester: request.Author,
-                    response: response,
-                    triggers: add => add(
+                    request.Author,
+                    response,
+                    add => add(
                         ("\uD83D\uDCBE", toggleDownload)
                     ),
                     allowTrash: true,
@@ -301,25 +272,25 @@ namespace nhitomi
 
             // Create list interactive
             await interactive.CreateInteractiveAsync(
-                requester: request.Author,
-                response: response,
-                triggers: add => add(
+                request.Author,
+                response,
+                add => add(
                     ("\u25c0", loadPrevious),
                     ("\u25b6", loadNext),
                     ("\uD83D\uDCBE", toggleDownload)
                 ),
-                onExpire: () =>
+                () =>
                 {
                     browser.Dispose();
                     return downloadMessage?.DeleteAsync();
                 },
-                allowTrash: true
+                true
             );
 
             // Update content as the current doujin
             Task updateView(string content = null) => response.ModifyAsync(
-                content: content ?? $"**{browser.Current.Source.Name}**: __{browser.Current.Id}__",
-                embed: MessageFormatter.EmbedDoujin(browser.Current)
+                content ?? $"**{browser.Current.Source.Name}**: __{browser.Current.Id}__",
+                MessageFormatter.EmbedDoujin(browser.Current)
             );
 
             // Load next doujin
@@ -356,13 +327,8 @@ namespace nhitomi
                     downloadMessage = null;
                 }
                 else
-                    downloadMessage = await ShowDownload(
-                        doujin: browser.Current,
-                        channel: response.Channel,
-                        user: request.Author,
-                        client: client,
-                        settings: settings
-                    );
+                    downloadMessage = await ShowDownload(browser.Current, response.Channel, request.Author, client,
+                        settings);
             }
 
             async Task updateDownload()
@@ -377,11 +343,11 @@ namespace nhitomi
                 var downloadToken = browser.Current.CreateToken(secret, expiresIn: validLength);
 
                 await downloadMessage.ModifyAsync(
-                    content: string.Empty,
-                    embed: MessageFormatter.EmbedDownload(
-                        doujinName: browser.Current.PrettyName,
-                        link: $"{settings.Http.Url}/dl/{downloadToken}",
-                        validLength: validLength
+                    string.Empty,
+                    MessageFormatter.EmbedDownload(
+                        browser.Current.PrettyName,
+                        $"{settings.Http.Url}/dl/{downloadToken}",
+                        validLength
                     )
                 );
             }
@@ -403,12 +369,11 @@ namespace nhitomi
             if ((await guild.GetUserAsync(Context.User.Id)) == null)
             {
                 await ReplyAsync(
-                    message: $"**nhitomi**: Please join our server to enable downloading! https://discord.gg/JFNga7q"
-                );
+                    $"**nhitomi**: Please join our server to enable downloading! https://discord.gg/JFNga7q");
                 return;
             }
 
-            var (client, doujin, response) = await getAsync(source, id);
+            var (client, doujin, response) = await getDoujinAsync(source, id);
 
             if (doujin == null)
                 return;
@@ -420,11 +385,11 @@ namespace nhitomi
             var downloadToken = doujin.CreateToken(secret, expiresIn: validLength);
 
             await response.ModifyAsync(
-                content: $"**{client.Name}**: Download __{id}__",
-                embed: MessageFormatter.EmbedDownload(
-                    doujinName: doujin.PrettyName,
-                    link: $"{_settings.Http.Url}/dl/{downloadToken}",
-                    validLength: validLength
+                $"**{client.Name}**: Download __{id}__",
+                MessageFormatter.EmbedDownload(
+                    doujin.PrettyName,
+                    $"{_settings.Http.Url}/dl/{downloadToken}",
+                    validLength
                 )
             );
         }

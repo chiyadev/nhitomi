@@ -41,7 +41,8 @@ namespace nhitomi
             _logger = logger;
         }
 
-        readonly ConcurrentDictionary<IDoujinClient, IDoujin> _lastDoujins = new ConcurrentDictionary<IDoujinClient, IDoujin>();
+        readonly ConcurrentDictionary<IDoujinClient, IDoujin> _lastDoujins =
+            new ConcurrentDictionary<IDoujinClient, IDoujin>();
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
@@ -52,8 +53,14 @@ namespace nhitomi
                 // Concurrently update clients
                 await Task.WhenAll(_clients.Select(async c =>
                 {
-                    try { await c.UpdateAsync(); }
-                    catch (Exception e) { _logger.LogWarning(e, $"Exception while updating client '{c.Name}': {e.Message}"); }
+                    try
+                    {
+                        await c.UpdateAsync();
+                    }
+                    catch (Exception e)
+                    {
+                        _logger.LogWarning(e, $"Exception while updating client '{c.Name}': {e.Message}");
+                    }
                 }));
 
                 // Concurrently find recent uploads
@@ -98,9 +105,10 @@ namespace nhitomi
                     .OfType<ITextChannel>()
                     .ToArray();
 
-                if (channels != null)
+                if (channels.Length != 0)
                 {
-                    _logger.LogDebug($"Found {channels.Length} feed channels: {string.Join(", ", channels.Select(c => c.Name))}");
+                    _logger.LogDebug(
+                        $"Found {channels.Length} feed channels: {string.Join(", ", channels.Select(c => c.Name))}");
 
                     // Concurrently send new updates
                     await Task.WhenAll(await newDoujins
@@ -109,38 +117,40 @@ namespace nhitomi
                             .Select(async c =>
                             {
                                 await _interactive.CreateInteractiveAsync(
-                                    requester: null,
-                                    response: await c.SendMessageAsync(
-                                        text: $"**{d.Source.Name}**: __{d.Id}__",
+                                    null,
+                                    await c.SendMessageAsync(
+                                        $"**{d.Source.Name}**: __{d.Id}__",
                                         embed: MessageFormatter.EmbedDoujin(d)
                                     ),
-                                    triggers: add => add(
+                                    add => add(
                                         // Heart reaction
                                         ("\u2764", async r =>
-                                        {
-                                            var requester = _discord.Socket.GetUser(r.UserId);
+                                            {
+                                                var requester = _discord.Socket.GetUser(r.UserId);
 
-                                            await DoujinModule.ShowDoujin(
-                                                interactive: _interactive,
-                                                requester: requester,
-                                                response: await (await requester.GetOrCreateDMChannelAsync()).SendMessageAsync(
-                                                    text: $"**{d.Source.Name}**: __{d.Id}__",
-                                                    embed: MessageFormatter.EmbedDoujin(d)
-                                                ),
-                                                doujin: d,
-                                                client: _discord.Socket,
-                                                settings: _settings
-                                            );
-                                        }
-                                    )),
-                                    allowTrash: false
+                                                await DoujinModule.ShowDoujin(
+                                                    _interactive,
+                                                    requester,
+                                                    await (await requester.GetOrCreateDMChannelAsync())
+                                                        .SendMessageAsync(
+                                                            $"**{d.Source.Name}**: __{d.Id}__",
+                                                            embed: MessageFormatter.EmbedDoujin(d)
+                                                        ),
+                                                    d,
+                                                    _discord.Socket,
+                                                    _settings
+                                                );
+                                            }
+                                        ))
                                 );
                             })
                             .ToAsyncEnumerable())
                         .ToArray());
                 }
                 else
+                {
                     _logger.LogDebug($"No feed channels were found.");
+                }
 
                 // Sleep
                 await Task.Delay(

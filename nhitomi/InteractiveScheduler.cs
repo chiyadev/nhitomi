@@ -27,12 +27,16 @@ namespace nhitomi
             _settings = options.Value;
         }
 
-        readonly ConcurrentDictionary<ulong, Interactive> _interactives = new ConcurrentDictionary<ulong, Interactive>();
+        readonly ConcurrentDictionary<ulong, Interactive>
+            _interactives = new ConcurrentDictionary<ulong, Interactive>();
+
         public sealed class Interactive
         {
             public readonly ulong? RequesterId;
             public readonly ulong ResponseId;
-            public readonly Dictionary<IEmote, Func<SocketReaction, Task>> Triggers = new Dictionary<IEmote, Func<SocketReaction, Task>>();
+
+            public readonly Dictionary<IEmote, Func<SocketReaction, Task>> Triggers =
+                new Dictionary<IEmote, Func<SocketReaction, Task>>();
 
             public Interactive(
                 ulong? requester,
@@ -55,10 +59,7 @@ namespace nhitomi
         )
         {
             // Create interactive
-            var interactive = new Interactive(
-                requester: requester?.Id,
-                response: response.Id
-            );
+            var interactive = new Interactive(requester?.Id, response.Id);
 
             // Interactive expiry time
             var expiryTime = DateTime.Now.AddMinutes(_settings.Discord.Command.InteractiveExpiry);
@@ -69,8 +70,8 @@ namespace nhitomi
                 {
                     foreach (var trigger in collection)
                         interactive.Triggers.Add(
-                            key: new Emoji(trigger.emoji),
-                            value: reaction =>
+                            new Emoji(trigger.emoji),
+                            reaction =>
                             {
                                 // Delay expiry on trigger
                                 expiryTime = DateTime.Now.AddMinutes(_settings.Discord.Command.InteractiveExpiry);
@@ -81,11 +82,7 @@ namespace nhitomi
                 });
 
             // Register interactive
-            _interactives.AddOrUpdate(
-                key: interactive.ResponseId,
-                addValue: interactive,
-                updateValueFactory: delegate { return interactive; }
-            );
+            _interactives.AddOrUpdate(interactive.ResponseId, interactive, (_, _) => interactive);
 
             // Schedule expiry
             var expiryDelayToken = new CancellationTokenSource();
@@ -105,7 +102,9 @@ namespace nhitomi
                         );
                     }
                 }
-                catch (TaskCanceledException) { }
+                catch (TaskCanceledException)
+                {
+                }
 
                 // Unregister interactive
                 _interactives.TryRemove(interactive.ResponseId, out _);
@@ -127,8 +126,8 @@ namespace nhitomi
 
             if (allowTrash)
                 interactive.Triggers.Add(
-                    key: new Emoji("\uD83D\uDDD1"),
-                    value: reaction =>
+                    new Emoji("\uD83D\uDDD1"),
+                    reaction =>
                     {
                         expireDelete = true;
                         expiryDelayToken.Cancel();
@@ -147,9 +146,9 @@ namespace nhitomi
             SocketReaction reaction
         )
         {
-            if (!_interactives.TryGetValue(reaction.MessageId, out var interactive) ||              // Message must be interactive
-                IgnoreReactionUsers.Contains(reaction.UserId) ||                                    // Reaction user must not be ignoring
-                !interactive.Triggers.TryGetValue(reaction.Emote, out var callback))                // Reaction must be a valid trigger
+            if (!_interactives.TryGetValue(reaction.MessageId, out var interactive) || // Message must be interactive
+                IgnoreReactionUsers.Contains(reaction.UserId) || // Reaction user must not be ignoring
+                !interactive.Triggers.TryGetValue(reaction.Emote, out var callback)) // Reaction must be a valid trigger
                 return;
 
             // Execute callback

@@ -20,6 +20,7 @@ namespace nhitomi
         }
 
         public DiscordSettings Discord { get; set; }
+
         public sealed class DiscordSettings : DiscordSocketConfig
         {
             public string Token { get; set; }
@@ -30,6 +31,7 @@ namespace nhitomi
             }
 
             public StatusSettings Status { get; set; }
+
             public sealed class StatusSettings
             {
                 public double UpdateInterval { get; set; }
@@ -37,6 +39,7 @@ namespace nhitomi
             }
 
             public CommandSettings Command { get; set; }
+
             public sealed class CommandSettings : CommandServiceConfig
             {
                 public double InteractiveExpiry { get; set; }
@@ -44,6 +47,7 @@ namespace nhitomi
         }
 
         public DoujinSettings Doujin { get; set; }
+
         public sealed class DoujinSettings
         {
             public double UpdateInterval { get; set; }
@@ -51,6 +55,7 @@ namespace nhitomi
         }
 
         public HttpSettings Http { get; set; }
+
         public sealed class HttpSettings
         {
             public int Port { get; set; }

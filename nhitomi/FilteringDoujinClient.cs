@@ -40,7 +40,8 @@ namespace nhitomi
         public async Task<IAsyncEnumerable<IDoujin>> SearchAsync(string query)
         {
             if (!string.IsNullOrEmpty(query) &&
-                bannedKeywords.Any(query.Split(' ', StringSplitOptions.RemoveEmptyEntries).Select(k => k.ToLowerInvariant()).Contains))
+                bannedKeywords.Any(query.Split(' ', StringSplitOptions.RemoveEmptyEntries)
+                    .Select(k => k.ToLowerInvariant()).Contains))
                 return AsyncEnumerable.Empty<IDoujin>();
 
             var results = await _impl.SearchAsync(query);
@@ -50,7 +51,7 @@ namespace nhitomi
                 var enumerator = results.GetEnumerator();
 
                 return AsyncEnumerable.CreateEnumerator(
-                    moveNext: async token =>
+                    async token =>
                     {
                         for (var count = 0; count < MaxConsecutiveFilters && await enumerator.MoveNext(token);)
                         {
@@ -64,8 +65,8 @@ namespace nhitomi
 
                         return false;
                     },
-                    current: () => enumerator.Current,
-                    dispose: enumerator.Dispose
+                    () => enumerator.Current,
+                    enumerator.Dispose
                 );
             });
         }

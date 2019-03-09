@@ -34,7 +34,7 @@ namespace nhitomi
         {
             // Reply with embedded help message
             await ReplyAsync(
-                message: string.Empty,
+                string.Empty,
                 embed: MessageFormatter.EmbedHelp(
                     commands: _commands.Commands,
                     clients: _clients,

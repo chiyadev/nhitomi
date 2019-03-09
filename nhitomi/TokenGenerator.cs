@@ -38,7 +38,7 @@ namespace nhitomi
                 Source = doujin.Source.Name,
                 Id = doujin.Id,
                 Expires = double.IsInfinity(expiresIn)
-                    ? (DateTime?)null
+                    ? (DateTime?) null
                     : DateTime.UtcNow.AddMinutes(expiresIn)
             };
 

@@ -43,8 +43,8 @@ namespace nhitomi
             _interactive = interactive;
 
             _galleryRegex = new Regex(
-                pattern: $"({string.Join(")|(", clients.Select(c => c.GalleryRegex))})",
-                options: RegexOptions.Compiled
+                $"({string.Join(")|(", clients.Select(c => c.GalleryRegex))})",
+                RegexOptions.Compiled
             );
 
             Socket = new DiscordSocketClient(_settings.Discord);
@@ -63,11 +63,15 @@ namespace nhitomi
 
         public async Task EnsureConnectedAsync()
         {
-            await _semaphore.WaitAsync(); try
+            await _semaphore.WaitAsync();
+            try
             {
                 await StartSessionAsync();
             }
-            finally { _semaphore.Release(); }
+            finally
+            {
+                _semaphore.Release();
+            }
         }
 
         public async Task StartSessionAsync()
@@ -91,6 +95,7 @@ namespace nhitomi
             var connectionSource = new TaskCompletionSource<object>();
 
             Socket.Ready += handleReady;
+
             Task handleReady()
             {
                 connectionSource.SetResult(null);
@@ -148,7 +153,7 @@ namespace nhitomi
                         switch (result.Error.Value)
                         {
                             case CommandError.Exception:
-                                var executionResult = (ExecuteResult)result;
+                                var executionResult = (ExecuteResult) result;
                                 throw executionResult.Exception;
                         }
                 }
@@ -162,17 +167,15 @@ namespace nhitomi
                     if (!matches.Any())
                         return;
 
-                    var response = await userMessage.Channel.SendMessageAsync(
-                        text: "**nhitomi**: Loading..."
-                    );
+                    var response = await userMessage.Channel.SendMessageAsync("**nhitomi**: Loading...");
 
                     var results = AsyncEnumerable.CreateEnumerable(() =>
                     {
                         var enumerator = matches.GetEnumerator();
-                        var current = (IDoujin)null;
+                        var current = (IDoujin) null;
 
                         return AsyncEnumerable.CreateEnumerator(
-                            moveNext: async token =>
+                            async token =>
                             {
                                 if (!enumerator.MoveNext())
                                     return false;
@@ -187,19 +190,13 @@ namespace nhitomi
 
                                 return true;
                             },
-                            current: () => current,
-                            dispose: enumerator.Dispose
+                            () => current,
+                            enumerator.Dispose
                         );
                     });
 
-                    await DoujinModule.DisplayListAsync(
-                        request: userMessage,
-                        response: response,
-                        results: results,
-                        interactive: _interactive,
-                        client: Socket,
-                        settings: _settings
-                    );
+                    await DoujinModule.DisplayListAsync(userMessage, response, results, _interactive, Socket,
+                        _settings);
                 }
             }
             catch (Exception e)
@@ -208,10 +205,7 @@ namespace nhitomi
                 _logger.LogWarning(e, $"Exception while handling message {userMessage.Id}: {e.Message}");
 
                 // Send error message
-                await userMessage.Channel.SendMessageAsync(
-                    text: string.Empty,
-                    embed: MessageFormatter.EmbedError()
-                );
+                await userMessage.Channel.SendMessageAsync(string.Empty, embed: MessageFormatter.EmbedError());
             }
         }
 
@@ -221,12 +215,24 @@ namespace nhitomi
 
             switch (m.Severity)
             {
-                case LogSeverity.Verbose: level = LogLevel.Trace; break;
-                case LogSeverity.Debug: level = LogLevel.Debug; break;
-                case LogSeverity.Info: level = LogLevel.Information; break;
-                case LogSeverity.Warning: level = LogLevel.Warning; break;
-                case LogSeverity.Error: level = LogLevel.Error; break;
-                case LogSeverity.Critical: level = LogLevel.Critical; break;
+                case LogSeverity.Verbose:
+                    level = LogLevel.Trace;
+                    break;
+                case LogSeverity.Debug:
+                    level = LogLevel.Debug;
+                    break;
+                case LogSeverity.Info:
+                    level = LogLevel.Information;
+                    break;
+                case LogSeverity.Warning:
+                    level = LogLevel.Warning;
+                    break;
+                case LogSeverity.Error:
+                    level = LogLevel.Error;
+                    break;
+                case LogSeverity.Critical:
+                    level = LogLevel.Critical;
+                    break;
             }
 
             if (m.Exception == null)

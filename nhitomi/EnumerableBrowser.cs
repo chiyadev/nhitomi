@@ -39,6 +39,7 @@ namespace nhitomi
 
             return false;
         }
+
         public bool MovePrevious()
         {
             if (_dict.ContainsKey(Index - 1))

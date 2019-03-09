@@ -20,7 +20,8 @@ namespace nhitomi
     {
         private Func<Stream, ActionContext, Task> _callback;
 
-        public FileCallbackResult(MediaTypeHeaderValue contentType, Func<Stream, ActionContext, Task> callback) : base(contentType?.ToString())
+        public FileCallbackResult(MediaTypeHeaderValue contentType, Func<Stream, ActionContext, Task> callback) : base(
+            contentType?.ToString())
         {
             if (callback == null)
                 throw new ArgumentNullException(nameof(callback));
@@ -31,7 +32,9 @@ namespace nhitomi
         {
             if (context == null)
                 throw new ArgumentNullException(nameof(context));
-            var executor = new FileCallbackResultExecutor(context.HttpContext.RequestServices.GetRequiredService<ILoggerFactory>());
+            var executor =
+                new FileCallbackResultExecutor(context.HttpContext.RequestServices
+                    .GetRequiredService<ILoggerFactory>());
             return executor.ExecuteAsync(context, this);
         }
 
@@ -44,7 +47,8 @@ namespace nhitomi
 
             public Task ExecuteAsync(ActionContext context, FileCallbackResult result)
             {
-                SetHeadersAndLog(context, result, null, result.EnableRangeProcessing, result.LastModified, result.EntityTag);
+                SetHeadersAndLog(context, result, null, result.EnableRangeProcessing, result.LastModified,
+                    result.EntityTag);
                 return result._callback(context.HttpContext.Response.Body, context);
             }
         }

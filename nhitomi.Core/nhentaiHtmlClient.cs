@@ -20,7 +20,9 @@ namespace nhitomi.Core
     {
         public static string Gallery(int id) => $"https://nhentai.net/g/{id}";
         public static string All(int index = 0) => $"https://nhentai.net/?page={index + 1}";
-        public static string Search(string query, int index = 0) => $"https://nhentai.net/search/?q={query}&page={index + 1}";
+
+        public static string Search(string query, int index = 0) =>
+            $"https://nhentai.net/search/?q={query}&page={index + 1}";
 
         public static class XPath
         {
@@ -42,7 +44,8 @@ namespace nhitomi.Core
 
         public DoujinClientMethod Method => DoujinClientMethod.Html;
 
-        public Regex GalleryRegex { get; } = new Regex(nhentai.GalleryRegex, RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        public Regex GalleryRegex { get; } =
+            new Regex(nhentai.GalleryRegex, RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
         readonly PhysicalCache _cache;
         readonly HttpClient _http;
@@ -65,10 +68,17 @@ namespace nhitomi.Core
 
         Task throttle() => Task.Delay(TimeSpan.FromMilliseconds(nhentai.RequestCooldown));
 
-        static readonly Regex _mediaIdRegex = new Regex(@"(?<=galleries\/)\d+(?=\/cover)", RegexOptions.IgnoreCase | RegexOptions.Compiled);
-        static readonly Regex _tagUrlRegex = new Regex(@"\/(?<type>.*)\/(?<name>.*)\/", RegexOptions.IgnoreCase | RegexOptions.Compiled);
-        static readonly Regex _tagTitleRegex = new Regex(@"\[[^\]]*\]|\([^\)]*\)", RegexOptions.IgnoreCase | RegexOptions.Compiled);
-        static readonly Regex _galleryRegex = new Regex(@"(?<=g\/)\d+(?=\/)", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        static readonly Regex _mediaIdRegex = new Regex(@"(?<=galleries\/)\d+(?=\/cover)",
+            RegexOptions.IgnoreCase | RegexOptions.Compiled);
+
+        static readonly Regex _tagUrlRegex =
+            new Regex(@"\/(?<type>.*)\/(?<name>.*)\/", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+
+        static readonly Regex _tagTitleRegex =
+            new Regex(@"\[[^\]]*\]|\([^\)]*\)", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+
+        static readonly Regex _galleryRegex =
+            new Regex(@"(?<=g\/)\d+(?=\/)", RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
         public async Task<IDoujin> GetAsync(string id)
         {
@@ -76,9 +86,7 @@ namespace nhitomi.Core
                 return null;
 
             return wrap(
-                await _cache.GetOrCreateAsync<nhentai.DoujinData>(
-                    name: id,
-                    getAsync: getAsync
+                await _cache.GetOrCreateAsync(id, getAsync
                 )
             );
 
@@ -104,19 +112,25 @@ namespace nhitomi.Core
                     var data = new nhentai.DoujinData
                     {
                         id = intId,
-                        media_id = int.Parse(_mediaIdRegex.Match(root.SelectSingleNode(nhentaiHtml.XPath.CoverImage).Attributes["data-src"].Value).Value),
+                        media_id = int.Parse(_mediaIdRegex.Match(root.SelectSingleNode(nhentaiHtml.XPath.CoverImage)
+                            .Attributes["data-src"].Value).Value),
                         // TODO:
                         upload_date = 0,
                         title = new nhentai.DoujinData.Title
                         {
-                            japanese = japaneseTitleNode == null ? null : _tagTitleRegex.Replace(innerSanitized(japaneseTitleNode), string.Empty).Trim(),
-                            pretty = prettyTitleNode == null ? null : _tagTitleRegex.Replace(innerSanitized(prettyTitleNode), string.Empty).Trim()
+                            japanese = japaneseTitleNode == null
+                                ? null
+                                : _tagTitleRegex.Replace(innerSanitized(japaneseTitleNode), string.Empty).Trim(),
+                            pretty = prettyTitleNode == null
+                                ? null
+                                : _tagTitleRegex.Replace(innerSanitized(prettyTitleNode), string.Empty).Trim()
                         },
                         images = new nhentai.DoujinData.Images
                         {
                             pages = root
                                 .SelectNodes(nhentaiHtml.XPath.ThumbImage)
-                                .Select(n => new nhentai.DoujinData.Images.Image { t = n.Attributes["data-src"].Value.SubstringFromEnd(3) })
+                                .Select(n => new nhentai.DoujinData.Images.Image
+                                    {t = n.Attributes["data-src"].Value.SubstringFromEnd(3)})
                                 .ToArray()
                         },
                         tags = root
@@ -137,7 +151,10 @@ namespace nhitomi.Core
 
                     return data;
                 }
-                catch (Exception) { return null; }
+                catch (Exception)
+                {
+                    return null;
+                }
                 finally
                 {
                     await throttle();
@@ -145,75 +162,78 @@ namespace nhitomi.Core
             }
         }
 
-        static string innerSanitized(HtmlNode node) => node == null ? null : HtmlEntity.DeEntitize(node.InnerText).Trim();
+        static string innerSanitized(HtmlNode node) =>
+            node == null ? null : HtmlEntity.DeEntitize(node.InnerText).Trim();
 
         public Task<IAsyncEnumerable<IDoujin>> SearchAsync(string query) =>
             AsyncEnumerable.CreateEnumerable(() =>
-            {
-                string[] current = null;
-                var index = 0;
+                {
+                    string[] current = null;
+                    var index = 0;
 
-                return AsyncEnumerable.CreateEnumerator(
-                    moveNext: async token =>
-                    {
-                        try
+                    return AsyncEnumerable.CreateEnumerator(
+                        async token =>
                         {
-                            var url = string.IsNullOrWhiteSpace(query)
-                                ? nhentaiHtml.All(index)
-                                : nhentaiHtml.Search(query, index);
-
-                            HtmlNode root;
-
-                            using (var response = await _http.GetAsync(url))
-                            using (var reader = new StringReader(await response.Content.ReadAsStringAsync()))
+                            try
                             {
-                                var doc = new HtmlDocument();
-                                doc.Load(reader);
+                                var url = string.IsNullOrWhiteSpace(query)
+                                    ? nhentaiHtml.All(index)
+                                    : nhentaiHtml.Search(query, index);
 
-                                root = doc.DocumentNode;
+                                HtmlNode root;
+
+                                using (var response = await _http.GetAsync(url))
+                                using (var reader = new StringReader(await response.Content.ReadAsStringAsync()))
+                                {
+                                    var doc = new HtmlDocument();
+                                    doc.Load(reader);
+
+                                    root = doc.DocumentNode;
+                                }
+
+                                current = root
+                                    .SelectNodes(nhentaiHtml.XPath.SearchItem)
+                                    ?.Select(n => _galleryRegex.Match(n.Attributes["href"].Value).Value)
+                                    .ToArray();
+
+                                index++;
+
+                                _logger.LogDebug($"Got page {index}: {current?.Length ?? 0} items");
+
+                                return !Array.IsNullOrEmpty(current);
                             }
+                            catch (Exception)
+                            {
+                                return false;
+                            }
+                            finally
+                            {
+                                await throttle();
+                            }
+                        },
+                        () => current,
+                        () => { }
+                    );
+                })
+                .SelectMany(list => AsyncEnumerable.CreateEnumerable(() =>
+                {
+                    IDoujin current = null;
+                    var index = 0;
 
-                            current = root
-                                .SelectNodes(nhentaiHtml.XPath.SearchItem)
-                                ?.Select(n => _galleryRegex.Match(n.Attributes["href"].Value).Value)
-                                .ToArray();
-
-                            index++;
-
-                            _logger.LogDebug($"Got page {index}: {current?.Length ?? 0} items");
-
-                            return !Array.IsNullOrEmpty(current);
-                        }
-                        catch (Exception) { return false; }
-                        finally
+                    return AsyncEnumerable.CreateEnumerator(
+                        async token =>
                         {
-                            await throttle();
-                        }
-                    },
-                    current: () => current,
-                    dispose: () => { }
-                );
-            })
-            .SelectMany(list => AsyncEnumerable.CreateEnumerable(() =>
-            {
-                IDoujin current = null;
-                var index = 0;
+                            if (index == list.Length)
+                                return false;
 
-                return AsyncEnumerable.CreateEnumerator(
-                    moveNext: async token =>
-                    {
-                        if (index == list.Length)
-                            return false;
-
-                        current = await GetAsync(list[index++]);
-                        return true;
-
-                    },
-                    current: () => current,
-                    dispose: () => { }
-                );
-            }))
-            .AsCompletedTask();
+                            current = await GetAsync(list[index++]);
+                            return true;
+                        },
+                        () => current,
+                        () => { }
+                    );
+                }))
+                .AsCompletedTask();
 
         public async Task<Stream> GetStreamAsync(string url)
         {
@@ -231,6 +251,8 @@ namespace nhitomi.Core
 
         public override string ToString() => Name;
 
-        public void Dispose() { }
+        public void Dispose()
+        {
+        }
     }
 }

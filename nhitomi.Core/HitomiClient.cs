@@ -20,19 +20,28 @@ namespace nhitomi.Core
     {
         public const int RequestCooldown = 500;
 
-        public const string GalleryRegex = @"\b((http|https):\/\/)?hitomi(\.la)?\/(galleries\/)?(?<Hitomi>[0-9]{1,7})\b";
+        public const string GalleryRegex =
+            @"\b((http|https):\/\/)?hitomi(\.la)?\/(galleries\/)?(?<Hitomi>[0-9]{1,7})\b";
 
         public static string Gallery(int id) => $"https://hitomi.la/galleries/{id}.html";
-        public static string GalleryInfo(int id, char? server = null) => $"https://{server}tn.hitomi.la/galleries/{id}.js";
 
-        public static char GetCdn(int id) => (char)('a' + (id % 10 == 1 ? 0 : id) % 2);
+        public static string GalleryInfo(int id, char? server = null) =>
+            $"https://{server}tn.hitomi.la/galleries/{id}.js";
+
+        public static char GetCdn(int id) => (char) ('a' + (id % 10 == 1 ? 0 : id) % 2);
 
         public static string Image(int id, string name) => $"https://{GetCdn(id)}a.hitomi.la/galleries/{id}/{name}";
-        public static string CoverImage(int id, string name) => $"https://{GetCdn(id)}tn.hitomi.la/bigtn/{id}/{name}.jpg";
-        public static string ThumbImage(int id, string name) => $"https://{GetCdn(id)}tn.hitomi.la/smalltn/{id}/{name}.jpg";
+
+        public static string CoverImage(int id, string name) =>
+            $"https://{GetCdn(id)}tn.hitomi.la/bigtn/{id}/{name}.jpg";
+
+        public static string ThumbImage(int id, string name) =>
+            $"https://{GetCdn(id)}tn.hitomi.la/smalltn/{id}/{name}.jpg";
 
         public static string Chunk(int index) => $"https://ltn.hitomi.la/galleries{index}.json";
-        public static string List(string category = null, string name = "index", string language = "all", int page = 1) =>
+
+        public static string List(string category = null, string name = "index", string language = "all",
+            int page = 1) =>
             $"https://hitomi.la/{category ?? category + "/"}{name}-{language}-{page}.html";
 
         public static class XPath
@@ -70,6 +79,7 @@ namespace nhitomi.Core
             public string date;
 
             public Image[] images;
+
             public struct Image
             {
                 public string name;
@@ -78,6 +88,7 @@ namespace nhitomi.Core
             }
 
             public Tag[] tags;
+
             public struct Tag
             {
                 public static Tag Parse(string str) => new Tag
@@ -86,8 +97,14 @@ namespace nhitomi.Core
                         ? str.Substring(str.IndexOf(':') + 1)
                         : str.TrimEnd('♀', '♂', ' '),
                     Sex = str.Contains(':')
-                        ? str[0] == 'm' ? '♀' : str[0] == 'f' ? '♂' : (char?)null
-                        : str.EndsWith("♀") ? '♀' : str.EndsWith("♂") ? '♂' : (char?)null
+                        ? str[0] == 'm' ? '♀'
+                        : str[0] == 'f' ? '♂'
+                        : (char?) null
+                        : str.EndsWith("♀")
+                            ? '♀'
+                            : str.EndsWith("♂")
+                                ? '♂'
+                                : (char?) null
                 };
 
                 public string Value;
@@ -129,7 +146,8 @@ namespace nhitomi.Core
 
         public DoujinClientMethod Method => DoujinClientMethod.Html;
 
-        public Regex GalleryRegex { get; } = new Regex(Hitomi.GalleryRegex, RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        public Regex GalleryRegex { get; } =
+            new Regex(Hitomi.GalleryRegex, RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
         readonly PhysicalCache _cache;
         readonly HttpClient _http;
@@ -158,10 +176,7 @@ namespace nhitomi.Core
                 return null;
 
             return wrap(
-                await _cache.GetOrCreateAsync<Hitomi.DoujinData>(
-                    name: id,
-                    getAsync: getAsync
-                )
+                await _cache.GetOrCreateAsync(id, getAsync)
             );
 
             async Task<Hitomi.DoujinData> getAsync()
@@ -196,7 +211,8 @@ namespace nhitomi.Core
                         groups = root.SelectNodes(Hitomi.XPath.Groups)?.Select(innerSanitized).ToArray(),
                         language = innerSanitized(root.SelectSingleNode(Hitomi.XPath.Language)),
                         series = innerSanitized(root.SelectSingleNode(Hitomi.XPath.Series)),
-                        tags = root.SelectNodes(Hitomi.XPath.Tags)?.Select(n => Hitomi.DoujinData.Tag.Parse(innerSanitized(n))).ToArray(),
+                        tags = root.SelectNodes(Hitomi.XPath.Tags)
+                            ?.Select(n => Hitomi.DoujinData.Tag.Parse(innerSanitized(n))).ToArray(),
                         characters = root.SelectNodes(Hitomi.XPath.Characters)?.Select(innerSanitized).ToArray(),
                         date = innerSanitized(root.SelectSingleNode(Hitomi.XPath.Date))
                     };
@@ -207,7 +223,7 @@ namespace nhitomi.Core
                     using (var jsonReader = new JsonTextReader(textReader))
                     {
                         // Discard javascript and start at actual json
-                        while ((char)textReader.Peek() != '[')
+                        while ((char) textReader.Peek() != '[')
                             textReader.Read();
 
                         data.images = _json.Deserialize<Hitomi.DoujinData.Image[]>(jsonReader);
@@ -217,7 +233,10 @@ namespace nhitomi.Core
 
                     return data;
                 }
-                catch (Exception) { return null; }
+                catch (Exception)
+                {
+                    return null;
+                }
                 finally
                 {
                     await throttle();
@@ -225,7 +244,8 @@ namespace nhitomi.Core
             }
         }
 
-        static string innerSanitized(HtmlNode node) => node == null ? null : HtmlEntity.DeEntitize(node.InnerText).Trim();
+        static string innerSanitized(HtmlNode node) =>
+            node == null ? null : HtmlEntity.DeEntitize(node.InnerText).Trim();
 
         readonly HashSet<Hitomi.ChunkItemData> _db = new HashSet<Hitomi.ChunkItemData>();
 
@@ -249,30 +269,38 @@ namespace nhitomi.Core
                             continue;
 
                         var id = -1;
-                        var name = (string)null;
-                        var type = (string)null;
+                        var name = (string) null;
+                        var type = (string) null;
                         var tags = new List<string>();
-                        var author = (string)null;
+                        var author = (string) null;
 
                         string property = null;
                         while (await jsonReader.ReadAsync())
                             switch (jsonReader.TokenType)
                             {
                                 case JsonToken.PropertyName:
-                                    property = (string)jsonReader.Value;
+                                    property = (string) jsonReader.Value;
                                     break;
                                 case JsonToken.Integer:
                                     switch (property)
                                     {
-                                        case "id": id = unchecked((int)(long)jsonReader.Value); break;
+                                        case "id":
+                                            id = unchecked((int) (long) jsonReader.Value);
+                                            break;
                                     }
+
                                     break;
                                 case JsonToken.String:
                                     switch (property)
                                     {
-                                        case "n": name = (string)jsonReader.Value; break;
-                                        case "type": type = (string)jsonReader.Value; break;
+                                        case "n":
+                                            name = (string) jsonReader.Value;
+                                            break;
+                                        case "type":
+                                            type = (string) jsonReader.Value;
+                                            break;
                                     }
+
                                     break;
                                 case JsonToken.StartArray:
                                     switch (property)
@@ -282,7 +310,8 @@ namespace nhitomi.Core
                                                 switch (jsonReader.TokenType)
                                                 {
                                                     case JsonToken.String:
-                                                        tags.Add(Hitomi.DoujinData.Tag.Parse((string)jsonReader.Value).Value);
+                                                        tags.Add(Hitomi.DoujinData.Tag.Parse((string) jsonReader.Value)
+                                                            .Value);
                                                         break;
                                                     case JsonToken.EndArray:
                                                         goto endTags;
@@ -291,13 +320,14 @@ namespace nhitomi.Core
                                             break;
                                         case "a":
                                             await jsonReader.ReadAsync();
-                                            author = (string)jsonReader.Value;
+                                            author = (string) jsonReader.Value;
 
                                             while (await jsonReader.ReadAsync())
                                                 if (jsonReader.TokenType == JsonToken.EndArray)
                                                     break;
                                             break;
                                     }
+
                                     break;
                                 case JsonToken.EndObject:
                                     goto endItem;
@@ -316,7 +346,10 @@ namespace nhitomi.Core
 
                 _logger.LogDebug($"Loaded {loadCount} new items from chunk {chunkIndex} in {elapsed.Format()}.");
             }
-            catch (Exception) { }
+            catch (Exception e)
+            {
+                _logger.LogWarning($"Exception while updating hitomi db.", e);
+            }
             finally
             {
                 await throttle();
@@ -341,9 +374,9 @@ namespace nhitomi.Core
                     .Select(d => d.id);
             else
             {
-                var keywords = query.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                var keywords = query.Split(new[] {' '}, StringSplitOptions.RemoveEmptyEntries);
 
-                int matches(string str) => matchTags(str.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries));
+                int matches(string str) => matchTags(str.Split(new[] {' '}, StringSplitOptions.RemoveEmptyEntries));
                 int matchTags(string[] array) => keywords.Intersect(array).Count();
 
                 filtered = _db
@@ -356,24 +389,24 @@ namespace nhitomi.Core
             }
 
             return AsyncEnumerable.CreateEnumerable(() =>
-            {
-                var enumerator = filtered.GetEnumerator();
-                IDoujin current = null;
+                {
+                    var enumerator = filtered.GetEnumerator();
+                    IDoujin current = null;
 
-                return AsyncEnumerable.CreateEnumerator(
-                    moveNext: async token =>
-                    {
-                        if (!enumerator.MoveNext())
-                            return false;
+                    return AsyncEnumerable.CreateEnumerator(
+                        async token =>
+                        {
+                            if (!enumerator.MoveNext())
+                                return false;
 
-                        current = await GetAsync(enumerator.Current.ToString());
-                        return true;
-                    },
-                    current: () => current,
-                    dispose: enumerator.Dispose
-                );
-            })
-            .AsCompletedTask();
+                            current = await GetAsync(enumerator.Current.ToString());
+                            return true;
+                        },
+                        () => current,
+                        enumerator.Dispose
+                    );
+                })
+                .AsCompletedTask();
         }
 
         public async Task<Stream> GetStreamAsync(string url)
@@ -390,6 +423,8 @@ namespace nhitomi.Core
 
         public override string ToString() => Name;
 
-        public void Dispose() { }
+        public void Dispose()
+        {
+        }
     }
 }

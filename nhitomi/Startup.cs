@@ -45,7 +45,7 @@ namespace nhitomi
                 .AddHttpClient()
 
                 // Formatters
-                .AddTransient<JsonSerializer>(s => JsonSerializer.Create(new nhitomiSerializerSettings()))
+                .AddTransient(s => JsonSerializer.Create(new nhitomiSerializerSettings()))
 
                 // Discord
                 .AddSingleton<DiscordService>()

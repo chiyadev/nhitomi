@@ -45,10 +45,7 @@ namespace nhitomi
                 if (channel == null)
                     goto sleep;
 
-                var builder = new StringBuilder(
-                    capacity: 500,
-                    maxCapacity: 2000
-                );
+                var builder = new StringBuilder(500, 2000);
 
                 async Task flush()
                 {
@@ -68,16 +65,16 @@ namespace nhitomi
 
                     builder.AppendLine(line);
                 }
+
                 await flush();
 
-            sleep:
+                sleep:
                 // Sleep
                 await Task.Delay(
                     TimeSpan.FromSeconds(1),
                     token
                 );
-            }
-            while (!token.IsCancellationRequested);
+            } while (!token.IsCancellationRequested);
         }
 
         sealed class DiscordLogger : ILogger

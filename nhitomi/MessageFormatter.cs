@@ -14,7 +14,8 @@ namespace nhitomi
 {
     public static class MessageFormatter
     {
-        static string join(IEnumerable<string> values) => values != null && values.Any() ? string.Join(", ", values) : null;
+        static string join(IEnumerable<string> values) =>
+            values != null && values.Any() ? string.Join(", ", values) : null;
 
         const string DateFormat = "dddd, dd MMMM yyyy";
 
@@ -37,17 +38,17 @@ namespace nhitomi
                 .WithFooter($"Uploaded on {doujin.UploadTime.ToString(DateFormat)}");
 
             if (doujin.Language != null)
-                embed.AddFieldString("Language", doujin.Language, inline: true);
+                embed.AddFieldString("Language", doujin.Language, true);
             if (doujin.ParodyOf != null)
-                embed.AddFieldString("Parody of", doujin.ParodyOf, inline: true);
+                embed.AddFieldString("Parody of", doujin.ParodyOf, true);
             if (doujin.Categories != null)
-                embed.AddFieldString("Categories", join(doujin.Categories), inline: true);
+                embed.AddFieldString("Categories", join(doujin.Categories), true);
             if (doujin.Characters != null)
-                embed.AddFieldString("Characters", join(doujin.Characters), inline: true);
+                embed.AddFieldString("Characters", join(doujin.Characters), true);
             if (doujin.Tags != null)
-                embed.AddFieldString("Tags", join(doujin.Tags), inline: true);
+                embed.AddFieldString("Tags", join(doujin.Tags), true);
 
-            embed.AddField("Content", $"{doujin.PageUrls.Count()} pages", inline: true);
+            embed.AddField("Content", $"{doujin.PageUrls.Count()} pages", true);
 
             return embed.Build();
         }
@@ -84,6 +85,7 @@ namespace nhitomi
 
                 builder.AppendLine();
             }
+
             embed.AddField("— Commands —", builder);
             builder.Clear();
 
@@ -93,6 +95,7 @@ namespace nhitomi
                 builder.Append($"- **{client.Name.ToLowerInvariant()}** — {client.Url}");
                 builder.AppendLine();
             }
+
             embed.AddField("— Supported sources —", builder);
 
             // Contribution

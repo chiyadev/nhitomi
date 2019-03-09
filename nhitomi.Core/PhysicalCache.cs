@@ -35,8 +35,14 @@ namespace nhitomi.Core
                 {
                     return new FileStream(getPath(name), FileMode.Open, FileAccess.Read, FileShare.Read);
                 }
-                catch (FileNotFoundException) { throw; }
-                catch (DirectoryNotFoundException) { throw; }
+                catch (FileNotFoundException)
+                {
+                    throw;
+                }
+                catch (DirectoryNotFoundException)
+                {
+                    throw;
+                }
                 catch (IOException)
                 {
                     // Cache is still being written. Sleep.
@@ -107,6 +113,8 @@ namespace nhitomi.Core
         }
 
         string getPath(string name) => Path.Combine(CachePath, processName(name));
-        static string processName(string name) => name.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);
+
+        static string processName(string name) =>
+            name.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);
     }
 }

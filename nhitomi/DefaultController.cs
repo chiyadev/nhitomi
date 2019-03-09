@@ -11,8 +11,7 @@ namespace nhitomi
     public class DefaultController : ControllerBase
     {
         [HttpGet]
-        public string Get() =>
-@"nhitomi - Discord doujinshi bot by phosphene47#7788
+        public string Get() => @"nhitomi - Discord doujinshi bot by phosphene47#7788
 
             ___              ___                                    
            (   )       .-.  (   )                              .-.  

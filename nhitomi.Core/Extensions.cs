@@ -35,6 +35,7 @@ namespace nhitomi.Core
         public static IEnumerable<T> NullIfEmpty<T>(this IEnumerable<T> source) => source.Any() ? source : null;
 
         public static IDisposable Measure(out double[] elapsed) => new MeasureContext(elapsed = new double[1]);
+
         public class MeasureContext : IDisposable
         {
             public readonly double[] Store;
@@ -53,37 +54,38 @@ namespace nhitomi.Core
             }
         }
 
-        public static IAsyncEnumerable<T> Interleave<T>(IEnumerable<IAsyncEnumerable<T>> source) => AsyncEnumerable.CreateEnumerable(() =>
-        {
-            var enumerators = source.Select(s => s.GetEnumerator()).ToList();
-            var current = -1;
+        public static IAsyncEnumerable<T> Interleave<T>(IEnumerable<IAsyncEnumerable<T>> source) =>
+            AsyncEnumerable.CreateEnumerable(() =>
+            {
+                var enumerators = source.Select(s => s.GetEnumerator()).ToList();
+                var current = -1;
 
-            return AsyncEnumerable.CreateEnumerator(
-                moveNext: async token =>
-                {
-                    while (enumerators.Count > 0)
+                return AsyncEnumerable.CreateEnumerator(
+                    async token =>
                     {
-                        // Next enumerator
-                        if (++current >= enumerators.Count)
-                            current = 0;
+                        while (enumerators.Count > 0)
+                        {
+                            // Next enumerator
+                            if (++current >= enumerators.Count)
+                                current = 0;
 
-                        if (await enumerators[current].MoveNext(token))
-                            return true;
+                            if (await enumerators[current].MoveNext(token))
+                                return true;
 
-                        // Remove failing enumerators
-                        enumerators.RemoveAt(current);
+                            // Remove failing enumerators
+                            enumerators.RemoveAt(current);
+                        }
+
+                        return false;
+                    },
+                    () => enumerators[current].Current,
+                    () =>
+                    {
+                        foreach (var enumerator in enumerators)
+                            enumerator.Dispose();
                     }
-
-                    return false;
-                },
-                current: () => enumerators[current].Current,
-                dispose: () =>
-                {
-                    foreach (var enumerator in enumerators)
-                        enumerator.Dispose();
-                }
-            );
-        });
+                );
+            });
 
         public static Task<T> AsCompletedTask<T>(this T obj) => Task.FromResult(obj);
 
@@ -122,18 +124,26 @@ namespace nhitomi.Core
             // faster speed by spending more time spinning just the inner loop during the main processing.
             if (s.Length > t.Length)
             {
-                var temp = s; s = t; t = temp; // swap s and t
+                var temp = s;
+                s = t;
+                t = temp; // swap s and t
             }
+
             var sLen = s.Length; // this is also the minimun length of the two strings
             var tLen = t.Length;
 
             // suffix common to both strings can be ignored
-            while ((sLen > 0) && (s[sLen - 1] == t[tLen - 1])) { sLen--; tLen--; }
+            while ((sLen > 0) && (s[sLen - 1] == t[tLen - 1]))
+            {
+                sLen--;
+                tLen--;
+            }
 
             var start = 0;
             if ((s[0] == t[0]) || (sLen == 0))
-            { // if there's a shared prefix, or all s matches t's suffix
-              // prefix common to both strings can be ignored
+            {
+                // if there's a shared prefix, or all s matches t's suffix
+                // prefix common to both strings can be ignored
                 while ((start < sLen) && (s[start] == t[start])) start++;
                 sLen -= start; // length of the part excluding common prefix and suffix
                 tLen -= start;
@@ -144,6 +154,7 @@ namespace nhitomi.Core
 
                 t = t.Substring(start, tLen); // faster than t[start+j] in inner loop below
             }
+
             var lenDiff = tLen - sLen;
             if ((maxDistance < 0) || (maxDistance > tLen))
             {
@@ -181,26 +192,29 @@ namespace nhitomi.Core
                     var thisTransCost = nextTransCost;
                     nextTransCost = v2[j];
                     v2[j] = current = left; // cost of diagonal (substitution)
-                    left = v0[j];    // left now equals current cost (which will be diagonal at next iteration)
+                    left = v0[j]; // left now equals current cost (which will be diagonal at next iteration)
                     var prevtChar = tChar;
                     tChar = t[j];
                     if (sChar != tChar)
                     {
-                        if (left < current) current = left;   // insertion
+                        if (left < current) current = left; // insertion
                         if (above < current) current = above; // deletion
                         current++;
                         if ((i != 0) && (j != 0)
-                            && (sChar == prevtChar)
-                            && (prevsChar == tChar))
+                                     && (sChar == prevtChar)
+                                     && (prevsChar == tChar))
                         {
                             thisTransCost++;
                             if (thisTransCost < current) current = thisTransCost; // transposition
                         }
                     }
+
                     v0[j] = current;
                 }
+
                 if (haveMax && (v0[i + lenDiff] > maxDistance)) return -1;
             }
+
             return (current <= maxDistance) ? current : -1;
         }
 
@@ -248,6 +262,7 @@ namespace nhitomi.Core
             {
                 return i.ToString("0 b"); // Byte
             }
+
             // Divide by 1024 to get fractional value
             readable = (readable / 1024);
             // Return formatted number with suffix

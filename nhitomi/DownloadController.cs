@@ -44,12 +44,7 @@ namespace nhitomi
         [HttpGet("{*token}")]
         public async Task<ActionResult> GetAsync(string token)
         {
-            if (!TokenGenerator.TryDeserializeToken(
-                token: token,
-                secret: _settings.Token,
-                sourceName: out var sourceName,
-                id: out var id
-            ))
+            if (!TokenGenerator.TryDeserializeToken(token, _settings.Token, out var sourceName, out var id))
                 return BadRequest();
 
             _logger.LogDebug($"Received download request: token {token}");
@@ -59,10 +54,10 @@ namespace nhitomi
             var doujin = await client.GetAsync(id);
 
             return new FileCallbackResult(
-                contentType: MediaTypeHeaderValue.Parse("application/zip"),
-                callback: async (stream, context) =>
+                MediaTypeHeaderValue.Parse("application/zip"),
+                async (stream, context) =>
                 {
-                    using (var archive = new ZipArchive(stream, ZipArchiveMode.Create, leaveOpen: true))
+                    using (var archive = new ZipArchive(stream, ZipArchiveMode.Create, true))
                     {
                         // Add doujin information file
                         addDoujinInfo(doujin, archive);
@@ -77,13 +72,14 @@ namespace nhitomi
                             {
                                 // Create file in zip
                                 var entry = archive.CreateEntry(
-                                    Path.GetFileNameWithoutExtension(pageUrl).PadLeft(3, '0') + Path.GetExtension(pageUrl),
+                                    Path.GetFileNameWithoutExtension(pageUrl).PadLeft(3, '0') +
+                                    Path.GetExtension(pageUrl),
                                     CompressionLevel.Optimal
                                 );
 
                                 Task<Stream> openSrcStream() => _cache.GetOrCreateStreamAsync(
-                                    name: $"{doujin.Source.Name}/{doujin.Id}/{i}",
-                                    getAsync: () => doujin.Source.GetStreamAsync(pageUrl)
+                                    $"{doujin.Source.Name}/{doujin.Id}/{i}",
+                                    () => doujin.Source.GetStreamAsync(pageUrl)
                                 );
 
                                 // Write page contents to entry

@@ -33,8 +33,10 @@ namespace nhitomi
             var index = _current == null ? -1 : System.Array.IndexOf(_settings.Discord.Status.Games, _current);
             int next;
 
-            do { next = _rand.Next(_settings.Discord.Status.Games.Length); }
-            while (next == index);
+            do
+            {
+                next = _rand.Next(_settings.Discord.Status.Games.Length);
+            } while (next == index);
 
             _current = $"{_settings.Discord.Status.Games[next]} [{_settings.Prefix}help]";
         }
@@ -56,7 +58,9 @@ namespace nhitomi
                     TimeSpan.FromMinutes(_settings.Discord.Status.UpdateInterval),
                     stoppingToken
                 );
-            };
+            }
+
+            ;
         }
     }
 }

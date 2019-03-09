@@ -25,16 +25,17 @@ namespace nhitomi.Core
         {
             get
             {
-                var parts = _d.title.Split(new[] { '/' }, 2);
+                var parts = _d.title.Split(new[] {'/'}, 2);
 
                 return parts[0].Trim();
             }
         }
+
         public string OriginalName
         {
             get
             {
-                var parts = _d.title.Split(new[] { '/' }, 2);
+                var parts = _d.title.Split(new[] {'/'}, 2);
 
                 if (parts.Length == 1)
                     return parts[0].Trim();
@@ -54,8 +55,8 @@ namespace nhitomi.Core
         public string ParodyOf => _d.parody;
 
         public IEnumerable<string> Characters => _d.characters?.Select(convertTag);
-        public IEnumerable<string> Categories => new[] { _d.category }.Select(convertTag).Where(c => c != "doujinshi");
-        public IEnumerable<string> Artists => new[] { _d.artist }.Select(convertTag);
+        public IEnumerable<string> Categories => new[] {_d.category}.Select(convertTag).Where(c => c != "doujinshi");
+        public IEnumerable<string> Artists => new[] {_d.artist}.Select(convertTag);
         public IEnumerable<string> Tags => _d.tags?.Select(convertTag);
 
         static string convertTag(string tag) => tag.ToLowerInvariant();

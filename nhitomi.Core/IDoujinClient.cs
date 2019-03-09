@@ -21,8 +21,7 @@ namespace nhitomi.Core
 
         DoujinClientMethod Method { get; }
 
-        [JsonIgnore]
-        Regex GalleryRegex { get; }
+        [JsonIgnore] Regex GalleryRegex { get; }
 
         Task<IDoujin> GetAsync(string id);
         Task<IAsyncEnumerable<IDoujin>> SearchAsync(string query);
@@ -60,38 +59,54 @@ namespace nhitomi.Core
 
             public async Task<IDoujin> GetAsync(string id)
             {
-                await _semaphore.WaitAsync(); try
+                await _semaphore.WaitAsync();
+                try
                 {
                     return await _impl.GetAsync(id);
                 }
-                finally { _semaphore.Release(); }
+                finally
+                {
+                    _semaphore.Release();
+                }
             }
 
             public async Task<IAsyncEnumerable<IDoujin>> SearchAsync(string query)
             {
-                await _semaphore.WaitAsync(); try
+                await _semaphore.WaitAsync();
+                try
                 {
                     return await _impl.SearchAsync(query);
                 }
-                finally { _semaphore.Release(); }
+                finally
+                {
+                    _semaphore.Release();
+                }
             }
 
             public async Task<Stream> GetStreamAsync(string url)
             {
-                await _semaphore.WaitAsync(); try
+                await _semaphore.WaitAsync();
+                try
                 {
                     return await _impl.GetStreamAsync(url);
                 }
-                finally { _semaphore.Release(); }
+                finally
+                {
+                    _semaphore.Release();
+                }
             }
 
             public async Task UpdateAsync()
             {
-                await _semaphore.WaitAsync(); try
+                await _semaphore.WaitAsync();
+                try
                 {
                     await _impl.UpdateAsync();
                 }
-                finally { _semaphore.Release(); }
+                finally
+                {
+                    _semaphore.Release();
+                }
             }
 
             public void Dispose() => _semaphore.Dispose();

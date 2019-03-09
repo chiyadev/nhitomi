@@ -20,7 +20,8 @@ namespace nhitomi.Core
     {
         public const int RequestCooldown = 1000;
 
-        public const string GalleryRegex = @"\b((http|https):\/\/)?(www\.)?tsumino(\.com)?\/(Book\/Info\/)?(?<Tsumino>[0-9]{1,5})\b";
+        public const string GalleryRegex =
+            @"\b((http|https):\/\/)?(www\.)?tsumino(\.com)?\/(Book\/Info\/)?(?<Tsumino>[0-9]{1,5})\b";
 
         public static string Book(int id) => $"https://www.tsumino.com/Book/Info/{id}/";
         public static string ImageObject(string name) => $"https://www.tsumino.com/Image/Object?name={name}";
@@ -54,9 +55,12 @@ namespace nhitomi.Core
             public int pages;
 
             public Rating rating;
+
             public struct Rating
             {
-                static readonly Regex _ratingRegex = new Regex(@"(?<value>\d*\.?\d+)\s\((?<users>\d+)\susers\s\/\s(?<favs>\d+)\sfavs\)", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+                static readonly Regex _ratingRegex =
+                    new Regex(@"(?<value>\d*\.?\d+)\s\((?<users>\d+)\susers\s\/\s(?<favs>\d+)\sfavs\)",
+                        RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
                 public Rating(string str)
                 {
@@ -81,6 +85,7 @@ namespace nhitomi.Core
             public string[] tags;
 
             public Reader reader;
+
             public struct Reader
             {
                 public int reader_page_number;
@@ -96,14 +101,17 @@ namespace nhitomi.Core
         public sealed class ListData
         {
             public ListItem[] Data;
+
             public class ListItem
             {
                 public ListEntry Entry;
+
                 public struct ListEntry
                 {
                     public int Id;
                     public string Title;
                     public double Rating;
+
                     public int Pages;
                     // Tsumino actually returns more than this but they have no meaning
                 }
@@ -121,7 +129,9 @@ namespace nhitomi.Core
     {
         public string Name => nameof(Tsumino);
         public string Url => "https://www.tsumino.com/";
-        public string IconUrl => "https://cdn.discordapp.com/icons/167128230908657664/b2089ee1d26a7e168d63960d6ed31b66.png";
+
+        public string IconUrl =>
+            "https://cdn.discordapp.com/icons/167128230908657664/b2089ee1d26a7e168d63960d6ed31b66.png";
 
         public DoujinClientMethod Method => DoujinClientMethod.Html;
 
@@ -154,9 +164,9 @@ namespace nhitomi.Core
                 return null;
 
             return wrap(
-                await _cache.GetOrCreateAsync<Tsumino.DoujinData>(
-                    name: id,
-                    getAsync: getAsync
+                await _cache.GetOrCreateAsync(
+                    id,
+                    getAsync
                 )
             );
 
@@ -183,7 +193,8 @@ namespace nhitomi.Core
                         uploader = innerSanitized(root.SelectSingleNode(Tsumino.XPath.BookUploader)),
                         uploaded = innerSanitized(root.SelectSingleNode(Tsumino.XPath.BookUploaded)),
                         pages = int.Parse(innerSanitized(root.SelectSingleNode(Tsumino.XPath.BookPages))),
-                        rating = new Tsumino.DoujinData.Rating(innerSanitized(root.SelectSingleNode(Tsumino.XPath.BookRating))),
+                        rating = new Tsumino.DoujinData.Rating(
+                            innerSanitized(root.SelectSingleNode(Tsumino.XPath.BookRating))),
                         category = innerSanitized(root.SelectSingleNode(Tsumino.XPath.BookCategory)),
                         collection = innerSanitized(root.SelectSingleNode(Tsumino.XPath.BookCollection)),
                         @group = innerSanitized(root.SelectSingleNode(Tsumino.XPath.BookGroup)),
@@ -194,10 +205,11 @@ namespace nhitomi.Core
                     };
 
                     // Parse images
-                    using (var response = await _http.PostAsync(Tsumino.ReadLoad, new FormUrlEncodedContent(new Dictionary<string, string>
-                    {
-                        { "q", id }
-                    })))
+                    using (var response = await _http.PostAsync(Tsumino.ReadLoad, new FormUrlEncodedContent(
+                        new Dictionary<string, string>
+                        {
+                            {"q", id}
+                        })))
                     using (var textReader = new StringReader(await response.Content.ReadAsStringAsync()))
                     using (var jsonReader = new JsonTextReader(textReader))
                         data.reader = _json.Deserialize<Tsumino.DoujinData.Reader>(jsonReader);
@@ -206,7 +218,10 @@ namespace nhitomi.Core
 
                     return data;
                 }
-                catch (Exception) { return null; }
+                catch (Exception)
+                {
+                    return null;
+                }
                 finally
                 {
                     await throttle();
@@ -214,68 +229,73 @@ namespace nhitomi.Core
             }
         }
 
-        static string innerSanitized(HtmlNode node) => node == null ? null : HtmlEntity.DeEntitize(node.InnerText).Trim();
+        static string innerSanitized(HtmlNode node) =>
+            node == null ? null : HtmlEntity.DeEntitize(node.InnerText).Trim();
 
         public bool CompletelyExcludeHated { get; set; } = true;
 
         public Task<IAsyncEnumerable<IDoujin>> SearchAsync(string query) =>
             AsyncEnumerable.CreateEnumerable(() =>
-            {
-                Tsumino.ListData current = null;
-                var index = 0;
+                {
+                    Tsumino.ListData current = null;
+                    var index = 0;
 
-                return AsyncEnumerable.CreateEnumerator(
-                    moveNext: async token =>
-                    {
-                        try
+                    return AsyncEnumerable.CreateEnumerator(
+                        async token =>
                         {
-                            // Load list
-                            using (var response = await _http.PostAsync(Tsumino.Operate, new FormUrlEncodedContent(new Dictionary<string, string>
+                            try
                             {
-                                { "PageNumber", (index + 1).ToString() },
-                                { "Text", query?.Trim() },
-                                { "Sort", "Newest" },
-                                { "CompletelyExcludeHated", CompletelyExcludeHated ? "true" : "false" }
-                            })))
-                            using (var textReader = new StringReader(await response.Content.ReadAsStringAsync()))
-                            using (var jsonReader = new JsonTextReader(textReader))
-                                current = _json.Deserialize<Tsumino.ListData>(jsonReader);
+                                // Load list
+                                using (var response = await _http.PostAsync(Tsumino.Operate, new FormUrlEncodedContent(
+                                    new Dictionary<string, string>
+                                    {
+                                        {"PageNumber", (index + 1).ToString()},
+                                        {"Text", query?.Trim()},
+                                        {"Sort", "Newest"},
+                                        {"CompletelyExcludeHated", CompletelyExcludeHated ? "true" : "false"}
+                                    })))
+                                using (var textReader = new StringReader(await response.Content.ReadAsStringAsync()))
+                                using (var jsonReader = new JsonTextReader(textReader))
+                                    current = _json.Deserialize<Tsumino.ListData>(jsonReader);
 
-                            index++;
+                                index++;
 
-                            _logger.LogDebug($"Got page {index}: {current.Data?.Length ?? 0} items");
+                                _logger.LogDebug($"Got page {index}: {current.Data?.Length ?? 0} items");
 
-                            return !Array.IsNullOrEmpty(current.Data);
-                        }
-                        catch (Exception) { return false; }
-                        finally
+                                return !Array.IsNullOrEmpty(current.Data);
+                            }
+                            catch (Exception)
+                            {
+                                return false;
+                            }
+                            finally
+                            {
+                                await throttle();
+                            }
+                        },
+                        () => current,
+                        () => { }
+                    );
+                })
+                .SelectMany(list => AsyncEnumerable.CreateEnumerable(() =>
+                {
+                    IDoujin current = null;
+                    var index = 0;
+
+                    return AsyncEnumerable.CreateEnumerator(
+                        async token =>
                         {
-                            await throttle();
-                        }
-                    },
-                    current: () => current,
-                    dispose: () => { }
-                );
-            })
-            .SelectMany(list => AsyncEnumerable.CreateEnumerable(() =>
-            {
-                IDoujin current = null;
-                var index = 0;
+                            if (index == list.Data.Length)
+                                return false;
 
-                return AsyncEnumerable.CreateEnumerator(
-                    moveNext: async token =>
-                    {
-                        if (index == list.Data.Length)
-                            return false;
-
-                        current = await GetAsync(list.Data[index++].Entry.Id.ToString());
-                        return true;
-                    },
-                    current: () => current,
-                    dispose: () => { }
-                );
-            }))
-            .AsCompletedTask();
+                            current = await GetAsync(list.Data[index++].Entry.Id.ToString());
+                            return true;
+                        },
+                        () => current,
+                        () => { }
+                    );
+                }))
+                .AsCompletedTask();
 
         public async Task<Stream> GetStreamAsync(string url)
         {
@@ -293,6 +313,8 @@ namespace nhitomi.Core
 
         public override string ToString() => Name;
 
-        public void Dispose() { }
+        public void Dispose()
+        {
+        }
     }
 }

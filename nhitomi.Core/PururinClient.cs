@@ -19,18 +19,18 @@ namespace nhitomi.Core
     {
         public const int RequestCooldown = 500;
 
-        public const string GalleryRegex = @"\b((http|https):\/\/)?pururin(\.io)?\/(gallery\/)?(?<pururin>[0-9]{1,5})(\/\S+)?\b";
+        public const string GalleryRegex =
+            @"\b((http|https):\/\/)?pururin(\.io)?\/(gallery\/)?(?<pururin>[0-9]{1,5})(\/\S+)?\b";
 
         public const string Gallery = "https://pururin.io/api/contribute/gallery/info";
         public const string Search = "https://pururin.io/api/search/advance";
 
-        public static string GalleryRequest(int id) =>
-$@"{{
+        public static string GalleryRequest(int id) => $@"{{
     ""id"": {id},
     ""type"": 2
 }}";
-        public static string SearchRequest(string query) =>
-$@"{{
+
+        public static string SearchRequest(string query) => $@"{{
     ""search"": {{
         ""sort"": ""newest"",
         ""manga"": {{
@@ -40,8 +40,11 @@ $@"{{
     }}
 }}";
 
-        public static string Image(int galleryId, int index, string ext) => $"https://cdn.pururin.io/assets/images/data/{galleryId}/{index + 1}.{ext}";
-        public static string ThumbImage(int galleryId, int index, string ext) => $"https://cdn.pururin.io/assets/images/data/{galleryId}/{index + 1}t.{ext}";
+        public static string Image(int galleryId, int index, string ext) =>
+            $"https://cdn.pururin.io/assets/images/data/{galleryId}/{index + 1}.{ext}";
+
+        public static string ThumbImage(int galleryId, int index, string ext) =>
+            $"https://cdn.pururin.io/assets/images/data/{galleryId}/{index + 1}t.{ext}";
 
         public struct TagData
         {
@@ -61,6 +64,7 @@ $@"{{
             public bool status;
 
             public Gallery gallery;
+
             public struct Gallery
             {
                 public int id;
@@ -93,6 +97,7 @@ $@"{{
             public int current_page;
 
             public ListItem[] data;
+
             public struct ListItem
             {
                 public int id;
@@ -144,7 +149,8 @@ $@"{{
 
         Task throttle() => Task.Delay(TimeSpan.FromMilliseconds(Pururin.RequestCooldown));
 
-        static readonly Regex _csrfRegex = new Regex(@"<meta name=""csrf-token"" content=""(?<csrf>.*)"">", RegexOptions.Compiled);
+        static readonly Regex _csrfRegex =
+            new Regex(@"<meta name=""csrf-token"" content=""(?<csrf>.*)"">", RegexOptions.Compiled);
 
         async Task<HttpResponseMessage> postAsync(string url, HttpContent content)
         {
@@ -165,10 +171,7 @@ $@"{{
                 return null;
 
             return wrap(
-                await _cache.GetOrCreateAsync<Pururin.DoujinData>(
-                    name: id,
-                    getAsync: getAsync
-                )
+                await _cache.GetOrCreateAsync(id, getAsync)
             );
 
             async Task<Pururin.DoujinData> getAsync()
@@ -177,7 +180,8 @@ $@"{{
                 {
                     Pururin.DoujinData data;
 
-                    using (var response = await postAsync(Pururin.Gallery, new StringContent(Pururin.GalleryRequest(intId))))
+                    using (var response =
+                        await postAsync(Pururin.Gallery, new StringContent(Pururin.GalleryRequest(intId))))
                     using (var textReader = new StringReader(await response.Content.ReadAsStringAsync()))
                     using (var jsonReader = new JsonTextReader(textReader))
                         data = _json.Deserialize<Pururin.DoujinData>(jsonReader);
@@ -186,7 +190,10 @@ $@"{{
 
                     return data;
                 }
-                catch (Exception) { return null; }
+                catch (Exception)
+                {
+                    return null;
+                }
                 finally
                 {
                     await throttle();
@@ -196,54 +203,58 @@ $@"{{
 
         public Task<IAsyncEnumerable<IDoujin>> SearchAsync(string query) =>
             AsyncEnumerable.CreateEnumerable(() =>
-            {
-                Pururin.ListData current = null;
-                var nextPage = Pururin.Search;
+                {
+                    Pururin.ListData current = null;
+                    var nextPage = Pururin.Search;
 
-                return AsyncEnumerable.CreateEnumerator(
-                    moveNext: async token =>
-                    {
-                        try
+                    return AsyncEnumerable.CreateEnumerator(
+                        async token =>
                         {
-                            // Load list
-                            using (var response = await postAsync(nextPage, new StringContent(Pururin.SearchRequest(query))))
-                            using (var textReader = new StringReader(await response.Content.ReadAsStringAsync()))
-                            using (var jsonReader = new JsonTextReader(textReader))
-                                current = _json.Deserialize<Pururin.ListData>(jsonReader);
+                            try
+                            {
+                                // Load list
+                                using (var response = await postAsync(nextPage,
+                                    new StringContent(Pururin.SearchRequest(query))))
+                                using (var textReader = new StringReader(await response.Content.ReadAsStringAsync()))
+                                using (var jsonReader = new JsonTextReader(textReader))
+                                    current = _json.Deserialize<Pururin.ListData>(jsonReader);
 
-                            _logger.LogDebug($"Got page {current.current_page}: {current?.per_page ?? 0} items");
+                                _logger.LogDebug($"Got page {current.current_page}: {current?.per_page ?? 0} items");
 
-                            return (nextPage = current.next_page_url) != null;
-                        }
-                        catch (Exception) { return false; }
-                        finally
+                                return (nextPage = current.next_page_url) != null;
+                            }
+                            catch (Exception)
+                            {
+                                return false;
+                            }
+                            finally
+                            {
+                                await throttle();
+                            }
+                        },
+                        () => current.data,
+                        () => { }
+                    );
+                })
+                .SelectMany(list => AsyncEnumerable.CreateEnumerable(() =>
+                {
+                    IDoujin current = null;
+                    var index = 0;
+
+                    return AsyncEnumerable.CreateEnumerator(
+                        async token =>
                         {
-                            await throttle();
-                        }
-                    },
-                    current: () => current.data,
-                    dispose: () => { }
-                );
-            })
-            .SelectMany(list => AsyncEnumerable.CreateEnumerable(() =>
-            {
-                IDoujin current = null;
-                var index = 0;
+                            if (index == list.Length)
+                                return false;
 
-                return AsyncEnumerable.CreateEnumerator(
-                    moveNext: async token =>
-                    {
-                        if (index == list.Length)
-                            return false;
-
-                        current = await GetAsync(list[index++].id.ToString());
-                        return true;
-                    },
-                    current: () => current,
-                    dispose: () => { }
-                );
-            }))
-            .AsCompletedTask();
+                            current = await GetAsync(list[index++].id.ToString());
+                            return true;
+                        },
+                        () => current,
+                        () => { }
+                    );
+                }))
+                .AsCompletedTask();
 
         public Task UpdateAsync() => Task.CompletedTask;
 
@@ -261,6 +272,8 @@ $@"{{
 
         public override string ToString() => Name;
 
-        public void Dispose() { }
+        public void Dispose()
+        {
+        }
     }
 }

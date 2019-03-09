@@ -23,10 +23,15 @@ namespace nhitomi.Core
 
         public static string Gallery(int id) => $"https://nhentai.net/api/gallery/{id}";
         public static string All(int index = 0) => $"https://nhentai.net/api/galleries/all?page={index + 1}";
-        public static string Search(string query, int index = 0) => $"https://nhentai.net/api/galleries/search?query={query}&page={index + 1}";
 
-        public static string Image(int mediaId, int index, string ext) => $"https://i.nhentai.net/galleries/{mediaId}/{index + 1}.{ext}";
-        public static string ThumbImage(int mediaId, int index, string ext) => $"https://t.nhentai.net/galleries/{mediaId}/{index + 1}t.{ext}";
+        public static string Search(string query, int index = 0) =>
+            $"https://nhentai.net/api/galleries/search?query={query}&page={index + 1}";
+
+        public static string Image(int mediaId, int index, string ext) =>
+            $"https://i.nhentai.net/galleries/{mediaId}/{index + 1}.{ext}";
+
+        public static string ThumbImage(int mediaId, int index, string ext) =>
+            $"https://t.nhentai.net/galleries/{mediaId}/{index + 1}t.{ext}";
 
         public sealed class DoujinData
         {
@@ -38,6 +43,7 @@ namespace nhitomi.Core
             public long upload_date;
 
             public Title title;
+
             public struct Title
             {
                 public string japanese;
@@ -45,9 +51,11 @@ namespace nhitomi.Core
             }
 
             public Images images;
+
             public struct Images
             {
                 public Image[] pages;
+
                 public struct Image
                 {
                     public string t;
@@ -55,6 +63,7 @@ namespace nhitomi.Core
             }
 
             public Tag[] tags;
+
             public struct Tag
             {
                 public string type;
@@ -87,7 +96,8 @@ namespace nhitomi.Core
 
         public DoujinClientMethod Method => DoujinClientMethod.Api;
 
-        public Regex GalleryRegex { get; } = new Regex(nhentai.GalleryRegex, RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        public Regex GalleryRegex { get; } =
+            new Regex(nhentai.GalleryRegex, RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
         readonly PhysicalCache _cache;
         readonly HttpClient _http;
@@ -116,9 +126,9 @@ namespace nhitomi.Core
                 return null;
 
             return wrap(
-                await _cache.GetOrCreateAsync<nhentai.DoujinData>(
-                    name: id,
-                    getAsync: getAsync
+                await _cache.GetOrCreateAsync(
+                    id,
+                    getAsync
                 )
             );
 
@@ -137,7 +147,10 @@ namespace nhitomi.Core
 
                     return data;
                 }
-                catch (Exception) { return null; }
+                catch (Exception)
+                {
+                    return null;
+                }
                 finally
                 {
                     await throttle();
@@ -147,50 +160,53 @@ namespace nhitomi.Core
 
         public Task<IAsyncEnumerable<IDoujin>> SearchAsync(string query) =>
             AsyncEnumerable.CreateEnumerable(() =>
-            {
-                nhentai.ListData current = null;
-                var index = 0;
+                {
+                    nhentai.ListData current = null;
+                    var index = 0;
 
-                return AsyncEnumerable.CreateEnumerator(
-                    moveNext: async token =>
-                    {
-                        try
+                    return AsyncEnumerable.CreateEnumerator(
+                        async token =>
                         {
-                            // Load list
-                            var url = string.IsNullOrWhiteSpace(query)
-                                ? nhentai.All(index)
-                                : nhentai.Search(query, index);
+                            try
+                            {
+                                // Load list
+                                var url = string.IsNullOrWhiteSpace(query)
+                                    ? nhentai.All(index)
+                                    : nhentai.Search(query, index);
 
-                            using (var response = await _http.GetAsync(url))
-                            using (var textReader = new StringReader(await response.Content.ReadAsStringAsync()))
-                            using (var jsonReader = new JsonTextReader(textReader))
-                                current = _json.Deserialize<nhentai.ListData>(jsonReader);
+                                using (var response = await _http.GetAsync(url))
+                                using (var textReader = new StringReader(await response.Content.ReadAsStringAsync()))
+                                using (var jsonReader = new JsonTextReader(textReader))
+                                    current = _json.Deserialize<nhentai.ListData>(jsonReader);
 
-                            // Add results to cache
-                            foreach (var result in current.result)
-                                await _cache.CreateAsync<nhentai.DoujinData>(
-                                    name: result.id.ToString(),
-                                    getAsync: () => Task.FromResult(result)
-                                );
+                                // Add results to cache
+                                foreach (var result in current.result)
+                                    await _cache.CreateAsync(
+                                        result.id.ToString(),
+                                        () => Task.FromResult(result)
+                                    );
 
-                            index++;
+                                index++;
 
-                            _logger.LogDebug($"Got page {index}: {current.result?.Length ?? 0} items");
+                                _logger.LogDebug($"Got page {index}: {current.result?.Length ?? 0} items");
 
-                            return !Array.IsNullOrEmpty(current.result);
-                        }
-                        catch (Exception) { return false; }
-                        finally
-                        {
-                            await throttle();
-                        }
-                    },
-                    current: () => current,
-                    dispose: () => { }
-                );
-            })
-            .SelectMany(l => l.result.Select(wrap).ToAsyncEnumerable())
-            .AsCompletedTask();
+                                return !Array.IsNullOrEmpty(current.result);
+                            }
+                            catch (Exception)
+                            {
+                                return false;
+                            }
+                            finally
+                            {
+                                await throttle();
+                            }
+                        },
+                        () => current,
+                        () => { }
+                    );
+                })
+                .SelectMany(l => l.result.Select(wrap).ToAsyncEnumerable())
+                .AsCompletedTask();
 
         public Task UpdateAsync() => Task.CompletedTask;
 
@@ -208,6 +224,8 @@ namespace nhitomi.Core
 
         public override string ToString() => Name;
 
-        public void Dispose() { }
+        public void Dispose()
+        {
+        }
     }
 }
