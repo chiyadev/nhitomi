@@ -82,7 +82,7 @@ namespace nhitomi
                 });
 
             // Register interactive
-            _interactives.AddOrUpdate(interactive.ResponseId, interactive, (_, _) => interactive);
+            _interactives.AddOrUpdate(interactive.ResponseId, interactive, (a, b) => interactive);
 
             // Schedule expiry
             var expiryDelayToken = new CancellationTokenSource();
