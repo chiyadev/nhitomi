@@ -3,12 +3,8 @@
 // This software is released under the MIT License.
 // https://opensource.org/licenses/MIT
 
-using System;
 using System.Collections.Generic;
-using System.IO;
-using System.IO.Compression;
 using System.Linq;
-using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -52,66 +48,6 @@ namespace nhitomi
             // Retrieve doujin
             var client = _clients.First(c => c.Name == sourceName);
             var doujin = await client.GetAsync(id);
-
-            return new FileCallbackResult(
-                MediaTypeHeaderValue.Parse("application/zip"),
-                async (stream, context) =>
-                {
-                    using (var archive = new ZipArchive(stream, ZipArchiveMode.Create, true))
-                    {
-                        // Add doujin information file
-                        addDoujinInfo(doujin, archive);
-
-                        var pageUrls = doujin.PageUrls.ToArray();
-
-                        for (var i = 0; i < pageUrls.Length; i++)
-                        {
-                            var pageUrl = pageUrls[i];
-
-                            try
-                            {
-                                // Create file in zip
-                                var entry = archive.CreateEntry(
-                                    Path.GetFileNameWithoutExtension(pageUrl).PadLeft(3, '0') +
-                                    Path.GetExtension(pageUrl),
-                                    CompressionLevel.Optimal
-                                );
-
-                                Task<Stream> openSrcStream() => _cache.GetOrCreateStreamAsync(
-                                    $"{doujin.Source.Name}/{doujin.Id}/{i}",
-                                    () => doujin.Source.GetStreamAsync(pageUrl)
-                                );
-
-                                // Write page contents to entry
-                                using (var dst = entry.Open())
-                                using (var src = await openSrcStream())
-                                    await src.CopyToAsync(dst, context.HttpContext.RequestAborted);
-                            }
-                            catch (OperationCanceledException)
-                            {
-                                // Download was canceled. Whatever.
-                                return;
-                            }
-                            catch (Exception e)
-                            {
-                                _logger.LogWarning(e, $"Exception while downloading `{pageUrl}`: {e.Message}");
-                            }
-                        }
-                    }
-                })
-            {
-                FileDownloadName = doujin.OriginalName + ".zip",
-                LastModified = doujin.UploadTime
-            };
-        }
-
-        void addDoujinInfo(IDoujin doujin, ZipArchive archive)
-        {
-            var infoEntry = archive.CreateEntry("_nhitomi.json", CompressionLevel.Optimal);
-
-            using (var infoStream = infoEntry.Open())
-            using (var infoWriter = new StreamWriter(infoStream))
-                _serializer.Serialize(infoWriter, doujin);
         }
     }
 }

@@ -3,17 +3,6 @@
 // This software is released under the MIT License.
 // https://opensource.org/licenses/MIT
 
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net.Http;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-using HtmlAgilityPack;
-using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
-
 namespace nhitomi.Core
 {
     public static class nhentaiHtml
