@@ -33,7 +33,6 @@ namespace nhitomi
         public Regex GalleryRegex => _impl.GalleryRegex;
 
         public async Task<IDoujin> GetAsync(string id) => filter(await _impl.GetAsync(id));
-        public Task<Stream> GetStreamAsync(string url) => _impl.GetStreamAsync(url);
 
         public const int MaxConsecutiveFilters = 6;
 
