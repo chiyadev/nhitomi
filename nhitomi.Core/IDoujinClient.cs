@@ -26,8 +26,6 @@ namespace nhitomi.Core
         Task<IDoujin> GetAsync(string id);
         Task<IAsyncEnumerable<IDoujin>> SearchAsync(string query);
 
-        Task<Stream> GetStreamAsync(string url);
-
         Task UpdateAsync();
     }
 
@@ -76,19 +74,6 @@ namespace nhitomi.Core
                 try
                 {
                     return await _impl.SearchAsync(query);
-                }
-                finally
-                {
-                    _semaphore.Release();
-                }
-            }
-
-            public async Task<Stream> GetStreamAsync(string url)
-            {
-                await _semaphore.WaitAsync();
-                try
-                {
-                    return await _impl.GetStreamAsync(url);
                 }
                 finally
                 {

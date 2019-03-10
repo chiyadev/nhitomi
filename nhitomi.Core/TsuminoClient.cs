@@ -297,18 +297,6 @@ namespace nhitomi.Core
                 }))
                 .AsCompletedTask();
 
-        public async Task<Stream> GetStreamAsync(string url)
-        {
-            try
-            {
-                return await _http.GetStreamAsync(url);
-            }
-            finally
-            {
-                await throttle();
-            }
-        }
-
         public Task UpdateAsync() => Task.CompletedTask;
 
         public override string ToString() => Name;
