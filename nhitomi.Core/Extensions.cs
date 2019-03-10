@@ -6,9 +6,11 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 
 namespace nhitomi.Core
 {
@@ -288,5 +290,15 @@ namespace nhitomi.Core
                                 values[key.Substring(0, colonIndex)])
                             : values[key].ToString());
                 });
+
+        public static string Serialize(this JsonSerializer json, object value)
+        {
+            using (var writer = new StringWriter())
+            {
+                json.Serialize(writer, value);
+
+                return writer.ToString();
+            }
+        }
     }
 }
