@@ -64,10 +64,12 @@ namespace nhitomi
         static string getPayloadSignature(string payload, string secret, Encoding encoding)
         {
             using (var hmac = new HMACSHA256(encoding.GetBytes(secret)))
+            {
                 return Convert
                     .ToBase64String(hmac.ComputeHash(encoding.GetBytes(payload)))
                     .Replace("-", string.Empty)
                     .ToLowerInvariant();
+            }
         }
 
         public static bool TryDeserializeToken(
