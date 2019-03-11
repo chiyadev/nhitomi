@@ -27,7 +27,15 @@ namespace nhitomi.Proxy
                 // Framework
                 .AddMvcCore()
                 .AddFormatterMappings()
-                .AddJsonFormatters(nhitomiSerializerSettings.Apply);
+                .AddJsonFormatters(nhitomiSerializerSettings.Apply)
+                .AddCors(c => c
+                    .AddPolicy("DefaultPolicy", p => p
+                        .WithOrigins(
+                            "https://nhitomi.herokuapp.com",
+                            "https://nhitomi-2.herokuapp.com")
+                        .AllowAnyHeader()
+                        .AllowAnyMethod()
+                        .AllowCredentials()));
 
             services
                 // Configuration
@@ -40,6 +48,8 @@ namespace nhitomi.Proxy
                 .AddTransient(s => JsonSerializer.Create(new nhitomiSerializerSettings()));
         }
 
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env) => app.UseMvc();
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env) => app
+            .UseCors("DefaultPolicy")
+            .UseMvc();
     }
 }
