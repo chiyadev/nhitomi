@@ -10,7 +10,6 @@
     <PropertyGroup>
         <OutputType>Exe</OutputType>
         <TargetFramework>netcoreapp2.1</TargetFramework>
-        <RuntimeIdentifiers>linux-x64</RuntimeIdentifiers>
         <LangVersion>latest</LangVersion>
         <Title>nhitomi.Proxy</Title>
         <Authors>phosphene47</Authors>
@@ -32,7 +31,6 @@
 
     <ItemGroup>
         <ProjectReference Include="..\nhitomi.Core\nhitomi.Core.csproj" />
-        <ProjectReference Include="..\nhitomi\nhitomi.csproj" />
     </ItemGroup>
 
 </Project>

@@ -29,7 +29,7 @@ namespace nhitomi.Proxy
             IOptions<AppSettings> options,
             IHttpClientFactory httpFactory,
             JsonSerializer json,
-            ILogger<DownloadController> logger
+            ILogger<ProxyController> logger
         )
         {
             _settings = options.Value.Discord;
