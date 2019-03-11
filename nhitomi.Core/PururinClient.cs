@@ -147,8 +147,6 @@ namespace nhitomi.Core
 
         IDoujin wrap(Pururin.DoujinData data) => data == null ? null : new PururinDoujin(this, data);
 
-        Task throttle() => Task.Delay(TimeSpan.FromMilliseconds(Pururin.RequestCooldown));
-
         static readonly Regex _csrfRegex =
             new Regex(@"<meta name=""csrf-token"" content=""(?<csrf>.*)"">", RegexOptions.Compiled);
 
@@ -194,10 +192,6 @@ namespace nhitomi.Core
                 {
                     return null;
                 }
-                finally
-                {
-                    await throttle();
-                }
             }
         }
 
@@ -226,10 +220,6 @@ namespace nhitomi.Core
                             catch (Exception)
                             {
                                 return false;
-                            }
-                            finally
-                            {
-                                await throttle();
                             }
                         },
                         () => current.data,

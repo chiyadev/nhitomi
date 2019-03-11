@@ -118,8 +118,6 @@ namespace nhitomi.Core
 
         IDoujin wrap(nhentai.DoujinData data) => data == null ? null : new nhentaiDoujin(this, data);
 
-        Task throttle() => Task.Delay(TimeSpan.FromMilliseconds(nhentai.RequestCooldown));
-
         public async Task<IDoujin> GetAsync(string id)
         {
             if (!int.TryParse(id, out var intId))
@@ -150,10 +148,6 @@ namespace nhitomi.Core
                 catch (Exception)
                 {
                     return null;
-                }
-                finally
-                {
-                    await throttle();
                 }
             }
         }
@@ -195,10 +189,6 @@ namespace nhitomi.Core
                             catch (Exception)
                             {
                                 return false;
-                            }
-                            finally
-                            {
-                                await throttle();
                             }
                         },
                         () => current,

@@ -171,8 +171,6 @@ namespace nhitomi.Core
 
         IDoujin wrap(Hitomi.DoujinData data) => data == null ? null : new HitomiDoujin(this, data);
 
-        Task throttle() => Task.Delay(TimeSpan.FromMilliseconds(Hitomi.RequestCooldown));
-
         public async Task<IDoujin> GetAsync(string id)
         {
             if (!int.TryParse(id, out var intId))
@@ -239,10 +237,6 @@ namespace nhitomi.Core
                 catch (Exception)
                 {
                     return null;
-                }
-                finally
-                {
-                    await throttle();
                 }
             }
         }
@@ -352,10 +346,6 @@ namespace nhitomi.Core
             catch (Exception e)
             {
                 _logger.LogWarning($"Exception while updating hitomi db.", e);
-            }
-            finally
-            {
-                await throttle();
             }
         }
 

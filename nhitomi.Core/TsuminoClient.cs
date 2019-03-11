@@ -156,8 +156,6 @@ namespace nhitomi.Core
 
         IDoujin wrap(Tsumino.DoujinData data) => data == null ? null : new TsuminoDoujin(this, data);
 
-        Task throttle() => Task.Delay(TimeSpan.FromMilliseconds(Tsumino.RequestCooldown));
-
         public async Task<IDoujin> GetAsync(string id)
         {
             if (!int.TryParse(id, out var intId))
@@ -222,10 +220,6 @@ namespace nhitomi.Core
                 {
                     return null;
                 }
-                finally
-                {
-                    await throttle();
-                }
             }
         }
 
@@ -267,10 +261,6 @@ namespace nhitomi.Core
                             catch (Exception)
                             {
                                 return false;
-                            }
-                            finally
-                            {
-                                await throttle();
                             }
                         },
                         () => current,

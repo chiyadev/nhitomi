@@ -27,6 +27,8 @@ namespace nhitomi.Core
         Task<IAsyncEnumerable<IDoujin>> SearchAsync(string query);
 
         Task UpdateAsync();
+
+        double RequestThrottle { get; }
     }
 
     public enum DoujinClientMethod
@@ -60,7 +62,11 @@ namespace nhitomi.Core
                 await _semaphore.WaitAsync();
                 try
                 {
-                    return await _impl.GetAsync(id);
+                    var doujin = await _impl.GetAsync(id);
+
+                    await Task.Delay(TimeSpan.FromMilliseconds(RequestThrottle));
+
+                    return doujin;
                 }
                 finally
                 {
@@ -73,7 +79,11 @@ namespace nhitomi.Core
                 await _semaphore.WaitAsync();
                 try
                 {
-                    return await _impl.SearchAsync(query);
+                    var results = await _impl.SearchAsync(query);
+
+                    await Task.Delay(TimeSpan.FromMilliseconds(RequestThrottle));
+
+                    return results;
                 }
                 finally
                 {
@@ -87,12 +97,16 @@ namespace nhitomi.Core
                 try
                 {
                     await _impl.UpdateAsync();
+
+                    await Task.Delay(TimeSpan.FromMilliseconds(RequestThrottle));
                 }
                 finally
                 {
                     _semaphore.Release();
                 }
             }
+
+            public double RequestThrottle => _impl.RequestThrottle;
 
             public void Dispose() => _semaphore.Dispose();
         }

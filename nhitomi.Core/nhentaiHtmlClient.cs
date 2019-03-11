@@ -66,8 +66,6 @@ namespace nhitomi.Core
 
         IDoujin wrap(nhentai.DoujinData data) => data == null ? null : new nhentaiDoujin(this, data);
 
-        Task throttle() => Task.Delay(TimeSpan.FromMilliseconds(nhentai.RequestCooldown));
-
         static readonly Regex _mediaIdRegex = new Regex(@"(?<=galleries\/)\d+(?=\/cover)",
             RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
@@ -85,10 +83,7 @@ namespace nhitomi.Core
             if (!int.TryParse(id, out var intId))
                 return null;
 
-            return wrap(
-                await _cache.GetOrCreateAsync(id, getAsync
-                )
-            );
+            return wrap(await _cache.GetOrCreateAsync(id, getAsync));
 
             async Task<nhentai.DoujinData> getAsync()
             {
@@ -155,10 +150,6 @@ namespace nhitomi.Core
                 {
                     return null;
                 }
-                finally
-                {
-                    await throttle();
-                }
             }
         }
 
@@ -205,10 +196,6 @@ namespace nhitomi.Core
                             catch (Exception)
                             {
                                 return false;
-                            }
-                            finally
-                            {
-                                await throttle();
                             }
                         },
                         () => current,
