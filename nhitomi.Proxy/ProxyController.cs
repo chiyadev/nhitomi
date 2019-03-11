@@ -75,7 +75,8 @@ namespace nhitomi.Proxy
                 return BadRequest("Invalid token.");
 
             if (!(Uri.TryCreate(url, UriKind.Absolute, out var uri) &&
-                  uri.Scheme == "https" && uri.Host.Contains(sourceName) && IsImage(uri)))
+                  uri.Scheme == "https" && uri.Host.Contains(sourceName, StringComparison.OrdinalIgnoreCase) &&
+                  IsImage(uri)))
                 return BadRequest("Invalid url.");
 
             _logger.LogDebug($"Received request: token {token}");
