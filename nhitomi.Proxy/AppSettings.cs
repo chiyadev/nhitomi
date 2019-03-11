@@ -9,7 +9,7 @@ namespace nhitomi.Proxy
 {
     public sealed class AppSettings
     {
-        public DiscordSettings Discord { get; set; }
+        public DiscordSettings Discord { get; set; } = new DiscordSettings();
 
         public sealed class DiscordSettings
         {
