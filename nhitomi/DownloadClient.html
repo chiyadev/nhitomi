@@ -52,6 +52,7 @@
         integrity="sha256-FPJJt8nA+xL4RU6/gsriA8p8xAeLGatoyTjldvQKGdE=" crossorigin="anonymous"></script>
 
 <script>
+    var token = "{token}";
     var doujinStr = "{doujin}";
     var doujin = JSON.parse(doujinStr);
 
@@ -76,44 +77,58 @@
             .text(name ? progress + " — " + name : progress);
     }
 
-    var zip = new JSZip();
+    var proxies = [
+        "https://nhitomi-proxy1.herokuapp.com",
+        "https://nhitomi-proxy2.herokuapp.com",
+        "https://nhitomi-proxy3.herokuapp.com",
+        "https://nhitomi-proxy4.herokuapp.com"
+    ];
+    var currentProxy = proxies[Math.floor(Math.random() * proxies.length)];
 
-    zip.file("_nhitomi.json", doujinStr);
+    updateStatus("Contacting proxy...");
 
-    var i = 0;
-    var isError = false;
+    $.get(currentProxy, function () {
+        var zip = new JSZip();
 
-    updateProgress(0);
-    updateStatus("Downloading...");
+        zip.file("_nhitomi.json", doujinStr);
 
-    doujin.pageUrls.forEach(function (p) {
-        JSZipUtils.getBinaryContent(p, function (error, data) {
-            if (isError)
-                return;
+        var i = 0;
+        var isError = false;
 
-            if (error) {
-                updateStatus(error, isError = true);
-                return;
-            }
+        updateProgress(0);
+        updateStatus("Downloading...");
 
-            var filename = p.substring(p.lastIndexOf("/") + 1);
+        doujin.pageUrls.forEach(function (p) {
+            var proxied = currentProxy + "/image?token=" + token + "&url=" + encodeURIComponent(p);
 
-            zip.file(filename, data, {
-                binary: true
-            });
+            JSZipUtils.getBinaryContent(proxied, function (error, data) {
+                if (isError)
+                    return;
 
-            updateProgress(++i, filename);
+                if (error) {
+                    updateStatus(error, isError = true);
+                    return;
+                }
 
-            if (!isError && i === doujin.pageUrls.length) {
-                $progBar.addClass("bg-success");
+                var filename = p.substring(p.lastIndexOf("/") + 1);
 
-                zip.generateAsync({
-                    type: "blob"
-                }).then(function (content) {
-                    saveAs(content, (doujin.originalName || doujin.prettyName) + ".zip");
+                zip.file(filename, data, {
+                    binary: true
                 });
-            }
-        })
+
+                updateProgress(++i, filename);
+
+                if (!isError && i === doujin.pageUrls.length) {
+                    $progBar.addClass("bg-success");
+
+                    zip.generateAsync({
+                        type: "blob"
+                    }).then(function (content) {
+                        saveAs(content, (doujin.originalName || doujin.prettyName) + ".zip");
+                    });
+                }
+            })
+        });
     });
 </script>
 
