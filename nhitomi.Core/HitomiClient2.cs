@@ -4,8 +4,11 @@
 // https://opensource.org/licenses/MIT
 
 using System.Collections.Generic;
+using System.Net.Http;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 
 namespace nhitomi.Core
 {
@@ -18,11 +21,32 @@ namespace nhitomi.Core
     /// </summary>
     public class HitomiClient2 : IDoujinClient
     {
-        public string Name { get; }
-        public string Url { get; }
-        public string IconUrl { get; }
-        public DoujinClientMethod Method { get; }
-        public Regex GalleryRegex { get; }
+        public string Name => nameof(Hitomi);
+        public string Url => "https://hitomi.la/";
+        public string IconUrl => "https://ltn.hitomi.la/favicon-160x160.png";
+
+        public DoujinClientMethod Method => DoujinClientMethod.Api;
+
+        public Regex GalleryRegex { get; } =
+            new Regex(Hitomi.GalleryRegex, RegexOptions.IgnoreCase | RegexOptions.Compiled);
+
+        readonly PhysicalCache _cache;
+        readonly HttpClient _http;
+        readonly JsonSerializer _json;
+        readonly ILogger _logger;
+
+        public HitomiClient2(
+            IHttpClientFactory httpFactory,
+            JsonSerializer json,
+            ILogger<HitomiClient> logger
+        )
+        {
+            _http = httpFactory?.CreateClient(Name);
+            _cache = new PhysicalCache(Name, json);
+            _json = json;
+            _logger = logger;
+        }
+
         public Task<IDoujin> GetAsync(string id) => throw new System.NotImplementedException();
 
         public Task<IAsyncEnumerable<IDoujin>> SearchAsync(string query) => throw new System.NotImplementedException();
