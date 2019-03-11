@@ -28,8 +28,7 @@ namespace nhitomi
                 // Framework
                 .AddMvcCore()
                 .AddFormatterMappings()
-                .AddJsonFormatters(nhitomiSerializerSettings.Apply)
-                .AddCors();
+                .AddJsonFormatters(nhitomiSerializerSettings.Apply);
 
             services
                 // Configuration
