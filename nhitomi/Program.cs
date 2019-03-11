@@ -19,8 +19,8 @@ namespace nhitomi
             await WebHost.CreateDefaultBuilder(args)
                 .ConfigureAppConfiguration((context, config) => config
                     .SetBasePath(Environment.CurrentDirectory)
-                    .AddJsonFile("appsettings.json", false, true)
-                    .AddJsonFile("appsecrets.json", true, true))
+                    .AddJsonFile("appsettings.json", false)
+                    .AddJsonFile("appsecrets.json", true))
                 .ConfigureLogging((context, logging) => logging
                     .AddConfiguration(context.Configuration.GetSection("logging"))
                     .AddConsole()
