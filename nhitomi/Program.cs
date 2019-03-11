@@ -12,7 +12,7 @@ using Microsoft.Extensions.Logging;
 
 namespace nhitomi
 {
-    public class Program
+    public static class Program
     {
         static async Task Main(string[] args)
         {
