@@ -35,9 +35,6 @@ namespace nhitomi
                 // Configuration
                 .Configure<AppSettings>(_config)
 
-                // Program
-                .AddSingleton<Program>()
-
                 // HTTP client
                 .AddHttpClient()
 
