@@ -20,21 +20,24 @@
     <h1 class="mt-5">{title}</h1>
     <p class="lead">{subtitle}</p>
 
-    <a href="{source}" target="_blank" role="button" class="btn btn-outline-info" style="margin-bottom: 1em;">
-        Open {sourceName}
-    </a>
-
-    <div class="progress" style="height: 2em; margin-bottom: 1em;">
-        <div id="progress" class="progress-bar progress-bar-striped" role="progressbar"></div>
-    </div>
+    <p><a href="{source}" target="_blank" role="button" class="btn btn-outline-info">Open {sourceName}</a></p>
 </header>
 
 <div style="flex: 1; display: flex; flex-direction: row;">
     <img src="{thumb}" alt="thumbnail" class="img-thumbnail rounded" style="object-fit: contain; height: 94%; flex: 0;">
 </div>
 
-<footer style="line-height: 3em">
-    <span class="text-muted">Copyright (c) 2018-2019 phosphene47</span>
+<p>
+    <span class="spinner-border spinner-border-sm" role="status"></span>
+    <strong id="status">Initializing...</strong>
+</p>
+
+<div class="progress" style="height: 2em;">
+    <div id="progress" class="progress-bar progress-bar-striped" role="progressbar"></div>
+</div>
+
+<footer>
+    <span class="text-muted" style="line-height: 3em;">Copyright (c) 2018-2019 phosphene47</span>
 </footer>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.slim.min.js"
@@ -52,7 +55,18 @@
     var doujinStr = "{doujin}";
     var doujin = JSON.parse(doujinStr);
 
+    var $status = $("#status");
     var $progBar = $("#progress");
+
+    function updateStatus(text, error) {
+        $status.text(text);
+
+        if (error) {
+            $status.parent().addClass("text-danger");
+        } else {
+            $status.parent().removeClass("text-danger");
+        }
+    }
 
     function updateProgress(state, name) {
         var progress = Math.round(state / doujin.pageUrls.length * 100) + "%";
@@ -62,18 +76,24 @@
             .text(name ? progress + " — " + name : progress);
     }
 
-    updateProgress(0);
-
     var zip = new JSZip();
 
     zip.file("_nhitomi.json", doujinStr);
 
     var i = 0;
+    var isError = false;
+
+    updateProgress(0);
+    updateStatus("Downloading...");
 
     doujin.pageUrls.forEach(function (p) {
         JSZipUtils.getBinaryContent(p, function (error, data) {
+            if (isError)
+                return;
+
             if (error) {
-                throw error;
+                updateStatus(error, isError = true);
+                return;
             }
 
             var filename = p.substring(p.lastIndexOf("/") + 1);
@@ -84,7 +104,7 @@
 
             updateProgress(++i, filename);
 
-            if (i === doujin.pageUrls.length) {
+            if (!isError && i === doujin.pageUrls.length) {
                 $progBar.addClass("bg-success");
 
                 zip.generateAsync({
