@@ -26,7 +26,6 @@ namespace nhitomi
         {
             services
                 // Framework
-                .AddCors()
                 .AddMvcCore()
                 .AddFormatterMappings()
                 .AddJsonFormatters(nhitomiSerializerSettings.Apply)
@@ -65,11 +64,6 @@ namespace nhitomi
                 });
         }
 
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env) => app
-            .UseCors(c => c
-                .AllowAnyOrigin()
-                .AllowAnyHeader()
-                .WithMethods("GET"))
-            .UseMvc();
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env) => app.UseMvc();
     }
 }
