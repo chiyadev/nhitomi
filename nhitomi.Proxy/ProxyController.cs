@@ -17,7 +17,7 @@ using Newtonsoft.Json;
 
 namespace nhitomi.Proxy
 {
-    [Route("/")]
+    [Route("/proxy")]
     public class ProxyController : ControllerBase
     {
         readonly AppSettings.DiscordSettings _settings;

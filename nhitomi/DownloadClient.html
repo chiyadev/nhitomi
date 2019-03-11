@@ -99,7 +99,7 @@
         updateStatus("Downloading...");
 
         doujin.pageUrls.forEach(function (p) {
-            var proxied = currentProxy + "/image?token=" + token + "&url=" + encodeURIComponent(p);
+            var proxied = currentProxy + "/proxy/image?token=" + token + "&url=" + encodeURIComponent(p);
 
             JSZipUtils.getBinaryContent(proxied, function (error, data) {
                 if (isError)
