@@ -3,14 +3,13 @@
 // This software is released under the MIT License.
 // https://opensource.org/licenses/MIT
 
-using Newtonsoft.Json;
 using System;
 using System.IO;
 using System.Security.Cryptography;
 using System.Text;
-using nhitomi.Core;
+using Newtonsoft.Json;
 
-namespace nhitomi
+namespace nhitomi.Core
 {
     public static class TokenGenerator
     {
