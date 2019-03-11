@@ -138,6 +138,9 @@ namespace nhitomi.Core
         }
     }
 
+    /// <summary>
+    /// Legacy hitomi.la client using gallery chunk JSONs that have disappeared in February 2019.
+    /// </summary>
     public sealed class HitomiClient : IDoujinClient
     {
         public string Name => nameof(Hitomi);
