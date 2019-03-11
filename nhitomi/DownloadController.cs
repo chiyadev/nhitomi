@@ -6,6 +6,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
 using Microsoft.AspNetCore.Mvc;
@@ -46,6 +47,17 @@ namespace nhitomi
             _logger = logger;
         }
 
+        static string[] _proxies =
+        {
+            "https://nhitomi-pr1.herokuapp.com",
+            "https://nhitomi-pr2.herokuapp.com",
+            "https://nhitomi-pr3.herokuapp.com"
+        };
+
+        static int _proxyIndex;
+
+        static string GetNextProxy() => _proxies[Interlocked.Increment(ref _proxyIndex) % _proxies.Length];
+
         [HttpGet("{*token}")]
         public async Task<ActionResult> GetAsync(string token)
         {
@@ -67,6 +79,7 @@ namespace nhitomi
                 {"sourceName", $"{doujin.Source.Name}/{doujin.Id}"},
                 {"thumb", doujin.PageUrls.First()},
                 {"token", token},
+                {"proxy", GetNextProxy()},
                 {"doujin", HttpUtility.JavaScriptStringEncode(_json.Serialize(doujin))}
             });
 

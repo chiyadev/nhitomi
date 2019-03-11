@@ -54,6 +54,7 @@
 <script>
     var token = "{token}";
     var doujinStr = "{doujin}";
+    var proxy = "{proxy}";
     var doujin = JSON.parse(doujinStr);
 
     var $status = $("#status");
@@ -77,16 +78,9 @@
             .text(name ? progress + " — " + name : progress);
     }
 
-    var proxies = [
-        "https://nhitomi-pr1.herokuapp.com",
-        "https://nhitomi-pr2.herokuapp.com",
-        "https://nhitomi-pr3.herokuapp.com"
-    ];
-    var currentProxy = proxies[Math.floor(Math.random() * proxies.length)];
-
     updateStatus("Contacting proxy...");
 
-    $.get(currentProxy, function () {
+    $.get(proxy, function () {
         var zip = new JSZip();
 
         zip.file("_nhitomi.json", doujinStr);
@@ -98,9 +92,9 @@
         updateStatus("Downloading...");
 
         doujin.pageUrls.forEach(function (p) {
-            var proxied = currentProxy + "/proxy/image?token=" + token + "&url=" + encodeURIComponent(p);
+            var url = proxy + "/proxy/image?token=" + token + "&url=" + encodeURIComponent(p);
 
-            JSZipUtils.getBinaryContent(proxied, function (error, data) {
+            JSZipUtils.getBinaryContent(url, function (error, data) {
                 if (isError)
                     return;
 
@@ -118,13 +112,15 @@
                 updateProgress(++i, filename);
 
                 if (!isError && i === doujin.pageUrls.length) {
-                    $progBar.addClass("bg-success");
+                    updateStatus("Saving...");
 
                     zip.generateAsync({
                         type: "blob"
                     }).then(function (content) {
                         saveAs(content, (doujin.originalName || doujin.prettyName) + ".zip");
                     });
+
+                    $progBar.addClass("bg-success");
                 }
             })
         });
