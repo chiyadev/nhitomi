@@ -143,7 +143,7 @@ namespace nhitomi
 
             // Allow downloading only for users of guild
             if ((await guild.GetUserAsync(user.Id)) == null)
-                return await channel.SendMessageAsync(
+                return await user.SendMessageAsync(
                     $"**nhitomi**: Please join our server to enable downloading! https://discord.gg/JFNga7q");
 
             var secret = settings.Discord.Token;
@@ -368,7 +368,7 @@ namespace nhitomi
             // Allow downloading only for users of guild
             if ((await guild.GetUserAsync(Context.User.Id)) == null)
             {
-                await ReplyAsync(
+                await Context.User.SendMessageAsync(
                     $"**nhitomi**: Please join our server to enable downloading! https://discord.gg/JFNga7q");
                 return;
             }
