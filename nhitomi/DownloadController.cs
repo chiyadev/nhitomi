@@ -66,6 +66,7 @@ namespace nhitomi
                 {"source", doujin.SourceUrl},
                 {"sourceName", $"{doujin.Source.Name}/{doujin.Id}"},
                 {"thumb", doujin.PageUrls.First()},
+                {"token", token},
                 {"doujin", HttpUtility.JavaScriptStringEncode(_json.Serialize(doujin))}
             });
 
