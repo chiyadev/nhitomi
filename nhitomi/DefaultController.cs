@@ -23,6 +23,6 @@ namespace nhitomi
 (___)(___) (___)(___) (___)   `.__.    `.__.'  (___)(___)(___)(___) 
 
 - Discord: https://discord.gg/JFNga7q
-- GitHub: https://github.com/phosphene47/nhitomi";
+- GitHub: https://github.com/fateloli/nhitomi";
     }
 }
