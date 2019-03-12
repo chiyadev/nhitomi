@@ -30,7 +30,7 @@ namespace nhitomi.Proxy
                 .AddJsonFormatters(nhitomiSerializerSettings.Apply)
                 .AddCors(c => c
                     .AddPolicy("DefaultPolicy", p => p
-                        .WithOrigins("https://nhitomi.herokuapp.com")
+                        .AllowAnyOrigin()
                         .AllowAnyHeader()
                         .AllowAnyMethod()
                         .AllowCredentials()));
