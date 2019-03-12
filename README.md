@@ -38,4 +38,4 @@ Then run the following commands:
 
 ## License
 
-This project is licensed under the [MIT licence](https://opensource.org/licenses/MIT). Please see the [license](LICENSE) for more information.
+This project is licensed under the [MIT license](https://opensource.org/licenses/MIT). Please see the [license](LICENSE) for more information.
