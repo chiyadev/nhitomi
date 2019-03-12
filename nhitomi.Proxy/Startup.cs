@@ -32,8 +32,7 @@ namespace nhitomi.Proxy
                     .AddPolicy("DefaultPolicy", p => p
                         .AllowAnyOrigin()
                         .AllowAnyHeader()
-                        .AllowAnyMethod()
-                        .AllowCredentials()));
+                        .AllowAnyMethod()));
 
             services
                 // Configuration
