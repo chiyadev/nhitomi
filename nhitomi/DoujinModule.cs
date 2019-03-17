@@ -71,7 +71,6 @@ namespace nhitomi
             return (client, doujin, response);
         }
 
-        [RequireNsfw]
         [Command("get")]
         [Alias("g")]
         [Summary("Retrieves doujin information from the specified source.")]
@@ -163,7 +162,6 @@ namespace nhitomi
             );
         }
 
-        [RequireNsfw]
         [Command("all")]
         [Alias("a")]
         [Summary("Displays all doujins from the specified source uploaded recently.")]
@@ -197,7 +195,6 @@ namespace nhitomi
             await DisplayListAsync(Context.Message, response, results, _interactive, Context.Client, _settings);
         }
 
-        [RequireNsfw]
         [Command("search")]
         [Alias("s")]
         [Summary(
@@ -353,7 +350,6 @@ namespace nhitomi
             }
         }
 
-        [RequireNsfw]
         [Command("download")]
         [Alias("dl")]
         [Summary("Sends a download link for the specified doujin.")]

@@ -36,6 +36,6 @@ Then run the following commands:
 2. `dotnet build` — builds the bot.
 3. `dotnet run` — runs the bot.
 
-## Licence
+## License
 
-This project is licensed under the [MIT licence](https://opensource.org/licenses/MIT). Please see the [licence](LICENCE) for more information.
+This project is licensed under the [MIT license](https://opensource.org/licenses/MIT). Please see the [license](LICENSE) for more information.
