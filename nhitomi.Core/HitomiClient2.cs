@@ -53,6 +53,8 @@ namespace nhitomi.Core
 
         public Task UpdateAsync() => throw new System.NotImplementedException();
 
+        public double RequestThrottle => Hitomi.RequestCooldown;
+
         public void Dispose()
         {
         }

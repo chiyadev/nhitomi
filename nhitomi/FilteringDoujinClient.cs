@@ -97,6 +97,8 @@ namespace nhitomi
 
         public Task UpdateAsync() => _impl.UpdateAsync();
 
+        public double RequestThrottle => _impl.RequestThrottle;
+
         public void Dispose() => _impl.Dispose();
     }
 

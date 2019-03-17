@@ -357,6 +357,8 @@ namespace nhitomi.Core
                 await updateDbAsync(i);
         }
 
+        public double RequestThrottle => Hitomi.RequestCooldown;
+
         public Task<IAsyncEnumerable<IDoujin>> SearchAsync(string query)
         {
             IEnumerable<int> filtered;

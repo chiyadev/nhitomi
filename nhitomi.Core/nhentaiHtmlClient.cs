@@ -224,6 +224,8 @@ namespace nhitomi.Core
 
         public Task UpdateAsync() => Task.CompletedTask;
 
+        public double RequestThrottle => nhentai.RequestCooldown;
+
         public override string ToString() => Name;
 
         public void Dispose()
