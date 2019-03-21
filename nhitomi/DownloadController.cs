@@ -66,7 +66,7 @@ namespace nhitomi
             var downloader = _downloader.NamedFormat(new Dictionary<string, object>
             {
                 {"title", doujin.PrettyName},
-                {"subtitle", doujin.OriginalName},
+                {"subtitle", doujin.OriginalName ?? string.Empty},
                 {"source", doujin.SourceUrl},
                 {"sourceName", $"{doujin.Source.Name}/{doujin.Id}"},
                 {"thumb", doujin.PageUrls.First()},
