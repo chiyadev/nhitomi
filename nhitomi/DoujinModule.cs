@@ -232,6 +232,12 @@ namespace nhitomi
         [Remarks("n!searchjp maid")]
         public Task SearchJapaneseAsync([Remainder] string query) => SearchAsync(query + " japanese");
 
+        [Command("searchch")]
+        [Alias("sc")]
+        [Summary("Equivalent to `n!search chinese`.")]
+        [Remarks("n!searchch inu")]
+        public Task SearchChineseAsync([Remainder] string query) => SearchAsync(query + " chinese");
+
         public static async Task DisplayListAsync(
             IUserMessage request,
             IUserMessage response,
