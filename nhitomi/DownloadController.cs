@@ -59,11 +59,14 @@ namespace nhitomi
             var client = _clients.First(c => c.Name == sourceName);
             var doujin = await client.GetAsync(id);
 
+            if (doujin == null)
+                return BadRequest("Doujin not found.");
+
             // Create javascript downloader
             var downloader = _downloader.NamedFormat(new Dictionary<string, object>
             {
                 {"title", doujin.PrettyName},
-                {"subtitle", doujin.OriginalName},
+                {"subtitle", doujin.OriginalName ?? string.Empty},
                 {"source", doujin.SourceUrl},
                 {"sourceName", $"{doujin.Source.Name}/{doujin.Id}"},
                 {"thumb", doujin.PageUrls.First()},
