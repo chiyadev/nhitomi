@@ -52,10 +52,7 @@
         integrity="sha256-FPJJt8nA+xL4RU6/gsriA8p8xAeLGatoyTjldvQKGdE=" crossorigin="anonymous"></script>
 
 <script>
-    var token = "{token}";
-    var doujinStr = "{doujin}";
-    var proxy = "{proxy}";
-    var doujin = JSON.parse(doujinStr);
+    var doujin = JSON.parse("{doujin}");
 
     var $status = $("#status");
     var $progBar = $("#progress");
@@ -78,9 +75,37 @@
             .text(name ? progress + " — " + name : progress);
     }
 
-    updateStatus("Contacting proxy...");
+    var proxies = [
+        "https://nhitomi-pr1.herokuapp.com",
+        "https://nhitomi-pr2.herokuapp.com",
+        "https://nhitomi-pr3.herokuapp.com"
+    ];
+    var proxiesLen = proxies.length;
 
-    $.get(proxy, function () {
+    updateStatus("Contacting proxies...");
+
+    for (var i = proxies.length; i--;) {
+        var proxy = proxies.pop();
+
+        function handleProxyConnected() {
+            updateStatus("Contacting proxies (" + proxies.length + " / " + proxiesLen + ")...");
+
+            if (proxiesLen == 0)
+                updateStatus("No proxy available!", true);
+            else if (proxies.length == proxiesLen)
+                beginDownload();
+        }
+
+        $.get(proxy, function (data) {
+            proxies.push(proxy);
+            handleProxyConnected();
+        }).fail(function () {
+            --proxiesLen;
+            handleProxyConnected();
+        });
+    }
+
+    function beginDownload() {
         var zip = new JSZip();
 
         zip.file("_nhitomi.json", JSON.stringify(doujin, null, 2));
@@ -91,8 +116,10 @@
         updateProgress(0);
         updateStatus("Downloading...");
 
-        doujin.pageUrls.forEach(function (p) {
-            var url = proxy + "/proxy/image?token=" + encodeURIComponent(token) + "&url=" + encodeURIComponent(p);
+        doujin.pageUrls.forEach(function (p, index) {
+            var url = proxies[index % proxies.length]
+                + "/proxy/image?token=" + encodeURIComponent("{token}")
+                + "&url=" + encodeURIComponent(p);
 
             JSZipUtils.getBinaryContent(url, function (error, data) {
                 if (isError)
@@ -124,7 +151,7 @@
                 }
             })
         });
-    });
+    }
 </script>
 
 </body>
