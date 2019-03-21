@@ -83,7 +83,7 @@
     $.get(proxy, function () {
         var zip = new JSZip();
 
-        zip.file("_nhitomi.json", doujinStr);
+        zip.file("_nhitomi.json", JSON.stringify(doujin, null, 2));
 
         var i = 0;
         var isError = false;
