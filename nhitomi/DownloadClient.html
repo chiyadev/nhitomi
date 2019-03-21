@@ -82,30 +82,28 @@
             "https://nhitomi-pr3.herokuapp.com",
             "https://nhitomi-pr4.herokuapp.com"
         ];
-        var proxiesLen = proxies.length;
+        var availableProxies = [];
 
         updateStatus("Contacting proxies...");
 
-        for (var i = proxies.length; i--;) {
-            var proxy = proxies.pop();
-
+        proxies.forEach(function (p, index) {
             function handleProxyConnected() {
-                updateStatus("Contacting proxies (" + proxies.length + " / " + proxiesLen + ")...");
+                updateStatus("Contacting proxies (" + availableProxies.length + " / " + proxies.length + ")...");
 
-                if (proxiesLen == 0)
+                if (availableProxies.length === 0)
                     updateStatus("No proxy available!", true);
-                else if (proxies.length == proxiesLen)
+                else if (availableProxies.length === proxies.length)
                     beginDownload();
             }
 
-            $.get(proxy, function (data) {
-                proxies.push(proxy);
+            $.get(p, function () {
+                availableProxies.push(p);
                 handleProxyConnected();
             }).fail(function () {
-                --proxiesLen;
+                proxies.splice(index, 1);
                 handleProxyConnected();
             });
-        }
+        });
 
         function beginDownload() {
             var zip = new JSZip();
@@ -119,7 +117,7 @@
             updateStatus("Downloading...");
 
             doujin.pageUrls.forEach(function (p, index) {
-                var url = proxies[index % proxies.length]
+                var url = availableProxies[index % availableProxies.length]
                     + "/proxy/image?token=" + encodeURIComponent("{token}")
                     + "&url=" + encodeURIComponent(p);
 
