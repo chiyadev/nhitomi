@@ -199,7 +199,7 @@ namespace nhitomi
         [Alias("s")]
         [Summary(
             "Searches for doujins by the title and tags across the supported sources that match the specified query.")]
-        [Remarks("n!search glasses loli")]
+        [Remarks("n!search glasses")]
         public async Task SearchAsync(
             [Remainder] string query
         )
@@ -219,6 +219,18 @@ namespace nhitomi
             // Interleave results from each client
             await DisplayListAsync(Context.Message, response, results, _interactive, Context.Client, _settings);
         }
+
+        [Command("searchen")]
+        [Alias("se")]
+        [Summary("Equivalent to `n!search english`.")]
+        [Remarks("n!searchen neko")]
+        public Task SearchEnglishAsync([Remainder] string query) => SearchAsync(query + " english");
+
+        [Command("searchjp")]
+        [Alias("se")]
+        [Summary("Equivalent to `n!search japanese`.")]
+        [Remarks("n!searchen maid")]
+        public Task SearchJapaneseAsync([Remainder] string query) => SearchAsync(query + " japanese");
 
         public static async Task DisplayListAsync(
             IUserMessage request,
