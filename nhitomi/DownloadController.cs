@@ -50,7 +50,7 @@ namespace nhitomi
         }
 
         [HttpGet("/download/{*token}")]
-        public async Task<ActionResult> GetAsync(string token)
+        public async Task<ActionResult> DownloadAsync(string token)
         {
             if (!TokenGenerator.TryDeserializeDownloadToken(
                 token, _settings.Token, out var sourceName, out var id, serializer: _json))
