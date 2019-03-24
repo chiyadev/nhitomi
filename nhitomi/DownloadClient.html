@@ -54,7 +54,7 @@
 
 <script>
   var $status = $("#status");
-  var $progBar = $("#progress");
+  var $progress = $("#progress");
 
   function updateStatus(text, error) {
     $status.text(text);
@@ -69,7 +69,7 @@
   function updateProgress(state, name) {
     var progress = Math.round(state / doujin.pageUrls.length * 100) + "%";
 
-    $progBar
+    $progress
       .width(progress)
       .text(name ? progress + " — " + name : progress);
   }
@@ -101,7 +101,7 @@
       updateProgress(0);
       updateStatus("Downloading...");
 
-      $progBar
+      $progress
         .fadeIn();
 
       doujin.pageUrls.forEach(function (p, index) {
@@ -135,7 +135,7 @@
               saveAs(content, (doujin.originalName || doujin.prettyName) + ".zip");
             });
 
-            $progBar.addClass("bg-success");
+            $progress.addClass("bg-success");
           }
         })
       });
