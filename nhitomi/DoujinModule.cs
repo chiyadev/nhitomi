@@ -141,7 +141,7 @@ namespace nhitomi
             var guild = await client.GetGuildAsync(515395714264858653);
 
             // Allow downloading only for users of guild
-            if ((await guild.GetUserAsync(user.Id)) == null)
+            if (await guild.GetUserAsync(user.Id) == null)
                 return await user.SendMessageAsync(
                     $"**nhitomi**: Please join our server to enable downloading! https://discord.gg/JFNga7q");
 
