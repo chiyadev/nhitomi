@@ -17,7 +17,7 @@ namespace nhitomi
         static string join(IEnumerable<string> values) =>
             values != null && values.Any() ? string.Join(", ", values) : null;
 
-        const string DateFormat = "dddd, dd MMMM yyyy";
+        const string _dateFormat = "dddd, dd MMMM yyyy";
 
         public static Embed EmbedDoujin(IDoujin doujin)
         {
@@ -35,7 +35,7 @@ namespace nhitomi
                 .WithUrl(doujin.SourceUrl)
                 .WithImageUrl(doujin.Pages.First().Url)
                 .WithColor(Color.Green)
-                .WithFooter($"Uploaded on {doujin.UploadTime.ToString(DateFormat)}");
+                .WithFooter($"Uploaded on {doujin.UploadTime.ToString(_dateFormat)}");
 
             if (doujin.Language != null)
                 embed.AddFieldString("Language", doujin.Language, true);
