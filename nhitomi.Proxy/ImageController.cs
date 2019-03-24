@@ -74,8 +74,14 @@ namespace nhitomi.Proxy
             }
         }
 
-        static string getCachePath(Uri uri) =>
-            Path.Combine(Path.GetTempPath(), "nhitomi", uri.Authority, uri.LocalPath);
+        static string getCachePath(Uri uri)
+        {
+            var path = Path.Combine(Path.GetTempPath(), "nhitomi", uri.Authority, uri.LocalPath);
+
+            Directory.CreateDirectory(Path.GetDirectoryName(path));
+
+            return path;
+        }
 
         [HttpGet]
         public async Task<ActionResult> GetAsync(
