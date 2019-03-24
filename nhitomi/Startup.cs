@@ -49,7 +49,7 @@ namespace nhitomi
                 // Doujin clients
                 .AddSingleton<nhentaiHtmlClient>()
                 .AddSingleton<HitomiClient>()
-                // .AddSingleton<TsuminoClient>()
+                .AddSingleton<TsuminoClient>()
                 .AddSingleton<PururinClient>()
                 .AddSingleton<ISet<IDoujinClient>>(s => new HashSet<IDoujinClient>
                 {
