@@ -17,7 +17,6 @@ using Newtonsoft.Json;
 
 namespace nhitomi
 {
-    [Route("dl")]
     public class DownloadController : ControllerBase
     {
         static readonly string _downloader;
@@ -50,7 +49,7 @@ namespace nhitomi
             _logger = logger;
         }
 
-        [HttpGet("{*token}")]
+        [HttpGet("/download/{*token}")]
         public async Task<ActionResult> GetAsync(string token)
         {
             if (!TokenGenerator.TryDeserializeDownloadToken(

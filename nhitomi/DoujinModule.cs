@@ -166,7 +166,7 @@ namespace nhitomi
                 string.Empty,
                 embed: MessageFormatter.EmbedDownload(
                     doujin.PrettyName,
-                    $"{settings.Http.Url}/dl/{downloadToken}",
+                    $"{settings.Http.Url}/download/{downloadToken}",
                     validLength
                 )
             );
@@ -376,7 +376,7 @@ namespace nhitomi
                     string.Empty,
                     MessageFormatter.EmbedDownload(
                         browser.Current.PrettyName,
-                        $"{settings.Http.Url}/dl/{downloadToken}",
+                        $"{settings.Http.Url}/download/{downloadToken}",
                         validLength
                     )
                 );
@@ -420,7 +420,7 @@ namespace nhitomi
                 $"**{client.Name}**: Download __{id}__",
                 MessageFormatter.EmbedDownload(
                     doujin.PrettyName,
-                    $"{_settings.Http.Url}/dl/{downloadToken}",
+                    $"{_settings.Http.Url}/download/{downloadToken}",
                     validLength
                 )
             );
