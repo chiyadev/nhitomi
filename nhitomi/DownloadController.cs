@@ -69,7 +69,7 @@ namespace nhitomi
             {
                 {"title", doujin.PrettyName},
                 {"subtitle", doujin.OriginalName ?? string.Empty},
-                {"proxyList", string.Join("\", \"", _proxyManager.AvailableProxies)},
+                {"proxyList", string.Join("\",\"", _proxyManager.AvailableProxies)},
                 {"token", token},
                 {"doujin", HttpUtility.JavaScriptStringEncode(_json.Serialize(doujin))}
             });
