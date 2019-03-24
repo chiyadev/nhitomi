@@ -19,7 +19,7 @@ namespace nhitomi
             CurrentEnvironment = Environment.GetEnvironmentVariable("ENVIRONMENT") ?? "DEVELOPMENT";
         }
 
-        public DiscordSettings Discord { get; set; }
+        public DiscordSettings Discord { get; set; } = new DiscordSettings();
 
         public sealed class DiscordSettings : DiscordSocketConfig
         {
@@ -30,7 +30,7 @@ namespace nhitomi
                 Token = Environment.GetEnvironmentVariable("TOKEN");
             }
 
-            public StatusSettings Status { get; set; }
+            public StatusSettings Status { get; set; } = new StatusSettings();
 
             public sealed class StatusSettings
             {
@@ -38,7 +38,7 @@ namespace nhitomi
                 public string[] Games { get; set; }
             }
 
-            public CommandSettings Command { get; set; }
+            public CommandSettings Command { get; set; } = new CommandSettings();
 
             public sealed class CommandSettings : CommandServiceConfig
             {
@@ -46,7 +46,7 @@ namespace nhitomi
             }
         }
 
-        public DoujinSettings Doujin { get; set; }
+        public DoujinSettings Doujin { get; set; } = new DoujinSettings();
 
         public sealed class DoujinSettings
         {
@@ -58,7 +58,7 @@ namespace nhitomi
             public double ProxyCheckInterval { get; set; }
         }
 
-        public HttpSettings Http { get; set; }
+        public HttpSettings Http { get; set; } = new HttpSettings();
 
         public sealed class HttpSettings
         {
