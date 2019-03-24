@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 
 namespace nhitomi.Core
@@ -61,7 +62,12 @@ namespace nhitomi.Core
 
         static string convertTag(string tag) => tag.ToLowerInvariant();
 
-        public IEnumerable<string> PageUrls => _d.reader.reader_page_urls.Select(Tsumino.ImageObject);
+        public int PageCount => _d.reader.reader_page_urls.Length;
+
+        public IEnumerable<PageInfo> Pages => _d.reader.reader_page_urls.Select((i, index) => new PageInfo(
+            index,
+            Path.GetExtension(i),
+            Tsumino.ImageObject(i)));
 
         public override string ToString() => PrettyName;
     }

@@ -30,6 +30,7 @@ namespace nhitomi.Core
         IEnumerable<string> Artists { get; }
         IEnumerable<string> Tags { get; }
 
-        IEnumerable<string> PageUrls { get; }
+        int PageCount { get; }
+        IEnumerable<PageInfo> Pages { get; }
     }
 }

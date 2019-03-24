@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 
 namespace nhitomi.Core
@@ -54,7 +55,12 @@ namespace nhitomi.Core
         public IEnumerable<string> Artists => _d.artists;
         public IEnumerable<string> Tags => _d.tags?.Select(t => t.Value);
 
-        public IEnumerable<string> PageUrls => _d.images?.Select(i => Hitomi.Image(_d.id, i.name));
+        public int PageCount => _d.images.Length;
+
+        public IEnumerable<PageInfo> Pages => _d.images.Select((i, index) => new PageInfo(
+            index,
+            Path.GetExtension(i.name),
+            Hitomi.Image(_d.id, i.name)));
 
         public override string ToString() => PrettyName;
     }

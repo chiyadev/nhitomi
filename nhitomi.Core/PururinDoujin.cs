@@ -53,12 +53,17 @@ namespace nhitomi.Core
         public IEnumerable<string> Tags =>
             _d.gallery.tags.TryGetValue("Contents", out var tags) ? tags.Select(t => t.slug) : null;
 
-        public IEnumerable<string> PageUrls
+        public int PageCount => _d.gallery.total_pages;
+
+        public IEnumerable<PageInfo> Pages
         {
             get
             {
                 for (var i = 0; i < _d.gallery.total_pages; i++)
-                    yield return Pururin.Image(_d.gallery.id, i, _d.gallery.image_extension);
+                    yield return new PageInfo(
+                        i,
+                        "." + _d.gallery.image_extension,
+                        Pururin.Image(_d.gallery.id, i, _d.gallery.image_extension));
             }
         }
 

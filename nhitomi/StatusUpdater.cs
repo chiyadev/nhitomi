@@ -30,7 +30,7 @@ namespace nhitomi
 
         void cycleGame()
         {
-            var index = _current == null ? -1 : System.Array.IndexOf(_settings.Discord.Status.Games, _current);
+            var index = _current == null ? -1 : Array.IndexOf(_settings.Discord.Status.Games, _current);
             int next;
 
             do
@@ -59,8 +59,6 @@ namespace nhitomi
                     stoppingToken
                 );
             }
-
-            ;
         }
     }
 }

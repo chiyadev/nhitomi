@@ -33,7 +33,7 @@ namespace nhitomi
                     .WithIconUrl(doujin.Source.IconUrl)
                 )
                 .WithUrl(doujin.SourceUrl)
-                .WithImageUrl(doujin.PageUrls.First())
+                .WithImageUrl(doujin.Pages.First().Url)
                 .WithColor(Color.Green)
                 .WithFooter($"Uploaded on {doujin.UploadTime.ToString(DateFormat)}");
 
@@ -48,7 +48,7 @@ namespace nhitomi
             if (doujin.Tags != null)
                 embed.AddFieldString("Tags", join(doujin.Tags), true);
 
-            embed.AddField("Content", $"{doujin.PageUrls.Count()} pages", true);
+            embed.AddField("Content", $"{doujin.PageCount} pages", true);
 
             return embed.Build();
         }
