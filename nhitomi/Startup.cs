@@ -4,12 +4,14 @@
 // https://opensource.org/licenses/MIT
 
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using System.Collections.Generic;
+using System.Net;
+using Microsoft.Extensions.Hosting;
 using nhitomi.Core;
+using IHostingEnvironment = Microsoft.AspNetCore.Hosting.IHostingEnvironment;
 
 namespace nhitomi
 {
@@ -45,7 +47,8 @@ namespace nhitomi
                 .AddSingleton<InteractiveScheduler>()
                 .AddHostedService<StatusUpdater>()
                 .AddHostedService<FeedUpdater>()
-                .AddHostedService<DownloadProxyManager>()
+                .AddSingleton<DownloadProxyManager>()
+                .AddSingleton<IHostedService, DownloadProxyManager>(p => p.GetRequiredService<DownloadProxyManager>())
 
                 // Doujin clients
                 .AddSingleton<nhentaiHtmlClient>()
