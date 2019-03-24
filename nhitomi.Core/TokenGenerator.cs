@@ -142,7 +142,7 @@ namespace nhitomi.Core
             if (!TryDeserializeToken<DownloadTokenPayload>(token, secret, out var payload, encoding, serializer))
                 return false;
 
-            if (validateExpiry && payload.Expires >= DateTime.UtcNow)
+            if (validateExpiry && DateTime.UtcNow >= payload.Expires)
                 return false;
 
             sourceName = payload.Source;
@@ -163,7 +163,7 @@ namespace nhitomi.Core
             if (!TryDeserializeToken<ProxyTokenPayload>(token, secret, out var payload, encoding, serializer))
                 return false;
 
-            if (validateExpiry && payload.Expires >= DateTime.UtcNow)
+            if (validateExpiry && DateTime.UtcNow >= payload.Expires)
                 return false;
 
             url = payload.Url;
