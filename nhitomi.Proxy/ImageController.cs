@@ -39,10 +39,13 @@ namespace nhitomi.Proxy
 
         static SemaphoreSlim GetSemaphore(string name)
         {
-            if (!_semaphores.TryGetValue(name, out var semaphore))
-                _semaphores[name] = semaphore = new SemaphoreSlim(1);
+            lock (_semaphores)
+            {
+                if (!_semaphores.TryGetValue(name, out var semaphore))
+                    _semaphores[name] = semaphore = new SemaphoreSlim(1);
 
-            return semaphore;
+                return semaphore;
+            }
         }
 
         static bool IsImage(Uri uri)
