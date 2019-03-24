@@ -99,6 +99,7 @@ namespace nhitomi.Proxy
                 stream = new MemoryStream();
 
                 // download image
+                // semaphore is used to rate limit requests to remote hosts
                 var semaphore = GetSemaphore(sourceName);
                 await semaphore.WaitAsync(cancellationToken);
                 try
