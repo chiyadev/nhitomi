@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
@@ -26,7 +27,7 @@ namespace nhitomi
             _logger = logger;
         }
 
-        public string[] AvailableProxies { get; private set; } = new string[0];
+        public IPAddress[] ProxyAddresses { get; private set; } = new string[0];
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
@@ -58,7 +59,7 @@ namespace nhitomi
                 }
 
                 // Make the new list of proxies available
-                AvailableProxies = proxies.ToArray();
+                ProxyAddresses = proxies.ToArray();
 
                 // Sleep
                 await Task.Delay(TimeSpan.FromMinutes(_settings.ProxyCheckInterval), stoppingToken);
