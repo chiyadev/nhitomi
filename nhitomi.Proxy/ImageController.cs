@@ -76,7 +76,7 @@ namespace nhitomi.Proxy
 
         static string getCachePath(Uri uri)
         {
-            var path = Path.Combine(Path.GetTempPath(), "nhitomi", uri.Authority, uri.LocalPath)
+            var path = Path.Combine(Path.GetTempPath(), "nhitomi", uri.Authority + uri.LocalPath)
                 .Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);
 
             Directory.CreateDirectory(Path.GetDirectoryName(path));
