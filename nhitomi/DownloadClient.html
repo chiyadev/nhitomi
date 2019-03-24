@@ -83,7 +83,7 @@
     } else {
       $("#thumbnail")
         .attr("src", proxies[0]
-          + "/proxy/image/" + encodeURI(doujin.pages[0].url)
+          + "/proxy/image/" + encodeURIComponent(doujin.pages[0].url)
           + "?token=" + encodeURIComponent("{token}"))
         .fadeIn();
 
@@ -106,7 +106,7 @@
 
       doujin.pages.forEach(function (page, index) {
         var url = proxies[index % proxies.length]
-          + "/proxy/image/" + encodeURI(page.url)
+          + "/proxy/image/" + encodeURIComponent(page.url)
           + "?token=" + encodeURIComponent("{token}");
 
         JSZipUtils.getBinaryContent(url, function (error, data) {
