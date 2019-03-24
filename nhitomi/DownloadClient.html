@@ -83,7 +83,7 @@
     } else {
       $("#thumbnail")
         .attr("src", proxies[0]
-          + "/proxy/image/" + encodeURIComponent(doujin.pages[0].u)
+          + "/proxy/image?url=" + encodeURIComponent(doujin.pages[0].u)
           + "?token=" + encodeURIComponent("{token}"))
         .fadeIn();
 
@@ -106,7 +106,7 @@
 
       doujin.pages.forEach(function (page, index) {
         var url = proxies[index % proxies.length]
-          + "/proxy/image/" + encodeURIComponent(page.u)
+          + "/proxy/image?url=" + encodeURIComponent(page.u)
           + "?token=" + encodeURIComponent("{token}");
 
         function pad(num, size) {

@@ -77,9 +77,9 @@ namespace nhitomi.Proxy
         static string getCachePath(Uri uri) =>
             Path.Combine(Path.GetTempPath(), "nhitomi", uri.Authority, uri.LocalPath);
 
-        [HttpGet("{*url}")]
+        [HttpGet]
         public async Task<ActionResult> GetAsync(
-            string url,
+            [FromQuery] string url,
             [FromQuery] string token,
             CancellationToken cancellationToken = default)
         {
