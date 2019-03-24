@@ -6,6 +6,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
 using Microsoft.AspNetCore.Mvc;
@@ -52,7 +53,8 @@ namespace nhitomi
         [HttpGet("{*token}")]
         public async Task<ActionResult> GetAsync(string token)
         {
-            if (!TokenGenerator.TryDeserializeDownloadToken(token, _settings.Token, out var sourceName, out var id))
+            if (!TokenGenerator.TryDeserializeDownloadToken(
+                token, _settings.Token, out var sourceName, out var id, serializer: _json))
                 return BadRequest("Download token has expired. Please try again.");
 
             _logger.LogDebug($"Received download request: token {token}");
@@ -69,8 +71,14 @@ namespace nhitomi
             {
                 {"title", doujin.PrettyName},
                 {"subtitle", doujin.OriginalName ?? string.Empty},
-                {"proxyList", string.Join("\",\"", _proxyManager.ProxyUrls)},
-                {"token", token},
+                {"proxies", string.Join("\",\"", _proxyManager.ProxyUrls)},
+                {
+                    "imageTokens",
+                    string.Join("\",\"", doujin.Pages.Select(p => TokenGenerator.CreateImageToken(
+                        p.Index.ToString().PadLeft(3, '0') + p.Extension,
+                        p.Url,
+                        _settings.Token)))
+                },
                 {"doujin", HttpUtility.JavaScriptStringEncode(_json.Serialize(doujin))}
             });
 

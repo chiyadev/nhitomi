@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using nhitomi.Core;
+using Newtonsoft.Json;
 
 namespace nhitomi.Proxy
 {
@@ -21,22 +22,25 @@ namespace nhitomi.Proxy
     {
         readonly AppSettings.DiscordSettings _settings;
         readonly HttpClient _http;
+        readonly JsonSerializer _json;
         readonly ILogger _logger;
 
         public ImageController(
             IOptions<AppSettings> options,
             IHttpClientFactory httpFactory,
+            JsonSerializer json,
             ILogger<ImageController> logger
         )
         {
             _settings = options.Value.Discord;
             _http = httpFactory?.CreateClient(nameof(ImageController));
+            _json = json;
             _logger = logger;
         }
 
         static readonly Dictionary<string, SemaphoreSlim> _semaphores = new Dictionary<string, SemaphoreSlim>();
 
-        static SemaphoreSlim GetSemaphore(string name)
+        static SemaphoreSlim getSemaphore(string name)
         {
             lock (_semaphores)
             {
@@ -47,43 +51,47 @@ namespace nhitomi.Proxy
             }
         }
 
-        static bool IsImage(Uri uri)
+        static string getMime(string filename)
         {
-            switch (Path.GetExtension(uri.LocalPath))
+            switch (Path.GetExtension(filename))
             {
                 case ".tif":
                 case ".tiff":
+                    return "image/tiff";
+
                 case ".jpg":
                 case ".jpeg":
+                    return "image/jpeg";
+
                 case ".gif":
+                    return "image/gif";
+
                 case ".png":
-                    return true;
+                    return "image/png";
 
                 default:
-                    return false;
+                    return null;
             }
         }
 
         static string getCachePath(Uri uri) =>
             Path.Combine(Path.GetTempPath(), "nhitomi", uri.Authority, uri.LocalPath);
 
-        [HttpGet]
+        [HttpGet("{*token}")]
         public async Task<ActionResult> GetAsync(
-            [FromQuery] string token,
-            [FromQuery] string url,
+            string token,
             CancellationToken cancellationToken = default)
         {
-            if (!TokenGenerator.TryDeserializeDownloadToken(token, _settings.Token, out var sourceName, out var id))
+            if (!TokenGenerator.TryDeserializeImageToken(
+                token, _settings.Token, out var filename, out var url, serializer: _json))
                 return BadRequest("Invalid token.");
 
-            if (!(Uri.TryCreate(url, UriKind.Absolute, out var uri) &&
-                  uri.Scheme == "https" && uri.Host.Contains(sourceName, StringComparison.OrdinalIgnoreCase) &&
-                  IsImage(uri)))
-                return BadRequest("Invalid url.");
+            if (!Uri.TryCreate(url, UriKind.Absolute, out var uri))
+                return BadRequest("Invalid URL.");
 
             _logger.LogDebug($"Received request: token {token}, url {url}");
 
-            var mime = $"image/{Path.GetExtension(uri.LocalPath).TrimStart('.')}";
+            var mime = getMime(filename);
             var cachePath = getCachePath(uri);
 
             Stream stream;
@@ -100,7 +108,7 @@ namespace nhitomi.Proxy
 
                 // download image
                 // semaphore is used to rate limit requests to remote hosts
-                var semaphore = GetSemaphore(sourceName);
+                var semaphore = getSemaphore(uri.Authority);
                 await semaphore.WaitAsync(cancellationToken);
                 try
                 {
