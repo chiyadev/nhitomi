@@ -5,7 +5,6 @@
 
 using System;
 using System.IO;
-using System.Security.Cryptography;
 using System.Text;
 using Newtonsoft.Json;
 
@@ -54,21 +53,10 @@ namespace nhitomi.Core
             }
 
             // Signature
-            var signature = getPayloadSignature(payload, secret, encoding);
+            var signature = HashHelper.GetHash(payload, secret, encoding);
 
             // Token (similar to JWT, without header)
             return $"{payload}.{signature}";
-        }
-
-        static string getPayloadSignature(string payload, string secret, Encoding encoding)
-        {
-            using (var hmac = new HMACSHA256(encoding.GetBytes(secret)))
-            {
-                return Convert
-                    .ToBase64String(hmac.ComputeHash(encoding.GetBytes(payload)))
-                    .Replace("-", string.Empty)
-                    .ToLowerInvariant();
-            }
         }
 
         public static bool TryDeserializeToken(
@@ -91,7 +79,7 @@ namespace nhitomi.Core
                 var signature = token.Substring(token.IndexOf('.') + 1);
 
                 // Verify signature
-                if (signature != getPayloadSignature(payload, secret, encoding))
+                if (signature != HashHelper.GetHash(payload, secret, encoding))
                 {
                     sourceName = null;
                     id = null;
