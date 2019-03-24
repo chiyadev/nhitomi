@@ -53,30 +53,30 @@
         integrity="sha256-FPJJt8nA+xL4RU6/gsriA8p8xAeLGatoyTjldvQKGdE=" crossorigin="anonymous"></script>
 
 <script>
-  var $status = $("#status");
-  var $progress = $("#progress");
-
-  function updateStatus(text, error) {
-    $status.text(text);
-
-    if (error) {
-      $status.parent().addClass("text-danger");
-    } else {
-      $status.parent().removeClass("text-danger");
-    }
-  }
-
-  function updateProgress(state, name) {
-    var progress = Math.round(state / doujin.pageUrls.length * 100) + "%";
-
-    $progress
-      .width(progress)
-      .text(name ? progress + " — " + name : progress);
-  }
-
   try {
     var doujin = JSON.parse("{doujin}");
     var proxies = ["{proxyList}"];
+
+    var $status = $("#status");
+    var $progress = $("#progress");
+
+    function updateStatus(text, error) {
+      $status.text(text);
+
+      if (error) {
+        $status.parent().addClass("text-danger");
+      } else {
+        $status.parent().removeClass("text-danger");
+      }
+    }
+
+    function updateProgress(state, name) {
+      var progress = Math.round(state / doujin.pageUrls.length * 100) + "%";
+
+      $progress
+        .width(progress)
+        .text(name ? progress + " — " + name : progress);
+    }
 
     if (proxies.length === 0) {
       updateStatus("No proxies available!", true);
