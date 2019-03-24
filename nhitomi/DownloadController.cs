@@ -6,7 +6,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
 using Microsoft.AspNetCore.Mvc;
@@ -32,18 +31,21 @@ namespace nhitomi
         readonly AppSettings.DiscordSettings _settings;
         readonly ISet<IDoujinClient> _clients;
         readonly JsonSerializer _json;
+        readonly DownloadProxyManager _proxyManager;
         readonly ILogger _logger;
 
         public DownloadController(
             IOptions<AppSettings> options,
             ISet<IDoujinClient> clients,
             JsonSerializer json,
+            DownloadProxyManager proxyManager,
             ILogger<DownloadController> logger
         )
         {
             _settings = options.Value.Discord;
             _clients = clients;
             _json = json;
+            _proxyManager = proxyManager;
             _logger = logger;
         }
 
@@ -67,9 +69,7 @@ namespace nhitomi
             {
                 {"title", doujin.PrettyName},
                 {"subtitle", doujin.OriginalName ?? string.Empty},
-                {"source", doujin.SourceUrl},
-                {"sourceName", $"{doujin.Source.Name}/{doujin.Id}"},
-                {"thumb", doujin.PageUrls.First()},
+                {"proxyList", string.Join("\", \"", _proxyManager.AvailableProxies)},
                 {"token", token},
                 {"doujin", HttpUtility.JavaScriptStringEncode(_json.Serialize(doujin))}
             });

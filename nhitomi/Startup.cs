@@ -40,11 +40,12 @@ namespace nhitomi
                 // Formatters
                 .AddTransient(s => JsonSerializer.Create(new nhitomiSerializerSettings()))
 
-                // Discord
+                // Services
                 .AddSingleton<DiscordService>()
                 .AddSingleton<InteractiveScheduler>()
                 .AddHostedService<StatusUpdater>()
                 .AddHostedService<FeedUpdater>()
+                .AddHostedService<DownloadProxyManager>()
 
                 // Doujin clients
                 .AddSingleton<nhentaiHtmlClient>()

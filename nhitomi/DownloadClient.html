@@ -3,42 +3,42 @@
 <html lang="en">
 
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="nhitomi downloader client">
-    <link rel="icon" type="image/png" href="https://github.com/fateloli/nhitomi/raw/master/nhitomi.png">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="nhitomi downloader client">
+  <link rel="icon" type="image/png" href="https://github.com/fateloli/nhitomi/raw/master/nhitomi.png">
 
-    <title>{title}</title>
+  <title>{title}</title>
 
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet"
-          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+  <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 </head>
 
 <body class="container" style="height: 100vh; display: flex; flex-direction: column;">
 
 <header>
-    <h1 class="mt-5">{title}</h1>
-    <p class="lead">{subtitle}</p>
+  <h1 class="mt-5">{title}</h1>
+  <p class="lead">{subtitle}</p>
 
-    <p><a href="{source}" target="_blank" role="button" class="btn btn-outline-info">Open {sourceName}</a></p>
+  <p><a id="galleryButton" target="_blank" role="button" class="btn btn-outline-info" style="display: none;"></a></p>
 </header>
 
 <div style="flex: 1; display: flex; flex-direction: row;">
-    <img id="thumbnail" alt="thumbnail" class="img-thumbnail rounded"
-         style="object-fit: contain; height: 94%; flex: 0; display: none;">
+  <img id="thumbnail" alt="thumbnail" class="img-thumbnail rounded"
+       style="object-fit: contain; height: 96%; flex: 0; display: none;">
 </div>
 
 <p>
-    <span class="spinner-border spinner-border-sm" role="status"></span>
-    <strong id="status">Initializing...</strong>
+  <span class="spinner-border spinner-border-sm" role="status"></span>
+  <strong id="status">Initializing...</strong>
 </p>
 
 <div class="progress" style="height: 2em;">
-    <div id="progress" class="progress-bar progress-bar-striped" role="progressbar"></div>
+  <div id="progress" class="progress-bar progress-bar-striped" role="progressbar" style="display: none;"></div>
 </div>
 
 <footer>
-    <span class="text-muted" style="line-height: 3em;">Copyright (c) 2018-2019 phosphene47</span>
+  <span class="text-muted" style="line-height: 3em;">Copyright (c) 2018-2019 phosphene47</span>
 </footer>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"
@@ -53,127 +53,96 @@
         integrity="sha256-FPJJt8nA+xL4RU6/gsriA8p8xAeLGatoyTjldvQKGdE=" crossorigin="anonymous"></script>
 
 <script>
-    var $status = $("#status");
-    var $progBar = $("#progress");
+  var $status = $("#status");
+  var $progBar = $("#progress");
 
-    function updateStatus(text, error) {
-        $status.text(text);
+  function updateStatus(text, error) {
+    $status.text(text);
 
-        if (error) {
-            $status.parent().addClass("text-danger");
-        } else {
-            $status.parent().removeClass("text-danger");
-        }
+    if (error) {
+      $status.parent().addClass("text-danger");
+    } else {
+      $status.parent().removeClass("text-danger");
     }
+  }
 
-    function updateProgress(state, name) {
-        var progress = Math.round(state / doujin.pageUrls.length * 100) + "%";
+  function updateProgress(state, name) {
+    var progress = Math.round(state / doujin.pageUrls.length * 100) + "%";
 
-        $progBar
-            .width(progress)
-            .text(name ? progress + " — " + name : progress);
-    }
+    $progBar
+      .width(progress)
+      .text(name ? progress + " — " + name : progress);
+  }
 
-    try {
-        var doujin = JSON.parse("{doujin}");
+  try {
+    var doujin = JSON.parse("{doujin}");
+    var proxies = ["{proxyList}"];
 
-        var proxies = [
-            "https://nhitomi-pr1.herokuapp.com",
-            "https://nhitomi-pr2.herokuapp.com",
-            "https://nhitomi-pr3.herokuapp.com",
-            "https://nhitomi-pr4.herokuapp.com",
-            "https://nhitomi-pr5.herokuapp.com",
-            "https://nhitomi-pr6.herokuapp.com",
-            "https://nhitomi-pr7.herokuapp.com",
-            "https://nhitomi-pr8.herokuapp.com",
-            "https://nhitomi-pr9.herokuapp.com",
-            "https://nhitomi-pr10.herokuapp.com",
-            "https://nhitomi-pr11.herokuapp.com",
-            "https://nhitomi-pr12.herokuapp.com",
-            "https://nhitomi-pr13.herokuapp.com",
-            "https://nhitomi-pr14.herokuapp.com",
-            "https://nhitomi-pr15.herokuapp.com",
-            "https://nhitomi-pr16.herokuapp.com"
-        ];
-        var availableProxies = [];
+    if (proxies.length === 0) {
+      updateStatus("No proxies available!", true);
+    } else {
+      $("#thumbnail")
+        .attr("src", proxies[0]
+          + "/proxy/image?token=" + encodeURIComponent("{token}")
+          + "&url=" + encodeURIComponent(doujin.pageUrls[0]))
+        .fadeIn();
 
-        updateStatus("Contacting proxies...");
+      $("#galleryButton")
+        .attr("href", doujin.sourceUrl)
+        .text(doujin.source.name + "/" + doujin.id)
+        .fadeIn();
 
-        proxies.forEach(function (p, index) {
-            function handleProxyConnected() {
-                updateStatus("Contacting proxies (" + availableProxies.length + " / " + proxies.length + ")...");
+      var zip = new JSZip();
+      zip.file("_nhitomi.json", JSON.stringify(doujin, null, 2));
 
-                if (availableProxies.length === 0)
-                    updateStatus("No proxy available!", true);
-                else if (availableProxies.length === proxies.length)
-                    beginDownload();
-            }
+      var i = 0;
+      var isError = false;
 
-            $.get(p, function () {
-                availableProxies.push(p);
-                handleProxyConnected();
-            }).fail(function () {
-                proxies.splice(index, 1);
-                handleProxyConnected();
+      updateProgress(0);
+      updateStatus("Downloading...");
+
+      $("#progress")
+        .fadeIn();
+
+      doujin.pageUrls.forEach(function (p, index) {
+        var url = proxies[index % proxies.length]
+          + "/proxy/image?token=" + encodeURIComponent("{token}")
+          + "&url=" + encodeURIComponent(p);
+
+        JSZipUtils.getBinaryContent(url, function (error, data) {
+          if (isError)
+            return;
+
+          if (error) {
+            updateStatus(error, isError = true);
+            return;
+          }
+
+          var filename = p.substring(p.lastIndexOf("/") + 1);
+
+          zip.file(filename, data, {
+            binary: true
+          });
+
+          updateProgress(++i, filename);
+
+          if (!isError && i === doujin.pageUrls.length) {
+            updateStatus("Saving...");
+
+            zip.generateAsync({
+              type: "blob"
+            }).then(function (content) {
+              saveAs(content, (doujin.originalName || doujin.prettyName) + ".zip");
             });
-        });
 
-        function beginDownload() {
-            $("#thumbnail")
-                .fadeIn()
-                .attr("src", availableProxies[0] + "/proxy/image?token="
-                    + encodeURIComponent("{token}")
-                    + "&url=" + encodeURIComponent("{thumb}"));
-
-            var zip = new JSZip();
-
-            zip.file("_nhitomi.json", JSON.stringify(doujin, null, 2));
-
-            var i = 0;
-            var isError = false;
-
-            updateProgress(0);
-            updateStatus("Downloading...");
-
-            doujin.pageUrls.forEach(function (p, index) {
-                var url = availableProxies[index % availableProxies.length]
-                    + "/proxy/image?token=" + encodeURIComponent("{token}")
-                    + "&url=" + encodeURIComponent(p);
-
-                JSZipUtils.getBinaryContent(url, function (error, data) {
-                    if (isError)
-                        return;
-
-                    if (error) {
-                        updateStatus(error, isError = true);
-                        return;
-                    }
-
-                    var filename = p.substring(p.lastIndexOf("/") + 1);
-
-                    zip.file(filename, data, {
-                        binary: true
-                    });
-
-                    updateProgress(++i, filename);
-
-                    if (!isError && i === doujin.pageUrls.length) {
-                        updateStatus("Saving...");
-
-                        zip.generateAsync({
-                            type: "blob"
-                        }).then(function (content) {
-                            saveAs(content, (doujin.originalName || doujin.prettyName) + ".zip");
-                        });
-
-                        $progBar.addClass("bg-success");
-                    }
-                })
-            });
-        }
-    } catch (e) {
-        updateStatus(e, true);
+            $progBar.addClass("bg-success");
+          }
+        })
+      });
     }
+  } catch (e) {
+    updateStatus(e, true);
+  }
 </script>
 
 </body>
