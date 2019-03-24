@@ -21,20 +21,17 @@ namespace nhitomi.Proxy
     public class ProxyController : ControllerBase
     {
         readonly AppSettings.DiscordSettings _settings;
-        readonly PhysicalCache _cache;
         readonly HttpClient _http;
         readonly ILogger _logger;
 
         public ProxyController(
             IOptions<AppSettings> options,
             IHttpClientFactory httpFactory,
-            JsonSerializer json,
             ILogger<ProxyController> logger
         )
         {
             _settings = options.Value.Discord;
             _http = httpFactory?.CreateClient(nameof(ProxyController));
-            _cache = new PhysicalCache(nameof(ProxyController), json);
             _logger = logger;
         }
 
@@ -65,6 +62,9 @@ namespace nhitomi.Proxy
             }
         }
 
+        static string getCachePath(Uri uri) =>
+            Path.Combine(Path.GetTempPath(), "nhitomi", uri.Authority, uri.LocalPath);
+
         [HttpGet("image")]
         public async Task<ActionResult> GetImageAsync(
             [FromQuery] string token,
@@ -79,18 +79,39 @@ namespace nhitomi.Proxy
                   IsImage(uri)))
                 return BadRequest("Invalid url.");
 
-            _logger.LogDebug($"Received request: token {token}");
+            _logger.LogDebug($"Received request: token {token}, url {url}");
+
+            var mime = $"image/{Path.GetExtension(uri.LocalPath).TrimStart('.')}";
+            var cachePath = getCachePath(uri);
 
             var semaphore = GetSemaphore(sourceName);
 
             await semaphore.WaitAsync(cancellationToken);
             try
             {
-                var stream = await _cache.GetOrCreateStreamAsync(
-                    uri.Authority + uri.LocalPath,
-                    () => _http.GetStreamAsync(uri));
+                Stream stream;
 
-                var mime = $"image/{Path.GetExtension(uri.LocalPath).TrimStart('.')}";
+                try
+                {
+                    // this will fail if cache doesn't exist
+                    stream = new FileStream(cachePath, FileMode.Open, FileAccess.Read);
+                }
+                catch
+                {
+                    stream = new MemoryStream();
+
+                    // we don't want image download to cancel when request cancels
+                    using (var src = await _http.GetStreamAsync(uri))
+                        await src.CopyToAsync(stream, default(CancellationToken));
+
+                    stream.Position = 0;
+
+                    // cache the image
+                    using (var dst = new FileStream(cachePath, FileMode.Create, FileAccess.Write))
+                        await stream.CopyToAsync(dst, default(CancellationToken));
+
+                    stream.Position = 0;
+                }
 
                 return File(stream, mime);
             }
