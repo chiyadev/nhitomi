@@ -86,45 +86,46 @@ namespace nhitomi.Proxy
             var mime = $"image/{Path.GetExtension(uri.LocalPath).TrimStart('.')}";
             var cachePath = getCachePath(uri);
 
-            var semaphore = GetSemaphore(sourceName);
+            Stream stream;
 
-            await semaphore.WaitAsync(cancellationToken);
             try
             {
-                Stream stream;
+                // try finding from cache
+                // this will fail if cache doesn't exist
+                stream = new FileStream(cachePath, FileMode.Open, FileAccess.Read, FileShare.None);
+            }
+            catch
+            {
+                stream = new MemoryStream();
 
+                // download image
+                var semaphore = GetSemaphore(sourceName);
+                await semaphore.WaitAsync(cancellationToken);
                 try
                 {
-                    // this will fail if cache doesn't exist
-                    stream = new FileStream(cachePath, FileMode.Open, FileAccess.Read);
-                }
-                catch
-                {
-                    stream = new MemoryStream();
-
-                    // we don't want image download to cancel when request cancels
                     using (var src = await _http.GetStreamAsync(uri))
+                        // we don't want image download to cancel when request cancels
                         await src.CopyToAsync(stream, default(CancellationToken));
+                }
+                finally
+                {
+                    // Rate limiting
+                    // todo: proper timing
+                    await Task.Delay(TimeSpan.FromSeconds(0.5), cancellationToken);
 
-                    stream.Position = 0;
-
-                    // cache the image
-                    using (var dst = new FileStream(cachePath, FileMode.Create, FileAccess.Write))
-                        await stream.CopyToAsync(dst, default(CancellationToken));
-
-                    stream.Position = 0;
+                    semaphore.Release();
                 }
 
-                return File(stream, mime);
-            }
-            finally
-            {
-                // Rate limiting
-                // todo: proper timing
-                await Task.Delay(TimeSpan.FromSeconds(0.5), cancellationToken);
+                stream.Position = 0;
 
-                semaphore.Release();
+                // cache the image
+                using (var dst = new FileStream(cachePath, FileMode.Create, FileAccess.Write))
+                    await stream.CopyToAsync(dst, default(CancellationToken));
+
+                stream.Position = 0;
             }
+
+            return File(stream, mime);
         }
     }
 }
