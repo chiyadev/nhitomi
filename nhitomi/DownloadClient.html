@@ -84,7 +84,7 @@
       $("#thumbnail")
         .attr("src", proxies[0]
           + "/proxy/image?url=" + encodeURIComponent(doujin.pages[0].u)
-          + "?token=" + encodeURIComponent("{token}"))
+          + "&token=" + encodeURIComponent("{token}"))
         .fadeIn();
 
       $("#galleryButton")
@@ -107,7 +107,7 @@
       doujin.pages.forEach(function (page, index) {
         var url = proxies[index % proxies.length]
           + "/proxy/image?url=" + encodeURIComponent(page.u)
-          + "?token=" + encodeURIComponent("{token}");
+          + "&token=" + encodeURIComponent("{token}");
 
         function pad(num, size) {
           return ("00" + num).substr(-size);
