@@ -43,14 +43,14 @@ namespace nhitomi.Core
         static DateTime? getExpirationFromNow(double? expireMinutes) =>
             expireMinutes == null ? (DateTime?) null : DateTime.UtcNow.AddMinutes(expireMinutes.Value);
 
-        public struct ProxyTokenPayload
+        public struct ImageTokenPayload
         {
             public string Filename;
             public string Url;
             public DateTime? Expires;
         }
 
-        public static string CreateProxyToken(
+        public static string CreateImageToken(
             string filename,
             string url,
             string secret,
@@ -58,7 +58,7 @@ namespace nhitomi.Core
             JsonSerializer serializer = null,
             double? expireMinutes = null)
         {
-            var payload = new ProxyTokenPayload
+            var payload = new ImageTokenPayload
             {
                 Filename = filename,
                 Url = url,
@@ -153,7 +153,7 @@ namespace nhitomi.Core
             return true;
         }
 
-        public static bool TryDeserializeProxyToken(
+        public static bool TryDeserializeImageToken(
             string token,
             string secret,
             out string filename,
@@ -165,7 +165,7 @@ namespace nhitomi.Core
             filename = null;
             url = null;
 
-            if (!TryDeserializeToken<ProxyTokenPayload>(token, secret, out var payload, encoding, serializer))
+            if (!TryDeserializeToken<ImageTokenPayload>(token, secret, out var payload, encoding, serializer))
                 return false;
 
             if (validateExpiry && DateTime.UtcNow >= payload.Expires)
