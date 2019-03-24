@@ -19,7 +19,7 @@ namespace nhitomi.Core
             public DateTime? Expires;
         }
 
-        public static string CreateToken(
+        public static string CreateDownloadToken(
             this IDoujin doujin,
             string secret,
             Encoding encoding = null,

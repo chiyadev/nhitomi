@@ -149,7 +149,7 @@ namespace nhitomi
             var validLength = settings.Doujin.DownloadValidLength;
 
             // Create token
-            var downloadToken = doujin.CreateToken(secret, expiresIn: validLength);
+            var downloadToken = doujin.CreateDownloadToken(secret, expiresIn: validLength);
 
             // Send download message
             return await channel.SendMessageAsync(
@@ -355,7 +355,7 @@ namespace nhitomi
                 var validLength = settings.Doujin.DownloadValidLength;
 
                 // Create token
-                var downloadToken = browser.Current.CreateToken(secret, expiresIn: validLength);
+                var downloadToken = browser.Current.CreateDownloadToken(secret, expiresIn: validLength);
 
                 await downloadMessage.ModifyAsync(
                     string.Empty,
@@ -396,7 +396,7 @@ namespace nhitomi
             var validLength = _settings.Doujin.DownloadValidLength;
 
             // Create token
-            var downloadToken = doujin.CreateToken(secret, expiresIn: validLength);
+            var downloadToken = doujin.CreateDownloadToken(secret, expiresIn: validLength);
 
             await response.ModifyAsync(
                 $"**{client.Name}**: Download __{id}__",
