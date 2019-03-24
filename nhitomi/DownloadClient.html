@@ -83,7 +83,7 @@
     } else {
       $("#thumbnail")
         .attr("src", proxies[0]
-          + "/proxy/image/" + encodeURIComponent(doujin.pages[0].url)
+          + "/proxy/image/" + encodeURIComponent(doujin.pages[0].u)
           + "?token=" + encodeURIComponent("{token}"))
         .fadeIn();
 
@@ -106,8 +106,14 @@
 
       doujin.pages.forEach(function (page, index) {
         var url = proxies[index % proxies.length]
-          + "/proxy/image/" + encodeURIComponent(page.url)
+          + "/proxy/image/" + encodeURIComponent(page.u)
           + "?token=" + encodeURIComponent("{token}");
+
+        function pad(num, size) {
+          return ("00" + num).substr(-size);
+        }
+
+        var filename = pad(page.i, 3) + page.e;
 
         JSZipUtils.getBinaryContent(url, function (error, data) {
           if (isError)
@@ -118,11 +124,11 @@
             return;
           }
 
-          zip.file(page.filename, data, {
+          zip.file(filename, data, {
             binary: true
           });
 
-          updateProgress(++i, page.filename);
+          updateProgress(++i, filename);
 
           if (!isError && i === doujin.pages.length) {
             updateStatus("Saving...");
