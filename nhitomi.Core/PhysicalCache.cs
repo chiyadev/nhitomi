@@ -114,7 +114,12 @@ namespace nhitomi.Core
 
         string getPath(string name) => Path.Combine(CachePath, processName(name));
 
-        static string processName(string name) =>
-            name.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);
+        static string processName(string name)
+        {
+            if (string.IsNullOrWhiteSpace(name))
+                throw new ArgumentNullException(nameof(name));
+
+            return name.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);
+        }
     }
 }
