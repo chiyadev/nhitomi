@@ -86,10 +86,6 @@ namespace nhitomi.Proxy
             await semaphore.WaitAsync(cancellationToken);
             try
             {
-                // Rate limiting
-                // todo: proper timing
-                await Task.Delay(TimeSpan.FromSeconds(0.5), cancellationToken);
-
                 var stream = await _cache.GetOrCreateStreamAsync(
                     uri.Authority + uri.LocalPath,
                     () => _http.GetStreamAsync(uri));
@@ -100,6 +96,10 @@ namespace nhitomi.Proxy
             }
             finally
             {
+                // Rate limiting
+                // todo: proper timing
+                await Task.Delay(TimeSpan.FromSeconds(0.5), cancellationToken);
+
                 semaphore.Release();
             }
         }
