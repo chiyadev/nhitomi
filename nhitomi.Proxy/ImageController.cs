@@ -17,21 +17,21 @@ using Newtonsoft.Json;
 
 namespace nhitomi.Proxy
 {
-    [Route("/proxy")]
-    public class ProxyController : ControllerBase
+    [Route("/proxy/image")]
+    public class ImageController : ControllerBase
     {
         readonly AppSettings.DiscordSettings _settings;
         readonly HttpClient _http;
         readonly ILogger _logger;
 
-        public ProxyController(
+        public ImageController(
             IOptions<AppSettings> options,
             IHttpClientFactory httpFactory,
-            ILogger<ProxyController> logger
+            ILogger<ImageController> logger
         )
         {
             _settings = options.Value.Discord;
-            _http = httpFactory?.CreateClient(nameof(ProxyController));
+            _http = httpFactory?.CreateClient(nameof(ImageController));
             _logger = logger;
         }
 
@@ -65,8 +65,8 @@ namespace nhitomi.Proxy
         static string getCachePath(Uri uri) =>
             Path.Combine(Path.GetTempPath(), "nhitomi", uri.Authority, uri.LocalPath);
 
-        [HttpGet("image")]
-        public async Task<ActionResult> GetImageAsync(
+        [HttpGet]
+        public async Task<ActionResult> GetAsync(
             [FromQuery] string token,
             [FromQuery] string url,
             CancellationToken cancellationToken = default)
