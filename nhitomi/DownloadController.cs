@@ -72,7 +72,7 @@ namespace nhitomi
                 {"token", token},
                 {"title", doujin.PrettyName},
                 {"subtitle", doujin.OriginalName ?? string.Empty},
-                {"proxies", $"\"{string.Join("\",\"", _proxyManager.ProxyUrls)}\""},
+                {"proxies", _json.Serialize(_proxyManager.ProxyUrls)},
                 {"doujin", _json.Serialize(doujin)}
             });
 
