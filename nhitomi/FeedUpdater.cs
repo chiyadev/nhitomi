@@ -15,6 +15,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using nhitomi.Core;
+using Newtonsoft.Json;
 
 namespace nhitomi
 {
@@ -24,6 +25,7 @@ namespace nhitomi
         readonly ISet<IDoujinClient> _clients;
         readonly DiscordService _discord;
         readonly InteractiveScheduler _interactive;
+        readonly JsonSerializer _json;
         readonly ILogger _logger;
 
         public FeedUpdater(
@@ -31,6 +33,7 @@ namespace nhitomi
             ISet<IDoujinClient> clients,
             DiscordService discord,
             InteractiveScheduler interactive,
+            JsonSerializer json,
             ILogger<FeedUpdater> logger
         )
         {
@@ -38,6 +41,7 @@ namespace nhitomi
             _clients = clients;
             _discord = discord;
             _interactive = interactive;
+            _json = json;
             _logger = logger;
         }
 
@@ -138,6 +142,7 @@ namespace nhitomi
                                                         ),
                                                     d,
                                                     _discord.Socket,
+                                                    _json,
                                                     _settings
                                                 );
                                             }

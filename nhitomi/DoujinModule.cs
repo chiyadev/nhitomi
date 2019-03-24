@@ -12,6 +12,7 @@ using Discord.Commands;
 using Discord.WebSocket;
 using Microsoft.Extensions.Options;
 using nhitomi.Core;
+using Newtonsoft.Json;
 
 namespace nhitomi
 {
@@ -20,16 +21,19 @@ namespace nhitomi
         readonly AppSettings _settings;
         readonly InteractiveScheduler _interactive;
         readonly ISet<IDoujinClient> _clients;
+        readonly JsonSerializer _json;
 
         public DoujinModule(
             IOptions<AppSettings> options,
             InteractiveScheduler interactive,
-            ISet<IDoujinClient> clients
+            ISet<IDoujinClient> clients,
+            JsonSerializer json
         )
         {
             _settings = options.Value;
             _interactive = interactive;
             _clients = clients;
+            _json = json;
         }
 
         async Task<(IDoujinClient, IUserMessage)> getClientAsync(string source)
@@ -90,7 +94,7 @@ namespace nhitomi
                 MessageFormatter.EmbedDoujin(doujin)
             );
 
-            await ShowDoujin(_interactive, Context.User, response, doujin, Context.Client, _settings);
+            await ShowDoujin(_interactive, Context.User, response, doujin, Context.Client, _json, _settings);
         }
 
         public static async Task ShowDoujin(
@@ -99,6 +103,7 @@ namespace nhitomi
             IUserMessage response,
             IDoujin doujin,
             IDiscordClient client,
+            JsonSerializer serializer,
             AppSettings settings
         )
         {
@@ -125,7 +130,8 @@ namespace nhitomi
                 }
                 else
                 {
-                    downloadMessage = await ShowDownload(doujin, response.Channel, requester, client, settings);
+                    downloadMessage =
+                        await ShowDownload(doujin, response.Channel, requester, client, serializer, settings);
                 }
             }
         }
@@ -135,6 +141,7 @@ namespace nhitomi
             IMessageChannel channel,
             IUser user,
             IDiscordClient client,
+            JsonSerializer serializer,
             AppSettings settings
         )
         {
@@ -149,7 +156,10 @@ namespace nhitomi
             var validLength = settings.Doujin.DownloadValidLength;
 
             // Create token
-            var downloadToken = doujin.CreateDownloadToken(secret, expiresIn: validLength);
+            var downloadToken = doujin.CreateDownloadToken(
+                secret,
+                expiresIn: validLength,
+                serializer: serializer);
 
             // Send download message
             return await channel.SendMessageAsync(
@@ -192,7 +202,7 @@ namespace nhitomi
             }
 
             // Interleave results from each client
-            await DisplayListAsync(Context.Message, response, results, _interactive, Context.Client, _settings);
+            await DisplayListAsync(Context.Message, response, results, _interactive, Context.Client, _json, _settings);
         }
 
         [Command("search")]
@@ -217,7 +227,7 @@ namespace nhitomi
             var results = Extensions.Interleave(await Task.WhenAll(_clients.Select(c => c.SearchAsync(query))));
 
             // Interleave results from each client
-            await DisplayListAsync(Context.Message, response, results, _interactive, Context.Client, _settings);
+            await DisplayListAsync(Context.Message, response, results, _interactive, Context.Client, _json, _settings);
         }
 
         [Command("searchen")]
@@ -244,6 +254,7 @@ namespace nhitomi
             IAsyncEnumerable<IDoujin> results,
             InteractiveScheduler interactive,
             IDiscordClient client,
+            JsonSerializer serializer,
             AppSettings settings
         )
         {
@@ -283,7 +294,8 @@ namespace nhitomi
                 browser.Dispose();
                 return;
             }
-            else browser.MovePrevious();
+
+            browser.MovePrevious();
 
             // Create list interactive
             await interactive.CreateInteractiveAsync(
@@ -322,7 +334,7 @@ namespace nhitomi
             }
 
             // Load previous doujin
-            async Task loadPrevious(SocketReaction reactiom)
+            async Task loadPrevious(SocketReaction reaction)
             {
                 if (!browser.MovePrevious())
                 {
@@ -343,7 +355,7 @@ namespace nhitomi
                 }
                 else
                     downloadMessage = await ShowDownload(browser.Current, response.Channel, request.Author, client,
-                        settings);
+                        serializer, settings);
             }
 
             async Task updateDownload()
@@ -355,7 +367,10 @@ namespace nhitomi
                 var validLength = settings.Doujin.DownloadValidLength;
 
                 // Create token
-                var downloadToken = browser.Current.CreateDownloadToken(secret, expiresIn: validLength);
+                var downloadToken = browser.Current.CreateDownloadToken(
+                    secret,
+                    expiresIn: validLength,
+                    serializer: serializer);
 
                 await downloadMessage.ModifyAsync(
                     string.Empty,
@@ -396,7 +411,10 @@ namespace nhitomi
             var validLength = _settings.Doujin.DownloadValidLength;
 
             // Create token
-            var downloadToken = doujin.CreateDownloadToken(secret, expiresIn: validLength);
+            var downloadToken = doujin.CreateDownloadToken(
+                secret,
+                expiresIn: validLength,
+                serializer: _json);
 
             await response.ModifyAsync(
                 $"**{client.Name}**: Download __{id}__",

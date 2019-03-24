@@ -15,6 +15,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using nhitomi.Core;
+using Newtonsoft.Json;
 
 namespace nhitomi
 {
@@ -24,6 +25,7 @@ namespace nhitomi
         readonly AppSettings _settings;
         readonly ISet<IDoujinClient> _clients;
         readonly InteractiveScheduler _interactive;
+        readonly JsonSerializer _json;
         readonly ILogger _logger;
 
         public DiscordSocketClient Socket { get; }
@@ -34,6 +36,7 @@ namespace nhitomi
             IOptions<AppSettings> options,
             ISet<IDoujinClient> clients,
             InteractiveScheduler interactive,
+            JsonSerializer json,
             ILoggerFactory loggerFactory
         )
         {
@@ -41,6 +44,7 @@ namespace nhitomi
             _settings = options.Value;
             _clients = clients;
             _interactive = interactive;
+            _json = json;
 
             _galleryRegex = new Regex(
                 $"({string.Join(")|(", clients.Select(c => c.GalleryRegex))})",
@@ -55,7 +59,6 @@ namespace nhitomi
                 loggerFactory.AddProvider(new DiscordLogService(this));
 
             _logger = loggerFactory.CreateLogger<DiscordService>();
-
             _logger.LogDebug($"Gallery match regex: {_galleryRegex}");
         }
 
@@ -159,19 +162,19 @@ namespace nhitomi
                 }
                 else
                 {
-                    // Find all recognised gallery urls and disply info
+                    // Find all recognised gallery urls and display info
                     var matches = _galleryRegex
                         .Matches(userMessage.Content)
-                        .Cast<Match>();
+                        .ToArray();
 
-                    if (!matches.Any())
+                    if (matches.Length == 0)
                         return;
 
                     var response = await userMessage.Channel.SendMessageAsync("**nhitomi**: Loading...");
 
                     var results = AsyncEnumerable.CreateEnumerable(() =>
                     {
-                        var enumerator = matches.GetEnumerator();
+                        var enumerator = ((IEnumerable<Match>) matches).GetEnumerator();
                         var current = (IDoujin) null;
 
                         return AsyncEnumerable.CreateEnumerator(
@@ -195,8 +198,8 @@ namespace nhitomi
                         );
                     });
 
-                    await DoujinModule.DisplayListAsync(userMessage, response, results, _interactive, Socket,
-                        _settings);
+                    await DoujinModule.DisplayListAsync(
+                        userMessage, response, results, _interactive, Socket, _json, _settings);
                 }
             }
             catch (Exception e)
