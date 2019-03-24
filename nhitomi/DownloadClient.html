@@ -56,7 +56,6 @@
   try {
     var doujin = JSON.parse("{doujin}");
     var proxies = ["{proxies}"];
-    var imageTokens = ["{imageTokens}"];
 
     var $status = $("#status");
     var $progress = $("#progress");
@@ -72,7 +71,7 @@
     }
 
     function updateProgress(state, name) {
-      var progress = Math.round(state / imageTokens.length * 100) + "%";
+      var progress = Math.round(state / doujin.pages.length * 100) + "%";
 
       $progress
         .width(progress)
@@ -83,7 +82,9 @@
       updateStatus("No proxies available!", true);
     } else {
       $("#thumbnail")
-        .attr("src", proxies[0] + "/proxy/image/" + imageTokens[0])
+        .attr("src", proxies[0]
+          + "/proxy/image/" + encodeURI(doujin.pages[0].url)
+          + "?token=" + encodeURIComponent("{token}"))
         .fadeIn();
 
       $("#galleryButton")
@@ -103,9 +104,10 @@
       $progress
         .fadeIn();
 
-      imageTokens.forEach(function (token, index) {
-        var url = proxies[index % proxies.length] + "/proxy/image/" + token;
-        var filename = JSON.parse(atob(token.substr(0, token.indexOf(".")))).filename;
+      doujin.pages.forEach(function (page, index) {
+        var url = proxies[index % proxies.length]
+          + "/proxy/image/" + encodeURI(page.url)
+          + "?token=" + encodeURIComponent("{token}");
 
         JSZipUtils.getBinaryContent(url, function (error, data) {
           if (isError)
@@ -116,13 +118,13 @@
             return;
           }
 
-          zip.file(filename, data, {
+          zip.file(page.filename, data, {
             binary: true
           });
 
-          updateProgress(++i, filename);
+          updateProgress(++i, page.filename);
 
-          if (!isError && i === imageTokens.length) {
+          if (!isError && i === doujin.pages.length) {
             updateStatus("Saving...");
 
             zip.generateAsync({

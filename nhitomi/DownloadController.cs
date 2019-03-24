@@ -69,16 +69,10 @@ namespace nhitomi
             // Create javascript downloader
             var downloader = _downloader.NamedFormat(new Dictionary<string, object>
             {
+                {"token", token},
                 {"title", doujin.PrettyName},
                 {"subtitle", doujin.OriginalName ?? string.Empty},
                 {"proxies", string.Join("\",\"", _proxyManager.ProxyUrls)},
-                {
-                    "imageTokens",
-                    string.Join("\",\"", doujin.Pages.Select(p => TokenGenerator.CreateImageToken(
-                        p.Index.ToString().PadLeft(3, '0') + p.Extension,
-                        p.Url,
-                        _settings.Token)))
-                },
                 {"doujin", HttpUtility.JavaScriptStringEncode(_json.Serialize(doujin))}
             });
 

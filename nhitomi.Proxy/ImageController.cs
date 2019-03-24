@@ -51,9 +51,9 @@ namespace nhitomi.Proxy
             }
         }
 
-        static string getMime(string filename)
+        static string getMime(Uri uri)
         {
-            switch (Path.GetExtension(filename))
+            switch (Path.GetExtension(uri.LocalPath))
             {
                 case ".tif":
                 case ".tiff":
@@ -77,13 +77,14 @@ namespace nhitomi.Proxy
         static string getCachePath(Uri uri) =>
             Path.Combine(Path.GetTempPath(), "nhitomi", uri.Authority, uri.LocalPath);
 
-        [HttpGet("{*token}")]
+        [HttpGet("{*url}")]
         public async Task<ActionResult> GetAsync(
-            string token,
+            string url,
+            [FromQuery] string token,
             CancellationToken cancellationToken = default)
         {
-            if (!TokenGenerator.TryDeserializeImageToken(
-                token, _settings.Token, out var filename, out var url, serializer: _json))
+            if (!TokenGenerator.TryDeserializeDownloadToken(
+                token, _settings.Token, out _, out _, serializer: _json))
                 return BadRequest("Invalid token.");
 
             if (!Uri.TryCreate(url, UriKind.Absolute, out var uri))
@@ -91,7 +92,7 @@ namespace nhitomi.Proxy
 
             _logger.LogDebug($"Received request: token {token}, url {url}");
 
-            var mime = getMime(filename);
+            var mime = getMime(uri);
             var cachePath = getCachePath(uri);
 
             Stream stream;
