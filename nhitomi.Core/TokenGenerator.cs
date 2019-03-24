@@ -45,11 +45,13 @@ namespace nhitomi.Core
 
         public struct ProxyTokenPayload
         {
+            public string Filename;
             public string Url;
             public DateTime? Expires;
         }
 
         public static string CreateProxyToken(
+            string filename,
             string url,
             string secret,
             Encoding encoding = null,
@@ -58,6 +60,7 @@ namespace nhitomi.Core
         {
             var payload = new ProxyTokenPayload
             {
+                Filename = filename,
                 Url = url,
                 Expires = getExpirationFromNow(expireMinutes)
             };
@@ -153,11 +156,13 @@ namespace nhitomi.Core
         public static bool TryDeserializeProxyToken(
             string token,
             string secret,
+            out string filename,
             out string url,
             Encoding encoding = null,
             JsonSerializer serializer = null,
             bool validateExpiry = true)
         {
+            filename = null;
             url = null;
 
             if (!TryDeserializeToken<ProxyTokenPayload>(token, secret, out var payload, encoding, serializer))
@@ -166,6 +171,7 @@ namespace nhitomi.Core
             if (validateExpiry && DateTime.UtcNow >= payload.Expires)
                 return false;
 
+            filename = payload.Filename;
             url = payload.Url;
             return true;
         }
