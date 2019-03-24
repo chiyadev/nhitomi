@@ -158,7 +158,7 @@ namespace nhitomi
             // Create token
             var downloadToken = doujin.CreateDownloadToken(
                 secret,
-                expiresIn: validLength,
+                expireMinutes: validLength,
                 serializer: serializer);
 
             // Send download message
@@ -369,7 +369,7 @@ namespace nhitomi
                 // Create token
                 var downloadToken = browser.Current.CreateDownloadToken(
                     secret,
-                    expiresIn: validLength,
+                    expireMinutes: validLength,
                     serializer: serializer);
 
                 await downloadMessage.ModifyAsync(
@@ -413,7 +413,7 @@ namespace nhitomi
             // Create token
             var downloadToken = doujin.CreateDownloadToken(
                 secret,
-                expiresIn: validLength,
+                expireMinutes: validLength,
                 serializer: _json);
 
             await response.ModifyAsync(

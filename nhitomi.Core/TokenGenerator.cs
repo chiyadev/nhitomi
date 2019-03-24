@@ -12,33 +12,14 @@ namespace nhitomi.Core
 {
     public static class TokenGenerator
     {
-        public struct DownloadTokenPayload
-        {
-            public string Source;
-            public string Id;
-            public DateTime? Expires;
-        }
-
-        public static string CreateDownloadToken(
-            this IDoujin doujin,
+        public static string CreateToken(
+            object token,
             string secret,
             Encoding encoding = null,
-            JsonSerializer serializer = null,
-            double expiresIn = double.PositiveInfinity
-        )
+            JsonSerializer serializer = null)
         {
             encoding = encoding ?? Encoding.UTF8;
             serializer = serializer ?? JsonSerializer.CreateDefault();
-
-            // Create identity
-            var payloadData = new DownloadTokenPayload
-            {
-                Source = doujin.Source.Name,
-                Id = doujin.Id,
-                Expires = double.IsInfinity(expiresIn)
-                    ? (DateTime?) null
-                    : DateTime.UtcNow.AddMinutes(expiresIn)
-            };
 
             // Serialize payload
             string payload;
@@ -46,7 +27,7 @@ namespace nhitomi.Core
             using (var stream = new MemoryStream())
             using (var writer = new StreamWriter(stream, encoding))
             {
-                serializer.Serialize(writer, payloadData);
+                serializer.Serialize(writer, token);
                 writer.Flush();
 
                 payload = Convert.ToBase64String(stream.ToArray());
@@ -59,15 +40,61 @@ namespace nhitomi.Core
             return $"{payload}.{signature}";
         }
 
-        public static bool TryDeserializeDownloadToken(
-            string token,
+        static DateTime? getExpirationFromNow(double? expireMinutes) =>
+            expireMinutes == null ? (DateTime?) null : DateTime.UtcNow.AddMinutes(expireMinutes.Value);
+
+        public struct ProxyTokenPayload
+        {
+            public string Url;
+            public DateTime? Expires;
+        }
+
+        public static string CreateProxyToken(
+            string url,
             string secret,
-            out string sourceName,
-            out string id,
             Encoding encoding = null,
             JsonSerializer serializer = null,
-            bool validateExpiry = true
-        )
+            double? expireMinutes = null)
+        {
+            var payload = new ProxyTokenPayload
+            {
+                Url = url,
+                Expires = getExpirationFromNow(expireMinutes)
+            };
+
+            return CreateToken(payload, secret, encoding, serializer);
+        }
+
+        public struct DownloadTokenPayload
+        {
+            public string Source;
+            public string Id;
+            public DateTime? Expires;
+        }
+
+        public static string CreateDownloadToken(
+            this IDoujin doujin,
+            string secret,
+            Encoding encoding = null,
+            JsonSerializer serializer = null,
+            double? expireMinutes = null)
+        {
+            var payload = new DownloadTokenPayload
+            {
+                Source = doujin.Source.Name,
+                Id = doujin.Id,
+                Expires = getExpirationFromNow(expireMinutes)
+            };
+
+            return CreateToken(payload, secret, encoding, serializer);
+        }
+
+        public static bool TryDeserializeToken<TPayload>(
+            string token,
+            string secret,
+            out TPayload payload,
+            Encoding encoding = null,
+            JsonSerializer serializer = null)
         {
             try
             {
@@ -75,44 +102,72 @@ namespace nhitomi.Core
                 serializer = serializer ?? JsonSerializer.CreateDefault();
 
                 // Get parts
-                var payload = token.Substring(0, token.IndexOf('.'));
-                var signature = token.Substring(token.IndexOf('.') + 1);
+                var payloadPart = token.Substring(0, token.IndexOf('.'));
+                var signaturePart = token.Substring(token.IndexOf('.') + 1);
 
                 // Verify signature
-                if (signature != HashHelper.GetHash(payload, secret, encoding))
+                if (signaturePart != HashHelper.GetHash(payloadPart, secret, encoding))
                 {
-                    sourceName = null;
-                    id = null;
+                    payload = default;
                     return false;
                 }
 
                 // Deserialize payload
-                DownloadTokenPayload payloadData;
-
-                using (var stream = new MemoryStream(Convert.FromBase64String(payload)))
+                using (var stream = new MemoryStream(Convert.FromBase64String(payloadPart)))
                 using (var streamReader = new StreamReader(stream, encoding))
                 using (var jsonReader = new JsonTextReader(streamReader))
-                    payloadData = serializer.Deserialize<DownloadTokenPayload>(jsonReader);
+                    payload = serializer.Deserialize<TPayload>(jsonReader);
 
-                // Test expiry time
-                if (validateExpiry &&
-                    DateTime.UtcNow >= payloadData.Expires)
-                {
-                    sourceName = null;
-                    id = null;
-                    return false;
-                }
-
-                sourceName = payloadData.Source;
-                id = payloadData.Id;
                 return true;
             }
             catch
             {
-                sourceName = null;
-                id = null;
+                payload = default;
                 return false;
             }
+        }
+
+        public static bool TryDeserializeDownloadToken(
+            string token,
+            string secret,
+            out string sourceName,
+            out string id,
+            Encoding encoding = null,
+            JsonSerializer serializer = null,
+            bool validateExpiry = true)
+        {
+            sourceName = null;
+            id = null;
+
+            if (!TryDeserializeToken<DownloadTokenPayload>(token, secret, out var payload, encoding, serializer))
+                return false;
+
+            if (validateExpiry && payload.Expires >= DateTime.UtcNow)
+                return false;
+
+            sourceName = payload.Source;
+            id = payload.Id;
+            return true;
+        }
+
+        public static bool TryDeserializeProxyToken(
+            string token,
+            string secret,
+            out string url,
+            Encoding encoding = null,
+            JsonSerializer serializer = null,
+            bool validateExpiry = true)
+        {
+            url = null;
+
+            if (!TryDeserializeToken<ProxyTokenPayload>(token, secret, out var payload, encoding, serializer))
+                return false;
+
+            if (validateExpiry && payload.Expires >= DateTime.UtcNow)
+                return false;
+
+            url = payload.Url;
+            return true;
         }
     }
 }
