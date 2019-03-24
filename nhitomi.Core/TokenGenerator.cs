@@ -12,7 +12,7 @@ namespace nhitomi.Core
 {
     public static class TokenGenerator
     {
-        public struct TokenPayload
+        public struct DownloadTokenPayload
         {
             public string Source;
             public string Id;
@@ -31,7 +31,7 @@ namespace nhitomi.Core
             serializer = serializer ?? JsonSerializer.CreateDefault();
 
             // Create identity
-            var payloadData = new TokenPayload
+            var payloadData = new DownloadTokenPayload
             {
                 Source = doujin.Source.Name,
                 Id = doujin.Id,
@@ -59,7 +59,7 @@ namespace nhitomi.Core
             return $"{payload}.{signature}";
         }
 
-        public static bool TryDeserializeToken(
+        public static bool TryDeserializeDownloadToken(
             string token,
             string secret,
             out string sourceName,
@@ -87,12 +87,12 @@ namespace nhitomi.Core
                 }
 
                 // Deserialize payload
-                TokenPayload payloadData;
+                DownloadTokenPayload payloadData;
 
                 using (var stream = new MemoryStream(Convert.FromBase64String(payload)))
                 using (var streamReader = new StreamReader(stream, encoding))
                 using (var jsonReader = new JsonTextReader(streamReader))
-                    payloadData = serializer.Deserialize<TokenPayload>(jsonReader);
+                    payloadData = serializer.Deserialize<DownloadTokenPayload>(jsonReader);
 
                 // Test expiry time
                 if (validateExpiry &&

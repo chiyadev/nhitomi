@@ -73,7 +73,7 @@ namespace nhitomi.Proxy
             [FromQuery] string url,
             CancellationToken cancellationToken = default)
         {
-            if (!TokenGenerator.TryDeserializeToken(token, _settings.Token, out var sourceName, out var id))
+            if (!TokenGenerator.TryDeserializeDownloadToken(token, _settings.Token, out var sourceName, out var id))
                 return BadRequest("Invalid token.");
 
             if (!(Uri.TryCreate(url, UriKind.Absolute, out var uri) &&
