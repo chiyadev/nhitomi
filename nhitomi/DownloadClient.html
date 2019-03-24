@@ -118,7 +118,7 @@
               return ("00" + num).substr(-size);
             }
 
-            var filename = pad(page.i, 3) + page.e;
+            var filename = pad(index + 1, 3) + page.e;
 
             JSZipUtils.getBinaryContent(url, function (error, data) {
               if (isError)
