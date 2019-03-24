@@ -60,7 +60,6 @@ namespace nhitomi
         {
             public int Port { get; set; }
             public string Url { get; set; }
-            public int ItemsPerPage { get; set; }
 
             public HttpSettings()
             {
