@@ -71,14 +71,14 @@ namespace nhitomi
                     try
                     {
                         if (!_lastDoujins.TryGetValue(c, out var last))
-                            _lastDoujins[c] = last;
+                            _lastDoujins[c] = null;
 
                         // Get all new doujins up to the last one we know
                         var list =
                             (await c.SearchAsync(null))
                             .TakeWhile(d => d?.Id != last?.Id);
 
-                        current = await list.FirstOrDefault() ?? last;
+                        current = await list.FirstOrDefault(stoppingToken) ?? last;
 
                         if (current != last && last != null)
                             return list;
@@ -101,11 +101,11 @@ namespace nhitomi
 
                 // Get feed channels
                 var channels =
-                    (_discord.Socket.GetChannel(529830517781037056) as SocketCategoryChannel).Channels
+                    (_discord.Socket.GetChannel(529830517781037056) as SocketCategoryChannel)?.Channels
                     .OfType<ITextChannel>()
                     .ToArray();
 
-                if (channels.Length != 0)
+                if (channels != null && channels.Length != 0)
                 {
                     _logger.LogDebug(
                         $"Found {channels.Length} feed channels: {string.Join(", ", channels.Select(c => c.Name))}");
@@ -145,7 +145,7 @@ namespace nhitomi
                                 );
                             })
                             .ToAsyncEnumerable())
-                        .ToArray());
+                        .ToArray(stoppingToken));
                 }
                 else
                 {
@@ -154,9 +154,8 @@ namespace nhitomi
 
                 // Sleep
                 await Task.Delay(
-                    TimeSpan.FromMinutes(_settings.Doujin.UpdateInterval),
-                    stoppingToken
-                );
+                    TimeSpan.FromMinutes(_settings.Doujin.FeedUpdateInterval),
+                    stoppingToken);
             }
         }
 

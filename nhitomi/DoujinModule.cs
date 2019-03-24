@@ -146,7 +146,7 @@ namespace nhitomi
                     $"**nhitomi**: Please join our server to enable downloading! https://discord.gg/JFNga7q");
 
             var secret = settings.Discord.Token;
-            var validLength = settings.Doujin.TokenValidLength;
+            var validLength = settings.Doujin.DownloadValidLength;
 
             // Create token
             var downloadToken = doujin.CreateToken(secret, expiresIn: validLength);
@@ -352,7 +352,7 @@ namespace nhitomi
                     return;
 
                 var secret = settings.Discord.Token;
-                var validLength = settings.Doujin.TokenValidLength;
+                var validLength = settings.Doujin.DownloadValidLength;
 
                 // Create token
                 var downloadToken = browser.Current.CreateToken(secret, expiresIn: validLength);
@@ -393,7 +393,7 @@ namespace nhitomi
                 return;
 
             var secret = _settings.Discord.Token;
-            var validLength = _settings.Doujin.TokenValidLength;
+            var validLength = _settings.Doujin.DownloadValidLength;
 
             // Create token
             var downloadToken = doujin.CreateToken(secret, expiresIn: validLength);

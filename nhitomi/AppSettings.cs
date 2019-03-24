@@ -50,8 +50,12 @@ namespace nhitomi
 
         public sealed class DoujinSettings
         {
-            public double UpdateInterval { get; set; }
-            public double TokenValidLength { get; set; }
+            public double FeedUpdateInterval { get; set; }
+            public double DownloadValidLength { get; set; }
+
+            public string[] DownloadProxies { get; set; }
+            public int MaxConcurrentProxies { get; set; }
+            public double ProxyCheckInterval { get; set; }
         }
 
         public HttpSettings Http { get; set; }
