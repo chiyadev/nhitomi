@@ -39,12 +39,12 @@ Useful shortcuts to remember:
 
 ### Requirements
 
-TODO: This section needs to be updated.
-
 - [.NET Core 2.1 SDK](https://www.microsoft.com/net/learn/get-started) or higher.
 - For development: a C# IDE with intellisense and syntax highlighting, such as [Visual Studio Code](https://code.visualstudio.com/) or [Jetbrains Rider](https://www.jetbrains.com/rider/).
 
 ### Building
+
+TODO: This section needs to be updated.
 
 Create a file named `appsecrets.json` alongside `appsettings.json`. This file was intentionally omitted from source control. Then paste the following code, replacing the token string with your own.
 
