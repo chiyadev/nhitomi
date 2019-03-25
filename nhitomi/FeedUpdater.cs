@@ -54,6 +54,8 @@ namespace nhitomi
 
             while (!stoppingToken.IsCancellationRequested)
             {
+                _logger.LogDebug("Starting feed update.");
+
                 // Concurrently update clients
                 await Task.WhenAll(_clients.Select(async c =>
                 {
@@ -66,6 +68,8 @@ namespace nhitomi
                         _logger.LogWarning(e, $"Exception while updating client '{c.Name}': {e.Message}");
                     }
                 }));
+
+                _logger.LogDebug("Finding doujins.");
 
                 // Concurrently find recent uploads
                 var newDoujins = Extensions.Interleave(await Task.WhenAll(_clients.Select(async c =>
@@ -102,6 +106,8 @@ namespace nhitomi
 
                     return AsyncEnumerable.Empty<IDoujin>();
                 })));
+
+                _logger.LogDebug("Finding feed channels.");
 
                 // Get feed channels
                 var channels =
@@ -151,16 +157,22 @@ namespace nhitomi
                             })
                             .ToAsyncEnumerable())
                         .ToArray(stoppingToken));
+
+                    _logger.LogDebug("Sent feed updates.");
                 }
                 else
                 {
                     _logger.LogDebug($"No feed channels were found.");
                 }
 
+                _logger.LogDebug("Entering sleep.");
+
                 // Sleep
                 await Task.Delay(
                     TimeSpan.FromMinutes(_settings.Doujin.FeedUpdateInterval),
                     stoppingToken);
+
+                _logger.LogDebug("Exited sleep.");
             }
         }
 
