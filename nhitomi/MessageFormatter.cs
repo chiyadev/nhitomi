@@ -123,8 +123,7 @@ namespace nhitomi
 
         public static Embed EmbedDownload(
             string doujinName,
-            string link,
-            double validLength
+            string link
         )
         {
             var embed = new EmbedBuilder()

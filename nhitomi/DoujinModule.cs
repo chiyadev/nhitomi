@@ -152,13 +152,10 @@ namespace nhitomi
                 return await user.SendMessageAsync(
                     $"**nhitomi**: Please join our server to enable downloading! https://discord.gg/JFNga7q");
 
-            var secret = settings.Discord.Token;
-            var validLength = settings.Doujin.DownloadValidLength;
-
             // Create token
             var downloadToken = doujin.CreateDownloadToken(
-                secret,
-                expireMinutes: validLength,
+                settings.Discord.Token,
+                expireMinutes: settings.Doujin.DownloadValidLength,
                 serializer: serializer);
 
             // Send download message
@@ -166,8 +163,7 @@ namespace nhitomi
                 string.Empty,
                 embed: MessageFormatter.EmbedDownload(
                     doujin.PrettyName,
-                    $"{settings.Http.Url}/download/{downloadToken}",
-                    validLength
+                    $"{settings.Http.Url}/download/{downloadToken}"
                 )
             );
         }
@@ -363,21 +359,17 @@ namespace nhitomi
                 if (downloadMessage == null)
                     return;
 
-                var secret = settings.Discord.Token;
-                var validLength = settings.Doujin.DownloadValidLength;
-
                 // Create token
                 var downloadToken = browser.Current.CreateDownloadToken(
-                    secret,
-                    expireMinutes: validLength,
+                    settings.Discord.Token,
+                    expireMinutes: settings.Doujin.DownloadValidLength,
                     serializer: serializer);
 
                 await downloadMessage.ModifyAsync(
                     string.Empty,
                     MessageFormatter.EmbedDownload(
                         browser.Current.PrettyName,
-                        $"{settings.Http.Url}/download/{downloadToken}",
-                        validLength
+                        $"{settings.Http.Url}/download/{downloadToken}"
                     )
                 );
             }
@@ -407,21 +399,17 @@ namespace nhitomi
             if (doujin == null)
                 return;
 
-            var secret = _settings.Discord.Token;
-            var validLength = _settings.Doujin.DownloadValidLength;
-
             // Create token
             var downloadToken = doujin.CreateDownloadToken(
-                secret,
-                expireMinutes: validLength,
+                _settings.Discord.Token,
+                expireMinutes: _settings.Doujin.DownloadValidLength,
                 serializer: _json);
 
             await response.ModifyAsync(
                 $"**{client.Name}**: Download __{id}__",
                 MessageFormatter.EmbedDownload(
                     doujin.PrettyName,
-                    $"{_settings.Http.Url}/download/{downloadToken}",
-                    validLength
+                    $"{_settings.Http.Url}/download/{downloadToken}"
                 )
             );
         }
