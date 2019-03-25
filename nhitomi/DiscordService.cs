@@ -77,6 +77,14 @@ namespace nhitomi
             }
         }
 
+        Task handleMessageBackgroundAsync(SocketMessage message) => Task.Run(() => handleMessageAsync(message));
+
+        Task handleReactionBackgroundAsync(
+            Cacheable<IUserMessage, ulong> cacheable,
+            ISocketMessageChannel channel,
+            SocketReaction reaction) =>
+            Task.Run(() => _interactive.HandleReaction(cacheable, channel, reaction));
+
         public async Task StartSessionAsync()
         {
             if (Socket.ConnectionState == ConnectionState.Connected)
@@ -84,11 +92,11 @@ namespace nhitomi
 
             // Register events
             Socket.Log += handleLogAsync;
-            Socket.MessageReceived += handleMessageReceivedAsync;
+            Socket.MessageReceived += handleMessageBackgroundAsync;
             Commands.Log += handleLogAsync;
 
-            Socket.ReactionAdded += _interactive.HandleReaction;
-            Socket.ReactionRemoved += _interactive.HandleReaction;
+            Socket.ReactionAdded += handleReactionBackgroundAsync;
+            Socket.ReactionRemoved += handleReactionBackgroundAsync;
 
             // Add modules
             await Commands.AddModulesAsync(typeof(Program).Assembly, _services);
@@ -125,17 +133,17 @@ namespace nhitomi
             await Socket.LogoutAsync();
 
             // Unregister events
-            Socket.ReactionAdded -= _interactive.HandleReaction;
-            Socket.ReactionRemoved -= _interactive.HandleReaction;
+            Socket.ReactionAdded -= handleReactionBackgroundAsync;
+            Socket.ReactionRemoved -= handleReactionBackgroundAsync;
 
             Socket.Log -= handleLogAsync;
-            Socket.MessageReceived += handleMessageReceivedAsync;
+            Socket.MessageReceived += handleMessageBackgroundAsync;
             Commands.Log -= handleLogAsync;
         }
 
         readonly Regex _galleryRegex;
 
-        async Task handleMessageReceivedAsync(SocketMessage message)
+        async Task handleMessageAsync(SocketMessage message)
         {
             if (!(message is SocketUserMessage userMessage) ||
                 message.Author.Id == Socket.CurrentUser.Id)
