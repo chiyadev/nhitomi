@@ -84,7 +84,7 @@
         updateStatus("No proxies available!", true);
       } else {
         $thumbnail
-          .attr("src", proxies[0]
+          .attr("src", proxies[Math.floor(Math.random() * proxies.length)]
             + "/proxy/image?url=" + encodeURIComponent(doujin.pages[0].u)
             + "&token=" + encodeURIComponent("{token}"));
 
