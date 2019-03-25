@@ -103,9 +103,6 @@
           var zip = new JSZip();
           zip.file("_nhitomi.json", JSON.stringify(doujin, null, 2));
 
-          var i = 0;
-          var isError = false;
-
           function saveZip() {
             updateStatus("Saving...");
 
@@ -119,38 +116,55 @@
             });
           }
 
-          updateStatus("Downloading...");
-
-          doujin.pages.forEach(function (page, index) {
-            var url = proxies[index % proxies.length]
-              + "/proxy/image?url=" + encodeURIComponent(page.u)
-              + "&token=" + encodeURIComponent("{token}");
-
+          var images = doujin.pages.map(function (page, index) {
             function pad(num, size) {
               return ("00" + num).substr(-size);
             }
 
-            var filename = pad(index + 1, 3) + page.e;
-
-            JSZipUtils.getBinaryContent(url, function (error, data) {
-              if (isError)
-                return;
-
-              if (error) {
-                updateStatus(error, isError = true);
-                return;
-              }
-
-              updateProgress(++i, filename);
-
-              zip.file(filename, data, {
-                binary: true
-              });
-
-              if (!isError && i === doujin.pages.length)
-                saveZip();
-            })
+            return {
+              url: proxies[index % proxies.length]
+                + "/proxy/image?url=" + encodeURIComponent(page.u)
+                + "&token=" + encodeURIComponent("{token}"),
+              name: pad(index + 1, 3) + page.e
+            };
           });
+          images.reverse();
+
+          var isError = false;
+          var downloadedCount = 0;
+          var concurrentDownloads = 0;
+
+          function downloadNext() {
+            while (concurrentDownloads < proxies.length && images.length !== 0) {
+              concurrentDownloads++;
+
+              (function (image) {
+                JSZipUtils.getBinaryContent(image.url, function (error, data) {
+                  if (isError)
+                    return;
+                  if (error) {
+                    updateStatus(error, isError = true);
+                    return;
+                  }
+
+                  zip.file(image.name, data, {
+                    binary: true
+                  });
+
+                  updateProgress(++downloadedCount);
+
+                  concurrentDownloads--;
+                  downloadNext();
+
+                  if (!isError && downloadedCount === doujin.pages.length)
+                    saveZip();
+                });
+              })(images.pop());
+            }
+          }
+
+          updateStatus("Downloading...");
+          downloadNext();
         }).each(function () {
           if (this.complete)
             $(this).trigger('load');
