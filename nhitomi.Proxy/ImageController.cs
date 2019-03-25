@@ -38,6 +38,7 @@ namespace nhitomi.Proxy
             _logger = logger;
         }
 
+        static readonly SemaphoreSlim _cacheSemaphore = new SemaphoreSlim(1);
         static readonly Dictionary<string, SemaphoreSlim> _semaphores = new Dictionary<string, SemaphoreSlim>();
 
         static SemaphoreSlim getSemaphore(string name)
@@ -82,9 +83,17 @@ namespace nhitomi.Proxy
 
             try
             {
-                // try finding from cache
-                // this will fail if cache doesn't exist
-                stream = new FileStream(cachePath, FileMode.Open, FileAccess.Read, FileShare.None);
+                await _cacheSemaphore.WaitAsync(cancellationToken);
+                try
+                {
+                    // try finding from cache
+                    // this will fail if cache doesn't exist
+                    stream = new FileStream(cachePath, FileMode.Open, FileAccess.Read, FileShare.None);
+                }
+                finally
+                {
+                    _cacheSemaphore.Release();
+                }
             }
             catch
             {
@@ -111,9 +120,17 @@ namespace nhitomi.Proxy
 
                 stream.Position = 0;
 
-                // cache the image
-                using (var dst = new FileStream(cachePath, FileMode.Create, FileAccess.Write))
-                    await stream.CopyToAsync(dst, default(CancellationToken));
+                await _cacheSemaphore.WaitAsync(cancellationToken);
+                try
+                {
+                    // cache the image
+                    using (var dst = new FileStream(cachePath, FileMode.Create, FileAccess.Write))
+                        await stream.CopyToAsync(dst, default(CancellationToken));
+                }
+                finally
+                {
+                    _cacheSemaphore.Release();
+                }
 
                 stream.Position = 0;
             }
