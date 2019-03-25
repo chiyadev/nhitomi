@@ -51,29 +51,6 @@ namespace nhitomi.Proxy
             }
         }
 
-        static string getMime(Uri uri)
-        {
-            switch (Path.GetExtension(uri.LocalPath))
-            {
-                case ".tif":
-                case ".tiff":
-                    return "image/tiff";
-
-                case ".jpg":
-                case ".jpeg":
-                    return "image/jpeg";
-
-                case ".gif":
-                    return "image/gif";
-
-                case ".png":
-                    return "image/png";
-
-                default:
-                    return null;
-            }
-        }
-
         static string getCachePath(Uri uri)
         {
             var path = Path.Combine(Path.GetTempPath(), "nhitomi", uri.Authority + uri.LocalPath)
@@ -99,7 +76,6 @@ namespace nhitomi.Proxy
 
             _logger.LogDebug($"Received request: token {token}, url {url}");
 
-            var mime = getMime(uri);
             var cachePath = getCachePath(uri);
 
             Stream stream;
@@ -142,7 +118,7 @@ namespace nhitomi.Proxy
                 stream.Position = 0;
             }
 
-            return File(stream, mime);
+            return File(stream, "application/octet-stream");
         }
     }
 }
