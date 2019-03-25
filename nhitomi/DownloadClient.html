@@ -119,6 +119,8 @@
             });
           }
 
+          updateStatus("Downloading...");
+
           doujin.pages.forEach(function (page, index) {
             var url = proxies[index % proxies.length]
               + "/proxy/image?url=" + encodeURIComponent(page.u)
@@ -139,7 +141,6 @@
                 return;
               }
 
-              updateStatus("Downloading...");
               updateProgress(++i, filename);
 
               zip.file(filename, data, {
