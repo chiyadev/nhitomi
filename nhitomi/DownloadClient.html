@@ -126,11 +126,11 @@
                 return;
               }
 
+              updateProgress(++i, filename);
+
               zip.file(filename, data, {
                 binary: true
               });
-
-              updateProgress(++i, filename);
 
               if (!isError && i === doujin.pages.length) {
                 updateStatus("Saving...");
