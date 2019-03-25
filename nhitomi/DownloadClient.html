@@ -53,36 +53,38 @@
         integrity="sha256-FPJJt8nA+xL4RU6/gsriA8p8xAeLGatoyTjldvQKGdE=" crossorigin="anonymous"></script>
 
 <script>
+  "use strict";
+
   $(document).ready(function () {
+    var $status = $("#status");
+    var $progress = $("#progress");
+    var $thumbnail = $("#thumbnail");
+
+    function updateStatus(text, error) {
+      $status.text(text);
+
+      if (error) {
+        $status.parent().addClass("text-danger");
+      } else {
+        $status.parent().removeClass("text-danger");
+      }
+    }
+
+    function updateProgress(state, name) {
+      var progress = Math.round(state / doujin.pages.length * 100) + "%";
+
+      $progress
+        .width(progress)
+        .text(name ? progress + " — " + name : progress);
+
+      $progress
+        .parent()
+        .fadeIn();
+    }
+
     try {
       var doujin = {doujin};
       var proxies = {proxies};
-
-      var $status = $("#status");
-      var $progress = $("#progress");
-      var $thumbnail = $("#thumbnail");
-
-      function updateStatus(text, error) {
-        $status.text(text);
-
-        if (error) {
-          $status.parent().addClass("text-danger");
-        } else {
-          $status.parent().removeClass("text-danger");
-        }
-      }
-
-      function updateProgress(state, name) {
-        var progress = Math.round(state / doujin.pages.length * 100) + "%";
-
-        $progress
-          .width(progress)
-          .text(name ? progress + " — " + name : progress);
-
-        $progress
-          .parent()
-          .fadeIn();
-      }
 
       if (proxies.length === 0) {
         updateStatus("No proxies available!", true);
