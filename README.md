@@ -9,16 +9,42 @@
 
 ![nhitomi](nhitomi.png)
 
-Discord Bot for browsing and downloading doujinshi
+nhitomi — a Discord bot for searching and downloading doujinshi.
 
-Join the [Discord server](https://discord.gg/JFNga7q) or invite [nhitomi](https://discordapp.com/oauth2/authorize?client_id=515386276543725568&scope=bot&permissions=347200).
+Join our [Discord server](https://discord.gg/JFNga7q) or invite [nhitomi](https://discordapp.com/oauth2/authorize?client_id=515386276543725568&scope=bot&permissions=347200) to your server.
 
-## Setup
+### Commands
 
-Requirements:
+- **n!get** source id — Retrieves doujin information from the specified source.
+- **n!all** source — Displays all doujins from the specified source uploaded recently.
+- **n!search** query — Searches for doujins by the title and tags across the supported sources that match the specified query.
+- **n!download** source id — Sends a download link for the specified doujin.
+- **n!help** — Shows the help message.
 
-- [.NET Core SDK 2.1](https://www.microsoft.com/net/learn/get-started) or higher.
-- For development: a text editor or a C# IDE. [Visual Studio Code](https://code.visualstudio.com) is recommended to greatly simplify the development process.
+Useful shortcuts to remember:
+- `n!s` — `n!search`
+- `n!se`, `n!sj`, `n!sc` — `n!search` + `english`, `japanese`, `chinese`, respectively
+- `n!dl` — `n!download`
+- `source/id` — `n!get source id`, can specify multiple to show a list
+- or seriously just paste a doujin link and see if nhitomi can detect it
+
+### Sources
+
+- nhentai — `https://nhentai.net/`
+- hitomi — `https://hitomi.la/` search is broken due to recent changes
+- ~~tsumino — `https://tsumino.com/`~~ disabled until they provide us an official API.
+- ~~pururin — `https://pururin.io/`~~ disabled because it's not working
+
+## Running nhitomi
+
+### Requirements
+
+TODO: This section needs to be updated.
+
+- [.NET Core 2.1 SDK](https://www.microsoft.com/net/learn/get-started) or higher.
+- For development: a C# IDE with intellisense and syntax highlighting, such as [Visual Studio Code](https://code.visualstudio.com/) or [Jetbrains Rider](https://www.jetbrains.com/rider/).
+
+### Building
 
 Create a file named `appsecrets.json` alongside `appsettings.json`. This file was intentionally omitted from source control. Then paste the following code, replacing the token string with your own.
 
