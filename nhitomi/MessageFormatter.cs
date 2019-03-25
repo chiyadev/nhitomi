@@ -62,8 +62,8 @@ namespace nhitomi
             var embed = new EmbedBuilder()
                 .WithTitle("**nhitomi**: Help")
                 .WithDescription(
-                    "nhitomi is a Discord bot for searching and downloading doujinshi on Discord! " +
-                    "Join our official server: https://discord.gg/JFNga7q"
+                    "nhitomi — a Discord bot for searching and downloading doujinshi." +
+                    "Join our server: https://discord.gg/JFNga7q"
                 )
                 .WithColor(Color.Purple)
                 .WithCurrentTimestamp();
@@ -78,12 +78,7 @@ namespace nhitomi
                 if (command.Parameters.Count > 0)
                     builder.Append($" __{string.Join("__, __", command.Parameters.Select(p => p.Name))}__");
 
-                builder.Append($" — {command.Summary}");
-
-                if (command.Remarks != null)
-                    builder.Append($" e.g. `{command.Remarks}`.");
-
-                builder.AppendLine();
+                builder.AppendLine($" — {command.Summary}");
             }
 
             embed.AddField("— Commands —", builder);
@@ -92,17 +87,12 @@ namespace nhitomi
             // Supported sources
             foreach (var client in clients)
             {
-                builder.Append($"- **{client.Name.ToLowerInvariant()}** — {client.Url}");
+                builder.Append($"- {client.Name.ToLowerInvariant()} — {client.Url}");
                 builder.AppendLine();
             }
 
-            embed.AddField("— Supported sources —", builder);
-
-            // Contribution
-            embed.AddField("— Contribution —",
-                "This project is licensed under the MIT License. " +
-                "Contributions are welcome! " +
-                "https://github.com/phosphene47/nhitomi");
+            embed.AddField("— Sources —", builder);
+            builder.Clear();
 
             return embed.Build();
         }
