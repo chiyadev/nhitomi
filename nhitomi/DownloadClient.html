@@ -78,6 +78,10 @@
         $progress
           .width(progress)
           .text(name ? progress + " — " + name : progress);
+
+        $progress
+          .parent()
+          .fadeIn();
       }
 
       if (proxies.length === 0) {
@@ -101,13 +105,6 @@
 
           var i = 0;
           var isError = false;
-
-          updateProgress(0);
-          updateStatus("Downloading...");
-
-          $progress
-            .parent()
-            .fadeIn();
 
           doujin.pages.forEach(function (page, index) {
             var url = proxies[index % proxies.length]
