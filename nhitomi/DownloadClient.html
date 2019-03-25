@@ -139,6 +139,7 @@
                 return;
               }
 
+              updateStatus("Downloading...");
               updateProgress(++i, filename);
 
               zip.file(filename, data, {
