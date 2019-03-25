@@ -107,12 +107,13 @@
 
           function saveZip() {
             updateStatus("Saving...");
+            $progress.addClass("bg-success");
 
             zip.generateAsync({
               type: "blob"
             }).then(function (content) {
               updateStatus("Saved!");
-              $progress.addClass("bg-success");
+              $progress.fadeOut();
 
               saveAs(content, (doujin.originalName || doujin.prettyName) + ".zip");
             });
