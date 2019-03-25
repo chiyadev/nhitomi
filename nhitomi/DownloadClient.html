@@ -154,7 +154,7 @@
                     binary: true
                   });
 
-                  updateProgress(++downloadedCount);
+                  updateProgress(++downloadedCount, image.name);
 
                   concurrentDownloads--;
                   downloadNext();
