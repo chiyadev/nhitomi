@@ -11,7 +11,7 @@
 
 nhitomi — a Discord bot for searching and downloading doujinshi.
 
-Join our [Discord server](https://discord.gg/JFNga7q) or invite [nhitomi](https://discordapp.com/oauth2/authorize?client_id=515386276543725568&scope=bot&permissions=347200) to your server.
+Join our [Discord server](https://discord.gg/JFNga7q) or [invite nhitomi](https://discordapp.com/oauth2/authorize?client_id=515386276543725568&scope=bot&permissions=347200) to your server.
 
 ### Commands
 
