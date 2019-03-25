@@ -114,12 +114,10 @@ namespace nhitomi
                     await response.DeleteAsync();
 
                 // Expiry event
-                if (onExpire != null)
-                {
-                    var task = onExpire();
-                    if (task != null)
-                        await task;
-                }
+                var task = onExpire?.Invoke();
+
+                if (task != null)
+                    await task;
 
                 expiryDelayToken.Dispose();
             }
