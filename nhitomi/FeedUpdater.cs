@@ -120,43 +120,45 @@ namespace nhitomi
                     _logger.LogDebug(
                         $"Found {channels.Length} feed channels: {string.Join(", ", channels.Select(c => c.Name))}");
 
-                    // Concurrently send new updates
-                    await Task.WhenAll(await newDoujins
-                        .SelectMany(d => channels
-                            .Where(c => tagsToChannels(d.Tags).Contains(c.Name))
-                            .Select(async c =>
-                            {
-                                await _interactive.CreateInteractiveAsync(
-                                    null,
-                                    await c.SendMessageAsync(
-                                        $"**{d.Source.Name}**: __{d.Id}__",
-                                        embed: MessageFormatter.EmbedDoujin(d)
-                                    ),
-                                    add => add(
-                                        // Heart reaction
-                                        ("\u2764", async r =>
-                                            {
-                                                var requester = _discord.Socket.GetUser(r.UserId);
+                    // Send new updates
+                    await newDoujins.ForEachAsync(async d =>
+                    {
+                        var tags = tagsToChannels(d.Tags).ToArray();
 
-                                                await DoujinModule.ShowDoujin(
-                                                    _interactive,
-                                                    requester,
-                                                    await (await requester.GetOrCreateDMChannelAsync())
-                                                        .SendMessageAsync(
-                                                            $"**{d.Source.Name}**: __{d.Id}__",
-                                                            embed: MessageFormatter.EmbedDoujin(d)
-                                                        ),
-                                                    d,
-                                                    _discord.Socket,
-                                                    _json,
-                                                    _settings
-                                                );
-                                            }
-                                        ))
-                                );
-                            })
-                            .ToAsyncEnumerable())
-                        .ToArray(stoppingToken));
+                        foreach (var channel in channels.Where(c => tags.Contains(c.Name)))
+                        {
+                            await _interactive.CreateInteractiveAsync(
+                                null,
+                                await channel.SendMessageAsync(
+                                    $"**{d.Source.Name}**: __{d.Id}__",
+                                    embed: MessageFormatter.EmbedDoujin(d)
+                                ),
+                                add => add(
+                                    // Heart reaction
+                                    ("\u2764", async r =>
+                                        {
+                                            var requester = _discord.Socket.GetUser(r.UserId);
+
+                                            await DoujinModule.ShowDoujin(
+                                                _interactive,
+                                                requester,
+                                                await (await requester.GetOrCreateDMChannelAsync())
+                                                    .SendMessageAsync(
+                                                        $"**{d.Source.Name}**: __{d.Id}__",
+                                                        embed: MessageFormatter.EmbedDoujin(d)
+                                                    ),
+                                                d,
+                                                _discord.Socket,
+                                                _json,
+                                                _settings
+                                            );
+                                        }
+                                    ))
+                            );
+
+                            _logger.LogDebug($"Sent update '{d.PrettyName ?? d.OriginalName}'");
+                        }
+                    }, stoppingToken);
 
                     _logger.LogDebug("Sent feed updates.");
                 }
