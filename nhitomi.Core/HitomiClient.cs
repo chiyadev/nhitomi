@@ -349,6 +349,15 @@ namespace nhitomi.Core
                 return cmpResult == 0;
             }
 
+            bool isLeaf()
+            {
+                foreach (var address in node.SubnodeAddresses)
+                    if (address != 0)
+                        return false;
+
+                return true;
+            }
+
             //special case for empty root
             if (node.Keys.Count == 0)
                 return null;
@@ -356,14 +365,13 @@ namespace nhitomi.Core
             if (locateKey(out var index))
                 return node.Data[index];
 
-            // is_leaf
-            if (node.SubnodeAddresses.Count == 0)
+            if (isLeaf())
                 return null;
 
             //it's in a subnode
             var subnode = await getGalleryNodeAtAddress(node.SubnodeAddresses[index], cancellationToken);
 
-            if (subnode==null)
+            if (subnode == null)
                 return null;
 
             return await B_searchAsync(key, subnode, cancellationToken);
