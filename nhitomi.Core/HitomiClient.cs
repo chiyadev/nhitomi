@@ -116,6 +116,8 @@ namespace nhitomi.Core
 
         public static string GalleryData(long version) =>
             $"https://ltn.hitomi.la/galleriesindex/galleries.{version}.data";
+
+        public const string NozomiIndex = "https://ltn.hitomi.la/index-all.nozomi";
     }
 
     public sealed class HitomiClient : IDoujinClient
@@ -398,12 +400,21 @@ namespace nhitomi.Core
 
         public async Task<IAsyncEnumerable<IDoujin>> SearchAsync(string query)
         {
-            var data = await B_searchAsync(hashTerm(query), await getGalleryNodeAtAddress(0));
+            IEnumerable<int> galleryIds;
 
-            if (data == null)
-                return AsyncEnumerable.Empty<IDoujin>();
+            if (string.IsNullOrWhiteSpace(query))
+            {
+                galleryIds = _nozomiIndex;
+            }
+            else
+            {
+                var data = await B_searchAsync(hashTerm(query), await getGalleryNodeAtAddress(0));
 
-            var galleryIds = await getGalleryIdsFromData(data.Value);
+                if (data == null)
+                    return AsyncEnumerable.Empty<IDoujin>();
+
+                galleryIds = await getGalleryIdsFromData(data.Value);
+            }
 
             return AsyncEnumerable.CreateEnumerable(() =>
             {
@@ -424,11 +435,39 @@ namespace nhitomi.Core
             });
         }
 
+        async Task<int[]> readNozomiIndexAsync(CancellationToken cancellationToken = default)
+        {
+            var url = Hitomi.NozomiIndex;
+
+            using (var memory = new MemoryStream())
+            {
+                using (var stream = await _http.GetStreamAsync(url))
+                    await stream.CopyToAsync(memory, 4096, cancellationToken);
+
+                var total = memory.Length / sizeof(int);
+                var nozomi = new int[total];
+
+                using (var reader = new BinaryReader(memory))
+                {
+                    for (var i = 0; i < total; i++)
+                        nozomi[i] = reader.ReadInt32Be();
+                }
+
+                return nozomi;
+            }
+        }
+
         long _currentVersion;
+
+        int[] _nozomiIndex = new int[0];
 
         public async Task UpdateAsync()
         {
+            // update gallery index version
             _currentVersion = await getGalleryIndexVersionAsync();
+
+            // update nozomi indices, used for listing (not searching)
+            _nozomiIndex = await readNozomiIndexAsync();
         }
 
         public double RequestThrottle => Hitomi.RequestCooldown;
