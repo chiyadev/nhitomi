@@ -267,7 +267,7 @@ namespace nhitomi.Core
                 node.Data.Add(new NodeData(offset, length));
             }
 
-            var numberOfSubnodeAddresses = Hitomi.B + 1;
+            const int numberOfSubnodeAddresses = Hitomi.B + 1;
 
             for (var i = 0; i < numberOfSubnodeAddresses; i++)
             {
