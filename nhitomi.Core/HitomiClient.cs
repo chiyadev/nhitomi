@@ -238,7 +238,7 @@ namespace nhitomi.Core
         {
             public readonly List<byte[]> Keys = new List<byte[]>();
             public readonly List<NodeData> Data = new List<NodeData>();
-            public readonly List<ulong> SubnodeAdresses = new List<ulong>();
+            public readonly List<ulong> SubnodeAddresses = new List<ulong>();
         }
 
         static IndexNode decodeNode(BinaryReader reader)
@@ -273,7 +273,7 @@ namespace nhitomi.Core
             {
                 var subnodeAddress = reader.ReadUInt64Be();
 
-                node.SubnodeAdresses.Add(subnodeAddress);
+                node.SubnodeAddresses.Add(subnodeAddress);
             }
 
             return node;
@@ -348,11 +348,11 @@ namespace nhitomi.Core
             if (locateKey(out var index))
                 return node.Data[index];
 
-            if (node.SubnodeAdresses.Count == 0)
+            if (node.SubnodeAddresses.Count == 0)
                 return null;
 
             //it's in a subnode
-            var subnode = await getGalleryNodeAtAddress(version, node.SubnodeAdresses[index], cancellationToken);
+            var subnode = await getGalleryNodeAtAddress(version, node.SubnodeAddresses[index], cancellationToken);
 
             return await B_searchAsync(version, key, subnode, cancellationToken);
         }
