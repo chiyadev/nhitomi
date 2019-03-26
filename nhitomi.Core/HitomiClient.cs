@@ -342,11 +342,11 @@ namespace nhitomi.Core
                 {
                     cmpResult = compareArrayBuffers(key, node.Keys[i]);
 
-                    if (cmpResult == 0)
+                    if (cmpResult <= 0)
                         break;
                 }
 
-                return cmpResult != 0;
+                return cmpResult == 0;
             }
 
             if (locateKey(out var index))
@@ -399,7 +399,7 @@ namespace nhitomi.Core
         byte[] hashTerm(string query)
         {
             var buffer = new byte[4];
-            System.Array.Copy(_sha256.ComputeHash(Encoding.Unicode.GetBytes(query)), buffer, 4);
+            System.Array.Copy(_sha256.ComputeHash(Encoding.BigEndianUnicode.GetBytes(query)), buffer, 4);
             return buffer;
         }
 
