@@ -24,7 +24,6 @@ namespace nhitomi.Core
 
         static long UnixTimestamp => ((DateTimeOffset) DateTime.UtcNow).ToUnixTimeSeconds();
 
-        public static string TagIndexVersion => $"https://ltn.hitomi.la/tagindex/version?_={UnixTimestamp}";
         public static string GalleryIndexVersion => $"https://ltn.hitomi.la/galleriesindex/version?_={UnixTimestamp}";
 
         public static string GalleryIndex(long version) =>
