@@ -295,7 +295,14 @@ namespace nhitomi.Core
                 memory.Position = 0;
 
                 using (var reader = new BinaryReader(memory))
-                    return decodeNode(reader);
+                {
+                    var node = decodeNode(reader);
+
+                    _logger.LogDebug($"Decoded node at address {address}, " +
+                                     $"{node.Keys.Count} keys, {node.SubnodeAddresses.Length} subnodes");
+
+                    return node;
+                }
             }
         }
 
@@ -316,75 +323,84 @@ namespace nhitomi.Core
         async Task<NodeData?> B_searchAsync(byte[] key, IndexNode node,
             CancellationToken cancellationToken = default)
         {
-            // todo: could be mucb more optimized
-            int compareArrayBuffers(byte[] dv1, byte[] dv2)
+            try
             {
-                /*let compare_arraybuffers = function(dv1, dv2) {
-                        const top = Math.min(dv1.byteLength, dv2.byteLength);
-                        for (let i = 0; i < top; i++) {
-                                if (dv1[i] < dv2[i]) {
-                                        return -1;
-                                } else if (dv1[i] > dv2[i]) {
-                                        return 1;
-                                }
-                        }
-                        return 0;
-                };*/
-                var top = Math.Min(dv1.Length, dv2.Length);
-
-                for (var i = 0; i < top; i++)
+                // todo: could be much more optimized
+                int compareArrayBuffers(byte[] dv1, byte[] dv2)
                 {
-                    if (dv1[i] < dv2[i])
-                        return -1;
-                    if (dv1[i] > dv2[i])
-                        return 1;
+                    /*let compare_arraybuffers = function(dv1, dv2) {
+                            const top = Math.min(dv1.byteLength, dv2.byteLength);
+                            for (let i = 0; i < top; i++) {
+                                    if (dv1[i] < dv2[i]) {
+                                            return -1;
+                                    } else if (dv1[i] > dv2[i]) {
+                                            return 1;
+                                    }
+                            }
+                            return 0;
+                    };*/
+                    var top = Math.Min(dv1.Length, dv2.Length);
+
+                    for (var i = 0; i < top; i++)
+                    {
+                        if (dv1[i] < dv2[i])
+                            return -1;
+                        if (dv1[i] > dv2[i])
+                            return 1;
+                    }
+
+                    return 0;
                 }
 
-                return 0;
-            }
-
-            bool locateKey(out int i)
-            {
-                /*let locate_key = function(key, node) {
-                        let cmp_result = -1;
-                        let i;
-                        for (i = 0; i < node.keys.length; i++) {
-                                cmp_result = compare_arraybuffers(key, node.keys[i]);
-                                if (cmp_result <= 0) {
-                                        break;
-                                }
-                        }
-                        return [!cmp_result, i];
-                };*/
-                var cmpResult = -1;
-
-                for (i = 0; i < node.Keys.Count; i++)
+                bool locateKey(out int i)
                 {
-                    cmpResult = compareArrayBuffers(key, node.Keys[i]);
+                    /*let locate_key = function(key, node) {
+                            let cmp_result = -1;
+                            let i;
+                            for (i = 0; i < node.keys.length; i++) {
+                                    cmp_result = compare_arraybuffers(key, node.keys[i]);
+                                    if (cmp_result <= 0) {
+                                            break;
+                                    }
+                            }
+                            return [!cmp_result, i];
+                    };*/
+                    var cmpResult = -1;
 
-                    if (cmpResult <= 0)
-                        break;
+                    for (i = 0; i < node.Keys.Count; i++)
+                    {
+                        cmpResult = compareArrayBuffers(key, node.Keys[i]);
+
+                        if (cmpResult <= 0)
+                            break;
+                    }
+
+                    return cmpResult == 0;
                 }
 
-                return cmpResult == 0;
+                bool isLeaf() => node.SubnodeAddresses.All(address => address == 0);
+
+                //special case for empty root
+                if (node.Keys.Count == 0)
+                    return null;
+
+                if (locateKey(out var index))
+                    return node.Data[index];
+
+                if (isLeaf())
+                    return null;
+
+                //it's in a subnode
+                var subnode = await getGalleryNodeAtAddress(node.SubnodeAddresses[index], cancellationToken);
+
+                return await B_searchAsync(key, subnode, cancellationToken);
             }
+            catch (Exception e)
+            {
+                _logger.LogWarning(e, $"Exception in {nameof(B_searchAsync)}, key {Encoding.Default.GetString(key)}");
 
-            bool isLeaf() => node.SubnodeAddresses.All(address => address == 0);
-
-            //special case for empty root
-            if (node.Keys.Count == 0)
                 return null;
-
-            if (locateKey(out var index))
-                return node.Data[index];
-
-            if (isLeaf())
-                return null;
-
-            //it's in a subnode
-            var subnode = await getGalleryNodeAtAddress(node.SubnodeAddresses[index], cancellationToken);
-
-            return await B_searchAsync(key, subnode, cancellationToken);
+            }
         }
 
         async Task<List<int>> getGalleryIdsFromData(NodeData data,
@@ -496,11 +512,18 @@ namespace nhitomi.Core
 
         public async Task UpdateAsync()
         {
-            // update gallery index version
-            _currentVersion = await getGalleryIndexVersionAsync();
+            try
+            {
+                // update gallery index version
+                _currentVersion = await getGalleryIndexVersionAsync();
 
-            // update nozomi indices, used for listing (not searching)
-            _nozomiIndex = await readNozomiIndexAsync();
+                // update nozomi indices, used for listing (not searching)
+                _nozomiIndex = await readNozomiIndexAsync();
+            }
+            catch (Exception e)
+            {
+                _logger.LogWarning(e, "Exception while updating version or Nozomi index.");
+            }
         }
 
         public double RequestThrottle => Hitomi.RequestCooldown;
