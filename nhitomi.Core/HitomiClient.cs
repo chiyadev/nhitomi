@@ -399,7 +399,7 @@ namespace nhitomi.Core
         byte[] hashTerm(string query)
         {
             var buffer = new byte[4];
-            System.Array.Copy(_sha256.ComputeHash(Encoding.BigEndianUnicode.GetBytes(query)), buffer, 4);
+            System.Array.Copy(_sha256.ComputeHash(Encoding.UTF8.GetBytes(query)), buffer, 4);
             return buffer;
         }
 
