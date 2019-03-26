@@ -32,5 +32,7 @@ namespace nhitomi.Core
 
         int PageCount { get; }
         IEnumerable<PageInfo> Pages { get; }
+
+        object GetSourceObject();
     }
 }

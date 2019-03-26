@@ -69,6 +69,8 @@ namespace nhitomi.Core
             Path.GetExtension(i),
             Tsumino.ImageObject(i)));
 
+        public object GetSourceObject() => _d;
+
         public override string ToString() => PrettyName;
     }
 }

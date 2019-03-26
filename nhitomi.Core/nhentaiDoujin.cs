@@ -52,6 +52,8 @@ namespace nhitomi.Core
             "." + expandExtension(i.t),
             nhentai.Image(_d.media_id, index, expandExtension(i.t))));
 
+        public object GetSourceObject() => _d;
+
         public override string ToString() => PrettyName;
     }
 }

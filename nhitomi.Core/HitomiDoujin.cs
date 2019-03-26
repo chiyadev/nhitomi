@@ -62,6 +62,8 @@ namespace nhitomi.Core
             Path.GetExtension(i.name),
             Hitomi.Image(_d.id, i.name)));
 
+        public object GetSourceObject() => _d;
+
         public override string ToString() => PrettyName;
     }
 }

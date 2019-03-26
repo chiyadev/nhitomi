@@ -67,6 +67,8 @@ namespace nhitomi.Core
             }
         }
 
+        public object GetSourceObject() => _d;
+
         public override string ToString() => PrettyName;
     }
 }
