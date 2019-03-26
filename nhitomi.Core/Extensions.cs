@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
@@ -21,6 +22,26 @@ namespace nhitomi.Core
 
     public static class Extensions
     {
+        public static int ReadInt32Be(this BinaryReader reader)
+        {
+            var buffer = reader.ReadBytes(sizeof(int));
+
+            if (BitConverter.IsLittleEndian)
+                System.Array.Reverse(buffer);
+
+            return BitConverter.ToInt32(buffer, 0);
+        }
+
+        public static ulong ReadUInt64Be(this BinaryReader reader)
+        {
+            var buffer = reader.ReadBytes(sizeof(ulong));
+
+            if (BitConverter.IsLittleEndian)
+                System.Array.Reverse(buffer);
+
+            return BitConverter.ToUInt64(buffer, 0);
+        }
+
         public static string SubstringFromEnd(this string str, int count) => str.Substring(str.Length - count, count);
         public static string RemoveFromEnd(this string str, int count) => str.Remove(str.Length - count, count);
 
