@@ -9,6 +9,8 @@ using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Security.Cryptography;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -390,7 +392,9 @@ namespace nhitomi.Core
             }
         }
 
-        static byte[] hashTerm(string query) => null; //sha256 slice(0,4)
+        readonly SHA256 _sha256 = SHA256.Create();
+
+        byte[] hashTerm(string query) => _sha256.ComputeHash(Encoding.Unicode.GetBytes(query));
 
         public async Task<IAsyncEnumerable<IDoujin>> SearchAsync(string query)
         {
@@ -429,6 +433,7 @@ namespace nhitomi.Core
 
         public void Dispose()
         {
+            _sha256.Dispose();
         }
     }
 }
