@@ -17,7 +17,7 @@ namespace nhitomi.Core
     }
 
     /// <summary>
-    /// Refer to https://namu.wiki/w/Hitomi.la#s-4.4.1 (korean)
+    /// Refer to https://namu.wiki/w/Hitomi.la#s-4.4.1 (Korean)
     /// </summary>
     public class HitomiClient2 : IDoujinClient
     {
@@ -38,7 +38,7 @@ namespace nhitomi.Core
         public HitomiClient2(
             IHttpClientFactory httpFactory,
             JsonSerializer json,
-            ILogger<HitomiClient> logger
+            ILogger<HitomiClient2> logger
         )
         {
             _http = httpFactory?.CreateClient(Name);
