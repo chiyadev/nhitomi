@@ -281,10 +281,10 @@ namespace nhitomi.Core
             return node;
         }
 
-        async Task<IndexNode> getGalleryNodeAtAddress(long version, ulong address,
+        async Task<IndexNode> getGalleryNodeAtAddress(ulong address,
             CancellationToken cancellationToken = default)
         {
-            var url = Hitomi.GalleryIndex(version);
+            var url = Hitomi.GalleryIndex(_currentVersion);
 
             using (var memory = new MemoryStream())
             {
@@ -313,7 +313,7 @@ namespace nhitomi.Core
             return await response.Content.ReadAsStreamAsync();
         }
 
-        async Task<NodeData?> B_searchAsync(long version, byte[] key, IndexNode node,
+        async Task<NodeData?> B_searchAsync(byte[] key, IndexNode node,
             CancellationToken cancellationToken = default)
         {
             // todo: could be mucb more optimized
@@ -354,15 +354,15 @@ namespace nhitomi.Core
                 return null;
 
             //it's in a subnode
-            var subnode = await getGalleryNodeAtAddress(version, node.SubnodeAddresses[index], cancellationToken);
+            var subnode = await getGalleryNodeAtAddress(node.SubnodeAddresses[index], cancellationToken);
 
-            return await B_searchAsync(version, key, subnode, cancellationToken);
+            return await B_searchAsync(key, subnode, cancellationToken);
         }
 
-        async Task<List<int>> getGalleryIdsFromData(long version, NodeData data,
+        async Task<List<int>> getGalleryIdsFromData(NodeData data,
             CancellationToken cancellationToken = default)
         {
-            var url = Hitomi.GalleryData(version);
+            var url = Hitomi.GalleryData(_currentVersion);
 
             if (data.Length > 100000000 || data.Length <= 0)
                 throw new Exception($"length {data.Length} is too long");
@@ -399,12 +399,12 @@ namespace nhitomi.Core
         public async Task<IAsyncEnumerable<IDoujin>> SearchAsync(string query)
         {
             var version = await getGalleryIndexVersionAsync();
-            var data = await B_searchAsync(version, hashTerm(query), await getGalleryNodeAtAddress(version, 0));
+            var data = await B_searchAsync(hashTerm(query), await getGalleryNodeAtAddress(0));
 
             if (data == null)
                 return AsyncEnumerable.Empty<IDoujin>();
 
-            var galleryIds = await getGalleryIdsFromData(version, data.Value);
+            var galleryIds = await getGalleryIdsFromData(data.Value);
 
             return AsyncEnumerable.CreateEnumerable(() =>
             {
@@ -425,7 +425,12 @@ namespace nhitomi.Core
             });
         }
 
-        public Task UpdateAsync() => throw new NotImplementedException();
+        long _currentVersion;
+
+        public async Task UpdateAsync()
+        {
+            _currentVersion = await getGalleryIndexVersionAsync();
+        }
 
         public double RequestThrottle => Hitomi.RequestCooldown;
 
