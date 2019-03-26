@@ -242,7 +242,7 @@ namespace nhitomi.Core
         {
             public readonly List<byte[]> Keys = new List<byte[]>();
             public readonly List<NodeData> Data = new List<NodeData>();
-            public readonly List<ulong> SubnodeAddresses = new List<ulong>();
+            public readonly ulong[] SubnodeAddresses = new ulong[Hitomi.B + 1];
         }
 
         static IndexNode decodeNode(BinaryReader reader)
@@ -271,13 +271,11 @@ namespace nhitomi.Core
                 node.Data.Add(new NodeData(offset, length));
             }
 
-            const int numberOfSubnodeAddresses = Hitomi.B + 1;
-
-            for (var i = 0; i < numberOfSubnodeAddresses; i++)
+            for (var i = 0; i < node.SubnodeAddresses.Length; i++)
             {
                 var subnodeAddress = reader.ReadUInt64Be();
 
-                node.SubnodeAddresses.Add(subnodeAddress);
+                node.SubnodeAddresses[i] = subnodeAddress;
             }
 
             return node;
