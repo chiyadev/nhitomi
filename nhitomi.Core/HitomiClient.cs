@@ -30,27 +30,27 @@ namespace nhitomi.Core
         public static string GalleryInfo(int id, char? server = null) =>
             $"https://{server}tn.hitomi.la/galleries/{id}.js";
 
-        public static char GetCdn(int id) => (char) ('a' + (id % 10 == 1 ? 0 : id) % 2);
+        static char GetCdn(int id) => (char) ('a' + (id % 10 == 1 ? 0 : id) % 2);
 
         public static string Image(int id, string name) => $"https://{GetCdn(id)}a.hitomi.la/galleries/{id}/{name}";
 
         public static class XPath
         {
-            public const string _Gallery = "//div[contains(@class,'gallery')]";
-            public const string _GalleryInfo = "//div[contains(@class,'gallery-info')]";
-            public const string _GalleryContent = "//div[contains(@class,'gallery-content')]";
+            const string _gallery = "//div[contains(@class,'gallery')]";
+            const string _galleryInfo = "//div[contains(@class,'gallery-info')]";
+            const string _galleryContent = "//div[contains(@class,'gallery-content')]";
 
-            public const string Name = _Gallery + "//a[contains(@href,'/reader/')]";
-            public const string Artists = _Gallery + "//a[contains(@href,'/artist/')]";
-            public const string Groups = _Gallery + "//a[contains(@href,'/group/')]";
-            public const string Type = _Gallery + "//a[contains(@href,'/type/')]";
-            public const string Language = _GalleryInfo + "//tr[3]//a";
-            public const string Series = _Gallery + "//a[contains(@href,'/series/')]";
-            public const string Tags = _Gallery + "//a[contains(@href,'/tag/')]";
-            public const string Characters = _Gallery + "//a[contains(@href,'/character/')]";
-            public const string Date = _Gallery + "//span[contains(@class,'date')]";
+            public const string Name = _gallery + "//a[contains(@href,'/reader/')]";
+            public const string Artists = _gallery + "//a[contains(@href,'/artist/')]";
+            public const string Groups = _gallery + "//a[contains(@href,'/group/')]";
+            public const string Type = _gallery + "//a[contains(@href,'/type/')]";
+            public const string Language = _galleryInfo + "//tr[3]//a";
+            public const string Series = _gallery + "//a[contains(@href,'/series/')]";
+            public const string Tags = _gallery + "//a[contains(@href,'/tag/')]";
+            public const string Characters = _gallery + "//a[contains(@href,'/character/')]";
+            public const string Date = _gallery + "//span[contains(@class,'date')]";
 
-            public const string Item = _GalleryContent + "//a[contains(@href,'/galleries/')]";
+            public const string Item = _galleryContent + "//a[contains(@href,'/galleries/')]";
         }
 
         public sealed class DoujinData
@@ -408,7 +408,7 @@ namespace nhitomi.Core
                 IDoujin current = null;
 
                 return AsyncEnumerable.CreateEnumerator(
-                    moveNext: async token =>
+                    async token =>
                     {
                         if (!enumerator.MoveNext())
                             return false;
