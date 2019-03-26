@@ -347,14 +347,7 @@ namespace nhitomi.Core
                 return cmpResult == 0;
             }
 
-            bool isLeaf()
-            {
-                foreach (var address in node.SubnodeAddresses)
-                    if (address != 0)
-                        return false;
-
-                return true;
-            }
+            bool isLeaf() => node.SubnodeAddresses.All(address => address == 0);
 
             //special case for empty root
             if (node.Keys.Count == 0)
