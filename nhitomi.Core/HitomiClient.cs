@@ -447,6 +447,8 @@ namespace nhitomi.Core
                 var total = memory.Length / sizeof(int);
                 var nozomi = new int[total];
 
+                memory.Position = 0;
+
                 using (var reader = new BinaryReader(memory))
                 {
                     for (var i = 0; i < total; i++)
