@@ -398,7 +398,6 @@ namespace nhitomi.Core
 
         public async Task<IAsyncEnumerable<IDoujin>> SearchAsync(string query)
         {
-            var version = await getGalleryIndexVersionAsync();
             var data = await B_searchAsync(hashTerm(query), await getGalleryNodeAtAddress(0));
 
             if (data == null)
