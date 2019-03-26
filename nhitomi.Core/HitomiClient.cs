@@ -396,7 +396,12 @@ namespace nhitomi.Core
 
         readonly SHA256 _sha256 = SHA256.Create();
 
-        byte[] hashTerm(string query) => _sha256.ComputeHash(Encoding.Unicode.GetBytes(query));
+        byte[] hashTerm(string query)
+        {
+            var buffer = new byte[4];
+            System.Array.Copy(_sha256.ComputeHash(Encoding.Unicode.GetBytes(query)), buffer, 4);
+            return buffer;
+        }
 
         public async Task<IAsyncEnumerable<IDoujin>> SearchAsync(string query)
         {
