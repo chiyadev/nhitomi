@@ -350,14 +350,21 @@ namespace nhitomi.Core
             }
 
             //special case for empty root
-            if (node.SubnodeAddresses.Count == 0)
+            if (node.Keys.Count == 0)
                 return null;
 
             if (locateKey(out var index))
                 return node.Data[index];
 
+            // is_leaf
+            if (node.SubnodeAddresses.Count == 0)
+                return null;
+
             //it's in a subnode
             var subnode = await getGalleryNodeAtAddress(node.SubnodeAddresses[index], cancellationToken);
+
+            if (subnode==null)
+                return null;
 
             return await B_searchAsync(key, subnode, cancellationToken);
         }
