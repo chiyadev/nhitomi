@@ -349,11 +349,12 @@ namespace nhitomi.Core
                 return cmpResult == 0;
             }
 
-            if (locateKey(out var index))
-                return node.Data[index];
-
+            //special case for empty root
             if (node.SubnodeAddresses.Count == 0)
                 return null;
+
+            if (locateKey(out var index))
+                return node.Data[index];
 
             //it's in a subnode
             var subnode = await getGalleryNodeAtAddress(node.SubnodeAddresses[index], cancellationToken);
