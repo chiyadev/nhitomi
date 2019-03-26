@@ -8,7 +8,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using HtmlAgilityPack;
 using Microsoft.Extensions.Logging;
@@ -31,18 +33,6 @@ namespace nhitomi.Core
         public static char GetCdn(int id) => (char) ('a' + (id % 10 == 1 ? 0 : id) % 2);
 
         public static string Image(int id, string name) => $"https://{GetCdn(id)}a.hitomi.la/galleries/{id}/{name}";
-
-        public static string CoverImage(int id, string name) =>
-            $"https://{GetCdn(id)}tn.hitomi.la/bigtn/{id}/{name}.jpg";
-
-        public static string ThumbImage(int id, string name) =>
-            $"https://{GetCdn(id)}tn.hitomi.la/smalltn/{id}/{name}.jpg";
-
-        public static string Chunk(int index) => $"https://ltn.hitomi.la/galleries{index}.json";
-
-        public static string List(string category = null, string name = "index", string language = "all",
-            int page = 1) =>
-            $"https://hitomi.la/{category ?? category + "/"}{name}-{language}-{page}.html";
 
         public static class XPath
         {
@@ -112,42 +102,27 @@ namespace nhitomi.Core
             }
         }
 
-        public struct ChunkItemData
-        {
-            public readonly int id;
-            public readonly string name;
-            public readonly string[] tags;
-            public readonly string author;
+        public const int B = 16;
+        public const int MaxNodeSize = 464;
 
-            public ChunkItemData(
-                int i,
-                string n,
-                string[] t,
-                string a
-            )
-            {
-                id = i;
-                name = n;
-                tags = t;
-                author = a;
-            }
+        static long UnixTimestamp => ((DateTimeOffset) DateTime.UtcNow).ToUnixTimeSeconds();
 
-            public override bool Equals(object obj) => obj is ChunkItemData other ? id == other.id : false;
-            public override int GetHashCode() => id;
-            public override string ToString() => name;
-        }
+        public static string GalleryIndexVersion => $"https://ltn.hitomi.la/galleriesindex/version?_={UnixTimestamp}";
+
+        public static string GalleryIndex(long version) =>
+            $"https://ltn.hitomi.la/galleriesindex/galleries.{version}.index";
+
+        public static string GalleryData(long version) =>
+            $"https://ltn.hitomi.la/galleriesindex/galleries.{version}.data";
     }
 
-    /// <summary>
-    /// Legacy hitomi.la client using gallery chunk JSONs that have disappeared in February 2019.
-    /// </summary>
     public sealed class HitomiClient : IDoujinClient
     {
         public string Name => nameof(Hitomi);
         public string Url => "https://hitomi.la/";
         public string IconUrl => "https://ltn.hitomi.la/favicon-160x160.png";
 
-        public DoujinClientMethod Method => DoujinClientMethod.Html;
+        public DoujinClientMethod Method => DoujinClientMethod.Api;
 
         public Regex GalleryRegex { get; } =
             new Regex(Hitomi.GalleryRegex, RegexOptions.IgnoreCase | RegexOptions.Compiled);
@@ -244,165 +219,211 @@ namespace nhitomi.Core
         static string innerSanitized(HtmlNode node) =>
             node == null ? null : HtmlEntity.DeEntitize(node.InnerText).Trim();
 
-        readonly HashSet<Hitomi.ChunkItemData> _db = new HashSet<Hitomi.ChunkItemData>();
+        async Task<int> getGalleryIndexVersionAsync() =>
+            int.Parse(await _http.GetStringAsync(Hitomi.GalleryIndexVersion));
 
-        async Task updateDbAsync(int chunkIndex = 0)
+        struct NodeData
         {
-            try
+            public ulong Offset;
+            public int Length;
+
+            public NodeData(ulong offset, int length)
             {
-                var db = _db;
-
-                var loadCount = 0;
-                double[] elapsed;
-
-                // Manually read tokens for best possible performance
-                using (Extensions.Measure(out elapsed))
-                using (var stream = await _http.GetStreamAsync(Hitomi.Chunk(chunkIndex)))
-                using (var textReader = new StreamReader(stream))
-                using (var jsonReader = new JsonTextReader(textReader))
-                    while (await jsonReader.ReadAsync())
-                    {
-                        if (jsonReader.TokenType != JsonToken.StartObject)
-                            continue;
-
-                        var id = -1;
-                        var name = (string) null;
-                        var type = (string) null;
-                        var tags = new List<string>();
-                        var author = (string) null;
-
-                        string property = null;
-                        while (await jsonReader.ReadAsync())
-                            switch (jsonReader.TokenType)
-                            {
-                                case JsonToken.PropertyName:
-                                    property = (string) jsonReader.Value;
-                                    break;
-                                case JsonToken.Integer:
-                                    switch (property)
-                                    {
-                                        case "id":
-                                            id = unchecked((int) (long) jsonReader.Value);
-                                            break;
-                                    }
-
-                                    break;
-                                case JsonToken.String:
-                                    switch (property)
-                                    {
-                                        case "n":
-                                            name = (string) jsonReader.Value;
-                                            break;
-                                        case "type":
-                                            type = (string) jsonReader.Value;
-                                            break;
-                                    }
-
-                                    break;
-                                case JsonToken.StartArray:
-                                    switch (property)
-                                    {
-                                        case "t":
-                                            while (await jsonReader.ReadAsync())
-                                                switch (jsonReader.TokenType)
-                                                {
-                                                    case JsonToken.String:
-                                                        tags.Add(Hitomi.DoujinData.Tag.Parse((string) jsonReader.Value)
-                                                            .Value);
-                                                        break;
-                                                    case JsonToken.EndArray:
-                                                        goto endTags;
-                                                }
-                                            endTags:
-                                            break;
-                                        case "a":
-                                            await jsonReader.ReadAsync();
-                                            author = (string) jsonReader.Value;
-
-                                            while (await jsonReader.ReadAsync())
-                                                if (jsonReader.TokenType == JsonToken.EndArray)
-                                                    break;
-                                            break;
-                                    }
-
-                                    break;
-                                case JsonToken.EndObject:
-                                    goto endItem;
-                            }
-                        endItem:
-
-                        if (id < 0 ||
-                            string.IsNullOrWhiteSpace(name) ||
-                            string.IsNullOrWhiteSpace(author) ||
-                            (type != null && type.Equals("anime", StringComparison.OrdinalIgnoreCase)))
-                            continue;
-
-                        if (db.Add(new Hitomi.ChunkItemData(id, name, tags.ToArray(), author)))
-                            ++loadCount;
-                    }
-
-                _logger.LogDebug($"Loaded {loadCount} new items from chunk {chunkIndex} in {elapsed.Format()}.");
-            }
-            catch (Exception e)
-            {
-                _logger.LogWarning($"Exception while updating hitomi db.", e);
+                Offset = offset;
+                Length = length;
             }
         }
 
-        public int ChunkLoadCount { get; set; } = 3;
-
-        public async Task UpdateAsync()
+        sealed class IndexNode
         {
-            for (var i = 0; i < ChunkLoadCount; i++)
-                await updateDbAsync(i);
+            public readonly List<byte[]> Keys = new List<byte[]>();
+            public readonly List<NodeData> Data = new List<NodeData>();
+            public readonly List<ulong> SubnodeAdresses = new List<ulong>();
         }
 
-        public double RequestThrottle => Hitomi.RequestCooldown;
-
-        public Task<IAsyncEnumerable<IDoujin>> SearchAsync(string query)
+        static IndexNode decodeNode(BinaryReader reader)
         {
-            IEnumerable<int> filtered;
+            var node = new IndexNode();
 
-            if (string.IsNullOrWhiteSpace(query))
-                filtered = _db
-                    .OrderByDescending(d => d.id)
-                    .Select(d => d.id);
-            else
+            var numberOfKeys = reader.ReadInt32Be();
+
+            for (var i = 0; i < numberOfKeys; i++)
             {
-                var keywords = query.Split(new[] {' '}, StringSplitOptions.RemoveEmptyEntries);
+                var keySize = reader.ReadInt32Be();
 
-                int matches(string str) => matchTags(str.Split(new[] {' '}, StringSplitOptions.RemoveEmptyEntries));
-                int matchTags(string[] array) => keywords.Intersect(array).Count();
+                if (keySize == 0 || keySize > 32)
+                    throw new Exception("fatal: !key_size || key_size > 32");
 
-                filtered = _db
-                    .OrderByDescending(d => matches(d.name))
-                    .ThenByDescending(d => matches(d.author))
-                    .ThenByDescending(d => matchTags(d.tags))
-                    .ThenByDescending(d => d.id)
-                    .TakeWhile(d => matches(d.name) > 0 || matches(d.author) > 0 || matchTags(d.tags) > 0)
-                    .Select(d => d.id);
+                node.Keys.Add(reader.ReadBytes(keySize));
             }
+
+            var numberOfData = reader.ReadInt32Be();
+
+            for (var i = 0; i < numberOfData; i++)
+            {
+                var offset = reader.ReadUInt64Be();
+                var length = reader.ReadInt32Be();
+
+                node.Data.Add(new NodeData(offset, length));
+            }
+
+            var numberOfSubnodeAddresses = Hitomi.B + 1;
+
+            for (var i = 0; i < numberOfSubnodeAddresses; i++)
+            {
+                var subnodeAddress = reader.ReadUInt64Be();
+
+                node.SubnodeAdresses.Add(subnodeAddress);
+            }
+
+            return node;
+        }
+
+        async Task<IndexNode> getGalleryNodeAtAddress(long version, ulong address,
+            CancellationToken cancellationToken = default)
+        {
+            var url = Hitomi.GalleryIndex(version);
+
+            using (var memory = new MemoryStream())
+            {
+                using (var stream = await getUrlAtRange(
+                    url, address, address + Hitomi.MaxNodeSize - 1, cancellationToken))
+                    await stream.CopyToAsync(memory, 4096, cancellationToken);
+
+                memory.Position = 0;
+
+                using (var reader = new BinaryReader(memory))
+                    return decodeNode(reader);
+            }
+        }
+
+        async Task<Stream> getUrlAtRange(string url, ulong start, ulong end,
+            CancellationToken cancellationToken = default)
+        {
+            var request = new HttpRequestMessage(HttpMethod.Get, url);
+
+            unchecked
+            {
+                request.Headers.Range = new RangeHeaderValue((long) start, (long) end);
+            }
+
+            var response = await _http.SendAsync(request, cancellationToken);
+            return await response.Content.ReadAsStreamAsync();
+        }
+
+        async Task<NodeData?> B_searchAsync(long version, byte[] key, IndexNode node,
+            CancellationToken cancellationToken = default)
+        {
+            // todo: could be mucb more optimized
+            int compareArrayBuffers(byte[] dv1, byte[] dv2)
+            {
+                var top = Math.Min(dv1.Length, dv2.Length);
+
+                for (var i = 0; i < top; i++)
+                {
+                    if (dv1[i] < dv2[i])
+                        return -1;
+                    if (dv1[i] > dv2[i])
+                        return 1;
+                }
+
+                return 0;
+            }
+
+            bool locateKey(out int i)
+            {
+                var cmpResult = -1;
+
+                for (i = 0; i < node.Keys.Count; i++)
+                {
+                    cmpResult = compareArrayBuffers(key, node.Keys[i]);
+
+                    if (cmpResult <= 0)
+                        break;
+                }
+
+                return cmpResult != 0;
+            }
+
+            if (locateKey(out var index))
+                return node.Data[index];
+
+            if (node.SubnodeAdresses.Count == 0)
+                return null;
+
+            //it's in a subnode
+            var subnode = await getGalleryNodeAtAddress(version, node.SubnodeAdresses[index], cancellationToken);
+
+            return await B_searchAsync(version, key, subnode, cancellationToken);
+        }
+
+        async Task<List<int>> getGalleryIdsFromData(long version, NodeData data,
+            CancellationToken cancellationToken = default)
+        {
+            var url = Hitomi.GalleryData(version);
+
+            if (data.Length > 100000000 || data.Length <= 0)
+                throw new Exception($"length {data.Length} is too long");
+
+            using (var memory = new MemoryStream())
+            {
+                using (var stream = await getUrlAtRange(
+                    url, data.Offset, data.Offset + (ulong) data.Length - 1, cancellationToken))
+                    await stream.CopyToAsync(memory, 4096, cancellationToken);
+
+                memory.Position = 0;
+
+                using (var reader = new BinaryReader(memory))
+                {
+                    var galleryIds = new List<int>();
+                    var numberOfGalleryIds = reader.ReadInt32Be();
+
+                    var expectedLength = sizeof(int) + numberOfGalleryIds * sizeof(int);
+                    if (memory.Length != expectedLength)
+                        throw new Exception($"inbuf.byteLength {memory.Length} !== expected_length {expectedLength}");
+
+                    for (var i = 0; i < numberOfGalleryIds; i++)
+                        galleryIds.Add(reader.ReadInt32Be());
+
+                    return galleryIds;
+                }
+            }
+        }
+
+        static byte[] hashTerm(string query) => null; //sha256 slice(0,4)
+
+        public async Task<IAsyncEnumerable<IDoujin>> SearchAsync(string query)
+        {
+            var version = await getGalleryIndexVersionAsync();
+            var data = await B_searchAsync(version, hashTerm(query), await getGalleryNodeAtAddress(version, 0));
+
+            if (data == null)
+                return AsyncEnumerable.Empty<IDoujin>();
+
+            var galleryIds = await getGalleryIdsFromData(version, data.Value);
 
             return AsyncEnumerable.CreateEnumerable(() =>
-                {
-                    var enumerator = filtered.GetEnumerator();
-                    IDoujin current = null;
+            {
+                var enumerator = galleryIds.GetEnumerator();
+                IDoujin current = null;
 
-                    return AsyncEnumerable.CreateEnumerator(
-                        async token =>
-                        {
-                            if (!enumerator.MoveNext())
-                                return false;
+                return AsyncEnumerable.CreateEnumerator(
+                    moveNext: async token =>
+                    {
+                        if (!enumerator.MoveNext())
+                            return false;
 
-                            current = await GetAsync(enumerator.Current.ToString());
-                            return true;
-                        },
-                        () => current,
-                        enumerator.Dispose
-                    );
-                })
-                .AsCompletedTask();
+                        current = await GetAsync(enumerator.Current.ToString());
+                        return true;
+                    },
+                    () => current,
+                    enumerator.Dispose);
+            });
         }
+
+        public Task UpdateAsync() => throw new NotImplementedException();
+
+        public double RequestThrottle => Hitomi.RequestCooldown;
 
         public override string ToString() => Name;
 
