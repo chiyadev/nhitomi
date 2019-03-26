@@ -319,6 +319,17 @@ namespace nhitomi.Core
             // todo: could be mucb more optimized
             int compareArrayBuffers(byte[] dv1, byte[] dv2)
             {
+                /*let compare_arraybuffers = function(dv1, dv2) {
+                        const top = Math.min(dv1.byteLength, dv2.byteLength);
+                        for (let i = 0; i < top; i++) {
+                                if (dv1[i] < dv2[i]) {
+                                        return -1;
+                                } else if (dv1[i] > dv2[i]) {
+                                        return 1;
+                                }
+                        }
+                        return 0;
+                };*/
                 var top = Math.Min(dv1.Length, dv2.Length);
 
                 for (var i = 0; i < top; i++)
@@ -334,6 +345,17 @@ namespace nhitomi.Core
 
             bool locateKey(out int i)
             {
+                /*let locate_key = function(key, node) {
+                        let cmp_result = -1;
+                        let i;
+                        for (i = 0; i < node.keys.length; i++) {
+                                cmp_result = compare_arraybuffers(key, node.keys[i]);
+                                if (cmp_result <= 0) {
+                                        break;
+                                }
+                        }
+                        return [!cmp_result, i];
+                };*/
                 var cmpResult = -1;
 
                 for (i = 0; i < node.Keys.Count; i++)
@@ -361,9 +383,6 @@ namespace nhitomi.Core
 
             //it's in a subnode
             var subnode = await getGalleryNodeAtAddress(node.SubnodeAddresses[index], cancellationToken);
-
-            if (subnode == null)
-                return null;
 
             return await B_searchAsync(key, subnode, cancellationToken);
         }
