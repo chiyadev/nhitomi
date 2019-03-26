@@ -342,7 +342,7 @@ namespace nhitomi.Core
                 {
                     cmpResult = compareArrayBuffers(key, node.Keys[i]);
 
-                    if (cmpResult <= 0)
+                    if (cmpResult == 0)
                         break;
                 }
 
