@@ -224,8 +224,8 @@ namespace nhitomi.Core
 
         struct NodeData
         {
-            public ulong Offset;
-            public int Length;
+            public readonly ulong Offset;
+            public readonly int Length;
 
             public NodeData(ulong offset, int length)
             {
