@@ -38,8 +38,11 @@ namespace nhitomi
             while (!stoppingToken.IsCancellationRequested)
             {
                 var proxies = new List<string>();
+                var proxyCount = _settings.MaxConcurrentProxies == null
+                    ? _settings.DownloadProxies.Length
+                    : Math.Min(_settings.DownloadProxies.Length, _settings.MaxConcurrentProxies.Value);
 
-                for (var i = 0; i < _settings.MaxConcurrentProxies;)
+                for (var i = 0; i < proxyCount;)
                 {
                     var proxy = _settings.DownloadProxies[i];
 

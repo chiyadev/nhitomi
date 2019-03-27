@@ -42,7 +42,7 @@ namespace nhitomi
             public double DownloadValidLength { get; set; }
 
             public string[] DownloadProxies { get; set; }
-            public int MaxConcurrentProxies { get; set; }
+            public int? MaxConcurrentProxies { get; set; }
             public double ProxyCheckInterval { get; set; }
         }
 
