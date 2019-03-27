@@ -78,64 +78,57 @@ namespace nhitomi.Proxy
             _logger.LogDebug($"Received request: token {token}, url {url}");
 
             var cachePath = getCachePath(uri);
+            const string mime = "application/octet-stream";
 
-            Stream stream;
-
+            await _cacheSemaphore.WaitAsync(cancellationToken);
             try
             {
-                await _cacheSemaphore.WaitAsync(cancellationToken);
-                try
-                {
-                    // try finding from cache
-                    // this will fail if cache doesn't exist
-                    stream = new FileStream(cachePath, FileMode.Open, FileAccess.Read, FileShare.None);
-                }
-                finally
-                {
-                    _cacheSemaphore.Release();
-                }
+                // try finding from cache
+                if (System.IO.File.Exists(cachePath))
+                    return File(new FileStream(cachePath, FileMode.Open, FileAccess.Read, FileShare.Read), mime);
             }
-            catch
+            finally
             {
-                stream = new MemoryStream();
-
-                // download image
-                // semaphore is used to rate limit requests to remote hosts
-                var semaphore = getSemaphore(uri.Authority);
-                await semaphore.WaitAsync(cancellationToken);
-                try
-                {
-                    using (var src = await _http.GetStreamAsync(uri))
-                        // we don't want image download to cancel when request cancels
-                        await src.CopyToAsync(stream, default(CancellationToken));
-                }
-                finally
-                {
-                    // Rate limiting
-                    // todo: proper timing
-                    await Task.Delay(TimeSpan.FromSeconds(0.5), cancellationToken);
-
-                    semaphore.Release();
-                }
-
-                stream.Position = 0;
-
-                await _cacheSemaphore.WaitAsync(cancellationToken);
-                try
-                {
-                    // cache the image
-                    using (var dst = new FileStream(cachePath, FileMode.Create, FileAccess.Write))
-                        await stream.CopyToAsync(dst, default(CancellationToken));
-                }
-                finally
-                {
-                    _cacheSemaphore.Release();
-                }
-
-                stream.Position = 0;
+                _cacheSemaphore.Release();
             }
 
-            return File(stream, "application/octet-stream");
+            var memory = new MemoryStream();
+
+            // download image
+            // semaphore is used to rate limit requests
+            var semaphore = getSemaphore(uri.Authority);
+            await semaphore.WaitAsync(cancellationToken);
+            try
+            {
+                using (var src = await _http.GetStreamAsync(uri))
+                    await src.CopyToAsync(memory, default(CancellationToken));
+
+                memory.Position = 0;
+            }
+            finally
+            {
+                // Rate limiting
+                // todo: proper timing
+                await Task.Delay(TimeSpan.FromSeconds(0.5), default);
+
+                semaphore.Release();
+            }
+
+            // cache the downloaded image to disk
+            await _cacheSemaphore.WaitAsync(cancellationToken);
+            try
+            {
+                using (var dst = new FileStream(cachePath, FileMode.Create, FileAccess.Write, FileShare.None))
+                    await memory.CopyToAsync(dst, default(CancellationToken));
+
+                memory.Position = 0;
+            }
+            finally
+            {
+                _cacheSemaphore.Release();
+            }
+
+            return File(memory, "application/octet-stream");
         }
     }
 }
