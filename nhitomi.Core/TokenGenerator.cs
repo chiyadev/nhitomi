@@ -45,9 +45,9 @@ namespace nhitomi.Core
 
         public struct DownloadTokenPayload
         {
-            public string Source;
-            public string Id;
-            public DateTime? Expires;
+            [JsonProperty("s")] public string Source;
+            [JsonProperty("id")] public string Id;
+            [JsonProperty("e")] public DateTime? Expires;
         }
 
         public static string CreateDownloadToken(
