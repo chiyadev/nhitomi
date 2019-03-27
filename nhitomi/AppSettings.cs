@@ -11,24 +11,12 @@ namespace nhitomi
 {
     public sealed class AppSettings
     {
-        public string Prefix { get; set; }
-        public string CurrentEnvironment { get; set; }
-
-        public AppSettings()
-        {
-            CurrentEnvironment = Environment.GetEnvironmentVariable("ENVIRONMENT") ?? "DEVELOPMENT";
-        }
-
         public DiscordSettings Discord { get; set; } = new DiscordSettings();
 
         public sealed class DiscordSettings : DiscordSocketConfig
         {
-            public string Token { get; set; }
-
-            public DiscordSettings()
-            {
-                Token = Environment.GetEnvironmentVariable("TOKEN");
-            }
+            public string Prefix { get; set; }
+            public string Token { get; set; } = Environment.GetEnvironmentVariable("TOKEN");
 
             public StatusSettings Status { get; set; } = new StatusSettings();
 
@@ -62,13 +50,12 @@ namespace nhitomi
 
         public sealed class HttpSettings
         {
-            public int Port { get; set; }
             public string Url { get; set; }
 
             public HttpSettings()
             {
-                Port = int.TryParse(Environment.GetEnvironmentVariable("PORT"), out var port) ? port : 5000;
-                Url = Environment.GetEnvironmentVariable("URL") ?? $"http://localhost:{Port}";
+                Url = Environment.GetEnvironmentVariable("ASPNETCORE_URLS")?.Split(';')[0]
+                      ?? "https://localhost:5000";
             }
         }
     }

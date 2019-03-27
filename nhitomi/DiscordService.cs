@@ -14,6 +14,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Hosting;
 using nhitomi.Core;
 using Newtonsoft.Json;
 
@@ -37,7 +38,8 @@ namespace nhitomi
             ISet<IDoujinClient> clients,
             InteractiveScheduler interactive,
             JsonSerializer json,
-            ILoggerFactory loggerFactory
+            ILoggerFactory loggerFactory,
+            IHostingEnvironment environment
         )
         {
             _services = services;
@@ -55,7 +57,7 @@ namespace nhitomi
             Commands = new CommandService(_settings.Discord.Command);
 
             // Register as log provider
-            if (_settings.CurrentEnvironment == "PRODUCTION")
+            if (environment.IsProduction())
                 loggerFactory.AddProvider(new DiscordLogService(this));
 
             _logger = loggerFactory.CreateLogger<DiscordService>();
@@ -153,7 +155,7 @@ namespace nhitomi
             {
                 var argIndex = 0;
 
-                if (userMessage.HasStringPrefix(_settings.Prefix, ref argIndex) ||
+                if (userMessage.HasStringPrefix(_settings.Discord.Prefix, ref argIndex) ||
                     userMessage.HasMentionPrefix(Socket.CurrentUser, ref argIndex))
                 {
                     // Execute command

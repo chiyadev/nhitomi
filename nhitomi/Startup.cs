@@ -9,6 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using System.Collections.Generic;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using nhitomi.Core;
 using IHostingEnvironment = Microsoft.AspNetCore.Hosting.IHostingEnvironment;
 
@@ -18,9 +19,15 @@ namespace nhitomi
     {
         readonly IConfiguration _config;
 
-        public Startup(IConfiguration config)
+        public Startup(IHostingEnvironment environment)
         {
-            _config = config;
+            var builder = new ConfigurationBuilder()
+                .SetBasePath(environment.ContentRootPath)
+                .AddJsonFile("appsettings.json", false)
+                .AddJsonFile($"appsettings.{environment.EnvironmentName}.json", true)
+                .AddEnvironmentVariables();
+
+            _config = builder.Build();
         }
 
         public void ConfigureServices(IServiceCollection services)
@@ -34,6 +41,12 @@ namespace nhitomi
             services
                 // Configuration
                 .Configure<AppSettings>(_config)
+
+                // Logging
+                .AddLogging(l => l
+                    .AddConfiguration(_config.GetSection("logging"))
+                    .AddConsole()
+                    .AddDebug())
 
                 // HTTP client
                 .AddHttpClient()

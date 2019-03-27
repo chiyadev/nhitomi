@@ -38,7 +38,7 @@ namespace nhitomi
                 embed: MessageFormatter.EmbedHelp(
                     commands: _commands.Commands,
                     clients: _clients,
-                    prefix: _settings.Prefix
+                    prefix: _settings.Discord.Prefix
                 )
             );
         }
