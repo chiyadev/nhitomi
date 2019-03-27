@@ -16,7 +16,7 @@ namespace nhitomi
         public sealed class DiscordSettings : DiscordSocketConfig
         {
             public string Prefix { get; set; }
-            public string Token { get; set; } = Environment.GetEnvironmentVariable("TOKEN");
+            public string Token { get; set; }
 
             public StatusSettings Status { get; set; } = new StatusSettings();
 
