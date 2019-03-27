@@ -14,11 +14,6 @@ namespace nhitomi.Proxy
         public sealed class DiscordSettings
         {
             public string Token { get; set; }
-
-            public DiscordSettings()
-            {
-                Token = Environment.GetEnvironmentVariable("TOKEN");
-            }
         }
     }
 }
