@@ -38,30 +38,34 @@ namespace nhitomi
             while (!stoppingToken.IsCancellationRequested)
             {
                 var proxies = new List<string>();
-                var proxyCount = _settings.MaxConcurrentProxies == null
-                    ? _settings.DownloadProxies.Length
-                    : Math.Min(_settings.DownloadProxies.Length, _settings.MaxConcurrentProxies.Value);
 
-                for (var i = 0; i < proxyCount;)
+                if (_settings.DownloadProxies != null)
                 {
-                    var proxy = _settings.DownloadProxies[i];
+                    var proxyCount = _settings.MaxConcurrentProxies == null
+                        ? _settings.DownloadProxies.Length
+                        : Math.Min(_settings.DownloadProxies.Length, _settings.MaxConcurrentProxies.Value);
 
-                    try
+                    for (var i = 0; i < proxyCount;)
                     {
-                        // check if proxy is online
-                        using (var response = await _http.GetAsync(proxy, stoppingToken))
+                        var proxy = _settings.DownloadProxies[i];
+
+                        try
                         {
-                            // try next proxy
-                            if (!response.IsSuccessStatusCode)
-                                continue;
+                            // check if proxy is online
+                            using (var response = await _http.GetAsync(proxy, stoppingToken))
+                            {
+                                // try next proxy
+                                if (!response.IsSuccessStatusCode)
+                                    continue;
 
-                            proxies.Add(proxy);
-                            i++;
+                                proxies.Add(proxy);
+                                i++;
+                            }
                         }
-                    }
-                    catch (Exception e)
-                    {
-                        _logger.LogWarning(e, $"Exception while contacting proxy '{proxy}'.");
+                        catch (Exception e)
+                        {
+                            _logger.LogWarning(e, $"Exception while contacting proxy '{proxy}'.");
+                        }
                     }
                 }
 
