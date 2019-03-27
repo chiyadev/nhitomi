@@ -3,8 +3,6 @@
 // This software is released under the MIT License.
 // https://opensource.org/licenses/MIT
 
-using System;
-
 namespace nhitomi.Proxy
 {
     public sealed class AppSettings
