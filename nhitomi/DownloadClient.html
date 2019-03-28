@@ -152,7 +152,7 @@
                       if (!running)
                         return;
 
-                      zip.file(image.name, event.response, {
+                      zip.file(image.name, new Blob(event.response), {
                         binary: true
                       });
 
