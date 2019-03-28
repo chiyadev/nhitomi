@@ -29,8 +29,7 @@ namespace nhitomi.Proxy
             IOptions<AppSettings> options,
             IHttpClientFactory httpFactory,
             JsonSerializer json,
-            ILogger<ImageController> logger
-        )
+            ILogger<ImageController> logger)
         {
             _settings = options.Value.Discord;
             _http = httpFactory?.CreateClient(nameof(ImageController));

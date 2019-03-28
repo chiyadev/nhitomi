@@ -16,10 +16,7 @@ namespace nhitomi.Core
         public string CachePath { get; set; }
         public JsonSerializer Serializer { get; set; }
 
-        public PhysicalCache(
-            string name,
-            JsonSerializer serializer = null
-        )
+        public PhysicalCache(string name, JsonSerializer serializer = null)
         {
             CachePath = Path.GetTempPath();
             CachePath = getPath(nameof(nhitomi));

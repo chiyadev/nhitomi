@@ -136,8 +136,7 @@ namespace nhitomi.Core
         public PururinClient(
             IHttpClientFactory httpFactory,
             JsonSerializer json,
-            ILogger<PururinClient> logger
-        )
+            ILogger<PururinClient> logger)
         {
             _http = httpFactory?.CreateClient(Name);
             _cache = new PhysicalCache(Name, json);
@@ -165,12 +164,9 @@ namespace nhitomi.Core
 
         public async Task<IDoujin> GetAsync(string id)
         {
-            if (!int.TryParse(id, out var intId))
-                return null;
-
-            return wrap(
-                await _cache.GetOrCreateAsync(id, getAsync)
-            );
+            return !int.TryParse(id, out var intId)
+                ? null
+                : wrap(await _cache.GetOrCreateAsync(id, getAsync));
 
             async Task<Pururin.DoujinData> getAsync()
             {

@@ -107,8 +107,7 @@ namespace nhitomi.Core
         public nhentaiClient(
             IHttpClientFactory httpFactory,
             JsonSerializer json,
-            ILogger<nhentaiClient> logger
-        )
+            ILogger<nhentaiClient> logger)
         {
             _http = httpFactory?.CreateClient(Name);
             _cache = new PhysicalCache(Name, json);
@@ -120,15 +119,9 @@ namespace nhitomi.Core
 
         public async Task<IDoujin> GetAsync(string id)
         {
-            if (!int.TryParse(id, out var intId))
-                return null;
-
-            return wrap(
-                await _cache.GetOrCreateAsync(
-                    id,
-                    getAsync
-                )
-            );
+            return !int.TryParse(id, out var intId)
+                ? null
+                : wrap(await _cache.GetOrCreateAsync(id, getAsync));
 
             async Task<nhentai.DoujinData> getAsync()
             {
@@ -177,8 +170,7 @@ namespace nhitomi.Core
                                 foreach (var result in current.result)
                                     await _cache.CreateAsync(
                                         result.id.ToString(),
-                                        () => Task.FromResult(result)
-                                    );
+                                        () => Task.FromResult(result));
 
                                 index++;
 

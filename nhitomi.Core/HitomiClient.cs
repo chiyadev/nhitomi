@@ -139,8 +139,7 @@ namespace nhitomi.Core
         public HitomiClient(
             IHttpClientFactory httpFactory,
             JsonSerializer json,
-            ILogger<HitomiClient> logger
-        )
+            ILogger<HitomiClient> logger)
         {
             _http = httpFactory?.CreateClient(Name);
             _cache = new PhysicalCache(Name, json);
@@ -155,9 +154,7 @@ namespace nhitomi.Core
             if (!int.TryParse(id, out var intId))
                 return null;
 
-            return wrap(
-                await _cache.GetOrCreateAsync(id, getAsync)
-            );
+            return wrap(await _cache.GetOrCreateAsync(id, getAsync));
 
             async Task<Hitomi.DoujinData> getAsync()
             {
@@ -281,8 +278,7 @@ namespace nhitomi.Core
             return node;
         }
 
-        async Task<IndexNode> getGalleryNodeAtAddress(ulong address,
-            CancellationToken cancellationToken = default)
+        async Task<IndexNode> getGalleryNodeAtAddress(ulong address, CancellationToken cancellationToken = default)
         {
             var url = Hitomi.GalleryIndex(_currentVersion);
 
@@ -320,8 +316,7 @@ namespace nhitomi.Core
             return await response.Content.ReadAsStreamAsync();
         }
 
-        async Task<NodeData?> B_searchAsync(byte[] key, IndexNode node,
-            CancellationToken cancellationToken = default)
+        async Task<NodeData?> B_searchAsync(byte[] key, IndexNode node, CancellationToken cancellationToken = default)
         {
             try
             {
@@ -403,8 +398,7 @@ namespace nhitomi.Core
             }
         }
 
-        async Task<List<int>> getGalleryIdsFromData(NodeData data,
-            CancellationToken cancellationToken = default)
+        async Task<List<int>> getGalleryIdsFromData(NodeData data,CancellationToken cancellationToken = default)
         {
             var url = Hitomi.GalleryData(_currentVersion);
 
@@ -484,7 +478,7 @@ namespace nhitomi.Core
 
         async Task<int[]> readNozomiIndexAsync(CancellationToken cancellationToken = default)
         {
-            var url = Hitomi.NozomiIndex;
+            const string url = Hitomi.NozomiIndex;
 
             using (var memory = new MemoryStream())
             {
@@ -517,8 +511,12 @@ namespace nhitomi.Core
                 // update gallery index version
                 _currentVersion = await getGalleryIndexVersionAsync();
 
+                _logger.LogDebug($"Updated gallery index version: {_currentVersion}");
+
                 // update nozomi indices, used for listing (not searching)
                 _nozomiIndex = await readNozomiIndexAsync();
+
+                _logger.LogDebug($"Updated Nozomi index: {_nozomiIndex.Length} items");
             }
             catch (Exception e)
             {
