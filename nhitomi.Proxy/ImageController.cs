@@ -128,7 +128,7 @@ namespace nhitomi.Proxy
                 _cacheSemaphore.Release();
             }
 
-            return File(memory, "application/octet-stream");
+            return File(memory, mime);
         }
     }
 }
