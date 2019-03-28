@@ -69,7 +69,7 @@ namespace nhitomi.Proxy
             CancellationToken cancellationToken = default)
         {
             if (!TokenGenerator.TryDeserializeDownloadToken(
-                token, _settings.Token, out _, out _, serializer: _json))
+                token, _settings.Token, out _, out _, out var requestThrottle, serializer: _json))
                 return BadRequest("Invalid token.");
 
             if (!Uri.TryCreate(url, UriKind.Absolute, out var uri))
@@ -109,7 +109,7 @@ namespace nhitomi.Proxy
             {
                 // Rate limiting
                 // todo: proper timing
-                await Task.Delay(TimeSpan.FromSeconds(0.5), default);
+                await Task.Delay(TimeSpan.FromMilliseconds(requestThrottle), default);
 
                 semaphore.Release();
             }

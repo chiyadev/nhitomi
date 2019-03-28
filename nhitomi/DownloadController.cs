@@ -51,7 +51,7 @@ namespace nhitomi
         public async Task<ActionResult> DownloadAsync(string token)
         {
             if (!TokenGenerator.TryDeserializeDownloadToken(
-                token, _settings.Token, out var sourceName, out var id, serializer: _json))
+                token, _settings.Token, out var sourceName, out var id, out _, serializer: _json))
                 return BadRequest("Download token has expired. Please try again.");
 
             _logger.LogDebug($"Received download request: token {token}");

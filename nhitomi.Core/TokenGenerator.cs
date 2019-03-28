@@ -47,6 +47,7 @@ namespace nhitomi.Core
         {
             [JsonProperty("s")] public string Source;
             [JsonProperty("id")] public string Id;
+            [JsonProperty("ri")] public double RequestThrottle;
             [JsonProperty("e")] public DateTime? Expires;
         }
 
@@ -61,6 +62,7 @@ namespace nhitomi.Core
             {
                 Source = doujin.Source.Name,
                 Id = doujin.Id,
+                RequestThrottle = doujin.Source.RequestThrottle,
                 Expires = getExpirationFromNow(expireMinutes)
             };
 
@@ -110,12 +112,14 @@ namespace nhitomi.Core
             string secret,
             out string sourceName,
             out string id,
+            out double requestThrottle,
             Encoding encoding = null,
             JsonSerializer serializer = null,
             bool validateExpiry = true)
         {
-            sourceName = null;
-            id = null;
+            sourceName = default;
+            id = default;
+            requestThrottle = default;
 
             if (!TryDeserializeToken<DownloadTokenPayload>(token, secret, out var payload, encoding, serializer))
                 return false;
@@ -125,6 +129,7 @@ namespace nhitomi.Core
 
             sourceName = payload.Source;
             id = payload.Id;
+            requestThrottle = payload.RequestThrottle;
             return true;
         }
     }
