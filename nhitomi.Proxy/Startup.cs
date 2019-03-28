@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2018-2019 phosphene47
+﻿// Copyright (c) 2018-2019 fate/loli
 // 
 // This software is released under the MIT License.
 // https://opensource.org/licenses/MIT
