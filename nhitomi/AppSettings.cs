@@ -32,6 +32,15 @@ namespace nhitomi
             {
                 public double InteractiveExpiry { get; set; }
             }
+
+            public GuildSettings Guild { get; set; } = new GuildSettings();
+
+            public sealed class GuildSettings
+            {
+                public ulong GuildId { get; set; }
+                public ulong LogChannelId { get; set; }
+                public ulong FeedCategoryId { get; set; }
+            }
         }
 
         public DoujinSettings Doujin { get; set; } = new DoujinSettings();
@@ -39,6 +48,7 @@ namespace nhitomi
         public sealed class DoujinSettings
         {
             public double FeedUpdateInterval { get; set; }
+            public int MaxFeedUpdatesCount { get; set; }
             public double DownloadValidLength { get; set; }
 
             public string[] DownloadProxies { get; set; }

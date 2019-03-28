@@ -38,7 +38,7 @@ namespace nhitomi
         public async Task<IAsyncEnumerable<IDoujin>> SearchAsync(string query)
         {
             if (!string.IsNullOrEmpty(query) &&
-                bannedKeywords.Any(query.Split(' ', StringSplitOptions.RemoveEmptyEntries)
+                _bannedKeywords.Any(query.Split(' ', StringSplitOptions.RemoveEmptyEntries)
                     .Select(k => k.ToLowerInvariant()).Contains))
                 return AsyncEnumerable.Empty<IDoujin>();
 
@@ -69,9 +69,9 @@ namespace nhitomi
             });
         }
 
-        static string[] bannedKeywords = new[]
+        static readonly string[] _bannedKeywords = new[]
         {
-            // Discord Community Guideline: NO LOLICON OR SHOTACON
+            // Discord Community Guidelines: NO LOLICON OR SHOTACON
             "loli",
             "lolis",
             "lolicon",
@@ -89,7 +89,7 @@ namespace nhitomi
         IDoujin filter(IDoujin doujin)
         {
             if (doujin?.Tags == null ||
-                bannedKeywords.Any(doujin.Tags.Contains))
+                _bannedKeywords.Any(doujin.Tags.Contains))
                 return null;
 
             return doujin;

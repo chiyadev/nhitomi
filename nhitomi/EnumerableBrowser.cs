@@ -3,14 +3,13 @@
 // This software is released under the MIT License.
 // https://opensource.org/licenses/MIT
 
-using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace nhitomi
 {
-    public class EnumerableBrowser<T> : IAsyncEnumerator<T>, IDisposable
+    public class EnumerableBrowser<T> : IAsyncEnumerator<T>
     {
         readonly IAsyncEnumerator<T> _enumerator;
         readonly Dictionary<int, T> _dict = new Dictionary<int, T>();
@@ -31,24 +30,20 @@ namespace nhitomi
                 return true;
             }
 
-            if (await _enumerator.MoveNext(cancellationToken))
-            {
-                _dict[++Index] = _enumerator.Current;
-                return true;
-            }
+            if (!await _enumerator.MoveNext(cancellationToken))
+                return false;
 
-            return false;
+            _dict[++Index] = _enumerator.Current;
+            return true;
         }
 
         public bool MovePrevious()
         {
-            if (_dict.ContainsKey(Index - 1))
-            {
-                --Index;
-                return true;
-            }
+            if (!_dict.ContainsKey(Index - 1))
+                return false;
 
-            return false;
+            --Index;
+            return true;
         }
 
         public void Reset() => Index = -1;

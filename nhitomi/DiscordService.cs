@@ -39,8 +39,7 @@ namespace nhitomi
             InteractiveScheduler interactive,
             JsonSerializer json,
             ILoggerFactory loggerFactory,
-            IHostingEnvironment environment
-        )
+            IHostingEnvironment environment)
         {
             _services = services;
             _settings = options.Value;
@@ -58,7 +57,7 @@ namespace nhitomi
 
             // Register as log provider
             if (environment.IsProduction())
-                loggerFactory.AddProvider(new DiscordLogService(this));
+                loggerFactory.AddProvider(new DiscordLogService(this, options));
 
             _logger = loggerFactory.CreateLogger<DiscordService>();
             _logger.LogDebug($"Gallery match regex: {_galleryRegex}");
@@ -85,7 +84,7 @@ namespace nhitomi
             Cacheable<IUserMessage, ulong> cacheable,
             ISocketMessageChannel channel,
             SocketReaction reaction) =>
-            Task.Run(() => _interactive.HandleReaction(cacheable, channel, reaction));
+            Task.Run(() => _interactive.HandleReaction(reaction));
 
         public async Task StartSessionAsync()
         {

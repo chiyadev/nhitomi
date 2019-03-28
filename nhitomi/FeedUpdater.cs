@@ -34,8 +34,7 @@ namespace nhitomi
             DiscordService discord,
             InteractiveScheduler interactive,
             JsonSerializer json,
-            ILogger<FeedUpdater> logger
-        )
+            ILogger<FeedUpdater> logger)
         {
             _settings = options.Value;
             _clients = clients;
@@ -107,13 +106,15 @@ namespace nhitomi
                     return AsyncEnumerable.Empty<IDoujin>();
                 })));
 
+                if (_settings.Doujin.MaxFeedUpdatesCount > 0)
+                    newDoujins = newDoujins.Take(_settings.Doujin.MaxFeedUpdatesCount);
+
                 _logger.LogDebug("Finding feed channels.");
 
                 // Get feed channels
                 var channels =
-                    (_discord.Socket.GetChannel(529830517781037056) as SocketCategoryChannel)?.Channels
-                    .OfType<ITextChannel>()
-                    .ToArray();
+                    (_discord.Socket.GetChannel(_settings.Discord.Guild.FeedCategoryId) as SocketCategoryChannel)
+                    ?.Channels.OfType<ITextChannel>().ToArray();
 
                 if (channels != null && channels.Length != 0)
                 {
@@ -131,8 +132,7 @@ namespace nhitomi
                                 null,
                                 await channel.SendMessageAsync(
                                     $"**{d.Source.Name}**: __{d.Id}__",
-                                    embed: MessageFormatter.EmbedDoujin(d)
-                                ),
+                                    embed: MessageFormatter.EmbedDoujin(d)),
                                 add => add(
                                     // Heart reaction
                                     ("\u2764", async r =>
@@ -153,18 +153,18 @@ namespace nhitomi
                                                 _settings
                                             );
                                         }
-                                    ))
-                            );
+                                    )));
 
-                            _logger.LogDebug($"Sent update '{d.PrettyName ?? d.OriginalName}'");
+                            // delay
+                            await Task.Delay(TimeSpan.FromMilliseconds(500), stoppingToken);
                         }
-                    }, stoppingToken);
 
-                    _logger.LogDebug("Sent feed updates.");
+                        _logger.LogDebug($"Sent update '{d.PrettyName ?? d.OriginalName}'");
+                    }, stoppingToken);
                 }
                 else
                 {
-                    _logger.LogDebug($"No feed channels were found.");
+                    _logger.LogDebug("No feed channels were found.");
                 }
 
                 _logger.LogDebug("Entering sleep.");

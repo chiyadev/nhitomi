@@ -20,8 +20,7 @@ namespace nhitomi
         public HelpModule(
             IOptions<AppSettings> options,
             CommandService commands,
-            ISet<IDoujinClient> clients
-        )
+            ISet<IDoujinClient> clients)
         {
             _settings = options.Value;
             _commands = commands;

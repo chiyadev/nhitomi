@@ -17,13 +17,13 @@ namespace nhitomi
 {
     public class DownloadController : ControllerBase
     {
-        static readonly string _downloader;
+        static readonly string _downloadPage;
 
         static DownloadController()
         {
             using (var stream = typeof(Program).Assembly.GetManifestResourceStream("nhitomi.DownloadClient.html"))
             using (var reader = new StreamReader(stream))
-                _downloader = reader.ReadToEnd();
+                _downloadPage = reader.ReadToEnd();
         }
 
         readonly AppSettings.DiscordSettings _settings;
@@ -37,8 +37,7 @@ namespace nhitomi
             ISet<IDoujinClient> clients,
             JsonSerializer json,
             DownloadProxyManager proxyManager,
-            ILogger<DownloadController> logger
-        )
+            ILogger<DownloadController> logger)
         {
             _settings = options.Value.Discord;
             _clients = clients;
@@ -48,7 +47,7 @@ namespace nhitomi
         }
 
         [HttpGet("/download/{*token}")]
-        public async Task<ActionResult> DownloadAsync(string token)
+        public async Task<ActionResult> GetDownloaderAsync(string token)
         {
             if (!TokenGenerator.TryDeserializeDownloadToken(
                 token, _settings.Token, out var sourceName, out var id, out _, serializer: _json))
@@ -64,13 +63,13 @@ namespace nhitomi
                 return BadRequest("Doujin not found.");
 
             // Create javascript downloader
-            var downloader = _downloader.NamedFormat(new Dictionary<string, object>
+            var downloader = _downloadPage.NamedFormat(new Dictionary<string, object>
             {
                 {"token", token},
                 {"title", doujin.PrettyName},
                 {"subtitle", doujin.OriginalName ?? string.Empty},
-                {"proxies", _json.Serialize(_proxyManager.ProxyUrls)},
-                {"doujin", _json.Serialize(doujin)}
+                {"doujin", _json.Serialize(doujin)},
+                {"proxies", _json.Serialize(_proxyManager.ProxyUrls)}
             });
 
             return Content(downloader, "text/html");

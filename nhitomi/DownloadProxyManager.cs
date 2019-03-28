@@ -23,8 +23,7 @@ namespace nhitomi
         public DownloadProxyManager(
             IOptions<AppSettings> options,
             IHttpClientFactory httpFactory,
-            ILogger<FeedUpdater> logger
-        )
+            ILogger<FeedUpdater> logger)
         {
             _settings = options.Value.Doujin;
             _http = httpFactory?.CreateClient(nameof(DownloadProxyManager));

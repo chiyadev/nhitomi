@@ -18,8 +18,7 @@ namespace nhitomi
 
         public StatusUpdater(
             IOptions<AppSettings> options,
-            DiscordService discord
-        )
+            DiscordService discord)
         {
             _settings = options.Value;
             _discord = discord;

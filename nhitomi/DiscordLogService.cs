@@ -7,24 +7,28 @@ using Discord;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Concurrent;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Options;
 
 namespace nhitomi
 {
     public class DiscordLogService : ILoggerProvider
     {
         readonly DiscordService _discord;
+        readonly AppSettings _settings;
 
         readonly Task _worker;
         readonly CancellationTokenSource _tokenSource = new CancellationTokenSource();
 
         public DiscordLogService(
-            DiscordService discord
-        )
+            DiscordService discord,
+            IOptions<AppSettings> settings)
         {
             _discord = discord;
+            _settings = settings.Value;
 
             _worker = runAsync(_tokenSource.Token);
         }
@@ -35,45 +39,35 @@ namespace nhitomi
         {
             do
             {
-                if (_discord.Socket.ConnectionState != ConnectionState.Connected)
-                    goto sleep;
-
-                var channel = _discord.Socket
-                    .GetGuild(515395714264858653)
-                    .GetTextChannel(515824554359259138);
-
-                if (channel == null)
-                    goto sleep;
-
-                var builder = new StringBuilder(500, 2000);
-
-                async Task flush()
+                if (_discord.Socket.ConnectionState == ConnectionState.Connected &&
+                    _discord.Socket.GetChannel(_settings.Discord.Guild.LogChannelId) is ITextChannel channel)
                 {
-                    if (builder.Length == 0 ||
-                        token.IsCancellationRequested)
-                        return;
+                    var builder = new StringBuilder(500, 2000);
 
-                    await channel.SendMessageAsync(builder.ToString());
-                    builder.Clear();
+                    async Task flush()
+                    {
+                        if (builder.Length == 0 ||
+                            token.IsCancellationRequested)
+                            return;
+
+                        await channel.SendMessageAsync(builder.ToString());
+                        builder.Clear();
+                    }
+
+                    // Chunk logs to fit 2000 characters limit
+                    while (_queue.TryDequeue(out var line))
+                    {
+                        if (builder.Length + line.Length > 2000)
+                            await flush();
+
+                        builder.AppendLine(line);
+                    }
+
+                    await flush();
                 }
 
-                // Chunk logs to fit 2000 characters limit
-                while (_queue.TryDequeue(out var line))
-                {
-                    if (builder.Length + line.Length > 2000)
-                        await flush();
-
-                    builder.AppendLine(line);
-                }
-
-                await flush();
-
-                sleep:
                 // Sleep
-                await Task.Delay(
-                    TimeSpan.FromSeconds(1),
-                    token
-                );
+                await Task.Delay(TimeSpan.FromSeconds(1), token);
             } while (!token.IsCancellationRequested);
         }
 
@@ -84,10 +78,9 @@ namespace nhitomi
 
             public DiscordLogger(
                 DiscordLogService provider,
-                string category
-            )
+                string category)
             {
-                _category = category;
+                _category = category.Split('.').Last();
                 _provider = provider;
             }
 

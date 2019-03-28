@@ -27,8 +27,7 @@ namespace nhitomi
             IOptions<AppSettings> options,
             InteractiveScheduler interactive,
             ISet<IDoujinClient> clients,
-            JsonSerializer json
-        )
+            JsonSerializer json)
         {
             _settings = options.Value;
             _interactive = interactive;
@@ -48,8 +47,7 @@ namespace nhitomi
             if (client == null)
                 response = await ReplyAsync(
                     $"**nhitomi**: Source __{source}__ is not supported. " +
-                    $"Please see refer to the manual (**{_settings.Discord.Prefix}help**) for a full list of supported sources."
-                );
+                    $"Please see refer to the manual (**{_settings.Discord.Prefix}help**) for a full list of supported sources.");
 
             return (client, response);
         }
@@ -81,8 +79,7 @@ namespace nhitomi
         [Remarks("n!get nhentai 177013")]
         public async Task GetAsync(
             string source,
-            [Remainder] string id
-        )
+            [Remainder] string id)
         {
             var (client, doujin, response) = await getDoujinAsync(source, id);
 
@@ -104,8 +101,7 @@ namespace nhitomi
             IDoujin doujin,
             IDiscordClient client,
             JsonSerializer serializer,
-            AppSettings settings
-        )
+            AppSettings settings)
         {
             // Message for download toggling
             var downloadMessage = (IUserMessage) null;
@@ -142,15 +138,18 @@ namespace nhitomi
             IUser user,
             IDiscordClient client,
             JsonSerializer serializer,
-            AppSettings settings
-        )
+            AppSettings settings)
         {
-            var guild = await client.GetGuildAsync(515395714264858653);
+            var guild = await client.GetGuildAsync(settings.Discord.Guild.GuildId);
 
             // Allow downloading only for users of guild
-            if (await guild.GetUserAsync(user.Id) == null)
-                return await user.SendMessageAsync(
-                    $"**nhitomi**: Please join our server to enable downloading! https://discord.gg/JFNga7q");
+            if (guild != null && await guild.GetUserAsync(user.Id) == null)
+            {
+                await user.SendMessageAsync(
+                    "**nhitomi**: Please join our server to enable downloading! https://discord.gg/JFNga7q");
+
+                return null;
+            }
 
             // Create token
             var downloadToken = doujin.CreateDownloadToken(
@@ -172,9 +171,7 @@ namespace nhitomi
         [Alias("a")]
         [Summary("Displays all doujins from the specified source uploaded recently.")]
         [Remarks("n!all hitomi")]
-        public async Task ListAsync(
-            [Remainder] string source = null
-        )
+        public async Task ListAsync([Remainder] string source = null)
         {
             IUserMessage response;
             IAsyncEnumerable<IDoujin> results;
@@ -189,7 +186,7 @@ namespace nhitomi
             {
                 // Get client
                 IDoujinClient client;
-                (client, response) = await getClientAsync(source);
+                (client, _) = await getClientAsync(source);
 
                 if (client == null)
                     return;
@@ -207,9 +204,7 @@ namespace nhitomi
         [Summary(
             "Searches for doujins by the title and tags across the supported sources that match the specified query.")]
         [Remarks("n!search glasses")]
-        public async Task SearchAsync(
-            [Remainder] string query
-        )
+        public async Task SearchAsync([Remainder] string query)
         {
             query = query?.Trim();
 
@@ -253,8 +248,7 @@ namespace nhitomi
             InteractiveScheduler interactive,
             IDiscordClient client,
             JsonSerializer serializer,
-            AppSettings settings
-        )
+            AppSettings settings)
         {
             var browser = new EnumerableBrowser<IDoujin>(
                 results
@@ -352,8 +346,10 @@ namespace nhitomi
                     downloadMessage = null;
                 }
                 else
+                {
                     downloadMessage = await ShowDownload(browser.Current, response.Channel, request.Author, client,
                         serializer, settings);
+                }
             }
 
             async Task updateDownload()
@@ -371,8 +367,7 @@ namespace nhitomi
                     string.Empty,
                     MessageFormatter.EmbedDownload(
                         browser.Current.PrettyName,
-                        $"{settings.Http.Url}/download/{downloadToken}"
-                    )
+                        $"{settings.Http.Url}/download/{downloadToken}")
                 );
             }
         }
@@ -383,16 +378,16 @@ namespace nhitomi
         [Remarks("n!download nhentai 177013")]
         public async Task DownloadAsync(
             string source,
-            [Remainder] string id
-        )
+            [Remainder] string id)
         {
-            var guild = await Context.Client.GetGuildAsync(515395714264858653);
+            var guild = await Context.Client.GetGuildAsync(_settings.Discord.Guild.GuildId);
 
             // Allow downloading only for users of guild
-            if ((await guild.GetUserAsync(Context.User.Id)) == null)
+            if (guild != null && await guild.GetUserAsync(Context.User.Id) == null)
             {
                 await Context.User.SendMessageAsync(
                     $"**nhitomi**: Please join our server to enable downloading! https://discord.gg/JFNga7q");
+
                 return;
             }
 
@@ -411,8 +406,7 @@ namespace nhitomi
                 $"**{client.Name}**: Download __{id}__",
                 MessageFormatter.EmbedDownload(
                     doujin.PrettyName,
-                    $"{_settings.Http.Url}/download/{downloadToken}"
-                )
+                    $"{_settings.Http.Url}/download/{downloadToken}")
             );
         }
     }

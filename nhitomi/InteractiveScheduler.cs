@@ -20,9 +20,7 @@ namespace nhitomi
 
         public ICollection<ulong> IgnoreReactionUsers { get; } = new HashSet<ulong>();
 
-        public InteractiveScheduler(
-            IOptions<AppSettings> options
-        )
+        public InteractiveScheduler(IOptions<AppSettings> options)
         {
             _settings = options.Value;
         }
@@ -40,8 +38,7 @@ namespace nhitomi
 
             public Interactive(
                 ulong? requester,
-                ulong response
-            )
+                ulong response)
             {
                 RequesterId = requester;
                 ResponseId = response;
@@ -55,8 +52,7 @@ namespace nhitomi
             IUserMessage response,
             Action<AddTriggers> triggers = null,
             Func<Task> onExpire = null,
-            bool allowTrash = false
-        )
+            bool allowTrash = false)
         {
             // Create interactive
             var interactive = new Interactive(requester?.Id, response.Id);
@@ -65,21 +61,20 @@ namespace nhitomi
             var expiryTime = DateTime.Now.AddMinutes(_settings.Discord.Command.InteractiveExpiry);
 
             // Add triggers
-            if (triggers != null)
-                triggers(collection =>
-                {
-                    foreach (var trigger in collection)
-                        interactive.Triggers.Add(
-                            new Emoji(trigger.emoji),
-                            reaction =>
-                            {
-                                // Delay expiry on trigger
-                                expiryTime = DateTime.Now.AddMinutes(_settings.Discord.Command.InteractiveExpiry);
+            triggers?.Invoke(collection =>
+            {
+                foreach (var trigger in collection)
+                    interactive.Triggers.Add(
+                        new Emoji(trigger.emoji),
+                        reaction =>
+                        {
+                            // Delay expiry on trigger
+                            expiryTime = DateTime.Now.AddMinutes(_settings.Discord.Command.InteractiveExpiry);
 
-                                return trigger.onTrigger(reaction);
-                            }
-                        );
-                });
+                            return trigger.onTrigger(reaction);
+                        }
+                    );
+            });
 
             // Register interactive
             _interactives.AddOrUpdate(interactive.ResponseId, interactive, (a, b) => interactive);
@@ -95,12 +90,7 @@ namespace nhitomi
                 {
                     // Wait until expiry
                     while (expiryTime > DateTime.Now)
-                    {
-                        await Task.Delay(
-                            expiryTime - DateTime.Now,
-                            expiryDelayToken.Token
-                        );
-                    }
+                        await Task.Delay(expiryTime - DateTime.Now, expiryDelayToken.Token);
                 }
                 catch (TaskCanceledException)
                 {
@@ -138,11 +128,7 @@ namespace nhitomi
                 await response.AddReactionAsync(trigger);
         }
 
-        public async Task HandleReaction(
-            Cacheable<IUserMessage, ulong> cacheable,
-            ISocketMessageChannel channel,
-            SocketReaction reaction
-        )
+        public async Task HandleReaction(SocketReaction reaction)
         {
             if (!_interactives.TryGetValue(reaction.MessageId, out var interactive) || // Message must be interactive
                 IgnoreReactionUsers.Contains(reaction.UserId) || // Reaction user must not be ignoring

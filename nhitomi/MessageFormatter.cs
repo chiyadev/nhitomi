@@ -56,8 +56,7 @@ namespace nhitomi
         public static Embed EmbedHelp(
             string prefix,
             IEnumerable<CommandInfo> commands,
-            IEnumerable<IDoujinClient> clients
-        )
+            IEnumerable<IDoujinClient> clients)
         {
             var embed = new EmbedBuilder()
                 .WithTitle("**nhitomi**: Help")
@@ -103,8 +102,7 @@ namespace nhitomi
                 .WithTitle("**nhitomi**: Error")
                 .WithDescription(
                     "Sorry, we encountered an unexpected error and have reported it to the developers! " +
-                    "Please join our official server for further assistance: https://discord.gg/JFNga7q"
-                )
+                    "Please join our official server for further assistance: https://discord.gg/JFNga7q")
                 .WithColor(Color.Red)
                 .WithCurrentTimestamp();
 
@@ -113,15 +111,12 @@ namespace nhitomi
 
         public static Embed EmbedDownload(
             string doujinName,
-            string link
-        )
+            string link)
         {
             var embed = new EmbedBuilder()
                 .WithTitle($"**nhitomi**: {doujinName}")
                 .WithUrl(link)
-                .WithDescription(
-                    $"Click the link above to start downloading `{doujinName}`.\n"
-                )
+                .WithDescription($"Click the link above to start downloading `{doujinName}`.\n")
                 .WithColor(Color.LightOrange)
                 .WithCurrentTimestamp();
 
