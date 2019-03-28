@@ -129,7 +129,7 @@
 
             var queue = doujin.pages.map(function (page) {
               return {
-                name: ("00" + ((page.i || 0) + 1)).substr(3) + page.e,
+                name: ("00" + ((page.i || 0) + 1)).substr(-3) + page.e,
                 url: page.u
               };
             });
