@@ -21,7 +21,7 @@ namespace nhitomi
 
         [HttpGet]
         public string Get() =>
-            $@"nhitomi — a Discord bot for searching and downloading doujinshi.
+            $@"nhitomi — a Discord bot for searching and downloading doujinshi by fate/loli.
 
 - Discord: {_settings.Discord.Guild.GuildInvite}
 - GitHub: https://github.com/fateloli/nhitomi";
