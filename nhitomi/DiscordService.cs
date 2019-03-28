@@ -49,8 +49,7 @@ namespace nhitomi
 
             _galleryRegex = new Regex(
                 $"({string.Join(")|(", clients.Select(c => c.GalleryRegex))})",
-                RegexOptions.Compiled
-            );
+                RegexOptions.Compiled);
 
             Socket = new DiscordSocketClient(_settings.Discord);
             Commands = new CommandService(_settings.Discord.Command);

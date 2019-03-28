@@ -11,18 +11,23 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
 namespace nhitomi
 {
     public class InteractiveScheduler
     {
         readonly AppSettings _settings;
+        readonly ILogger _logger;
 
         public ICollection<ulong> IgnoreReactionUsers { get; } = new HashSet<ulong>();
 
-        public InteractiveScheduler(IOptions<AppSettings> options)
+        public InteractiveScheduler(
+            IOptions<AppSettings> options,
+            ILogger<InteractiveScheduler> logger)
         {
             _settings = options.Value;
+            _logger = logger;
         }
 
         readonly ConcurrentDictionary<ulong, Interactive>
@@ -136,7 +141,19 @@ namespace nhitomi
                 return;
 
             // Execute callback
-            await callback(reaction);
+            try
+            {
+                await callback(reaction);
+            }
+            catch (Exception e)
+            {
+                _logger.LogWarning(e,
+                    $"Exception while handling reaction {reaction.Emote.Name} by user {reaction.UserId}: {e.Message}");
+
+                // Send error message
+                await reaction.Channel.SendMessageAsync(string.Empty, embed: MessageFormatter.EmbedError(
+                    _settings.Discord.Guild.GuildInvite));
+            }
         }
     }
 }
