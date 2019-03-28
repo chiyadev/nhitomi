@@ -147,34 +147,32 @@
                   var retryCount = 0;
 
                   function downloadCurrent() {
-                    JSZipUtils.getBinaryContent(
-                      getProxiedImage(image.url),
-                      function (error, data) {
-                        if (!running)
-                          return;
+                    JSZipUtils.getBinaryContent(getProxiedImage(image.url), function (error, data) {
+                      if (!running)
+                        return;
 
-                        if (error) {
-                          if (retryCount++ === 20) {
-                            queue.length = 0;
-                            updateStatus("Could not download '" + image.url + "': " + error, !(running = false));
-                          } else
-                            setTimeout(downloadCurrent, 1000);
+                      if (error) {
+                        if (retryCount++ === 20) {
+                          queue.length = 0;
+                          updateStatus("Could not download '" + image.url + "': " + error, !(running = false));
+                        } else
+                          setTimeout(downloadCurrent, 1000);
 
-                          return;
-                        }
+                        return;
+                      }
 
-                        zip.file(image.name, data, {
-                          binary: true
-                        });
-
-                        concurrentDownloads--;
-                        updateProgress(++downloadedCount, image.name);
-
-                        if (downloadedCount === doujin.pages.length)
-                          saveZip();
-                        else
-                          downloadNext();
+                      zip.file(image.name, data, {
+                        binary: true
                       });
+
+                      concurrentDownloads--;
+                      updateProgress(++downloadedCount, image.name);
+
+                      if (downloadedCount === doujin.pages.length)
+                        saveZip();
+                      else
+                        downloadNext();
+                    });
                   }
 
                   downloadCurrent();
