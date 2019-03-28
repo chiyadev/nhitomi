@@ -46,6 +46,8 @@
         integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.2.0/jszip.js"
         integrity="sha256-EHgAIxZ/n1IaWzhk7MwPaOux4UOWSr3czJ4dEVimBvo=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip-utils/0.0.2/jszip-utils.min.js"
+        integrity="sha256-AIk6chbus7IS5RVpqSNV1X7Qihbi1YC0lOLuUXQZ+mw=" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/1.3.8/FileSaver.min.js"
         integrity="sha256-FPJJt8nA+xL4RU6/gsriA8p8xAeLGatoyTjldvQKGdE=" crossorigin="anonymous"></script>
 
@@ -145,33 +147,34 @@
                   var retryCount = 0;
 
                   function downloadCurrent() {
-                    var xhr = new XMLHttpRequest();
-                    xhr.open("GET", getProxiedImage(image.url), true);
-                    xhr.responseType = "arraybuffer";
-                    xhr.onload = function (event) {
-                      if (!running)
-                        return;
+                    JSZipUtils.getBinaryContent(
+                      getProxiedImage(image.url),
+                      function (error, data) {
+                        if (!running)
+                          return;
 
-                      zip.file(image.name, new Blob(event.response), {
-                        binary: true
+                        if (error) {
+                          if (retryCount++ === 20) {
+                            queue.length = 0;
+                            updateStatus("Could not download '" + image.url + "': " + error, !(running = false));
+                          } else
+                            setTimeout(downloadCurrent, 1000);
+
+                          return;
+                        }
+
+                        zip.file(image.name, data, {
+                          binary: true
+                        });
+
+                        concurrentDownloads--;
+                        updateProgress(++downloadedCount, image.name);
+
+                        if (downloadedCount === doujin.pages.length)
+                          saveZip();
+                        else
+                          downloadNext();
                       });
-
-                      concurrentDownloads--;
-                      updateProgress(++downloadedCount, image.name);
-
-                      if (downloadedCount === doujin.pages.length)
-                        saveZip();
-                      else
-                        downloadNext();
-                    };
-                    xhr.onerror = function () {
-                      if (retryCount++ === 20) {
-                        queue.length = 0;
-                        updateStatus("Could not download '" + image.url + "': " + this.statusText, !(running = false));
-                      } else
-                        setTimeout(downloadCurrent, 1000);
-                    };
-                    xhr.send();
                   }
 
                   downloadCurrent();
