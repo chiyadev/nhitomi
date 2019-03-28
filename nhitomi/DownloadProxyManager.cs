@@ -45,7 +45,7 @@ namespace nhitomi
                         ? _settings.DownloadProxies.Length
                         : Math.Min(_settings.DownloadProxies.Length, _settings.MaxConcurrentProxies.Value);
 
-                    for (var i = 0; i < proxyCount;)
+                    for (var i = 0; i < _settings.DownloadProxies.Length && proxies.Count < proxyCount; i++)
                     {
                         var proxy = _settings.DownloadProxies[i];
 
@@ -59,7 +59,6 @@ namespace nhitomi
                                     continue;
 
                                 proxies.Add(proxy);
-                                i++;
                             }
                         }
                         catch (Exception e)
