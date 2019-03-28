@@ -78,13 +78,20 @@ namespace nhitomi
             }
         }
 
-        Task handleMessageBackgroundAsync(SocketMessage message) => Task.Run(() => handleMessageAsync(message));
+        Task handleMessageBackgroundAsync(SocketMessage message)
+        {
+            Task.Run(() => handleMessageAsync(message));
+            return Task.CompletedTask;
+        }
 
         Task handleReactionBackgroundAsync(
             Cacheable<IUserMessage, ulong> cacheable,
             ISocketMessageChannel channel,
-            SocketReaction reaction) =>
+            SocketReaction reaction)
+        {
             Task.Run(() => _interactive.HandleReaction(reaction));
+            return Task.CompletedTask;
+        }
 
         public async Task StartSessionAsync()
         {
