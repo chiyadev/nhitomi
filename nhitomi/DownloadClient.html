@@ -82,7 +82,7 @@
         .fadeIn();
     }
 
-    var proxyIndex = 0;
+    var proxyIndex = Math.floor(Math.random() * proxies.length);
 
     function getProxiedImage(url) {
       return proxies[proxyIndex++ % proxies.length]
@@ -92,7 +92,7 @@
 
     try {
       if (proxies.length === 0) {
-        updateStatus("No proxies available!", true);
+        updateStatus("No proxies are available!", true);
       } else {
         $("#galleryButton")
           .attr("href", doujin.sourceUrl)
@@ -101,7 +101,7 @@
 
         $thumbnail
           .error(function () {
-            updateStatus("Proxy is unavailable.");
+            updateStatus("No proxies are available!");
           })
           .attr("src", getProxiedImage(doujin.pages[0].u))
           .on('load', function () {
