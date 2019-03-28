@@ -162,7 +162,7 @@
                       queue.length = 0;
                       updateStatus("Could not download '" + image.url + "': " + error, !(running = false));
                     } else
-                      downloadCurrent();
+                      setTimeout(downloadCurrent, 1000);
                   });
                 }
 
