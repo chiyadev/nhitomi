@@ -35,10 +35,10 @@ namespace nhitomi
             await ReplyAsync(
                 string.Empty,
                 embed: MessageFormatter.EmbedHelp(
-                    commands: _commands.Commands,
-                    clients: _clients,
-                    prefix: _settings.Discord.Prefix
-                )
+                    _settings.Discord.Prefix,
+                    _commands.Commands,
+                    _clients,
+                    _settings.Discord.Guild.GuildInvite)
             );
         }
     }

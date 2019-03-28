@@ -217,7 +217,8 @@ namespace nhitomi
                 _logger.LogWarning(e, $"Exception while handling message {userMessage.Id}: {e.Message}");
 
                 // Send error message
-                await userMessage.Channel.SendMessageAsync(string.Empty, embed: MessageFormatter.EmbedError());
+                await userMessage.Channel.SendMessageAsync(string.Empty, embed: MessageFormatter.EmbedError(
+                    _settings.Discord.Guild.GuildInvite));
             }
         }
 

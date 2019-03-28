@@ -148,7 +148,7 @@ namespace nhitomi
                 await guild.GetUserAsync(user.Id) == null)
             {
                 await user.SendMessageAsync(
-                    "**nhitomi**: Please join our server to enable downloading! https://discord.gg/JFNga7q");
+                    $"**nhitomi**: Please join our server to enable downloading! {settings.Discord.Guild.GuildInvite}");
 
                 return null;
             }
@@ -180,7 +180,7 @@ namespace nhitomi
 
             if (string.IsNullOrWhiteSpace(source))
             {
-                response = await ReplyAsync($"**nhitomi**: Loading...");
+                response = await ReplyAsync("**nhitomi**: Loading...");
                 results = Extensions.Interleave(await Task.WhenAll(_clients.Select(c => c.SearchAsync(null))))
                     .Distinct(d => d.OriginalName ?? d.PrettyName);
             }
@@ -319,7 +319,7 @@ namespace nhitomi
             {
                 if (!await browser.MoveNext())
                 {
-                    await updateView($"**nhitomi**: End of list!");
+                    await updateView("**nhitomi**: End of list!");
                     return;
                 }
 
@@ -332,7 +332,7 @@ namespace nhitomi
             {
                 if (!browser.MovePrevious())
                 {
-                    await updateView($"**nhitomi**: Start of list!");
+                    await updateView("**nhitomi**: Start of list!");
                     return;
                 }
 
@@ -390,7 +390,7 @@ namespace nhitomi
                 await guild.GetUserAsync(Context.User.Id) == null)
             {
                 await Context.User.SendMessageAsync(
-                    $"**nhitomi**: Please join our server to enable downloading! https://discord.gg/JFNga7q");
+                    $"**nhitomi**: Please join our server to enable downloading! {_settings.Discord.Guild.GuildInvite}");
 
                 return;
             }

@@ -108,7 +108,7 @@ namespace nhitomi
                 if (exception?.StackTrace != null)
                     text
                         .AppendLine()
-                        .Append($"Trace: ")
+                        .Append("Trace: ")
                         .Append(exception.StackTrace);
 
                 _provider._queue.Enqueue(text.ToString());

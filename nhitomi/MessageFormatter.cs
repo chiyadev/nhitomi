@@ -56,14 +56,14 @@ namespace nhitomi
         public static Embed EmbedHelp(
             string prefix,
             IEnumerable<CommandInfo> commands,
-            IEnumerable<IDoujinClient> clients)
+            IEnumerable<IDoujinClient> clients,
+            string guildInvite)
         {
             var embed = new EmbedBuilder()
                 .WithTitle("**nhitomi**: Help")
                 .WithDescription(
                     "nhitomi — a Discord bot for searching and downloading doujinshi.\n" +
-                    "Join our server: https://discord.gg/JFNga7q"
-                )
+                    $"Join our server: {guildInvite}")
                 .WithColor(Color.Purple)
                 .WithCurrentTimestamp();
 
@@ -96,13 +96,14 @@ namespace nhitomi
             return embed.Build();
         }
 
-        public static Embed EmbedError()
+        public static Embed EmbedError(
+            string guildInvite)
         {
             var embed = new EmbedBuilder()
                 .WithTitle("**nhitomi**: Error")
                 .WithDescription(
                     "Sorry, we encountered an unexpected error and have reported it to the developers! " +
-                    "Please join our official server for further assistance: https://discord.gg/JFNga7q")
+                    $"Please join our official server for further assistance: {guildInvite}")
                 .WithColor(Color.Red)
                 .WithCurrentTimestamp();
 
