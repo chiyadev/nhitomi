@@ -103,10 +103,6 @@
           .fadeIn();
 
         $thumbnail
-          .error(function () {
-            updateStatus("No proxies are available!");
-          })
-          .attr("src", getProxiedImage(doujin.pages[0].u))
           .on('load', function () {
             $thumbnail.fadeIn();
 
@@ -180,10 +176,15 @@
 
             updateStatus("Downloading...");
             downloadNext();
-          }).each(function () {
-          if (this.complete)
-            $(this).trigger('load');
-        });
+          })
+          .on('error', function () {
+            updateStatus("No proxies are available!");
+          })
+          .attr("src", getProxiedImage(doujin.pages[0].u))
+          .each(function () {
+            if (this.complete)
+              $(this).trigger('load');
+          });
       }
     } catch (e) {
       updateStatus(e, true);
