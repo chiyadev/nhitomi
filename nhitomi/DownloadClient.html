@@ -145,11 +145,14 @@
                   var retryCount = 0;
 
                   function downloadCurrent() {
-                    $.get(getProxiedImage(image.url), function (data) {
+                    var xhr = new XMLHttpRequest();
+                    xhr.open("GET", getProxiedImage(image.url), true);
+                    xhr.responseType = "arraybuffer";
+                    xhr.onload = function (event) {
                       if (!running)
                         return;
 
-                      zip.file(image.name, data, {
+                      zip.file(image.name, event.response, {
                         binary: true
                       });
 
@@ -160,13 +163,15 @@
                         saveZip();
                       else
                         downloadNext();
-                    }).fail(function (jqXHR, message, error) {
+                    };
+                    xhr.onerror = function () {
                       if (retryCount++ === 20) {
                         queue.length = 0;
-                        updateStatus("Could not download '" + image.url + "': " + error, !(running = false));
+                        updateStatus("Could not download '" + image.url + "': " + this.statusText, !(running = false));
                       } else
                         setTimeout(downloadCurrent, 1000);
-                    });
+                    };
+                    xhr.send();
                   }
 
                   downloadCurrent();
