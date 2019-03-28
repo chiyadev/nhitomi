@@ -178,7 +178,7 @@
             downloadNext();
           })
           .on('error', function () {
-            updateStatus("No proxies are available!");
+            updateStatus("No proxies are available!", true);
           })
           .attr("src", getProxiedImage(doujin.pages[0].u))
           .each(function () {
