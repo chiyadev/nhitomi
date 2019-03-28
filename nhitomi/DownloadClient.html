@@ -59,6 +59,7 @@
     var $status = $("#status");
     var $progress = $("#progress");
     var $thumbnail = $("#thumbnail");
+    var $galleryButton = $("#galleryButton");
 
     function updateStatus(text, error) {
       $status.text(text);
@@ -94,7 +95,7 @@
       if (proxies.length === 0) {
         updateStatus("No proxies are available!", true);
       } else {
-        $("#galleryButton")
+        $galleryButton
           .attr("href", doujin.sourceUrl)
           .text(doujin.source.name + "/" + doujin.id)
           .fadeIn();
