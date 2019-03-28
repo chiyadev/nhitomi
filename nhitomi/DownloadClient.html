@@ -161,7 +161,7 @@
                       else
                         downloadNext();
                     }).fail(function (jqXHR, message, error) {
-                      if (retryCount++ === 10) {
+                      if (retryCount++ === 20) {
                         queue.length = 0;
                         updateStatus("Could not download '" + image.url + "': " + error, !(running = false));
                       } else
