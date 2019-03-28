@@ -143,7 +143,9 @@ namespace nhitomi
             var guild = await client.GetGuildAsync(settings.Discord.Guild.GuildId);
 
             // Allow downloading only for users of guild
-            if (guild != null && await guild.GetUserAsync(user.Id) == null)
+            if (guild != null &&
+                !settings.Doujin.AllowNonGuildMemberDownloads &&
+                await guild.GetUserAsync(user.Id) == null)
             {
                 await user.SendMessageAsync(
                     "**nhitomi**: Please join our server to enable downloading! https://discord.gg/JFNga7q");
@@ -383,7 +385,9 @@ namespace nhitomi
             var guild = await Context.Client.GetGuildAsync(_settings.Discord.Guild.GuildId);
 
             // Allow downloading only for users of guild
-            if (guild != null && await guild.GetUserAsync(Context.User.Id) == null)
+            if (guild != null &&
+                !_settings.Doujin.AllowNonGuildMemberDownloads &&
+                await guild.GetUserAsync(Context.User.Id) == null)
             {
                 await Context.User.SendMessageAsync(
                     $"**nhitomi**: Please join our server to enable downloading! https://discord.gg/JFNga7q");
