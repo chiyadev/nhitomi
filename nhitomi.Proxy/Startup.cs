@@ -60,6 +60,8 @@ namespace nhitomi.Proxy
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
+            app.UseStatusCodePages();
+
             if (env.IsProduction())
                 app.UseHttpsRedirection();
 
