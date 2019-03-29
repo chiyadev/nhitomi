@@ -13,5 +13,12 @@ namespace nhitomi.Proxy
         {
             public string Token { get; set; }
         }
+
+        public HttpSettings Http { get; set; } = new HttpSettings();
+
+        public sealed class HttpSettings
+        {
+            public string CorsAllowUrl { get; set; }
+        }
     }
 }
