@@ -18,4 +18,8 @@ FROM microsoft/dotnet:aspnetcore-runtime
 WORKDIR /app
 COPY --from=build-env /app/nhitomi/out .
 
+# Expose ports used by Kestrel
+EXPOSE 80
+EXPOSE 433
+
 ENTRYPOINT ["dotnet", "nhitomi.dll"]
