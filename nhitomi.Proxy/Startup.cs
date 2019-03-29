@@ -58,8 +58,13 @@ namespace nhitomi.Proxy
                 .AddTransient(s => JsonSerializer.Create(new nhitomiSerializerSettings()));
         }
 
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env) => app
-            .UseCors("DefaultPolicy")
-            .UseMvc();
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        {
+            if (env.IsProduction())
+                app.UseHttpsRedirection();
+
+            app.UseCors("DefaultPolicy")
+                .UseMvc();
+        }
     }
 }

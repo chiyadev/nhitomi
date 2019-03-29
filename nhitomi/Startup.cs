@@ -8,6 +8,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using System.Collections.Generic;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using nhitomi.Core;
@@ -76,6 +77,12 @@ namespace nhitomi
                 });
         }
 
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env) => app.UseMvc();
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        {
+            if (env.IsProduction())
+                app.UseHttpsRedirection();
+
+            app.UseMvc();
+        }
     }
 }
