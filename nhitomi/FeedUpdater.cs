@@ -124,42 +124,50 @@ namespace nhitomi
                     // Send new updates
                     await newDoujins.ForEachAsync(async d =>
                     {
-                        var tags = tagsToChannels(d.Tags).ToArray();
-
-                        foreach (var channel in channels.Where(c => tags.Contains(c.Name)))
+                        try
                         {
-                            await _interactive.CreateInteractiveAsync(
-                                null,
-                                await channel.SendMessageAsync(
-                                    $"**{d.Source.Name}**: __{d.Id}__",
-                                    embed: MessageFormatter.EmbedDoujin(d)),
-                                add => add(
-                                    // Heart reaction
-                                    ("\u2764", async r =>
-                                        {
-                                            var requester = _discord.Socket.GetUser(r.UserId);
+                            var tags = tagsToChannels(d.Tags).ToArray();
 
-                                            await DoujinModule.ShowDoujin(
-                                                _interactive,
-                                                requester,
-                                                await (await requester.GetOrCreateDMChannelAsync())
-                                                    .SendMessageAsync(
-                                                        $"**{d.Source.Name}**: __{d.Id}__",
-                                                        embed: MessageFormatter.EmbedDoujin(d)
-                                                    ),
-                                                d,
-                                                _discord.Socket,
-                                                _json,
-                                                _settings
-                                            );
-                                        }
-                                    )));
+                            foreach (var channel in channels.Where(c => tags.Contains(c.Name)))
+                            {
+                                await _interactive.CreateInteractiveAsync(
+                                    null,
+                                    await channel.SendMessageAsync(
+                                        $"**{d.Source.Name}**: __{d.Id}__",
+                                        embed: MessageFormatter.EmbedDoujin(d)),
+                                    add => add(
+                                        // Heart reaction
+                                        ("\u2764", async r =>
+                                            {
+                                                var requester = _discord.Socket.GetUser(r.UserId);
 
-                            // delay
-                            await Task.Delay(TimeSpan.FromMilliseconds(500), stoppingToken);
+                                                await DoujinModule.ShowDoujin(
+                                                    _interactive,
+                                                    requester,
+                                                    await (await requester.GetOrCreateDMChannelAsync())
+                                                        .SendMessageAsync(
+                                                            $"**{d.Source.Name}**: __{d.Id}__",
+                                                            embed: MessageFormatter.EmbedDoujin(d)
+                                                        ),
+                                                    d,
+                                                    _discord.Socket,
+                                                    _json,
+                                                    _settings
+                                                );
+                                            }
+                                        )));
+
+                                // delay
+                                await Task.Delay(TimeSpan.FromMilliseconds(500), stoppingToken);
+                            }
+
+                            _logger.LogDebug($"Sent update '{d.PrettyName ?? d.OriginalName}'");
                         }
-
-                        _logger.LogDebug($"Sent update '{d.PrettyName ?? d.OriginalName}'");
+                        catch (Exception e)
+                        {
+                            _logger.LogWarning(e,
+                                $"Exception while sending update for doujin '{d.PrettyName ?? d.OriginalName}'");
+                        }
                     }, stoppingToken);
                 }
                 else
