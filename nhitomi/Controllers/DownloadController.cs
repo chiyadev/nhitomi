@@ -3,7 +3,6 @@
 // This software is released under the MIT License.
 // https://opensource.org/licenses/MIT
 
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -81,33 +80,6 @@ namespace nhitomi.Controllers
             });
 
             return Content(downloader, "text/html");
-        }
-
-        [HttpPost("/download/proxies/register")]
-        public ActionResult RegisterProxy([FromForm] string token)
-        {
-            if (!TokenGenerator.TryDeserializeToken<TokenGenerator.ProxyRegistrationPayload>(
-                token, _settings.Discord.Token, out var payload, serializer: _json))
-                return BadRequest("Invalid registration token.");
-
-            lock (_proxies.Lock)
-            {
-                var proxy = _proxies.FirstOrDefault(p => p.Url == payload.ProxyUrl);
-
-                if (proxy == null)
-                {
-                    _proxies.Add(proxy = new ProxyInfo
-                    {
-                        Url = payload.ProxyUrl
-                    });
-
-                    _logger.LogDebug($"Proxy '{proxy.Url}' registered.");
-                }
-
-                proxy.RegisterTime = DateTime.UtcNow;
-
-                return Ok($"Registered {proxy.Url}.");
-            }
         }
     }
 }
