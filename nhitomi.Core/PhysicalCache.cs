@@ -19,8 +19,8 @@ namespace nhitomi.Core
         public PhysicalCache(string name, JsonSerializer serializer = null)
         {
             CachePath = Path.GetTempPath();
-            CachePath = getPath(nameof(nhitomi));
-            CachePath = getPath(name);
+            CachePath = GetPath(nameof(nhitomi));
+            CachePath = GetPath(name);
 
             Serializer = serializer ?? JsonSerializer.CreateDefault();
         }
@@ -30,7 +30,7 @@ namespace nhitomi.Core
             while (true)
                 try
                 {
-                    return new FileStream(getPath(name), FileMode.Open, FileAccess.Read, FileShare.Read);
+                    return new FileStream(GetPath(name), FileMode.Open, FileAccess.Read, FileShare.Read);
                 }
                 catch (FileNotFoundException)
                 {
@@ -51,7 +51,7 @@ namespace nhitomi.Core
         {
             try
             {
-                var path = getPath(name);
+                var path = GetPath(name);
 
                 Directory.CreateDirectory(Path.GetDirectoryName(path));
 
@@ -109,9 +109,9 @@ namespace nhitomi.Core
             return await GetAsync<T>(name);
         }
 
-        string getPath(string name) => Path.Combine(CachePath, processName(name));
+        string GetPath(string name) => Path.Combine(CachePath, ProcessName(name));
 
-        static string processName(string name)
+        static string ProcessName(string name)
         {
             if (string.IsNullOrWhiteSpace(name))
                 throw new ArgumentNullException(nameof(name));
