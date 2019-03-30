@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Discord;
+using Discord.Commands;
 using Microsoft.Extensions.Options;
 using nhitomi.Core;
 using nhitomi.Services;
@@ -24,18 +25,15 @@ namespace nhitomi
         public static IEmote RightArrowEmote => new Emoji("\u25b6");
 
         readonly AppSettings _settings;
-        readonly DiscordService _discord;
         readonly ISet<IDoujinClient> _clients;
         readonly JsonSerializer _json;
 
         public MessageFormatter(
             IOptions<AppSettings> options,
-            DiscordService discord,
             ISet<IDoujinClient> clients,
             JsonSerializer json)
         {
             _settings = options.Value;
-            _discord = discord;
             _clients = clients;
             _json = json;
         }
@@ -99,6 +97,8 @@ namespace nhitomi
                 RightArrowEmote
             });
 
+        public IEnumerable<CommandInfo> AvailableCommands { get; set; }
+
         public Embed CreateHelpEmbed()
         {
             var embed = new EmbedBuilder()
@@ -112,7 +112,7 @@ namespace nhitomi
             // Commands
             var builder = new StringBuilder();
 
-            foreach (var command in _discord.Commands.Commands)
+            foreach (var command in AvailableCommands)
             {
                 builder.Append($"- **{_settings.Discord.Prefix}{command.Name}**");
 
