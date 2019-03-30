@@ -47,8 +47,6 @@ namespace nhitomi
                 : string.Join(", ", array);
         }
 
-        const string _dateFormat = "dddd, dd MMMM yyyy";
-
         public Embed CreateDoujinEmbed(IDoujin doujin)
         {
             var embed = new EmbedBuilder()
@@ -60,9 +58,7 @@ namespace nhitomi
                 .WithUrl(doujin.SourceUrl)
                 .WithImageUrl(doujin.Pages.First().Url)
                 .WithColor(Color.Green)
-                .WithFooter($"Uploaded on {doujin.UploadTime.ToString(_dateFormat)}");
-
-            embed.AddField("ID", $"{doujin.Source.Name}/{doujin.Id}", true);
+                .WithFooter($"{doujin.Source.Name}/{doujin.Id}");
 
             if (doujin.Language != null)
                 embed.AddFieldSafe("Language", doujin.Language, true);

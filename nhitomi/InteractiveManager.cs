@@ -217,9 +217,7 @@ namespace nhitomi
         async Task<IDoujin> GetDoujinFromMessage(IMessage message)
         {
             // source/id
-            var identifier = message.Embeds
-                .FirstOrDefault(e => e is Embed)?.Fields
-                .FirstOrDefault(f => f.Name == "ID").Value;
+            var identifier = message.Embeds.FirstOrDefault(e => e is Embed)?.Footer?.Text;
 
             if (identifier == null)
                 return null;
