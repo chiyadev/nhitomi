@@ -4,6 +4,7 @@
 // https://opensource.org/licenses/MIT
 
 using System;
+using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
@@ -53,7 +54,10 @@ namespace nhitomi.Proxy.Services
                     // endpoint: /download/proxies/register
                     using (var response = await _client.PostAsync(
                         $"{_settings.Http.MainServerUrl}/download/proxies/register",
-                        new StringContent(token), stoppingToken))
+                        new FormUrlEncodedContent(new Dictionary<string, string>
+                        {
+                            {"token", token}
+                        }), stoppingToken))
                     {
                         var message = await response.Content.ReadAsStringAsync();
 

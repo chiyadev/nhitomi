@@ -84,7 +84,7 @@ namespace nhitomi.Controllers
         }
 
         [HttpPost("/download/proxies/register")]
-        public ActionResult RegisterProxy([FromBody] string token)
+        public ActionResult RegisterProxy([FromForm] string token)
         {
             if (!TokenGenerator.TryDeserializeToken<TokenGenerator.ProxyRegistrationPayload>(
                 token, _settings.Discord.Token, out var payload, serializer: _json))
