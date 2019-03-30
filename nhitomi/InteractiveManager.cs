@@ -11,6 +11,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Discord;
 using Discord.WebSocket;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using nhitomi.Core;
@@ -219,12 +220,19 @@ namespace nhitomi
                 // delete trigger
                 if (reaction.Emote.Equals(MessageFormatter.TrashcanEmote))
                 {
-                    await message.DeleteAsync();
-
-                    // delete other related messages
+                    // destroy interactive if it is one
                     if (interactive != null &&
                         _listInteractives.TryRemove(message.Id, out _))
                         await interactive.DestroyAsync();
+                    else
+                        await message.DeleteAsync();
+
+                    foreach (var i in _listInteractives.Values.OfType<DoujinListInteractive>())
+                        if (i.DownloadMessage.Id == message.Id)
+                        {
+                            i.DownloadMessage = null;
+                            break;
+                        }
 
                     return;
                 }
