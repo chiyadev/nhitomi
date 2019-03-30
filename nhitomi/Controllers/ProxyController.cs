@@ -1,3 +1,8 @@
+// Copyright (c) 2018-2019 fate/loli
+//
+// This software is released under the MIT License.
+// https://opensource.org/licenses/MIT
+
 using System;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc;
