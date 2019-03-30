@@ -76,6 +76,8 @@ namespace nhitomi.Proxy.Controllers
             finally
             {
                 Semaphore.Release();
+
+                _logger.LogDebug($"Received cache of '{payload.Url}'.");
             }
         }
     }
