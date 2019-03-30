@@ -113,9 +113,13 @@ namespace nhitomi.Proxy.Controllers
                     try
                     {
                         if (System.IO.File.Exists(cachePath))
+                        {
+                            _logger.LogDebug($"Found '{uri}' from cache.");
+
                             return File(
                                 new FileStream(cachePath, FileMode.Open, FileAccess.Read, FileShare.Read),
                                 _mime);
+                        }
                     }
                     finally
                     {
@@ -136,6 +140,8 @@ namespace nhitomi.Proxy.Controllers
                         await src.CopyToAsync(memory, default(CancellationToken));
 
                     memory.Position = 0;
+
+                    _logger.LogDebug($"Downloaded '{uri}'.");
                 }
                 finally
                 {
@@ -156,6 +162,8 @@ namespace nhitomi.Proxy.Controllers
                             await memory.CopyToAsync(dst, default(CancellationToken));
 
                         memory.Position = 0;
+
+                        _logger.LogDebug($"Cached '{uri}' to disk.");
                     }
                     finally
                     {
