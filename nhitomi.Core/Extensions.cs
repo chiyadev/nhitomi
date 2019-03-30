@@ -21,6 +21,15 @@ namespace nhitomi.Core
 
     public static class Extensions
     {
+        public static IDoujinClient FindByName(this IEnumerable<IDoujinClient> clients, string name) =>
+            clients.FirstOrDefault(c => c.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
+
+        public static void Destructure<T>(this T[] items, out T t0, out T t1)
+        {
+            t0 = items.Length > 0 ? items[0] : default;
+            t1 = items.Length > 1 ? items[1] : default;
+        }
+
         public static int ReadInt32Be(this BinaryReader reader)
         {
             var buffer = reader.ReadBytes(sizeof(int));

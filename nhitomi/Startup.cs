@@ -62,8 +62,9 @@ namespace nhitomi
                 .AddHostedService<FeedUpdater>()
 
                 //
-                .AddSingleton<InteractiveScheduler>()
+                .AddSingleton<InteractiveManager>()
                 .AddSingleton<ProxyList>()
+                .AddSingleton<MessageFormatter>()
 
                 // Doujin clients
                 .AddSingleton<nhentaiHtmlClient>()

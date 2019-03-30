@@ -10,9 +10,13 @@ namespace nhitomi
 {
     public static class DiscordExtensions
     {
-        public static EmbedBuilder AddFieldString(this EmbedBuilder builder, string name, string value,
+        public static EmbedBuilder AddFieldSafe(this EmbedBuilder builder,
+            string name,
+            string value,
             bool inline = false) =>
-            string.IsNullOrWhiteSpace(value) ? builder : builder.AddField(name, value, inline);
+            string.IsNullOrWhiteSpace(value)
+                ? builder
+                : builder.AddField(name, value, inline);
 
         public static async Task ModifyAsync(this IUserMessage message, string content = null, Embed embed = null)
         {

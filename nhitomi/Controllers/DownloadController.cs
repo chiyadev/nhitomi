@@ -52,13 +52,13 @@ namespace nhitomi.Controllers
         public async Task<ActionResult> GetDownloaderAsync(string token)
         {
             if (!TokenGenerator.TryDeserializeDownloadToken(
-                token, _settings.Discord.Token, out var sourceName, out var id, out _, serializer: _json))
+                token, _settings.Discord.Token, out var source, out var id, out _, serializer: _json))
                 return BadRequest("Download token has expired. Please try again.");
 
             _logger.LogDebug($"Received download request: token {token}");
 
             // Retrieve doujin
-            var client = _clients.First(c => c.Name == sourceName);
+            var client = _clients.FindByName(source);
             var doujin = await client.GetAsync(id);
 
             if (doujin == null)

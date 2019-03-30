@@ -15,8 +15,6 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using nhitomi.Core;
-using nhitomi.Modules;
-using Newtonsoft.Json;
 
 namespace nhitomi.Services
 {
@@ -25,23 +23,20 @@ namespace nhitomi.Services
         readonly AppSettings _settings;
         readonly ISet<IDoujinClient> _clients;
         readonly DiscordService _discord;
-        readonly InteractiveScheduler _interactive;
-        readonly JsonSerializer _json;
+        readonly MessageFormatter _formatter;
         readonly ILogger<FeedUpdater> _logger;
 
         public FeedUpdater(
             IOptions<AppSettings> options,
             ISet<IDoujinClient> clients,
             DiscordService discord,
-            InteractiveScheduler interactive,
-            JsonSerializer json,
+            MessageFormatter formatter,
             ILogger<FeedUpdater> logger)
         {
             _settings = options.Value;
             _clients = clients;
             _discord = discord;
-            _interactive = interactive;
-            _json = json;
+            _formatter = formatter;
             _logger = logger;
         }
 
@@ -54,8 +49,6 @@ namespace nhitomi.Services
 
             while (!stoppingToken.IsCancellationRequested)
             {
-                _logger.LogDebug("Finding doujins.");
-
                 // Concurrently find recent uploads
                 var newDoujins = Extensions.Interleave(await Task.WhenAll(_clients.Select(async c =>
                 {
@@ -78,7 +71,7 @@ namespace nhitomi.Services
                     }
                     catch (Exception e)
                     {
-                        _logger.LogWarning(e, $"Exception while listing client '{c.Name}': {e.Message}");
+                        _logger.LogWarning(e, $"Exception while searching client '{c.Name}': {e.Message}");
 
                         current = null;
                     }
@@ -95,8 +88,6 @@ namespace nhitomi.Services
                 if (_settings.Doujin.MaxFeedUpdatesCount > 0)
                     newDoujins = newDoujins.Take(_settings.Doujin.MaxFeedUpdatesCount);
 
-                _logger.LogDebug("Finding feed channels.");
-
                 // Get feed channels
                 var channels =
                     (_discord.Socket.GetChannel(_settings.Discord.Guild.FeedCategoryId) as SocketCategoryChannel)
@@ -110,50 +101,26 @@ namespace nhitomi.Services
                     // Send new updates
                     await newDoujins.ForEachAsync(async d =>
                     {
-                        try
-                        {
-                            var tags = TagsToChannels(d.Tags).ToArray();
+                        if (d.Tags == null)
+                            return;
 
-                            foreach (var channel in channels.Where(c => tags.Contains(c.Name)))
+                        var tags = TagsToChannels(d.Tags).ToArray();
+
+                        foreach (var channel in channels.Where(c => tags.Contains(c.Name)))
+                        {
+                            try
                             {
-                                await _interactive.CreateInteractiveAsync(
-                                    null,
-                                    await channel.SendMessageAsync(
-                                        $"**{d.Source.Name}**: __{d.Id}__",
-                                        embed: MessageFormatter.EmbedDoujin(d)),
-                                    add => add(
-                                        // Heart reaction
-                                        ("\u2764", async r =>
-                                            {
-                                                var requester = _discord.Socket.GetUser(r.UserId);
-
-                                                await DoujinModule.ShowDoujin(
-                                                    _interactive,
-                                                    requester,
-                                                    await (await requester.GetOrCreateDMChannelAsync())
-                                                        .SendMessageAsync(
-                                                            $"**{d.Source.Name}**: __{d.Id}__",
-                                                            embed: MessageFormatter.EmbedDoujin(d)
-                                                        ),
-                                                    d,
-                                                    _discord.Socket,
-                                                    _json,
-                                                    _settings
-                                                );
-                                            }
-                                        )));
-
-                                // delay
-                                await Task.Delay(TimeSpan.FromMilliseconds(500), stoppingToken);
+                                var message = await channel.SendMessageAsync(embed: _formatter.CreateDoujinEmbed(d));
+                                await _formatter.AddFeedDoujinTriggersAsync(message);
                             }
+                            catch (Exception e)
+                            {
+                                _logger.LogWarning(e,
+                                    $"Exception while sending feed message for doujin '{d.OriginalName ?? d.PrettyName}'");
+                            }
+                        }
 
-                            _logger.LogDebug($"Sent update '{d.PrettyName ?? d.OriginalName}'");
-                        }
-                        catch (Exception e)
-                        {
-                            _logger.LogWarning(e,
-                                $"Exception while sending update for doujin '{d.PrettyName ?? d.OriginalName}'");
-                        }
+                        _logger.LogDebug($"Sent doujin update '{d.OriginalName ?? d.PrettyName}'");
                     }, stoppingToken);
                 }
                 else
@@ -161,18 +128,17 @@ namespace nhitomi.Services
                     _logger.LogDebug("No feed channels were found.");
                 }
 
-                _logger.LogDebug("Entering sleep.");
-
                 // Sleep
                 await Task.Delay(
                     TimeSpan.FromMinutes(_settings.Doujin.FeedUpdateInterval),
                     stoppingToken);
-
-                _logger.LogDebug("Exited sleep.");
             }
         }
 
         static IEnumerable<string> TagsToChannels(IEnumerable<string> tags) =>
-            tags.Select(t => t.ToLowerInvariant().Replace(' ', '-'));
+            tags.Where(t => !string.IsNullOrWhiteSpace(t))
+                .Select(t => t
+                    .ToLowerInvariant()
+                    .Replace(' ', '-'));
     }
 }

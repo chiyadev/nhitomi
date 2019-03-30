@@ -3,43 +3,23 @@
 // This software is released under the MIT License.
 // https://opensource.org/licenses/MIT
 
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using Discord.Commands;
-using Microsoft.Extensions.Options;
-using nhitomi.Core;
 
 namespace nhitomi.Modules
 {
     public class HelpModule : ModuleBase
     {
-        readonly AppSettings _settings;
-        readonly CommandService _commands;
-        readonly ISet<IDoujinClient> _clients;
+        readonly MessageFormatter _formatter;
 
         public HelpModule(
-            IOptions<AppSettings> options,
-            CommandService commands,
-            ISet<IDoujinClient> clients)
+            MessageFormatter formatter)
         {
-            _settings = options.Value;
-            _commands = commands;
-            _clients = clients;
+            _formatter = formatter;
         }
 
         [Command("help")]
         [Summary("Shows this help message.")]
-        public async Task HelpAsync()
-        {
-            // Reply with embedded help message
-            await ReplyAsync(
-                string.Empty,
-                embed: MessageFormatter.EmbedHelp(
-                    _settings.Discord.Prefix,
-                    _commands.Commands,
-                    _clients,
-                    _settings.Discord.Guild.GuildInvite)
-            );
-        }
+        public Task HelpAsync() => ReplyAsync(embed: _formatter.CreateHelpEmbed());
     }
 }

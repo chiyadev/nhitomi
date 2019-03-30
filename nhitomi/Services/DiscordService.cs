@@ -16,8 +16,6 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using nhitomi.Core;
-using nhitomi.Modules;
-using Newtonsoft.Json;
 
 namespace nhitomi.Services
 {
@@ -26,9 +24,9 @@ namespace nhitomi.Services
         readonly IServiceProvider _services;
         readonly AppSettings _settings;
         readonly ISet<IDoujinClient> _clients;
-        readonly InteractiveScheduler _interactive;
-        readonly JsonSerializer _json;
-        readonly ILogger _logger;
+        readonly InteractiveManager _interactive;
+        readonly MessageFormatter _formatter;
+        readonly ILogger<DiscordService> _logger;
 
         public DiscordSocketClient Socket { get; }
         public CommandService Commands { get; }
@@ -37,8 +35,8 @@ namespace nhitomi.Services
             IServiceProvider services,
             IOptions<AppSettings> options,
             ISet<IDoujinClient> clients,
-            InteractiveScheduler interactive,
-            JsonSerializer json,
+            InteractiveManager interactive,
+            MessageFormatter formatter,
             ILoggerFactory loggerFactory,
             IHostingEnvironment environment)
         {
@@ -46,7 +44,8 @@ namespace nhitomi.Services
             _settings = options.Value;
             _clients = clients;
             _interactive = interactive;
-            _json = json;
+            _interactive.DiscordService = this;
+            _formatter = formatter;
 
             _galleryRegex = new Regex(
                 $"({string.Join(")|(", clients.Select(c => c.GalleryRegex))})",
@@ -78,18 +77,27 @@ namespace nhitomi.Services
             }
         }
 
-        Task handleMessageBackgroundAsync(SocketMessage message)
+        Task HandleMessageAsyncBackground(SocketMessage message)
         {
-            Task.Run(() => handleMessageAsync(message));
+            Task.Run(() => HandleMessageAsync(message));
             return Task.CompletedTask;
         }
 
-        Task handleReactionBackgroundAsync(
+        Task HandleReactionAddedAsyncBackground(
             Cacheable<IUserMessage, ulong> cacheable,
             ISocketMessageChannel channel,
             SocketReaction reaction)
         {
-            Task.Run(() => _interactive.HandleReaction(reaction));
+            Task.Run(() => _interactive.HandleReaction(reaction, true));
+            return Task.CompletedTask;
+        }
+
+        Task HandleReactionRemovedAsyncBackground(
+            Cacheable<IUserMessage, ulong> cacheable,
+            ISocketMessageChannel channel,
+            SocketReaction reaction)
+        {
+            Task.Run(() => _interactive.HandleReaction(reaction, false));
             return Task.CompletedTask;
         }
 
@@ -99,12 +107,12 @@ namespace nhitomi.Services
                 return;
 
             // Register events
-            Socket.Log += handleLogAsync;
-            Socket.MessageReceived += handleMessageBackgroundAsync;
-            Commands.Log += handleLogAsync;
+            Socket.Log += HandleLogAsync;
+            Socket.MessageReceived += HandleMessageAsyncBackground;
+            Commands.Log += HandleLogAsync;
 
-            Socket.ReactionAdded += handleReactionBackgroundAsync;
-            Socket.ReactionRemoved += handleReactionBackgroundAsync;
+            Socket.ReactionAdded += HandleReactionAddedAsyncBackground;
+            Socket.ReactionRemoved += HandleReactionRemovedAsyncBackground;
 
             // Add modules
             await Commands.AddModulesAsync(typeof(Program).Assembly, _services);
@@ -129,9 +137,6 @@ namespace nhitomi.Services
             await connectionSource.Task;
 
             Socket.Connected -= handleReady;
-
-            _interactive.IgnoreReactionUsers.Clear();
-            _interactive.IgnoreReactionUsers.Add(Socket.CurrentUser.Id);
         }
 
         public async Task StopSessionAsync()
@@ -141,97 +146,94 @@ namespace nhitomi.Services
             await Socket.LogoutAsync();
 
             // Unregister events
-            Socket.ReactionAdded -= handleReactionBackgroundAsync;
-            Socket.ReactionRemoved -= handleReactionBackgroundAsync;
+            Socket.ReactionAdded -= HandleReactionAddedAsyncBackground;
+            Socket.ReactionRemoved -= HandleReactionRemovedAsyncBackground;
 
-            Socket.Log -= handleLogAsync;
-            Socket.MessageReceived += handleMessageBackgroundAsync;
-            Commands.Log -= handleLogAsync;
+            Socket.Log -= HandleLogAsync;
+            Socket.MessageReceived += HandleMessageAsyncBackground;
+            Commands.Log -= HandleLogAsync;
         }
 
         readonly Regex _galleryRegex;
 
-        async Task handleMessageAsync(SocketMessage message)
+        async Task HandleMessageAsync(SocketMessage message)
         {
             if (!(message is SocketUserMessage userMessage) ||
                 message.Author.Id == Socket.CurrentUser.Id)
                 return;
 
-            try
+            var argIndex = 0;
+
+            // received message with command prefix
+            if (userMessage.HasStringPrefix(_settings.Discord.Prefix, ref argIndex) ||
+                userMessage.HasMentionPrefix(Socket.CurrentUser, ref argIndex))
+                await ExecuteCommandAsync(userMessage, argIndex);
+
+            // received an arbitrary message
+            // scan for gallery URLs and display doujin info
+            else await DetectGalleryUrlsAsync(userMessage);
+        }
+
+        async Task ExecuteCommandAsync(SocketUserMessage message, int argIndex)
+        {
+            // command execution
+            var context = new SocketCommandContext(Socket, message);
+            var result = await Commands.ExecuteAsync(context, argIndex, _services);
+
+            // check for any errors during command execution
+            if (result.Error == CommandError.Exception)
             {
-                var argIndex = 0;
+                var exception = ((ExecuteResult) result).Exception;
 
-                if (userMessage.HasStringPrefix(_settings.Discord.Prefix, ref argIndex) ||
-                    userMessage.HasMentionPrefix(Socket.CurrentUser, ref argIndex))
-                {
-                    // Execute command
-                    var context = new SocketCommandContext(Socket, userMessage);
-                    var result = await Commands.ExecuteAsync(context, argIndex, _services);
+                _logger.LogWarning(exception,
+                    $"Exception while handling message {message.Id}: {exception.Message}");
 
-                    if (result.Error.HasValue)
-                        switch (result.Error.Value)
-                        {
-                            case CommandError.Exception:
-                                var executionResult = (ExecuteResult) result;
-                                throw executionResult.Exception;
-                        }
-                }
-                else
-                {
-                    // Find all recognised gallery urls and display info
-                    var matches = _galleryRegex
-                        .Matches(userMessage.Content)
-                        .ToArray();
-
-                    if (matches.Length == 0)
-                        return;
-
-                    var response = await userMessage.Channel.SendMessageAsync("**nhitomi**: Loading...");
-
-                    var results = AsyncEnumerable.CreateEnumerable(() =>
-                    {
-                        var enumerator = ((IEnumerable<Match>) matches).GetEnumerator();
-                        var current = (IDoujin) null;
-
-                        return AsyncEnumerable.CreateEnumerator(
-                            async token =>
-                            {
-                                if (!enumerator.MoveNext())
-                                    return false;
-
-                                var group = enumerator.Current.Groups.First(g =>
-                                    g.Success &&
-                                    _clients.Any(c => c.Name == g.Name));
-
-                                current = await _clients
-                                    .Single(c => c.Name == group.Name)
-                                    .GetAsync(group.Value);
-
-                                return true;
-                            },
-                            () => current,
-                            enumerator.Dispose
-                        );
-                    });
-
-                    await DoujinModule.DisplayListAsync(
-                        userMessage, response, results, _interactive, Socket, _json, _settings);
-                }
-            }
-            catch (Exception e)
-            {
-                // Log
-                _logger.LogWarning(e, $"Exception while handling message {userMessage.Id}: {e.Message}");
-
-                // Send error message
-                await userMessage.Channel.SendMessageAsync(string.Empty, embed: MessageFormatter.EmbedError(
-                    _settings.Discord.Guild.GuildInvite));
+                // notify about this error
+                await message.Channel.SendMessageAsync(embed: _formatter.CreateErrorEmbed());
             }
         }
 
-        Task handleLogAsync(LogMessage m)
+        async Task DetectGalleryUrlsAsync(SocketMessage message)
         {
-            var level = LogLevel.None;
+            var content = message.Content;
+
+            // find all recognised gallery urls
+            if (!_galleryRegex.IsMatch(content))
+                return;
+
+            var doujins = AsyncEnumerable.CreateEnumerable(() =>
+            {
+                var enumerator = (IEnumerator<Match>) _galleryRegex.Matches(content).GetEnumerator();
+                var current = (IDoujin) null;
+
+                return AsyncEnumerable.CreateEnumerator(
+                    async token =>
+                    {
+                        if (!enumerator.MoveNext())
+                            return false;
+
+                        var group = enumerator.Current.Groups.First(g =>
+                            g.Success &&
+                            _clients.Any(c => c.Name == g.Name));
+
+                        current = await _clients
+                            .First(c => c.Name == group.Name)
+                            .GetAsync(group.Value, token);
+
+                        return true;
+                    },
+                    () => current,
+                    enumerator.Dispose);
+            });
+
+            var response = await message.Channel.SendMessageAsync(_formatter.LoadingDoujin());
+
+            await _interactive.InitListInteractiveAsync(response, doujins.Select(_formatter.CreateDoujinEmbed));
+        }
+
+        Task HandleLogAsync(LogMessage m)
+        {
+            LogLevel level;
 
             switch (m.Severity)
             {
@@ -253,6 +255,9 @@ namespace nhitomi.Services
                 case LogSeverity.Critical:
                     level = LogLevel.Critical;
                     break;
+                default:
+                    level = LogLevel.None;
+                    break;
             }
 
             if (m.Exception == null)
@@ -264,5 +269,6 @@ namespace nhitomi.Services
         }
 
         public void Dispose() => Socket.Dispose();
+        // Commands.Dispose does not exist
     }
 }
