@@ -172,6 +172,11 @@ namespace nhitomi
                 if (reaction.Emote.Equals(MessageFormatter.FloppyDiskEmote) &&
                     await HandleDoujinDownloadReaction(reaction, interactive))
                     return;
+
+                // favourite trigger
+                if (reaction.Emote.Equals(MessageFormatter.HeartEmote) &&
+                    await HandleDoujinFavoriteReaction(reaction, interactive))
+                    return;
             }
             catch (Exception e)
             {
@@ -209,23 +214,28 @@ namespace nhitomi
             return false;
         }
 
-        async Task<bool> HandleDoujinDownloadReaction(SocketReaction reaction, IMessage interactive)
+        async Task<IDoujin> GetDoujinFromMessage(IMessage message)
         {
             // source/id
-            var identifier = interactive.Embeds
+            var identifier = message.Embeds
                 .FirstOrDefault(e => e is Embed)?.Fields
                 .FirstOrDefault(f => f.Name == "ID").Value;
 
             if (identifier == null)
-                return false;
+                return null;
 
             identifier.Split('/', 2).Destructure(out var source, out var id);
 
             var client = _clients.FindByName(source);
             if (client == null)
-                return false;
+                return null;
 
-            var doujin = await client.GetAsync(id);
+            return await client.GetAsync(id);
+        }
+
+        async Task<bool> HandleDoujinDownloadReaction(SocketReaction reaction, IMessage interactive)
+        {
+            var doujin = await GetDoujinFromMessage(interactive);
             if (doujin == null)
                 return false;
 
@@ -233,6 +243,20 @@ namespace nhitomi
                 .SendMessageAsync(embed: _formatter.CreateDownloadEmbed(doujin));
 
             await _formatter.AddDownloadTriggersAsync(downloadMessage);
+
+            return true;
+        }
+
+        async Task<bool> HandleDoujinFavoriteReaction(SocketReaction reaction, IMessage interactive)
+        {
+            var doujin = await GetDoujinFromMessage(interactive);
+            if (doujin == null)
+                return false;
+
+            var doujinMessage = await (await _discord.Socket.GetUser(reaction.UserId).GetOrCreateDMChannelAsync())
+                .SendMessageAsync(embed: _formatter.CreateDoujinEmbed(doujin));
+
+            await _formatter.AddDoujinTriggersAsync(doujinMessage);
 
             return true;
         }
