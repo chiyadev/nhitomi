@@ -219,23 +219,28 @@ namespace nhitomi
 
                 // delete trigger
                 if (reaction.Emote.Equals(MessageFormatter.TrashcanEmote))
-                {
-                    // destroy interactive if it is one
-                    if (interactive != null &&
-                        _listInteractives.TryRemove(message.Id, out _))
-                        await interactive.DestroyAsync();
-                    else
-                        await message.DeleteAsync();
+                    try
+                    {
+                        // destroy interactive if it is one
+                        if (interactive != null &&
+                            _listInteractives.TryRemove(message.Id, out _))
+                            await interactive.DestroyAsync();
+                        else
+                            await message.DeleteAsync();
 
-                    foreach (var i in _listInteractives.Values.OfType<DoujinListInteractive>())
-                        if (i.DownloadMessage?.Id == message.Id)
-                        {
-                            i.DownloadMessage = null;
-                            break;
-                        }
+                        foreach (var i in _listInteractives.Values.OfType<DoujinListInteractive>())
+                            if (i.DownloadMessage?.Id == message.Id)
+                            {
+                                i.DownloadMessage = null;
+                                break;
+                            }
 
-                    return;
-                }
+                        return;
+                    }
+                    catch (Exception e)
+                    {
+                        _logger.LogWarning(e, $"Could not delete message {message.Id}");
+                    }
 
                 // download trigger
                 if (reaction.Emote.Equals(MessageFormatter.FloppyDiskEmote) &&
