@@ -134,6 +134,7 @@ namespace nhitomi.Core.Clients
 
         readonly IHttpProxyClient _http;
         readonly JsonSerializer _json;
+        readonly PhysicalCache _cache;
         readonly ILogger<PururinClient> _logger;
 
         public PururinClient(
@@ -143,6 +144,7 @@ namespace nhitomi.Core.Clients
         {
             _http = http;
             _json = json;
+            _cache = new PhysicalCache(Name, json);
             _logger = logger;
         }
 
@@ -169,20 +171,32 @@ namespace nhitomi.Core.Clients
             if (!int.TryParse(id, out var intId))
                 return null;
 
+            var data = await _cache.GetOrCreateAsync(
+                id,
+                token => GetAsync(intId, token),
+                cancellationToken);
+
+            return data == null
+                ? null
+                : new PururinDoujin(this, data);
+        }
+
+        async Task<Pururin.DoujinData> GetAsync(int id, CancellationToken cancellationToken = default)
+        {
             try
             {
                 Pururin.DoujinData data;
 
                 using (var response = await PostAsync(
                     Pururin.Gallery,
-                    new StringContent(Pururin.GalleryRequest(intId)), cancellationToken))
+                    new StringContent(Pururin.GalleryRequest(id)), cancellationToken))
                 using (var textReader = new StringReader(await response.Content.ReadAsStringAsync()))
                 using (var jsonReader = new JsonTextReader(textReader))
                     data = _json.Deserialize<Pururin.DoujinData>(jsonReader);
 
                 _logger.LogDebug($"Got doujin {id}: {data.gallery.clean_full_title}");
 
-                return new PururinDoujin(this, data);
+                return data;
             }
             catch (Exception)
             {
@@ -226,7 +240,7 @@ namespace nhitomi.Core.Clients
                 })
                 .SelectMany(list => AsyncEnumerable.CreateEnumerable(() =>
                 {
-                    IDoujin current = null;
+                    Pururin.DoujinData current = null;
                     var index = 0;
 
                     return AsyncEnumerable.CreateEnumerator(
@@ -235,10 +249,10 @@ namespace nhitomi.Core.Clients
                             if (index == list.Length)
                                 return false;
 
-                            current = await GetAsync(list[index++].id.ToString(), token);
-                            return true;
+                            current = await GetAsync(list[index++].id, token);
+                            return current != null;
                         },
-                        () => current,
+                        () => (IDoujin) new PururinDoujin(this, current),
                         () => { }
                     );
                 }))

@@ -134,6 +134,7 @@ namespace nhitomi.Core.Clients
 
         readonly IHttpProxyClient _http;
         readonly JsonSerializer _json;
+        readonly PhysicalCache _cache;
         readonly ILogger<HitomiClient> _logger;
 
         readonly Task _indexUpdateTask;
@@ -147,6 +148,7 @@ namespace nhitomi.Core.Clients
         {
             _http = http;
             _json = json;
+            _cache = new PhysicalCache(Name, json);
             _logger = logger;
 
             _indexUpdateTokenSource = new CancellationTokenSource();
@@ -158,11 +160,23 @@ namespace nhitomi.Core.Clients
             if (!int.TryParse(id, out var intId))
                 return null;
 
+            var data = await _cache.GetOrCreateAsync(
+                id,
+                token => GetAsync(intId, token),
+                cancellationToken);
+
+            return data == null
+                ? null
+                : new HitomiDoujin(this, data);
+        }
+
+        async Task<Hitomi.DoujinData> GetAsync(int id, CancellationToken cancellationToken = default)
+        {
             try
             {
                 HtmlNode root;
 
-                using (var response = await _http.GetAsync(Hitomi.Gallery(intId), true, cancellationToken))
+                using (var response = await _http.GetAsync(Hitomi.Gallery(id), true, cancellationToken))
                 using (var reader = new StringReader(await response.Content.ReadAsStringAsync()))
                 {
                     var doc = new HtmlDocument();
@@ -182,7 +196,7 @@ namespace nhitomi.Core.Clients
                 // Scrape data from HTML using XPath
                 var data = new Hitomi.DoujinData
                 {
-                    id = intId,
+                    id = id,
                     name = InnerSanitized(root.SelectSingleNode(Hitomi.XPath.Name)),
                     artists = root.SelectNodes(Hitomi.XPath.Artists)?.Select(InnerSanitized).ToArray(),
                     groups = root.SelectNodes(Hitomi.XPath.Groups)?.Select(InnerSanitized).ToArray(),
@@ -195,7 +209,7 @@ namespace nhitomi.Core.Clients
                 };
 
                 // Parse images
-                using (var response = await _http.GetAsync(Hitomi.GalleryInfo(intId), true, cancellationToken))
+                using (var response = await _http.GetAsync(Hitomi.GalleryInfo(id), true, cancellationToken))
                 using (var textReader = new StringReader(await response.Content.ReadAsStringAsync()))
                 using (var jsonReader = new JsonTextReader(textReader))
                 {
@@ -208,7 +222,7 @@ namespace nhitomi.Core.Clients
 
                 _logger.LogDebug($"Got doujin {id}: {data.name}");
 
-                return new HitomiDoujin(this, data);
+                return data;
             }
             catch (Exception)
             {
@@ -472,7 +486,7 @@ namespace nhitomi.Core.Clients
             return AsyncEnumerable.CreateEnumerable(() =>
             {
                 var enumerator = galleryIds.GetEnumerator();
-                IDoujin current = null;
+                Hitomi.DoujinData current = null;
 
                 return AsyncEnumerable.CreateEnumerator(
                     async token =>
@@ -480,10 +494,10 @@ namespace nhitomi.Core.Clients
                         if (!enumerator.MoveNext())
                             return false;
 
-                        current = await GetAsync(enumerator.Current.ToString(), token);
-                        return true;
+                        current = await GetAsync(enumerator.Current, token);
+                        return current != null;
                     },
-                    () => current,
+                    () => new HitomiDoujin(this, current),
                     enumerator.Dispose);
             });
         }

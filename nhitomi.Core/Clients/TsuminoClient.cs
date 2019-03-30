@@ -143,6 +143,7 @@ namespace nhitomi.Core.Clients
 
         readonly IHttpProxyClient _http;
         readonly JsonSerializer _json;
+        readonly PhysicalCache _cache;
         readonly ILogger<TsuminoClient> _logger;
 
         public TsuminoClient(
@@ -152,6 +153,7 @@ namespace nhitomi.Core.Clients
         {
             _http = http;
             _json = json;
+            _cache = new PhysicalCache(Name, json);
             _logger = logger;
         }
 
@@ -160,11 +162,23 @@ namespace nhitomi.Core.Clients
             if (!int.TryParse(id, out var intId))
                 return null;
 
+            var data = await _cache.GetOrCreateAsync(
+                id,
+                token => GetAsync(intId, token),
+                cancellationToken);
+
+            return data == null
+                ? null
+                : new TsuminoDoujin(this, data);
+        }
+
+        async Task<Tsumino.DoujinData> GetAsync(int id, CancellationToken cancellationToken = default)
+        {
             try
             {
                 HtmlNode root;
 
-                using (var response = await _http.GetAsync(Tsumino.Book(intId), true, cancellationToken))
+                using (var response = await _http.GetAsync(Tsumino.Book(id), true, cancellationToken))
                 using (var reader = new StringReader(await response.Content.ReadAsStringAsync()))
                 {
                     var doc = new HtmlDocument();
@@ -176,7 +190,7 @@ namespace nhitomi.Core.Clients
                 // Scrape data from HTML using XPath
                 var data = new Tsumino.DoujinData
                 {
-                    id = intId,
+                    id = id,
                     title = InnerSanitized(root.SelectSingleNode(Tsumino.XPath.BookTitle)),
                     uploader = InnerSanitized(root.SelectSingleNode(Tsumino.XPath.BookUploader)),
                     uploaded = InnerSanitized(root.SelectSingleNode(Tsumino.XPath.BookUploaded)),
@@ -197,7 +211,7 @@ namespace nhitomi.Core.Clients
                 using (var response = await _http.Client.PostAsync(Tsumino.ReadLoad, new FormUrlEncodedContent(
                     new Dictionary<string, string>
                     {
-                        {"q", id}
+                        {"q", id.ToString()}
                     }), cancellationToken))
                 using (var textReader = new StringReader(await response.Content.ReadAsStringAsync()))
                 using (var jsonReader = new JsonTextReader(textReader))
@@ -205,7 +219,7 @@ namespace nhitomi.Core.Clients
 
                 _logger.LogDebug($"Got doujin {id}: {data.title}");
 
-                return new TsuminoDoujin(this, data);
+                return data;
             }
             catch (Exception)
             {
@@ -262,7 +276,7 @@ namespace nhitomi.Core.Clients
                 })
                 .SelectMany(list => AsyncEnumerable.CreateEnumerable(() =>
                 {
-                    IDoujin current = null;
+                    Tsumino.DoujinData current = null;
                     var index = 0;
 
                     return AsyncEnumerable.CreateEnumerator(
@@ -271,10 +285,10 @@ namespace nhitomi.Core.Clients
                             if (index == list.Data.Length)
                                 return false;
 
-                            current = await GetAsync(list.Data[index++].Entry.Id.ToString(), token);
-                            return true;
+                            current = await GetAsync(list.Data[index++].Entry.Id, token);
+                            return current != null;
                         },
-                        () => current,
+                        () => (IDoujin) new TsuminoDoujin(this, current),
                         () => { }
                     );
                 }))

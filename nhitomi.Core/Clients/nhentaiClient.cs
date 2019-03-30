@@ -102,6 +102,7 @@ namespace nhitomi.Core.Clients
 
         readonly IHttpProxyClient _http;
         readonly JsonSerializer _json;
+        readonly PhysicalCache _cache;
         readonly ILogger<nhentaiClient> _logger;
 
         public nhentaiClient(
@@ -111,6 +112,7 @@ namespace nhitomi.Core.Clients
         {
             _http = http;
             _json = json;
+            _cache = new PhysicalCache(Name, json);
             _logger = logger;
         }
 
@@ -119,18 +121,30 @@ namespace nhitomi.Core.Clients
             if (!int.TryParse(id, out var intId))
                 return null;
 
+            var data = await _cache.GetOrCreateAsync(
+                id,
+                token => GetAsync(intId, token),
+                cancellationToken);
+
+            return data == null
+                ? null
+                : new nhentaiDoujin(this, data);
+        }
+
+        async Task<nhentai.DoujinData> GetAsync(int id, CancellationToken cancellationToken = default)
+        {
             try
             {
                 nhentai.DoujinData data;
 
-                using (var response = await _http.GetAsync(nhentai.Gallery(intId), true, cancellationToken))
+                using (var response = await _http.GetAsync(nhentai.Gallery(id), true, cancellationToken))
                 using (var textReader = new StringReader(await response.Content.ReadAsStringAsync()))
                 using (var jsonReader = new JsonTextReader(textReader))
                     data = _json.Deserialize<nhentai.DoujinData>(jsonReader);
 
                 _logger.LogDebug($"Got doujin {id}: {data.title.pretty}");
 
-                return new nhentaiDoujin(this, data);
+                return data;
             }
             catch (Exception)
             {
@@ -160,6 +174,13 @@ namespace nhitomi.Core.Clients
                                 using (var textReader = new StringReader(await response.Content.ReadAsStringAsync()))
                                 using (var jsonReader = new JsonTextReader(textReader))
                                     current = _json.Deserialize<nhentai.ListData>(jsonReader);
+
+                                // Add to cache
+                                foreach (var item in current.result)
+                                    await _cache.CreateAsync(
+                                        item.id.ToString(),
+                                        _ => item.AsCompletedTask(),
+                                        token);
 
                                 index++;
 
