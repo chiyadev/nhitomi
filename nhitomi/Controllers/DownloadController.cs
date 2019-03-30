@@ -95,10 +95,14 @@ namespace nhitomi.Controllers
                 var proxy = _proxies.FirstOrDefault(p => p.Url == payload.ProxyUrl);
 
                 if (proxy == null)
+                {
                     _proxies.Add(proxy = new ProxyInfo
                     {
                         Url = payload.ProxyUrl
                     });
+
+                    _logger.LogDebug($"Proxy '{proxy.Url}' registered.");
+                }
 
                 proxy.RegisterTime = DateTime.UtcNow;
 
