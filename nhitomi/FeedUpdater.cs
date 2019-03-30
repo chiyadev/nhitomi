@@ -26,7 +26,7 @@ namespace nhitomi
         readonly DiscordService _discord;
         readonly InteractiveScheduler _interactive;
         readonly JsonSerializer _json;
-        readonly ILogger _logger;
+        readonly ILogger<FeedUpdater> _logger;
 
         public FeedUpdater(
             IOptions<AppSettings> options,
@@ -53,21 +53,6 @@ namespace nhitomi
 
             while (!stoppingToken.IsCancellationRequested)
             {
-                _logger.LogDebug("Starting feed update.");
-
-                // Concurrently update clients
-                await Task.WhenAll(_clients.Select(async c =>
-                {
-                    try
-                    {
-                        await c.UpdateAsync();
-                    }
-                    catch (Exception e)
-                    {
-                        _logger.LogWarning(e, $"Exception while updating client '{c.Name}': {e.Message}");
-                    }
-                }));
-
                 _logger.LogDebug("Finding doujins.");
 
                 // Concurrently find recent uploads
@@ -82,7 +67,7 @@ namespace nhitomi
 
                         // Get all new doujins up to the last one we know
                         var list =
-                            (await c.SearchAsync(null))
+                            (await c.SearchAsync(null, stoppingToken))
                             .TakeWhile(d => d?.Id != last?.Id);
 
                         current = await list.FirstOrDefault(stoppingToken) ?? last;
@@ -126,7 +111,7 @@ namespace nhitomi
                     {
                         try
                         {
-                            var tags = tagsToChannels(d.Tags).ToArray();
+                            var tags = TagsToChannels(d.Tags).ToArray();
 
                             foreach (var channel in channels.Where(c => tags.Contains(c.Name)))
                             {
@@ -186,7 +171,7 @@ namespace nhitomi
             }
         }
 
-        static IEnumerable<string> tagsToChannels(IEnumerable<string> tags) =>
+        static IEnumerable<string> TagsToChannels(IEnumerable<string> tags) =>
             tags.Select(t => t.ToLowerInvariant().Replace(' ', '-'));
     }
 }

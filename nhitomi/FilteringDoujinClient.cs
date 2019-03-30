@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using nhitomi.Core;
 
@@ -27,22 +28,28 @@ namespace nhitomi
         public string Name => _impl.Name;
         public string Url => _impl.Url;
         public string IconUrl => _impl.IconUrl;
+
+        public double RequestThrottle => _impl.RequestThrottle;
+
         public DoujinClientMethod Method => _impl.Method;
 
         public Regex GalleryRegex => _impl.GalleryRegex;
 
-        public async Task<IDoujin> GetAsync(string id) => filter(await _impl.GetAsync(id));
+        public async Task<IDoujin> GetAsync(string id, CancellationToken cancellationToken = default) =>
+            Filter(await _impl.GetAsync(id, cancellationToken));
 
-        public const int MaxConsecutiveFilters = 6;
+        const int _maxConsecutiveFilters = 6;
 
-        public async Task<IAsyncEnumerable<IDoujin>> SearchAsync(string query)
+        public async Task<IAsyncEnumerable<IDoujin>> SearchAsync(
+            string query,
+            CancellationToken cancellationToken = default)
         {
             if (!string.IsNullOrEmpty(query) &&
                 _bannedKeywords.Any(query.Split(' ', StringSplitOptions.RemoveEmptyEntries)
                     .Select(k => k.ToLowerInvariant()).Contains))
                 return AsyncEnumerable.Empty<IDoujin>();
 
-            var results = await _impl.SearchAsync(query);
+            var results = await _impl.SearchAsync(query, cancellationToken);
 
             return AsyncEnumerable.CreateEnumerable(() =>
             {
@@ -51,9 +58,9 @@ namespace nhitomi
                 return AsyncEnumerable.CreateEnumerator(
                     async token =>
                     {
-                        for (var count = 0; count < MaxConsecutiveFilters && await enumerator.MoveNext(token);)
+                        for (var count = 0; count < _maxConsecutiveFilters && await enumerator.MoveNext(token);)
                         {
-                            var filtered = filter(enumerator.Current);
+                            var filtered = Filter(enumerator.Current);
 
                             if (filtered == null)
                                 count++;
@@ -86,7 +93,7 @@ namespace nhitomi
             "minors"
         };
 
-        IDoujin filter(IDoujin doujin)
+        static IDoujin Filter(IDoujin doujin)
         {
             if (doujin?.Tags == null ||
                 _bannedKeywords.Any(doujin.Tags.Contains))
@@ -95,9 +102,7 @@ namespace nhitomi
             return doujin;
         }
 
-        public Task UpdateAsync() => _impl.UpdateAsync();
-
-        public double RequestThrottle => _impl.RequestThrottle;
+        public override string ToString() => $"{nameof(FilteringDoujinClient)} ({_impl})";
 
         public void Dispose() => _impl.Dispose();
     }

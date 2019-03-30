@@ -40,7 +40,7 @@ namespace nhitomi.Core
             return $"{payload}.{signature}";
         }
 
-        static DateTime? getExpirationFromNow(double? expireMinutes) =>
+        static DateTime? GetExpirationFromNow(double? expireMinutes) =>
             expireMinutes == null ? (DateTime?) null : DateTime.UtcNow.AddMinutes(expireMinutes.Value);
 
         public struct DownloadPayload
@@ -63,7 +63,7 @@ namespace nhitomi.Core
                 Source = doujin.Source.Name,
                 Id = doujin.Id,
                 RequestThrottle = doujin.Source.RequestThrottle,
-                Expires = getExpirationFromNow(expireMinutes)
+                Expires = GetExpirationFromNow(expireMinutes)
             };
 
             return CreateToken(payload, secret, encoding, serializer);

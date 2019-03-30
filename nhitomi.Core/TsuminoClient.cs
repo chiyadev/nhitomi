@@ -9,6 +9,7 @@ using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using HtmlAgilityPack;
 using Microsoft.Extensions.Logging;
@@ -133,14 +134,15 @@ namespace nhitomi.Core
         public string IconUrl =>
             "https://cdn.discordapp.com/icons/167128230908657664/b2089ee1d26a7e168d63960d6ed31b66.png";
 
+        public double RequestThrottle => 100;
+
         public DoujinClientMethod Method => DoujinClientMethod.Html;
 
         public Regex GalleryRegex => new Regex(Tsumino.GalleryRegex, RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
-        readonly PhysicalCache _cache;
         readonly HttpClient _http;
         readonly JsonSerializer _json;
-        readonly ILogger _logger;
+        readonly ILogger<TsuminoClient> _logger;
 
         public TsuminoClient(
             IHttpClientFactory httpFactory,
@@ -148,80 +150,75 @@ namespace nhitomi.Core
             ILogger<TsuminoClient> logger)
         {
             _http = httpFactory?.CreateClient(Name);
-            _cache = new PhysicalCache(Name, json);
             _json = json;
             _logger = logger;
         }
 
-        IDoujin wrap(Tsumino.DoujinData data) => data == null ? null : new TsuminoDoujin(this, data);
-
-        public async Task<IDoujin> GetAsync(string id)
+        public async Task<IDoujin> GetAsync(string id, CancellationToken cancellationToken = default)
         {
-            return !int.TryParse(id, out var intId)
-                ? null
-                : wrap(await _cache.GetOrCreateAsync(id, getAsync));
+            if (!int.TryParse(id, out var intId))
+                return null;
 
-            async Task<Tsumino.DoujinData> getAsync()
+            try
             {
-                try
+                HtmlNode root;
+
+                using (var response = await _http.GetAsync(Tsumino.Book(intId), cancellationToken))
+                using (var reader = new StringReader(await response.Content.ReadAsStringAsync()))
                 {
-                    HtmlNode root;
+                    var doc = new HtmlDocument();
+                    doc.Load(reader);
 
-                    using (var response = await _http.GetAsync(Tsumino.Book(intId)))
-                    using (var reader = new StringReader(await response.Content.ReadAsStringAsync()))
-                    {
-                        var doc = new HtmlDocument();
-                        doc.Load(reader);
-
-                        root = doc.DocumentNode;
-                    }
-
-                    // Scrape data from HTML using XPath
-                    var data = new Tsumino.DoujinData
-                    {
-                        id = intId,
-                        title = innerSanitized(root.SelectSingleNode(Tsumino.XPath.BookTitle)),
-                        uploader = innerSanitized(root.SelectSingleNode(Tsumino.XPath.BookUploader)),
-                        uploaded = innerSanitized(root.SelectSingleNode(Tsumino.XPath.BookUploaded)),
-                        pages = int.Parse(innerSanitized(root.SelectSingleNode(Tsumino.XPath.BookPages))),
-                        rating = new Tsumino.DoujinData.Rating(
-                            innerSanitized(root.SelectSingleNode(Tsumino.XPath.BookRating))),
-                        category = innerSanitized(root.SelectSingleNode(Tsumino.XPath.BookCategory)),
-                        collection = innerSanitized(root.SelectSingleNode(Tsumino.XPath.BookCollection)),
-                        @group = innerSanitized(root.SelectSingleNode(Tsumino.XPath.BookGroup)),
-                        artist = innerSanitized(root.SelectSingleNode(Tsumino.XPath.BookArtist)),
-                        parody = innerSanitized(root.SelectSingleNode(Tsumino.XPath.BookParody)),
-                        characters = root.SelectNodes(Tsumino.XPath.BookCharacter)?.Select(innerSanitized).ToArray(),
-                        tags = root.SelectNodes(Tsumino.XPath.BookTag)?.Select(innerSanitized).ToArray()
-                    };
-
-                    // Parse images
-                    using (var response = await _http.PostAsync(Tsumino.ReadLoad, new FormUrlEncodedContent(
-                        new Dictionary<string, string>
-                        {
-                            {"q", id}
-                        })))
-                    using (var textReader = new StringReader(await response.Content.ReadAsStringAsync()))
-                    using (var jsonReader = new JsonTextReader(textReader))
-                        data.reader = _json.Deserialize<Tsumino.DoujinData.Reader>(jsonReader);
-
-                    _logger.LogDebug($"Got doujin {id}: {data.title}");
-
-                    return data;
+                    root = doc.DocumentNode;
                 }
-                catch (Exception)
+
+                // Scrape data from HTML using XPath
+                var data = new Tsumino.DoujinData
                 {
-                    return null;
-                }
+                    id = intId,
+                    title = InnerSanitized(root.SelectSingleNode(Tsumino.XPath.BookTitle)),
+                    uploader = InnerSanitized(root.SelectSingleNode(Tsumino.XPath.BookUploader)),
+                    uploaded = InnerSanitized(root.SelectSingleNode(Tsumino.XPath.BookUploaded)),
+                    pages = int.Parse(InnerSanitized(root.SelectSingleNode(Tsumino.XPath.BookPages))),
+                    rating = new Tsumino.DoujinData.Rating(
+                        InnerSanitized(root.SelectSingleNode(Tsumino.XPath.BookRating))),
+                    category = InnerSanitized(root.SelectSingleNode(Tsumino.XPath.BookCategory)),
+                    collection = InnerSanitized(root.SelectSingleNode(Tsumino.XPath.BookCollection)),
+                    @group = InnerSanitized(root.SelectSingleNode(Tsumino.XPath.BookGroup)),
+                    artist = InnerSanitized(root.SelectSingleNode(Tsumino.XPath.BookArtist)),
+                    parody = InnerSanitized(root.SelectSingleNode(Tsumino.XPath.BookParody)),
+                    characters = root.SelectNodes(Tsumino.XPath.BookCharacter)?.Select(InnerSanitized).ToArray(),
+                    tags = root.SelectNodes(Tsumino.XPath.BookTag)?.Select(InnerSanitized).ToArray()
+                };
+
+                // Parse images
+                using (var response = await _http.PostAsync(Tsumino.ReadLoad, new FormUrlEncodedContent(
+                    new Dictionary<string, string>
+                    {
+                        {"q", id}
+                    }), cancellationToken))
+                using (var textReader = new StringReader(await response.Content.ReadAsStringAsync()))
+                using (var jsonReader = new JsonTextReader(textReader))
+                    data.reader = _json.Deserialize<Tsumino.DoujinData.Reader>(jsonReader);
+
+                _logger.LogDebug($"Got doujin {id}: {data.title}");
+
+                return new TsuminoDoujin(this, data);
+            }
+            catch (Exception)
+            {
+                return null;
             }
         }
 
-        static string innerSanitized(HtmlNode node) =>
+        static string InnerSanitized(HtmlNode node) =>
             node == null ? null : HtmlEntity.DeEntitize(node.InnerText).Trim();
 
         public bool CompletelyExcludeHated { get; set; } = true;
 
-        public Task<IAsyncEnumerable<IDoujin>> SearchAsync(string query) =>
+        public Task<IAsyncEnumerable<IDoujin>> SearchAsync(
+            string query,
+            CancellationToken cancellationToken = default) =>
             AsyncEnumerable.CreateEnumerable(() =>
                 {
                     Tsumino.ListData current = null;
@@ -240,7 +237,7 @@ namespace nhitomi.Core
                                         {"Text", query?.Trim()},
                                         {"Sort", "Newest"},
                                         {"CompletelyExcludeHated", CompletelyExcludeHated ? "true" : "false"}
-                                    })))
+                                    }), token))
                                 using (var textReader = new StringReader(await response.Content.ReadAsStringAsync()))
                                 using (var jsonReader = new JsonTextReader(textReader))
                                     current = _json.Deserialize<Tsumino.ListData>(jsonReader);
@@ -271,7 +268,7 @@ namespace nhitomi.Core
                             if (index == list.Data.Length)
                                 return false;
 
-                            current = await GetAsync(list.Data[index++].Entry.Id.ToString());
+                            current = await GetAsync(list.Data[index++].Entry.Id.ToString(), token);
                             return true;
                         },
                         () => current,
@@ -279,10 +276,6 @@ namespace nhitomi.Core
                     );
                 }))
                 .AsCompletedTask();
-
-        public Task UpdateAsync() => Task.CompletedTask;
-
-        public double RequestThrottle => Tsumino.RequestCooldown;
 
         public override string ToString() => Name;
 

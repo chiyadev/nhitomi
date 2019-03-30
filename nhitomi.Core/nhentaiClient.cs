@@ -9,6 +9,7 @@ using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -17,8 +18,6 @@ namespace nhitomi.Core
 {
     public static class nhentai
     {
-        public const int RequestCooldown = 500;
-
         public const string GalleryRegex = @"\b((http|https):\/\/)?nhentai(\.net)?\/(g\/)?(?<nhentai>[0-9]{1,6})\b";
 
         public static string Gallery(int id) => $"https://nhentai.net/api/gallery/{id}";
@@ -94,15 +93,16 @@ namespace nhitomi.Core
         public string Url => "https://nhentai.net/";
         public string IconUrl => "https://cdn.cybrhome.com/media/website/live/icon/icon_nhentai.net_57f740.png";
 
+        public double RequestThrottle => 500;
+
         public DoujinClientMethod Method => DoujinClientMethod.Api;
 
         public Regex GalleryRegex { get; } =
             new Regex(nhentai.GalleryRegex, RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
-        readonly PhysicalCache _cache;
         readonly HttpClient _http;
         readonly JsonSerializer _json;
-        readonly ILogger _logger;
+        readonly ILogger<nhentaiClient> _logger;
 
         public nhentaiClient(
             IHttpClientFactory httpFactory,
@@ -110,42 +110,37 @@ namespace nhitomi.Core
             ILogger<nhentaiClient> logger)
         {
             _http = httpFactory?.CreateClient(Name);
-            _cache = new PhysicalCache(Name, json);
             _json = json;
             _logger = logger;
         }
 
-        IDoujin wrap(nhentai.DoujinData data) => data == null ? null : new nhentaiDoujin(this, data);
-
-        public async Task<IDoujin> GetAsync(string id)
+        public async Task<IDoujin> GetAsync(string id, CancellationToken cancellationToken = default)
         {
-            return !int.TryParse(id, out var intId)
-                ? null
-                : wrap(await _cache.GetOrCreateAsync(id, getAsync));
+            if (!int.TryParse(id, out var intId))
+                return null;
 
-            async Task<nhentai.DoujinData> getAsync()
+            try
             {
-                try
-                {
-                    nhentai.DoujinData data;
+                nhentai.DoujinData data;
 
-                    using (var response = await _http.GetAsync(nhentai.Gallery(intId)))
-                    using (var textReader = new StringReader(await response.Content.ReadAsStringAsync()))
-                    using (var jsonReader = new JsonTextReader(textReader))
-                        data = _json.Deserialize<nhentai.DoujinData>(jsonReader);
+                using (var response = await _http.GetAsync(nhentai.Gallery(intId), cancellationToken))
+                using (var textReader = new StringReader(await response.Content.ReadAsStringAsync()))
+                using (var jsonReader = new JsonTextReader(textReader))
+                    data = _json.Deserialize<nhentai.DoujinData>(jsonReader);
 
-                    _logger.LogDebug($"Got doujin {id}: {data.title.pretty}");
+                _logger.LogDebug($"Got doujin {id}: {data.title.pretty}");
 
-                    return data;
-                }
-                catch (Exception)
-                {
-                    return null;
-                }
+                return new nhentaiDoujin(this, data);
+            }
+            catch (Exception)
+            {
+                return null;
             }
         }
 
-        public Task<IAsyncEnumerable<IDoujin>> SearchAsync(string query) =>
+        public Task<IAsyncEnumerable<IDoujin>> SearchAsync(
+            string query,
+            CancellationToken cancellationToken = default) =>
             AsyncEnumerable.CreateEnumerable(() =>
                 {
                     nhentai.ListData current = null;
@@ -161,16 +156,10 @@ namespace nhitomi.Core
                                     ? nhentai.All(index)
                                     : nhentai.Search(query, index);
 
-                                using (var response = await _http.GetAsync(url))
+                                using (var response = await _http.GetAsync(url, token))
                                 using (var textReader = new StringReader(await response.Content.ReadAsStringAsync()))
                                 using (var jsonReader = new JsonTextReader(textReader))
                                     current = _json.Deserialize<nhentai.ListData>(jsonReader);
-
-                                // Add results to cache
-                                foreach (var result in current.result)
-                                    await _cache.CreateAsync(
-                                        result.id.ToString(),
-                                        () => Task.FromResult(result));
 
                                 index++;
 
@@ -187,12 +176,8 @@ namespace nhitomi.Core
                         () => { }
                     );
                 })
-                .SelectMany(l => l.result.Select(wrap).ToAsyncEnumerable())
+                .SelectMany(l => l.result.Select(d => (IDoujin) new nhentaiDoujin(this, d)).ToAsyncEnumerable())
                 .AsCompletedTask();
-
-        public Task UpdateAsync() => Task.CompletedTask;
-
-        public double RequestThrottle => nhentai.RequestCooldown;
 
         public override string ToString() => Name;
 

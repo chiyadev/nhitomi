@@ -7,7 +7,7 @@ using Newtonsoft.Json;
 
 namespace nhitomi.Core
 {
-    public class PageInfo
+    public sealed class PageInfo
     {
         [JsonProperty("i")] public int Index { get; }
         [JsonProperty("e")] public string Extension { get; }

@@ -5,10 +5,12 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -124,14 +126,15 @@ namespace nhitomi.Core
         public string Url => "https://pururin.io/";
         public string IconUrl => "https://pururin.io/assets/images/logo.png";
 
+        public double RequestThrottle => 500;
+
         public DoujinClientMethod Method => DoujinClientMethod.Api;
 
         public Regex GalleryRegex => new Regex(Pururin.GalleryRegex, RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
-        readonly PhysicalCache _cache;
         readonly HttpClient _http;
         readonly JsonSerializer _json;
-        readonly ILogger _logger;
+        readonly ILogger<PururinClient> _logger;
 
         public PururinClient(
             IHttpClientFactory httpFactory,
@@ -139,17 +142,15 @@ namespace nhitomi.Core
             ILogger<PururinClient> logger)
         {
             _http = httpFactory?.CreateClient(Name);
-            _cache = new PhysicalCache(Name, json);
             _json = json;
             _logger = logger;
         }
 
-        IDoujin wrap(Pururin.DoujinData data) => data == null ? null : new PururinDoujin(this, data);
-
         static readonly Regex _csrfRegex =
             new Regex(@"<meta name=""csrf-token"" content=""(?<csrf>.*)"">", RegexOptions.Compiled);
 
-        async Task<HttpResponseMessage> postAsync(string url, HttpContent content)
+        async Task<HttpResponseMessage> PostAsync(string url, HttpContent content,
+            CancellationToken cancellationToken = default)
         {
             var html = await _http.GetStringAsync(Url);
             var csrf = _csrfRegex.Match(html).Groups["csrf"].Value;
@@ -159,39 +160,38 @@ namespace nhitomi.Core
             request.Headers.Add("X-CSRF-TOKEN", csrf);
             request.Content = content;
 
-            return await _http.SendAsync(request);
+            return await _http.SendAsync(request, cancellationToken);
         }
 
-        public async Task<IDoujin> GetAsync(string id)
+        public async Task<IDoujin> GetAsync(string id, CancellationToken cancellationToken = default)
         {
-            return !int.TryParse(id, out var intId)
-                ? null
-                : wrap(await _cache.GetOrCreateAsync(id, getAsync));
+            if (!int.TryParse(id, out var intId))
+                return null;
 
-            async Task<Pururin.DoujinData> getAsync()
+            try
             {
-                try
-                {
-                    Pururin.DoujinData data;
+                Pururin.DoujinData data;
 
-                    using (var response =
-                        await postAsync(Pururin.Gallery, new StringContent(Pururin.GalleryRequest(intId))))
-                    using (var textReader = new StringReader(await response.Content.ReadAsStringAsync()))
-                    using (var jsonReader = new JsonTextReader(textReader))
-                        data = _json.Deserialize<Pururin.DoujinData>(jsonReader);
+                using (var response = await PostAsync(
+                    Pururin.Gallery,
+                    new StringContent(Pururin.GalleryRequest(intId)), cancellationToken))
+                using (var textReader = new StringReader(await response.Content.ReadAsStringAsync()))
+                using (var jsonReader = new JsonTextReader(textReader))
+                    data = _json.Deserialize<Pururin.DoujinData>(jsonReader);
 
-                    _logger.LogDebug($"Got doujin {id}: {data.gallery.clean_full_title}");
+                _logger.LogDebug($"Got doujin {id}: {data.gallery.clean_full_title}");
 
-                    return data;
-                }
-                catch (Exception)
-                {
-                    return null;
-                }
+                return new PururinDoujin(this, data);
+            }
+            catch (Exception)
+            {
+                return null;
             }
         }
 
-        public Task<IAsyncEnumerable<IDoujin>> SearchAsync(string query) =>
+        public Task<IAsyncEnumerable<IDoujin>> SearchAsync(
+            string query,
+            CancellationToken cancellationToken = default) =>
             AsyncEnumerable.CreateEnumerable(() =>
                 {
                     Pururin.ListData current = null;
@@ -203,8 +203,9 @@ namespace nhitomi.Core
                             try
                             {
                                 // Load list
-                                using (var response = await postAsync(nextPage,
-                                    new StringContent(Pururin.SearchRequest(query))))
+                                using (var response = await PostAsync(
+                                    nextPage,
+                                    new StringContent(Pururin.SearchRequest(query)), token))
                                 using (var textReader = new StringReader(await response.Content.ReadAsStringAsync()))
                                 using (var jsonReader = new JsonTextReader(textReader))
                                     current = _json.Deserialize<Pururin.ListData>(jsonReader);
@@ -233,7 +234,7 @@ namespace nhitomi.Core
                             if (index == list.Length)
                                 return false;
 
-                            current = await GetAsync(list[index++].id.ToString());
+                            current = await GetAsync(list[index++].id.ToString(), token);
                             return true;
                         },
                         () => current,
@@ -241,10 +242,6 @@ namespace nhitomi.Core
                     );
                 }))
                 .AsCompletedTask();
-
-        public Task UpdateAsync() => Task.CompletedTask;
-
-        public double RequestThrottle => Pururin.RequestCooldown;
 
         public override string ToString() => Name;
 

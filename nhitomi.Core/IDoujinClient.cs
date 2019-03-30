@@ -16,18 +16,16 @@ namespace nhitomi.Core
     {
         string Name { get; }
         string Url { get; }
-        string IconUrl { get; }
+        [JsonIgnore] string IconUrl { get; }
+
+        double RequestThrottle { get; }
 
         DoujinClientMethod Method { get; }
 
         [JsonIgnore] Regex GalleryRegex { get; }
 
-        Task<IDoujin> GetAsync(string id);
-        Task<IAsyncEnumerable<IDoujin>> SearchAsync(string query);
-
-        Task UpdateAsync();
-
-        double RequestThrottle { get; }
+        Task<IDoujin> GetAsync(string id, CancellationToken cancellationToken = default);
+        Task<IAsyncEnumerable<IDoujin>> SearchAsync(string query, CancellationToken cancellationToken = default);
     }
 
     public enum DoujinClientMethod
@@ -52,20 +50,18 @@ namespace nhitomi.Core
             public string Url => _impl.Url;
             public string IconUrl => _impl.IconUrl;
 
+            public double RequestThrottle => _impl.RequestThrottle;
+
             public DoujinClientMethod Method => _impl.Method;
 
             public Regex GalleryRegex => _impl.GalleryRegex;
 
-            public async Task<IDoujin> GetAsync(string id)
+            public async Task<IDoujin> GetAsync(string id, CancellationToken cancellationToken = default)
             {
-                await _semaphore.WaitAsync();
+                await _semaphore.WaitAsync(cancellationToken);
                 try
                 {
-                    var doujin = await _impl.GetAsync(id);
-
-                    await Task.Delay(TimeSpan.FromMilliseconds(RequestThrottle));
-
-                    return doujin;
+                    return await _impl.GetAsync(id, cancellationToken);
                 }
                 finally
                 {
@@ -73,39 +69,20 @@ namespace nhitomi.Core
                 }
             }
 
-            public async Task<IAsyncEnumerable<IDoujin>> SearchAsync(string query)
+            public async Task<IAsyncEnumerable<IDoujin>> SearchAsync(
+                string query,
+                CancellationToken cancellationToken = default)
             {
-                await _semaphore.WaitAsync();
+                await _semaphore.WaitAsync(cancellationToken);
                 try
                 {
-                    var results = await _impl.SearchAsync(query);
-
-                    await Task.Delay(TimeSpan.FromMilliseconds(RequestThrottle));
-
-                    return results;
+                    return await _impl.SearchAsync(query, cancellationToken);
                 }
                 finally
                 {
                     _semaphore.Release();
                 }
             }
-
-            public async Task UpdateAsync()
-            {
-                await _semaphore.WaitAsync();
-                try
-                {
-                    await _impl.UpdateAsync();
-
-                    await Task.Delay(TimeSpan.FromMilliseconds(RequestThrottle));
-                }
-                finally
-                {
-                    _semaphore.Release();
-                }
-            }
-
-            public double RequestThrottle => _impl.RequestThrottle;
 
             public void Dispose() => _semaphore.Dispose();
         }
