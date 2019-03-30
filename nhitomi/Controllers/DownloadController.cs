@@ -60,34 +60,42 @@ namespace nhitomi.Controllers
 
             _logger.LogDebug($"Received download request: token {token}");
 
-            // Retrieve doujin
+            // retrieve doujin
             var client = _clients.FindByName(payload.Source);
             var doujin = await client.GetAsync(payload.Id);
 
             if (doujin == null)
-                return BadRequest("Doujin not found.");
+                return NotFound("Doujin not found.");
 
-            // Get proxies to be used by this download
+            // get proxies to be used by this download
             string[] proxies;
 
             lock (_proxies.Lock)
             {
                 _proxies.Update();
-
                 proxies = _proxies.Select(p => p.Url).ToArray();
             }
 
-            // Create javascript downloader
-            var downloader = _downloadPage.NamedFormat(new Dictionary<string, object>
+            try
             {
-                {"token", token},
-                {"title", doujin.PrettyName},
-                {"subtitle", doujin.OriginalName ?? string.Empty},
-                {"doujin", _json.Serialize(doujin)},
-                {"proxies", _json.Serialize(proxies)}
-            });
+                // create javascript downloader
+                var downloader = _downloadPage.NamedFormat(new Dictionary<string, object>
+                {
+                    {"token", token},
+                    {"title", doujin.PrettyName},
+                    {"subtitle", doujin.OriginalName ?? string.Empty},
+                    {"doujin", _json.Serialize(doujin)},
+                    {"proxies", _json.Serialize(proxies)}
+                });
 
-            return Content(downloader, "text/html");
+                return Content(downloader, "text/html");
+            }
+            catch (Exception e)
+            {
+                _logger.LogWarning(e, $"Exception while generating download client for {payload.Source}/{payload.Id}");
+
+                return StatusCode(500, "Internal server error while generating downloader.");
+            }
         }
     }
 }
