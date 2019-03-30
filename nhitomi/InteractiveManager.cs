@@ -111,8 +111,11 @@ namespace nhitomi
             return true;
         }
 
-        Task HandleDoujinsDetected(IUserMessage message, IUserMessage response, IAsyncEnumerable<IDoujin> doujins) =>
-            InitListInteractiveAsync(response, doujins.Select(_formatter.CreateDoujinEmbed));
+        async Task HandleDoujinsDetected(IUserMessage message, IUserMessage response, IAsyncEnumerable<IDoujin> doujins)
+        {
+            if (await InitListInteractiveAsync(response, doujins.Select(_formatter.CreateDoujinEmbed)))
+                await _formatter.AddDoujinTriggersAsync(response);
+        }
 
         Task HandleReactionAddedAsyncBackground(
             Cacheable<IUserMessage, ulong> cacheable,
