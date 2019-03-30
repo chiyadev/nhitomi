@@ -31,7 +31,7 @@ Useful shortcuts to remember:
 ### Sources
 
 - nhentai — `https://nhentai.net/`
-- hitomi — `https://hitomi.la/` search is broken due to recent changes
+- hitomi — `https://hitomi.la/`
 - ~~tsumino — `https://tsumino.com/`~~ disabled until they provide us an official API.
 - ~~pururin — `https://pururin.io/`~~ disabled because it's not working
 
