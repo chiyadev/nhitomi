@@ -49,71 +49,131 @@ namespace nhitomi
         readonly ConcurrentDictionary<ulong, ListInteractive>
             _listInteractives = new ConcurrentDictionary<ulong, ListInteractive>();
 
-        sealed class ListInteractive
+        class Interactive
         {
             public readonly IUserMessage Message;
-            public readonly EnumerableBrowser<Embed> Browser;
 
-            public ListInteractive(
-                IUserMessage message,
-                EnumerableBrowser<Embed> browser)
+            public Interactive(IUserMessage message)
             {
                 Message = message;
-                Browser = browser;
+            }
+
+            public virtual Task DestroyAsync() => Message.DeleteAsync();
+        }
+
+        abstract class ListInteractive : Interactive, IDisposable
+        {
+            public ListInteractive(
+                IUserMessage message)
+                : base(message)
+            {
+            }
+
+            public abstract Task<bool> MoveNext(CancellationToken cancellationToken = default);
+            public abstract bool MovePrevious();
+            public abstract Task UpdateState(MessageFormatter formatter);
+
+            public virtual void Dispose()
+            {
             }
         }
 
-        public async Task<bool> InitListInteractiveAsync(
+        class DoujinListInteractive : ListInteractive
+        {
+            readonly EnumerableBrowser<IDoujin> _browser;
+
+            public IUserMessage DownloadMessage;
+
+            public DoujinListInteractive(
+                IUserMessage message,
+                EnumerableBrowser<IDoujin> browser)
+                : base(message)
+            {
+                _browser = browser;
+            }
+
+            public override Task<bool> MoveNext(CancellationToken cancellationToken = default) =>
+                _browser.MoveNext(cancellationToken);
+
+            public override bool MovePrevious() => _browser.MovePrevious();
+
+            public override async Task UpdateState(MessageFormatter formatter)
+            {
+                await Message.ModifyAsync(embed: formatter.CreateDoujinEmbed(_browser.Current));
+
+                if (DownloadMessage != null)
+                    await DownloadMessage.ModifyAsync(embed: formatter.CreateDownloadEmbed(_browser.Current));
+            }
+
+            public override async Task DestroyAsync()
+            {
+                if (DownloadMessage != null)
+                    await DownloadMessage.DeleteAsync();
+
+                await base.DestroyAsync();
+            }
+
+            public override void Dispose()
+            {
+                base.Dispose();
+                _browser.Dispose();
+            }
+        }
+
+        public Task<bool> CreateDoujinListInteractiveAsync(
             IUserMessage message,
-            IAsyncEnumerable<Embed> embeds,
+            IAsyncEnumerable<IDoujin> doujins,
+            CancellationToken cancellationToken = default) =>
+            InitListInteractiveAsync(
+                new DoujinListInteractive(message, new EnumerableBrowser<IDoujin>(doujins.GetEnumerator())),
+                cancellationToken);
+
+        async Task<bool> InitListInteractiveAsync(
+            ListInteractive interactive,
             CancellationToken cancellationToken = default)
         {
-            var browser = new EnumerableBrowser<Embed>(embeds.GetEnumerator());
-
             // ensure list is not empty
-            if (!await browser.MoveNext(cancellationToken))
+            if (!await interactive.MoveNext(cancellationToken))
             {
-                browser.Dispose();
-                await message.ModifyAsync(_formatter.EmptyList());
+                interactive.Dispose();
+                await interactive.Message.ModifyAsync(_formatter.EmptyList());
 
                 return false;
             }
 
             // show first item
-            await message.ModifyAsync(embed: browser.Current);
+            await interactive.UpdateState(_formatter);
 
             // if list contains only one item, don't proceed to create the list
-            if (!await browser.MoveNext(cancellationToken))
+            if (!await interactive.MoveNext(cancellationToken))
             {
-                browser.Dispose();
+                interactive.Dispose();
                 return true;
             }
 
-            browser.MovePrevious();
-
-            var interactive = new ListInteractive(message, browser);
-            var key = message.Id;
+            interactive.MovePrevious();
 
             // register interactive
-            _listInteractives.AddOrUpdate(key, interactive, (a, b) => interactive);
+            _listInteractives.AddOrUpdate(interactive.Message.Id, interactive, (a, b) => interactive);
 
             // schedule expiry
             _ = Task.Run(async () =>
             {
                 await Task.Delay(TimeSpan.FromMinutes(_settings.Discord.Command.InteractiveExpiry), default);
 
-                _listInteractives.TryRemove(key, out _);
+                if (_listInteractives.TryRemove(interactive.Message.Id, out var i))
+                    await i.DestroyAsync();
             }, default);
 
             // add paging triggers
-            await _formatter.AddListTriggersAsync(message);
+            await _formatter.AddListTriggersAsync(interactive.Message);
 
             return true;
         }
 
         async Task HandleDoujinsDetected(IUserMessage message, IUserMessage response, IAsyncEnumerable<IDoujin> doujins)
         {
-            if (await InitListInteractiveAsync(response, doujins.Select(_formatter.CreateDoujinEmbed)))
+            if (await CreateDoujinListInteractiveAsync(response, doujins))
                 await _formatter.AddDoujinTriggersAsync(response);
         }
 
@@ -142,43 +202,42 @@ namespace nhitomi
                 return;
 
             // get interactive message
-            if (!(await reaction.Channel.GetMessageAsync(reaction.MessageId) is IUserMessage interactive))
+            if (!(await reaction.Channel.GetMessageAsync(reaction.MessageId) is IUserMessage message))
                 return;
 
             // interactive must be authored by us
-            if (interactive.Author.Id != _discord.Socket.CurrentUser.Id)
+            if (message.Author.Id != _discord.Socket.CurrentUser.Id)
                 return;
 
             try
             {
                 // list interactive handling
-                if (_listInteractives.TryGetValue(interactive.Id, out var listInteractive) &&
-                    await HandleListInteractiveReaction(reaction, listInteractive))
-                    return;
-
-                if (!added)
+                if (_listInteractives.TryGetValue(message.Id, out var interactive) &&
+                    await HandleListInteractiveReaction(reaction, interactive))
                     return;
 
                 // delete trigger
                 if (reaction.Emote.Equals(MessageFormatter.TrashcanEmote))
                 {
-                    await interactive.DeleteAsync();
+                    await message.DeleteAsync();
 
-                    // unregister list interactive if it is one
-                    if (listInteractive != null)
-                        _listInteractives.TryRemove(interactive.Id, out _);
+                    // delete other related messages
+                    if (interactive != null &&
+                        _listInteractives.TryRemove(message.Id, out _))
+                        await interactive.DestroyAsync();
 
                     return;
                 }
 
                 // download trigger
                 if (reaction.Emote.Equals(MessageFormatter.FloppyDiskEmote) &&
-                    await HandleDoujinDownloadReaction(reaction, interactive))
+                    await HandleDoujinDownloadReaction(reaction, message, interactive))
                     return;
 
                 // favourite trigger
-                if (reaction.Emote.Equals(MessageFormatter.HeartEmote) &&
-                    await HandleDoujinFavoriteReaction(reaction, interactive))
+                if (added &&
+                    reaction.Emote.Equals(MessageFormatter.HeartEmote) &&
+                    await HandleDoujinFavoriteReaction(reaction, message))
                     return;
             }
             catch (Exception e)
@@ -195,8 +254,8 @@ namespace nhitomi
             // left arrow
             if (reaction.Emote.Equals(MessageFormatter.LeftArrowEmote))
             {
-                if (interactive.Browser.MovePrevious())
-                    await interactive.Message.ModifyAsync(embed: interactive.Browser.Current);
+                if (interactive.MovePrevious())
+                    await interactive.UpdateState(_formatter);
                 else
                     await interactive.Message.ModifyAsync(m => { m.Content = _formatter.BeginningOfList(); });
 
@@ -206,8 +265,8 @@ namespace nhitomi
             // right arrow
             if (reaction.Emote.Equals(MessageFormatter.RightArrowEmote))
             {
-                if (await interactive.Browser.MoveNext(default))
-                    await interactive.Message.ModifyAsync(embed: interactive.Browser.Current);
+                if (await interactive.MoveNext())
+                    await interactive.UpdateState(_formatter);
                 else
                     await interactive.Message.ModifyAsync(m => { m.Content = _formatter.EndOfList(); });
 
@@ -234,14 +293,20 @@ namespace nhitomi
             return await client.GetAsync(id);
         }
 
-        async Task<bool> HandleDoujinDownloadReaction(SocketReaction reaction, IMessage interactive)
+        async Task<bool> HandleDoujinDownloadReaction(
+            SocketReaction reaction,
+            IMessage message,
+            Interactive interactive)
         {
-            var doujin = await GetDoujinFromMessage(interactive);
+            var doujin = await GetDoujinFromMessage(message);
             if (doujin == null)
                 return false;
 
             var downloadMessage = await (await _discord.Socket.GetUser(reaction.UserId).GetOrCreateDMChannelAsync())
                 .SendMessageAsync(embed: _formatter.CreateDownloadEmbed(doujin));
+
+            if (interactive is DoujinListInteractive doujinListInteractive)
+                doujinListInteractive.DownloadMessage = downloadMessage;
 
             await _formatter.AddDownloadTriggersAsync(downloadMessage);
 

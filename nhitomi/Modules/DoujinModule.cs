@@ -1,5 +1,5 @@
 // Copyright (c) 2018-2019 fate/loli
-// 
+//
 // This software is released under the MIT License.
 // https://opensource.org/licenses/MIT
 
@@ -89,7 +89,7 @@ namespace nhitomi.Modules
                 results = await client.SearchAsync(null);
             }
 
-            if (await _interactive.InitListInteractiveAsync(response, results.Select(_formatter.CreateDoujinEmbed)))
+            if (await _interactive.CreateDoujinListInteractiveAsync(response, results))
                 await _formatter.AddDoujinTriggersAsync(response);
         }
 
@@ -108,7 +108,7 @@ namespace nhitomi.Modules
             var response = await ReplyAsync(_formatter.SearchingDoujins(query: query));
             var results = Extensions.Interleave(await Task.WhenAll(_clients.Select(c => c.SearchAsync(query))));
 
-            if (await _interactive.InitListInteractiveAsync(response, results.Select(_formatter.CreateDoujinEmbed)))
+            if (await _interactive.CreateDoujinListInteractiveAsync(response, results))
                 await _formatter.AddDoujinTriggersAsync(response);
         }
 
