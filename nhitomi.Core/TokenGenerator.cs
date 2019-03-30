@@ -34,7 +34,7 @@ namespace nhitomi.Core
             }
 
             // Signature
-            var signature = HashHelper.GetHash(payload, secret, encoding);
+            var signature = HashHelper.HMACSHA256(payload, secret, encoding);
 
             // Token (similar to JWT, without header)
             return $"{payload}.{signature}";
@@ -86,7 +86,7 @@ namespace nhitomi.Core
                 var signaturePart = token.Substring(token.IndexOf('.') + 1);
 
                 // Verify signature
-                if (signaturePart != HashHelper.GetHash(payloadPart, secret, encoding))
+                if (signaturePart != HashHelper.HMACSHA256(payloadPart, secret, encoding))
                 {
                     payload = default;
                     return false;
