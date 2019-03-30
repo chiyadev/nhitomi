@@ -228,7 +228,7 @@ namespace nhitomi
                         await message.DeleteAsync();
 
                     foreach (var i in _listInteractives.Values.OfType<DoujinListInteractive>())
-                        if (i.DownloadMessage.Id == message.Id)
+                        if (i.DownloadMessage?.Id == message.Id)
                         {
                             i.DownloadMessage = null;
                             break;
