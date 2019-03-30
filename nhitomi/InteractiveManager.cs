@@ -79,6 +79,9 @@ namespace nhitomi
                 return false;
             }
 
+            // show first item
+            await message.ModifyAsync(embed: browser.Current);
+
             // if list contains only one item, don't proceed to create the list
             if (!await browser.MoveNext(cancellationToken))
             {
@@ -101,9 +104,6 @@ namespace nhitomi
 
                 _listInteractives.TryRemove(key, out _);
             }, default);
-
-            // show first item
-            await message.ModifyAsync(embed: browser.Current);
 
             // add paging triggers
             await _formatter.AddListTriggersAsync(message);
