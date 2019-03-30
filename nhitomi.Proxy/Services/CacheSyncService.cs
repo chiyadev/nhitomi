@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Web;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -65,7 +66,7 @@ namespace nhitomi.Proxy.Services
                     foreach (var proxyUrl in await GetSyncProxies(stoppingToken))
                     {
                         using (var response = await _http.PostAsync(
-                            $"{proxyUrl}/proxy/cache?token={token}",
+                            $"{proxyUrl}/proxy/cache?token={HttpUtility.UrlEncode(token)}",
                             new StreamContent(new FileStream(tempPath, FileMode.Open)),
                             stoppingToken))
                         {

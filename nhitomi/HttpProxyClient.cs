@@ -1,6 +1,7 @@
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Web;
 using Microsoft.Extensions.Options;
 using nhitomi.Core;
 using Newtonsoft.Json;
@@ -53,7 +54,9 @@ namespace nhitomi
                 _settings.Discord.Token,
                 serializer: _json);
 
-            return Client.GetAsync($"{GetNextProxy().Url}/proxy/get?token={token}", cancellationToken);
+            return Client.GetAsync(
+                $"{GetNextProxy().Url}/proxy/get?token={HttpUtility.UrlEncode(token)}",
+                cancellationToken);
         }
     }
 }

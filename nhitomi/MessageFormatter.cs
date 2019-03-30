@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web;
 using Discord;
 using Discord.Commands;
 using Microsoft.Extensions.Options;
@@ -157,7 +158,7 @@ namespace nhitomi
 
             return new EmbedBuilder()
                 .WithTitle($"**nhitomi**: {doujin.OriginalName ?? doujin.PrettyName}")
-                .WithUrl($"{_settings.Http.Url}/download/{downloadToken}")
+                .WithUrl($"{_settings.Http.Url}/download/{HttpUtility.UrlEncode(downloadToken)}")
                 .WithDescription(
                     $"Click the link above to start downloading `{doujin.OriginalName ?? doujin.PrettyName}`.\n")
                 .WithColor(Color.LightOrange)
