@@ -94,7 +94,7 @@ namespace nhitomi.Proxy.Services
                 return _syncProxies;
 
             using (var response = await _http.GetAsync(
-                $"{_settings.Http.MainServerUrl}/download/proxies/list", cancellationToken))
+                $"{_settings.Http.MainUrl}/download/proxies/list", cancellationToken))
             {
                 if (!response.IsSuccessStatusCode)
                 {
@@ -112,7 +112,7 @@ namespace nhitomi.Proxy.Services
                     return _syncProxies = _json
                         .Deserialize<ProxyInfo[]>(jsonReader)
                         .Select(p => p.Url)
-                        .Where(u => u != _settings.Http.ProxyUrl)
+                        .Where(u => u != _settings.Http.Url)
                         .ToArray();
                 }
             }

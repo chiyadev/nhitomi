@@ -18,8 +18,8 @@ namespace nhitomi.Proxy
 
         public sealed class HttpSettings
         {
-            public string MainServerUrl { get; set; }
-            public string ProxyUrl { get; set; }
+            public string MainUrl { get; set; }
+            public string Url { get; set; }
         }
     }
 }

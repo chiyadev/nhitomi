@@ -45,7 +45,7 @@ namespace nhitomi.Proxy.Services
                     var token = TokenGenerator.CreateToken(
                         new TokenGenerator.ProxyRegistrationPayload
                         {
-                            ProxyUrl = _settings.Http.ProxyUrl
+                            ProxyUrl = _settings.Http.Url
                         },
                         _settings.Discord.Token, serializer: _json);
 
@@ -53,7 +53,7 @@ namespace nhitomi.Proxy.Services
 
                     // endpoint: /download/proxies/register
                     using (var response = await _client.PostAsync(
-                        $"{_settings.Http.MainServerUrl}/download/proxies/register",
+                        $"{_settings.Http.MainUrl}/download/proxies/register",
                         new FormUrlEncodedContent(new Dictionary<string, string>
                         {
                             {"token", token}
