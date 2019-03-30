@@ -34,11 +34,14 @@ namespace nhitomi.Proxy.Controllers
 
         public static string GetCachePath(Uri uri)
         {
-            var path = Path.Combine(Path.GetTempPath(), "nhitomi", HashHelper.SHA256(uri.AbsoluteUri));
+            var basedir = Path.Combine(Path.GetTempPath(), "nhitomi");
+            Directory.CreateDirectory(basedir);
 
-            Directory.CreateDirectory(Path.GetDirectoryName(path));
+            var filename = HashHelper.SHA256(uri.AbsoluteUri)
+                .Replace('+', '-')
+                .Replace('/', '_');
 
-            return path;
+            return Path.Combine(basedir, filename);
         }
 
         [HttpPost("/proxy/cache")]
