@@ -48,8 +48,8 @@ namespace nhitomi.Controllers
             _logger = logger;
         }
 
-        [HttpGet("/download/{*token}")]
-        public async Task<ActionResult> GetDownloaderAsync(string token)
+        [HttpGet("/download")]
+        public async Task<ActionResult> GetDownloaderAsync([FromQuery] string token)
         {
             if (!TokenGenerator.TryDeserializeToken<TokenGenerator.ProxyDownloadPayload>(
                 token, _settings.Discord.Token, out var payload, serializer: _json))
