@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -30,12 +31,12 @@ namespace nhitomi.Services
             _discord = discord;
             _settings = settings.Value;
 
-            _worker = runAsync(_tokenSource.Token);
+            _worker = RunAsync(_tokenSource.Token);
         }
 
         readonly ConcurrentQueue<string> _queue = new ConcurrentQueue<string>();
 
-        async Task runAsync(CancellationToken token)
+        async Task RunAsync(CancellationToken token)
         {
             do
             {
@@ -88,26 +89,33 @@ namespace nhitomi.Services
 
             public bool IsEnabled(LogLevel logLevel) => logLevel != LogLevel.None;
 
+            static readonly Dictionary<LogLevel, string> _levelNames = new Dictionary<LogLevel, string>
+            {
+                {LogLevel.Debug, "dbug"},
+                {LogLevel.Error, "err"},
+                {LogLevel.Trace, "trce"},
+                {LogLevel.Warning, "warn"},
+                {LogLevel.Critical, "crit"},
+                {LogLevel.Information, "info"}
+            };
+
             public void Log<TState>(
                 LogLevel logLevel,
                 EventId eventId,
                 TState state,
                 Exception exception,
-                Func<TState, Exception, string> formatter
-            )
+                Func<TState, Exception, string> formatter)
             {
                 if (!IsEnabled(logLevel))
                     return;
 
                 var text = new StringBuilder()
-                    .Append(DateTimeOffset.Now.ToString("HH:mm:ss zzz"))
-                    .Append($" __{logLevel}__ ")
+                    .Append($"__{_levelNames[logLevel]}__ ")
                     .Append($" **{_category}**: ")
                     .Append(formatter(state, exception));
 
                 if (exception?.StackTrace != null)
-                    text
-                        .AppendLine()
+                    text.AppendLine()
                         .Append("Trace: ")
                         .Append(exception.StackTrace);
 
