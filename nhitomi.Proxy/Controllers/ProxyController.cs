@@ -36,7 +36,6 @@ namespace nhitomi.Proxy.Controllers
             _logger = logger;
         }
 
-        static readonly SemaphoreSlim _cacheSemaphore = new SemaphoreSlim(1);
         static readonly Dictionary<string, SemaphoreSlim> _uriSemaphores = new Dictionary<string, SemaphoreSlim>();
 
         static SemaphoreSlim GetSemaphoreForUri(Uri uri)
@@ -48,15 +47,6 @@ namespace nhitomi.Proxy.Controllers
 
                 return semaphore;
             }
-        }
-
-        static string GetCachePath(Uri uri)
-        {
-            var path = Path.Combine(Path.GetTempPath(), "nhitomi", HashHelper.SHA256(uri.AbsoluteUri));
-
-            Directory.CreateDirectory(Path.GetDirectoryName(path));
-
-            return path;
         }
 
         const string _mime = "application/octet-stream";
@@ -104,12 +94,12 @@ namespace nhitomi.Proxy.Controllers
         {
             try
             {
-                var cachePath = GetCachePath(uri);
+                var cachePath = CacheController.GetCachePath(uri);
 
                 if (cached)
                 {
                     // try finding from cache
-                    await _cacheSemaphore.WaitAsync(cancellationToken);
+                    await CacheController.Semaphore.WaitAsync(cancellationToken);
                     try
                     {
                         if (System.IO.File.Exists(cachePath))
@@ -123,7 +113,7 @@ namespace nhitomi.Proxy.Controllers
                     }
                     finally
                     {
-                        _cacheSemaphore.Release();
+                        CacheController.Semaphore.Release();
                     }
                 }
 
@@ -155,7 +145,7 @@ namespace nhitomi.Proxy.Controllers
                 if (cached)
                 {
                     // cache the data to disk
-                    await _cacheSemaphore.WaitAsync(cancellationToken);
+                    await CacheController.Semaphore.WaitAsync(cancellationToken);
                     try
                     {
                         using (var dst = new FileStream(cachePath, FileMode.Create, FileAccess.Write, FileShare.None))
@@ -167,7 +157,7 @@ namespace nhitomi.Proxy.Controllers
                     }
                     finally
                     {
-                        _cacheSemaphore.Release();
+                        CacheController.Semaphore.Release();
                     }
                 }
 
