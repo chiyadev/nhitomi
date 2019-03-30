@@ -51,7 +51,7 @@ namespace nhitomi.Controllers
         [HttpGet("/download/{*token}")]
         public async Task<ActionResult> GetDownloaderAsync(string token)
         {
-            if (!TokenGenerator.TryDeserializeToken<TokenGenerator.DownloadPayload>(
+            if (!TokenGenerator.TryDeserializeToken<TokenGenerator.ProxyDownloadPayload>(
                 token, _settings.Discord.Token, out var payload, serializer: _json))
                 return BadRequest("Invalid token.");
 

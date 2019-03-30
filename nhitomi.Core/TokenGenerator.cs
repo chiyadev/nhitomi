@@ -81,7 +81,13 @@ namespace nhitomi.Core
             }
         }
 
-        public struct DownloadPayload
+        public struct ProxyGetPayload
+        {
+            [JsonProperty("u")] public string Url;
+            [JsonProperty("c")] public bool IsCached;
+        }
+
+        public struct ProxyDownloadPayload
         {
             [JsonProperty("s")] public string Source;
             [JsonProperty("id")] public string Id;
