@@ -10,12 +10,12 @@ using System.Threading.Tasks;
 
 namespace nhitomi.Core.Clients
 {
-    sealed class SynchronizedClient : IDoujinClient
+    sealed class SynchronizedDoujinClient : IDoujinClient
     {
         readonly SemaphoreSlim _semaphore = new SemaphoreSlim(1);
         readonly IDoujinClient _impl;
 
-        public SynchronizedClient(IDoujinClient impl)
+        public SynchronizedDoujinClient(IDoujinClient impl)
         {
             _impl = impl;
         }
@@ -58,13 +58,13 @@ namespace nhitomi.Core.Clients
             }
         }
 
-        public override string ToString() => $"{nameof(SynchronizedClient)} ({_impl})";
+        public override string ToString() => $"{nameof(SynchronizedDoujinClient)} ({_impl})";
 
         public void Dispose() => _semaphore.Dispose();
     }
 
-    public static class DoujinClientExtensions
+    public static class SynchronizedDoujinClientExtensions
     {
-        public static IDoujinClient Synchronized(this IDoujinClient client) => new SynchronizedClient(client);
+        public static IDoujinClient Synchronized(this IDoujinClient client) => new SynchronizedDoujinClient(client);
     }
 }
