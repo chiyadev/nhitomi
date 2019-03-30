@@ -18,31 +18,32 @@ using nhitomi.Services;
 
 namespace nhitomi
 {
-    public class InteractiveManager
+    public class InteractiveManager : IDisposable
     {
         readonly AppSettings _settings;
-        DiscordService _discord;
+        readonly DiscordService _discord;
         readonly MessageFormatter _formatter;
         readonly ISet<IDoujinClient> _clients;
         readonly ILogger<InteractiveManager> _logger;
 
-        // DiscordService will assign this to itself
-        // this is a workaround for circular dependency DiscordService -> InteractiveManager -> DiscordService ...
-        internal DiscordService DiscordService
-        {
-            set => _discord = value;
-        }
-
         public InteractiveManager(
             IOptions<AppSettings> options,
+            DiscordService discord,
             MessageFormatter formatter,
             ISet<IDoujinClient> clients,
             ILogger<InteractiveManager> logger)
         {
             _settings = options.Value;
+            _discord = discord;
             _formatter = formatter;
             _logger = logger;
+            _discord = discord;
             _clients = clients;
+
+            _discord.Socket.ReactionAdded += HandleReactionAddedAsyncBackground;
+            _discord.Socket.ReactionRemoved += HandleReactionRemovedAsyncBackground;
+
+            _discord.DoujinsDetected += HandleDoujinsDetected;
         }
 
         readonly ConcurrentDictionary<ulong, ListInteractive>
@@ -110,7 +111,28 @@ namespace nhitomi
             return true;
         }
 
-        public async Task HandleReaction(SocketReaction reaction, bool attached)
+        Task HandleDoujinsDetected(IUserMessage message, IUserMessage response, IAsyncEnumerable<IDoujin> doujins) =>
+            InitListInteractiveAsync(response, doujins.Select(_formatter.CreateDoujinEmbed));
+
+        Task HandleReactionAddedAsyncBackground(
+            Cacheable<IUserMessage, ulong> cacheable,
+            ISocketMessageChannel channel,
+            SocketReaction reaction)
+        {
+            Task.Run(() => HandleReaction(reaction, true));
+            return Task.CompletedTask;
+        }
+
+        Task HandleReactionRemovedAsyncBackground(
+            Cacheable<IUserMessage, ulong> cacheable,
+            ISocketMessageChannel channel,
+            SocketReaction reaction)
+        {
+            Task.Run(() => HandleReaction(reaction, false));
+            return Task.CompletedTask;
+        }
+
+        public async Task HandleReaction(SocketReaction reaction, bool added)
         {
             // don't trigger reactions ourselves
             if (reaction.UserId == _discord.Socket.CurrentUser.Id)
@@ -137,7 +159,7 @@ namespace nhitomi
                     await HandleListInteractiveReaction(reaction, listInteractive))
                     return;
 
-                if (!attached)
+                if (!added)
                     return;
 
                 // delete trigger
@@ -219,6 +241,14 @@ namespace nhitomi
             await _formatter.AddDownloadTriggersAsync(downloadMessage);
 
             return true;
+        }
+
+        public void Dispose()
+        {
+            _discord.Socket.ReactionAdded -= HandleReactionAddedAsyncBackground;
+            _discord.Socket.ReactionRemoved -= HandleReactionRemovedAsyncBackground;
+
+            _discord.DoujinsDetected -= HandleDoujinsDetected;
         }
     }
 }

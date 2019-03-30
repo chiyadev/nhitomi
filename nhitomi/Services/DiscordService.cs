@@ -24,7 +24,6 @@ namespace nhitomi.Services
         readonly IServiceProvider _services;
         readonly AppSettings _settings;
         readonly ISet<IDoujinClient> _clients;
-        readonly InteractiveManager _interactive;
         readonly MessageFormatter _formatter;
         readonly ILogger<DiscordService> _logger;
 
@@ -35,7 +34,6 @@ namespace nhitomi.Services
             IServiceProvider services,
             IOptions<AppSettings> options,
             ISet<IDoujinClient> clients,
-            InteractiveManager interactive,
             MessageFormatter formatter,
             ILoggerFactory loggerFactory,
             IHostingEnvironment environment)
@@ -43,8 +41,6 @@ namespace nhitomi.Services
             _services = services;
             _settings = options.Value;
             _clients = clients;
-            _interactive = interactive;
-            _interactive.DiscordService = this;
             _formatter = formatter;
 
             _galleryRegex = new Regex(
@@ -77,42 +73,16 @@ namespace nhitomi.Services
             }
         }
 
-        Task HandleMessageAsyncBackground(SocketMessage message)
-        {
-            Task.Run(() => HandleMessageAsync(message));
-            return Task.CompletedTask;
-        }
-
-        Task HandleReactionAddedAsyncBackground(
-            Cacheable<IUserMessage, ulong> cacheable,
-            ISocketMessageChannel channel,
-            SocketReaction reaction)
-        {
-            Task.Run(() => _interactive.HandleReaction(reaction, true));
-            return Task.CompletedTask;
-        }
-
-        Task HandleReactionRemovedAsyncBackground(
-            Cacheable<IUserMessage, ulong> cacheable,
-            ISocketMessageChannel channel,
-            SocketReaction reaction)
-        {
-            Task.Run(() => _interactive.HandleReaction(reaction, false));
-            return Task.CompletedTask;
-        }
-
         public async Task StartSessionAsync()
         {
             if (Socket.ConnectionState == ConnectionState.Connected)
                 return;
 
             // Register events
-            Socket.Log += HandleLogAsync;
             Socket.MessageReceived += HandleMessageAsyncBackground;
-            Commands.Log += HandleLogAsync;
 
-            Socket.ReactionAdded += HandleReactionAddedAsyncBackground;
-            Socket.ReactionRemoved += HandleReactionRemovedAsyncBackground;
+            Socket.Log += HandleLogAsync;
+            Commands.Log += HandleLogAsync;
 
             // Add modules
             await Commands.AddModulesAsync(typeof(Program).Assembly, _services);
@@ -146,15 +116,17 @@ namespace nhitomi.Services
             await Socket.LogoutAsync();
 
             // Unregister events
-            Socket.ReactionAdded -= HandleReactionAddedAsyncBackground;
-            Socket.ReactionRemoved -= HandleReactionRemovedAsyncBackground;
+            Socket.MessageReceived += HandleMessageAsyncBackground;
 
             Socket.Log -= HandleLogAsync;
-            Socket.MessageReceived += HandleMessageAsyncBackground;
             Commands.Log -= HandleLogAsync;
         }
 
-        readonly Regex _galleryRegex;
+        Task HandleMessageAsyncBackground(SocketMessage message)
+        {
+            Task.Run(() => HandleMessageAsync(message));
+            return Task.CompletedTask;
+        }
 
         async Task HandleMessageAsync(SocketMessage message)
         {
@@ -193,7 +165,16 @@ namespace nhitomi.Services
             }
         }
 
-        async Task DetectGalleryUrlsAsync(SocketMessage message)
+        public delegate Task DoujinDetectHandler(
+            IUserMessage message,
+            IUserMessage response,
+            IAsyncEnumerable<IDoujin> doujins);
+
+        public event DoujinDetectHandler DoujinsDetected;
+
+        readonly Regex _galleryRegex;
+
+        async Task DetectGalleryUrlsAsync(SocketUserMessage message)
         {
             var content = message.Content;
 
@@ -228,7 +209,8 @@ namespace nhitomi.Services
 
             var response = await message.Channel.SendMessageAsync(_formatter.LoadingDoujin());
 
-            await _interactive.InitListInteractiveAsync(response, doujins.Select(_formatter.CreateDoujinEmbed));
+            if (DoujinsDetected != null)
+                await DoujinsDetected(message, response, doujins);
         }
 
         Task HandleLogAsync(LogMessage m)
