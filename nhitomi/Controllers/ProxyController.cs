@@ -73,7 +73,7 @@ namespace nhitomi.Controllers
                 var proxy = _proxies.FirstOrDefault(p => p.IPAddress.Equals(address));
 
                 if (proxy == null)
-                    return Forbid();
+                    return BadRequest("Not registered.");
 
                 return Ok(_proxies.ToArray());
             }
