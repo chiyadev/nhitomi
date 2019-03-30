@@ -141,16 +141,16 @@ namespace nhitomi.Core.Clients
 
         public Regex GalleryRegex => new Regex(Tsumino.GalleryRegex, RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
-        readonly HttpClient _http;
+        readonly IHttpProxyClient _http;
         readonly JsonSerializer _json;
         readonly ILogger<TsuminoClient> _logger;
 
         public TsuminoClient(
-            IHttpClientFactory httpFactory,
+            IHttpProxyClient http,
             JsonSerializer json,
             ILogger<TsuminoClient> logger)
         {
-            _http = httpFactory?.CreateClient(Name);
+            _http = http;
             _json = json;
             _logger = logger;
         }
@@ -164,7 +164,7 @@ namespace nhitomi.Core.Clients
             {
                 HtmlNode root;
 
-                using (var response = await _http.GetAsync(Tsumino.Book(intId), cancellationToken))
+                using (var response = await _http.GetAsync(Tsumino.Book(intId), true, cancellationToken))
                 using (var reader = new StringReader(await response.Content.ReadAsStringAsync()))
                 {
                     var doc = new HtmlDocument();
@@ -193,7 +193,8 @@ namespace nhitomi.Core.Clients
                 };
 
                 // Parse images
-                using (var response = await _http.PostAsync(Tsumino.ReadLoad, new FormUrlEncodedContent(
+                //TODO: use proxy
+                using (var response = await _http.Client.PostAsync(Tsumino.ReadLoad, new FormUrlEncodedContent(
                     new Dictionary<string, string>
                     {
                         {"q", id}
@@ -231,8 +232,9 @@ namespace nhitomi.Core.Clients
                             try
                             {
                                 // Load list
-                                using (var response = await _http.PostAsync(Tsumino.Operate, new FormUrlEncodedContent(
-                                    new Dictionary<string, string>
+                                //TODO: use proxy
+                                using (var response = await _http.Client.PostAsync(Tsumino.Operate,
+                                    new FormUrlEncodedContent(new Dictionary<string, string>
                                     {
                                         {"PageNumber", (index + 1).ToString()},
                                         {"Text", query?.Trim()},

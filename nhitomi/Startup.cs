@@ -65,6 +65,7 @@ namespace nhitomi
                 .AddSingleton<InteractiveManager>()
                 .AddSingleton<ProxyList>()
                 .AddSingleton<MessageFormatter>()
+                .AddSingleton<IHttpProxyClient, HttpProxyClient>()
 
                 // Doujin clients
                 .AddSingleton<nhentaiHtmlClient>()

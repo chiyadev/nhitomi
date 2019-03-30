@@ -7,7 +7,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net.Http;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -101,16 +100,16 @@ namespace nhitomi.Core.Clients
         public Regex GalleryRegex { get; } =
             new Regex(nhentai.GalleryRegex, RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
-        readonly HttpClient _http;
+        readonly IHttpProxyClient _http;
         readonly JsonSerializer _json;
         readonly ILogger<nhentaiClient> _logger;
 
         public nhentaiClient(
-            IHttpClientFactory httpFactory,
+            IHttpProxyClient http,
             JsonSerializer json,
             ILogger<nhentaiClient> logger)
         {
-            _http = httpFactory?.CreateClient(Name);
+            _http = http;
             _json = json;
             _logger = logger;
         }
@@ -124,7 +123,7 @@ namespace nhitomi.Core.Clients
             {
                 nhentai.DoujinData data;
 
-                using (var response = await _http.GetAsync(nhentai.Gallery(intId), cancellationToken))
+                using (var response = await _http.GetAsync(nhentai.Gallery(intId), true, cancellationToken))
                 using (var textReader = new StringReader(await response.Content.ReadAsStringAsync()))
                 using (var jsonReader = new JsonTextReader(textReader))
                     data = _json.Deserialize<nhentai.DoujinData>(jsonReader);
@@ -157,7 +156,7 @@ namespace nhitomi.Core.Clients
                                     ? nhentai.All(index)
                                     : nhentai.Search(query, index);
 
-                                using (var response = await _http.GetAsync(url, token))
+                                using (var response = await _http.GetAsync(url, false, token))
                                 using (var textReader = new StringReader(await response.Content.ReadAsStringAsync()))
                                 using (var jsonReader = new JsonTextReader(textReader))
                                     current = _json.Deserialize<nhentai.ListData>(jsonReader);

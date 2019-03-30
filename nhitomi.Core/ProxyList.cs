@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using Newtonsoft.Json;
 
@@ -12,8 +11,7 @@ namespace nhitomi.Core
 
         public TimeSpan ProxyLifetime { get; set; } = TimeSpan.FromMinutes(1);
 
-        public IEnumerable<ProxyInfo> ActiveProxies =>
-            this.Where(p => p.RegisterTime + ProxyLifetime >= DateTime.UtcNow);
+        public void Update() => RemoveAll(p => p.RegisterTime + ProxyLifetime < DateTime.UtcNow);
     }
 
     public class ProxyInfo

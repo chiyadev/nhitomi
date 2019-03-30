@@ -41,6 +41,8 @@ namespace nhitomi.Controllers
 
             lock (_proxies.Lock)
             {
+                _proxies.Update();
+
                 var proxy = _proxies.FirstOrDefault(p => p.Url == payload.ProxyUrl);
 
                 if (proxy == null)
@@ -65,13 +67,15 @@ namespace nhitomi.Controllers
         {
             lock (_proxies.Lock)
             {
+                _proxies.Update();
+
                 var address = Request.HttpContext.Connection.RemoteIpAddress;
-                var proxy = _proxies.ActiveProxies.FirstOrDefault(p => p.IPAddress.Equals(address));
+                var proxy = _proxies.FirstOrDefault(p => p.IPAddress.Equals(address));
 
                 if (proxy == null)
                     return Forbid();
 
-                return Ok(_proxies.ActiveProxies.ToArray());
+                return Ok(_proxies.ToArray());
             }
         }
     }

@@ -132,16 +132,16 @@ namespace nhitomi.Core.Clients
 
         public Regex GalleryRegex => new Regex(Pururin.GalleryRegex, RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
-        readonly HttpClient _http;
+        readonly IHttpProxyClient _http;
         readonly JsonSerializer _json;
         readonly ILogger<PururinClient> _logger;
 
         public PururinClient(
-            IHttpClientFactory httpFactory,
+            IHttpProxyClient http,
             JsonSerializer json,
             ILogger<PururinClient> logger)
         {
-            _http = httpFactory?.CreateClient(Name);
+            _http = http;
             _json = json;
             _logger = logger;
         }
@@ -152,7 +152,8 @@ namespace nhitomi.Core.Clients
         async Task<HttpResponseMessage> PostAsync(string url, HttpContent content,
             CancellationToken cancellationToken = default)
         {
-            var html = await _http.GetStringAsync(Url);
+            //TODO: use proxy
+            var html = await _http.Client.GetStringAsync(Url);
             var csrf = _csrfRegex.Match(html).Groups["csrf"].Value;
 
             var request = new HttpRequestMessage(HttpMethod.Post, url);
@@ -160,7 +161,7 @@ namespace nhitomi.Core.Clients
             request.Headers.Add("X-CSRF-TOKEN", csrf);
             request.Content = content;
 
-            return await _http.SendAsync(request, cancellationToken);
+            return await _http.Client.SendAsync(request, cancellationToken);
         }
 
         public async Task<IDoujin> GetAsync(string id, CancellationToken cancellationToken = default)

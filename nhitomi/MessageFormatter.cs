@@ -11,7 +11,6 @@ using Discord;
 using Discord.Commands;
 using Microsoft.Extensions.Options;
 using nhitomi.Core;
-using nhitomi.Services;
 using Newtonsoft.Json;
 
 namespace nhitomi

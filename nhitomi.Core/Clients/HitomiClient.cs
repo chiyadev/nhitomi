@@ -132,7 +132,7 @@ namespace nhitomi.Core.Clients
         public Regex GalleryRegex { get; } =
             new Regex(Hitomi.GalleryRegex, RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
-        readonly HttpClient _http;
+        readonly IHttpProxyClient _http;
         readonly JsonSerializer _json;
         readonly ILogger<HitomiClient> _logger;
 
@@ -141,11 +141,11 @@ namespace nhitomi.Core.Clients
         readonly SemaphoreSlim _indexSemaphore = new SemaphoreSlim(1);
 
         public HitomiClient(
-            IHttpClientFactory httpFactory,
+            IHttpProxyClient http,
             JsonSerializer json,
             ILogger<HitomiClient> logger)
         {
-            _http = httpFactory?.CreateClient(Name);
+            _http = http;
             _json = json;
             _logger = logger;
 
@@ -162,7 +162,7 @@ namespace nhitomi.Core.Clients
             {
                 HtmlNode root;
 
-                using (var response = await _http.GetAsync(Hitomi.Gallery(intId), cancellationToken))
+                using (var response = await _http.GetAsync(Hitomi.Gallery(intId), true, cancellationToken))
                 using (var reader = new StringReader(await response.Content.ReadAsStringAsync()))
                 {
                     var doc = new HtmlDocument();
@@ -195,7 +195,7 @@ namespace nhitomi.Core.Clients
                 };
 
                 // Parse images
-                using (var response = await _http.GetAsync(Hitomi.GalleryInfo(intId), cancellationToken))
+                using (var response = await _http.GetAsync(Hitomi.GalleryInfo(intId), true, cancellationToken))
                 using (var textReader = new StringReader(await response.Content.ReadAsStringAsync()))
                 using (var jsonReader = new JsonTextReader(textReader))
                 {
@@ -219,8 +219,11 @@ namespace nhitomi.Core.Clients
         static string InnerSanitized(HtmlNode node) =>
             node == null ? null : HtmlEntity.DeEntitize(node.InnerText).Trim();
 
-        async Task<int> GetGalleryIndexVersionAsync() =>
-            int.Parse(await _http.GetStringAsync(Hitomi.GalleryIndexVersion));
+        async Task<int> GetGalleryIndexVersionAsync(CancellationToken cancellationToken = default)
+        {
+            using (var response = await _http.GetAsync(Hitomi.GalleryIndexVersion, false, cancellationToken))
+                return int.Parse(await response.Content.ReadAsStringAsync());
+        }
 
         struct NodeData
         {
@@ -311,7 +314,7 @@ namespace nhitomi.Core.Clients
                 request.Headers.Range = new RangeHeaderValue((long) start, (long) end);
             }
 
-            var response = await _http.SendAsync(request, cancellationToken);
+            var response = await _http.Client.SendAsync(request, cancellationToken);
             return await response.Content.ReadAsStreamAsync();
         }
 
@@ -491,7 +494,8 @@ namespace nhitomi.Core.Clients
 
             using (var memory = new MemoryStream())
             {
-                using (var stream = await _http.GetStreamAsync(url))
+                using (var response = await _http.GetAsync(url, false, cancellationToken))
+                using (var stream = await response.Content.ReadAsStreamAsync())
                     await stream.CopyToAsync(memory, 4096, cancellationToken);
 
                 var total = memory.Length / sizeof(int);
@@ -521,7 +525,7 @@ namespace nhitomi.Core.Clients
                 try
                 {
                     // update gallery index version
-                    _galleryVersion = await GetGalleryIndexVersionAsync();
+                    _galleryVersion = await GetGalleryIndexVersionAsync(cancellationToken);
 
                     _logger.LogDebug($"Updated gallery index version: {_galleryVersion}");
 

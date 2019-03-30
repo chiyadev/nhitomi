@@ -71,7 +71,11 @@ namespace nhitomi.Controllers
             string[] proxies;
 
             lock (_proxies.Lock)
-                proxies = _proxies.ActiveProxies.Select(p => p.Url).ToArray();
+            {
+                _proxies.Update();
+
+                proxies = _proxies.Select(p => p.Url).ToArray();
+            }
 
             // Create javascript downloader
             var downloader = _downloadPage.NamedFormat(new Dictionary<string, object>
