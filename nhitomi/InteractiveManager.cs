@@ -139,23 +139,23 @@ namespace nhitomi
                 return;
 
             // get interactive message
-            IUserMessage message;
+            IUserMessage interactive;
 
             if (reaction.Message.IsSpecified)
-                message = reaction.Message.Value;
+                interactive = reaction.Message.Value;
             else if (await reaction.Channel.GetMessageAsync(reaction.MessageId) is IUserMessage m)
-                message = m;
+                interactive = m;
             else
                 return;
 
             // interactive must be authored by us
-            if (message.Author.Id != _discord.Socket.CurrentUser.Id)
+            if (interactive.Author.Id != _discord.Socket.CurrentUser.Id)
                 return;
 
             try
             {
                 // list interactive handling
-                if (_listInteractives.TryGetValue(message.Id, out var listInteractive) &&
+                if (_listInteractives.TryGetValue(interactive.Id, out var listInteractive) &&
                     await HandleListInteractiveReaction(reaction, listInteractive))
                     return;
 
@@ -165,18 +165,18 @@ namespace nhitomi
                 // delete trigger
                 if (reaction.Emote.Equals(MessageFormatter.TrashcanEmote))
                 {
-                    await message.DeleteAsync();
+                    await interactive.DeleteAsync();
 
                     // unregister list interactive if it is one
                     if (listInteractive != null)
-                        _listInteractives.TryRemove(message.Id, out _);
+                        _listInteractives.TryRemove(interactive.Id, out _);
 
                     return;
                 }
 
                 // download trigger
                 if (reaction.Emote.Equals(MessageFormatter.FloppyDiskEmote) &&
-                    await HandleDoujinDownloadReaction(reaction, message))
+                    await HandleDoujinDownloadReaction(reaction, interactive))
                     return;
             }
             catch (Exception e)
@@ -215,10 +215,10 @@ namespace nhitomi
             return false;
         }
 
-        async Task<bool> HandleDoujinDownloadReaction(IReaction reaction, IUserMessage message)
+        async Task<bool> HandleDoujinDownloadReaction(SocketReaction reaction, IMessage interactive)
         {
             // source/id
-            var identifier = message.Embeds
+            var identifier = interactive.Embeds
                 .FirstOrDefault(e => e is Embed)?.Fields
                 .FirstOrDefault(f => f.Name == "ID").Value;
 
@@ -235,7 +235,7 @@ namespace nhitomi
             if (doujin == null)
                 return false;
 
-            var downloadMessage = await (await message.Author.GetOrCreateDMChannelAsync())
+            var downloadMessage = await (await _discord.Socket.GetUser(reaction.UserId).GetOrCreateDMChannelAsync())
                 .SendMessageAsync(embed: _formatter.CreateDownloadEmbed(doujin));
 
             await _formatter.AddDownloadTriggersAsync(downloadMessage);
