@@ -62,7 +62,7 @@ namespace nhitomi
                 .WithColor(Color.Green)
                 .WithFooter($"Uploaded on {doujin.UploadTime.ToString(_dateFormat)}");
 
-            embed.AddField("ID", $"{doujin.Source.Name}/{doujin.Id}");
+            embed.AddField("ID", $"{doujin.Source.Name}/{doujin.Id}", true);
 
             if (doujin.Language != null)
                 embed.AddFieldSafe("Language", doujin.Language, true);
