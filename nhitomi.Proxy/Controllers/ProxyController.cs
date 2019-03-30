@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using nhitomi.Core;
+using nhitomi.Proxy.Services;
 using Newtonsoft.Json;
 
 namespace nhitomi.Proxy.Controllers
@@ -22,17 +23,20 @@ namespace nhitomi.Proxy.Controllers
         readonly AppSettings _settings;
         readonly HttpClient _http;
         readonly JsonSerializer _json;
+        readonly CacheSyncService _caches;
         readonly ILogger<ProxyController> _logger;
 
         public ProxyController(
             IOptions<AppSettings> options,
             IHttpClientFactory httpFactory,
             JsonSerializer json,
+            CacheSyncService caches,
             ILogger<ProxyController> logger)
         {
             _settings = options.Value;
             _http = httpFactory?.CreateClient(nameof(ProxyController));
             _json = json;
+            _caches = caches;
             _logger = logger;
         }
 
@@ -106,9 +110,12 @@ namespace nhitomi.Proxy.Controllers
                         {
                             _logger.LogDebug($"Found '{uri}' from cache.");
 
-                            return File(
-                                new FileStream(cachePath, FileMode.Open, FileAccess.Read, FileShare.Read),
-                                _mime);
+                            // copy to temporary path for faster transfer
+                            var tempPath = Path.GetTempFileName();
+
+                            System.IO.File.Copy(cachePath, tempPath, true);
+
+                            return File(new FileStream(tempPath, FileMode.Open), _mime);
                         }
                     }
                     finally
@@ -144,14 +151,22 @@ namespace nhitomi.Proxy.Controllers
 
                 if (cached)
                 {
+                    // write to temporary path first to not hog semaphore
+                    var tempPath = Path.GetTempFileName();
+
+                    using (var dst = new FileStream(tempPath, FileMode.Create, FileAccess.Write, FileShare.None))
+                        await memory.CopyToAsync(dst, default(CancellationToken));
+
+                    memory.Position = 0;
+
                     // cache the data to disk
-                    await CacheController.Semaphore.WaitAsync(cancellationToken);
+                    await CacheController.Semaphore.WaitAsync(default(CancellationToken));
                     try
                     {
-                        using (var dst = new FileStream(cachePath, FileMode.Create, FileAccess.Write, FileShare.None))
-                            await memory.CopyToAsync(dst, default(CancellationToken));
+                        if (System.IO.File.Exists(cachePath))
+                            System.IO.File.Delete(cachePath);
 
-                        memory.Position = 0;
+                        System.IO.File.Move(tempPath, cachePath);
 
                         _logger.LogDebug($"Cached '{uri}' to disk.");
                     }
@@ -159,6 +174,9 @@ namespace nhitomi.Proxy.Controllers
                     {
                         CacheController.Semaphore.Release();
                     }
+
+                    // enqueue cache to be synced
+                    _caches.SyncQueue.Enqueue(uri);
                 }
 
                 return File(memory, _mime);

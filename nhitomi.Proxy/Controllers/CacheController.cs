@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Net.Http;
 using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -38,6 +39,41 @@ namespace nhitomi.Proxy.Controllers
             Directory.CreateDirectory(Path.GetDirectoryName(path));
 
             return path;
+        }
+
+        [HttpPost("/proxy/cache")]
+        public async Task<ActionResult> SetCacheAsync(
+            [FromQuery] string token,
+            CancellationToken cancellationToken = default)
+        {
+            if (!TokenGenerator.TryDeserializeToken<TokenGenerator.ProxySetCachePayload>(
+                token, _settings.Discord.Token, out var payload, serializer: _json))
+                return BadRequest("Invalid token.");
+
+            if (!Uri.TryCreate(payload.Url, UriKind.Absolute, out var uri))
+                return BadRequest("Invalid URL.");
+
+            // write to temporary path first to not hog semaphore
+            var cachePath = GetCachePath(uri);
+            var tempPath = Path.GetTempFileName();
+
+            using (var dst = new FileStream(tempPath, FileMode.Create, FileAccess.Write, FileShare.None))
+                await Request.Body.CopyToAsync(dst, default(CancellationToken));
+
+            await Semaphore.WaitAsync(default(CancellationToken));
+            try
+            {
+                if (System.IO.File.Exists(cachePath))
+                    System.IO.File.Delete(cachePath);
+
+                System.IO.File.Move(tempPath, cachePath);
+
+                return Created(new Uri("/proxy/get", UriKind.Relative), "Cache updated.");
+            }
+            finally
+            {
+                Semaphore.Release();
+            }
         }
     }
 }

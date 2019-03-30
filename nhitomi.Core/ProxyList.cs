@@ -1,9 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using Newtonsoft.Json;
 
-namespace nhitomi
+namespace nhitomi.Core
 {
     public class ProxyList : List<ProxyInfo>
     {
@@ -19,5 +20,6 @@ namespace nhitomi
     {
         [JsonProperty("u")] public string Url;
         [JsonProperty("r")] public DateTime RegisterTime;
+        [JsonProperty("ip")] public IPAddress IPAddress;
     }
 }

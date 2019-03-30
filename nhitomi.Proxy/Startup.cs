@@ -7,10 +7,12 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using nhitomi.Core;
 using nhitomi.Proxy.Services;
 using Newtonsoft.Json;
+using IHostingEnvironment = Microsoft.AspNetCore.Hosting.IHostingEnvironment;
 
 namespace nhitomi.Proxy
 {
@@ -59,6 +61,8 @@ namespace nhitomi.Proxy
                 .AddTransient(s => JsonSerializer.Create(new nhitomiSerializerSettings()))
 
                 // Services
+                .AddSingleton<CacheSyncService>()
+                .AddSingleton<IHostedService, CacheSyncService>(s => s.GetRequiredService<CacheSyncService>())
                 .AddHostedService<ProxyRegistrationService>();
         }
 

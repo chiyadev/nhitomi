@@ -54,8 +54,24 @@ namespace nhitomi.Controllers
                 }
 
                 proxy.RegisterTime = DateTime.UtcNow;
+                proxy.IPAddress = Request.HttpContext.Connection.RemoteIpAddress;
 
                 return Ok($"Registered {proxy.Url}.");
+            }
+        }
+
+        [HttpGet("/download/proxies/list")]
+        public ActionResult GetProxies()
+        {
+            lock (_proxies.Lock)
+            {
+                var address = Request.HttpContext.Connection.RemoteIpAddress;
+                var proxy = _proxies.ActiveProxies.FirstOrDefault(p => p.IPAddress.Equals(address));
+
+                if (proxy == null)
+                    return Forbid();
+
+                return Ok(_proxies.ActiveProxies.ToArray());
             }
         }
     }
