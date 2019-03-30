@@ -1,3 +1,8 @@
+// Copyright (c) 2018-2019 fate/loli
+//
+// This software is released under the MIT License.
+// https://opensource.org/licenses/MIT
+
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
@@ -37,7 +42,9 @@ namespace nhitomi
             {
                 Proxies.Update();
 
-                return Proxies[_proxyIndex++ % Proxies.Count];
+                return Proxies.Count == 0
+                    ? null
+                    : Proxies[_proxyIndex++ % Proxies.Count];
             }
         }
 
@@ -46,6 +53,11 @@ namespace nhitomi
             bool allowCache = false,
             CancellationToken cancellationToken = default)
         {
+            var proxy = GetNextProxy();
+
+            if (proxy == null)
+                return Client.GetAsync(requestUrl, cancellationToken);
+
             var token = TokenGenerator.CreateToken(new TokenGenerator.ProxyGetPayload
                 {
                     Url = requestUrl,
@@ -55,7 +67,7 @@ namespace nhitomi
                 serializer: _json);
 
             return Client.GetAsync(
-                $"{GetNextProxy().Url}/proxy/get?token={HttpUtility.UrlEncode(token)}",
+                $"{proxy.Url}/proxy/get?token={HttpUtility.UrlEncode(token)}",
                 cancellationToken);
         }
     }
