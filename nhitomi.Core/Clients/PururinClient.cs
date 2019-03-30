@@ -5,7 +5,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Data;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
@@ -13,9 +12,10 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using nhitomi.Core.Doujins;
 using Newtonsoft.Json;
 
-namespace nhitomi.Core
+namespace nhitomi.Core.Clients
 {
     public static class Pururin
     {

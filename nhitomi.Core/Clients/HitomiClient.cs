@@ -16,9 +16,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using HtmlAgilityPack;
 using Microsoft.Extensions.Logging;
+using nhitomi.Core.Doujins;
 using Newtonsoft.Json;
 
-namespace nhitomi.Core
+namespace nhitomi.Core.Clients
 {
     public static class Hitomi
     {

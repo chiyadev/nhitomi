@@ -13,7 +13,7 @@ using Microsoft.Extensions.Options;
 using nhitomi.Core;
 using Newtonsoft.Json;
 
-namespace nhitomi.Proxy
+namespace nhitomi.Proxy.Services
 {
     public class ProxyRegistrationService : BackgroundService
     {

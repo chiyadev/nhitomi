@@ -9,9 +9,8 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
-using nhitomi.Core;
 
-namespace nhitomi
+namespace nhitomi.Core.Clients
 {
     /// <summary>
     /// This doujin client is used to filter out various illegal doujins such as lolicon and shotacon.

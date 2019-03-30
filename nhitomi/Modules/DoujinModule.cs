@@ -14,7 +14,7 @@ using Microsoft.Extensions.Options;
 using nhitomi.Core;
 using Newtonsoft.Json;
 
-namespace nhitomi
+namespace nhitomi.Modules
 {
     public class DoujinModule : ModuleBase
     {

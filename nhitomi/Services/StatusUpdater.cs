@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 
-namespace nhitomi
+namespace nhitomi.Services
 {
     public class StatusUpdater : BackgroundService
     {

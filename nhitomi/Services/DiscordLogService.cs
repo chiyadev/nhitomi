@@ -3,17 +3,17 @@
 // This software is released under the MIT License.
 // https://opensource.org/licenses/MIT
 
-using Discord;
-using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Concurrent;
 using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Discord;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace nhitomi
+namespace nhitomi.Services
 {
     public class DiscordLogService : ILoggerProvider
     {

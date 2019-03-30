@@ -14,7 +14,7 @@ using Microsoft.Extensions.Options;
 using nhitomi.Core;
 using Newtonsoft.Json;
 
-namespace nhitomi
+namespace nhitomi.Controllers
 {
     public class DownloadController : ControllerBase
     {

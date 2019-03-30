@@ -5,7 +5,7 @@
 
 using Microsoft.AspNetCore.Mvc;
 
-namespace nhitomi.Proxy
+namespace nhitomi.Proxy.Controllers
 {
     [Route("/")]
     public class DefaultController : ControllerBase

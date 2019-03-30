@@ -3,22 +3,23 @@
 // This software is released under the MIT License.
 // https://opensource.org/licenses/MIT
 
-using Discord;
-using Discord.Commands;
-using Discord.WebSocket;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using Discord;
+using Discord.Commands;
+using Discord.WebSocket;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using nhitomi.Core;
+using nhitomi.Modules;
 using Newtonsoft.Json;
 
-namespace nhitomi
+namespace nhitomi.Services
 {
     public class DiscordService : IDisposable
     {

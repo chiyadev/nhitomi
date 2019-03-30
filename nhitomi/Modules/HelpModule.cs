@@ -9,7 +9,7 @@ using Discord.Commands;
 using Microsoft.Extensions.Options;
 using nhitomi.Core;
 
-namespace nhitomi
+namespace nhitomi.Modules
 {
     public class HelpModule : ModuleBase
     {

@@ -15,7 +15,7 @@ using Microsoft.Extensions.Options;
 using nhitomi.Core;
 using Newtonsoft.Json;
 
-namespace nhitomi.Proxy
+namespace nhitomi.Proxy.Controllers
 {
     [Route("/proxy/image")]
     public class ImageController : ControllerBase

@@ -6,8 +6,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using nhitomi.Core.Clients;
 
-namespace nhitomi.Core
+namespace nhitomi.Core.Doujins
 {
     public sealed class nhentaiDoujin : IDoujin
     {

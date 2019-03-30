@@ -12,9 +12,10 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using nhitomi.Core.Doujins;
 using Newtonsoft.Json;
 
-namespace nhitomi.Core
+namespace nhitomi.Core.Clients
 {
     public static class nhentai
     {

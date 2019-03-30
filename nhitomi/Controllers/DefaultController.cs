@@ -6,7 +6,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 
-namespace nhitomi
+namespace nhitomi.Controllers
 {
     [Route("/")]
     public class DefaultController : ControllerBase
