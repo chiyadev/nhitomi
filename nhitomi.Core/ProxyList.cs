@@ -18,6 +18,6 @@ namespace nhitomi.Core
     {
         [JsonProperty("u")] public string Url;
         [JsonProperty("r")] public DateTime RegisterTime;
-        [JsonProperty("ip")] public IPAddress IPAddress;
+        [JsonIgnore] public IPAddress IPAddress;
     }
 }
