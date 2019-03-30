@@ -6,6 +6,7 @@
 using System;
 using System.IO;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 
@@ -25,9 +26,11 @@ namespace nhitomi.Core
             Serializer = serializer ?? JsonSerializer.CreateDefault();
         }
 
-        public async Task<Stream> GetStreamAsync(string name)
+        public async Task<Stream> GetStreamAsync(
+            string name,
+            CancellationToken cancellationToken = default)
         {
-            while (true)
+            while (!cancellationToken.IsCancellationRequested)
                 try
                 {
                     return new FileStream(GetPath(name), FileMode.Open, FileAccess.Read, FileShare.Read);
@@ -43,11 +46,16 @@ namespace nhitomi.Core
                 catch (IOException)
                 {
                     // Cache is still being written. Sleep.
-                    await Task.Delay(200);
+                    await Task.Delay(100, cancellationToken);
                 }
+
+            return null;
         }
 
-        public async Task CreateStreamAsync(string name, Func<Task<Stream>> getAsync)
+        public async Task CreateStreamAsync(
+            string name,
+            Func<CancellationToken, Task<Stream>> getAsync,
+            CancellationToken cancellationToken = default)
         {
             try
             {
@@ -58,11 +66,10 @@ namespace nhitomi.Core
                 // Create new cache if possible
                 // This will fail if cache already exists
                 using (var cacheStream = new FileStream(path, FileMode.CreateNew, FileAccess.Write, FileShare.None))
+                using (var getStream = await getAsync(cancellationToken))
                 {
-                    var stream = await getAsync();
-
                     // Write to cache
-                    await stream.CopyToAsync(cacheStream);
+                    await getStream.CopyToAsync(cacheStream);
                 }
             }
             catch (IOException)
@@ -71,42 +78,50 @@ namespace nhitomi.Core
             }
         }
 
-        public async Task<Stream> GetOrCreateStreamAsync(string name, Func<Task<Stream>> getAsync)
+        public async Task<Stream> GetOrCreateStreamAsync(
+            string name,
+            Func<CancellationToken, Task<Stream>> getAsync)
         {
             await CreateStreamAsync(name, getAsync);
 
             return await GetStreamAsync(name);
         }
 
-        public async Task<T> GetAsync<T>(string name)
+        public async Task<T> GetAsync<T>(
+            string name,
+            CancellationToken cancellationToken = default)
         {
-            using (var stream = await GetStreamAsync(name))
-            {
-                using (var reader = new StreamReader(stream))
-                using (var jsonReader = new JsonTextReader(reader))
-                    return Serializer.Deserialize<T>(jsonReader);
-            }
+            using (var stream = await GetStreamAsync(name, cancellationToken))
+            using (var reader = new StreamReader(stream))
+            using (var jsonReader = new JsonTextReader(reader))
+                return Serializer.Deserialize<T>(jsonReader);
         }
 
-        public Task CreateAsync<T>(string name, Func<Task<T>> getAsync)
+        public Task CreateAsync<T>(
+            string name,
+            Func<CancellationToken, Task<T>> getAsync,
+            CancellationToken cancellationToken = default)
         {
-            return CreateStreamAsync(name, async () =>
+            return CreateStreamAsync(name, async token =>
             {
                 using (var writer = new StringWriter())
                 using (var jsonWriter = new JsonTextWriter(writer))
                 {
-                    Serializer.Serialize(jsonWriter, await getAsync());
+                    Serializer.Serialize(jsonWriter, await getAsync(token));
 
                     return new MemoryStream(Encoding.Default.GetBytes(writer.ToString()));
                 }
-            });
+            }, cancellationToken);
         }
 
-        public async Task<T> GetOrCreateAsync<T>(string name, Func<Task<T>> getAsync)
+        public async Task<T> GetOrCreateAsync<T>(
+            string name,
+            Func<CancellationToken, Task<T>> getAsync,
+            CancellationToken cancellationToken = default)
         {
-            await CreateAsync(name, getAsync);
+            await CreateAsync(name, getAsync, cancellationToken);
 
-            return await GetAsync<T>(name);
+            return await GetAsync<T>(name, cancellationToken);
         }
 
         string GetPath(string name) => Path.Combine(CachePath, ProcessName(name));
