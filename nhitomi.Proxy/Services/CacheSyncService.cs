@@ -109,12 +109,15 @@ namespace nhitomi.Proxy.Services
                 using (var jsonReader = new JsonTextReader(reader))
                 {
                     _syncProxiesUpdateTime = DateTime.Now;
-                    return _syncProxies = _json
+                    _syncProxies = _json
                         .Deserialize<ProxyInfo[]>(jsonReader)
                         .Select(p => p.Url)
                         .Where(u => u != _settings.Http.Url)
                         .ToArray();
                 }
+
+                _logger.LogDebug($"Found proxies to sync with: {string.Join(", ", _syncProxies)}");
+                return _syncProxies;
             }
         }
     }
