@@ -1,5 +1,5 @@
 // Copyright (c) 2018-2019 fate/loli
-// 
+//
 // This software is released under the MIT License.
 // https://opensource.org/licenses/MIT
 
@@ -38,28 +38,35 @@ namespace nhitomi.Proxy.Services
         {
             while (!stoppingToken.IsCancellationRequested)
             {
-                // generate token used to register this proxy
-                var token = TokenGenerator.CreateToken(
-                    new TokenGenerator.ProxyRegistrationPayload
-                    {
-                        ProxyUrl = _settings.Http.ProxyUrl
-                    },
-                    _settings.Discord.Token, serializer: _json);
-
-                _logger.LogDebug($"Registration token: {token}");
-
-                // endpoint: /download/proxies/register
-                using (var response = await _client.PostAsync(
-                    $"{_settings.Http.MainServerUrl}/download/proxies/register",
-                    new StringContent(token), stoppingToken))
+                try
                 {
-                    var message = await response.Content.ReadAsStringAsync();
+                    // generate token used to register this proxy
+                    var token = TokenGenerator.CreateToken(
+                        new TokenGenerator.ProxyRegistrationPayload
+                        {
+                            ProxyUrl = _settings.Http.ProxyUrl
+                        },
+                        _settings.Discord.Token, serializer: _json);
 
-                    if (!response.IsSuccessStatusCode)
-                        _logger.LogWarning(
-                            $"Could not register as proxy at {response.RequestMessage.RequestUri}: {message}");
-                    else
-                        _logger.LogDebug($"Proxy registration success: {message}");
+                    _logger.LogDebug($"Registration token: {token}");
+
+                    // endpoint: /download/proxies/register
+                    using (var response = await _client.PostAsync(
+                        $"{_settings.Http.MainServerUrl}/download/proxies/register",
+                        new StringContent(token), stoppingToken))
+                    {
+                        var message = await response.Content.ReadAsStringAsync();
+
+                        if (!response.IsSuccessStatusCode)
+                            _logger.LogWarning(
+                                $"Could not register as proxy at {response.RequestMessage.RequestUri}: {message}");
+                        else
+                            _logger.LogDebug($"Proxy registration success: {message}");
+                    }
+                }
+                catch (Exception e)
+                {
+                    _logger.LogWarning(e, $"Exception while registering proxy.");
                 }
 
                 await Task.Delay(TimeSpan.FromSeconds(30), stoppingToken);
