@@ -19,10 +19,11 @@ namespace nhitomi
     public class DownloadController : ControllerBase
     {
         static readonly string _downloadPage;
+        const string _downloaderResourceId = "nhitomi.Controllers.DownloadClient.html";
 
         static DownloadController()
         {
-            using (var stream = typeof(Program).Assembly.GetManifestResourceStream("nhitomi.DownloadClient.html"))
+            using (var stream = typeof(Program).Assembly.GetManifestResourceStream(_downloaderResourceId))
             using (var reader = new StreamReader(stream))
                 _downloadPage = reader.ReadToEnd();
         }
