@@ -139,13 +139,7 @@ namespace nhitomi
                 return;
 
             // get interactive message
-            IUserMessage interactive;
-
-            if (reaction.Message.IsSpecified)
-                interactive = reaction.Message.Value;
-            else if (await reaction.Channel.GetMessageAsync(reaction.MessageId) is IUserMessage m)
-                interactive = m;
-            else
+            if (!(await reaction.Channel.GetMessageAsync(reaction.MessageId) is IUserMessage interactive))
                 return;
 
             // interactive must be authored by us
