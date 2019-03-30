@@ -58,9 +58,11 @@ namespace nhitomi
 
                 // Services
                 .AddSingleton<DiscordService>()
-                .AddSingleton<InteractiveScheduler>()
                 .AddHostedService<StatusUpdater>()
                 .AddHostedService<FeedUpdater>()
+
+                //
+                .AddSingleton<InteractiveScheduler>()
                 .AddSingleton<ProxyList>()
 
                 // Doujin clients
