@@ -53,10 +53,7 @@ namespace nhitomi
             public int MaxFeedUpdatesCount { get; set; }
 
             public double DownloadValidLength { get; set; }
-            public string[] DownloadProxies { get; set; }
             public bool AllowNonGuildMemberDownloads { get; set; }
-            public int? MaxConcurrentProxies { get; set; }
-            public double ProxyCheckInterval { get; set; }
         }
 
         public HttpSettings Http { get; set; } = new HttpSettings();

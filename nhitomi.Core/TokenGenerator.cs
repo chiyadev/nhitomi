@@ -43,7 +43,7 @@ namespace nhitomi.Core
         static DateTime? getExpirationFromNow(double? expireMinutes) =>
             expireMinutes == null ? (DateTime?) null : DateTime.UtcNow.AddMinutes(expireMinutes.Value);
 
-        public struct DownloadTokenPayload
+        public struct DownloadPayload
         {
             [JsonProperty("s")] public string Source;
             [JsonProperty("id")] public string Id;
@@ -58,7 +58,7 @@ namespace nhitomi.Core
             JsonSerializer serializer = null,
             double? expireMinutes = null)
         {
-            var payload = new DownloadTokenPayload
+            var payload = new DownloadPayload
             {
                 Source = doujin.Source.Name,
                 Id = doujin.Id,
@@ -121,7 +121,7 @@ namespace nhitomi.Core
             id = default;
             requestThrottle = default;
 
-            if (!TryDeserializeToken<DownloadTokenPayload>(token, secret, out var payload, encoding, serializer))
+            if (!TryDeserializeToken<DownloadPayload>(token, secret, out var payload, encoding, serializer))
                 return false;
 
             if (validateExpiry && DateTime.UtcNow >= payload.Expires)
@@ -131,6 +131,11 @@ namespace nhitomi.Core
             id = payload.Id;
             requestThrottle = payload.RequestThrottle;
             return true;
+        }
+
+        public struct ProxyRegistrationPayload
+        {
+            [JsonProperty("p")] public string ProxyUrl;
         }
     }
 }

@@ -60,8 +60,7 @@ namespace nhitomi
                 .AddSingleton<InteractiveScheduler>()
                 .AddHostedService<StatusUpdater>()
                 .AddHostedService<FeedUpdater>()
-                .AddSingleton<DownloadProxyManager>()
-                .AddSingleton<IHostedService, DownloadProxyManager>(p => p.GetRequiredService<DownloadProxyManager>())
+                .AddSingleton<ProxyList>()
 
                 // Doujin clients
                 .AddSingleton<nhentaiHtmlClient>()

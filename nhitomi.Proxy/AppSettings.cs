@@ -18,7 +18,8 @@ namespace nhitomi.Proxy
 
         public sealed class HttpSettings
         {
-            public string CorsAllowUrl { get; set; }
+            public string MainServerUrl { get; set; }
+            public string ProxyUrl { get; set; }
         }
     }
 }

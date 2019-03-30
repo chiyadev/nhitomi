@@ -37,7 +37,7 @@ namespace nhitomi.Proxy
                 .AddJsonFormatters(nhitomiSerializerSettings.Apply)
                 .AddCors(c => c
                     .AddPolicy("DefaultPolicy", p => p
-                        .WithOrigins(_config.GetSection("http")["corsAllowUrl"])
+                        .WithOrigins(_config.Get<AppSettings>().Http.MainServerUrl)
                         .AllowAnyHeader()
                         .AllowAnyMethod()));
 
