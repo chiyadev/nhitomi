@@ -31,7 +31,7 @@ namespace nhitomi.Proxy.Controllers
             ILogger<ProxyController> logger)
         {
             _settings = options.Value;
-            _http = httpFactory?.CreateClient(nameof(ImageController));
+            _http = httpFactory?.CreateClient(nameof(ProxyController));
             _json = json;
             _logger = logger;
         }
