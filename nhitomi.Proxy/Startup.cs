@@ -9,6 +9,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using nhitomi.Core;
+using nhitomi.Proxy.Services;
 using Newtonsoft.Json;
 
 namespace nhitomi.Proxy
@@ -55,7 +56,10 @@ namespace nhitomi.Proxy
                 .AddHttpClient()
 
                 // Formatters
-                .AddTransient(s => JsonSerializer.Create(new nhitomiSerializerSettings()));
+                .AddTransient(s => JsonSerializer.Create(new nhitomiSerializerSettings()))
+
+                // Services
+                .AddHostedService<ProxyRegistrationService>();
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
