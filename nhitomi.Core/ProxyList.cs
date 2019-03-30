@@ -9,7 +9,7 @@ namespace nhitomi.Core
     {
         public readonly object Lock = new object();
 
-        public TimeSpan ProxyLifetime { get; set; } = TimeSpan.FromMinutes(1);
+        public TimeSpan ProxyLifetime { get; set; } = TimeSpan.FromSeconds(30);
 
         public void Update() => RemoveAll(p => p.RegisterTime + ProxyLifetime < DateTime.UtcNow);
     }

@@ -73,7 +73,7 @@ namespace nhitomi.Proxy.Services
                     _logger.LogWarning(e, $"Exception while registering proxy.");
                 }
 
-                await Task.Delay(TimeSpan.FromSeconds(30), stoppingToken);
+                await Task.Delay(TimeSpan.FromSeconds(10), stoppingToken);
             }
         }
     }
