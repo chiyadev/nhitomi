@@ -145,10 +145,13 @@ namespace nhitomi
 
         public Embed CreateDownloadEmbed(IDoujin doujin)
         {
-            var downloadToken = doujin.CreateDownloadToken(
-                _settings.Discord.Token,
-                expireMinutes: _settings.Doujin.DownloadValidLength,
-                serializer: _json);
+            var downloadToken = TokenGenerator.CreateToken(new TokenGenerator.DownloadPayload
+            {
+                Source = doujin.Source.Name,
+                Id = doujin.Id,
+                RequestThrottle = doujin.Source.RequestThrottle,
+                Expires = TokenGenerator.GetExpirationFromNow(_settings.Doujin.DownloadValidLength)
+            }, _settings.Discord.Token, serializer: _json);
 
             return new EmbedBuilder()
                 .WithTitle($"**nhitomi**: {doujin.OriginalName ?? doujin.PrettyName}")

@@ -12,6 +12,9 @@ namespace nhitomi.Core
 {
     public static class TokenGenerator
     {
+        public static DateTime? GetExpirationFromNow(double? expireMinutes) =>
+            expireMinutes == null ? (DateTime?) null : DateTime.UtcNow.AddMinutes(expireMinutes.Value);
+
         public static string CreateToken(
             object token,
             string secret,
@@ -38,35 +41,6 @@ namespace nhitomi.Core
 
             // Token (similar to JWT, without header)
             return $"{payload}.{signature}";
-        }
-
-        static DateTime? GetExpirationFromNow(double? expireMinutes) =>
-            expireMinutes == null ? (DateTime?) null : DateTime.UtcNow.AddMinutes(expireMinutes.Value);
-
-        public struct DownloadPayload
-        {
-            [JsonProperty("s")] public string Source;
-            [JsonProperty("id")] public string Id;
-            [JsonProperty("ri")] public double RequestThrottle;
-            [JsonProperty("e")] public DateTime? Expires;
-        }
-
-        public static string CreateDownloadToken(
-            this IDoujin doujin,
-            string secret,
-            Encoding encoding = null,
-            JsonSerializer serializer = null,
-            double? expireMinutes = null)
-        {
-            var payload = new DownloadPayload
-            {
-                Source = doujin.Source.Name,
-                Id = doujin.Id,
-                RequestThrottle = doujin.Source.RequestThrottle,
-                Expires = GetExpirationFromNow(expireMinutes)
-            };
-
-            return CreateToken(payload, secret, encoding, serializer);
         }
 
         public static bool TryDeserializeToken<TPayload>(
@@ -107,30 +81,12 @@ namespace nhitomi.Core
             }
         }
 
-        public static bool TryDeserializeDownloadToken(
-            string token,
-            string secret,
-            out string sourceName,
-            out string id,
-            out double requestThrottle,
-            Encoding encoding = null,
-            JsonSerializer serializer = null,
-            bool validateExpiry = true)
+        public struct DownloadPayload
         {
-            sourceName = default;
-            id = default;
-            requestThrottle = default;
-
-            if (!TryDeserializeToken<DownloadPayload>(token, secret, out var payload, encoding, serializer))
-                return false;
-
-            if (validateExpiry && DateTime.UtcNow >= payload.Expires)
-                return false;
-
-            sourceName = payload.Source;
-            id = payload.Id;
-            requestThrottle = payload.RequestThrottle;
-            return true;
+            [JsonProperty("s")] public string Source;
+            [JsonProperty("id")] public string Id;
+            [JsonProperty("ri")] public double RequestThrottle;
+            [JsonProperty("e")] public DateTime? Expires;
         }
 
         public struct ProxyRegistrationPayload

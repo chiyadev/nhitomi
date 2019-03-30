@@ -20,7 +20,7 @@ namespace nhitomi.Proxy.Controllers
     [Route("/proxy/image")]
     public class ImageController : ControllerBase
     {
-        readonly AppSettings.DiscordSettings _settings;
+        readonly AppSettings _settings;
         readonly HttpClient _http;
         readonly JsonSerializer _json;
         readonly ILogger _logger;
@@ -31,7 +31,7 @@ namespace nhitomi.Proxy.Controllers
             JsonSerializer json,
             ILogger<ImageController> logger)
         {
-            _settings = options.Value.Discord;
+            _settings = options.Value;
             _http = httpFactory?.CreateClient(nameof(ImageController));
             _json = json;
             _logger = logger;
@@ -67,12 +67,15 @@ namespace nhitomi.Proxy.Controllers
             [FromQuery] string token,
             CancellationToken cancellationToken = default)
         {
-            if (!TokenGenerator.TryDeserializeDownloadToken(
-                token, _settings.Token, out _, out _, out var requestThrottle, serializer: _json))
+            if (!TokenGenerator.TryDeserializeToken<TokenGenerator.DownloadPayload>(
+                token, _settings.Discord.Token, out var payload, serializer: _json))
                 return BadRequest("Invalid token.");
 
             if (!Uri.TryCreate(url, UriKind.Absolute, out var uri))
                 return BadRequest("Invalid URL.");
+
+            if (DateTime.UtcNow >= payload.Expires)
+                return BadRequest("Token expired.");
 
             _logger.LogDebug($"Received request: token {token}, url {url}");
 
@@ -108,7 +111,7 @@ namespace nhitomi.Proxy.Controllers
             {
                 // Rate limiting
                 // todo: proper timing
-                await Task.Delay(TimeSpan.FromMilliseconds(requestThrottle), default);
+                await Task.Delay(TimeSpan.FromMilliseconds(payload.RequestThrottle), default);
 
                 semaphore.Release();
             }

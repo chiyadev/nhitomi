@@ -3,6 +3,7 @@
 // This software is released under the MIT License.
 // https://opensource.org/licenses/MIT
 
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -50,15 +51,18 @@ namespace nhitomi.Controllers
         [HttpGet("/download/{*token}")]
         public async Task<ActionResult> GetDownloaderAsync(string token)
         {
-            if (!TokenGenerator.TryDeserializeDownloadToken(
-                token, _settings.Discord.Token, out var source, out var id, out _, serializer: _json))
+            if (!TokenGenerator.TryDeserializeToken<TokenGenerator.DownloadPayload>(
+                token, _settings.Discord.Token, out var payload, serializer: _json))
+                return BadRequest("Invalid token.");
+
+            if (DateTime.UtcNow >= payload.Expires)
                 return BadRequest("Download token has expired. Please try again.");
 
             _logger.LogDebug($"Received download request: token {token}");
 
             // Retrieve doujin
-            var client = _clients.FindByName(source);
-            var doujin = await client.GetAsync(id);
+            var client = _clients.FindByName(payload.Source);
+            var doujin = await client.GetAsync(payload.Id);
 
             if (doujin == null)
                 return BadRequest("Doujin not found.");
