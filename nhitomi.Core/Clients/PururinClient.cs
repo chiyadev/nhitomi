@@ -240,8 +240,8 @@ namespace nhitomi.Core.Clients
                 })
                 .SelectMany(list => AsyncEnumerable.CreateEnumerable(() =>
                 {
-                    Pururin.DoujinData current = null;
                     var index = 0;
+                    IDoujin current = null;
 
                     return AsyncEnumerable.CreateEnumerator(
                         async token =>
@@ -249,10 +249,10 @@ namespace nhitomi.Core.Clients
                             if (index == list.Length)
                                 return false;
 
-                            current = await GetAsync(list[index++].id, token);
+                            current = await GetAsync(list[index++].id.ToString(), token);
                             return current != null;
                         },
-                        () => (IDoujin) new PururinDoujin(this, current),
+                        () => current,
                         () => { }
                     );
                 }))

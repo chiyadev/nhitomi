@@ -486,7 +486,7 @@ namespace nhitomi.Core.Clients
             return AsyncEnumerable.CreateEnumerable(() =>
             {
                 var enumerator = galleryIds.GetEnumerator();
-                Hitomi.DoujinData current = null;
+                IDoujin current = null;
 
                 return AsyncEnumerable.CreateEnumerator(
                     async token =>
@@ -494,10 +494,10 @@ namespace nhitomi.Core.Clients
                         if (!enumerator.MoveNext())
                             return false;
 
-                        current = await GetAsync(enumerator.Current, token);
+                        current = await GetAsync(enumerator.Current.ToString(), token);
                         return current != null;
                     },
-                    () => new HitomiDoujin(this, current),
+                    () => current,
                     enumerator.Dispose);
             });
         }

@@ -168,7 +168,7 @@ namespace nhitomi.Core.Clients
             CancellationToken cancellationToken = default) =>
             AsyncEnumerable.CreateEnumerable(() =>
                 {
-                    int[] current = null;
+                    string[] current = null;
                     var index = 0;
 
                     return AsyncEnumerable.CreateEnumerator(
@@ -194,7 +194,6 @@ namespace nhitomi.Core.Clients
                                 current = root
                                     .SelectNodes(nhentaiHtml.XPath.SearchItem)
                                     ?.Select(n => _galleryRegex.Match(n.Attributes["href"].Value).Value)
-                                    .Select(int.Parse)
                                     .ToArray();
 
                                 index++;
@@ -214,8 +213,8 @@ namespace nhitomi.Core.Clients
                 })
                 .SelectMany(list => AsyncEnumerable.CreateEnumerable(() =>
                 {
-                    nhentai.DoujinData current = null;
                     var index = 0;
+                    IDoujin current = null;
 
                     return AsyncEnumerable.CreateEnumerator(
                         async token =>
@@ -226,7 +225,7 @@ namespace nhitomi.Core.Clients
                             current = await GetAsync(list[index++], token);
                             return current != null;
                         },
-                        () => (IDoujin) new nhentaiDoujin(this, current),
+                        () => current,
                         () => { }
                     );
                 }))

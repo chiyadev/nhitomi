@@ -276,8 +276,8 @@ namespace nhitomi.Core.Clients
                 })
                 .SelectMany(list => AsyncEnumerable.CreateEnumerable(() =>
                 {
-                    Tsumino.DoujinData current = null;
                     var index = 0;
+                    IDoujin current = null;
 
                     return AsyncEnumerable.CreateEnumerator(
                         async token =>
@@ -285,10 +285,10 @@ namespace nhitomi.Core.Clients
                             if (index == list.Data.Length)
                                 return false;
 
-                            current = await GetAsync(list.Data[index++].Entry.Id, token);
+                            current = await GetAsync(list.Data[index++].Entry.Id.ToString(), token);
                             return current != null;
                         },
-                        () => (IDoujin) new TsuminoDoujin(this, current),
+                        () => current,
                         () => { }
                     );
                 }))
