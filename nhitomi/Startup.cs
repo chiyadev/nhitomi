@@ -8,6 +8,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -65,15 +66,17 @@ namespace nhitomi
                 // Doujin clients
                 .AddSingleton<nhentaiHtmlClient>()
                 .AddSingleton<HitomiClient>()
-                .AddSingleton<TsuminoClient>()
-                .AddSingleton<PururinClient>()
-                .AddSingleton<ISet<IDoujinClient>>(s => new HashSet<IDoujinClient>
-                {
-                    s.GetService<nhentaiHtmlClient>().Synchronized(),
-                    s.GetService<HitomiClient>().Synchronized(),
-                    // s.GetService<TsuminoClient>().Synchronized(),
-                    // s.GetService<PururinClient>().Synchronized()
-                });
+                //.AddSingleton<TsuminoClient>()
+                //.AddSingleton<PururinClient>()
+                .AddSingleton<ISet<IDoujinClient>>(s => new IDoujinClient[]
+                    {
+                        s.GetRequiredService<nhentaiHtmlClient>(),
+                        s.GetRequiredService<HitomiClient>(),
+                        //s.GetRequiredService<TsuminoClient>(),
+                        //s.GetRequiredService<PururinClient>()
+                    }
+                    .Select(c => c.Synchronized())
+                    .ToHashSet());
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
