@@ -69,7 +69,7 @@ namespace nhitomi.Core
                 using (var getStream = await getAsync(cancellationToken))
                 {
                     // Write to cache
-                    await getStream.CopyToAsync(cacheStream);
+                    await getStream.CopyToAsync(cacheStream,4096, cancellationToken);
                 }
             }
             catch (IOException)
