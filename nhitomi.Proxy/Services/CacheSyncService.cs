@@ -55,10 +55,17 @@ namespace nhitomi.Proxy.Services
                         CacheController.Semaphore.Release();
                     }
 
+                    var token = TokenGenerator.CreateToken(new TokenGenerator.ProxySetCachePayload
+                        {
+                            Url = uri.AbsoluteUri
+                        },
+                        _settings.Discord.Token,
+                        serializer: _json);
+
                     foreach (var proxyUrl in await GetSyncProxies(stoppingToken))
                     {
                         using (var response = await _http.PostAsync(
-                            $"{proxyUrl}/proxy/cache",
+                            $"{proxyUrl}/proxy/cache?token={token}",
                             new StreamContent(new FileStream(tempPath, FileMode.Open)),
                             stoppingToken))
                         {
