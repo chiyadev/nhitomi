@@ -84,6 +84,8 @@ namespace nhitomi.Core
                 }
             }
 
+            public override string ToString() => $"{nameof(SynchronizedClient)} ({_impl})"
+
             public void Dispose() => _semaphore.Dispose();
         }
 
