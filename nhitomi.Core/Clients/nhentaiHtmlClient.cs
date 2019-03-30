@@ -152,8 +152,10 @@ namespace nhitomi.Core.Clients
 
                 return data;
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                _logger.LogWarning(e, $"Exception while getting doujin {id}");
+
                 return null;
             }
         }
