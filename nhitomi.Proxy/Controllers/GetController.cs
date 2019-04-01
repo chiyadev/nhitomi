@@ -4,7 +4,6 @@
 // https://opensource.org/licenses/MIT
 
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
 using System.Threading;
@@ -38,19 +37,6 @@ namespace nhitomi.Proxy.Controllers
             _json = json;
             _caches = caches;
             _logger = logger;
-        }
-
-        static readonly Dictionary<string, SemaphoreSlim> _uriSemaphores = new Dictionary<string, SemaphoreSlim>();
-
-        static SemaphoreSlim GetSemaphoreForUri(Uri uri)
-        {
-            lock (_uriSemaphores)
-            {
-                if (!_uriSemaphores.TryGetValue(uri.Authority, out var semaphore))
-                    _uriSemaphores[uri.Authority] = semaphore = new SemaphoreSlim(1);
-
-                return semaphore;
-            }
         }
 
         const string _mime = "application/octet-stream";
@@ -128,7 +114,7 @@ namespace nhitomi.Proxy.Controllers
 
                 // download data to a temporary file
                 // semaphore is used to rate limit requests
-                var semaphore = GetSemaphoreForUri(uri);
+                var semaphore = CacheController.GetSemaphoreForUri(uri);
 
                 await semaphore.WaitAsync(cancellationToken);
                 try
