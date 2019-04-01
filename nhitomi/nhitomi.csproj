@@ -39,7 +39,6 @@
 
     <ItemGroup>
         <EmbeddedResource Include="Controllers\DownloadClient.html" />
-        <EmbeddedResource Include="Controllers\DownloadClient.js" />
     </ItemGroup>
 
 </Project>

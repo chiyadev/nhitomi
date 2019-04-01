@@ -20,9 +20,6 @@ namespace nhitomi.Controllers
     public class DownloadController : ControllerBase
     {
         static readonly string _downloadPage;
-        static readonly string _downloadScript;
-
-        static readonly int _downloadScriptIndex;
 
         static DownloadController()
         {
@@ -30,15 +27,6 @@ namespace nhitomi.Controllers
                 .GetManifestResourceStream("nhitomi.Controllers.DownloadClient.html"))
             using (var reader = new StreamReader(stream))
                 _downloadPage = reader.ReadToEnd();
-
-            using (var stream = typeof(Program).Assembly
-                .GetManifestResourceStream("nhitomi.Controllers.DownloadClient.js"))
-            using (var reader = new StreamReader(stream))
-                _downloadScript = reader.ReadToEnd();
-
-            const string tagAttr = "id=\"downloader\"";
-
-            _downloadScriptIndex = _downloadPage.IndexOf(tagAttr, StringComparison.Ordinal) + tagAttr.Length + 1;
         }
 
         readonly AppSettings _settings;
@@ -92,22 +80,16 @@ namespace nhitomi.Controllers
             try
             {
                 // generate download page
-                var builder = new StringBuilder();
-
-                builder.Append(_downloadPage.NamedFormat(new Dictionary<string, object>
-                {
-                    {"title", doujin.OriginalName ?? doujin.PrettyName},
-                    {"subtitle", doujin.OriginalName == doujin.PrettyName ? null : doujin.PrettyName}
-                }));
-
-                builder.Insert(_downloadScriptIndex, _downloadScript.NamedFormat(new Dictionary<string, object>
+                var downloader = _downloadPage.NamedFormat(new Dictionary<string, object>
                 {
                     {"token", token},
+                    {"title", doujin.OriginalName ?? doujin.PrettyName},
+                    {"subtitle", doujin.OriginalName == doujin.PrettyName ? null : doujin.PrettyName},
                     {"doujin", _json.Serialize(doujin)},
                     {"proxies", _json.Serialize(proxies)}
-                }));
+                });
 
-                return Content(builder.ToString(), "text/html");
+                return Content(downloader, "text/html");
             }
             catch (Exception e)
             {
