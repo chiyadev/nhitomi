@@ -39,8 +39,6 @@ namespace nhitomi.Proxy.Controllers
             _logger = logger;
         }
 
-        const string _mime = "application/octet-stream";
-
         // this endpoint is used by nhitomi internally
         [HttpGet("/proxy/get")]
         public async Task<ActionResult> GetAsync(
@@ -88,6 +86,8 @@ namespace nhitomi.Proxy.Controllers
                 var cachePath = CacheController.GetCachePath(uri);
                 var tempPath = Path.GetTempFileName();
 
+                string contentType;
+
                 if (cached)
                 {
                     // try finding from cache
@@ -101,7 +101,10 @@ namespace nhitomi.Proxy.Controllers
                             // copy to temporary path for faster transfer
                             System.IO.File.Copy(cachePath, tempPath, true);
 
-                            return File(new FileStream(tempPath, FileMode.Open), _mime);
+                            // ReSharper disable once MethodSupportsCancellation
+                            contentType = await System.IO.File.ReadAllTextAsync(cachePath + ".contentType");
+
+                            return File(new FileStream(tempPath, FileMode.Open), contentType);
                         }
                     }
                     finally
@@ -119,10 +122,21 @@ namespace nhitomi.Proxy.Controllers
                 await semaphore.WaitAsync(cancellationToken);
                 try
                 {
-                    using (var src = await _http.GetStreamAsync(uri))
-                        await src.CopyToAsync(tempStream, default(CancellationToken));
+                    using (var response = await _http.GetAsync(uri, cancellationToken))
+                    {
+                        if (!response.IsSuccessStatusCode)
+                            return StatusCode((int) response.StatusCode, response.ReasonPhrase);
+
+                        contentType = response.Content.Headers.ContentType.ToString();
+
+                        using (var src = await response.Content.ReadAsStreamAsync())
+                            await src.CopyToAsync(tempStream, default(CancellationToken));
+                    }
 
                     tempStream.Position = 0;
+
+                    // ReSharper disable once MethodSupportsCancellation
+                    await System.IO.File.WriteAllTextAsync(cachePath + ".contentType", contentType);
 
                     _logger.LogDebug($"Downloaded '{uri}'.");
                 }
@@ -156,7 +170,7 @@ namespace nhitomi.Proxy.Controllers
                     _caches.SyncQueue.Enqueue(uri);
                 }
 
-                return File(tempStream, _mime);
+                return File(tempStream, contentType);
             }
             catch (Exception e)
             {
