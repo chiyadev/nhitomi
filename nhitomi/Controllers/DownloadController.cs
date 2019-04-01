@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -19,13 +20,25 @@ namespace nhitomi.Controllers
     public class DownloadController : ControllerBase
     {
         static readonly string _downloadPage;
-        const string _downloaderResourceId = "nhitomi.Controllers.DownloadClient.html";
+        static readonly string _downloadScript;
+
+        static readonly int _downloadScriptIndex;
 
         static DownloadController()
         {
-            using (var stream = typeof(Program).Assembly.GetManifestResourceStream(_downloaderResourceId))
+            using (var stream = typeof(Program).Assembly
+                .GetManifestResourceStream("nhitomi.Controllers.DownloadClient.html"))
             using (var reader = new StreamReader(stream))
                 _downloadPage = reader.ReadToEnd();
+
+            using (var stream = typeof(Program).Assembly
+                .GetManifestResourceStream("nhitomi.Controllers.DownloadClient.js"))
+            using (var reader = new StreamReader(stream))
+                _downloadScript = reader.ReadToEnd();
+
+            const string tagAttr = "id=\"downloader\"";
+
+            _downloadScriptIndex = _downloadPage.IndexOf(tagAttr, StringComparison.Ordinal) + tagAttr.Length + 1;
         }
 
         readonly AppSettings _settings;
@@ -78,17 +91,19 @@ namespace nhitomi.Controllers
 
             try
             {
-                // create javascript downloader
-                var downloader = _downloadPage.NamedFormat(new Dictionary<string, object>
+                // generate download page
+                var builder = new StringBuilder(_downloadPage);
+
+                builder.Insert(_downloadScriptIndex, _downloadScript.NamedFormat(new Dictionary<string, object>
                 {
                     {"token", token},
                     {"title", doujin.OriginalName ?? doujin.PrettyName},
                     {"subtitle", doujin.OriginalName == doujin.PrettyName ? null : doujin.PrettyName},
                     {"doujin", _json.Serialize(doujin)},
                     {"proxies", _json.Serialize(proxies)}
-                });
+                }));
 
-                return Content(downloader, "text/html");
+                return Content(builder.ToString(), "text/html");
             }
             catch (Exception e)
             {
