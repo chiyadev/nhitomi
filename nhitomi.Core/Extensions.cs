@@ -301,7 +301,7 @@ namespace nhitomi.Core
             return readable.ToString("0.### ") + suffix;
         }
 
-        static Regex _namedFormatRegex = new Regex(@"\{(.+?)\}", RegexOptions.CompiledZ);
+        static Regex _namedFormatRegex = new Regex(@"\{(.+?)\}", RegexOptions.Compiled);
 
         /// <summary>
         /// https://stackoverflow.com/questions/1010123/named-string-format-is-it-possible
