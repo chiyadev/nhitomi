@@ -181,30 +181,35 @@ namespace nhitomi.Services
             if (!_galleryRegex.IsMatch(content))
                 return;
 
-            var doujins = AsyncEnumerable.CreateEnumerable(() =>
+            IAsyncEnumerable<IDoujin> doujins;
+
+            using (message.Channel.EnterTypingState())
             {
-                var enumerator = (IEnumerator<Match>) _galleryRegex.Matches(content).GetEnumerator();
-                var current = (IDoujin) null;
+                doujins = AsyncEnumerable.CreateEnumerable(() =>
+                {
+                    var enumerator = (IEnumerator<Match>) _galleryRegex.Matches(content).GetEnumerator();
+                    var current = (IDoujin) null;
 
-                return AsyncEnumerable.CreateEnumerator(
-                    async token =>
-                    {
-                        if (!enumerator.MoveNext())
-                            return false;
+                    return AsyncEnumerable.CreateEnumerator(
+                        async token =>
+                        {
+                            if (!enumerator.MoveNext())
+                                return false;
 
-                        var group = enumerator.Current.Groups.First(g =>
-                            g.Success &&
-                            _clients.Any(c => c.Name == g.Name));
+                            var group = enumerator.Current.Groups.First(g =>
+                                g.Success &&
+                                _clients.Any(c => c.Name == g.Name));
 
-                        current = await _clients
-                            .First(c => c.Name == group.Name)
-                            .GetAsync(group.Value, token);
+                            current = await _clients
+                                .First(c => c.Name == @group.Name)
+                                .GetAsync(@group.Value, token);
 
-                        return true;
-                    },
-                    () => current,
-                    enumerator.Dispose);
-            });
+                            return true;
+                        },
+                        () => current,
+                        enumerator.Dispose);
+                });
+            }
 
             if (DoujinsDetected != null)
                 await DoujinsDetected(message, doujins);
