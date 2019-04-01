@@ -22,5 +22,11 @@ namespace nhitomi.Core
             bool allowCache = false,
             CancellationToken cancellationToken = default) =>
             Client.GetAsync(requestUrl, cancellationToken);
+
+        public Task<HttpResponseMessage> PostAsync(
+            string requestUrl,
+            HttpContent content,
+            CancellationToken cancellationToken = default) =>
+            Client.PostAsync(requestUrl, content, cancellationToken);
     }
 }

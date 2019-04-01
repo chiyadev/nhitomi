@@ -155,7 +155,11 @@ namespace nhitomi.Core.Clients
             CancellationToken cancellationToken = default)
         {
             //TODO: use proxy
-            var html = await _http.Client.GetStringAsync(Url);
+            string html;
+
+            using (var response = await _http.GetAsync(Url, cancellationToken: cancellationToken))
+                html = await response.Content.ReadAsStringAsync();
+
             var csrf = _csrfRegex.Match(html).Groups["csrf"].Value;
 
             var request = new HttpRequestMessage(HttpMethod.Post, url);

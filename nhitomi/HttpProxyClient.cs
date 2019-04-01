@@ -55,6 +55,7 @@ namespace nhitomi
         {
             var proxy = GetNextProxy();
 
+            // fallback to direct access
             if (proxy == null)
                 return Client.GetAsync(requestUrl, cancellationToken);
 
@@ -68,6 +69,30 @@ namespace nhitomi
 
             return Client.GetAsync(
                 $"{proxy.Url}/proxy/get?token={HttpUtility.UrlEncode(token)}",
+                cancellationToken);
+        }
+
+        public Task<HttpResponseMessage> PostAsync(
+            string requestUrl,
+            HttpContent content,
+            CancellationToken cancellationToken = default)
+        {
+            var proxy = GetNextProxy();
+
+            // fallback to direct access
+            if (proxy == null)
+                return Client.PostAsync(requestUrl, content, cancellationToken);
+
+            var token = TokenGenerator.CreateToken(new TokenGenerator.ProxyPostPayload
+                {
+                    Url = requestUrl
+                },
+                _settings.Discord.Token,
+                serializer: _json);
+
+            return Client.PostAsync(
+                $"{proxy.Url}/proxy/post?token={HttpUtility.UrlEncode(token)}",
+                content,
                 cancellationToken);
         }
     }

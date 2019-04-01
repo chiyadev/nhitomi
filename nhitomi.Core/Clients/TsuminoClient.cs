@@ -207,8 +207,7 @@ namespace nhitomi.Core.Clients
                 };
 
                 // Parse images
-                //TODO: use proxy
-                using (var response = await _http.Client.PostAsync(Tsumino.ReadLoad, new FormUrlEncodedContent(
+                using (var response = await _http.PostAsync(Tsumino.ReadLoad, new FormUrlEncodedContent(
                     new Dictionary<string, string>
                     {
                         {"q", id.ToString()}
@@ -246,8 +245,7 @@ namespace nhitomi.Core.Clients
                             try
                             {
                                 // Load list
-                                //TODO: use proxy
-                                using (var response = await _http.Client.PostAsync(Tsumino.Operate,
+                                using (var response = await _http.PostAsync(Tsumino.Operate,
                                     new FormUrlEncodedContent(new Dictionary<string, string>
                                     {
                                         {"PageNumber", (index + 1).ToString()},

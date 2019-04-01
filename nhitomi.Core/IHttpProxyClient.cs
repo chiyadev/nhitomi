@@ -15,5 +15,10 @@ namespace nhitomi.Core
             string requestUrl,
             bool allowCache = false,
             CancellationToken cancellationToken = default);
+
+        Task<HttpResponseMessage> PostAsync(
+            string requestUrl,
+            HttpContent content,
+            CancellationToken cancellationToken = default);
     }
 }
