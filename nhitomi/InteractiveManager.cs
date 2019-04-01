@@ -19,6 +19,60 @@ using nhitomi.Services;
 
 namespace nhitomi
 {
+    public delegate Task<IUserMessage> SendMessageAsync(
+        string text = null,
+        bool isTTS = false,
+        Embed embed = null,
+        RequestOptions options = null);
+
+    public class Interactive : IDisposable
+    {
+        public IUserMessage Message;
+
+        public virtual void Dispose()
+        {
+        }
+    }
+
+    public abstract class ListInteractive : Interactive
+    {
+        public readonly IEnumerableBrowser Browser;
+
+        protected ListInteractive(IEnumerableBrowser browser)
+        {
+            Browser = browser;
+        }
+
+        public abstract Embed CreateEmbed(MessageFormatter formatter);
+
+        public virtual Task UpdateState(MessageFormatter formatter) =>
+            Message.ModifyAsync(null, CreateEmbed(formatter));
+
+        public override void Dispose() => Browser.Dispose();
+    }
+
+    public class DoujinListInteractive : ListInteractive
+    {
+        public IUserMessage DownloadMessage;
+
+        public DoujinListInteractive(IAsyncEnumerable<IDoujin> doujins) : base(
+            new EnumerableBrowser<IDoujin>(doujins.GetEnumerator()))
+        {
+        }
+
+        IDoujin Current => ((IAsyncEnumerator<IDoujin>) Browser).Current;
+
+        public override Embed CreateEmbed(MessageFormatter formatter) => formatter.CreateDoujinEmbed(Current);
+
+        public override async Task UpdateState(MessageFormatter formatter)
+        {
+            await base.UpdateState(formatter);
+
+            if (DownloadMessage != null)
+                await DownloadMessage.ModifyAsync(embed: formatter.CreateDownloadEmbed(Current));
+        }
+    }
+
     public class InteractiveManager : IDisposable
     {
         readonly AppSettings _settings;
@@ -50,73 +104,7 @@ namespace nhitomi
         readonly ConcurrentDictionary<ulong, ListInteractive>
             _listInteractives = new ConcurrentDictionary<ulong, ListInteractive>();
 
-        public class Interactive : IDisposable
-        {
-            public IUserMessage Message;
-
-            public virtual void Dispose()
-            {
-            }
-        }
-
-        public abstract class ListInteractive : Interactive
-        {
-            public readonly IEnumerableBrowser Browser;
-
-            protected ListInteractive(IEnumerableBrowser browser)
-            {
-                Browser = browser;
-            }
-
-            public abstract Embed CreateEmbed(MessageFormatter formatter);
-
-            public virtual Task UpdateState(MessageFormatter formatter) =>
-                Message.ModifyAsync(null, CreateEmbed(formatter));
-
-            public override void Dispose() => Browser.Dispose();
-        }
-
-        public class DoujinListInteractive : ListInteractive
-        {
-            public IUserMessage DownloadMessage;
-
-            public DoujinListInteractive(IAsyncEnumerable<IDoujin> doujins) : base(
-                new EnumerableBrowser<IDoujin>(doujins.GetEnumerator()))
-            {
-            }
-
-            IDoujin Current => ((IAsyncEnumerator<IDoujin>) Browser).Current;
-
-            public override Embed CreateEmbed(MessageFormatter formatter) => formatter.CreateDoujinEmbed(Current);
-
-            public override async Task UpdateState(MessageFormatter formatter)
-            {
-                await base.UpdateState(formatter);
-
-                if (DownloadMessage != null)
-                    await DownloadMessage.ModifyAsync(embed: formatter.CreateDownloadEmbed(Current));
-            }
-        }
-
-        public delegate Task<IUserMessage> SendMessageAsync(
-            string text = null,
-            bool isTTS = false,
-            Embed embed = null,
-            RequestOptions options = null);
-
-        public async Task<DoujinListInteractive> CreateDoujinListInteractiveAsync(
-            IAsyncEnumerable<IDoujin> doujins,
-            SendMessageAsync sendMessage,
-            CancellationToken cancellationToken = default)
-        {
-            var interactive = new DoujinListInteractive(doujins);
-
-            return await InitListInteractiveAsync(interactive, sendMessage, cancellationToken)
-                ? interactive
-                : null;
-        }
-
-        async Task<bool> InitListInteractiveAsync(
+        async Task<bool> CreateListInteractiveAsync(
             ListInteractive interactive,
             SendMessageAsync sendMessage,
             CancellationToken cancellationToken = default)
@@ -158,6 +146,16 @@ namespace nhitomi
             await _formatter.AddListTriggersAsync(interactive.Message);
 
             return true;
+        }
+
+        public async Task<DoujinListInteractive> CreateDoujinListInteractiveAsync(
+            IAsyncEnumerable<IDoujin> doujins,
+            SendMessageAsync sendMessage,
+            CancellationToken cancellationToken = default)
+        {
+            var interactive = new DoujinListInteractive(doujins);
+
+            return await CreateListInteractiveAsync(interactive, sendMessage, cancellationToken) ? interactive : null;
         }
 
         async Task HandleDoujinsDetected(IUserMessage message, IAsyncEnumerable<IDoujin> doujins)
