@@ -84,7 +84,7 @@ namespace nhitomi.Controllers
                 {
                     {"token", token},
                     {"title", doujin.OriginalName ?? doujin.PrettyName},
-                    {"subtitle", doujin.OriginalName == doujin.PrettyName ? null : doujin.PrettyName},
+                    {"subtitle", doujin.OriginalName == doujin.PrettyName ? string.Empty : doujin.PrettyName},
                     {"doujin", _json.Serialize(doujin)},
                     {"proxies", _json.Serialize(proxies)}
                 });
