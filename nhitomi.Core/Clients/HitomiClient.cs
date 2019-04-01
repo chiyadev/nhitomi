@@ -294,9 +294,10 @@ namespace nhitomi.Core.Clients
             return node;
         }
 
-        async Task<IndexNode> GetGalleryNodeAtAddress(ulong address, CancellationToken cancellationToken = default)
+        async Task<IndexNode> GetGalleryNodeAtAddress(long version, ulong address,
+            CancellationToken cancellationToken = default)
         {
-            var url = Hitomi.GalleryIndex(_galleryVersion);
+            var url = Hitomi.GalleryIndex(version);
 
             using (var memory = new MemoryStream())
             {
@@ -332,7 +333,11 @@ namespace nhitomi.Core.Clients
             return await response.Content.ReadAsStreamAsync();
         }
 
-        async Task<NodeData?> B_searchAsync(byte[] key, IndexNode node, CancellationToken cancellationToken = default)
+        async Task<NodeData?> B_searchAsync(
+            long version,
+            byte[] key,
+            IndexNode node,
+            CancellationToken cancellationToken = default)
         {
             try
             {
@@ -401,9 +406,9 @@ namespace nhitomi.Core.Clients
                     return null;
 
                 //it's in a subnode
-                var subnode = await GetGalleryNodeAtAddress(node.SubnodeAddresses[index], cancellationToken);
+                var subnode = await GetGalleryNodeAtAddress(version, node.SubnodeAddresses[index], cancellationToken);
 
-                return await B_searchAsync(key, subnode, cancellationToken);
+                return await B_searchAsync(version, key, subnode, cancellationToken);
             }
             catch (Exception e)
             {
@@ -413,9 +418,10 @@ namespace nhitomi.Core.Clients
             }
         }
 
-        async Task<List<int>> GetGalleryIdsFromData(NodeData data, CancellationToken cancellationToken = default)
+        async Task<List<int>> GetGalleryIdsFromData(long version, NodeData data,
+            CancellationToken cancellationToken = default)
         {
-            var url = Hitomi.GalleryData(_galleryVersion);
+            var url = Hitomi.GalleryData(version);
 
             if (data.Length > 100000000 || data.Length <= 0)
                 throw new Exception($"length {data.Length} is too long");
@@ -460,27 +466,39 @@ namespace nhitomi.Core.Clients
         {
             IEnumerable<int> galleryIds;
 
-            await _indexSemaphore.WaitAsync(cancellationToken);
-            try
+            if (string.IsNullOrWhiteSpace(query))
             {
-                if (string.IsNullOrWhiteSpace(query))
+                await _indexSemaphore.WaitAsync(cancellationToken);
+                try
                 {
                     galleryIds = _nozomiIndex;
                 }
-                else
+                finally
                 {
-                    var node = await GetGalleryNodeAtAddress(0, cancellationToken);
-                    var data = await B_searchAsync(HashTerm(query), node, cancellationToken);
-
-                    if (data == null)
-                        return AsyncEnumerable.Empty<IDoujin>();
-
-                    galleryIds = await GetGalleryIdsFromData(data.Value, cancellationToken);
+                    _indexSemaphore.Release();
                 }
             }
-            finally
+            else
             {
-                _indexSemaphore.Release();
+                long version;
+
+                await _indexSemaphore.WaitAsync(cancellationToken);
+                try
+                {
+                    version = _galleryVersion;
+                }
+                finally
+                {
+                    _indexSemaphore.Release();
+                }
+
+                var node = await GetGalleryNodeAtAddress(version, 0, cancellationToken);
+                var data = await B_searchAsync(version, HashTerm(query), node, cancellationToken);
+
+                if (data == null)
+                    return AsyncEnumerable.Empty<IDoujin>();
+
+                galleryIds = await GetGalleryIdsFromData(version, data.Value, cancellationToken);
             }
 
             return AsyncEnumerable.CreateEnumerable(() =>
