@@ -120,13 +120,17 @@ namespace nhitomi.Services
                     return;
 
                 var text = new StringBuilder()
-                    .Append($"__{_levelNames[logLevel]}__ ")
-                    .Append($" **{_category}**: ")
+                    .Append("__")
+                    .Append(_levelNames[logLevel])
+                    .Append("__ **")
+                    .Append(_category)
+                    .Append("**: ")
                     .Append(formatter(state, exception));
 
                 if (exception?.StackTrace != null)
                     text.AppendLine()
-                        .Append("Trace: ")
+                        .Append(exception.Message)
+                        .Append(": ")
                         .Append(exception.StackTrace);
 
                 if (logLevel < LogLevel.Warning)
