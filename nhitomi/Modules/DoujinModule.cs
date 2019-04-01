@@ -48,6 +48,8 @@ namespace nhitomi.Modules
                 return;
             }
 
+            IUserMessage response;
+
             using (Context.Channel.EnterTypingState())
             {
                 var doujin = await client.GetAsync(id);
@@ -55,13 +57,13 @@ namespace nhitomi.Modules
                 if (doujin == null)
                 {
                     await ReplyAsync(_formatter.DoujinNotFound(source));
+                    return;
                 }
-                else
-                {
-                    var response = await ReplyAsync(embed: _formatter.CreateDoujinEmbed(doujin));
-                    await _formatter.AddDoujinTriggersAsync(response);
-                }
+
+                response = await ReplyAsync(embed: _formatter.CreateDoujinEmbed(doujin));
             }
+
+            await _formatter.AddDoujinTriggersAsync(response);
         }
 
         [Command("all")]
@@ -69,6 +71,8 @@ namespace nhitomi.Modules
         [Summary("Displays all doujins from the specified source uploaded recently.")]
         public async Task ListAsync([Remainder] string source = null)
         {
+            DoujinListInteractive interactive;
+
             using (Context.Channel.EnterTypingState())
             {
                 IAsyncEnumerable<IDoujin> results;
@@ -90,11 +94,11 @@ namespace nhitomi.Modules
                     results = await client.SearchAsync(null);
                 }
 
-                var interactive = await _interactive.CreateDoujinListInteractiveAsync(results, ReplyAsync);
-
-                if (interactive != null)
-                    await _formatter.AddDoujinTriggersAsync(interactive.Message);
+                interactive = await _interactive.CreateDoujinListInteractiveAsync(results, ReplyAsync);
             }
+
+            if (interactive != null)
+                await _formatter.AddDoujinTriggersAsync(interactive.Message);
         }
 
         [Command("search")]
@@ -109,15 +113,17 @@ namespace nhitomi.Modules
                 return;
             }
 
+            DoujinListInteractive interactive;
+
             using (Context.Channel.EnterTypingState())
             {
                 var results = Extensions.Interleave(await Task.WhenAll(_clients.Select(c => c.SearchAsync(query))));
 
-                var interactive = await _interactive.CreateDoujinListInteractiveAsync(results, ReplyAsync);
-
-                if (interactive != null)
-                    await _formatter.AddDoujinTriggersAsync(interactive.Message);
+                interactive = await _interactive.CreateDoujinListInteractiveAsync(results, ReplyAsync);
             }
+
+            if (interactive != null)
+                await _formatter.AddDoujinTriggersAsync(interactive.Message);
         }
 
         [Command("searchen")]
@@ -140,17 +146,6 @@ namespace nhitomi.Modules
         [Summary("Sends a download link for the specified doujin.")]
         public async Task DownloadAsync(string source, [Remainder] string id)
         {
-            var guild = await Context.Client.GetGuildAsync(_settings.Discord.Guild.GuildId);
-
-            // allow downloading only for users of guild
-            if (guild != null &&
-                !_settings.Doujin.AllowNonGuildMemberDownloads &&
-                await guild.GetUserAsync(Context.User.Id) == null)
-            {
-                await Context.User.SendMessageAsync(_formatter.JoinGuildForDownload());
-                return;
-            }
-
             var client = _clients.FindByName(source);
 
             if (client == null)
@@ -159,20 +154,33 @@ namespace nhitomi.Modules
                 return;
             }
 
+            IUserMessage response;
+
             using (Context.Channel.EnterTypingState())
             {
+                var guild = await Context.Client.GetGuildAsync(_settings.Discord.Guild.GuildId);
+
+                // allow downloading only for users of guild
+                if (guild != null &&
+                    !_settings.Doujin.AllowNonGuildMemberDownloads &&
+                    await guild.GetUserAsync(Context.User.Id) == null)
+                {
+                    await Context.User.SendMessageAsync(_formatter.JoinGuildForDownload());
+                    return;
+                }
+
                 var doujin = await client.GetAsync(id);
 
                 if (doujin == null)
                 {
                     await ReplyAsync(_formatter.DoujinNotFound(source));
+                    return;
                 }
-                else
-                {
-                    var response = await ReplyAsync(embed: _formatter.CreateDownloadEmbed(doujin));
-                    await _formatter.AddDownloadTriggersAsync(response);
-                }
+
+                response = await ReplyAsync(embed: _formatter.CreateDownloadEmbed(doujin));
             }
+
+            await _formatter.AddDownloadTriggersAsync(response);
         }
     }
 }
