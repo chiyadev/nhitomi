@@ -82,8 +82,8 @@ namespace nhitomi.Controllers
                 var downloader = _downloadPage.NamedFormat(new Dictionary<string, object>
                 {
                     {"token", token},
-                    {"title", doujin.PrettyName},
-                    {"subtitle", doujin.OriginalName ?? string.Empty},
+                    {"title", doujin.OriginalName ?? doujin.PrettyName},
+                    {"subtitle", doujin.OriginalName == doujin.PrettyName ? null : doujin.PrettyName},
                     {"doujin", _json.Serialize(doujin)},
                     {"proxies", _json.Serialize(proxies)}
                 });
