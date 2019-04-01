@@ -92,13 +92,17 @@ namespace nhitomi.Controllers
             try
             {
                 // generate download page
-                var builder = new StringBuilder(_downloadPage);
+                var builder = new StringBuilder();
+
+                builder.Append(_downloadPage.NamedFormat(new Dictionary<string, object>
+                {
+                    {"title", doujin.OriginalName ?? doujin.PrettyName},
+                    {"subtitle", doujin.OriginalName == doujin.PrettyName ? null : doujin.PrettyName}
+                }));
 
                 builder.Insert(_downloadScriptIndex, _downloadScript.NamedFormat(new Dictionary<string, object>
                 {
                     {"token", token},
-                    {"title", doujin.OriginalName ?? doujin.PrettyName},
-                    {"subtitle", doujin.OriginalName == doujin.PrettyName ? null : doujin.PrettyName},
                     {"doujin", _json.Serialize(doujin)},
                     {"proxies", _json.Serialize(proxies)}
                 }));
