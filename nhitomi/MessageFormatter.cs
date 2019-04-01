@@ -173,21 +173,11 @@ namespace nhitomi
             $"**nhitomi**: Source __{source}__ is not supported. " +
             $"Please see refer to the manual (**{_settings.Discord.Prefix}help**) for a full list of supported sources.";
 
-        public string LoadingDoujin(string source = null, string id = null) =>
-            string.IsNullOrEmpty(source)
-                ? "**nhitomi**: Loading..."
-                : string.IsNullOrEmpty(id)
-                    ? $"**{source}**: Loading..."
-                    : $"**{source}**: Loading __{id}__...";
-
         public string DoujinNotFound(string source = null) =>
             $"**{source ?? "nhitomi"}**: No such doujin!";
 
         public string InvalidQuery(string source = null) =>
             $"**{source ?? "nhitomi"}**: Please specify your query.";
-
-        public string SearchingDoujins(string source = null, string query = null) =>
-            $"**{source ?? "nhitomi"}**: Searching{(query == null ? "" : $" __{query}__")}...";
 
         public string JoinGuildForDownload() =>
             $"**nhitomi**: Please join our server to enable downloading! {_settings.Discord.Guild.GuildInvite}";

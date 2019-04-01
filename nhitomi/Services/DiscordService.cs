@@ -167,10 +167,7 @@ namespace nhitomi.Services
             }
         }
 
-        public delegate Task DoujinDetectHandler(
-            IUserMessage message,
-            IUserMessage response,
-            IAsyncEnumerable<IDoujin> doujins);
+        public delegate Task DoujinDetectHandler(IUserMessage message, IAsyncEnumerable<IDoujin> doujins);
 
         public event DoujinDetectHandler DoujinsDetected;
 
@@ -209,10 +206,8 @@ namespace nhitomi.Services
                     enumerator.Dispose);
             });
 
-            var response = await message.Channel.SendMessageAsync(_formatter.LoadingDoujin());
-
             if (DoujinsDetected != null)
-                await DoujinsDetected(message, response, doujins);
+                await DoujinsDetected(message, doujins);
         }
 
         Task HandleLogAsync(LogMessage m)

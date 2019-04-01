@@ -48,17 +48,19 @@ namespace nhitomi.Modules
                 return;
             }
 
-            var response = await ReplyAsync(_formatter.LoadingDoujin(source, id));
-            var doujin = await client.GetAsync(id);
+            using (Context.Channel.EnterTypingState())
+            {
+                var doujin = await client.GetAsync(id);
 
-            if (doujin == null)
-            {
-                await response.ModifyAsync(_formatter.DoujinNotFound(source));
-            }
-            else
-            {
-                await response.ModifyAsync(embed: _formatter.CreateDoujinEmbed(doujin));
-                await _formatter.AddDoujinTriggersAsync(response);
+                if (doujin == null)
+                {
+                    await ReplyAsync(_formatter.DoujinNotFound(source));
+                }
+                else
+                {
+                    var response = await ReplyAsync(embed: _formatter.CreateDoujinEmbed(doujin));
+                    await _formatter.AddDoujinTriggersAsync(response);
+                }
             }
         }
 
@@ -67,30 +69,32 @@ namespace nhitomi.Modules
         [Summary("Displays all doujins from the specified source uploaded recently.")]
         public async Task ListAsync([Remainder] string source = null)
         {
-            IUserMessage response;
-            IAsyncEnumerable<IDoujin> results;
-
-            if (string.IsNullOrWhiteSpace(source))
+            using (Context.Channel.EnterTypingState())
             {
-                response = await ReplyAsync(_formatter.LoadingDoujin());
-                results = Extensions.Interleave(await Task.WhenAll(_clients.Select(c => c.SearchAsync(null))));
-            }
-            else
-            {
-                var client = _clients.FindByName(source);
+                IAsyncEnumerable<IDoujin> results;
 
-                if (client == null)
+                if (string.IsNullOrWhiteSpace(source))
                 {
-                    await ReplyAsync(_formatter.UnsupportedSource(source));
-                    return;
+                    results = Extensions.Interleave(await Task.WhenAll(_clients.Select(c => c.SearchAsync(null))));
+                }
+                else
+                {
+                    var client = _clients.FindByName(source);
+
+                    if (client == null)
+                    {
+                        await ReplyAsync(_formatter.UnsupportedSource(source));
+                        return;
+                    }
+
+                    results = await client.SearchAsync(null);
                 }
 
-                response = await ReplyAsync(_formatter.LoadingDoujin(client.Name));
-                results = await client.SearchAsync(null);
-            }
+                var interactive = await _interactive.CreateDoujinListInteractiveAsync(results, ReplyAsync);
 
-            if (await _interactive.CreateDoujinListInteractiveAsync(response, results))
-                await _formatter.AddDoujinTriggersAsync(response);
+                if (interactive != null)
+                    await _formatter.AddDoujinTriggersAsync(interactive.Message);
+            }
         }
 
         [Command("search")]
@@ -105,11 +109,15 @@ namespace nhitomi.Modules
                 return;
             }
 
-            var response = await ReplyAsync(_formatter.SearchingDoujins(query: query));
-            var results = Extensions.Interleave(await Task.WhenAll(_clients.Select(c => c.SearchAsync(query))));
+            using (Context.Channel.EnterTypingState())
+            {
+                var results = Extensions.Interleave(await Task.WhenAll(_clients.Select(c => c.SearchAsync(query))));
 
-            if (await _interactive.CreateDoujinListInteractiveAsync(response, results))
-                await _formatter.AddDoujinTriggersAsync(response);
+                var interactive = await _interactive.CreateDoujinListInteractiveAsync(results, ReplyAsync);
+
+                if (interactive != null)
+                    await _formatter.AddDoujinTriggersAsync(interactive.Message);
+            }
         }
 
         [Command("searchen")]
@@ -151,17 +159,19 @@ namespace nhitomi.Modules
                 return;
             }
 
-            var response = await ReplyAsync(_formatter.LoadingDoujin(source, id));
-            var doujin = await client.GetAsync(id);
+            using (Context.Channel.EnterTypingState())
+            {
+                var doujin = await client.GetAsync(id);
 
-            if (doujin == null)
-            {
-                await response.ModifyAsync(_formatter.DoujinNotFound(source));
-            }
-            else
-            {
-                await response.ModifyAsync(embed: _formatter.CreateDownloadEmbed(doujin));
-                await _formatter.AddDownloadTriggersAsync(response);
+                if (doujin == null)
+                {
+                    await ReplyAsync(_formatter.DoujinNotFound(source));
+                }
+                else
+                {
+                    var response = await ReplyAsync(embed: _formatter.CreateDownloadEmbed(doujin));
+                    await _formatter.AddDownloadTriggersAsync(response);
+                }
             }
         }
     }
