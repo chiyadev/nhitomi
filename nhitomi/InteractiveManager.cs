@@ -55,8 +55,8 @@ namespace nhitomi
     {
         public IUserMessage DownloadMessage;
 
-        public DoujinListInteractive(IAsyncEnumerable<IDoujin> doujins) : base(
-            new EnumerableBrowser<IDoujin>(doujins.GetEnumerator()))
+        public DoujinListInteractive(IAsyncEnumerable<IDoujin> doujins)
+            : base(new EnumerableBrowser<IDoujin>(doujins.GetEnumerator()))
         {
         }
 
