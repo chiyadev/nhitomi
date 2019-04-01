@@ -301,21 +301,25 @@ namespace nhitomi.Core
             return readable.ToString("0.### ") + suffix;
         }
 
+        static Regex _namedFormatRegex = new Regex(@"\{(.+?)\}", RegexOptions.CompiledZ);
+
         /// <summary>
         /// https://stackoverflow.com/questions/1010123/named-string-format-is-it-possible
         /// Thanks Pavlo Neyman
         /// </summary>
         public static string NamedFormat(this string format, IDictionary<string, object> values) =>
-            Regex.Matches(format, @"\{(.+?)\}").Cast<Match>()
+            _namedFormatRegex
+                .Matches(format)
+                .Cast<Match>()
                 .Select(m => m.Groups[1].Value)
                 .Aggregate(format, (current, key) =>
                 {
                     var colonIndex = key.IndexOf(':');
 
                     return current.Replace(
-                        "{" + key + "}",
+                        $"{{{key}}}",
                         colonIndex > 0
-                            ? string.Format("{0:" + key.Substring(colonIndex + 1) + "}",
+                            ? string.Format($"{{0:{key.Substring(colonIndex + 1)}}}",
                                 values[key.Substring(0, colonIndex)])
                             : values[key].ToString());
                 });
