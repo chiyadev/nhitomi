@@ -79,7 +79,8 @@ namespace nhitomi
                         //s.GetRequiredService<TsuminoClient>(),
                         //s.GetRequiredService<PururinClient>()
                     }
-                    .Select(c => c.Synchronized())
+                    //.Select(c => c.Synchronized())
+                    //.Select(c => c.Filtered())
                     .ToHashSet());
         }
 
