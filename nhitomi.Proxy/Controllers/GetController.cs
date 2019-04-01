@@ -18,23 +18,23 @@ using Newtonsoft.Json;
 
 namespace nhitomi.Proxy.Controllers
 {
-    public class ProxyController : ControllerBase
+    public class GetController : ControllerBase
     {
         readonly AppSettings _settings;
         readonly HttpClient _http;
         readonly JsonSerializer _json;
         readonly CacheSyncService _caches;
-        readonly ILogger<ProxyController> _logger;
+        readonly ILogger<GetController> _logger;
 
-        public ProxyController(
+        public GetController(
             IOptions<AppSettings> options,
             IHttpClientFactory httpFactory,
             JsonSerializer json,
             CacheSyncService caches,
-            ILogger<ProxyController> logger)
+            ILogger<GetController> logger)
         {
             _settings = options.Value;
-            _http = httpFactory?.CreateClient(nameof(ProxyController));
+            _http = httpFactory?.CreateClient(nameof(GetController));
             _json = json;
             _caches = caches;
             _logger = logger;
