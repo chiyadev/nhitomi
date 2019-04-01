@@ -40,6 +40,9 @@ namespace nhitomi.Proxy.Controllers
             }
         }
 
+        public static Stream GetTemporaryStream() =>
+            new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.Read);
+
         public static readonly SemaphoreSlim Semaphore = new SemaphoreSlim(1);
 
         public static string GetCachePath(Uri uri)

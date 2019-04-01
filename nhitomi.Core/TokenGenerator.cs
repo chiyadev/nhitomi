@@ -87,6 +87,11 @@ namespace nhitomi.Core
             [JsonProperty("c")] public bool IsCached;
         }
 
+        public struct ProxyPostPayload
+        {
+            [JsonProperty("u")] public string Url;
+        }
+
         public struct ProxySetCachePayload
         {
             [JsonProperty("u")] public string Url;
