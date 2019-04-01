@@ -22,7 +22,7 @@ namespace nhitomi.Services
         readonly AppSettings _settings;
 
         readonly Task _worker;
-        readonly CancellationTokenSource _tokenSource = new CancellationTokenSource();
+        readonly CancellationTokenSource _workerTokenSource = new CancellationTokenSource();
 
         public DiscordLogService(
             DiscordService discord,
@@ -31,45 +31,55 @@ namespace nhitomi.Services
             _discord = discord;
             _settings = settings.Value;
 
-            _worker = RunAsync(_tokenSource.Token);
+            _worker = RunAsync(_workerTokenSource.Token);
         }
 
         readonly ConcurrentQueue<string> _queue = new ConcurrentQueue<string>();
+        readonly ConcurrentQueue<string> _warningQueue = new ConcurrentQueue<string>();
 
-        async Task RunAsync(CancellationToken token)
+        async Task UploadLogs(
+            ulong channelId,
+            ConcurrentQueue<string> queue,
+            CancellationToken cancellationToken = default)
+        {
+            if (_discord.Socket.ConnectionState == ConnectionState.Connected &&
+                _discord.Socket.GetChannel(channelId) is ITextChannel channel)
+            {
+                var builder = new StringBuilder(500, 2000);
+
+                async Task flush()
+                {
+                    if (builder.Length == 0 ||
+                        cancellationToken.IsCancellationRequested)
+                        return;
+
+                    await channel.SendMessageAsync(builder.ToString());
+                    builder.Clear();
+                }
+
+                // upload logs in chunks to fit 2000 character limit
+                while (queue.TryDequeue(out var line))
+                {
+                    if (builder.Length + line.Length > 2000)
+                        await flush();
+
+                    builder.AppendLine(line);
+                }
+
+                await flush();
+            }
+        }
+
+        async Task RunAsync(CancellationToken cancellationToken = default)
         {
             do
             {
-                if (_discord.Socket.ConnectionState == ConnectionState.Connected &&
-                    _discord.Socket.GetChannel(_settings.Discord.Guild.LogChannelId) is ITextChannel channel)
-                {
-                    var builder = new StringBuilder(500, 2000);
-
-                    async Task flush()
-                    {
-                        if (builder.Length == 0 ||
-                            token.IsCancellationRequested)
-                            return;
-
-                        await channel.SendMessageAsync(builder.ToString());
-                        builder.Clear();
-                    }
-
-                    // Chunk logs to fit 2000 characters limit
-                    while (_queue.TryDequeue(out var line))
-                    {
-                        if (builder.Length + line.Length > 2000)
-                            await flush();
-
-                        builder.AppendLine(line);
-                    }
-
-                    await flush();
-                }
+                await UploadLogs(_settings.Discord.Guild.LogChannelId, _queue, cancellationToken);
+                await UploadLogs(_settings.Discord.Guild.LogWarningChannelId, _warningQueue, cancellationToken);
 
                 // Sleep
-                await Task.Delay(TimeSpan.FromSeconds(1), token);
-            } while (!token.IsCancellationRequested);
+                await Task.Delay(TimeSpan.FromSeconds(1), cancellationToken);
+            } while (!cancellationToken.IsCancellationRequested);
         }
 
         sealed class DiscordLogger : ILogger
@@ -119,7 +129,10 @@ namespace nhitomi.Services
                         .Append("Trace: ")
                         .Append(exception.StackTrace);
 
-                _provider._queue.Enqueue(text.ToString());
+                if (logLevel < LogLevel.Warning)
+                    _provider._queue.Enqueue(text.ToString());
+                else
+                    _provider._warningQueue.Enqueue(text.ToString());
             }
         }
 
@@ -128,10 +141,10 @@ namespace nhitomi.Services
         public void Dispose()
         {
             // Stop worker task
-            _tokenSource.Cancel();
+            _workerTokenSource.Cancel();
             _worker.Wait();
 
-            _tokenSource.Dispose();
+            _workerTokenSource.Dispose();
             _worker.Dispose();
         }
     }

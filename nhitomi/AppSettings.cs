@@ -39,6 +39,7 @@ namespace nhitomi
             {
                 public ulong GuildId { get; set; }
                 public ulong LogChannelId { get; set; }
+                public ulong LogWarningChannelId { get; set; }
                 public ulong FeedCategoryId { get; set; }
 
                 public string GuildInvite { get; set; }
