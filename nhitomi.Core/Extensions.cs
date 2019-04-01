@@ -320,8 +320,8 @@ namespace nhitomi.Core
                         $"{{{key}}}",
                         colonIndex > 0
                             ? string.Format($"{{0:{key.Substring(colonIndex + 1)}}}",
-                                values[key.Substring(0, colonIndex)])
-                            : values[key].ToString());
+                                values[key.Substring(0, colonIndex)] ?? string.Empty)
+                            : values[key]?.ToString() ?? string.Empty);
                 });
 
         public static string Serialize(this JsonSerializer json, object value)
