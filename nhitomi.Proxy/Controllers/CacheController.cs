@@ -82,6 +82,8 @@ namespace nhitomi.Proxy.Controllers
 
                 System.IO.File.Move(tempPath, cachePath);
 
+                await System.IO.File.WriteAllTextAsync(cachePath + ".contentType", Request.ContentType);
+
                 return Created(new Uri("/proxy/get", UriKind.Relative), "Cache updated.");
             }
             finally

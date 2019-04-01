@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
@@ -42,6 +43,8 @@ namespace nhitomi.Proxy.Services
             {
                 while (SyncQueue.TryDequeue(out var uri))
                 {
+                    string contentType;
+
                     // copy to temporary path for faster transfer
                     var cachePath = CacheController.GetCachePath(uri);
                     var tempPath = Path.GetTempFileName();
@@ -50,6 +53,8 @@ namespace nhitomi.Proxy.Services
                     try
                     {
                         File.Copy(cachePath, tempPath, true);
+
+                        contentType = await File.ReadAllTextAsync(cachePath + ".contentType", stoppingToken);
                     }
                     finally
                     {
@@ -65,16 +70,21 @@ namespace nhitomi.Proxy.Services
 
                     foreach (var proxyUrl in await GetSyncProxies(stoppingToken))
                     {
-                        using (var response = await _http.PostAsync(
-                            $"{proxyUrl}/proxy/cache?token={HttpUtility.UrlEncode(token)}",
-                            new StreamContent(new FileStream(tempPath, FileMode.Open)),
-                            stoppingToken))
+                        using (var content = new StreamContent(new FileStream(tempPath, FileMode.Open)))
                         {
-                            if (response.IsSuccessStatusCode)
-                                _logger.LogDebug($"Synced cache of '{uri}' with '{proxyUrl}'.");
-                            else
-                                _logger.LogWarning($"Could not sync cache of '{uri}' with '{proxyUrl}': " +
-                                                   await response.Content.ReadAsStringAsync());
+                            content.Headers.ContentType = MediaTypeHeaderValue.Parse(contentType);
+
+                            using (var response = await _http.PostAsync(
+                                $"{proxyUrl}/proxy/cache?token={HttpUtility.UrlEncode(token)}",
+                                content,
+                                stoppingToken))
+                            {
+                                if (response.IsSuccessStatusCode)
+                                    _logger.LogDebug($"Synced cache of '{uri}' with '{proxyUrl}'.");
+                                else
+                                    _logger.LogWarning($"Could not sync cache of '{uri}' with '{proxyUrl}': " +
+                                                       await response.Content.ReadAsStringAsync());
+                            }
                         }
                     }
 
