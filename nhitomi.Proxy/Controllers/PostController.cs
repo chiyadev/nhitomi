@@ -40,8 +40,8 @@ namespace nhitomi.Proxy.Controllers
             _logger = logger;
         }
 
-        [HttpGet("/proxy/get")]
-        public async Task<ActionResult> GetAsync(
+        [HttpPost("/proxy/post")]
+        public async Task<ActionResult> PostAsync(
             [FromQuery] string token,
             CancellationToken cancellationToken = default)
         {
