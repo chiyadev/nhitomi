@@ -55,6 +55,7 @@ namespace nhitomi.Proxy.Controllers
 
         const string _mime = "application/octet-stream";
 
+        // this endpoint is used by nhitomi internally
         [HttpGet("/proxy/get")]
         public async Task<ActionResult> GetAsync(
             [FromQuery] string token,
@@ -71,7 +72,7 @@ namespace nhitomi.Proxy.Controllers
         }
 
         // this endpoint is used by the downloader script
-        [HttpGet("/proxy/image")]
+        [HttpGet("/proxy/get/image")]
         public async Task<ActionResult> GetImageAsync(
             [FromQuery] string url,
             [FromQuery] string token,

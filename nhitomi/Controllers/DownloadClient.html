@@ -93,7 +93,7 @@
 
     function getProxiedImage(url) {
       return proxies[proxyIndex++ % proxies.length]
-        + "/proxy/image?url=" + encodeURIComponent(url)
+        + "/proxy/get/image?url=" + encodeURIComponent(url)
         + "&token=" + encodeURIComponent("{token}");
     }
 
