@@ -157,7 +157,7 @@ namespace nhitomi
                 serializer: _json);
 
             return new EmbedBuilder()
-                .WithTitle($"**nhitomi**: {doujin.OriginalName ?? doujin.PrettyName}")
+                .WithTitle($"**{doujin.Source.Name}**: {doujin.OriginalName ?? doujin.PrettyName}")
                 .WithUrl($"{_settings.Http.Url}/download?token={HttpUtility.UrlEncode(downloadToken)}")
                 .WithDescription(
                     $"Click the link above to start downloading `{doujin.OriginalName ?? doujin.PrettyName}`.\n")
