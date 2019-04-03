@@ -41,71 +41,81 @@ namespace nhitomi.Proxy.Services
         {
             while (!stoppingToken.IsCancellationRequested)
             {
-                while (SyncQueue.TryDequeue(out var uri))
+                try
                 {
-                    string contentType;
-
-                    // copy to temporary path for faster transfer
-                    var cachePath = CacheController.GetCachePath(uri);
-                    var tempPath = Path.GetTempFileName();
-
-                    await CacheController.Semaphore.WaitAsync(stoppingToken);
-                    try
-                    {
-                        File.Copy(cachePath, tempPath, true);
-
-                        contentType = await File.ReadAllTextAsync(cachePath + ".contentType", stoppingToken);
-                    }
-                    finally
-                    {
-                        CacheController.Semaphore.Release();
-                    }
-
-                    var token = TokenGenerator.CreateToken(new TokenGenerator.ProxySetCachePayload
-                        {
-                            Url = uri.AbsoluteUri
-                        },
-                        _settings.Discord.Token,
-                        serializer: _json);
-
-                    foreach (var proxyUrl in await GetSyncProxies(stoppingToken))
-                    {
-                        try
-                        {
-                            using (var content = new StreamContent(new FileStream(tempPath, FileMode.Open)))
-                            {
-                                content.Headers.ContentType = MediaTypeHeaderValue.Parse(contentType);
-
-                                using (var response = await _http.PostAsync(
-                                    $"{proxyUrl}/proxy/cache?token={HttpUtility.UrlEncode(token)}",
-                                    content,
-                                    stoppingToken))
-                                {
-                                    if (response.IsSuccessStatusCode)
-                                        _logger.LogDebug($"Synced cache of '{uri}' with '{proxyUrl}'.");
-                                    else
-                                        _logger.LogWarning($"Could not sync cache of '{uri}' with '{proxyUrl}': " +
-                                                           await response.Content.ReadAsStringAsync());
-                                }
-                            }
-                        }
-                        catch (Exception e)
-                        {
-                            _logger.LogWarning(e, $"Could not sync cache of '{uri}' with '{proxyUrl}'.");
-                        }
-                    }
-
-                    File.Delete(tempPath);
+                    while (SyncQueue.TryDequeue(out var uri))
+                        await SyncCacheAsync(uri, stoppingToken);
+                }
+                catch (Exception e)
+                {
+                    _logger.LogWarning(e, "Exception while syncing caches.");
                 }
 
                 await Task.Delay(TimeSpan.FromSeconds(1), stoppingToken);
             }
         }
 
+        async Task SyncCacheAsync(Uri uri, CancellationToken cancellationToken = default)
+        {
+            string contentType;
+
+            // copy to temporary path for faster transfer
+            var cachePath = CacheController.GetCachePath(uri);
+            var tempPath = Path.GetTempFileName();
+
+            await CacheController.Semaphore.WaitAsync(cancellationToken);
+            try
+            {
+                File.Copy(cachePath, tempPath, true);
+
+                contentType = await File.ReadAllTextAsync(cachePath + ".contentType", cancellationToken);
+            }
+            finally
+            {
+                CacheController.Semaphore.Release();
+            }
+
+            var token = TokenGenerator.CreateToken(new TokenGenerator.ProxySetCachePayload
+                {
+                    Url = uri.AbsoluteUri
+                },
+                _settings.Discord.Token,
+                serializer: _json);
+
+            foreach (var proxyUrl in await GetSyncProxiesAsync(cancellationToken))
+            {
+                try
+                {
+                    using (var content = new StreamContent(new FileStream(tempPath, FileMode.Open)))
+                    {
+                        content.Headers.ContentType = MediaTypeHeaderValue.Parse(contentType);
+
+                        using (var response = await _http.PostAsync(
+                            $"{proxyUrl}/proxy/cache?token={HttpUtility.UrlEncode(token)}",
+                            content,
+                            cancellationToken))
+                        {
+                            if (response.IsSuccessStatusCode)
+                                _logger.LogDebug($"Synced cache of '{uri}' with '{proxyUrl}'.");
+                            else
+                                _logger.LogWarning($"Could not sync cache of '{uri}' with '{proxyUrl}': " +
+                                                   await response.Content.ReadAsStringAsync());
+                        }
+                    }
+                }
+                catch (Exception e)
+                {
+                    _logger.LogWarning(e, $"Could not sync cache of '{uri}' with '{proxyUrl}'.");
+                }
+            }
+
+            File.Delete(tempPath);
+        }
+
         DateTime _syncProxiesUpdateTime;
         string[] _syncProxies = new string[0];
 
-        async Task<string[]> GetSyncProxies(CancellationToken cancellationToken = default)
+        async Task<string[]> GetSyncProxiesAsync(CancellationToken cancellationToken = default)
         {
             if (_syncProxiesUpdateTime.AddMinutes(10) >= DateTime.Now)
                 return _syncProxies;
