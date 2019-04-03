@@ -70,21 +70,28 @@ namespace nhitomi.Proxy.Services
 
                     foreach (var proxyUrl in await GetSyncProxies(stoppingToken))
                     {
-                        using (var content = new StreamContent(new FileStream(tempPath, FileMode.Open)))
+                        try
                         {
-                            content.Headers.ContentType = MediaTypeHeaderValue.Parse(contentType);
-
-                            using (var response = await _http.PostAsync(
-                                $"{proxyUrl}/proxy/cache?token={HttpUtility.UrlEncode(token)}",
-                                content,
-                                stoppingToken))
+                            using (var content = new StreamContent(new FileStream(tempPath, FileMode.Open)))
                             {
-                                if (response.IsSuccessStatusCode)
-                                    _logger.LogDebug($"Synced cache of '{uri}' with '{proxyUrl}'.");
-                                else
-                                    _logger.LogWarning($"Could not sync cache of '{uri}' with '{proxyUrl}': " +
-                                                       await response.Content.ReadAsStringAsync());
+                                content.Headers.ContentType = MediaTypeHeaderValue.Parse(contentType);
+
+                                using (var response = await _http.PostAsync(
+                                    $"{proxyUrl}/proxy/cache?token={HttpUtility.UrlEncode(token)}",
+                                    content,
+                                    stoppingToken))
+                                {
+                                    if (response.IsSuccessStatusCode)
+                                        _logger.LogDebug($"Synced cache of '{uri}' with '{proxyUrl}'.");
+                                    else
+                                        _logger.LogWarning($"Could not sync cache of '{uri}' with '{proxyUrl}': " +
+                                                           await response.Content.ReadAsStringAsync());
+                                }
                             }
+                        }
+                        catch (Exception e)
+                        {
+                            _logger.LogWarning(e, $"Could not sync cache of '{uri}' with '{proxyUrl}'.");
                         }
                     }
 
