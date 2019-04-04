@@ -1,4 +1,4 @@
-// Copyright (c) 2018-2019 fate/loli
+// Copyright (c) 2018-2019 chiya.dev
 // 
 // This software is released under the MIT License.
 // https://opensource.org/licenses/MIT
@@ -100,7 +100,7 @@ namespace nhitomi
             var embed = new EmbedBuilder()
                 .WithTitle("**nhitomi**: Help")
                 .WithDescription(
-                    "nhitomi — a Discord bot for searching and downloading doujinshi by fate/loli.\n" +
+                    "nhitomi — a Discord bot for searching and downloading doujinshi by chiya.dev.\n" +
                     $"Join our server: {_settings.Discord.Guild.GuildInvite}")
                 .WithColor(Color.Purple)
                 .WithCurrentTimestamp();

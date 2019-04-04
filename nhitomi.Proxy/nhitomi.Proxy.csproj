@@ -1,5 +1,5 @@
 ﻿<!--
- Copyright (c) 2018-2019 fate/loli
+ Copyright (c) 2018-2019 chiya.dev
  
  This software is released under the MIT License.
  https://opensource.org/licenses/MIT
@@ -12,13 +12,13 @@
         <TargetFramework>netcoreapp2.1</TargetFramework>
         <LangVersion>latest</LangVersion>
         <Title>nhitomi.Proxy</Title>
-        <Authors>fate/loli</Authors>
+        <Authors>chiya.dev</Authors>
         <Description>nhitomi HTTP proxy server</Description>
-        <Copyright>Copyright (c) fate/loli</Copyright>
-        <PackageProjectUrl>https://github.com/fateloli/nhitomi</PackageProjectUrl>
+        <Copyright>Copyright (c) chiya.dev</Copyright>
+        <PackageProjectUrl>https://github.com/chiyadev/nhitomi</PackageProjectUrl>
         <PackageLicenseUrl>https://opensource.org/licenses/MIT</PackageLicenseUrl>
-        <PackageIconUrl>https://github.com/fateloli/nhitomi/raw/master/nhitomi.png</PackageIconUrl>
-        <RepositoryUrl>https://github.com/fateloli/nhitomi</RepositoryUrl>
+        <PackageIconUrl>https://github.com/chiyadev/nhitomi/raw/master/nhitomi.png</PackageIconUrl>
+        <RepositoryUrl>https://github.com/chiyadev/nhitomi</RepositoryUrl>
     </PropertyGroup>
 
     <ItemGroup>
