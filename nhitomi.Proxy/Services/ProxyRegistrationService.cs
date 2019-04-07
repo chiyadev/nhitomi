@@ -42,9 +42,9 @@ namespace nhitomi.Proxy.Services
         {
             while (!stoppingToken.IsCancellationRequested)
             {
-                if (_caches.SyncProxiesUpdateTime.AddMinutes(5) >= DateTime.Now)
+                if (_caches.SyncProxiesUpdateTime.AddMinutes(1) >= DateTime.Now)
                 {
-                    await Task.Delay(TimeSpan.FromMinutes(5), stoppingToken);
+                    await Task.Delay(TimeSpan.FromMinutes(1), stoppingToken);
                     continue;
                 }
 
