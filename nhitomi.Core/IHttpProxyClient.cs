@@ -9,8 +9,6 @@ namespace nhitomi.Core
         HttpClient Client { get; }
         ProxyList Proxies { get; }
 
-        ProxyInfo GetNextProxy();
-
         Task<HttpResponseMessage> GetAsync(
             string requestUrl,
             bool allowCache = false,

@@ -3,8 +3,9 @@
 // This software is released under the MIT License.
 // https://opensource.org/licenses/MIT
 
-using System;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -33,49 +34,36 @@ namespace nhitomi.Controllers
         }
 
         [HttpPost("/download/proxies/register")]
-        public ActionResult RegisterProxy([FromForm] string token)
+        public async Task<ActionResult> RegisterProxyAsync(
+            [FromForm] string token,
+            CancellationToken cancellationToken = default)
         {
             if (!TokenGenerator.TryDeserializeToken<TokenGenerator.ProxyRegistrationPayload>(
                 token, _settings.Discord.Token, out var payload, serializer: _json))
                 return BadRequest("Invalid registration token.");
 
-            lock (_proxies.Lock)
+            await _proxies.Semaphore.WaitAsync(cancellationToken);
+            try
             {
-                _proxies.Update();
-
                 var proxy = _proxies.FirstOrDefault(p => p.Url == payload.ProxyUrl);
 
-                if (proxy == null)
+                if (proxy != null)
+                    return BadRequest($"Proxy '{proxy.Url}' is already registered.");
+
+                proxy = new ProxyInfo
                 {
-                    _proxies.Add(proxy = new ProxyInfo
-                    {
-                        Url = payload.ProxyUrl
-                    });
+                    Url = payload.ProxyUrl,
+                    IPAddress = Request.HttpContext.Connection.RemoteIpAddress,
+                    RegistrationToken = token
+                };
 
-                    _logger.LogDebug($"Proxy '{proxy.Url}' registered.");
-                }
-
-                proxy.RegisterTime = DateTime.UtcNow;
-                proxy.IPAddress = Request.HttpContext.Connection.RemoteIpAddress;
+                _proxies.Add(proxy);
 
                 return Ok($"Registered {proxy.Url}.");
             }
-        }
-
-        [HttpGet("/download/proxies/list")]
-        public ActionResult GetProxies()
-        {
-            lock (_proxies.Lock)
+            finally
             {
-                _proxies.Update();
-
-                var address = Request.HttpContext.Connection.RemoteIpAddress;
-                var proxy = _proxies.FirstOrDefault(p => p.IPAddress.Equals(address));
-
-                if (proxy == null)
-                    return BadRequest("Not registered.");
-
-                return Ok(_proxies.ToArray());
+                _proxies.Semaphore.Release();
             }
         }
     }

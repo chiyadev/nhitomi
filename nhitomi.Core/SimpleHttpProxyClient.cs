@@ -15,8 +15,6 @@ namespace nhitomi.Core
             Client = client ?? throw new ArgumentNullException(nameof(client));
         }
 
-        public ProxyInfo GetNextProxy() => null;
-
         public Task<HttpResponseMessage> GetAsync(
             string requestUrl,
             bool allowCache = false,

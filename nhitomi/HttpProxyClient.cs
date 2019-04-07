@@ -36,28 +36,31 @@ namespace nhitomi
 
         int _proxyIndex;
 
-        public ProxyInfo GetNextProxy()
+        async Task<ProxyInfo> GetNextProxyAsync(CancellationToken cancellationToken = default)
         {
-            lock (Proxies.Lock)
+            await Proxies.Semaphore.WaitAsync(cancellationToken);
+            try
             {
-                Proxies.Update();
-
                 return Proxies.Count == 0
                     ? null
                     : Proxies[_proxyIndex++ % Proxies.Count];
             }
+            finally
+            {
+                Proxies.Semaphore.Release();
+            }
         }
 
-        public Task<HttpResponseMessage> GetAsync(
+        public async Task<HttpResponseMessage> GetAsync(
             string requestUrl,
             bool allowCache = false,
             CancellationToken cancellationToken = default)
         {
-            var proxy = GetNextProxy();
+            var proxy = await GetNextProxyAsync(cancellationToken);
 
             // fallback to direct access
             if (proxy == null)
-                return Client.GetAsync(requestUrl, cancellationToken);
+                return await Client.GetAsync(requestUrl, cancellationToken);
 
             var token = TokenGenerator.CreateToken(new TokenGenerator.ProxyGetPayload
                 {
@@ -67,21 +70,21 @@ namespace nhitomi
                 _settings.Discord.Token,
                 serializer: _json);
 
-            return Client.GetAsync(
+            return await Client.GetAsync(
                 $"{proxy.Url}/proxy/get?token={HttpUtility.UrlEncode(token)}",
                 cancellationToken);
         }
 
-        public Task<HttpResponseMessage> PostAsync(
+        public async Task<HttpResponseMessage> PostAsync(
             string requestUrl,
             HttpContent content,
             CancellationToken cancellationToken = default)
         {
-            var proxy = GetNextProxy();
+            var proxy = await GetNextProxyAsync(cancellationToken);
 
             // fallback to direct access
             if (proxy == null)
-                return Client.PostAsync(requestUrl, content, cancellationToken);
+                return await Client.PostAsync(requestUrl, content, cancellationToken);
 
             var token = TokenGenerator.CreateToken(new TokenGenerator.ProxyPostPayload
                 {
@@ -90,7 +93,7 @@ namespace nhitomi
                 _settings.Discord.Token,
                 serializer: _json);
 
-            return Client.PostAsync(
+            return await Client.PostAsync(
                 $"{proxy.Url}/proxy/post?token={HttpUtility.UrlEncode(token)}",
                 content,
                 cancellationToken);

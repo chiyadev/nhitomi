@@ -60,10 +60,9 @@ namespace nhitomi
                 .AddSingleton<DiscordService>()
                 .AddHostedService<StatusUpdater>()
                 .AddHostedService<FeedUpdater>()
-
-                //
                 .AddSingleton<InteractiveManager>()
                 .AddSingleton<ProxyList>()
+                .AddHostedService<ProxyListBroadcastService>()
                 .AddSingleton<MessageFormatter>()
                 .AddSingleton<IHttpProxyClient, HttpProxyClient>()
 

@@ -21,17 +21,20 @@ namespace nhitomi.Proxy.Services
         readonly AppSettings _settings;
         readonly JsonSerializer _json;
         readonly HttpClient _client;
+        readonly CacheSyncService _caches;
         readonly ILogger<ProxyRegistrationService> _logger;
 
         public ProxyRegistrationService(
             IOptions<AppSettings> options,
             JsonSerializer json,
             IHttpClientFactory httpFactory,
+            CacheSyncService caches,
             ILogger<ProxyRegistrationService> logger)
         {
             _logger = logger;
             _json = json;
             _client = httpFactory.CreateClient(nameof(ProxyRegistrationService));
+            _caches = caches;
             _settings = options.Value;
         }
 
@@ -39,6 +42,12 @@ namespace nhitomi.Proxy.Services
         {
             while (!stoppingToken.IsCancellationRequested)
             {
+                if (_caches.SyncProxiesUpdateTime.AddMinutes(5) >= DateTime.Now)
+                {
+                    await Task.Delay(TimeSpan.FromMinutes(5), stoppingToken);
+                    continue;
+                }
+
                 try
                 {
                     // generate token used to register this proxy
@@ -62,10 +71,17 @@ namespace nhitomi.Proxy.Services
                         var message = await response.Content.ReadAsStringAsync();
 
                         if (!response.IsSuccessStatusCode)
+                        {
                             _logger.LogWarning(
                                 $"Could not register as proxy at {response.RequestMessage.RequestUri}: {message}");
+                        }
                         else
+                        {
                             _logger.LogDebug($"Proxy registration success: {message}");
+
+                            _caches.SyncProxies = new string[0];
+                            _caches.SyncProxiesUpdateTime = DateTime.Now;
+                        }
                     }
                 }
                 catch (Exception e)
@@ -73,7 +89,7 @@ namespace nhitomi.Proxy.Services
                     _logger.LogWarning(e, $"Exception while registering proxy.");
                 }
 
-                await Task.Delay(TimeSpan.FromSeconds(10), stoppingToken);
+                await Task.Delay(TimeSpan.FromSeconds(5), stoppingToken);
             }
         }
     }

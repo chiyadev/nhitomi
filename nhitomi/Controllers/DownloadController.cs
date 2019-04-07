@@ -7,7 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -23,8 +23,8 @@ namespace nhitomi.Controllers
 
         static DownloadController()
         {
-            using (var stream = typeof(Program).Assembly
-                .GetManifestResourceStream("nhitomi.Controllers.DownloadClient.html"))
+            using (var stream = typeof(Program).Assembly.GetManifestResourceStream(
+                "nhitomi.Controllers.DownloadClient.html"))
             using (var reader = new StreamReader(stream))
                 _downloadPage = reader.ReadToEnd();
         }
@@ -50,7 +50,9 @@ namespace nhitomi.Controllers
         }
 
         [HttpGet("/download")]
-        public async Task<ActionResult> GetDownloaderAsync([FromQuery] string token)
+        public async Task<ActionResult> GetDownloaderAsync(
+            [FromQuery] string token,
+            CancellationToken cancellationToken = default)
         {
             if (!TokenGenerator.TryDeserializeToken<TokenGenerator.ProxyDownloadPayload>(
                 token, _settings.Discord.Token, out var payload, serializer: _json))
@@ -63,6 +65,8 @@ namespace nhitomi.Controllers
 
             // retrieve doujin
             var client = _clients.FindByName(payload.Source);
+
+            // ReSharper disable once MethodSupportsCancellation
             var doujin = await client.GetAsync(payload.Id);
 
             if (doujin == null)
@@ -71,10 +75,14 @@ namespace nhitomi.Controllers
             // get proxies to be used by this download
             string[] proxies;
 
-            lock (_proxies.Lock)
+            await _proxies.Semaphore.WaitAsync(cancellationToken);
+            try
             {
-                _proxies.Update();
                 proxies = _proxies.Select(p => p.Url).ToArray();
+            }
+            finally
+            {
+                _proxies.Semaphore.Release();
             }
 
             try

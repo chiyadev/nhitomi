@@ -1,23 +1,18 @@
-using System;
 using System.Collections.Generic;
 using System.Net;
-using Newtonsoft.Json;
+using System.Threading;
 
 namespace nhitomi.Core
 {
     public class ProxyList : List<ProxyInfo>
     {
-        public readonly object Lock = new object();
-
-        public TimeSpan ProxyLifetime { get; set; } = TimeSpan.FromSeconds(30);
-
-        public void Update() => RemoveAll(p => p.RegisterTime + ProxyLifetime < DateTime.UtcNow);
+        public readonly SemaphoreSlim Semaphore = new SemaphoreSlim(1);
     }
 
     public class ProxyInfo
     {
-        [JsonProperty("u")] public string Url;
-        [JsonProperty("r")] public DateTime RegisterTime;
-        [JsonIgnore] public IPAddress IPAddress;
+        public string Url;
+        public IPAddress IPAddress;
+        public string RegistrationToken;
     }
 }

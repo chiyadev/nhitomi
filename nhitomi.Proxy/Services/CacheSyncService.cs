@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Concurrent;
 using System.IO;
-using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading;
@@ -55,6 +54,9 @@ namespace nhitomi.Proxy.Services
             }
         }
 
+        public string[] SyncProxies { get; set; } = new string[0];
+        public DateTime SyncProxiesUpdateTime { get; set; }
+
         async Task SyncCacheAsync(Uri uri, CancellationToken cancellationToken = default)
         {
             string contentType;
@@ -82,7 +84,7 @@ namespace nhitomi.Proxy.Services
                 _settings.Discord.Token,
                 serializer: _json);
 
-            foreach (var proxyUrl in await GetSyncProxiesAsync(cancellationToken))
+            foreach (var proxyUrl in SyncProxies)
             {
                 try
                 {
@@ -110,42 +112,6 @@ namespace nhitomi.Proxy.Services
             }
 
             File.Delete(tempPath);
-        }
-
-        DateTime _syncProxiesUpdateTime;
-        string[] _syncProxies = new string[0];
-
-        async Task<string[]> GetSyncProxiesAsync(CancellationToken cancellationToken = default)
-        {
-            if (_syncProxiesUpdateTime.AddMinutes(10) >= DateTime.Now)
-                return _syncProxies;
-
-            using (var response = await _http.GetAsync(
-                $"{_settings.Http.MainUrl}/download/proxies/list", cancellationToken))
-            {
-                if (!response.IsSuccessStatusCode)
-                {
-                    _logger.LogWarning($"Could not get list of proxies: {await response.Content.ReadAsStringAsync()}");
-
-                    _syncProxiesUpdateTime = DateTime.MinValue;
-                    return _syncProxies = new string[0];
-                }
-
-                using (var stream = await response.Content.ReadAsStreamAsync())
-                using (var reader = new StreamReader(stream))
-                using (var jsonReader = new JsonTextReader(reader))
-                {
-                    _syncProxiesUpdateTime = DateTime.Now;
-                    _syncProxies = _json
-                        .Deserialize<ProxyInfo[]>(jsonReader)
-                        .Select(p => p.Url)
-                        .Where(u => u != _settings.Http.Url)
-                        .ToArray();
-                }
-
-                _logger.LogDebug($"Found proxies to sync with: {string.Join(", ", _syncProxies)}");
-                return _syncProxies;
-            }
         }
     }
 }
