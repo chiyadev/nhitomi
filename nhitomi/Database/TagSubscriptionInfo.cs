@@ -4,6 +4,6 @@ namespace nhitomi.Database
     {
         public string TagName { get; set; }
 
-        public ulong[] UserIds { get; set; }
+        public ulong[] UserList { get; set; }
     }
 }

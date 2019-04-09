@@ -141,7 +141,7 @@ namespace nhitomi.Services
                         (await _database.GetTagSubscriptionsAsync(stoppingToken))
                         .ToDictionary(
                             s => s.TagName,
-                            s => s.UserIds);
+                            s => s.UserList);
 
                     await doujins.ForEachAsync(async d =>
                     {
