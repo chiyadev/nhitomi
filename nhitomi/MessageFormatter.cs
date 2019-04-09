@@ -60,16 +60,11 @@ namespace nhitomi
                 .WithColor(Color.Green)
                 .WithFooter($"{doujin.Source.Name}/{doujin.Id}");
 
-            if (doujin.Language != null)
-                embed.AddFieldSafe("Language", doujin.Language, true);
-            if (doujin.ParodyOf != null)
-                embed.AddFieldSafe("Parody of", doujin.ParodyOf, true);
-            if (doujin.Categories != null)
-                embed.AddFieldSafe("Categories", Join(doujin.Categories), true);
-            if (doujin.Characters != null)
-                embed.AddFieldSafe("Characters", Join(doujin.Characters), true);
-            if (doujin.Tags != null)
-                embed.AddFieldSafe("Tags", Join(doujin.Tags), true);
+            embed.AddFieldSafe("Language", doujin.Language, true);
+            embed.AddFieldSafe("Parody of", doujin.ParodyOf, true);
+            embed.AddFieldSafe("Categories", Join(doujin.Categories), true);
+            embed.AddFieldSafe("Characters", Join(doujin.Characters), true);
+            embed.AddFieldSafe("Tags", Join(doujin.Tags), true);
 
             embed.AddField("Content", $"{doujin.PageCount} pages", true);
 
