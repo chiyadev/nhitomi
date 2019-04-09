@@ -151,7 +151,7 @@ namespace nhitomi.Services
                         {
                             ITextChannel channel;
 
-                            foreach (var tag in d.Tags.Select(t => t.ToLowerInvariant()))
+                            foreach (var tag in d.Tags)
                             {
                                 // tag feeds
                                 if (tagChannels.TryGetValue(tag, out channel))
@@ -168,7 +168,7 @@ namespace nhitomi.Services
                             }
 
                             // language feed
-                            if (langChannels.TryGetValue(d.Language.ToLowerInvariant(), out channel))
+                            if (langChannels.TryGetValue(d.Language, out channel))
                                 await SendUpdateAsync(channel, d);
 
                             _logger.LogDebug($"Sent feed update '{d.OriginalName ?? d.PrettyName}'");
