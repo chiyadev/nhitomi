@@ -77,6 +77,7 @@ namespace nhitomi
         {
             public string AccessKey { get; set; }
             public string SecretKey { get; set; }
+            public string RegionEndpoint { get; set; }
 
             public string UserSettingTable { get; set; }
             public string TagSubscriptionTable { get; set; }

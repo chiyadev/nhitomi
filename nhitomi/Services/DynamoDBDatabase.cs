@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Amazon;
 using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DataModel;
 using Amazon.DynamoDBv2.DocumentModel;
@@ -21,7 +22,9 @@ namespace nhitomi.Services
             IOptions<AppSettings> options)
         {
             _settings = options.Value;
-            _client = new AmazonDynamoDBClient(new BasicAWSCredentials(_settings.Db.AccessKey, _settings.Db.SecretKey));
+            _client = new AmazonDynamoDBClient(
+                new BasicAWSCredentials(_settings.Db.AccessKey, _settings.Db.SecretKey),
+                RegionEndpoint.GetBySystemName(_settings.Db.RegionEndpoint));
         }
 
         DynamoDBContext CreateContext() => new DynamoDBContext(_client);
