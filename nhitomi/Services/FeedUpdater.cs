@@ -101,76 +101,65 @@ namespace nhitomi.Services
             }
         }
 
-        async Task SendTagUpdatesAsync(
-            IEnumerable<IDoujin> doujins,
-            CancellationToken cancellationToken = default)
-        {
-            // get feed channels
-            var channels =
-                (_discord.Socket.GetChannel(_settings.Discord.Guild.FeedCategoryId) as SocketCategoryChannel)
-                ?.Channels.OfType<ITextChannel>().ToArray();
-
-            if (channels == null || channels.Length == 0)
-                return;
-
-            _logger.LogDebug($"Found tag feed channels: {string.Join(", ", channels.Select(c => c.Name))}");
-
-            foreach (var doujin in doujins)
-            {
-                if (doujin.Tags == null)
-                    return;
-
-                var tags = GetTagChannelNames(doujin).ToArray();
-
-                await Task.WhenAll(channels
-                    .Where(c => System.Array.IndexOf(tags, c.Name) != -1)
-                    .Select(c => SendUpdateAsync(c, doujin)));
-
-                _logger.LogDebug($"Send doujin update by tag '{doujin.OriginalName ?? doujin.PrettyName}'");
-            }
-        }
-
-        async Task SendLanguageUpdatesAsync(
-            IEnumerable<IDoujin> doujins,
-            CancellationToken cancellationToken = default)
-        {
-            // get feed channels
-            var channels =
-                (_discord.Socket.GetChannel(_settings.Discord.Guild.LanguageFeedCategoryId) as SocketCategoryChannel)
-                ?.Channels.OfType<ITextChannel>().ToArray();
-
-            if (channels == null || channels.Length == 0)
-                return;
-
-            _logger.LogDebug($"Found language feed channels: {string.Join(", ", channels.Select(c => c.Name))}");
-
-            foreach(var doujin in doujins)
-            {
-                if (doujin.Language == null)
-                    return;
-
-                var language = GetLanguageChannelName(doujin);
-                var index = System.Array.FindIndex(channels, c => c.Name == language);
-
-                if (index != -1)
-                    await SendUpdateAsync(channels[index], doujin);
-
-                _logger.LogDebug($"Send doujin update by language '{doujin.OriginalName ?? doujin.PrettyName}'");
-            }
-        }
-
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             await _discord.EnsureConnectedAsync();
 
             while (!stoppingToken.IsCancellationRequested)
             {
-                // find new doujins
-                var doujins = await (await FindNewDoujinsAsync(stoppingToken)).ToArray(stoppingToken);
+                try
+                {
+                    // find new doujins
+                    var doujins = await FindNewDoujinsAsync(stoppingToken);
 
-                // send
-                await SendTagUpdatesAsync(doujins, stoppingToken);
-                await SendLanguageUpdatesAsync(doujins, stoppingToken);
+                    // find tag feed channels
+                    var tagChannels =
+                        ((_discord.Socket.GetChannel(_settings.Discord.Guild.FeedCategoryId) as SocketCategoryChannel)
+                         ?.Channels.OfType<ITextChannel>() ?? new ITextChannel[0])
+                        .ToDictionary(
+                            c => c.Name.Replace('-', ' '),
+                            c => c);
+
+                    // find language feed channels
+                    var langChannels =
+                        ((_discord.Socket.GetChannel(_settings.Discord.Guild.LanguageFeedCategoryId) as
+                             SocketCategoryChannel)
+                         ?.Channels.OfType<ITextChannel>() ?? new ITextChannel[0])
+                        .ToDictionary(
+                            c => c.Name.Replace('-', ' '),
+                            c => c);
+
+                    _logger.LogDebug($"Found tag feed channels: {string.Join(", ", tagChannels.Keys)}");
+                    _logger.LogDebug($"Found language feed channels: {string.Join(", ", langChannels.Keys)}");
+
+                    await doujins.ForEachAsync(async d =>
+                    {
+                        try
+                        {
+                            ITextChannel channel;
+
+                            // tag feeds
+                            foreach (var tag in d.Tags)
+                                if (tagChannels.TryGetValue(tag.ToLowerInvariant(), out channel))
+                                    await SendUpdateAsync(channel, d);
+
+                            // language feed
+                            if (langChannels.TryGetValue(d.Language.ToLowerInvariant(), out channel))
+                                await SendUpdateAsync(channel, d);
+
+                            _logger.LogDebug($"Sent feed update '{d.OriginalName ?? d.PrettyName}'");
+                        }
+                        catch (Exception e)
+                        {
+                            _logger.LogWarning(e,
+                                $"Exception while sending feed update '{d.OriginalName ?? d.PrettyName}'.");
+                        }
+                    }, stoppingToken);
+                }
+                catch (Exception e)
+                {
+                    _logger.LogWarning(e, "Exception while sending feed updates.");
+                }
 
                 // Sleep
                 await Task.Delay(
