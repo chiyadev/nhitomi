@@ -123,7 +123,8 @@ namespace nhitomi.Services
                             c => c.Name.Replace('-', ' '),
                             c => c);
 
-                    _logger.LogDebug($"Found tag feed channels: {string.Join(", ", tagChannels.Keys)}");
+                    if (tagChannels.Count != 0)
+                        _logger.LogDebug($"Found tag feed channels: {string.Join(", ", tagChannels.Keys)}");
 
                     // find language feed channels
                     var langChannels =
@@ -134,7 +135,8 @@ namespace nhitomi.Services
                             c => c.Name.Replace('-', ' '),
                             c => c);
 
-                    _logger.LogDebug($"Found language feed channels: {string.Join(", ", langChannels.Keys)}");
+                    if (langChannels.Count != 0)
+                        _logger.LogDebug($"Found language feed channels: {string.Join(", ", langChannels.Keys)}");
 
                     // find tag subscribers
                     var tagSubscribers =
