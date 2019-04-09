@@ -586,7 +586,15 @@ namespace nhitomi.Core.Clients
             _sha256.Dispose();
 
             _indexUpdateTokenSource.Cancel();
-            _indexUpdateTask.Wait();
+
+            try
+            {
+                _indexUpdateTask.Wait();
+            }
+            catch
+            {
+                // ignored
+            }
 
             _indexUpdateTask.Dispose();
             _indexUpdateTokenSource.Dispose();
