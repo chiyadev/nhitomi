@@ -303,8 +303,19 @@ namespace nhitomi
             if (doujin == null)
                 return false;
 
-            var downloadMessage = await (await _discord.Socket.GetUser(reaction.UserId).GetOrCreateDMChannelAsync())
-                .SendMessageAsync(embed: _formatter.CreateDownloadEmbed(doujin));
+            IUserMessage downloadMessage;
+
+            try
+            {
+                downloadMessage = await (await _discord.Socket.GetUser(reaction.UserId).GetOrCreateDMChannelAsync())
+                    .SendMessageAsync(embed: _formatter.CreateDownloadEmbed(doujin));
+            }
+            catch
+            {
+                // user had disabled DMs
+                downloadMessage = await reaction.Channel.SendMessageAsync(
+                    embed: _formatter.CreateDownloadEmbed(doujin));
+            }
 
             if (interactive is DoujinListInteractive doujinListInteractive)
                 doujinListInteractive.DownloadMessage = downloadMessage;
