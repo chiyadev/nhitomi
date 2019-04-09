@@ -36,7 +36,7 @@ namespace nhitomi.Services
             {
                 var subscriptions = new List<TagSubscriptionInfo>();
 
-                Dictionary<string, AttributeValue> lastEvaluatedKey = null;
+                var lastEvaluatedKey = new Dictionary<string, AttributeValue>();
 
                 do
                 {
@@ -53,7 +53,7 @@ namespace nhitomi.Services
                     subscriptions.AddRange(
                         context.FromDocuments<TagSubscriptionInfo>(response.Items.Select(
                             Document.FromAttributeMap)));
-                } while (lastEvaluatedKey != null);
+                } while (lastEvaluatedKey.Count != 0);
 
                 return subscriptions.ToArray();
             }
