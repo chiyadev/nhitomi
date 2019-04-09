@@ -24,6 +24,7 @@ namespace nhitomi.Services
         readonly ISet<IDoujinClient> _clients;
         readonly DiscordService _discord;
         readonly MessageFormatter _formatter;
+        readonly IDatabase _database;
         readonly ILogger<FeedUpdater> _logger;
 
         public FeedUpdater(
@@ -31,12 +32,14 @@ namespace nhitomi.Services
             ISet<IDoujinClient> clients,
             DiscordService discord,
             MessageFormatter formatter,
+            IDatabase database,
             ILogger<FeedUpdater> logger)
         {
             _settings = options.Value;
             _clients = clients;
             _discord = discord;
             _formatter = formatter;
+            _database = database;
             _logger = logger;
         }
 
@@ -120,6 +123,8 @@ namespace nhitomi.Services
                             c => c.Name.Replace('-', ' '),
                             c => c);
 
+                    _logger.LogDebug($"Found tag feed channels: {string.Join(", ", tagChannels.Keys)}");
+
                     // find language feed channels
                     var langChannels =
                         ((_discord.Socket.GetChannel(_settings.Discord.Guild.LanguageFeedCategoryId) as
@@ -129,8 +134,14 @@ namespace nhitomi.Services
                             c => c.Name.Replace('-', ' '),
                             c => c);
 
-                    _logger.LogDebug($"Found tag feed channels: {string.Join(", ", tagChannels.Keys)}");
                     _logger.LogDebug($"Found language feed channels: {string.Join(", ", langChannels.Keys)}");
+
+                    // find tag subscribers
+                    var tagSubscribers =
+                        (await _database.GetTagSubscriptionsAsync(stoppingToken))
+                        .ToDictionary(
+                            s => s.TagName,
+                            s => s.UserIds);
 
                     await doujins.ForEachAsync(async d =>
                     {
@@ -138,10 +149,21 @@ namespace nhitomi.Services
                         {
                             ITextChannel channel;
 
-                            // tag feeds
-                            foreach (var tag in d.Tags)
-                                if (tagChannels.TryGetValue(tag.ToLowerInvariant(), out channel))
+                            foreach (var tag in d.Tags.Select(t => t.ToLowerInvariant()))
+                            {
+                                // tag feeds
+                                if (tagChannels.TryGetValue(tag, out channel))
                                     await SendUpdateAsync(channel, d);
+
+                                // tag subscribers
+                                if (tagSubscribers.TryGetValue(tag, out var userList))
+                                    foreach (var user in userList)
+                                    {
+                                        await SendUpdateAsync(
+                                            await _discord.Socket.GetUser(user).GetOrCreateDMChannelAsync(),
+                                            d);
+                                    }
+                            }
 
                             // language feed
                             if (langChannels.TryGetValue(d.Language.ToLowerInvariant(), out channel))
@@ -167,17 +189,5 @@ namespace nhitomi.Services
                     stoppingToken);
             }
         }
-
-        static IEnumerable<string> GetTagChannelNames(IDoujin doujin) =>
-            doujin.Tags
-                .Where(t => !string.IsNullOrWhiteSpace(t))
-                .Select(t => t
-                    .ToLowerInvariant()
-                    .Replace(' ', '-'));
-
-        static string GetLanguageChannelName(IDoujin doujin) =>
-            doujin.Language
-                .ToLowerInvariant()
-                .Replace(' ', '-');
     }
 }
