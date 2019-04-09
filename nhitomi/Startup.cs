@@ -80,7 +80,10 @@ namespace nhitomi
                     }
                     //.Select(c => c.Synchronized())
                     //.Select(c => c.Filtered())
-                    .ToHashSet());
+                    .ToHashSet())
+
+                // Databases
+                .AddSingleton<IDatabase, DynamoDBDatabase>();
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)

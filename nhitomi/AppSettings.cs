@@ -70,5 +70,16 @@ namespace nhitomi
                       ?? "https://localhost:5000";
             }
         }
+
+        public DatabaseSettings Db { get; set; } = new DatabaseSettings();
+
+        public sealed class DatabaseSettings
+        {
+            public string AccessKey { get; set; }
+            public string SecretKey { get; set; }
+
+            public string UserSettingTable { get; set; }
+            public string TagSubscriptionTable { get; set; }
+        }
     }
 }
