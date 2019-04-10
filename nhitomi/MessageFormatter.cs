@@ -234,7 +234,7 @@ This project is licensed under the MIT License. Contributions are welcome! https
                 .WithTitle($"**nhitomi**: Collection __{collectionName}__")
                 .WithDescription(items == null || items.Length == 0
                     ? "There are no doujins in this collection."
-                    : $"- {string.Join("\n- ", items.Select(i => $"{i.Artist} — __{i.Name}__ | {i.Source}/{i.Id}"))}")
+                    : $"- {string.Join("\n- ", items.Select(i => $"`{i.Source}|{i.Id}` *{i.Artist}* — __{i.Name}__"))}")
                 .WithColor(Color.Teal)
                 .WithCurrentTimestamp()
                 .Build();
