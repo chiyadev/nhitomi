@@ -95,7 +95,6 @@ namespace nhitomi.Database
                     },
                     ExpressionAttributeValues = new Dictionary<string, AttributeValue>
                     {
-                        // userId operand
                         {":userId", new AttributeValue {N = userId.ToString()}}
                     },
                     // filter userList contains userId
@@ -227,10 +226,11 @@ namespace nhitomi.Database
                 },
                 ExpressionAttributeValues = new Dictionary<string, AttributeValue>
                 {
-                    {":user", new AttributeValue {N = userId.ToString()}}
+                    {":user", new AttributeValue {N = userId.ToString()}},
+                    {":zero", new AttributeValue {N = "0"}}
                 },
                 KeyConditionExpression = "#user = :user",
-                FilterExpression = "size (#map) > 0",
+                FilterExpression = "size (#map) > :zero",
                 ProjectionExpression = "collectionName"
             };
 
@@ -458,7 +458,11 @@ namespace nhitomi.Database
                     {"#user", "userId"},
                     {"#map", "items"}
                 },
-                ConditionExpression = "attribute_exists (#user) and size (#map) > 0"
+                ExpressionAttributeValues = new Dictionary<string, AttributeValue>
+                {
+                    {":zero", new AttributeValue {N = "0"}}
+                },
+                ConditionExpression = "attribute_exists (#user) and size (#map) > :zero"
             };
 
             try
