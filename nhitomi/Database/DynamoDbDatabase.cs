@@ -283,7 +283,7 @@ namespace nhitomi.Database
             // apply collection sorting
             switch (collection.SortAttribute)
             {
-                case CollectionSortAttribute.Add:
+                case CollectionSortAttribute.Time:
                     items = items.OrderByDescending(i => i.AddTime);
                     break;
 
@@ -375,7 +375,7 @@ namespace nhitomi.Database
                 {
                     UserId = userId,
                     CollectionName = collectionName,
-                    SortAttribute = CollectionSortAttribute.Add,
+                    SortAttribute = CollectionSortAttribute.Time,
                     Items = new Dictionary<string, CollectionItemInfo>
                     {
                         {$"{doujin.Source.Name}/{doujin.Id}", new CollectionItemInfo(doujin)}

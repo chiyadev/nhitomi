@@ -2,7 +2,7 @@ namespace nhitomi.Database
 {
     public enum CollectionSortAttribute
     {
-        Add,
+        Time,
         Id,
         Name,
         Artist
