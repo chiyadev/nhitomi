@@ -104,7 +104,6 @@ namespace nhitomi
                 .AddField("  — Tag subscriptions —", $@"
 - {_settings.Discord.Prefix}subscription — Lists all tags you are subscribed to.
 - {_settings.Discord.Prefix}subscription add|remove __tag__ — Adds or removes a tag subscription.
-- {_settings.Discord.Prefix}subscription enable|disable — Enables or disables subscription notifications.
 - {_settings.Discord.Prefix}subscription clear — Removes all tag subscriptions.
 ".Trim())
                 .AddField("  — Collection management —", $@"
