@@ -455,9 +455,10 @@ namespace nhitomi.Database
                 },
                 ExpressionAttributeNames = new Dictionary<string, string>
                 {
-                    {"#userId", "userId"}
+                    {"#user", "userId"},
+                    {"#map", "items"}
                 },
-                ConditionExpression = "attribute_exists (#userId)"
+                ConditionExpression = "attribute_exists (#user) and size (#map) > 0"
             };
 
             try
