@@ -95,16 +95,13 @@ namespace nhitomi.Services
             IMessageChannel channel,
             IDoujin doujin,
             Embed embed = null,
-            bool isFeedDoujin = true)
+            bool isFeed = true)
         {
             try
             {
                 var message = await channel.SendMessageAsync(embed: embed ?? _formatter.CreateDoujinEmbed(doujin));
 
-                if (isFeedDoujin)
-                    await _formatter.AddFeedDoujinTriggersAsync(message);
-                else
-                    await _formatter.AddDoujinTriggersAsync(message);
+                await _formatter.AddDoujinTriggersAsync(message, isFeed);
             }
             catch (Exception e)
             {

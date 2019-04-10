@@ -25,16 +25,13 @@ namespace nhitomi
         public static IEmote RightArrowEmote => new Emoji("\u25b6");
 
         readonly AppSettings _settings;
-        readonly ISet<IDoujinClient> _clients;
         readonly JsonSerializer _json;
 
         public MessageFormatter(
             IOptions<AppSettings> options,
-            ISet<IDoujinClient> clients,
             JsonSerializer json)
         {
             _settings = options.Value;
-            _clients = clients;
             _json = json;
         }
 
@@ -71,15 +68,19 @@ namespace nhitomi
             return embed.Build();
         }
 
-        public Task AddDoujinTriggersAsync(IUserMessage message) =>
-            message.AddReactionsAsync(new[]
-            {
-                FloppyDiskEmote,
-                TrashcanEmote
-            });
+        public async Task AddDoujinTriggersAsync(IUserMessage message, bool isFeed = false)
+        {
+            await message.AddReactionAsync(HeartEmote);
 
-        public Task AddFeedDoujinTriggersAsync(IUserMessage message) =>
-            message.AddReactionAsync(HeartEmote);
+            if (!isFeed)
+            {
+                await message.AddReactionsAsync(new[]
+                {
+                    FloppyDiskEmote,
+                    TrashcanEmote
+                });
+            }
+        }
 
         public Task AddListTriggersAsync(IUserMessage message) =>
             message.AddReactionsAsync(new[]
