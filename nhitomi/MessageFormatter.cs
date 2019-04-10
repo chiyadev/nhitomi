@@ -189,7 +189,7 @@ Miscellaneous:
                 .WithDescription(tags.Length == 0
                     ? "You have no subscriptions."
                     : $"- {string.Join("\n- ", tags)}")
-                .WithColor(Color.Teal)
+                .WithColor(Color.Gold)
                 .WithCurrentTimestamp()
                 .Build();
 
@@ -208,7 +208,7 @@ Miscellaneous:
                 .WithDescription(collectionNames.Length == 0
                     ? "You have no collections."
                     : $"- {string.Join("\n- ", collectionNames)}")
-                .WithColor(Color.Gold)
+                .WithColor(Color.Teal)
                 .WithCurrentTimestamp()
                 .Build();
 
