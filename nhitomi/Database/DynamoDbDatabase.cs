@@ -369,6 +369,8 @@ namespace nhitomi.Database
             try
             {
                 await _client.PutItemAsync(request, cancellationToken);
+
+                _logger.LogDebug($"Create collection '{collectionName}' by user {userId} with doujin '{doujin}'.");
             }
             catch (Exception e)
             {
@@ -381,7 +383,41 @@ namespace nhitomi.Database
         public async Task<bool> TryRemoveFromCollectionAsync(ulong userId, string collectionName,
             CollectionItemInfo item, CancellationToken cancellationToken = default)
         {
-            return true;
+            var request = new UpdateItemRequest
+            {
+                TableName = _settings.Db.CollectionTable,
+                Key = new Dictionary<string, AttributeValue>
+                {
+                    {"userId", new AttributeValue {N = userId.ToString()}},
+                    {"collectionName", new AttributeValue {S = collectionName}}
+                },
+                ExpressionAttributeNames = new Dictionary<string, string>
+                {
+                    {"#map", "items"},
+                    {"#key", $"{item.Source}/{item.Id}"}
+                },
+                UpdateExpression = "remove #map.#key",
+                ReturnValues = ReturnValue.UPDATED_NEW
+            };
+
+            try
+            {
+                var response = await _client.UpdateItemAsync(request, cancellationToken);
+
+                if (!response.Attributes.ContainsKey("items"))
+                    return false;
+
+                _logger.LogDebug($"Removed doujin '{item}' from collection '{collectionName}' of user {userId}.");
+
+                return true;
+            }
+            catch (Exception e)
+            {
+                _logger.LogWarning(e,
+                    $"Failed to remove doujin '{item}' from collection '{collectionName}' of user {userId}.");
+
+                throw;
+            }
         }
 
         public async Task<bool> TryDeleteCollectionAsync(ulong userId, string collectionName,
