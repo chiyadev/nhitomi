@@ -11,6 +11,6 @@ namespace nhitomi.Database
         [DynamoDBProperty("sortAttribute")] public CollectionSortAttribute SortAttribute { get; set; }
         [DynamoDBProperty("sortDescending")] public bool SortDescending { get; set; }
 
-        [DynamoDBProperty("items")] public List<CollectionItemInfo> Items { get; set; }
+        [DynamoDBProperty("items")] public Dictionary<string, CollectionItemInfo> Items { get; set; }
     }
 }
