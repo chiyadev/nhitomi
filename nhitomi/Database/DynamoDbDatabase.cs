@@ -222,13 +222,15 @@ namespace nhitomi.Database
                 TableName = _settings.Db.CollectionTable,
                 ExpressionAttributeNames = new Dictionary<string, string>
                 {
-                    {"#user", "userId"}
+                    {"#user", "userId"},
+                    {"#map", "items"}
                 },
                 ExpressionAttributeValues = new Dictionary<string, AttributeValue>
                 {
                     {":user", new AttributeValue {N = userId.ToString()}}
                 },
                 KeyConditionExpression = "#user = :user",
+                FilterExpression = "size (#map) > 0",
                 ProjectionExpression = "collectionName"
             };
 
