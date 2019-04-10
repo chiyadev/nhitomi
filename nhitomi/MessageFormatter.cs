@@ -195,10 +195,10 @@ Miscellaneous:
                 .Build();
 
         public string SubscribeSuccess(string tag) =>
-            $"**nhitomi**: Subscribed to tag '{tag}'.";
+            $"**nhitomi**: Added subscription to tag '{tag}'.";
 
         public string UnsubscribeSuccess(string tag) =>
-            $"**nhitomi**: Unsubscribed from tag '{tag}'.";
+            $"**nhitomi**: Removed subscription to tag '{tag}'.";
 
         public string SubscriptionsClearSuccess() =>
             "**nhitomi**: Cleared all tag subscriptions.";
