@@ -13,6 +13,7 @@ namespace nhitomi.Database
 
         public CollectionItemInfo(IDoujin doujin)
         {
+            AddTime = DateTime.UtcNow;
             Source = doujin.Source.Name;
             Id = doujin.Id;
             Name = doujin.OriginalName ?? doujin.PrettyName;
