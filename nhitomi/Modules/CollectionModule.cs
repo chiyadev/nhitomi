@@ -135,17 +135,20 @@ namespace nhitomi.Modules
 
         async Task RemoveAsync(string collectionName, string source, string id)
         {
-            var item = new CollectionItemInfo
+            using (Context.Channel.EnterTypingState())
             {
-                Source = source,
-                Id = id
-            };
+                var item = new CollectionItemInfo
+                {
+                    Source = source,
+                    Id = id
+                };
 
-            // remove from collection
-            if (await _database.TryRemoveFromCollectionAsync(Context.User.Id, collectionName, item))
-                await ReplyAsync(_formatter.RemovedFromCollection(collectionName, item));
-            else
-                await ReplyAsync(_formatter.NotInCollection(collectionName, item));
+                // remove from collection
+                if (await _database.TryRemoveFromCollectionAsync(Context.User.Id, collectionName, item))
+                    await ReplyAsync(_formatter.RemovedFromCollection(collectionName, item));
+                else
+                    await ReplyAsync(_formatter.NotInCollection(collectionName, item));
+            }
         }
 
         [Command]
