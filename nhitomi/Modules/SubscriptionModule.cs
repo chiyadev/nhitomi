@@ -1,4 +1,3 @@
-using System.Linq;
 using System.Threading.Tasks;
 using Discord.Commands;
 using nhitomi.Database;
@@ -39,9 +38,10 @@ namespace nhitomi.Modules
 
             using (Context.Channel.EnterTypingState())
             {
-                await _database.AddTagSubscriptionAsync(Context.User.Id, tag);
-
-                await ReplyAsync(_formatter.AddedSubscription(tag));
+                if (await _database.TryAddTagSubscriptionAsync(Context.User.Id, tag))
+                    await ReplyAsync(_formatter.AddedSubscription(tag));
+                else
+                    await ReplyAsync(_formatter.AlreadySubscribed(tag));
             }
         }
 
@@ -53,9 +53,10 @@ namespace nhitomi.Modules
 
             using (Context.Channel.EnterTypingState())
             {
-                await _database.RemoveTagSubscriptionAsync(Context.User.Id, tag);
-
-                await ReplyAsync(_formatter.RemovedSubscription(tag));
+                if (await _database.TryRemoveTagSubscriptionAsync(Context.User.Id, tag))
+                    await ReplyAsync(_formatter.RemovedSubscription(tag));
+                else
+                    await ReplyAsync(_formatter.NotSubscribed(tag));
             }
         }
 
@@ -76,11 +77,7 @@ namespace nhitomi.Modules
         {
             using (Context.Channel.EnterTypingState())
             {
-                // get tags user is subscribed to
-                var tags = await _database.GetTagSubscriptionsAsync(Context.User.Id);
-
-                // remove subscriptions in parallel
-                await Task.WhenAll(tags.Select(t => _database.RemoveTagSubscriptionAsync(Context.User.Id, t)));
+                await _database.ClearTagSubscriptionsAsync(Context.User.Id);
 
                 await ReplyAsync(_formatter.ClearedSubscriptions());
             }

@@ -193,10 +193,16 @@ Miscellaneous:
                 .Build();
 
         public string AddedSubscription(string tag) =>
-            $"**nhitomi**: Added subscription to tag '{tag}'.";
+            $"**nhitomi**: Added tag subscription '{tag}'.";
+
+        public string AlreadySubscribed(string tag) =>
+            $"**nhitomi**: You are already subscribed to the tag '{tag}'.";
 
         public string RemovedSubscription(string tag) =>
-            $"**nhitomi**: Removed subscription to tag '{tag}'.";
+            $"**nhitomi**: Removed tag subscription '{tag}'.";
+
+        public string NotSubscribed(string tag) =>
+            $"**nhitomi**: You are not subscribed to the tag '{tag}'.";
 
         public string ClearedSubscriptions() =>
             "**nhitomi**: Cleared all tag subscriptions.";
@@ -214,6 +220,9 @@ Miscellaneous:
         public string AddedToCollection(string collectionName, IDoujin doujin) =>
             $"**nhitomi**: Added '{doujin.OriginalName ?? doujin.PrettyName}' to collection '{collectionName}'.";
 
+        public string AlreadyInCollection(string collectionName, IDoujin doujin) =>
+            $"**nhitomi**: '{doujin.OriginalName ?? doujin.PrettyName}' already exists in collection '{collectionName}'.";
+
         public Embed CreateCollectionEmbed(string collectionName, CollectionItemInfo[] items) =>
             new EmbedBuilder()
                 .WithTitle($"**nhitomi**: Collection '{collectionName}'")
@@ -226,5 +235,8 @@ Miscellaneous:
 
         public string CollectionDeleted(string collectionName) =>
             $"**nhitomi**: Deleted collection '{collectionName}'.";
+
+        public string CollectionNotFound() =>
+            $"**nhitomi**: No such collection!";
     }
 }

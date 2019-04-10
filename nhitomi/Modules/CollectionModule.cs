@@ -107,9 +107,10 @@ namespace nhitomi.Modules
                 }
 
                 // add to collection
-                await _database.AddToCollectionAsync(Context.User.Id, collectionName, doujin);
-
-                await ReplyAsync(_formatter.AddedToCollection(collectionName, doujin));
+                if (await _database.TryAddToCollectionAsync(Context.User.Id, collectionName, doujin))
+                    await ReplyAsync(_formatter.AddedToCollection(collectionName, doujin));
+                else
+                    await ReplyAsync(_formatter.AlreadyInCollection(collectionName, doujin));
             }
         }
 
@@ -127,11 +128,10 @@ namespace nhitomi.Modules
                         break;
 
                     case "delete":
-                        // remove doujins in parallel
-                        await Task.WhenAll(items.Select(s =>
-                            _database.RemoveFromCollectionAsync(Context.User.Id, collectionName, s)));
-
-                        await ReplyAsync(_formatter.CollectionDeleted(collectionName));
+                        if (await _database.TryDeleteCollectionAsync(Context.User.Id, collectionName))
+                            await ReplyAsync(_formatter.CollectionDeleted(collectionName));
+                        else
+                            await ReplyAsync(_formatter.CollectionNotFound());
                         break;
                 }
             }
