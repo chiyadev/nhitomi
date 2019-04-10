@@ -8,6 +8,8 @@ namespace nhitomi.Database
         [DynamoDBHashKey("userId")] public ulong UserId { get; set; }
         [DynamoDBRangeKey("collectionName")] public string CollectionName { get; set; }
 
+        [DynamoDBProperty("sortAttribute")] public CollectionSortAttribute SortAttribute { get; set; }
+
         [DynamoDBProperty("items")] public List<CollectionItemInfo> Items { get; set; }
     }
 }

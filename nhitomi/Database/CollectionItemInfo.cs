@@ -1,3 +1,5 @@
+using System;
+using System.Linq;
 using nhitomi.Core;
 
 namespace nhitomi.Database
@@ -13,8 +15,10 @@ namespace nhitomi.Database
             Source = doujin.Source.Name;
             Id = doujin.Id;
             Name = doujin.OriginalName ?? doujin.PrettyName;
-            Artist = string.Join(", ", doujin.Artists);
+            Artist = string.Join(", ", doujin.Artists.OrderBy(a => a));
         }
+
+        public DateTime AddTime { get; set; }
 
         public string Source { get; set; }
         public string Id { get; set; }
