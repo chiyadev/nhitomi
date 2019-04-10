@@ -57,6 +57,18 @@ namespace nhitomi.Modules
             }
         }
 
+        [Command("enable")]
+        public async Task EnableNotificationsAsync()
+        {
+            // todo:
+        }
+
+        [Command("disable")]
+        public async Task DisableNotificationsAsync()
+        {
+            // todo:
+        }
+
         [Command("clear")]
         public async Task ClearAsync()
         {
