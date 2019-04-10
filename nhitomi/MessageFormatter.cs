@@ -93,29 +93,25 @@ namespace nhitomi
                 .WithDescription(
                     "nhitomi — a Discord bot for searching and downloading doujinshi, by __chiya.dev__.\n" +
                     $"Join our server: {_settings.Discord.Guild.GuildInvite}")
-                .AddField("  — Commands —", $@"
-Doujinshi:
+                .AddField("  — Doujinshi —", $@"
 - {_settings.Discord.Prefix}get __source__ __id__ — Retrieves doujin information from a source by its ID.
 - {_settings.Discord.Prefix}all __source__ — Displays all doujins from a source uploaded recently.
 - {_settings.Discord.Prefix}search __query__ — Searches for doujins by the title and tags that satisfy your query.
 - {_settings.Discord.Prefix}download __source__ __id__ — Sends a download link for a doujin by its ID.
-
-Tag subscriptions:
+".Trim())
+                .AddField("  — Tag subscriptions —", $@"
 - {_settings.Discord.Prefix}subscription — Lists all tags you are subscribed to.
 - {_settings.Discord.Prefix}subscription add|remove __tag__ — Adds or removes a tag subscription.
 - {_settings.Discord.Prefix}subscription enable|disable — Enables or disables subscription notifications.
 - {_settings.Discord.Prefix}subscription clear — Removes all tag subscriptions.
-
-Collection management:
+".Trim())
+                .AddField("  — Collection management —", $@"
 - {_settings.Discord.Prefix}collection — Lists all collections belonging to you.
 - {_settings.Discord.Prefix}collection __name__ — Displays doujins belonging to a collection.
 - {_settings.Discord.Prefix}collection __name__ add __source__ __id__ — Adds a doujin to a collection.
 - {_settings.Discord.Prefix}collection __name__ list — Lists all doujins belonging to a collection.
 - {_settings.Discord.Prefix}collection __name__ sort __attribute__ — Reorders doujins in a collection by their attribute.
 - {_settings.Discord.Prefix}collection __name__ delete — Deletes a collection, removing all doujins belonging to it.
-
-Miscellaneous:
-- {_settings.Discord.Prefix}help — Shows this help message.
 ".Trim())
                 .AddField("  — Sources —", @"
 - nhentai — `https://nhentai.net/`
