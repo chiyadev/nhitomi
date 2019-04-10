@@ -138,13 +138,6 @@ namespace nhitomi.Modules
         }
 
         [Command]
-        public async Task OrderAsync(string collectionName, string order, params int[] indices)
-        {
-            if (order != nameof(order))
-                return;
-        }
-
-        [Command]
         public async Task SortAsync(string collectionName, string sort, string attribute)
         {
             if (sort != nameof(sort))
