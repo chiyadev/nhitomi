@@ -489,5 +489,43 @@ namespace nhitomi.Database
                 throw;
             }
         }
+
+        public async Task SetCollectionSortAsync(ulong userId, string collectionName, CollectionSortAttribute attribute,
+            CancellationToken cancellationToken = default)
+        {
+            var request = new UpdateItemRequest
+            {
+                TableName = _settings.Db.CollectionTable,
+                Key = new Dictionary<string, AttributeValue>
+                {
+                    {"userId", new AttributeValue {N = userId.ToString()}},
+                    {"collectionName", new AttributeValue {S = collectionName}}
+                },
+                ExpressionAttributeNames = new Dictionary<string, string>
+                {
+                    {"#attribute", "sortAttribute"},
+                    {"#descend", "sortDescending"}
+                },
+                ExpressionAttributeValues = new Dictionary<string, AttributeValue>
+                {
+                    {":attribute", new AttributeValue {N = ((int) attribute).ToString()}}
+                },
+                UpdateExpression = "set #attribute = :attribute"
+            };
+
+            try
+            {
+                await _client.UpdateItemAsync(request, cancellationToken);
+
+                _logger.LogDebug($"Set collection '{collectionName}' sort attribute '{attribute}' of user {userId}.");
+            }
+            catch (Exception e)
+            {
+                _logger.LogWarning(e,
+                    $"Failed to Set collection '{collectionName}' sort attribute '{attribute}' of user {userId}.");
+
+                throw;
+            }
+        }
     }
 }
