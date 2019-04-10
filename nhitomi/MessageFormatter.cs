@@ -108,7 +108,7 @@ namespace nhitomi
                 .AddField("  — Collection management —", $@"
 - {_settings.Discord.Prefix}collection — Lists all collections belonging to you.
 - {_settings.Discord.Prefix}collection __name__ — Displays doujins belonging to a collection.
-- {_settings.Discord.Prefix}collection __name__ add __source__ __id__ — Adds a doujin to a collection.
+- {_settings.Discord.Prefix}collection __name__ add|remove __source__ __id__ — Adds or removes a doujin in a collection.
 - {_settings.Discord.Prefix}collection __name__ list — Lists all doujins belonging to a collection.
 - {_settings.Discord.Prefix}collection __name__ sort __attribute__ — Changes the order of doujins in a collection by their attribute.
 - {_settings.Discord.Prefix}collection __name__ delete — Deletes a collection, removing all doujins belonging to it.
@@ -221,6 +221,12 @@ This project is licensed under the MIT License. Contributions are welcome! https
 
         public string AlreadyInCollection(string collectionName, IDoujin doujin) =>
             $"**nhitomi**: __{doujin.OriginalName ?? doujin.PrettyName}__ already exists in collection __{collectionName}__.";
+
+        public string RemovedFromCollection(string collectionName, CollectionItemInfo item) =>
+            $"**nhitomi**: Removed __{item.Name}__ from collection __{collectionName}__.";
+
+        public string NotInCollection(string collectionName, CollectionItemInfo item) =>
+            $"**nhitomi**: __{item.Source}/{item.Id}__ does not exist in collection __{collectionName}__.";
 
         public Embed CreateCollectionEmbed(string collectionName, CollectionItemInfo[] items) =>
             new EmbedBuilder()

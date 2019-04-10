@@ -82,9 +82,9 @@ namespace nhitomi.Modules
         }
 
         [Command]
-        public async Task AddAsync(string collectionName, string add, string source, string id)
+        public async Task AddOrRemoveAsync(string collectionName, string operation, string source, string id)
         {
-            if (add != nameof(add))
+            if (operation != "add" && operation != "remove")
                 return;
 
             var client = _clients.FindByName(source);
@@ -97,20 +97,41 @@ namespace nhitomi.Modules
 
             using (Context.Channel.EnterTypingState())
             {
-                // get doujin to create collection item from
-                var doujin = await client.GetAsync(id);
-
-                if (doujin == null)
+                switch (operation)
                 {
-                    await ReplyAsync(_formatter.DoujinNotFound(source));
-                    return;
-                }
+                    case "add":
+                        // get doujin to create collection item from
+                        var doujin = await client.GetAsync(id);
 
-                // add to collection
-                if (await _database.TryAddToCollectionAsync(Context.User.Id, collectionName, doujin))
-                    await ReplyAsync(_formatter.AddedToCollection(collectionName, doujin));
-                else
-                    await ReplyAsync(_formatter.AlreadyInCollection(collectionName, doujin));
+                        if (doujin == null)
+                        {
+                            await ReplyAsync(_formatter.DoujinNotFound(source));
+                            return;
+                        }
+
+                        // add to collection
+                        if (await _database.TryAddToCollectionAsync(Context.User.Id, collectionName, doujin))
+                            await ReplyAsync(_formatter.AddedToCollection(collectionName, doujin));
+                        else
+                            await ReplyAsync(_formatter.AlreadyInCollection(collectionName, doujin));
+
+                        break;
+
+                    case "remove":
+                        var item = new CollectionItemInfo
+                        {
+                            Source = source,
+                            Id = id
+                        };
+
+                        // remove from collection
+                        if (await _database.TryRemoveFromCollectionAsync(Context.User.Id, collectionName, item))
+                            await ReplyAsync(_formatter.RemovedFromCollection(collectionName, item));
+                        else
+                            await ReplyAsync(_formatter.NotInCollection(collectionName, item));
+
+                        break;
+                }
             }
         }
 
