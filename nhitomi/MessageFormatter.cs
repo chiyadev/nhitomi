@@ -110,7 +110,7 @@ namespace nhitomi
 - {_settings.Discord.Prefix}collection __name__ — Displays doujins belonging to a collection.
 - {_settings.Discord.Prefix}collection __name__ add __source__ __id__ — Adds a doujin to a collection.
 - {_settings.Discord.Prefix}collection __name__ list — Lists all doujins belonging to a collection.
-- {_settings.Discord.Prefix}collection __name__ sort __attribute__ — Reorders doujins in a collection by their attribute.
+- {_settings.Discord.Prefix}collection __name__ sort __attribute__ — Changes the order of doujins in a collection by an attribute.
 - {_settings.Discord.Prefix}collection __name__ delete — Deletes a collection, removing all doujins belonging to it.
 ".Trim())
                 .AddField("  — Sources —", @"
