@@ -102,6 +102,8 @@ namespace nhitomi
 
 - {_settings.Discord.Prefix}subs — Lists all tags you are subscribed to.
 - {_settings.Discord.Prefix}subs add|remove __tag__ — Adds or removes a tag subscription.
+- {_settings.Discord.Prefix}subs enable|disable — Enables or disables subscription notifications.
+- {_settings.Discord.Prefix}subs clear — Removes all tag subscriptions.
 
 - {_settings.Discord.Prefix}collection __name__ — Displays doujins belonging to a collection.
 - {_settings.Discord.Prefix}collection __name__ add __source__ __id__ — Adds a doujin to a collection.
