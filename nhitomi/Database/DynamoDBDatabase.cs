@@ -45,7 +45,9 @@ namespace nhitomi.Database
                 var request = new ScanRequest
                 {
                     TableName = _settings.Db.TagSubscriptionTable,
-                    ExclusiveStartKey = lastEvaluatedKey
+                    ExclusiveStartKey = lastEvaluatedKey,
+                    // ensure has subscriptions
+                    FilterExpression = "attribute_exists (userList)"
                 };
                 var response = await _client.ScanAsync(request, cancellationToken);
 
