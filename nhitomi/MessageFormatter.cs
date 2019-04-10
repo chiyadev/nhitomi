@@ -96,23 +96,23 @@ namespace nhitomi
                     "nhitomi — a Discord bot for searching and downloading doujinshi, by **chiya.dev** - https://chiya.dev\n" +
                     $"Official server: {_settings.Discord.Guild.GuildInvite}")
                 .AddField("  — Doujinshi —", $@"
-- {_settings.Discord.Prefix}get __source__ __id__ — Displays doujin information from a source by its ID.
-- {_settings.Discord.Prefix}all __source__ — Displays all doujins from a source uploaded recently.
-- {_settings.Discord.Prefix}search __query__ — Searches for doujins by the title and tags that satisfy your query.
-- {_settings.Discord.Prefix}download __source__ __id__ — Sends a download link for a doujin by its ID.
+- {_settings.Discord.Prefix}get `source` `id` — Displays doujin information from a source by its ID.
+- {_settings.Discord.Prefix}all `source` — Displays all doujins from a source uploaded recently.
+- {_settings.Discord.Prefix}search `query` — Searches for doujins by the title and tags that satisfy your query.
+- {_settings.Discord.Prefix}download `source` `id` — Sends a download link for a doujin by its ID.
 ".Trim())
                 .AddField("  — Tag subscriptions —", $@"
 - {_settings.Discord.Prefix}subscription — Lists all tags you are subscribed to.
-- {_settings.Discord.Prefix}subscription add|remove __tag__ — Adds or removes a tag subscription.
+- {_settings.Discord.Prefix}subscription add|remove `tag` — Adds or removes a tag subscription.
 - {_settings.Discord.Prefix}subscription clear — Removes all tag subscriptions.
 ".Trim())
                 .AddField("  — Collection management —", $@"
 - {_settings.Discord.Prefix}collection — Lists all collections belonging to you.
-- {_settings.Discord.Prefix}collection __name__ — Displays doujins belonging to a collection.
-- {_settings.Discord.Prefix}collection __name__ add|remove __source__ __id__ — Adds or removes a doujin in a collection.
-- {_settings.Discord.Prefix}collection __name__ list — Lists all doujins belonging to a collection.
-- {_settings.Discord.Prefix}collection __name__ sort __attribute__ — Sorts doujins in a collection by an attribute ({string.Join(", ", Enum.GetNames(typeof(CollectionSortAttribute)).Select(s => s.ToLowerInvariant()))}).
-- {_settings.Discord.Prefix}collection __name__ delete — Deletes a collection, removing all doujins belonging to it.
+- {_settings.Discord.Prefix}collection `name` — Displays doujins belonging to a collection.
+- {_settings.Discord.Prefix}collection `name` add|remove `source` `id` — Adds or removes a doujin in a collection.
+- {_settings.Discord.Prefix}collection `name` list — Lists all doujins belonging to a collection.
+- {_settings.Discord.Prefix}collection `name` sort `attribute` — Sorts doujins in a collection by an attribute ({string.Join(", ", Enum.GetNames(typeof(CollectionSortAttribute)).Select(s => s.ToLowerInvariant()))}).
+- {_settings.Discord.Prefix}collection `name` delete — Deletes a collection, removing all doujins belonging to it.
 ".Trim())
                 .AddField("  — Sources —", @"
 - nhentai — `https://nhentai.net/`
@@ -161,7 +161,7 @@ This project is licensed under the MIT License. Contributions are welcome! https
         }
 
         public string UnsupportedSource(string source) =>
-            $"**nhitomi**: Source __{source}__ is not supported. " +
+            $"**nhitomi**: Source `{source}` is not supported. " +
             $"See **{_settings.Discord.Prefix}help** for a list of supported sources.";
 
         public string DoujinNotFound(string source = null) =>
@@ -193,16 +193,16 @@ This project is licensed under the MIT License. Contributions are welcome! https
                 .Build();
 
         public string AddedSubscription(string tag) =>
-            $"**nhitomi**: Added tag subscription __{tag}__.";
+            $"**nhitomi**: Added tag subscription `{tag}`.";
 
         public string AlreadySubscribed(string tag) =>
-            $"**nhitomi**: You are already subscribed to the tag __{tag}__.";
+            $"**nhitomi**: You are already subscribed to the tag `{tag}`.";
 
         public string RemovedSubscription(string tag) =>
-            $"**nhitomi**: Removed tag subscription __{tag}__.";
+            $"**nhitomi**: Removed tag subscription `{tag}`.";
 
         public string NotSubscribed(string tag) =>
-            $"**nhitomi**: You are not subscribed to the tag __{tag}__.";
+            $"**nhitomi**: You are not subscribed to the tag `{tag}`.";
 
         public string ClearedSubscriptions =>
             "**nhitomi**: Cleared all tag subscriptions.";
@@ -218,23 +218,23 @@ This project is licensed under the MIT License. Contributions are welcome! https
                 .Build();
 
         public string AddedToCollection(string collectionName, IDoujin doujin) =>
-            $"**nhitomi**: Added __{doujin.OriginalName ?? doujin.PrettyName}__ to collection __{collectionName}__.";
+            $"**nhitomi**: Added `{doujin.OriginalName ?? doujin.PrettyName}` to collection `{collectionName}`.";
 
         public string AlreadyInCollection(string collectionName, IDoujin doujin) =>
-            $"**nhitomi**: __{doujin.OriginalName ?? doujin.PrettyName}__ already exists in collection __{collectionName}__.";
+            $"**nhitomi**: `{doujin.OriginalName ?? doujin.PrettyName}` already exists in collection `{collectionName}`.";
 
         public string RemovedFromCollection(string collectionName, CollectionItemInfo item) =>
-            $"**nhitomi**: Removed __{item.Name}__ from collection __{collectionName}__.";
+            $"**nhitomi**: Removed `{item.Name}` from collection `{collectionName}`.";
 
         public string NotInCollection(string collectionName, CollectionItemInfo item) =>
-            $"**nhitomi**: __{item.Source}/{item.Id}__ does not exist in collection __{collectionName}__.";
+            $"**nhitomi**: `{item.Source}/{item.Id}` does not exist in collection `{collectionName}`.";
 
         public Embed CreateCollectionEmbed(string collectionName, CollectionItemInfo[] items) =>
             new EmbedBuilder()
-                .WithTitle($"**nhitomi**: Collection __{collectionName}__")
+                .WithTitle($"**nhitomi**: Collection `{collectionName}`")
                 .WithDescription(items == null || items.Length == 0
                     ? "There are no doujins in this collection."
-                    : $"- {string.Join("\n- ", items.Select(i => $"`{i.Source}|{i.Id}` *{i.Artist ?? i.Source}* — __{i.Name}__"))}")
+                    : $"- {string.Join("\n- ", items.Select(i => $"`{i.Source}|{i.Id}` *{i.Artist ?? i.Source}* — `{i.Name}`"))}")
                 .WithColor(Color.Teal)
                 .WithCurrentTimestamp()
                 .Build();
@@ -243,16 +243,16 @@ This project is licensed under the MIT License. Contributions are welcome! https
             message.AddReactionAsync(TrashcanEmote);
 
         public string CollectionDeleted(string collectionName) =>
-            $"**nhitomi**: Deleted collection __{collectionName}__.";
+            $"**nhitomi**: Deleted collection `{collectionName}`.";
 
         public string CollectionNotFound =>
             $"**nhitomi**: No such collection!";
 
         public string InvalidSortAttribute(string attribute) =>
-            $"**nhitomi**: Attribute __{attribute}__ is invalid. " +
+            $"**nhitomi**: Attribute `{attribute}` is invalid. " +
             $"See **{_settings.Discord.Prefix}help** for a list of valid sort attributes.";
 
         public string SortAttributeUpdated(CollectionSortAttribute attribute) =>
-            $"**nhitomi**: Updated collection sorting attribute to __{attribute}__.";
+            $"**nhitomi**: Updated collection sorting attribute to `{attribute}`.";
     }
 }
