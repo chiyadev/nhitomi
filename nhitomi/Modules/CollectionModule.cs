@@ -214,9 +214,8 @@ namespace nhitomi.Modules
 
             using (Context.Channel.EnterTypingState())
             {
-                await _database.SetCollectionSortAsync(Context.User.Id, collectionName, attributeValue);
-
-                await ReplyAsync(_formatter.SortAttributeUpdated(attributeValue));
+                if (await _database.TrySetCollectionSortAsync(Context.User.Id, collectionName, attributeValue))
+                    await ReplyAsync(_formatter.SortAttributeUpdated(attributeValue));
             }
         }
     }

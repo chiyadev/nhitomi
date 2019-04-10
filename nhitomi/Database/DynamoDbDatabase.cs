@@ -492,7 +492,8 @@ namespace nhitomi.Database
             }
         }
 
-        public async Task SetCollectionSortAsync(ulong userId, string collectionName, CollectionSortAttribute attribute,
+        public async Task<bool> TrySetCollectionSortAsync(ulong userId, string collectionName,
+            CollectionSortAttribute attribute,
             CancellationToken cancellationToken = default)
         {
             var request = new UpdateItemRequest
@@ -511,7 +512,8 @@ namespace nhitomi.Database
                 {
                     {":attribute", new AttributeValue {N = ((int) attribute).ToString()}}
                 },
-                UpdateExpression = "set #attribute = :attribute"
+                UpdateExpression = "set #attribute = :attribute",
+                ConditionExpression = "attribute_exists (#attribute)"
             };
 
             try
@@ -519,6 +521,12 @@ namespace nhitomi.Database
                 await _client.UpdateItemAsync(request, cancellationToken);
 
                 _logger.LogDebug($"Set collection '{collectionName}' sort attribute '{attribute}' of user {userId}.");
+
+                return true;
+            }
+            catch (ConditionalCheckFailedException)
+            {
+                return false;
             }
             catch (Exception e)
             {
