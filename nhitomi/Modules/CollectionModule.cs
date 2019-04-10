@@ -18,6 +18,11 @@ namespace nhitomi.Modules
         }
 
         [Command]
+        public async Task ListCollectionsAsync()
+        {
+        }
+
+        [Command]
         public async Task ShowAsync(string collectionName)
         {
         }
