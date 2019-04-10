@@ -12,7 +12,9 @@ namespace nhitomi.Modules
         readonly IDatabase _database;
         readonly MessageFormatter _formatter;
 
-        public SubscriptionsModule(IDatabase database, MessageFormatter formatter)
+        public SubscriptionsModule(
+            IDatabase database,
+            MessageFormatter formatter)
         {
             _database = database;
             _formatter = formatter;
