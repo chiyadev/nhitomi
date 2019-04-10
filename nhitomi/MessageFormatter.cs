@@ -95,16 +95,16 @@ namespace nhitomi
                     "nhitomi — a Discord bot for searching and downloading doujinshi, by __chiya.dev__.\n" +
                     $"Join our server: {_settings.Discord.Guild.GuildInvite}")
                 .AddField("  — Commands —", $@"
-- **{_settings.Discord.Prefix}get** __source__ __id__ — Retrieves doujin information from the specified source.
-- **{_settings.Discord.Prefix}all** __source__ — Displays all doujins from the specified source uploaded recently.
-- **{_settings.Discord.Prefix}search** __query__ — Searches for doujins by the title and tags across the supported sources that match the specified query.
-- **{_settings.Discord.Prefix}download** __source__ __id__ — Sends a download link for the specified doujin.
+- {_settings.Discord.Prefix}get __source__ __id__ — Retrieves doujin information from the specified source.
+- {_settings.Discord.Prefix}all __source__ — Displays all doujins from the specified source uploaded recently.
+- {_settings.Discord.Prefix}search __query__ — Searches for doujins by the title and tags across the supported sources that match the specified query.
+- {_settings.Discord.Prefix}download __source__ __id__ — Sends a download link for the specified doujin.
 
-- **{_settings.Discord.Prefix}subscribe** __tag__ — Adds a subscription to the specified tag.
-- **{_settings.Discord.Prefix}unsubscribe** __tag__ — Removes subscription from the specified tag.
-- **{_settings.Discord.Prefix}subscriptions** — Lists all tags you are subscribed to.
+- {_settings.Discord.Prefix}subscribe __tag__ — Adds a subscription to the specified tag.
+- {_settings.Discord.Prefix}unsubscribe __tag__ — Removes subscription from the specified tag.
+- {_settings.Discord.Prefix}subscriptions — Lists all tags you are subscribed to.
 
-- **{_settings.Discord.Prefix}help** — Shows this help message.
+- {_settings.Discord.Prefix}help — Shows this help message.
 ".Trim())
                 .AddField("  — Sources —", @"
 - nhentai — `https://nhentai.net/`
