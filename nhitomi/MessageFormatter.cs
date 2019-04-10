@@ -100,10 +100,10 @@ namespace nhitomi
 - {_settings.Discord.Prefix}search __query__ — Searches for doujins by the title and tags that satisfy your query.
 - {_settings.Discord.Prefix}download __source__ __id__ — Sends a download link for a doujin by its ID.
 
-- {_settings.Discord.Prefix}sub — Lists all tags you are subscribed to.
-- {_settings.Discord.Prefix}sub add|remove __tag__ — Adds or removes a tag subscription.
-- {_settings.Discord.Prefix}sub enable|disable — Enables or disables subscription notifications.
-- {_settings.Discord.Prefix}sub clear — Removes all tag subscriptions.
+- {_settings.Discord.Prefix}subscription — Lists all tags you are subscribed to.
+- {_settings.Discord.Prefix}subscription add|remove __tag__ — Adds or removes a tag subscription.
+- {_settings.Discord.Prefix}subscription enable|disable — Enables or disables subscription notifications.
+- {_settings.Discord.Prefix}subscription clear — Removes all tag subscriptions.
 
 - {_settings.Discord.Prefix}collection — Lists all collections belonging to you.
 - {_settings.Discord.Prefix}collection __name__ — Displays doujins belonging to a collection.
