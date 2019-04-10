@@ -34,11 +34,8 @@ namespace nhitomi.Modules
 
         [Command("get")]
         [Alias("g")]
-        public async Task GetAsync(string source, [Remainder] string id)
+        public async Task GetAsync(string source, string id)
         {
-            if (string.IsNullOrWhiteSpace(id))
-                return;
-
             var client = _clients.FindByName(source);
 
             if (client == null)
@@ -136,7 +133,7 @@ namespace nhitomi.Modules
 
         [Command("download")]
         [Alias("dl")]
-        public async Task DownloadAsync(string source, [Remainder] string id)
+        public async Task DownloadAsync(string source, string id)
         {
             var client = _clients.FindByName(source);
 
