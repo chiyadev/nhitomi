@@ -212,5 +212,8 @@ Miscellaneous:
                 .WithColor(Color.Gold)
                 .WithCurrentTimestamp()
                 .Build();
+
+        public string AddToCollectionSuccess(string collectionName, IDoujin doujin) =>
+            $"**nhitomi**: Added '{doujin.OriginalName ?? doujin.PrettyName}' to collection '{collectionName}'.";
     }
 }

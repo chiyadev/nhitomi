@@ -80,36 +80,60 @@ namespace nhitomi.Modules
         }
 
         [Command]
-        public async Task ModifyAsync(string collectionName, string operation, string source, string id)
+        public async Task AddAsync(string collectionName, string add, string source, string id)
+        {
+            if (add != nameof(add))
+                return;
+
+            var client = _clients.FindByName(source);
+
+            if (client == null)
+            {
+                await ReplyAsync(_formatter.UnsupportedSource(source));
+                return;
+            }
+
+            using (Context.Channel.EnterTypingState())
+            {
+                // get doujin to create summary from
+                var doujin = await client.GetAsync(id);
+
+                if (doujin == null)
+                {
+                    await ReplyAsync(_formatter.DoujinNotFound(source));
+                    return;
+                }
+
+                // add to collection
+                await _database.AddToCollectionAsync(Context.User.Id, collectionName, DoujinSummary.FromDoujin(doujin));
+            }
+        }
+
+        [Command]
+        public async Task ListOrDeleteAsync(string collecionName, string operation)
         {
             switch (operation)
             {
-                case "add":
+                case "list":
                     break;
 
-                case "remove":
+                case "delete":
                     break;
             }
         }
 
-        [Command("list")]
-        public async Task ListAsync(string collectionName)
+        [Command]
+        public async Task OrderAsync(string collectionName, string order, params int[] indices)
         {
+            if (order != nameof(order))
+                return;
         }
 
-        [Command("order")]
-        public async Task OrderAsync(string collectionName, params int[] indices)
+        [Command]
+        public async Task SortAsync(string collectionName, string sort, string attribute)
         {
-        }
-
-        [Command("sort")]
-        public async Task SortAsync(string collectionName, string attribute)
-        {
-        }
-
-        [Command("delete")]
-        public async Task DeleteAsync(string collectionName)
-        {
+            if (sort != nameof(sort))
+                return;
         }
     }
 }
