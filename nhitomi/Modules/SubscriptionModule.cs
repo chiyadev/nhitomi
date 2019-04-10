@@ -41,7 +41,7 @@ namespace nhitomi.Modules
             {
                 await _database.AddTagSubscriptionAsync(Context.User.Id, tag);
 
-                await ReplyAsync(_formatter.SubscribeSuccess(tag));
+                await ReplyAsync(_formatter.AddedSubscription(tag));
             }
         }
 
@@ -55,7 +55,7 @@ namespace nhitomi.Modules
             {
                 await _database.RemoveTagSubscriptionAsync(Context.User.Id, tag);
 
-                await ReplyAsync(_formatter.UnsubscribeSuccess(tag));
+                await ReplyAsync(_formatter.RemovedSubscription(tag));
             }
         }
 
@@ -82,7 +82,7 @@ namespace nhitomi.Modules
                 // remove subscriptions in parallel
                 await Task.WhenAll(tags.Select(t => _database.RemoveTagSubscriptionAsync(Context.User.Id, t)));
 
-                await ReplyAsync(_formatter.SubscriptionsClearSuccess());
+                await ReplyAsync(_formatter.ClearedSubscriptions());
             }
         }
     }

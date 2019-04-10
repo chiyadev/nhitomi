@@ -195,13 +195,13 @@ Miscellaneous:
                 .WithCurrentTimestamp()
                 .Build();
 
-        public string SubscribeSuccess(string tag) =>
+        public string AddedSubscription(string tag) =>
             $"**nhitomi**: Added subscription to tag '{tag}'.";
 
-        public string UnsubscribeSuccess(string tag) =>
+        public string RemovedSubscription(string tag) =>
             $"**nhitomi**: Removed subscription to tag '{tag}'.";
 
-        public string SubscriptionsClearSuccess() =>
+        public string ClearedSubscriptions() =>
             "**nhitomi**: Cleared all tag subscriptions.";
 
         public Embed CreateCollectionListEmbed(string[] collectionNames) =>
@@ -214,7 +214,7 @@ Miscellaneous:
                 .WithCurrentTimestamp()
                 .Build();
 
-        public string AddToCollectionSuccess(string collectionName, IDoujin doujin) =>
+        public string AddedToCollection(string collectionName, IDoujin doujin) =>
             $"**nhitomi**: Added '{doujin.OriginalName ?? doujin.PrettyName}' to collection '{collectionName}'.";
 
         public Embed CreateCollectionEmbed(string collectionName, DoujinSummary[] summaries) =>
