@@ -195,5 +195,8 @@ namespace nhitomi
 
         public string UnsubscribeSuccess(string tag) =>
             $"**nhitomi**: Unsubscribed from tag '{tag}'.";
+
+        public string SubscriptionsClearSuccess() =>
+            "**nhitomi**: Cleared all tag subscriptions.";
     }
 }
