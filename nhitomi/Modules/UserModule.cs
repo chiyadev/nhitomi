@@ -57,7 +57,7 @@ namespace nhitomi.Modules
             {
                 var tags = await _database.GetTagSubscriptionsAsync(Context.User.Id);
 
-                await ReplyAsync(embed: _formatter.CreateSubscriptionListEmbed(Context.User, tags));
+                await ReplyAsync(embed: _formatter.CreateSubscriptionListEmbed(tags));
             }
         }
     }

@@ -184,9 +184,9 @@ namespace nhitomi
         public string EmptyList(string source = null) =>
             $"**{source ?? "nhitomi"}**: No results!";
 
-        public Embed CreateSubscriptionListEmbed(IUser user, IEnumerable<string> tags) =>
+        public Embed CreateSubscriptionListEmbed(IEnumerable<string> tags) =>
             new EmbedBuilder()
-                .WithTitle($"**nhitomi**: Subscriptions for {user.Username}#{user.Discriminator}")
+                .WithTitle($"**nhitomi**: Subscriptions")
                 .WithDescription(tags.Any()
                     ? $"- {string.Join("\n- ", tags)}"
                     : "You have no subscriptions.")
