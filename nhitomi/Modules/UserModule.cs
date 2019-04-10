@@ -16,7 +16,6 @@ namespace nhitomi.Modules
 
         [Command("subscribe")]
         [Alias("sub")]
-        [Summary("Adds a subscription to the specified tag.")]
         public async Task SubscribeAsync([Remainder] string tag)
         {
             if (string.IsNullOrWhiteSpace(tag))
@@ -32,7 +31,6 @@ namespace nhitomi.Modules
 
         [Command("unsubscribe")]
         [Alias("unsub")]
-        [Summary("Removes subscription from the specified tag.")]
         public async Task UnsubscribeAsync([Remainder] string tag)
         {
             if (string.IsNullOrWhiteSpace(tag))
@@ -48,7 +46,6 @@ namespace nhitomi.Modules
 
         [Command("subscriptions")]
         [Alias("subs")]
-        [Summary("Lists all tags you are subscribed to.")]
         public async Task ListSubscriptionsAsync()
         {
             using (Context.Channel.EnterTypingState())

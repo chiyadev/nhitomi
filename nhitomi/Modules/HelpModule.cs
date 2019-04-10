@@ -19,7 +19,6 @@ namespace nhitomi.Modules
         }
 
         [Command("help")]
-        [Summary("Shows this help message.")]
         public Task HelpAsync() => ReplyAsync(embed: _formatter.CreateHelpEmbed());
     }
 }
