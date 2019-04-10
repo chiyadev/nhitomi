@@ -91,7 +91,7 @@ namespace nhitomi
             new EmbedBuilder()
                 .WithTitle("**nhitomi**: Help")
                 .WithDescription(
-                    "nhitomi — a Discord bot for searching and downloading doujinshi, by **chiya.dev** https://chiya.dev\n" +
+                    "nhitomi — a Discord bot for searching and downloading doujinshi, by **chiya.dev** - https://chiya.dev\n" +
                     $"Official server: {_settings.Discord.Guild.GuildInvite}")
                 .AddField("  — Doujinshi —", $@"
 - {_settings.Discord.Prefix}get __source__ __id__ — Retrieves doujin information from a source by its ID.
@@ -110,7 +110,7 @@ namespace nhitomi
 - {_settings.Discord.Prefix}collection __name__ — Displays doujins belonging to a collection.
 - {_settings.Discord.Prefix}collection __name__ add __source__ __id__ — Adds a doujin to a collection.
 - {_settings.Discord.Prefix}collection __name__ list — Lists all doujins belonging to a collection.
-- {_settings.Discord.Prefix}collection __name__ sort __attribute__ — Changes the order of doujins in a collection by an attribute.
+- {_settings.Discord.Prefix}collection __name__ sort __attribute__ — Changes the order of doujins in a collection by their attribute.
 - {_settings.Discord.Prefix}collection __name__ delete — Deletes a collection, removing all doujins belonging to it.
 ".Trim())
                 .AddField("  — Sources —", @"
@@ -119,6 +119,8 @@ namespace nhitomi
 ~~- tsumino — `https://tsumino.com/`~~
 ~~- pururin — `https://pururin.io/`~~
 ".Trim())
+                .AddField("  — Contribution —", @"
+This project is licensed under the MIT License. Contributions are welcome! https://github.com/chiyadev/nhitomi")
                 .WithColor(Color.Purple)
                 .WithThumbnailUrl(_settings.ImageUrl)
                 .WithCurrentTimestamp()
