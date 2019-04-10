@@ -14,6 +14,7 @@ using Discord.WebSocket;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using nhitomi.Core;
+using nhitomi.Database;
 using nhitomi.Services;
 
 namespace nhitomi
@@ -40,7 +41,7 @@ namespace nhitomi
         public virtual Task UpdateContents(MessageFormatter formatter) =>
             Message.ModifyAsync(null, CreateEmbed(formatter));
 
-        public virtual void Dispose() => Browser.Dispose();
+        public void Dispose() => Browser.Dispose();
     }
 
     public class DoujinListInteractive : ListInteractive
@@ -63,6 +64,26 @@ namespace nhitomi
             if (DownloadMessage != null)
                 await DownloadMessage.ModifyAsync(embed: formatter.CreateDownloadEmbed(Current));
         }
+    }
+
+    public class CollectionInteractive : ListInteractive
+    {
+        const int _itemsPerPage = 14;
+
+        readonly string _collectionName;
+
+        public CollectionInteractive(string collectionName, IEnumerable<CollectionItemInfo> items) : base(
+            new EnumerableBrowser<IEnumerable<CollectionItemInfo>>(
+                items.ChunkBy(_itemsPerPage).ToAsyncEnumerable().GetEnumerator()))
+        {
+            _collectionName = collectionName;
+        }
+
+        IEnumerable<CollectionItemInfo> Current =>
+            ((IAsyncEnumerator<IEnumerable<CollectionItemInfo>>) Browser).Current;
+
+        public override Embed CreateEmbed(MessageFormatter formatter) =>
+            formatter.CreateCollectionEmbed(_collectionName, Current.ToArray());
     }
 
     public class InteractiveManager : IDisposable
@@ -150,6 +171,17 @@ namespace nhitomi
             return await CreateListInteractiveAsync(interactive, sendMessage, cancellationToken) ? interactive : null;
         }
 
+        public async Task<CollectionInteractive> CreateCollectionInteractiveAsync(
+            string collectionName,
+            IEnumerable<CollectionItemInfo> items,
+            SendMessageAsync sendMessage,
+            CancellationToken cancellationToken = default)
+        {
+            var interactive = new CollectionInteractive(collectionName, items);
+
+            return await CreateListInteractiveAsync(interactive, sendMessage, cancellationToken) ? interactive : null;
+        }
+
         async Task HandleDoujinsDetected(IUserMessage message, IAsyncEnumerable<IDoujin> doujins)
         {
             var interactive = await CreateDoujinListInteractiveAsync(doujins, message.Channel.SendMessageAsync);
@@ -163,7 +195,7 @@ namespace nhitomi
             ISocketMessageChannel channel,
             SocketReaction reaction)
         {
-            Task.Run(() => HandleReaction(reaction, true));
+            Task.Run(() => HandleReaction(reaction));
             return Task.CompletedTask;
         }
 
@@ -172,11 +204,11 @@ namespace nhitomi
             ISocketMessageChannel channel,
             SocketReaction reaction)
         {
-            Task.Run(() => HandleReaction(reaction, false));
+            Task.Run(() => HandleReaction(reaction));
             return Task.CompletedTask;
         }
 
-        async Task HandleReaction(SocketReaction reaction, bool added)
+        async Task HandleReaction(SocketReaction reaction)
         {
             try
             {
