@@ -152,7 +152,7 @@ namespace nhitomi.Services
                             s => s.UserList);
 
                     _logger.LogDebug($"Found {tagSubscriptions.Count} tags, " +
-                                     $"{tagSubscriptions.SelectMany(p => p.Value).Distinct().Count()} subscribers and" +
+                                     $"{tagSubscriptions.SelectMany(p => p.Value).Distinct().Count()} subscribers and " +
                                      $"{tagSubscriptions.Sum(p => p.Value.Count)} subscriptions.");
 
                     await doujins.ForEachAsync(async d =>
