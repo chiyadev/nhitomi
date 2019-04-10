@@ -288,7 +288,9 @@ namespace nhitomi.Database
                     break;
 
                 case CollectionSortAttribute.Id:
-                    items = items.OrderBy(i => $"{i.Source}/{i.Name}");
+                    items = items
+                        .OrderBy(i => i.Source)
+                        .ThenBy(i => i.Id.PadLeft(10, '0'));
                     break;
 
                 case CollectionSortAttribute.Name:
