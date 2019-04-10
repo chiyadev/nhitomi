@@ -142,17 +142,23 @@ namespace nhitomi.Services
                         _logger.LogDebug($"Found language feed channels: {string.Join(", ", langChannels.Keys)}");
 
                     // find tag subscribers
-                    var tagSubscribers =
+                    var tagSubscriptions =
                         (await _database.GetTagSubscriptionsAsync(stoppingToken))
                         .ToDictionary(
                             s => s.TagName,
                             s => s.UserList);
+
+                    _logger.LogDebug($"Found {tagSubscriptions.Count} tags and " +
+                                     $"{tagSubscriptions.Sum(s => s.Value.Count)} subscribers.");
 
                     await doujins.ForEachAsync(async d =>
                     {
                         try
                         {
                             ITextChannel channel;
+
+                            // to prevent notifying the same subscriber multiple times
+                            var notifiedSubscribers = new HashSet<ulong>();
 
                             foreach (var tag in d.Tags)
                             {
@@ -161,13 +167,15 @@ namespace nhitomi.Services
                                     await SendUpdateAsync(channel, d);
 
                                 // tag subscribers
-                                if (tagSubscribers.TryGetValue(tag, out var userList))
-                                    foreach (var user in userList)
-                                    {
-                                        await SendUpdateAsync(
-                                            await _discord.Socket.GetUser(user).GetOrCreateDMChannelAsync(),
-                                            d, false);
-                                    }
+                                if (!tagSubscriptions.TryGetValue(tag, out var userList))
+                                    continue;
+
+                                foreach (var user in userList.Where(notifiedSubscribers.Add))
+                                {
+                                    await SendUpdateAsync(
+                                        await _discord.Socket.GetUser(user).GetOrCreateDMChannelAsync(),
+                                        d, false);
+                                }
                             }
 
                             // language feed
