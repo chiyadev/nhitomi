@@ -181,12 +181,12 @@ namespace nhitomi
         public string EmptyList(string source = null) =>
             $"**{source ?? "nhitomi"}**: No results!";
 
-        public Embed CreateSubscriptionListEmbed(IEnumerable<string> tags) =>
+        public Embed CreateSubscriptionListEmbed(string[] tags) =>
             new EmbedBuilder()
-                .WithTitle($"**nhitomi**: Subscriptions")
-                .WithDescription(tags.Any()
-                    ? $"- {string.Join("\n- ", tags)}"
-                    : "You have no subscriptions.")
+                .WithTitle("**nhitomi**: Subscriptions")
+                .WithDescription(tags.Length == 0
+                    ? "You have no subscriptions."
+                    : $"- {string.Join("\n- ", tags)}")
                 .WithColor(Color.Teal)
                 .WithCurrentTimestamp()
                 .Build();
@@ -199,5 +199,15 @@ namespace nhitomi
 
         public string SubscriptionsClearSuccess() =>
             "**nhitomi**: Cleared all tag subscriptions.";
+
+        public Embed CreateCollectionListEmbed(string[] collectionNames) =>
+            new EmbedBuilder()
+                .WithTitle("**nhitomi**: Collections")
+                .WithDescription(collectionNames.Length == 0
+                    ? "You have no collections."
+                    : $"- {string.Join("\n- ", collectionNames)}")
+                .WithColor(Color.Gold)
+                .WithCurrentTimestamp()
+                .Build();
     }
 }
