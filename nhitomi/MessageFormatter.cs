@@ -91,8 +91,8 @@ namespace nhitomi
             new EmbedBuilder()
                 .WithTitle("**nhitomi**: Help")
                 .WithDescription(
-                    "nhitomi — a Discord bot for searching and downloading doujinshi, by __chiya.dev__.\n" +
-                    $"Join our server: {_settings.Discord.Guild.GuildInvite}")
+                    "nhitomi — a Discord bot for searching and downloading doujinshi, by **chiya.dev** https://chiya.dev\n" +
+                    $"Official server: {_settings.Discord.Guild.GuildInvite}")
                 .AddField("  — Doujinshi —", $@"
 - {_settings.Discord.Prefix}get __source__ __id__ — Retrieves doujin information from a source by its ID.
 - {_settings.Discord.Prefix}all __source__ — Displays all doujins from a source uploaded recently.
