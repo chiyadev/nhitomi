@@ -15,6 +15,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using nhitomi.Core;
+using nhitomi.Database;
 
 namespace nhitomi.Services
 {
