@@ -47,7 +47,7 @@ namespace nhitomi.Modules
             using (Context.Channel.EnterTypingState())
             {
                 var summaries = await _database.GetCollectionAsync(Context.User.Id, collectionName)
-                    as IEnumerable<DoujinSummary>;
+                    as IEnumerable<CollectionItemInfo>;
 
                 var doujins = AsyncEnumerable.CreateEnumerable(() =>
                 {
@@ -105,7 +105,7 @@ namespace nhitomi.Modules
                 }
 
                 // add to collection
-                await _database.AddToCollectionAsync(Context.User.Id, collectionName, DoujinSummary.FromDoujin(doujin));
+                await _database.AddToCollectionAsync(Context.User.Id, collectionName, new CollectionItemInfo(doujin));
 
                 await ReplyAsync(_formatter.AddedToCollection(collectionName, doujin));
             }
@@ -116,17 +116,17 @@ namespace nhitomi.Modules
         {
             using (Context.Channel.EnterTypingState())
             {
-                var summaries = await _database.GetCollectionAsync(Context.User.Id, collectionName);
+                var items = await _database.GetCollectionAsync(Context.User.Id, collectionName);
 
                 switch (operation)
                 {
                     case "list":
-                        await ReplyAsync(embed: _formatter.CreateCollectionEmbed(collectionName, summaries));
+                        await ReplyAsync(embed: _formatter.CreateCollectionEmbed(collectionName, items));
                         break;
 
                     case "delete":
                         // remove doujins in parallel
-                        await Task.WhenAll(summaries.Select(s =>
+                        await Task.WhenAll(items.Select(s =>
                             _database.RemoveFromCollectionAsync(Context.User.Id, collectionName, s)));
 
                         await ReplyAsync(_formatter.CollectionDeleted(collectionName));

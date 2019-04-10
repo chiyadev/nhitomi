@@ -5,11 +5,9 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 using Discord;
-using Discord.Commands;
 using Microsoft.Extensions.Options;
 using nhitomi.Core;
 using nhitomi.Database;
@@ -217,12 +215,12 @@ Miscellaneous:
         public string AddedToCollection(string collectionName, IDoujin doujin) =>
             $"**nhitomi**: Added '{doujin.OriginalName ?? doujin.PrettyName}' to collection '{collectionName}'.";
 
-        public Embed CreateCollectionEmbed(string collectionName, DoujinSummary[] summaries) =>
+        public Embed CreateCollectionEmbed(string collectionName, CollectionItemInfo[] items) =>
             new EmbedBuilder()
                 .WithTitle($"**nhitomi**: Collection '{collectionName}'")
-                .WithDescription(summaries.Length == 0
+                .WithDescription(items.Length == 0
                     ? "There are no doujins in this collection."
-                    : $"- {string.Join("\n- ", summaries.Select(s => $"{s}"))}")
+                    : $"- {string.Join("\n- ", items.Select(i => $"{i.Source}/{i.Id}: {i.Artist} — {i.Name}"))}")
                 .WithColor(Color.Magenta)
                 .WithCurrentTimestamp()
                 .Build();

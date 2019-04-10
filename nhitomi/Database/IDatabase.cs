@@ -15,13 +15,13 @@ namespace nhitomi.Database
 
         Task<string[]> GetCollectionsAsync(ulong userId, CancellationToken cancellationToken = default);
 
-        Task<DoujinSummary[]> GetCollectionAsync(ulong userId, string collectionName,
+        Task<CollectionItemInfo[]> GetCollectionAsync(ulong userId, string collectionName,
             CancellationToken cancellationToken = default);
 
-        Task AddToCollectionAsync(ulong userId, string collectionName, DoujinSummary summary,
+        Task AddToCollectionAsync(ulong userId, string collectionName, CollectionItemInfo item,
             CancellationToken cancellationToken = default);
 
-        Task RemoveFromCollectionAsync(ulong userId, string collectionName, DoujinSummary summary,
+        Task RemoveFromCollectionAsync(ulong userId, string collectionName, CollectionItemInfo item,
             CancellationToken cancellationToken = default);
     }
 }
