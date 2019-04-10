@@ -9,6 +9,7 @@ namespace nhitomi.Database
         [DynamoDBRangeKey("collectionName")] public string CollectionName { get; set; }
 
         [DynamoDBProperty("sortAttribute")] public CollectionSortAttribute SortAttribute { get; set; }
+        [DynamoDBProperty("sortDescending")] public bool SortDescending { get; set; }
 
         [DynamoDBProperty("items")] public List<CollectionItemInfo> Items { get; set; }
     }
