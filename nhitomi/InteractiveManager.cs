@@ -92,6 +92,7 @@ namespace nhitomi
         readonly DiscordService _discord;
         readonly MessageFormatter _formatter;
         readonly ISet<IDoujinClient> _clients;
+        readonly IDatabase _database;
         readonly ILogger<InteractiveManager> _logger;
 
         public InteractiveManager(
@@ -99,14 +100,16 @@ namespace nhitomi
             DiscordService discord,
             MessageFormatter formatter,
             ISet<IDoujinClient> clients,
+            IDatabase database,
             ILogger<InteractiveManager> logger)
         {
             _settings = options.Value;
             _discord = discord;
             _formatter = formatter;
-            _logger = logger;
             _discord = discord;
             _clients = clients;
+            _database = database;
+            _logger = logger;
 
             _discord.Socket.ReactionAdded += HandleReactionAddedAsyncBackground;
             _discord.Socket.ReactionRemoved += HandleReactionRemovedAsyncBackground;
@@ -330,6 +333,8 @@ namespace nhitomi
             return true;
         }
 
+        const string _favoritesCollection = "favs";
+
         async Task<bool> HandleDoujinFavoriteReaction(SocketReaction reaction, IMessage message)
         {
             if (!reaction.Emote.Equals(MessageFormatter.HeartEmote))
@@ -339,10 +344,11 @@ namespace nhitomi
             if (doujin == null)
                 return false;
 
-            var doujinMessage = await (await _discord.Socket.GetUser(reaction.UserId).GetOrCreateDMChannelAsync())
-                .SendMessageAsync(embed: _formatter.CreateDoujinEmbed(doujin));
+            var channel = await _discord.Socket.GetUser(reaction.UserId).GetOrCreateDMChannelAsync();
 
-            await _formatter.AddDoujinTriggersAsync(doujinMessage);
+            // add to or remove from favorites
+            if (await _database.TryAddToCollectionAsync(reaction.UserId, _favoritesCollection, doujin))
+                await channel.SendMessageAsync(_formatter.AddedToCollection(_favoritesCollection, doujin));
 
             return true;
         }
