@@ -94,7 +94,7 @@ namespace nhitomi
                     "nhitomi — a Discord bot for searching and downloading doujinshi, by **chiya.dev** - https://chiya.dev\n" +
                     $"Official server: {_settings.Discord.Guild.GuildInvite}")
                 .AddField("  — Doujinshi —", $@"
-- {_settings.Discord.Prefix}get __source__ __id__ — Retrieves doujin information from a source by its ID.
+- {_settings.Discord.Prefix}get __source__ __id__ — Displays doujin information from a source by its ID.
 - {_settings.Discord.Prefix}all __source__ — Displays all doujins from a source uploaded recently.
 - {_settings.Discord.Prefix}search __query__ — Searches for doujins by the title and tags that satisfy your query.
 - {_settings.Discord.Prefix}download __source__ __id__ — Sends a download link for a doujin by its ID.
