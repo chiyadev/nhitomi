@@ -129,14 +129,15 @@ namespace nhitomi
             return embed.Build();
         }
 
-        public Embed CreateErrorEmbed() => new EmbedBuilder()
-            .WithTitle("**nhitomi**: Error")
-            .WithDescription(
-                "Sorry, we encountered an unexpected error and have reported it to the developers! " +
-                $"Please join our official server for further assistance: {_settings.Discord.Guild.GuildInvite}")
-            .WithColor(Color.Red)
-            .WithCurrentTimestamp()
-            .Build();
+        public Embed CreateErrorEmbed() =>
+            new EmbedBuilder()
+                .WithTitle("**nhitomi**: Error")
+                .WithDescription(
+                    "Sorry, we encountered an unexpected error and have reported it to the developers! " +
+                    $"Please join our official server for further assistance: {_settings.Discord.Guild.GuildInvite}")
+                .WithColor(Color.Red)
+                .WithCurrentTimestamp()
+                .Build();
 
         public Embed CreateDownloadEmbed(IDoujin doujin)
         {
@@ -182,5 +183,27 @@ namespace nhitomi
 
         public string EmptyList(string source = null) =>
             $"**{source ?? "nhitomi"}**: No results!";
+
+        public Embed CreateSubscriptionListEmbed(IUser user, IEnumerable<string> tags) =>
+            new EmbedBuilder()
+                .WithTitle($"**nhitomi**: Subscriptions for {user.Username}#{user.Discriminator}")
+                .WithDescription(tags.Any()
+                    ? $"- {string.Join("\n- ", tags)}"
+                    : "You have no subscriptions.")
+                .WithColor(Color.Teal)
+                .WithCurrentTimestamp()
+                .Build();
+
+        public string SubscribeSuccess(string tag) =>
+            $"**nhitomi**: Subscribed to tag '{tag}'.";
+
+        public string UnsubscribeSuccess(string tag) =>
+            $"**nhitomi**: Unsubscribed from tag '{tag}'.";
+
+        public string AlreadySubscribed(string tag) =>
+            $"**nhitomi**: You are already subscribed to the tag '{tag}'!";
+
+        public string NotSubscribed(string tag) =>
+            $"**nhitomi**: You are not subscribed to the tag '{tag}'!";
     }
 }
