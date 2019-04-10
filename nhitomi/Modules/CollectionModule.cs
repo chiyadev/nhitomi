@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -172,6 +173,20 @@ namespace nhitomi.Modules
         {
             if (sort != nameof(sort))
                 return;
+
+            // parse sort attribute
+            if (!Enum.TryParse<CollectionSortAttribute>(attribute, true, out var attributeValue))
+            {
+                await ReplyAsync(_formatter.InvalidSortAttribute(attribute));
+                return;
+            }
+
+            using (Context.Channel.EnterTypingState())
+            {
+                await _database.SetCollectionSortAsync(Context.User.Id, collectionName, attributeValue);
+
+                await ReplyAsync(_formatter.SortAttributeUpdated(attributeValue));
+            }
         }
     }
 }

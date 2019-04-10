@@ -3,6 +3,7 @@
 // This software is released under the MIT License.
 // https://opensource.org/licenses/MIT
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -110,7 +111,7 @@ namespace nhitomi
 - {_settings.Discord.Prefix}collection __name__ — Displays doujins belonging to a collection.
 - {_settings.Discord.Prefix}collection __name__ add|remove __source__ __id__ — Adds or removes a doujin in a collection.
 - {_settings.Discord.Prefix}collection __name__ list — Lists all doujins belonging to a collection.
-- {_settings.Discord.Prefix}collection __name__ sort __attribute__ — Changes the order of doujins in a collection by their attribute.
+- {_settings.Discord.Prefix}collection __name__ sort __attribute__ — Sorts doujins in a collection by an attribute ({string.Join(", ", Enum.GetNames(typeof(CollectionSortAttribute)).Select(s => s.ToLowerInvariant()))}).
 - {_settings.Discord.Prefix}collection __name__ delete — Deletes a collection, removing all doujins belonging to it.
 ".Trim())
                 .AddField("  — Sources —", @"
@@ -161,7 +162,7 @@ This project is licensed under the MIT License. Contributions are welcome! https
 
         public string UnsupportedSource(string source) =>
             $"**nhitomi**: Source __{source}__ is not supported. " +
-            $"Please see refer to the manual (**{_settings.Discord.Prefix}help**) for a full list of supported sources.";
+            $"See **{_settings.Discord.Prefix}help** for a list of supported sources.";
 
         public string DoujinNotFound(string source = null) =>
             $"**{source ?? "nhitomi"}**: No such doujin!";
@@ -243,5 +244,12 @@ This project is licensed under the MIT License. Contributions are welcome! https
 
         public string CollectionNotFound =>
             $"**nhitomi**: No such collection!";
+
+        public string InvalidSortAttribute(string attribute) =>
+            $"**nhitomi**: Attribute __{attribute}__ is invalid. " +
+            $"See **{_settings.Discord.Prefix}help** for a list of valid sort attributes.";
+
+        public string SortAttributeUpdated(CollectionSortAttribute attribute) =>
+            $"**nhitomi**: Updated collection sorting attribute to __{attribute}__.";
     }
 }

@@ -31,5 +31,8 @@ namespace nhitomi.Database
 
         Task<bool> TryDeleteCollectionAsync(ulong userId, string collectionName,
             CancellationToken cancellationToken = default);
+
+        Task SetCollectionSortAsync(ulong userId, string collectionName, CollectionSortAttribute attribute,
+            CancellationToken cancellationToken = default);
     }
 }
