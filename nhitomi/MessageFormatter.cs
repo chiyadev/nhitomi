@@ -105,10 +105,11 @@ namespace nhitomi
 - {_settings.Discord.Prefix}subs enable|disable — Enables or disables subscription notifications.
 - {_settings.Discord.Prefix}subs clear — Removes all tag subscriptions.
 
+- {_settings.Discord.Prefix}collection — Lists all collections belonging to you.
 - {_settings.Discord.Prefix}collection __name__ — Displays doujins belonging to a collection.
 - {_settings.Discord.Prefix}collection __name__ add __source__ __id__ — Adds a doujin to a collection.
 - {_settings.Discord.Prefix}collection __name__ remove __source__ __id__ — Removes a doujin from a collection.
-- {_settings.Discord.Prefix}collection list __name__ — Shows all doujins belonging to a collection in the form of a list.
+- {_settings.Discord.Prefix}collection list __name__ — Lists all doujins belonging to a collection.
 - {_settings.Discord.Prefix}collection order __name__ __indices__ — Reorders doujins in a collection by their indices.
 - {_settings.Discord.Prefix}collection sort __name__ __attribute__ — Reorders doujins in a collection by their attribute.
 - {_settings.Discord.Prefix}collection delete __name__ — Deletes a collection, removing all doujins belonging to it.
