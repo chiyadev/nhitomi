@@ -134,23 +134,24 @@ namespace nhitomi.Database
                 },
                 ExpressionAttributeValues = new Dictionary<string, AttributeValue>
                 {
-                    // userId operand
-                    {":userId", new AttributeValue {NS = new List<string> {userId.ToString()}}}
+                    {":userId", new AttributeValue {N = userId.ToString()}},
+                    {":userIdSet", new AttributeValue {NS = new List<string> {userId.ToString()}}}
                 },
-                UpdateExpression = "add #users :userId",
-                ReturnValues = ReturnValue.UPDATED_NEW
+                UpdateExpression = "add #users :userIdSet",
+                ConditionExpression = "not contains (#users, :userId)"
             };
 
             try
             {
-                var response = await _client.UpdateItemAsync(request, cancellationToken);
-
-                if (!response.Attributes.ContainsKey("userList"))
-                    return false;
+                await _client.UpdateItemAsync(request, cancellationToken);
 
                 _logger.LogDebug($"Added user '{userId}' subscription '{tagName}'.");
 
                 return true;
+            }
+            catch (ConditionalCheckFailedException)
+            {
+                return false;
             }
             catch (Exception e)
             {
@@ -179,23 +180,24 @@ namespace nhitomi.Database
                 },
                 ExpressionAttributeValues = new Dictionary<string, AttributeValue>
                 {
-                    // userId operand
-                    {":userId", new AttributeValue {NS = new List<string> {userId.ToString()}}}
+                    {":userId", new AttributeValue {N = userId.ToString()}},
+                    {":userIdSet", new AttributeValue {NS = new List<string> {userId.ToString()}}}
                 },
-                UpdateExpression = "delete #users :userId",
-                ReturnValues = ReturnValue.UPDATED_NEW
+                UpdateExpression = "delete #users :userIdSet",
+                ConditionExpression = "contains (#users, :userId)"
             };
 
             try
             {
-                var response = await _client.UpdateItemAsync(request, cancellationToken);
-
-                if (!response.Attributes.ContainsKey("userList"))
-                    return false;
+                await _client.UpdateItemAsync(request, cancellationToken);
 
                 _logger.LogDebug($"Removed user '{userId}' subscription '{tagName}'.");
 
                 return true;
+            }
+            catch (ConditionalCheckFailedException)
+            {
+                return false;
             }
             catch (Exception e)
             {
@@ -331,20 +333,20 @@ namespace nhitomi.Database
                     {":item", new AttributeValue {M = itemAttributes}}
                 },
                 UpdateExpression = "set #map.#key = :item",
-                ConditionExpression = "attribute_not_exists (#map.#key)",
-                ReturnValues = ReturnValue.UPDATED_NEW
+                ConditionExpression = "not attribute_exists (#map.#key)"
             };
 
             try
             {
-                var response = await _client.UpdateItemAsync(request, cancellationToken);
-
-                if (!response.Attributes.ContainsKey("items"))
-                    return false;
+                await _client.UpdateItemAsync(request, cancellationToken);
 
                 _logger.LogDebug($"Added doujin '{doujin}' to collection '{collectionName}' of user {userId}.");
 
                 return true;
+            }
+            catch (ConditionalCheckFailedException)
+            {
+                return false;
             }
             catch (AmazonDynamoDBException)
             {
@@ -414,19 +416,20 @@ namespace nhitomi.Database
                     {"#key", $"{item.Source}/{item.Id}"}
                 },
                 UpdateExpression = "remove #map.#key",
-                ReturnValues = ReturnValue.UPDATED_NEW
+                ConditionExpression = "attribute_exists (#map.#key)"
             };
 
             try
             {
-                var response = await _client.UpdateItemAsync(request, cancellationToken);
-
-                if (!response.Attributes.ContainsKey("items"))
-                    return false;
+                await _client.UpdateItemAsync(request, cancellationToken);
 
                 _logger.LogDebug($"Removed doujin '{item}' from collection '{collectionName}' of user {userId}.");
 
                 return true;
+            }
+            catch (ConditionalCheckFailedException)
+            {
+                return false;
             }
             catch (Exception e)
             {
@@ -447,19 +450,25 @@ namespace nhitomi.Database
                 {
                     {"userId", new AttributeValue {N = userId.ToString()}},
                     {"collectionName", new AttributeValue {S = collectionName}}
-                }
+                },
+                ExpressionAttributeNames = new Dictionary<string, string>
+                {
+                    {"#userId", "userId"}
+                },
+                ConditionExpression = "attribute_exists (#userId)"
             };
 
             try
             {
-                var response = await _client.DeleteItemAsync(request, cancellationToken);
-
-                if (!response.Attributes.ContainsKey("items"))
-                    return false;
+                await _client.DeleteItemAsync(request, cancellationToken);
 
                 _logger.LogDebug($"Deleted collection '{collectionName}' of user {userId}.");
 
                 return true;
+            }
+            catch (ConditionalCheckFailedException)
+            {
+                return false;
             }
             catch (Exception e)
             {
