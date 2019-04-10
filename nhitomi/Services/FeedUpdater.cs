@@ -89,13 +89,16 @@ namespace nhitomi.Services
             return doujins;
         }
 
-        async Task SendUpdateAsync(IMessageChannel channel, IDoujin doujin)
+        async Task SendUpdateAsync(IMessageChannel channel, IDoujin doujin, bool isFeedDoujin = true)
         {
             try
             {
                 var message = await channel.SendMessageAsync(embed: _formatter.CreateDoujinEmbed(doujin));
 
-                await _formatter.AddFeedDoujinTriggersAsync(message);
+                if (isFeedDoujin)
+                    await _formatter.AddFeedDoujinTriggersAsync(message);
+                else
+                    await _formatter.AddDoujinTriggersAsync(message);
             }
             catch (Exception e)
             {
@@ -163,7 +166,7 @@ namespace nhitomi.Services
                                     {
                                         await SendUpdateAsync(
                                             await _discord.Socket.GetUser(user).GetOrCreateDMChannelAsync(),
-                                            d);
+                                            d, false);
                                     }
                             }
 
