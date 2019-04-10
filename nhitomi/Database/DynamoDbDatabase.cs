@@ -284,7 +284,7 @@ namespace nhitomi.Database
             switch (collection.SortAttribute)
             {
                 case CollectionSortAttribute.Add:
-                    items = items.OrderBy(i => i.AddTime);
+                    items = items.OrderByDescending(i => i.AddTime);
                     break;
 
                 case CollectionSortAttribute.Id:
