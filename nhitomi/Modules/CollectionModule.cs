@@ -106,6 +106,8 @@ namespace nhitomi.Modules
 
                 // add to collection
                 await _database.AddToCollectionAsync(Context.User.Id, collectionName, DoujinSummary.FromDoujin(doujin));
+
+                await ReplyAsync(_formatter.AddToCollectionSuccess(collectionName, doujin));
             }
         }
 
