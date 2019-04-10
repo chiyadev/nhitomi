@@ -88,46 +88,32 @@ namespace nhitomi
                 RightArrowEmote
             });
 
-        public IEnumerable<CommandInfo> AvailableCommands { get; set; }
+        static readonly string _commandsContent = @"
+- **n!get** __source__ __id__ — Retrieves doujin information from the specified source.
+- **n!all** __source__ — Displays all doujins from the specified source uploaded recently.
+- **n!search** __query__ — Searches for doujins by the title and tags across the supported sources that match the specified query.
+- **n!download** __source__ __id__ — Sends a download link for the specified doujin.
+- **n!help** — Shows the help message.
+".Trim();
 
-        public Embed CreateHelpEmbed()
-        {
-            var embed = new EmbedBuilder()
+        static readonly string _sourcesContent = @"
+- nhentai — `https://nhentai.net/`
+- hitomi — `https://hitomi.la/`
+~~- tsumino — `https://tsumino.com/`~~
+~~- pururin — `https://pururin.io/`~~
+".Trim();
+
+        public Embed CreateHelpEmbed() =>
+            new EmbedBuilder()
                 .WithTitle("**nhitomi**: Help")
                 .WithDescription(
-                    "nhitomi — a Discord bot for searching and downloading doujinshi by chiya.dev.\n" +
+                    "nhitomi — a Discord bot for searching and downloading doujinshi, by __chiya.dev__.\n" +
                     $"Join our server: {_settings.Discord.Guild.GuildInvite}")
+                .AddField("  — Commands —", _commandsContent)
+                .AddField("  — Sources —", _sourcesContent)
                 .WithColor(Color.Purple)
-                .WithCurrentTimestamp();
-
-            // Commands
-            var builder = new StringBuilder();
-
-            foreach (var command in AvailableCommands)
-            {
-                builder.Append($"- **{_settings.Discord.Prefix}{command.Name}**");
-
-                if (command.Parameters.Count > 0)
-                    builder.Append($" __{string.Join("__ __", command.Parameters.Select(p => p.Name))}__");
-
-                builder.AppendLine($" — {command.Summary}");
-            }
-
-            embed.AddField("— Commands —", builder);
-            builder.Clear();
-
-            // Sources
-            foreach (var client in _clients)
-            {
-                builder.Append($"- {client.Name.ToLowerInvariant()} — {client.Url}");
-                builder.AppendLine();
-            }
-
-            embed.AddField("— Sources —", builder);
-            builder.Clear();
-
-            return embed.Build();
-        }
+                .WithCurrentTimestamp()
+                .Build();
 
         public Embed CreateErrorEmbed() =>
             new EmbedBuilder()

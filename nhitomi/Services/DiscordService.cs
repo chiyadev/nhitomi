@@ -87,8 +87,6 @@ namespace nhitomi.Services
             // Add command modules
             await Commands.AddModulesAsync(typeof(Program).Assembly, _services);
 
-            _formatter.AvailableCommands = Commands.Commands;
-
             _logger.LogDebug($"Loaded commands: {string.Join(", ", Commands.Commands.Select(c => c.Name))}");
 
             var connectionSource = new TaskCompletionSource<object>();
