@@ -66,8 +66,7 @@ namespace nhitomi
 
             public HttpSettings()
             {
-                Url = Environment.GetEnvironmentVariable("ASPNETCORE_URLS")?.Split(';')[0]
-                      ?? "https://localhost:5000";
+                Url = Environment.GetEnvironmentVariable("ASPNETCORE_URLS")?.Split(';')[0] ?? "https://localhost:5000";
             }
         }
 
@@ -81,6 +80,7 @@ namespace nhitomi
 
             public string UserSettingsTable { get; set; }
             public string TagSubscriptionTable { get; set; }
+            public string CollectionTable { get; set; }
         }
     }
 }
