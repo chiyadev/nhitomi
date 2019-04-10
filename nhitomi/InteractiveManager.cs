@@ -25,17 +25,10 @@ namespace nhitomi
         Embed embed = null,
         RequestOptions options = null);
 
-    public class Interactive : IDisposable
+    public abstract class ListInteractive
     {
         public IUserMessage Message;
 
-        public virtual void Dispose()
-        {
-        }
-    }
-
-    public abstract class ListInteractive : Interactive
-    {
         public readonly IEnumerableBrowser Browser;
 
         protected ListInteractive(IEnumerableBrowser browser)
@@ -45,10 +38,10 @@ namespace nhitomi
 
         public abstract Embed CreateEmbed(MessageFormatter formatter);
 
-        public virtual Task UpdateState(MessageFormatter formatter) =>
+        public virtual Task UpdateContents(MessageFormatter formatter) =>
             Message.ModifyAsync(null, CreateEmbed(formatter));
 
-        public override void Dispose() => Browser.Dispose();
+        public virtual void Dispose() => Browser.Dispose();
     }
 
     public class DoujinListInteractive : ListInteractive
@@ -64,9 +57,9 @@ namespace nhitomi
 
         public override Embed CreateEmbed(MessageFormatter formatter) => formatter.CreateDoujinEmbed(Current);
 
-        public override async Task UpdateState(MessageFormatter formatter)
+        public override async Task UpdateContents(MessageFormatter formatter)
         {
-            await base.UpdateState(formatter);
+            await base.UpdateContents(formatter);
 
             if (DownloadMessage != null)
                 await DownloadMessage.ModifyAsync(embed: formatter.CreateDownloadEmbed(Current));
@@ -186,58 +179,25 @@ namespace nhitomi
 
         async Task HandleReaction(SocketReaction reaction, bool added)
         {
-            // don't trigger reactions ourselves
-            if (reaction.UserId == _discord.Socket.CurrentUser.Id)
-                return;
-
-            // get interactive message
-            if (!(await reaction.Channel.GetMessageAsync(reaction.MessageId) is IUserMessage message))
-                return;
-
-            // interactive must be authored by us
-            if (message.Author.Id != _discord.Socket.CurrentUser.Id)
-                return;
-
             try
             {
-                // list interactive handling
-                if (_listInteractives.TryGetValue(message.Id, out var interactive) &&
-                    await HandleListInteractiveReaction(reaction, interactive))
+                // don't trigger reactions ourselves
+                if (reaction.UserId == _discord.Socket.CurrentUser.Id)
                     return;
 
-                // delete trigger
-                if (reaction.Emote.Equals(MessageFormatter.TrashcanEmote))
-                    try
-                    {
-                        // destroy interactive if it is one
-                        if (interactive != null &&
-                            _listInteractives.TryRemove(message.Id, out _))
-                            await interactive.Message.DeleteAsync();
-                        else
-                            await message.DeleteAsync();
-
-                        foreach (var i in _listInteractives.Values.OfType<DoujinListInteractive>())
-                            if (i.DownloadMessage?.Id == message.Id)
-                            {
-                                i.DownloadMessage = null;
-                                break;
-                            }
-
-                        return;
-                    }
-                    catch (Exception e)
-                    {
-                        _logger.LogWarning(e, $"Could not delete message {message.Id}");
-                    }
-
-                // download trigger
-                if (reaction.Emote.Equals(MessageFormatter.FloppyDiskEmote) &&
-                    await HandleDoujinDownloadReaction(reaction, message, interactive))
+                // get interactive message
+                if (!(await reaction.Channel.GetMessageAsync(reaction.MessageId) is IUserMessage message))
                     return;
 
-                // favourite trigger
-                if (added &&
-                    reaction.Emote.Equals(MessageFormatter.HeartEmote) &&
+                // interactive must be authored by us
+                if (message.Author.Id != _discord.Socket.CurrentUser.Id ||
+                    !message.Reactions.TryGetValue(reaction.Emote, out var metadata) ||
+                    !metadata.IsMe)
+                    return;
+
+                if (await HandleDeleteReaction(reaction, message) ||
+                    await HandleListInteractiveReaction(reaction, message) ||
+                    await HandleDoujinDownloadReaction(reaction, message) ||
                     await HandleDoujinFavoriteReaction(reaction, message))
                     return;
             }
@@ -250,13 +210,16 @@ namespace nhitomi
             }
         }
 
-        async Task<bool> HandleListInteractiveReaction(IReaction reaction, ListInteractive interactive)
+        async Task<bool> HandleListInteractiveReaction(IReaction reaction, IMessage message)
         {
+            if (!_listInteractives.TryGetValue(message.Id, out var interactive))
+                return false;
+
             // left arrow
             if (reaction.Emote.Equals(MessageFormatter.LeftArrowEmote))
             {
                 if (interactive.Browser.MovePrevious())
-                    await interactive.UpdateState(_formatter);
+                    await interactive.UpdateContents(_formatter);
                 else
                     await interactive.Message.ModifyAsync(m => { m.Content = _formatter.BeginningOfList(); });
 
@@ -267,7 +230,7 @@ namespace nhitomi
             if (reaction.Emote.Equals(MessageFormatter.RightArrowEmote))
             {
                 if (await interactive.Browser.MoveNext())
-                    await interactive.UpdateState(_formatter);
+                    await interactive.UpdateContents(_formatter);
                 else
                     await interactive.Message.ModifyAsync(m => { m.Content = _formatter.EndOfList(); });
 
@@ -275,6 +238,29 @@ namespace nhitomi
             }
 
             return false;
+        }
+
+        async Task<bool> HandleDeleteReaction(IReaction reaction, IMessage message)
+        {
+            try
+            {
+                if (!reaction.Emote.Equals(MessageFormatter.TrashcanEmote))
+                    return false;
+
+                // destroy interactive if it is one
+                if (_listInteractives.TryRemove(message.Id, out var interactive))
+                    interactive.Dispose();
+
+                // delete message
+                await message.DeleteAsync();
+
+                return true;
+            }
+            catch (Exception e)
+            {
+                _logger.LogWarning(e, $"Could not delete message {message.Id}");
+                return true;
+            }
         }
 
         async Task<IDoujin> GetDoujinFromMessage(IMessage message)
@@ -294,29 +280,31 @@ namespace nhitomi
             return await client.GetAsync(id);
         }
 
-        async Task<bool> HandleDoujinDownloadReaction(
-            SocketReaction reaction,
-            IMessage message,
-            Interactive interactive)
+        async Task<bool> HandleDoujinDownloadReaction(IReaction reaction, IMessage message)
         {
+            if (!reaction.Emote.Equals(MessageFormatter.FloppyDiskEmote))
+                return false;
+
             var doujin = await GetDoujinFromMessage(message);
             if (doujin == null)
                 return false;
 
             var downloadMessage =
-                await reaction.Channel.SendMessageAsync(embed: _formatter.CreateDownloadEmbed(doujin));
+                await message.Channel.SendMessageAsync(embed: _formatter.CreateDownloadEmbed(doujin));
 
-            if (interactive is DoujinListInteractive doujinListInteractive)
+            if (_listInteractives.TryGetValue(message.Id, out var interactive) &&
+                interactive is DoujinListInteractive doujinListInteractive)
                 doujinListInteractive.DownloadMessage = downloadMessage;
-
-            await _formatter.AddDownloadTriggersAsync(downloadMessage);
 
             return true;
         }
 
-        async Task<bool> HandleDoujinFavoriteReaction(SocketReaction reaction, IMessage interactive)
+        async Task<bool> HandleDoujinFavoriteReaction(SocketReaction reaction, IMessage message)
         {
-            var doujin = await GetDoujinFromMessage(interactive);
+            if (!reaction.Emote.Equals(MessageFormatter.HeartEmote))
+                return false;
+
+            var doujin = await GetDoujinFromMessage(message);
             if (doujin == null)
                 return false;
 

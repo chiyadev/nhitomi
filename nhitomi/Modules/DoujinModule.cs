@@ -154,8 +154,6 @@ namespace nhitomi.Modules
                 return;
             }
 
-            IUserMessage response;
-
             using (Context.Channel.EnterTypingState())
             {
                 var guild = await Context.Client.GetGuildAsync(_settings.Discord.Guild.GuildId);
@@ -177,10 +175,8 @@ namespace nhitomi.Modules
                     return;
                 }
 
-                response = await ReplyAsync(embed: _formatter.CreateDownloadEmbed(doujin));
+                await ReplyAsync(embed: _formatter.CreateDownloadEmbed(doujin));
             }
-
-            await _formatter.AddDownloadTriggersAsync(response);
         }
     }
 }

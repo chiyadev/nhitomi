@@ -161,9 +161,6 @@ namespace nhitomi
                 .Build();
         }
 
-        public Task AddDownloadTriggersAsync(IUserMessage message) =>
-            message.AddReactionAsync(TrashcanEmote);
-
         public string UnsupportedSource(string source) =>
             $"**nhitomi**: Source __{source}__ is not supported. " +
             $"Please see refer to the manual (**{_settings.Discord.Prefix}help**) for a full list of supported sources.";
