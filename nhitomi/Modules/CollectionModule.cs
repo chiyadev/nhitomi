@@ -107,7 +107,7 @@ namespace nhitomi.Modules
                 }
 
                 // add to collection
-                await _database.AddToCollectionAsync(Context.User.Id, collectionName, new CollectionItemInfo(doujin));
+                await _database.AddToCollectionAsync(Context.User.Id, collectionName, doujin);
 
                 await ReplyAsync(_formatter.AddedToCollection(collectionName, doujin));
             }

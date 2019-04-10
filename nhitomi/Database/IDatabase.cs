@@ -1,5 +1,6 @@
 using System.Threading;
 using System.Threading.Tasks;
+using nhitomi.Core;
 
 namespace nhitomi.Database
 {
@@ -18,7 +19,7 @@ namespace nhitomi.Database
         Task<CollectionItemInfo[]> GetCollectionAsync(ulong userId, string collectionName,
             CancellationToken cancellationToken = default);
 
-        Task AddToCollectionAsync(ulong userId, string collectionName, CollectionItemInfo item,
+        Task AddToCollectionAsync(ulong userId, string collectionName, IDoujin doujin,
             CancellationToken cancellationToken = default);
 
         Task RemoveFromCollectionAsync(ulong userId, string collectionName, CollectionItemInfo item,
