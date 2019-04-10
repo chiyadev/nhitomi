@@ -193,16 +193,16 @@ Miscellaneous:
                 .Build();
 
         public string AddedSubscription(string tag) =>
-            $"**nhitomi**: Added tag subscription '{tag}'.";
+            $"**nhitomi**: Added tag subscription __{tag}__.";
 
         public string AlreadySubscribed(string tag) =>
-            $"**nhitomi**: You are already subscribed to the tag '{tag}'.";
+            $"**nhitomi**: You are already subscribed to the tag __{tag}__.";
 
         public string RemovedSubscription(string tag) =>
-            $"**nhitomi**: Removed tag subscription '{tag}'.";
+            $"**nhitomi**: Removed tag subscription __{tag}__.";
 
         public string NotSubscribed(string tag) =>
-            $"**nhitomi**: You are not subscribed to the tag '{tag}'.";
+            $"**nhitomi**: You are not subscribed to the tag __{tag}__.";
 
         public string ClearedSubscriptions =>
             "**nhitomi**: Cleared all tag subscriptions.";
@@ -218,14 +218,14 @@ Miscellaneous:
                 .Build();
 
         public string AddedToCollection(string collectionName, IDoujin doujin) =>
-            $"**nhitomi**: Added '{doujin.OriginalName ?? doujin.PrettyName}' to collection '{collectionName}'.";
+            $"**nhitomi**: Added __{doujin.OriginalName ?? doujin.PrettyName}__ to collection __{collectionName}__.";
 
         public string AlreadyInCollection(string collectionName, IDoujin doujin) =>
-            $"**nhitomi**: '{doujin.OriginalName ?? doujin.PrettyName}' already exists in collection '{collectionName}'.";
+            $"**nhitomi**: __{doujin.OriginalName ?? doujin.PrettyName}__ already exists in collection __{collectionName}__.";
 
         public Embed CreateCollectionEmbed(string collectionName, CollectionItemInfo[] items) =>
             new EmbedBuilder()
-                .WithTitle($"**nhitomi**: Collection '{collectionName}'")
+                .WithTitle($"**nhitomi**: Collection __{collectionName}__")
                 .WithDescription(items.Length == 0
                     ? "There are no doujins in this collection."
                     : $"- {string.Join("\n- ", items.Select(i => $"{i.Artist} — __{i.Name}__ | {i.Source}/{i.Id}"))}")
@@ -234,7 +234,7 @@ Miscellaneous:
                 .Build();
 
         public string CollectionDeleted(string collectionName) =>
-            $"**nhitomi**: Deleted collection '{collectionName}'.";
+            $"**nhitomi**: Deleted collection __{collectionName}__.";
 
         public string CollectionNotFound =>
             $"**nhitomi**: No such collection!";
