@@ -55,6 +55,6 @@ namespace nhitomi.Core.Doujins
 
         public object GetSourceObject() => _d;
 
-        public override string ToString() => PrettyName;
+        public override string ToString() => $"[{Source}] {OriginalName ?? PrettyName}";
     }
 }
