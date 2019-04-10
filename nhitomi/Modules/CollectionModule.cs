@@ -1,5 +1,8 @@
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Discord.Commands;
+using nhitomi.Core;
 using nhitomi.Database;
 
 namespace nhitomi.Modules
@@ -10,11 +13,19 @@ namespace nhitomi.Modules
     {
         readonly IDatabase _database;
         readonly MessageFormatter _formatter;
+        readonly InteractiveManager _interactive;
+        readonly ISet<IDoujinClient> _clients;
 
-        public CollectionModule(IDatabase database, MessageFormatter formatter)
+        public CollectionModule(
+            IDatabase database,
+            MessageFormatter formatter,
+            InteractiveManager interactive,
+            ISet<IDoujinClient> clients)
         {
             _database = database;
             _formatter = formatter;
+            _interactive = interactive;
+            _clients = clients;
         }
 
         [Command]
@@ -31,6 +42,41 @@ namespace nhitomi.Modules
         [Command]
         public async Task ShowAsync(string collectionName)
         {
+            DoujinListInteractive interactive;
+
+            using (Context.Channel.EnterTypingState())
+            {
+                var summaries = await _database.GetCollectionAsync(Context.User.Id, collectionName)
+                    as IEnumerable<DoujinSummary>;
+
+                var doujins = AsyncEnumerable.CreateEnumerable(() =>
+                {
+                    var enumerator = summaries.GetEnumerator();
+                    IDoujin current = null;
+
+                    return AsyncEnumerable.CreateEnumerator(
+                        async token =>
+                        {
+                            if (!enumerator.MoveNext())
+                                return false;
+
+                            var client = _clients.FindByName(enumerator.Current.Source);
+                            if (client == null)
+                                return false;
+
+                            current = await client.GetAsync(enumerator.Current.Id, token);
+
+                            return current != null;
+                        },
+                        () => current,
+                        enumerator.Dispose);
+                });
+
+                interactive = await _interactive.CreateDoujinListInteractiveAsync(doujins, ReplyAsync);
+            }
+
+            if (interactive != null)
+                await _formatter.AddDoujinTriggersAsync(interactive.Message);
         }
 
         [Command]
