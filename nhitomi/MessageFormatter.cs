@@ -12,6 +12,7 @@ using Discord;
 using Discord.Commands;
 using Microsoft.Extensions.Options;
 using nhitomi.Core;
+using nhitomi.Database;
 using Newtonsoft.Json;
 
 namespace nhitomi
@@ -215,5 +216,15 @@ Miscellaneous:
 
         public string AddToCollectionSuccess(string collectionName, IDoujin doujin) =>
             $"**nhitomi**: Added '{doujin.OriginalName ?? doujin.PrettyName}' to collection '{collectionName}'.";
+
+        public Embed CreateCollectionEmbed(string collectionName, DoujinSummary[] summaries) =>
+            new EmbedBuilder()
+                .WithTitle($"**nhitomi**: Collection '{collectionName}'")
+                .WithDescription(summaries.Length == 0
+                    ? "There are no doujins in this collection."
+                    : $"- {string.Join("\n- ", summaries.Select(s => $"{s}"))}")
+                .WithColor(Color.Magenta)
+                .WithCurrentTimestamp()
+                .Build();
     }
 }
