@@ -149,7 +149,7 @@ namespace nhitomi.Services
 
                     // find tag subscribers
                     var tagSubscriptions =
-                        (await _database.GetTagSubscriptionsAsync(stoppingToken))
+                        (await _database.GetAllTagSubscriptionsAsync(stoppingToken))
                         .ToDictionary(
                             s => s.TagName,
                             s => s.UserList);
