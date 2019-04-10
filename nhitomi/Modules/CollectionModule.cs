@@ -114,20 +114,24 @@ namespace nhitomi.Modules
         [Command]
         public async Task ListOrDeleteAsync(string collectionName, string operation)
         {
-            switch (operation)
+            using (Context.Channel.EnterTypingState())
             {
-                case "list":
-                    using (Context.Channel.EnterTypingState())
-                    {
-                        var summaries = await _database.GetCollectionAsync(Context.User.Id, collectionName);
+                var summaries = await _database.GetCollectionAsync(Context.User.Id, collectionName);
 
+                switch (operation)
+                {
+                    case "list":
                         await ReplyAsync(embed: _formatter.CreateCollectionEmbed(collectionName, summaries));
-                    }
+                        break;
 
-                    break;
+                    case "delete":
+                        // remove doujins in parallel
+                        await Task.WhenAll(summaries.Select(s =>
+                            _database.RemoveFromCollectionAsync(Context.User.Id, collectionName, s)));
 
-                case "delete":
-                    break;
+                        await ReplyAsync(_formatter.CollectionDeleted(collectionName));
+                        break;
+                }
             }
         }
 

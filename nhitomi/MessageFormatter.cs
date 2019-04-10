@@ -226,5 +226,8 @@ Miscellaneous:
                 .WithColor(Color.Magenta)
                 .WithCurrentTimestamp()
                 .Build();
+
+        public string CollectionDeleted(string collectionName) =>
+            $"**nhitomi**: Deleted collection '{collectionName}'.";
     }
 }
