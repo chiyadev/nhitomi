@@ -216,6 +216,8 @@ namespace nhitomi.Modules
             {
                 if (await _database.TrySetCollectionSortAsync(Context.User.Id, collectionName, attributeValue))
                     await ReplyAsync(_formatter.SortAttributeUpdated(attributeValue));
+                else
+                    await ReplyAsync(_formatter.CollectionNotFound);
             }
         }
     }

@@ -531,7 +531,7 @@ namespace nhitomi.Database
             catch (Exception e)
             {
                 _logger.LogWarning(e,
-                    $"Failed to Set collection '{collectionName}' sort attribute '{attribute}' of user {userId}.");
+                    $"Failed to set collection '{collectionName}' sort attribute '{attribute}' of user {userId}.");
 
                 throw;
             }
