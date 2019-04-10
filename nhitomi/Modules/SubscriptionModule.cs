@@ -79,7 +79,7 @@ namespace nhitomi.Modules
             {
                 await _database.ClearTagSubscriptionsAsync(Context.User.Id);
 
-                await ReplyAsync(_formatter.ClearedSubscriptions());
+                await ReplyAsync(_formatter.ClearedSubscriptions);
             }
         }
     }

@@ -170,13 +170,13 @@ Miscellaneous:
         public string InvalidQuery(string source = null) =>
             $"**{source ?? "nhitomi"}**: Please specify your query.";
 
-        public string JoinGuildForDownload() =>
+        public string JoinGuildForDownload =>
             $"**nhitomi**: Please join our server to enable downloading! {_settings.Discord.Guild.GuildInvite}";
 
-        public string BeginningOfList() =>
+        public string BeginningOfList =>
             "**nhitomi**: Beginning of list!";
 
-        public string EndOfList() =>
+        public string EndOfList =>
             "**nhitomi**: End of list!";
 
         public string EmptyList(string source = null) =>
@@ -204,7 +204,7 @@ Miscellaneous:
         public string NotSubscribed(string tag) =>
             $"**nhitomi**: You are not subscribed to the tag '{tag}'.";
 
-        public string ClearedSubscriptions() =>
+        public string ClearedSubscriptions =>
             "**nhitomi**: Cleared all tag subscriptions.";
 
         public Embed CreateCollectionListEmbed(string[] collectionNames) =>
@@ -236,7 +236,7 @@ Miscellaneous:
         public string CollectionDeleted(string collectionName) =>
             $"**nhitomi**: Deleted collection '{collectionName}'.";
 
-        public string CollectionNotFound() =>
+        public string CollectionNotFound =>
             $"**nhitomi**: No such collection!";
     }
 }

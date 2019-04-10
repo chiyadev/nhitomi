@@ -131,7 +131,7 @@ namespace nhitomi.Modules
                         if (await _database.TryDeleteCollectionAsync(Context.User.Id, collectionName))
                             await ReplyAsync(_formatter.CollectionDeleted(collectionName));
                         else
-                            await ReplyAsync(_formatter.CollectionNotFound());
+                            await ReplyAsync(_formatter.CollectionNotFound);
                         break;
                 }
             }

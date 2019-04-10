@@ -220,7 +220,7 @@ namespace nhitomi
                 if (interactive.Browser.MovePrevious())
                     await interactive.UpdateContents(_formatter);
                 else
-                    await interactive.Message.ModifyAsync(m => { m.Content = _formatter.BeginningOfList(); });
+                    await interactive.Message.ModifyAsync(m => { m.Content = _formatter.BeginningOfList; });
 
                 return true;
             }
@@ -231,7 +231,7 @@ namespace nhitomi
                 if (await interactive.Browser.MoveNext())
                     await interactive.UpdateContents(_formatter);
                 else
-                    await interactive.Message.ModifyAsync(m => { m.Content = _formatter.EndOfList(); });
+                    await interactive.Message.ModifyAsync(m => { m.Content = _formatter.EndOfList; });
 
                 return false;
             }

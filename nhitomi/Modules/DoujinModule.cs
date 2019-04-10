@@ -152,7 +152,7 @@ namespace nhitomi.Modules
                     !_settings.Doujin.AllowNonGuildMemberDownloads &&
                     await guild.GetUserAsync(Context.User.Id) == null)
                 {
-                    await Context.User.SendMessageAsync(_formatter.JoinGuildForDownload());
+                    await Context.User.SendMessageAsync(_formatter.JoinGuildForDownload);
                     return;
                 }
 
