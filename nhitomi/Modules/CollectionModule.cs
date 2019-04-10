@@ -174,6 +174,12 @@ namespace nhitomi.Modules
             {
                 var items = await _database.GetCollectionAsync(Context.User.Id, collectionName);
 
+                if (items == null)
+                {
+                    await ReplyAsync(_formatter.CollectionNotFound);
+                    return;
+                }
+
                 interactive =
                     await _interactive.CreateCollectionInteractiveAsync(collectionName, items, ReplyAsync);
             }
