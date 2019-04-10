@@ -88,29 +88,25 @@ namespace nhitomi
                 RightArrowEmote
             });
 
-        static readonly string _commandsContent = @"
-- **n!get** __source__ __id__ — Retrieves doujin information from the specified source.
-- **n!all** __source__ — Displays all doujins from the specified source uploaded recently.
-- **n!search** __query__ — Searches for doujins by the title and tags across the supported sources that match the specified query.
-- **n!download** __source__ __id__ — Sends a download link for the specified doujin.
-- **n!help** — Shows the help message.
-".Trim();
-
-        static readonly string _sourcesContent = @"
-- nhentai — `https://nhentai.net/`
-- hitomi — `https://hitomi.la/`
-~~- tsumino — `https://tsumino.com/`~~
-~~- pururin — `https://pururin.io/`~~
-".Trim();
-
         public Embed CreateHelpEmbed() =>
             new EmbedBuilder()
                 .WithTitle("**nhitomi**: Help")
                 .WithDescription(
                     "nhitomi — a Discord bot for searching and downloading doujinshi, by __chiya.dev__.\n" +
                     $"Join our server: {_settings.Discord.Guild.GuildInvite}")
-                .AddField("  — Commands —", _commandsContent)
-                .AddField("  — Sources —", _sourcesContent)
+                .AddField("  — Commands —", $@"
+- **{_settings.Discord.Prefix}get** __source__ __id__ — Retrieves doujin information from the specified source.
+- **{_settings.Discord.Prefix}all** __source__ — Displays all doujins from the specified source uploaded recently.
+- **{_settings.Discord.Prefix}search** __query__ — Searches for doujins by the title and tags across the supported sources that match the specified query.
+- **{_settings.Discord.Prefix}download** __source__ __id__ — Sends a download link for the specified doujin.
+- **{_settings.Discord.Prefix}help** — Shows this help message.
+".Trim())
+                .AddField("  — Sources —", @"
+- nhentai — `https://nhentai.net/`
+- hitomi — `https://hitomi.la/`
+~~- tsumino — `https://tsumino.com/`~~
+~~- pururin — `https://pururin.io/`~~
+".Trim())
                 .WithColor(Color.Purple)
                 .WithCurrentTimestamp()
                 .Build();
