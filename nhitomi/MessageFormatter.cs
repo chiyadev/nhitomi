@@ -120,6 +120,7 @@ namespace nhitomi
 ~~- pururin — `https://pururin.io/`~~
 ".Trim())
                 .WithColor(Color.Purple)
+                .WithThumbnailUrl(_settings.ImageUrl)
                 .WithCurrentTimestamp()
                 .Build();
 
