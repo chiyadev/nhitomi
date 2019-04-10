@@ -117,23 +117,28 @@ namespace nhitomi.Modules
         [Command]
         public async Task ListOrDeleteAsync(string collectionName, string operation)
         {
-            using (Context.Channel.EnterTypingState())
+            switch (operation)
             {
-                var items = await _database.GetCollectionAsync(Context.User.Id, collectionName);
+                case "list":
+                    using (Context.Channel.EnterTypingState())
+                    {
+                        var items = await _database.GetCollectionAsync(Context.User.Id, collectionName);
 
-                switch (operation)
-                {
-                    case "list":
                         await ReplyAsync(embed: _formatter.CreateCollectionEmbed(collectionName, items));
-                        break;
+                    }
 
-                    case "delete":
+                    break;
+
+                case "delete":
+                    using (Context.Channel.EnterTypingState())
+                    {
                         if (await _database.TryDeleteCollectionAsync(Context.User.Id, collectionName))
                             await ReplyAsync(_formatter.CollectionDeleted(collectionName));
                         else
                             await ReplyAsync(_formatter.CollectionNotFound);
-                        break;
-                }
+                    }
+
+                    break;
             }
         }
 
