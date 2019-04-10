@@ -6,7 +6,7 @@ namespace nhitomi.Modules
 {
     [Group("collection")]
     [Alias("c")]
-    public class CollectionModule
+    public class CollectionModule : ModuleBase
     {
         readonly IDatabase _database;
         readonly MessageFormatter _formatter;
@@ -20,6 +20,10 @@ namespace nhitomi.Modules
         [Command]
         public async Task ListCollectionsAsync()
         {
+            using (Context.Channel.EnterTypingState())
+            {
+                var collectionNames = await _database.GetCollectionsAsync(Context.User.Id);
+            }
         }
 
         [Command]
