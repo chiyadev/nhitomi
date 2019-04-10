@@ -33,7 +33,7 @@ namespace nhitomi.Database
 
         DynamoDBContext CreateContext() => new DynamoDBContext(_client);
 
-        public async Task<TagSubscriptionInfo[]> GetTagSubscriptionsAsync(CancellationToken cancellationToken = default)
+        public async Task<TagSubscriptionInfo[]> GetAllTagSubscriptionsAsync(CancellationToken cancellationToken = default)
         {
             var subscriptions = new List<TagSubscriptionInfo>();
 
@@ -178,19 +178,5 @@ namespace nhitomi.Database
                 throw;
             }
         }
-
-        public Task<(string name, int count)[]> GetCollectionsAsync(ulong userId,
-            CancellationToken cancellationToken = default) => throw new NotImplementedException();
-
-        public Task<DoujinSummary[]> GetCollectionAsync(ulong userId, string collectionName,
-            CancellationToken cancellationToken = default) => throw new NotImplementedException();
-
-        public Task AddToCollectionAsync(ulong userId, string collectionName, DoujinSummary summary,
-            CancellationToken cancellationToken = default) =>
-            throw new NotImplementedException();
-
-        public Task RemoveFromCollectionAsync(ulong userId, string collectionName, DoujinSummary summary,
-            CancellationToken cancellationToken = default) =>
-            throw new NotImplementedException();
     }
 }
