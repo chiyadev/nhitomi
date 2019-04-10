@@ -215,10 +215,27 @@ namespace nhitomi.Database
 
         public async Task<string[]> GetCollectionsAsync(ulong userId, CancellationToken cancellationToken = default)
         {
-            using (var context = CreateContext())
+            var request = new QueryRequest
             {
-                return new string[0];
-            }
+                TableName = _settings.Db.CollectionTable,
+                ExpressionAttributeNames = new Dictionary<string, string>
+                {
+                    {"#user", "userId"}
+                },
+                ExpressionAttributeValues = new Dictionary<string, AttributeValue>
+                {
+                    {":user", new AttributeValue {N = userId.ToString()}}
+                },
+                KeyConditionExpression = "#user = :user",
+                ProjectionExpression = "collectionName"
+            };
+
+            var response = await _client.QueryAsync(request, cancellationToken);
+
+            return response.Items
+                .Select(d => d["collectionName"].S)
+                .OrderBy(n => n)
+                .ToArray();
         }
 
         public async Task<CollectionItemInfo[]> GetCollectionAsync(ulong userId, string collectionName,
