@@ -229,7 +229,7 @@ Miscellaneous:
                 .WithDescription(items.Length == 0
                     ? "There are no doujins in this collection."
                     : $"- {string.Join("\n- ", items.Select(i => $"{i.Source}/{i.Id}: {i.Artist} — {i.Name}"))}")
-                .WithColor(Color.Magenta)
+                .WithColor(Color.Teal)
                 .WithCurrentTimestamp()
                 .Build();
 
