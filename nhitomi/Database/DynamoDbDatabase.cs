@@ -503,8 +503,7 @@ namespace nhitomi.Database
                 },
                 ExpressionAttributeNames = new Dictionary<string, string>
                 {
-                    {"#attribute", "sortAttribute"},
-                    {"#descend", "sortDescending"}
+                    {"#attribute", "sortAttribute"}
                 },
                 ExpressionAttributeValues = new Dictionary<string, AttributeValue>
                 {
