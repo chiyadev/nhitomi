@@ -24,10 +24,9 @@ namespace nhitomi.Modules
 
             using (Context.Channel.EnterTypingState())
             {
-                if (await _database.TryAddTagSubscriptionAsync(Context.User.Id, tag))
-                    await ReplyAsync(_formatter.SubscribeSuccess(tag));
-                else
-                    await ReplyAsync(_formatter.AlreadySubscribed(tag));
+                await _database.AddTagSubscriptionAsync(Context.User.Id, tag);
+
+                await ReplyAsync(_formatter.SubscribeSuccess(tag));
             }
         }
 
@@ -41,10 +40,9 @@ namespace nhitomi.Modules
 
             using (Context.Channel.EnterTypingState())
             {
-                if (await _database.TryRemoveTagSubscriptionAsync(Context.User.Id, tag))
-                    await ReplyAsync(_formatter.UnsubscribeSuccess(tag));
-                else
-                    await ReplyAsync(_formatter.NotSubscribed(tag));
+                await _database.RemoveTagSubscriptionAsync(Context.User.Id, tag);
+
+                await ReplyAsync(_formatter.UnsubscribeSuccess(tag));
             }
         }
 

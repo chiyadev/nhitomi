@@ -199,11 +199,5 @@ namespace nhitomi
 
         public string UnsubscribeSuccess(string tag) =>
             $"**nhitomi**: Unsubscribed from tag '{tag}'.";
-
-        public string AlreadySubscribed(string tag) =>
-            $"**nhitomi**: You are already subscribed to the tag '{tag}'!";
-
-        public string NotSubscribed(string tag) =>
-            $"**nhitomi**: You are not subscribed to the tag '{tag}'!";
     }
 }

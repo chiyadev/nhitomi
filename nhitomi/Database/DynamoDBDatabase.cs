@@ -103,7 +103,7 @@ namespace nhitomi.Database
                 .ToArray();
         }
 
-        public async Task<bool> TryAddTagSubscriptionAsync(
+        public async Task AddTagSubscriptionAsync(
             ulong userId,
             string tagName,
             CancellationToken cancellationToken = default)
@@ -134,8 +134,6 @@ namespace nhitomi.Database
                 await _client.UpdateItemAsync(request, cancellationToken);
 
                 _logger.LogDebug($"Added user '{userId}' subscription '{tagName}'.");
-
-                return true;
             }
             catch (Exception e)
             {
@@ -145,7 +143,7 @@ namespace nhitomi.Database
             }
         }
 
-        public async Task<bool> TryRemoveTagSubscriptionAsync(
+        public async Task RemoveTagSubscriptionAsync(
             ulong userId,
             string tagName,
             CancellationToken cancellationToken = default)
@@ -176,8 +174,6 @@ namespace nhitomi.Database
                 await _client.UpdateItemAsync(request, cancellationToken);
 
                 _logger.LogDebug($"Removed user '{userId}' subscription '{tagName}'.");
-
-                return true;
             }
             catch (Exception e)
             {

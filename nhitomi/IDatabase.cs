@@ -10,14 +10,8 @@ namespace nhitomi
 
         Task<string[]> GetTagSubscriptionsAsync(ulong userId, CancellationToken cancellationToken = default);
 
-        Task<bool> TryAddTagSubscriptionAsync(
-            ulong userId,
-            string tagName,
-            CancellationToken cancellationToken = default);
+        Task AddTagSubscriptionAsync(ulong userId, string tagName, CancellationToken cancellationToken = default);
 
-        Task<bool> TryRemoveTagSubscriptionAsync(
-            ulong userId,
-            string tagName,
-            CancellationToken cancellationToken = default);
+        Task RemoveTagSubscriptionAsync(ulong userId, string tagName, CancellationToken cancellationToken = default);
     }
 }
