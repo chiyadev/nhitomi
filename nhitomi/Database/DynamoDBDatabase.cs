@@ -61,7 +61,9 @@ namespace nhitomi.Database
                 }
             } while (lastEvaluatedKey.Count != 0);
 
-            return subscriptions.ToArray();
+            return subscriptions
+                .OrderBy(s => s.TagName)
+                .ToArray();
         }
 
         public async Task<string[]> GetTagSubscriptionsAsync(
@@ -96,7 +98,9 @@ namespace nhitomi.Database
                 tags.AddRange(response.Items.Select(d => d["tagName"].S));
             } while (lastEvaluatedKey.Count != 0);
 
-            return tags.ToArray();
+            return tags
+                .OrderBy(t => t)
+                .ToArray();
         }
 
         public async Task<bool> TryAddTagSubscriptionAsync(
