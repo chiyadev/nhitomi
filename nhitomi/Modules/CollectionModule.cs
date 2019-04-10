@@ -49,30 +49,34 @@ namespace nhitomi.Modules
                 var items = (IEnumerable<CollectionItemInfo>)
                     await _database.GetCollectionAsync(Context.User.Id, collectionName);
 
-                var doujins = items == null
-                    ? AsyncEnumerable.Empty<IDoujin>()
-                    : AsyncEnumerable.CreateEnumerable(() =>
-                    {
-                        var enumerator = items.GetEnumerator();
-                        IDoujin current = null;
+                if (items == null)
+                {
+                    await ReplyAsync(_formatter.CollectionNotFound);
+                    return;
+                }
 
-                        return AsyncEnumerable.CreateEnumerator(
-                            async token =>
-                            {
-                                if (!enumerator.MoveNext())
-                                    return false;
+                var doujins = AsyncEnumerable.CreateEnumerable(() =>
+                {
+                    var enumerator = items.GetEnumerator();
+                    IDoujin current = null;
 
-                                var client = _clients.FindByName(enumerator.Current.Source);
-                                if (client == null)
-                                    return false;
+                    return AsyncEnumerable.CreateEnumerator(
+                        async token =>
+                        {
+                            if (!enumerator.MoveNext())
+                                return false;
 
-                                current = await client.GetAsync(enumerator.Current.Id, token);
+                            var client = _clients.FindByName(enumerator.Current.Source);
+                            if (client == null)
+                                return false;
 
-                                return current != null;
-                            },
-                            () => current,
-                            enumerator.Dispose);
-                    });
+                            current = await client.GetAsync(enumerator.Current.Id, token);
+
+                            return current != null;
+                        },
+                        () => current,
+                        enumerator.Dispose);
+                });
 
                 interactive = await _interactive.CreateDoujinListInteractiveAsync(doujins, ReplyAsync);
             }
