@@ -17,7 +17,9 @@ namespace nhitomi.Database
             Source = doujin.Source.Name;
             Id = doujin.Id;
             Name = doujin.OriginalName ?? doujin.PrettyName;
-            Artist = string.Join(", ", doujin.Artists.OrderBy(a => a));
+
+            if (doujin.Artists != null)
+                Artist = string.Join(", ", doujin.Artists.OrderBy(a => a));
         }
 
         [DynamoDBProperty("addTime")] public DateTime AddTime { get; set; }
