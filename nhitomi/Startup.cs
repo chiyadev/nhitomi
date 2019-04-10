@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Logging;
 using nhitomi.Core;
 using nhitomi.Core.Clients;
+using nhitomi.Database;
 using nhitomi.Services;
 
 namespace nhitomi
@@ -83,7 +84,7 @@ namespace nhitomi
                     .ToHashSet())
 
                 // Databases
-                .AddSingleton<IDatabase, DynamoDBDatabase>();
+                .AddSingleton<IDatabase, DynamoDbDatabase>();
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)

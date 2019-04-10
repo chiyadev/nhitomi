@@ -9,16 +9,15 @@ using Amazon.DynamoDBv2.DocumentModel;
 using Amazon.DynamoDBv2.Model;
 using Amazon.Runtime;
 using Microsoft.Extensions.Options;
-using nhitomi.Database;
 
-namespace nhitomi.Services
+namespace nhitomi.Database
 {
-    public class DynamoDBDatabase : IDatabase
+    public class DynamoDbDatabase : IDatabase
     {
         readonly AppSettings _settings;
         readonly AmazonDynamoDBClient _client;
 
-        public DynamoDBDatabase(
+        public DynamoDbDatabase(
             IOptions<AppSettings> options)
         {
             _settings = options.Value;
