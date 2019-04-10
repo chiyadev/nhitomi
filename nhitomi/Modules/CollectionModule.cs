@@ -100,44 +100,52 @@ namespace nhitomi.Modules
                 return;
             }
 
+            switch (operation)
+            {
+                case "add":
+                    await AddAsync(collectionName, client, source, id);
+                    break;
+
+                case "remove":
+                    await RemoveAsync(collectionName, source, id);
+                    break;
+            }
+        }
+
+        async Task AddAsync(string collectionName, IDoujinClient client, string source, string id)
+        {
             using (Context.Channel.EnterTypingState())
             {
-                switch (operation)
+                // get doujin to create collection item from
+                var doujin = await client.GetAsync(id);
+
+                if (doujin == null)
                 {
-                    case "add":
-                        // get doujin to create collection item from
-                        var doujin = await client.GetAsync(id);
-
-                        if (doujin == null)
-                        {
-                            await ReplyAsync(_formatter.DoujinNotFound(source));
-                            return;
-                        }
-
-                        // add to collection
-                        if (await _database.TryAddToCollectionAsync(Context.User.Id, collectionName, doujin))
-                            await ReplyAsync(_formatter.AddedToCollection(collectionName, doujin));
-                        else
-                            await ReplyAsync(_formatter.AlreadyInCollection(collectionName, doujin));
-
-                        break;
-
-                    case "remove":
-                        var item = new CollectionItemInfo
-                        {
-                            Source = source,
-                            Id = id
-                        };
-
-                        // remove from collection
-                        if (await _database.TryRemoveFromCollectionAsync(Context.User.Id, collectionName, item))
-                            await ReplyAsync(_formatter.RemovedFromCollection(collectionName, item));
-                        else
-                            await ReplyAsync(_formatter.NotInCollection(collectionName, item));
-
-                        break;
+                    await ReplyAsync(_formatter.DoujinNotFound(source));
+                    return;
                 }
+
+                // add to collection
+                if (await _database.TryAddToCollectionAsync(Context.User.Id, collectionName, doujin))
+                    await ReplyAsync(_formatter.AddedToCollection(collectionName, doujin));
+                else
+                    await ReplyAsync(_formatter.AlreadyInCollection(collectionName, doujin));
             }
+        }
+
+        async Task RemoveAsync(string collectionName, string source, string id)
+        {
+            var item = new CollectionItemInfo
+            {
+                Source = source,
+                Id = id
+            };
+
+            // remove from collection
+            if (await _database.TryRemoveFromCollectionAsync(Context.User.Id, collectionName, item))
+                await ReplyAsync(_formatter.RemovedFromCollection(collectionName, item));
+            else
+                await ReplyAsync(_formatter.NotInCollection(collectionName, item));
         }
 
         [Command]
@@ -146,25 +154,39 @@ namespace nhitomi.Modules
             switch (operation)
             {
                 case "list":
-                    using (Context.Channel.EnterTypingState())
-                    {
-                        var items = await _database.GetCollectionAsync(Context.User.Id, collectionName);
-
-                        await ReplyAsync(embed: _formatter.CreateCollectionEmbed(collectionName, items));
-                    }
-
+                    await ListAsync(collectionName);
                     break;
 
                 case "delete":
-                    using (Context.Channel.EnterTypingState())
-                    {
-                        if (await _database.TryDeleteCollectionAsync(Context.User.Id, collectionName))
-                            await ReplyAsync(_formatter.CollectionDeleted(collectionName));
-                        else
-                            await ReplyAsync(_formatter.CollectionNotFound);
-                    }
-
+                    await DeleteAsync(collectionName);
                     break;
+            }
+        }
+
+        async Task ListAsync(string collectionName)
+        {
+            CollectionInteractive interactive;
+
+            using (Context.Channel.EnterTypingState())
+            {
+                var items = await _database.GetCollectionAsync(Context.User.Id, collectionName);
+
+                interactive =
+                    await _interactive.CreateCollectionInteractiveAsync(collectionName, items, ReplyAsync);
+            }
+
+            if (interactive != null)
+                await _formatter.AddCollectionTriggersAsync(interactive.Message);
+        }
+
+        async Task DeleteAsync(string collectionName)
+        {
+            using (Context.Channel.EnterTypingState())
+            {
+                if (await _database.TryDeleteCollectionAsync(Context.User.Id, collectionName))
+                    await ReplyAsync(_formatter.CollectionDeleted(collectionName));
+                else
+                    await ReplyAsync(_formatter.CollectionNotFound);
             }
         }
 

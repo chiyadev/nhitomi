@@ -239,6 +239,9 @@ This project is licensed under the MIT License. Contributions are welcome! https
                 .WithCurrentTimestamp()
                 .Build();
 
+        public Task AddCollectionTriggersAsync(IUserMessage message) =>
+            message.AddReactionAsync(TrashcanEmote);
+
         public string CollectionDeleted(string collectionName) =>
             $"**nhitomi**: Deleted collection __{collectionName}__.";
 
