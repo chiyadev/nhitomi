@@ -11,6 +11,7 @@ using Amazon.DynamoDBv2.Model;
 using Amazon.Runtime;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using nhitomi.Core;
 
 namespace nhitomi.Database
 {
@@ -33,7 +34,8 @@ namespace nhitomi.Database
 
         DynamoDBContext CreateContext() => new DynamoDBContext(_client);
 
-        public async Task<TagSubscriptionInfo[]> GetAllTagSubscriptionsAsync(CancellationToken cancellationToken = default)
+        public async Task<TagSubscriptionInfo[]> GetAllTagSubscriptionsAsync(
+            CancellationToken cancellationToken = default)
         {
             var subscriptions = new List<TagSubscriptionInfo>();
 
@@ -45,9 +47,14 @@ namespace nhitomi.Database
                 {
                     TableName = _settings.Db.TagSubscriptionTable,
                     ExclusiveStartKey = lastEvaluatedKey,
+                    ExpressionAttributeNames = new Dictionary<string, string>
+                    {
+                        {"#users", "userList"}
+                    },
                     // ensure has subscriptions
-                    FilterExpression = "attribute_exists (userList)"
+                    FilterExpression = "attribute_exists (#users)"
                 };
+
                 var response = await _client.ScanAsync(request, cancellationToken);
 
                 // paginating to retrieve all subscriptions
@@ -82,14 +89,19 @@ namespace nhitomi.Database
                     ExclusiveStartKey = lastEvaluatedKey,
                     // retrieve only tagName
                     ProjectionExpression = "tagName",
+                    ExpressionAttributeNames = new Dictionary<string, string>
+                    {
+                        {"#users", "userList"}
+                    },
                     ExpressionAttributeValues = new Dictionary<string, AttributeValue>
                     {
                         // userId operand
                         {":userId", new AttributeValue {N = userId.ToString()}}
                     },
                     // filter userList contains userId
-                    FilterExpression = "contains (userList, :userId)"
+                    FilterExpression = "contains (#users, :userId)"
                 };
+
                 var response = await _client.ScanAsync(request, cancellationToken);
 
                 // paginating to retrieve all subscriptions
@@ -103,35 +115,42 @@ namespace nhitomi.Database
                 .ToArray();
         }
 
-        public async Task AddTagSubscriptionAsync(ulong userId, string tagName,
+        public async Task<bool> TryAddTagSubscriptionAsync(ulong userId, string tagName,
             CancellationToken cancellationToken = default)
         {
+            tagName = tagName.ToLowerInvariant();
+
+            var request = new UpdateItemRequest
+            {
+                TableName = _settings.Db.TagSubscriptionTable,
+                Key = new Dictionary<string, AttributeValue>
+                {
+                    // update item by tagName
+                    {"tagName", new AttributeValue {S = tagName}}
+                },
+                ExpressionAttributeNames = new Dictionary<string, string>
+                {
+                    {"#users", "userList"}
+                },
+                ExpressionAttributeValues = new Dictionary<string, AttributeValue>
+                {
+                    // userId operand
+                    {":userId", new AttributeValue {NS = new List<string> {userId.ToString()}}}
+                },
+                UpdateExpression = "add #users :userId",
+                ReturnValues = ReturnValue.UPDATED_NEW
+            };
+
             try
             {
-                tagName = tagName.ToLowerInvariant();
+                var response = await _client.UpdateItemAsync(request, cancellationToken);
 
-                var request = new UpdateItemRequest
-                {
-                    TableName = _settings.Db.TagSubscriptionTable,
-                    Key = new Dictionary<string, AttributeValue>
-                    {
-                        // update item by tagName
-                        {"tagName", new AttributeValue {S = tagName}}
-                    },
-                    ExpressionAttributeNames = new Dictionary<string, string>
-                    {
-                        {"#userList", "userList"}
-                    },
-                    ExpressionAttributeValues = new Dictionary<string, AttributeValue>
-                    {
-                        // userId operand
-                        {":userId", new AttributeValue {NS = new List<string> {userId.ToString()}}}
-                    },
-                    UpdateExpression = "add #userList :userId"
-                };
-                await _client.UpdateItemAsync(request, cancellationToken);
+                if (!response.Attributes.ContainsKey("userList"))
+                    return false;
 
                 _logger.LogDebug($"Added user '{userId}' subscription '{tagName}'.");
+
+                return true;
             }
             catch (Exception e)
             {
@@ -141,35 +160,42 @@ namespace nhitomi.Database
             }
         }
 
-        public async Task RemoveTagSubscriptionAsync(ulong userId, string tagName,
+        public async Task<bool> TryRemoveTagSubscriptionAsync(ulong userId, string tagName,
             CancellationToken cancellationToken = default)
         {
+            tagName = tagName.ToLowerInvariant();
+
+            var request = new UpdateItemRequest
+            {
+                TableName = _settings.Db.TagSubscriptionTable,
+                Key = new Dictionary<string, AttributeValue>
+                {
+                    // update item by tagName
+                    {"tagName", new AttributeValue {S = tagName}}
+                },
+                ExpressionAttributeNames = new Dictionary<string, string>
+                {
+                    {"#users", "userList"}
+                },
+                ExpressionAttributeValues = new Dictionary<string, AttributeValue>
+                {
+                    // userId operand
+                    {":userId", new AttributeValue {NS = new List<string> {userId.ToString()}}}
+                },
+                UpdateExpression = "delete #users :userId",
+                ReturnValues = ReturnValue.UPDATED_NEW
+            };
+
             try
             {
-                tagName = tagName.ToLowerInvariant();
+                var response = await _client.UpdateItemAsync(request, cancellationToken);
 
-                var request = new UpdateItemRequest
-                {
-                    TableName = _settings.Db.TagSubscriptionTable,
-                    Key = new Dictionary<string, AttributeValue>
-                    {
-                        // update item by tagName
-                        {"tagName", new AttributeValue {S = tagName}}
-                    },
-                    ExpressionAttributeNames = new Dictionary<string, string>
-                    {
-                        {"#userList", "userList"}
-                    },
-                    ExpressionAttributeValues = new Dictionary<string, AttributeValue>
-                    {
-                        // userId operand
-                        {":userId", new AttributeValue {NS = new List<string> {userId.ToString()}}}
-                    },
-                    UpdateExpression = "delete #userList :userId"
-                };
-                await _client.UpdateItemAsync(request, cancellationToken);
+                if (!response.Attributes.ContainsKey("userList"))
+                    return false;
 
                 _logger.LogDebug($"Removed user '{userId}' subscription '{tagName}'.");
+
+                return true;
             }
             catch (Exception e)
             {
@@ -177,6 +203,191 @@ namespace nhitomi.Database
 
                 throw;
             }
+        }
+
+        public async Task ClearTagSubscriptionsAsync(ulong userId, CancellationToken cancellationToken = default)
+        {
+            // simply get all subscriptions and remove them in parallel
+            var tags = await GetTagSubscriptionsAsync(userId, cancellationToken);
+
+            await Task.WhenAll(tags.Select(t => TryRemoveTagSubscriptionAsync(userId, t, cancellationToken)));
+        }
+
+        public async Task<string[]> GetCollectionsAsync(ulong userId, CancellationToken cancellationToken = default)
+        {
+            using (var context = CreateContext())
+            {
+                return new string[0];
+            }
+        }
+
+        public async Task<CollectionItemInfo[]> GetCollectionAsync(ulong userId, string collectionName,
+            CancellationToken cancellationToken = default)
+        {
+            collectionName = collectionName.ToLowerInvariant();
+
+            var request = new GetItemRequest
+            {
+                TableName = _settings.Db.CollectionTable,
+                Key = new Dictionary<string, AttributeValue>
+                {
+                    {"userId", new AttributeValue {N = userId.ToString()}},
+                    {"collectionName", new AttributeValue {S = collectionName}}
+                }
+            };
+
+            var response = await _client.GetItemAsync(request, cancellationToken);
+
+            // map response to model
+            CollectionInfo collection;
+
+            using (var context = CreateContext())
+                collection = context.FromDocument<CollectionInfo>(Document.FromAttributeMap(response.Item));
+
+            if (collection.Items == null || collection.Items.Count == 0)
+                return null;
+
+            // ensure collection item Source and Id are set, because they are stored as the key for Items map
+            var items = collection.Items.Select(p =>
+            {
+                var parts = p.Key.Split('/', 2);
+                var item = p.Value;
+
+                item.Source = parts[0];
+                item.Id = parts[1];
+
+                return item;
+            });
+
+            // apply collection sorting
+            switch (collection.SortAttribute)
+            {
+                case CollectionSortAttribute.Chrono:
+                    items = items.OrderBy(i => i.AddTime);
+                    break;
+
+                case CollectionSortAttribute.Id:
+                    items = items.OrderBy(i => $"{i.Source}/{i.Name}");
+                    break;
+
+                case CollectionSortAttribute.Name:
+                    items = items.OrderBy(i => i.Name);
+                    break;
+
+                case CollectionSortAttribute.Artist:
+                    items = items.OrderBy(i => i.Artist);
+                    break;
+            }
+
+            if (collection.SortDescending)
+                items = items.Reverse();
+
+            return items.ToArray();
+        }
+
+        public async Task<bool> TryAddToCollectionAsync(ulong userId, string collectionName, IDoujin doujin,
+            CancellationToken cancellationToken = default)
+        {
+            collectionName = collectionName.ToLowerInvariant();
+
+            Dictionary<string, AttributeValue> itemAttributes;
+
+            // create attribute map for this collection item
+            using (var context = CreateContext())
+                itemAttributes = context.ToDocument(new CollectionItemInfo(doujin)).ToAttributeMap();
+
+            var request = new UpdateItemRequest
+            {
+                TableName = _settings.Db.CollectionTable,
+                Key = new Dictionary<string, AttributeValue>
+                {
+                    {"userId", new AttributeValue {N = userId.ToString()}},
+                    {"collectionName", new AttributeValue {S = collectionName}}
+                },
+                ExpressionAttributeNames = new Dictionary<string, string>
+                {
+                    {"#map", "items"},
+                    {"#key", $"{doujin.Source.Name}/{doujin.Id}"}
+                },
+                ExpressionAttributeValues = new Dictionary<string, AttributeValue>
+                {
+                    {":item", new AttributeValue {M = itemAttributes}}
+                },
+                UpdateExpression = "set #map.#key = :item",
+                ConditionExpression = "attribute_not_exists (#map.#key)",
+                ReturnValues = ReturnValue.UPDATED_NEW
+            };
+
+            try
+            {
+                var response = await _client.UpdateItemAsync(request, cancellationToken);
+
+                if (!response.Attributes.ContainsKey("items"))
+                    return false;
+
+                _logger.LogDebug($"Added doujin '{doujin}' to collection '{collectionName}' of user {userId}.");
+
+                return true;
+            }
+            catch (AmazonDynamoDBException)
+            {
+                // could not set map value -- meaning map doesn't exist, so we have to create a new collection
+                await CreateCollectionAsync(userId, collectionName, doujin, cancellationToken);
+
+                return true;
+            }
+        }
+
+        async Task CreateCollectionAsync(ulong userId, string collectionName, IDoujin doujin,
+            CancellationToken cancellationToken = default)
+        {
+            collectionName = collectionName.ToLowerInvariant();
+
+            Dictionary<string, AttributeValue> itemAttributes;
+
+            // create attribute map for this collection
+            using (var context = CreateContext())
+            {
+                itemAttributes = context.ToDocument(new CollectionInfo
+                {
+                    UserId = userId,
+                    CollectionName = collectionName,
+                    SortAttribute = CollectionSortAttribute.Chrono,
+                    Items = new Dictionary<string, CollectionItemInfo>
+                    {
+                        {$"{doujin.Source.Name}/{doujin.Id}", new CollectionItemInfo(doujin)}
+                    }
+                }).ToAttributeMap();
+            }
+
+            var request = new PutItemRequest
+            {
+                TableName = _settings.Db.CollectionTable,
+                Item = itemAttributes
+            };
+
+            try
+            {
+                await _client.PutItemAsync(request, cancellationToken);
+            }
+            catch (Exception e)
+            {
+                _logger.LogWarning(e, $"Failed to create collection '{collectionName}' by user {userId}.");
+
+                throw;
+            }
+        }
+
+        public async Task<bool> TryRemoveFromCollectionAsync(ulong userId, string collectionName,
+            CollectionItemInfo item, CancellationToken cancellationToken = default)
+        {
+            return true;
+        }
+
+        public async Task<bool> TryDeleteCollectionAsync(ulong userId, string collectionName,
+            CancellationToken cancellationToken = default)
+        {
+            return true;
         }
     }
 }
