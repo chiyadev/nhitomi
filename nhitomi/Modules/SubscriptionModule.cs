@@ -5,14 +5,14 @@ using nhitomi.Database;
 
 namespace nhitomi.Modules
 {
-    [Group("subscriptions")]
-    [Alias("subs")]
-    public class SubscriptionsModule : ModuleBase
+    [Group("subscription")]
+    [Alias("sub")]
+    public class SubscriptionModule : ModuleBase
     {
         readonly IDatabase _database;
         readonly MessageFormatter _formatter;
 
-        public SubscriptionsModule(
+        public SubscriptionModule(
             IDatabase database,
             MessageFormatter formatter)
         {
