@@ -95,13 +95,21 @@ namespace nhitomi
                     "nhitomi — a Discord bot for searching and downloading doujinshi, by __chiya.dev__.\n" +
                     $"Join our server: {_settings.Discord.Guild.GuildInvite}")
                 .AddField("  — Commands —", $@"
-- {_settings.Discord.Prefix}get __source__ __id__ — Retrieves doujin information from the specified source.
-- {_settings.Discord.Prefix}all __source__ — Displays all doujins from the specified source uploaded recently.
-- {_settings.Discord.Prefix}search __query__ — Searches for doujins by the title and tags across the supported sources that match the specified query.
-- {_settings.Discord.Prefix}download __source__ __id__ — Sends a download link for the specified doujin.
+- {_settings.Discord.Prefix}get __source__ __id__ — Retrieves doujin information from a source by its ID.
+- {_settings.Discord.Prefix}all __source__ — Displays all doujins from a source uploaded recently.
+- {_settings.Discord.Prefix}search __query__ — Searches for doujins by the title and tags that satisfy your query.
+- {_settings.Discord.Prefix}download __source__ __id__ — Sends a download link for a doujin by its ID.
 
 - {_settings.Discord.Prefix}subs — Lists all tags you are subscribed to.
 - {_settings.Discord.Prefix}subs add|remove __tag__ — Adds or removes a tag subscription.
+
+- {_settings.Discord.Prefix}collection __name__ — Displays doujins belonging to a collection.
+- {_settings.Discord.Prefix}collection __name__ add __source__ __id__ — Adds a doujin to a collection.
+- {_settings.Discord.Prefix}collection __name__ remove __source__ __id__ — Removes a doujin from a collection.
+- {_settings.Discord.Prefix}collection list __name__ — Shows all doujins belonging to a collection in the form of a list.
+- {_settings.Discord.Prefix}collection order __name__ __indices__ — Reorders doujins in a collection by their indices.
+- {_settings.Discord.Prefix}collection sort __name__ __attribute__ — Reorders doujins in a collection by their attribute.
+- {_settings.Discord.Prefix}collection delete __name__ — Deletes a collection, removing all doujins belonging to it.
 
 - {_settings.Discord.Prefix}help — Shows this help message.
 ".Trim())
