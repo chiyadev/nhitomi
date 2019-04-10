@@ -423,7 +423,34 @@ namespace nhitomi.Database
         public async Task<bool> TryDeleteCollectionAsync(ulong userId, string collectionName,
             CancellationToken cancellationToken = default)
         {
-            return true;
+            var request = new DeleteItemRequest
+            {
+                TableName = _settings.Db.CollectionTable,
+                Key = new Dictionary<string, AttributeValue>
+                {
+                    {"userId", new AttributeValue {N = userId.ToString()}},
+                    {"collectionName", new AttributeValue {S = collectionName}}
+                }
+            };
+
+            try
+            {
+                var response = await _client.DeleteItemAsync(request, cancellationToken);
+
+                if (!response.Attributes.ContainsKey("items"))
+                    return false;
+
+                _logger.LogDebug($"Deleted collection '{collectionName}' of user {userId}.");
+
+                return true;
+            }
+            catch (Exception e)
+            {
+                _logger.LogWarning(e,
+                    $"Failed to delete collection '{collectionName}' of user {userId}.");
+
+                throw;
+            }
         }
     }
 }
