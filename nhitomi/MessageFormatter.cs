@@ -184,7 +184,7 @@ This project is licensed under the MIT License. Contributions are welcome! https
         public Embed CreateSubscriptionListEmbed(string[] tags) =>
             new EmbedBuilder()
                 .WithTitle("**nhitomi**: Subscriptions")
-                .WithDescription(tags.Length == 0
+                .WithDescription(tags == null || tags.Length == 0
                     ? "You have no subscriptions."
                     : $"- {string.Join("\n- ", tags)}")
                 .WithColor(Color.Gold)
@@ -209,7 +209,7 @@ This project is licensed under the MIT License. Contributions are welcome! https
         public Embed CreateCollectionListEmbed(string[] collectionNames) =>
             new EmbedBuilder()
                 .WithTitle("**nhitomi**: Collections")
-                .WithDescription(collectionNames.Length == 0
+                .WithDescription(collectionNames == null || collectionNames.Length == 0
                     ? "You have no collections."
                     : $"- {string.Join("\n- ", collectionNames)}")
                 .WithColor(Color.Teal)
@@ -231,7 +231,7 @@ This project is licensed under the MIT License. Contributions are welcome! https
         public Embed CreateCollectionEmbed(string collectionName, CollectionItemInfo[] items) =>
             new EmbedBuilder()
                 .WithTitle($"**nhitomi**: Collection __{collectionName}__")
-                .WithDescription(items.Length == 0
+                .WithDescription(items == null || items.Length == 0
                     ? "There are no doujins in this collection."
                     : $"- {string.Join("\n- ", items.Select(i => $"{i.Artist} — __{i.Name}__ | {i.Source}/{i.Id}"))}")
                 .WithColor(Color.Teal)
