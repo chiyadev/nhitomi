@@ -418,12 +418,16 @@ namespace nhitomi.Database
                     {"#key", $"{item.Source}/{item.Id}"}
                 },
                 UpdateExpression = "remove #map.#key",
-                ConditionExpression = "attribute_exists (#map.#key)"
+                ConditionExpression = "attribute_exists (#map.#key)",
+                ReturnValues = ReturnValue.ALL_OLD
             };
 
             try
             {
-                await _client.UpdateItemAsync(request, cancellationToken);
+                var response = await _client.UpdateItemAsync(request, cancellationToken);
+
+                // set name of the deleted item
+                item.Name = response.Attributes["items"].M[$"{item.Source}/{item.Id}"].M["name"].S;
 
                 _logger.LogDebug($"Removed doujin '{item}' from collection '{collectionName}' of user {userId}.");
 
