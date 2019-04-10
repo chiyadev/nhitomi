@@ -28,5 +28,7 @@ namespace nhitomi.Database
 
         [DynamoDBProperty("name")] public string Name { get; set; }
         [DynamoDBProperty("artist")] public string Artist { get; set; }
+
+        public override string ToString() => $"[{Source}] {Name}";
     }
 }
