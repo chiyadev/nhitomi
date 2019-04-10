@@ -86,14 +86,19 @@ namespace nhitomi.Services
             if (_settings.Doujin.MaxFeedUpdatesCount > 0)
                 doujins = doujins.Take(_settings.Doujin.MaxFeedUpdatesCount);
 
+            // todo: should be reversed in order
             return doujins;
         }
 
-        async Task SendUpdateAsync(IMessageChannel channel, IDoujin doujin, bool isFeedDoujin = true)
+        async Task SendUpdateAsync(
+            IMessageChannel channel,
+            IDoujin doujin,
+            Embed embed = null,
+            bool isFeedDoujin = true)
         {
             try
             {
-                var message = await channel.SendMessageAsync(embed: _formatter.CreateDoujinEmbed(doujin));
+                var message = await channel.SendMessageAsync(embed: embed ?? _formatter.CreateDoujinEmbed(doujin));
 
                 if (isFeedDoujin)
                     await _formatter.AddFeedDoujinTriggersAsync(message);
@@ -155,6 +160,8 @@ namespace nhitomi.Services
                     {
                         try
                         {
+                            var embed = _formatter.CreateDoujinEmbed(d);
+
                             ITextChannel channel;
 
                             // to prevent notifying the same subscriber multiple times
@@ -164,7 +171,7 @@ namespace nhitomi.Services
                             {
                                 // tag feeds
                                 if (tagChannels.TryGetValue(tag, out channel))
-                                    await SendUpdateAsync(channel, d);
+                                    await SendUpdateAsync(channel, d, embed);
 
                                 // tag subscribers
                                 if (!tagSubscriptions.TryGetValue(tag, out var userList))
@@ -174,13 +181,13 @@ namespace nhitomi.Services
                                 {
                                     await SendUpdateAsync(
                                         await _discord.Socket.GetUser(user).GetOrCreateDMChannelAsync(),
-                                        d, false);
+                                        d, embed, false);
                                 }
                             }
 
                             // language feed
                             if (langChannels.TryGetValue(d.Language, out channel))
-                                await SendUpdateAsync(channel, d);
+                                await SendUpdateAsync(channel, d, embed);
 
                             _logger.LogDebug($"Sent feed update '{d.OriginalName ?? d.PrettyName}'");
                         }
