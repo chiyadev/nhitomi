@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using Amazon.DynamoDBv2.DataModel;
 using nhitomi.Core;
 
 namespace nhitomi.Database
@@ -18,12 +19,13 @@ namespace nhitomi.Database
             Artist = string.Join(", ", doujin.Artists.OrderBy(a => a));
         }
 
-        public DateTime AddTime { get; set; }
+        [DynamoDBProperty("addTime")] public DateTime AddTime { get; set; }
 
-        public string Source { get; set; }
-        public string Id { get; set; }
+        // source and id are stored as the key of items mapping (see CollectionInfo)
+        [DynamoDBIgnore] public string Source { get; set; }
+        [DynamoDBIgnore] public string Id { get; set; }
 
-        public string Name { get; set; }
-        public string Artist { get; set; }
+        [DynamoDBProperty("name")] public string Name { get; set; }
+        [DynamoDBProperty("artist")] public string Artist { get; set; }
     }
 }
