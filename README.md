@@ -59,26 +59,6 @@ Useful shortcuts to remember:
 - [.NET Core 2.1 SDK](https://www.microsoft.com/net/learn/get-started) or higher.
 - For development: a C# IDE with intellisense and syntax highlighting, such as [Visual Studio Code](https://code.visualstudio.com/) or [Jetbrains Rider](https://www.jetbrains.com/rider/).
 
-### ~~Building~~
-
-**This section is severely outdated.**
-
-Create a file named `appsecrets.json` alongside `appsettings.json`. This file was intentionally omitted from source control. Then paste the following code, replacing the token string with your own.
-
-```json
-{
-  "discord": {
-    "token": "..."
-  }
-}
-```
-
-Then run the following commands:
-
-1. `dotnet restore` — resolves NuGet dependencies.
-2. `dotnet build` — builds the bot.
-3. `dotnet run` — runs the bot.
-
 ## License
 
 This project is licensed under the [MIT license](https://opensource.org/licenses/MIT). Please see the [license](LICENSE) for more information.
