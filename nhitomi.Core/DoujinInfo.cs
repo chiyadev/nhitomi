@@ -31,19 +31,25 @@ namespace nhitomi.Core
         public Doujin ToDoujin() => new Doujin
         {
             GalleryUrl = GalleryUrl,
+
             PrettyName = PrettyName,
             OriginalName = OriginalName,
+
             UploadTime = UploadTime,
+
             Source = Source.Name,
             SourceId = SourceId,
+
             Scanlator = IsNull(Scanlator) ? null : new Scanlator {Value = Scanlator},
             Language = IsNull(Language) ? null : new Language {Value = Language},
             ParodyOf = IsNull(ParodyOf) ? null : new ParodyOf {Value = ParodyOf},
+
             Characters = Characters?.Where(IsSpecified).Select(c => new Character {Value = c}).ToList(),
             Categories = Categories?.Where(IsSpecified).Select(c => new Category {Value = c}).ToList(),
             Artists = Artists?.Where(IsSpecified).Select(a => new Artist {Value = a}).ToList(),
             Groups = Artists?.Where(IsSpecified).Select(g => new Group {Value = g}).ToList(),
             Tags = Artists?.Where(IsSpecified).Select(t => new Tag {Value = t}).ToList(),
+
             Pages = Images?.Where(IsSpecified).Select(p => new Page {Url = p}).ToList()
         };
 
