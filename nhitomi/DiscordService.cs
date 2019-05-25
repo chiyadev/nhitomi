@@ -17,7 +17,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using nhitomi.Core;
 
-namespace nhitomi.Services
+namespace nhitomi
 {
     public class DiscordService : IDisposable
     {
@@ -27,30 +27,29 @@ namespace nhitomi.Services
         readonly MessageFormatter _formatter;
         readonly ILogger<DiscordService> _logger;
 
+        readonly Regex _galleryRegex;
+
         public DiscordSocketClient Socket { get; }
         public CommandService Commands { get; }
 
-        public DiscordService(
-            IServiceProvider services,
-            IOptions<AppSettings> options,
-            ISet<IDoujinClient> clients,
-            MessageFormatter formatter,
-            ILoggerFactory loggerFactory,
-            IHostingEnvironment environment)
+        public DiscordService(IServiceProvider services, IOptions<AppSettings> options, ISet<IDoujinClient> clients,
+            MessageFormatter formatter, ILoggerFactory loggerFactory, IHostingEnvironment environment)
         {
             _services = services;
             _settings = options.Value;
             _clients = clients;
             _formatter = formatter;
 
+            // build gallery regex to match all known formats
             _galleryRegex = new Regex(
                 $"({string.Join(")|(", clients.Select(c => c.GalleryRegex))})",
                 RegexOptions.Compiled);
 
+            //todo: sharding
             Socket = new DiscordSocketClient(_settings.Discord);
             Commands = new CommandService(_settings.Discord.Command);
 
-            // Register as log provider
+            // log uploading in production
             if (environment.IsProduction())
                 loggerFactory.AddProvider(new DiscordLogService(this, options));
 
@@ -58,97 +57,100 @@ namespace nhitomi.Services
             _logger.LogDebug($"Gallery match regex: {_galleryRegex}");
         }
 
-        readonly SemaphoreSlim _semaphore = new SemaphoreSlim(1);
+        readonly SemaphoreSlim _connectionSemaphore = new SemaphoreSlim(1);
 
-        public async Task EnsureConnectedAsync()
+        public async Task ConnectAsync()
         {
-            await _semaphore.WaitAsync();
+            await _connectionSemaphore.WaitAsync();
             try
             {
-                await StartSessionAsync();
+                if (Socket.ConnectionState != ConnectionState.Disconnected)
+                    return;
+
+                // events
+                Socket.MessageReceived += HandleMessageAsync;
+                Socket.Log += HandleLogAsync;
+                Commands.Log += HandleLogAsync;
+
+                // command modules
+                await Commands.AddModulesAsync(typeof(Program).Assembly, _services);
+
+                _logger.LogDebug($"Loaded commands: {string.Join(", ", Commands.Commands.Select(c => c.Name))}");
+
+                var connectionSource = new TaskCompletionSource<object>();
+
+                Socket.Ready += handleReady;
+
+                Task handleReady()
+                {
+                    connectionSource.SetResult(null);
+                    return Task.CompletedTask;
+                }
+
+                // login
+                await Socket.LoginAsync(TokenType.Bot, _settings.Discord.Token);
+                await Socket.StartAsync();
+
+                // wait until ready signal
+                await connectionSource.Task;
+
+                Socket.Connected -= handleReady;
             }
             finally
             {
-                _semaphore.Release();
+                _connectionSemaphore.Release();
             }
         }
 
-        public async Task StartSessionAsync()
+        public async Task DisconnectAsync()
         {
-            if (Socket.ConnectionState == ConnectionState.Connected)
-                return;
-
-            // Register events
-            Socket.MessageReceived += HandleMessageAsyncBackground;
-
-            Socket.Log += HandleLogAsync;
-            Commands.Log += HandleLogAsync;
-
-            // Add command modules
-            await Commands.AddModulesAsync(typeof(Program).Assembly, _services);
-
-            _logger.LogDebug($"Loaded commands: {string.Join(", ", Commands.Commands.Select(c => c.Name))}");
-
-            var connectionSource = new TaskCompletionSource<object>();
-
-            Socket.Ready += handleReady;
-
-            Task handleReady()
+            await _connectionSemaphore.WaitAsync();
+            try
             {
-                connectionSource.SetResult(null);
-                return Task.CompletedTask;
+                // events
+                Socket.MessageReceived += HandleMessageAsync;
+                Socket.Log -= HandleLogAsync;
+                Commands.Log -= HandleLogAsync;
+
+                // logout
+                await Socket.StopAsync();
+                await Socket.LogoutAsync();
             }
-
-            // Login
-            await Socket.LoginAsync(TokenType.Bot, _settings.Discord.Token);
-            await Socket.StartAsync();
-
-            // Wait until fully connected
-            await connectionSource.Task;
-
-            Socket.Connected -= handleReady;
+            finally
+            {
+                _connectionSemaphore.Release();
+            }
         }
 
-        public async Task StopSessionAsync()
+        Task HandleMessageAsync(SocketMessage message)
         {
-            // Logout
-            await Socket.StopAsync();
-            await Socket.LogoutAsync();
-
-            // Unregister events
-            Socket.MessageReceived += HandleMessageAsyncBackground;
-
-            Socket.Log -= HandleLogAsync;
-            Commands.Log -= HandleLogAsync;
-        }
-
-        Task HandleMessageAsyncBackground(SocketMessage message)
-        {
-            Task.Run(() => HandleMessageAsync(message));
-            return Task.CompletedTask;
-        }
-
-        async Task HandleMessageAsync(SocketMessage message)
-        {
+            // ignore bot messages or self messages
             if (!(message is SocketUserMessage userMessage) ||
                 message.Author.Id == Socket.CurrentUser.Id)
-                return;
+                return Task.CompletedTask;
 
-            var argIndex = 0;
+            Task handler;
 
             // received message with command prefix
+            var argIndex = 0;
+
             if (userMessage.HasStringPrefix(_settings.Discord.Prefix, ref argIndex) ||
                 userMessage.HasMentionPrefix(Socket.CurrentUser, ref argIndex))
-                await ExecuteCommandAsync(userMessage, argIndex);
+                handler = ExecuteCommandAsync(userMessage, argIndex);
 
             // received an arbitrary message
-            // scan for gallery URLs and display doujin info
-            else await DetectGalleryUrlsAsync(userMessage);
+            // scan for gallery urls and display doujin info
+            else handler = DetectGalleryUrlsAsync(userMessage);
+
+            // run handler in background to not block the gateway thread
+            _ = Task.Run(() => handler);
+
+            return Task.CompletedTask;
         }
 
         async Task ExecuteCommandAsync(SocketUserMessage message, int argIndex)
         {
-            // command execution
+            // execute command
             var context = new SocketCommandContext(Socket, message);
             var result = await Commands.ExecuteAsync(context, argIndex, _services);
 
@@ -157,19 +159,16 @@ namespace nhitomi.Services
             {
                 var exception = ((ExecuteResult) result).Exception;
 
-                _logger.LogWarning(exception,
-                    $"Exception while handling message {message.Id}: {exception.Message}");
+                _logger.LogWarning(exception, "Exception while handling message {0}.", message.Id);
 
-                // notify about this error
+                // notify the user about this error
                 await message.Channel.SendMessageAsync(embed: _formatter.CreateErrorEmbed());
             }
         }
 
-        public delegate Task DoujinDetectHandler(IUserMessage message, IAsyncEnumerable<IDoujin> doujins);
+        public delegate Task DoujinDetectHandler(IUserMessage message, IAsyncEnumerable<Doujin> doujins);
 
         public event DoujinDetectHandler DoujinsDetected;
-
-        readonly Regex _galleryRegex;
 
         async Task DetectGalleryUrlsAsync(SocketUserMessage message)
         {
@@ -179,14 +178,14 @@ namespace nhitomi.Services
             if (!_galleryRegex.IsMatch(content))
                 return;
 
-            IAsyncEnumerable<IDoujin> doujins;
+            IAsyncEnumerable<Doujin> doujins;
 
             using (message.Channel.EnterTypingState())
             {
                 doujins = AsyncEnumerable.CreateEnumerable(() =>
                 {
                     var enumerator = (IEnumerator<Match>) _galleryRegex.Matches(content).GetEnumerator();
-                    var current = (IDoujin) null;
+                    var current = (Doujin) null;
 
                     return AsyncEnumerable.CreateEnumerator(
                         async token =>
@@ -215,32 +214,7 @@ namespace nhitomi.Services
 
         Task HandleLogAsync(LogMessage m)
         {
-            LogLevel level;
-
-            switch (m.Severity)
-            {
-                case LogSeverity.Verbose:
-                    level = LogLevel.Trace;
-                    break;
-                case LogSeverity.Debug:
-                    level = LogLevel.Debug;
-                    break;
-                case LogSeverity.Info:
-                    level = LogLevel.Information;
-                    break;
-                case LogSeverity.Warning:
-                    level = LogLevel.Warning;
-                    break;
-                case LogSeverity.Error:
-                    level = LogLevel.Error;
-                    break;
-                case LogSeverity.Critical:
-                    level = LogLevel.Critical;
-                    break;
-                default:
-                    level = LogLevel.None;
-                    break;
-            }
+            var level = ConvertLogSeverity(m.Severity);
 
             if (m.Exception == null)
                 _logger.Log(level, m.Message);
@@ -248,6 +222,22 @@ namespace nhitomi.Services
                 _logger.Log(level, m.Exception, m.Exception.Message);
 
             return Task.CompletedTask;
+        }
+
+        static LogLevel ConvertLogSeverity(LogSeverity severity)
+        {
+            switch (severity)
+            {
+                case LogSeverity.Verbose: return LogLevel.Trace;
+                case LogSeverity.Debug: return LogLevel.Debug;
+                case LogSeverity.Info: return LogLevel.Information;
+                case LogSeverity.Warning: return LogLevel.Warning;
+                case LogSeverity.Error: return LogLevel.Error;
+                case LogSeverity.Critical: return LogLevel.Critical;
+
+                default:
+                    return LogLevel.None;
+            }
         }
 
         public void Dispose() => Socket.Dispose();

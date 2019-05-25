@@ -54,9 +54,9 @@ namespace nhitomi
                         .AddHttpClient()
                         .AddTransient(s => JsonSerializer.Create(new nhitomiSerializerSettings()));
 
+                    // http server
                     if (settings.Http.EnableProxy)
-                        services
-                            .AddHostedService<ProxyService>();
+                        services.AddHostedService<ProxyService>();
                 })
                 .RunConsoleAsync();
     }

@@ -3,7 +3,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
-using nhitomi.Services;
 
 namespace nhitomi
 {
@@ -39,7 +38,7 @@ namespace nhitomi
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             //todo: only update status if we are shard 0
-            await _discord.EnsureConnectedAsync();
+            await _discord.ConnectAsync();
 
             while (!stoppingToken.IsCancellationRequested)
             {
