@@ -1,8 +1,3 @@
-// Copyright (c) 2018-2019 chiya.dev
-// 
-// This software is released under the MIT License.
-// https://opensource.org/licenses/MIT
-
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -13,33 +8,29 @@ using System.Threading.Tasks;
 using Discord;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using nhitomi.Services;
 
-namespace nhitomi.Services
+namespace nhitomi
 {
     public class DiscordLogService : ILoggerProvider
     {
         readonly DiscordService _discord;
         readonly AppSettings _settings;
 
-        readonly Task _worker;
-        readonly CancellationTokenSource _workerTokenSource = new CancellationTokenSource();
+        readonly CancellationTokenSource _cancellationToken = new CancellationTokenSource();
 
-        public DiscordLogService(
-            DiscordService discord,
-            IOptions<AppSettings> settings)
+        public DiscordLogService(DiscordService discord, IOptions<AppSettings> settings)
         {
             _discord = discord;
             _settings = settings.Value;
 
-            _worker = RunAsync(_workerTokenSource.Token);
+            Task.Run(() => RunAsync(_cancellationToken.Token));
         }
 
         readonly ConcurrentQueue<string> _queue = new ConcurrentQueue<string>();
         readonly ConcurrentQueue<string> _warningQueue = new ConcurrentQueue<string>();
 
-        async Task UploadLogs(
-            ulong channelId,
-            ConcurrentQueue<string> queue,
+        async Task UploadLogs(ulong channelId, ConcurrentQueue<string> queue,
             CancellationToken cancellationToken = default)
         {
             if (_discord.Socket.ConnectionState == ConnectionState.Connected &&
@@ -57,7 +48,7 @@ namespace nhitomi.Services
                     builder.Clear();
                 }
 
-                // upload logs in chunks to fit 2000 character limit
+                // upload logs in chunks to fit the 2000 character message limit
                 while (queue.TryDequeue(out var line))
                 {
                     if (builder.Length + line.Length > 2000)
@@ -74,11 +65,11 @@ namespace nhitomi.Services
         {
             do
             {
-                await UploadLogs(_settings.Discord.Guild.LogChannelId, _queue, cancellationToken);
                 await UploadLogs(_settings.Discord.Guild.LogWarningChannelId, _warningQueue, cancellationToken);
+                await UploadLogs(_settings.Discord.Guild.LogChannelId, _queue, cancellationToken);
 
-                // Sleep
-                await Task.Delay(TimeSpan.FromSeconds(1), cancellationToken);
+                // sleep
+                await Task.Delay(TimeSpan.FromSeconds(0.2), cancellationToken);
             }
             while (!cancellationToken.IsCancellationRequested);
         }
@@ -88,16 +79,13 @@ namespace nhitomi.Services
             readonly string _category;
             readonly DiscordLogService _provider;
 
-            public DiscordLogger(
-                DiscordLogService provider,
-                string category)
+            public DiscordLogger(DiscordLogService provider, string category)
             {
                 _category = category.Split('.').Last();
                 _provider = provider;
             }
 
             public IDisposable BeginScope<TState>(TState state) => null;
-
             public bool IsEnabled(LogLevel logLevel) => logLevel != LogLevel.None;
 
             static readonly Dictionary<LogLevel, string> _levelNames = new Dictionary<LogLevel, string>
@@ -110,25 +98,16 @@ namespace nhitomi.Services
                 {LogLevel.Information, "info"}
             };
 
-            public void Log<TState>(
-                LogLevel logLevel,
-                EventId eventId,
-                TState state,
-                Exception exception,
+            public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception,
                 Func<TState, Exception, string> formatter)
             {
                 if (!IsEnabled(logLevel))
                     return;
 
                 var text = new StringBuilder()
-                    .Append("__")
-                    .Append(_levelNames[logLevel])
-                    .Append("__ **")
-                    .Append(_category)
-                    .Append("**: ")
-                    .Append(formatter(state, exception));
+                    .Append($"__{_levelNames[logLevel]}__ **{_category}**: {state}");
 
-                if (exception?.StackTrace != null)
+                if (exception != null)
                     text.AppendLine()
                         .Append(exception.Message)
                         .Append(": ")
@@ -145,12 +124,8 @@ namespace nhitomi.Services
 
         public void Dispose()
         {
-            // Stop worker task
-            _workerTokenSource.Cancel();
-            _worker.Wait();
-
-            _workerTokenSource.Dispose();
-            _worker.Dispose();
+            // stop worker
+            _cancellationToken.Cancel();
         }
     }
 }
