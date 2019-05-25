@@ -52,6 +52,7 @@ namespace nhitomi.Core
         public ICollection<string> Characters { get; set; }
         public ICollection<string> Categories { get; set; }
         public ICollection<string> Artists { get; set; }
+        public ICollection<string> Groups { get; set; }
         public ICollection<string> Tags { get; set; }
 
         /// <summary>
