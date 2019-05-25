@@ -19,6 +19,6 @@ namespace nhitomi.Core
         string GalleryRegex { get; }
 
         Task<DoujinInfo> GetAsync(string id, CancellationToken cancellationToken = default);
-        IAsyncEnumerable<string> EnumerateAsync(CancellationToken cancellationToken = default);
+        IAsyncEnumerable<string> EnumerateAsync();
     }
 }
