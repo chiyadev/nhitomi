@@ -11,6 +11,12 @@ namespace nhitomi.Core
         [Key] public int Id { get; set; }
 
         /// <summary>
+        /// The URL at which this doujinshi was initially found at.
+        /// </summary>
+        [Required]
+        public string GalleryUrl { get; set; }
+
+        /// <summary>
         /// Prettified name of the doujinshi.
         /// This is often English.
         /// </summary>
