@@ -5,7 +5,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -17,8 +16,7 @@ namespace nhitomi.Core
 
         string Url { get; }
         string IconUrl { get; }
-
-        Regex GalleryRegex { get; }
+        string GalleryRegex { get; }
 
         Task<DoujinInfo> GetAsync(string id, CancellationToken cancellationToken = default);
         IAsyncEnumerable<string> EnumerateAsync(CancellationToken cancellationToken = default);
