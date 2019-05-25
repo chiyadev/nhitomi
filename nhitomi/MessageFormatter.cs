@@ -11,7 +11,6 @@ using Discord;
 using Microsoft.Extensions.Options;
 using nhitomi.Core;
 using nhitomi.Database;
-using Newtonsoft.Json;
 
 namespace nhitomi
 {
@@ -24,14 +23,10 @@ namespace nhitomi
         public static IEmote RightArrowEmote => new Emoji("\u25b6");
 
         readonly AppSettings _settings;
-        readonly JsonSerializer _json;
 
-        public MessageFormatter(
-            IOptions<AppSettings> options,
-            JsonSerializer json)
+        public MessageFormatter(IOptions<AppSettings> options)
         {
             _settings = options.Value;
-            _json = json;
         }
 
         static string Join(IEnumerable<string> values)
