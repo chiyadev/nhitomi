@@ -24,7 +24,7 @@ namespace nhitomi.Core
         public IEnumerable<string> Groups { get; set; }
         public IEnumerable<string> Tags { get; set; }
 
-        public IEnumerable<string> PageUrls { get; set; }
+        public IEnumerable<string> Images { get; set; }
 
         public Doujin ToDoujin() => new Doujin
         {
@@ -41,7 +41,7 @@ namespace nhitomi.Core
             Artists = Artists?.Where(IsSpecified).Select(a => new Artist {Value = a}).ToList(),
             Groups = Artists?.Where(IsSpecified).Select(g => new Group {Value = g}).ToList(),
             Tags = Artists?.Where(IsSpecified).Select(t => new Tag {Value = t}).ToList(),
-            Pages = PageUrls?.Where(IsSpecified).Select(p => new Page {Url = p}).ToList()
+            Pages = Images?.Where(IsSpecified).Select(p => new Page {Url = p}).ToList()
         };
 
         static bool IsNull(string str) => string.IsNullOrEmpty(str);
