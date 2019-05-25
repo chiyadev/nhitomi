@@ -7,7 +7,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Web;
 using Discord;
 using Microsoft.Extensions.Options;
 using nhitomi.Core;
@@ -44,26 +43,26 @@ namespace nhitomi
                 : string.Join(", ", array);
         }
 
-        public Embed CreateDoujinEmbed(IDoujin doujin)
+        public Embed CreateDoujinEmbed(Doujin doujin)
         {
             var embed = new EmbedBuilder()
                 .WithTitle(doujin.OriginalName ?? doujin.PrettyName)
                 .WithDescription(doujin.OriginalName == doujin.PrettyName ? null : doujin.PrettyName)
                 .WithAuthor(a => a
-                    .WithName(Join(doujin.Artists) ?? doujin.Source.Name)
+                    .WithName(Join(doujin.Artists?.Select(x => x.Value)) ?? doujin.Source)
                     .WithIconUrl(doujin.Source.IconUrl))
-                .WithUrl(doujin.SourceUrl)
+                .WithUrl(doujin.GalleryUrl)
                 .WithImageUrl(doujin.Pages.First().Url)
                 .WithColor(Color.Green)
-                .WithFooter($"{doujin.Source.Name}/{doujin.Id}");
+                .WithFooter($"{doujin.Source}/{doujin.SourceId}");
 
-            embed.AddFieldSafe("Language", doujin.Language, true);
-            embed.AddFieldSafe("Parody of", doujin.ParodyOf, true);
-            embed.AddFieldSafe("Categories", Join(doujin.Categories), true);
-            embed.AddFieldSafe("Characters", Join(doujin.Characters), true);
-            embed.AddFieldSafe("Tags", Join(doujin.Tags), true);
+            embed.AddFieldSafe("Language", doujin.Language?.Value, true);
+            embed.AddFieldSafe("Parody of", doujin.ParodyOf?.Value, true);
+            embed.AddFieldSafe("Categories", Join(doujin.Categories?.Select(x => x.Value)), true);
+            embed.AddFieldSafe("Characters", Join(doujin.Characters?.Select(x => x.Value)), true);
+            embed.AddFieldSafe("Tags", Join(doujin.Tags?.Select(x => x.Value)), true);
 
-            embed.AddField("Content", $"{doujin.PageCount} pages", true);
+            embed.AddField("Content", $"{doujin.Pages.Count} pages", true);
 
             return embed.Build();
         }
@@ -117,11 +116,11 @@ namespace nhitomi
                 .AddField("  — Sources —", @"
 - nhentai — `https://nhentai.net/`
 - hitomi — `https://hitomi.la/`
-~~- tsumino — `https://tsumino.com/`~~
-~~- pururin — `https://pururin.io/`~~
 ".Trim())
                 .AddField("  — Contribution —", @"
-This project is licensed under the MIT License. Contributions are welcome! https://github.com/chiyadev/nhitomi")
+This project is licensed under the MIT License.
+Contributions are welcome! <https://github.com/chiyadev/nhitomi>
+".Trim())
                 .WithColor(Color.Purple)
                 .WithThumbnailUrl(_settings.ImageUrl)
                 .WithCurrentTimestamp()
@@ -137,28 +136,16 @@ This project is licensed under the MIT License. Contributions are welcome! https
                 .WithCurrentTimestamp()
                 .Build();
 
-        public Embed CreateDownloadEmbed(IDoujin doujin)
-        {
-            var downloadToken = TokenGenerator.CreateToken(
-                new TokenGenerator.ProxyDownloadPayload
-                {
-                    Source = doujin.Source.Name,
-                    Id = doujin.Id,
-                    RequestThrottle = doujin.Source.RequestThrottle,
-                    Expires = TokenGenerator.GetExpirationFromNow(_settings.Doujin.DownloadValidLength)
-                },
-                _settings.Discord.Token,
-                serializer: _json);
-
-            return new EmbedBuilder()
-                .WithTitle($"**{doujin.Source.Name}**: {doujin.OriginalName ?? doujin.PrettyName}")
-                .WithUrl($"{_settings.Http.Url}/download?token={HttpUtility.UrlEncode(downloadToken)}")
+        // ReSharper disable once MemberCanBeMadeStatic.Global
+        public Embed CreateDownloadEmbed(Doujin doujin) =>
+            new EmbedBuilder()
+                .WithTitle($"**{doujin.Source}**: {doujin.OriginalName ?? doujin.PrettyName}")
+                .WithUrl($"https://nhitomi.chiya.dev/dl/{doujin.Source}/{doujin.SourceId}")
                 .WithDescription(
                     $"Click the link above to start downloading `{doujin.OriginalName ?? doujin.PrettyName}`.\n")
                 .WithColor(Color.LightOrange)
                 .WithCurrentTimestamp()
                 .Build();
-        }
 
         public string UnsupportedSource(string source) =>
             $"**nhitomi**: Source `{source}` is not supported. " +
@@ -217,10 +204,10 @@ This project is licensed under the MIT License. Contributions are welcome! https
                 .WithCurrentTimestamp()
                 .Build();
 
-        public string AddedToCollection(string collectionName, IDoujin doujin) =>
+        public string AddedToCollection(string collectionName, Doujin doujin) =>
             $"**nhitomi**: Added `{doujin.OriginalName ?? doujin.PrettyName}` to collection `{collectionName}`.";
 
-        public string AlreadyInCollection(string collectionName, IDoujin doujin) =>
+        public string AlreadyInCollection(string collectionName, Doujin doujin) =>
             $"**nhitomi**: `{doujin.OriginalName ?? doujin.PrettyName}` already exists in collection `{collectionName}`.";
 
         public string RemovedFromCollection(string collectionName, CollectionItemInfo item) =>
