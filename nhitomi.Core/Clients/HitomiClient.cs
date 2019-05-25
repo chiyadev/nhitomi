@@ -102,14 +102,19 @@ namespace nhitomi.Core.Clients
             var doujin = new DoujinInfo
             {
                 GalleryUrl = $"https://hitomi.la/galleries/{id}.html",
+
                 PrettyName = Sanitize(root.SelectSingleNode(Hitomi.XPath.Name)),
                 OriginalName = Sanitize(root.SelectSingleNode(Hitomi.XPath.Name)),
+
                 UploadTime = DateTime.Parse(Sanitize(root.SelectSingleNode(Hitomi.XPath.Date))),
+
                 Source = this,
                 SourceId = id,
+
                 Language = ConvertLanguage(Sanitize(root.SelectSingleNode(Hitomi.XPath.Language))),
                 ParodyOf = ConvertSeries(Sanitize(root.SelectSingleNode(Hitomi.XPath.Series))),
                 Characters = root.SelectNodes(Hitomi.XPath.Characters)?.Select(Sanitize),
+
                 Artists = root.SelectNodes(Hitomi.XPath.Artists)?.Select(Sanitize),
                 Groups = root.SelectNodes(Hitomi.XPath.Groups)?.Select(Sanitize),
                 Tags = root.SelectNodes(Hitomi.XPath.Tags)?.Select(n => ConvertTag(Sanitize(n)))
