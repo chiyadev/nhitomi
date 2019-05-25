@@ -3,7 +3,6 @@
 // This software is released under the MIT License.
 // https://opensource.org/licenses/MIT
 
-using System;
 using Discord.Commands;
 using Discord.WebSocket;
 
@@ -53,36 +52,7 @@ namespace nhitomi
 
         public sealed class DoujinSettings
         {
-            public double FeedUpdateInterval { get; set; }
-            public int MaxFeedUpdatesCount { get; set; }
-
-            public double DownloadValidLength { get; set; }
             public bool AllowNonGuildMemberDownloads { get; set; }
-        }
-
-        public HttpSettings Http { get; set; } = new HttpSettings();
-
-        public sealed class HttpSettings
-        {
-            public string Url { get; set; }
-
-            public HttpSettings()
-            {
-                Url = Environment.GetEnvironmentVariable("ASPNETCORE_URLS")?.Split(';')[0] ?? "https://localhost:5000";
-            }
-        }
-
-        public DatabaseSettings Db { get; set; } = new DatabaseSettings();
-
-        public sealed class DatabaseSettings
-        {
-            public string AccessKey { get; set; }
-            public string SecretKey { get; set; }
-            public string RegionEndpoint { get; set; }
-
-            public string UserSettingsTable { get; set; }
-            public string TagSubscriptionTable { get; set; }
-            public string CollectionTable { get; set; }
         }
     }
 }
