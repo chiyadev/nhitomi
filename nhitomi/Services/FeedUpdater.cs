@@ -119,7 +119,7 @@ namespace nhitomi.Services
                 try
                 {
                     // find new doujins
-                    var doujins = await FindNewDoujinsAsync(stoppingToken);
+                    var doujins = (await FindNewDoujinsAsync(stoppingToken)).Where(d => d != null);
 
                     // find tag feed channels
                     var tagChannels =
