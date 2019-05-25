@@ -54,5 +54,12 @@ namespace nhitomi
         {
             public bool AllowNonGuildMemberDownloads { get; set; }
         }
+
+        public HttpSettings Http { get; set; } = new HttpSettings();
+
+        public sealed class HttpSettings
+        {
+            public bool EnableProxy { get; set; }
+        }
     }
 }

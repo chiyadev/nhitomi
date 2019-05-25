@@ -24,30 +24,39 @@ namespace nhitomi
                 })
                 .ConfigureServices((host, services) =>
                 {
+                    var settings = host.Configuration.Get<AppSettings>();
+
                     services
                         // configuration
-                        .Configure<AppSettings>(host.Configuration)
+                        .Configure<AppSettings>(host.Configuration);
 
-                        // logging
+                    // logging
+                    services
                         .AddLogging(l => l
                             .AddConfiguration(host.Configuration.GetSection("logging"))
                             .AddConsole()
-                            .AddDebug())
+                            .AddDebug());
 
-                        // background services
+                    // background services
+                    services
                         .AddSingleton<DiscordService>()
                         .AddHostedService<StatusUpdater>()
                         .AddHostedService<FeedUpdater>()
                         .AddSingleton<InteractiveManager>()
-                        .AddHostedService<ProxyListBroadcastService>()
-                        .AddSingleton<MessageFormatter>()
+                        .AddSingleton<MessageFormatter>();
 
-                        // database
-                        .AddSingleton<IDatabase, DynamoDbDatabase>()
+                    // database
+                    services
+                        .AddSingleton<IDatabase, DynamoDbDatabase>();
 
-                        // other stuff
+                    // other stuff
+                    services
                         .AddHttpClient()
                         .AddTransient(s => JsonSerializer.Create(new nhitomiSerializerSettings()));
+
+                    if (settings.Http.EnableProxy)
+                        services
+                            .AddHostedService<ProxyService>();
                 })
                 .RunConsoleAsync();
     }

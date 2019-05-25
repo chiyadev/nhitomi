@@ -5,29 +5,34 @@ using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
+using Microsoft.Extensions.Hosting;
 
-namespace nhitomi.Services
+namespace nhitomi
 {
-    public class ProxyService : IDisposable
+    public class ProxyService : BackgroundService
     {
         readonly HttpListener _listener;
         readonly HttpClient _client;
 
-        public ProxyService(int port)
+        public ProxyService()
         {
-            // create client
+            // create http client
+            // we don't use DI injected factory because we need to set SocketsHtttpHandler
             _client = new HttpClient(new SocketsHttpHandler
             {
                 AllowAutoRedirect = false,
                 AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate
             });
 
+            // use PORT envvar or 80
+            var port = int.TryParse(Environment.GetEnvironmentVariable("PORT"), out var p) ? p : 80;
+
             // start listener
             _listener = new HttpListener();
             _listener.Prefixes.Add($"http://*:{port}/");
         }
 
-        public async Task RunAsync(CancellationToken cancellationToken = default)
+        protected override async Task ExecuteAsync(CancellationToken cancellationToken)
         {
             _listener.Start();
             try
@@ -157,6 +162,11 @@ namespace nhitomi.Services
             }
         }
 
-        public void Dispose() => _client.Dispose();
+        public override void Dispose()
+        {
+            base.Dispose();
+
+            _client.Dispose();
+        }
     }
 }
