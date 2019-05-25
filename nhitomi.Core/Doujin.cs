@@ -110,7 +110,7 @@ namespace nhitomi.Core
                 .HasOne(t => t.Doujin)
                 .WithOne(path)
                 .HasForeignKey<TEntity>(t => t.DoujinId)
-                .IsRequired();
+                .IsRequired(false);
         }
 
         public static void Describe(ModelBuilder model, Expression<Func<Doujin, IEnumerable<TEntity>>> path)
