@@ -1,24 +1,18 @@
-// Copyright (c) 2018-2019 chiya.dev
-// 
-// This software is released under the MIT License.
-// https://opensource.org/licenses/MIT
-
 using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
+using nhitomi.Services;
 
-namespace nhitomi.Services
+namespace nhitomi
 {
     public class StatusUpdater : BackgroundService
     {
         readonly AppSettings _settings;
         readonly DiscordService _discord;
 
-        public StatusUpdater(
-            IOptions<AppSettings> options,
-            DiscordService discord)
+        public StatusUpdater(IOptions<AppSettings> options, DiscordService discord)
         {
             _settings = options.Value;
             _discord = discord;
@@ -27,11 +21,12 @@ namespace nhitomi.Services
         readonly Random _rand = new Random();
         string _current;
 
-        void cycleGame()
+        void CycleGame()
         {
             var index = _current == null ? -1 : Array.IndexOf(_settings.Discord.Status.Games, _current);
             int next;
 
+            // keep choosing if we chose the same one
             do
             {
                 next = _rand.Next(_settings.Discord.Status.Games.Length);
@@ -43,21 +38,18 @@ namespace nhitomi.Services
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
+            //todo: only update status if we are shard 0
             await _discord.EnsureConnectedAsync();
 
             while (!stoppingToken.IsCancellationRequested)
             {
-                // Cycle game
-                cycleGame();
+                CycleGame();
 
-                // Send update
+                // send update
                 await _discord.Socket.SetGameAsync(_current);
 
-                // Sleep
-                await Task.Delay(
-                    TimeSpan.FromMinutes(_settings.Discord.Status.UpdateInterval),
-                    stoppingToken
-                );
+                // sleep
+                await Task.Delay(TimeSpan.FromMinutes(_settings.Discord.Status.UpdateInterval), stoppingToken);
             }
         }
     }
