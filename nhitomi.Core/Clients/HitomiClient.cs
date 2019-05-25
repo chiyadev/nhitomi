@@ -175,63 +175,48 @@ namespace nhitomi.Core.Clients
             [JsonProperty("height")] public int Height;
         }
 
-        async Task<int[]> ReadNozomiIndexAsync(CancellationToken cancellationToken = default)
+        async Task<int[]> ReadNozomiIndicesAsync(CancellationToken cancellationToken = default)
         {
-            const string url = Hitomi.NozomiIndex;
-
             using (var memory = new MemoryStream())
             {
                 using (var response = await _http.SendAsync(new HttpRequestMessage
                 {
                     Method = HttpMethod.Get,
-                    RequestUri = new Uri(url)
+                    RequestUri = new Uri(Hitomi.NozomiIndex)
                 }, cancellationToken))
                 using (var stream = await response.Content.ReadAsStreamAsync())
                     await stream.CopyToAsync(memory, 4096, cancellationToken);
 
-                var total = memory.Length / sizeof(int);
-                var nozomi = new int[total];
+                var indices = new int[memory.Length / sizeof(int)];
 
                 memory.Position = 0;
 
                 using (var reader = new BinaryReader(memory))
                 {
-                    for (var i = 0; i < total; i++)
-                        nozomi[i] = reader.ReadInt32Be();
+                    for (var i = 0; i < indices.Length; i++)
+                        indices[i] = reader.ReadInt32Be();
                 }
 
-                return nozomi;
+                return indices;
             }
         }
 
-        public IAsyncEnumerable<string> EnumerateAsync(string id = null) =>
-            AsyncEnumerable.CreateEnumerable(() =>
+        public async Task<IEnumerable<string>> EnumerateAsync(string startId = null,
+            CancellationToken cancellationToken = default)
+        {
+            var indices = await ReadNozomiIndicesAsync(cancellationToken);
+
+            // skip to starting id
+            if (int.TryParse(startId, out var intId))
             {
-                var indices = null as int[];
-                var index = -1;
+                var startIndex = Array.IndexOf(indices, intId);
 
-                return AsyncEnumerable.CreateEnumerator(
-                    async token =>
-                    {
-                        if (indices == null)
-                        {
-                            indices = await ReadNozomiIndexAsync(token);
+                if (startIndex != -1)
+                    indices = indices.Subarray(startIndex);
+            }
 
-                            // skip to starting id
-                            if (id != null && int.TryParse(id, out var intId))
-                            {
-                                var startIndex = System.Array.IndexOf(indices, intId);
-
-                                if (startIndex != -1)
-                                    indices = indices.Subarray(startIndex);
-                            }
-                        }
-
-                        return ++index < indices.Length;
-                    },
-                    () => indices[index].ToString(),
-                    () => indices = null);
-            });
+            return indices.Select(x => x.ToString());
+        }
 
         public void Dispose()
         {
