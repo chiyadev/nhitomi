@@ -60,7 +60,7 @@ namespace nhitomi.Core
         /// <summary>
         /// Gets the pages of this doujinshi.
         /// </summary>
-        public ICollection<Page> Pages { get; }
+        public ICollection<Page> Pages { get; set; }
 
         public static void Describe(ModelBuilder model)
         {
