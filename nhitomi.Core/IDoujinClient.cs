@@ -8,23 +8,19 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
 
 namespace nhitomi.Core
 {
     public interface IDoujinClient : IDisposable
     {
         string Name { get; }
+
         string Url { get; }
-        [JsonIgnore] string IconUrl { get; }
+        string IconUrl { get; }
 
-        double RequestThrottle { get; }
+        Regex GalleryRegex { get; }
 
-        DoujinClientMethod Method { get; }
-
-        [JsonIgnore] Regex GalleryRegex { get; }
-
-        Task<IDoujin> GetAsync(string id, CancellationToken cancellationToken = default);
-        Task<IAsyncEnumerable<IDoujin>> SearchAsync(string query, CancellationToken cancellationToken = default);
+        Task<DoujinInfo> GetAsync(string id, CancellationToken cancellationToken = default);
+        IAsyncEnumerable<string> EnumerateAsync(CancellationToken cancellationToken = default);
     }
 }
