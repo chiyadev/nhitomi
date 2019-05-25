@@ -14,13 +14,20 @@ using Newtonsoft.Json;
 
 namespace nhitomi.Core
 {
-    public static class Array
-    {
-        public static bool IsNullOrEmpty(System.Array array) => array == null || array.Length == 0;
-    }
-
     public static class Extensions
     {
+        public static T[] Subarray<T>(this T[] array, int index) =>
+            array.Subarray(index, array.Length - index);
+
+        public static T[] Subarray<T>(this T[] array, int index, int length)
+        {
+            var subarray = new T[length];
+
+            Array.Copy(array, index, subarray, 0, length);
+
+            return subarray;
+        }
+
         /// <summary>
         /// https://stackoverflow.com/a/24087164
         /// </summary>

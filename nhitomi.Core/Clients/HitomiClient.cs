@@ -186,21 +186,33 @@ namespace nhitomi.Core.Clients
             }
         }
 
-        public IAsyncEnumerable<string> EnumerateAsync() =>
+        public IAsyncEnumerable<string> EnumerateAsync(string id = null) =>
             AsyncEnumerable.CreateEnumerable(() =>
             {
                 var indices = null as int[];
                 var index = -1;
 
                 return AsyncEnumerable.CreateEnumerator(
-                    moveNext: async token =>
+                    async token =>
                     {
-                        indices = indices ?? await ReadNozomiIndexAsync(token);
+                        if (indices == null)
+                        {
+                            indices = await ReadNozomiIndexAsync(token);
+
+                            // skip to starting id
+                            if (id != null && int.TryParse(id, out var intId))
+                            {
+                                var startIndex = System.Array.IndexOf(indices, intId);
+
+                                if (startIndex != -1)
+                                    indices = indices.Subarray(startIndex);
+                            }
+                        }
 
                         return ++index < indices.Length;
                     },
-                    current: () => indices[index].ToString(),
-                    dispose: () => indices = null);
+                    () => indices[index].ToString(),
+                    () => indices = null);
             });
 
         public void Dispose()
