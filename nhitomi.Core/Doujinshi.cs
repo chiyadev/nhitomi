@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace nhitomi.Core
 {
-    public class Doujin
+    public class Doujinshi
     {
         [Key] public int Id { get; set; }
 
@@ -60,7 +60,7 @@ namespace nhitomi.Core
         /// </summary>
         public ICollection<Page> Pages { get; }
 
-        public static void Describe(EntityTypeBuilder<Doujin> entity)
+        public static void Describe(EntityTypeBuilder<Doujinshi> entity)
         {
             entity.HasIndex(d => d.PrettyName);
             entity.HasIndex(d => d.OriginalName);
@@ -74,7 +74,7 @@ namespace nhitomi.Core
         /// <summary>
         /// Doujin navigation property.
         /// </summary>
-        public Doujin Doujin { get; set; }
+        public Doujinshi Doujinshi { get; set; }
 
         public int DoujinId { get; set; }
 
@@ -83,7 +83,7 @@ namespace nhitomi.Core
         public static void Describe(EntityTypeBuilder<Page> entity)
         {
             entity
-                .HasOne(p => p.Doujin)
+                .HasOne(p => p.Doujinshi)
                 .WithMany(d => d.Pages)
                 .HasForeignKey(p => p.DoujinId)
                 .IsRequired();
