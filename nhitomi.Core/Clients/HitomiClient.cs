@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using HtmlAgilityPack;
@@ -56,11 +57,11 @@ namespace nhitomi.Core.Clients
         public string IconUrl => "https://ltn.hitomi.la/favicon-160x160.png";
         public string GalleryRegex => @"\b((http|https):\/\/)?hitomi(\.la)?\/(galleries\/)?(?<Hitomi>[0-9]{1,7})\b";
 
-        readonly IHttpProxyClient _http;
+        readonly IHttpClient _http;
         readonly JsonSerializer _json;
         readonly ILogger<HitomiClient> _logger;
 
-        public HitomiClient(IHttpProxyClient http, JsonSerializer json, ILogger<HitomiClient> logger)
+        public HitomiClient(IHttpClient http, JsonSerializer json, ILogger<HitomiClient> logger)
         {
             _http = http;
             _json = json;
@@ -75,7 +76,11 @@ namespace nhitomi.Core.Clients
             HtmlNode root;
 
             // load html page
-            using (var response = await _http.GetAsync(Hitomi.Gallery(intId), true, cancellationToken))
+            using (var response = await _http.SendAsync(new HttpRequestMessage
+            {
+                Method = HttpMethod.Get,
+                RequestUri = new Uri(Hitomi.Gallery(intId))
+            }, cancellationToken))
             using (var reader = new StringReader(await response.Content.ReadAsStringAsync()))
             {
                 var doc = new HtmlDocument();
@@ -111,7 +116,11 @@ namespace nhitomi.Core.Clients
             };
 
             // parse images
-            using (var response = await _http.GetAsync(Hitomi.GalleryInfo(intId), true, cancellationToken))
+            using (var response = await _http.SendAsync(new HttpRequestMessage
+            {
+                Method = HttpMethod.Get,
+                RequestUri = new Uri(Hitomi.GalleryInfo(intId))
+            }, cancellationToken))
             using (var textReader = new StringReader(await response.Content.ReadAsStringAsync()))
             using (var jsonReader = new JsonTextReader(textReader))
             {
@@ -167,7 +176,11 @@ namespace nhitomi.Core.Clients
 
             using (var memory = new MemoryStream())
             {
-                using (var response = await _http.GetAsync(url, false, cancellationToken))
+                using (var response = await _http.SendAsync(new HttpRequestMessage
+                {
+                    Method = HttpMethod.Get,
+                    RequestUri = new Uri(url)
+                }, cancellationToken))
                 using (var stream = await response.Content.ReadAsStreamAsync())
                     await stream.CopyToAsync(memory, 4096, cancellationToken);
 
