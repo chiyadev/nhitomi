@@ -7,19 +7,16 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text.RegularExpressions;
+using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using nhitomi.Core.Doujins;
 using Newtonsoft.Json;
 
 namespace nhitomi.Core.Clients
 {
     public static class nhentai
     {
-        public const string GalleryRegex = @"\b((http|https):\/\/)?nhentai(\.net)?\/(g\/)?(?<nhentai>[0-9]{1,6})\b";
-
         public static string Gallery(int id) => $"https://nhentai.net/api/gallery/{id}";
         public static string All(int index = 0) => $"https://nhentai.net/api/galleries/all?page={index + 1}";
 
@@ -34,173 +31,142 @@ namespace nhitomi.Core.Clients
 
         public sealed class DoujinData
         {
-            public readonly DateTime _processed = DateTime.UtcNow;
+            [JsonProperty("id")] public int Id;
+            [JsonProperty("media_id")] public int MediaId;
+            [JsonProperty("scanlator")] public string Scanlator;
+            [JsonProperty("upload_date")] public long UploadDate;
 
-            public int id;
-            public int media_id;
-            public string scanlator;
-            public long upload_date;
+            [JsonProperty("title")] public TitleData Title;
 
-            public Title title;
-
-            public struct Title
+            public struct TitleData
             {
-                public string japanese;
-                public string pretty;
+                [JsonProperty("japanese")] public string Japanese;
+                [JsonProperty("pretty")] public string Pretty;
             }
 
-            public Images images;
+            [JsonProperty("images")] public ImagesData Images;
 
-            public struct Images
+            public struct ImagesData
             {
-                public Image[] pages;
+                [JsonProperty("images")] public ImageData[] Pages;
 
-                public struct Image
+                public struct ImageData
                 {
-                    public string t;
+                    [JsonProperty("t")] public string T;
                 }
             }
 
-            public Tag[] tags;
+            [JsonProperty("tags")] public TagData[] Tags;
 
-            public struct Tag
+            public struct TagData
             {
-                public string type;
-                public string name;
+                [JsonProperty("type")] public string Type;
+                [JsonProperty("name")] public string Name;
             }
         }
 
         public sealed class ListData
         {
-            public readonly DateTime _processed = DateTime.UtcNow;
+            [JsonProperty("result")] public DoujinData[] Results;
 
-            public DoujinData[] result;
-
-            public int num_pages;
-            public int per_page;
+            [JsonProperty("num_pages")] public int NumPages;
+            [JsonProperty("per_page")] public int PerPage;
         }
     }
 
-    /// <summary>
-    /// Legacy nhentai client using the HTTP API endpoints which have been suspended indefinitely as of January 13th 2019.
-    /// https://twitter.com/fuckmaou/status/1084550608097603585
-    /// https://github.com/NHMoeDev/NHentai-android/issues/108
-    /// </summary>
-    [Obsolete]
     public sealed class nhentaiClient : IDoujinClient
     {
         public string Name => nameof(nhentai);
+
         public string Url => "https://nhentai.net/";
         public string IconUrl => "https://cdn.cybrhome.com/media/website/live/icon/icon_nhentai.net_57f740.png";
+        public string GalleryRegex => @"\b((http|https):\/\/)?nhentai(\.net)?\/(g\/)?(?<nhentai>[0-9]{1,6})\b";
 
-        public double RequestThrottle => 500;
-
-        public DoujinClientMethod Method => DoujinClientMethod.Api;
-
-        public Regex GalleryRegex { get; } =
-            new Regex(nhentai.GalleryRegex, RegexOptions.IgnoreCase | RegexOptions.Compiled);
-
-        readonly IHttpProxyClient _http;
+        readonly IHttpClient _http;
         readonly JsonSerializer _json;
-        readonly PhysicalCache _cache;
         readonly ILogger<nhentaiClient> _logger;
 
-        public nhentaiClient(
-            IHttpProxyClient http,
-            JsonSerializer json,
-            ILogger<nhentaiClient> logger)
+        public nhentaiClient(IHttpClient http, JsonSerializer json, ILogger<nhentaiClient> logger)
         {
             _http = http;
             _json = json;
-            _cache = new PhysicalCache(Name, json);
             _logger = logger;
         }
 
-        public async Task<IDoujin> GetAsync(string id, CancellationToken cancellationToken = default)
+        public async Task<DoujinInfo> GetAsync(string id, CancellationToken cancellationToken = default)
         {
             if (!int.TryParse(id, out var intId))
                 return null;
 
-            var data = await _cache.GetOrCreateAsync(
-                id,
-                token => GetAsync(intId, token),
-                cancellationToken);
+            nhentai.DoujinData data;
 
-            return data == null
-                ? null
-                : new nhentaiDoujin(this, data);
+            using (var response = await _http.SendAsync(new HttpRequestMessage
+            {
+                Method = HttpMethod.Get,
+                RequestUri = new Uri(nhentai.Gallery(intId))
+            }, cancellationToken))
+            using (var textReader = new StringReader(await response.Content.ReadAsStringAsync()))
+            using (var jsonReader = new JsonTextReader(textReader))
+                data = _json.Deserialize<nhentai.DoujinData>(jsonReader);
+
+            return new DoujinInfo
+            {
+                GalleryUrl = $"https://nhentai.net/g/{id}/",
+
+                PrettyName = data.Title.Pretty,
+                OriginalName = data.Title.Japanese,
+
+                UploadTime = DateTimeOffset.FromUnixTimeSeconds(data.UploadDate).UtcDateTime,
+
+                Source = this,
+                SourceId = id,
+
+                Scanlator = data.Scanlator,
+                Language = data.Tags?.FirstOrDefault(t => t.Type == "language" && t.Name != "translated").Name,
+                ParodyOf = data.Tags?.FirstOrDefault(t => t.Type == "parody" && t.Name != "original").Name,
+
+                Characters = data.Tags?.Where(t => t.Type == "character").Select(t => t.Name),
+                Categories = data.Tags?.Where(t => t.Type == "category" && t.Name != "doujinshi").Select(t => t.Name),
+                Artists = data.Tags?.Where(t => t.Type == "artist").Select(t => t.Name),
+                Tags = data.Tags?.Where(t => t.Type == "tag").Select(t => t.Name),
+
+                Images = data.Images.Pages?.Select(p =>
+                    nhentai.Image(data.MediaId, Array.IndexOf(data.Images.Pages, p), FixExtension(p.T)))
+            };
         }
 
-        async Task<nhentai.DoujinData> GetAsync(int id, CancellationToken cancellationToken = default)
+        static string FixExtension(string ext) => ext[0] == 'p' ? "png" : "jpg";
+
+        public async Task<IEnumerable<string>> EnumerateAsync(string startId = null,
+            CancellationToken cancellationToken = default)
         {
-            try
+            int latestId;
+
+            // get the latest doujin id
+            using (var response = await _http.SendAsync(new HttpRequestMessage
             {
-                nhentai.DoujinData data;
-
-                using (var response = await _http.GetAsync(nhentai.Gallery(id), true, cancellationToken))
-                using (var textReader = new StringReader(await response.Content.ReadAsStringAsync()))
-                using (var jsonReader = new JsonTextReader(textReader))
-                    data = _json.Deserialize<nhentai.DoujinData>(jsonReader);
-
-                _logger.LogDebug($"Got doujin {id}: {data.title.pretty}");
-
-                return data;
-            }
-            catch (Exception)
+                Method = HttpMethod.Get,
+                RequestUri = new Uri(nhentai.All(0))
+            }, cancellationToken))
+            using (var textReader = new StringReader(await response.Content.ReadAsStringAsync()))
+            using (var jsonReader = new JsonTextReader(textReader))
             {
-                return null;
+                latestId = _json.Deserialize<nhentai.ListData>(jsonReader).Results
+                    .OrderByDescending(d => d.Id)
+                    .First().Id;
             }
+
+            int.TryParse(startId, out var oldestId);
+
+            return EnumerateIds(oldestId, latestId);
         }
 
-        public Task<IAsyncEnumerable<IDoujin>> SearchAsync(
-            string query,
-            CancellationToken cancellationToken = default) =>
-            AsyncEnumerable.CreateEnumerable(() =>
-                {
-                    nhentai.ListData current = null;
-                    var index = 0;
-
-                    return AsyncEnumerable.CreateEnumerator(
-                        async token =>
-                        {
-                            try
-                            {
-                                // Load list
-                                var url = string.IsNullOrWhiteSpace(query)
-                                    ? nhentai.All(index)
-                                    : nhentai.Search(query, index);
-
-                                using (var response = await _http.GetAsync(url, false, token))
-                                using (var textReader = new StringReader(await response.Content.ReadAsStringAsync()))
-                                using (var jsonReader = new JsonTextReader(textReader))
-                                    current = _json.Deserialize<nhentai.ListData>(jsonReader);
-
-                                // Add to cache
-                                foreach (var item in current.result)
-                                    await _cache.CreateAsync(
-                                        item.id.ToString(),
-                                        _ => item.AsCompletedTask(),
-                                        token);
-
-                                index++;
-
-                                _logger.LogDebug($"Got page {index}: {current.result?.Length ?? 0} items");
-
-                                return !Array.IsNullOrEmpty(current.result);
-                            }
-                            catch (Exception)
-                            {
-                                return false;
-                            }
-                        },
-                        () => current,
-                        () => { }
-                    );
-                })
-                .SelectMany(l => l.result.Select(d => (IDoujin) new nhentaiDoujin(this, d)).ToAsyncEnumerable())
-                .AsCompletedTask();
-
-        public override string ToString() => Name;
+        static IEnumerable<string> EnumerateIds(int oldest, int latest)
+        {
+            // assume all doujins are available
+            for (var i = oldest; i <= latest; i++)
+                yield return i.ToString();
+        }
 
         public void Dispose()
         {
