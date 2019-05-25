@@ -18,14 +18,7 @@ namespace nhitomi.Core
         string IconUrl { get; }
         string GalleryRegex { get; }
 
-        /// <summary>
-        /// Retrieves doujin information by its identifier asynchronously.
-        /// </summary>
         Task<DoujinInfo> GetAsync(string id, CancellationToken cancellationToken = default);
-
-        /// <summary>
-        /// Gets an asynchronous enumerable that enumerates chronologically from the specified identifier.
-        /// </summary>
-        IAsyncEnumerable<string> EnumerateAsync(string id = null);
+        Task<IEnumerable<string>> EnumerateAsync(string id = null, CancellationToken cancellationToken = default);
     }
 }
