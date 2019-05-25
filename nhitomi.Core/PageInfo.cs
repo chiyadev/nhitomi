@@ -1,23 +1,28 @@
-// Copyright (c) 2018-2019 chiya.dev
-//
-// This software is released under the MIT License.
-// https://opensource.org/licenses/MIT
-
-using Newtonsoft.Json;
+using System.ComponentModel.DataAnnotations;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace nhitomi.Core
 {
     public sealed class PageInfo
     {
-        [JsonProperty("i")] public int Index { get; }
-        [JsonProperty("e")] public string Extension { get; }
-        [JsonProperty("u")] public string Url { get; }
+        [Key] public int Id { get; set; }
 
-        public PageInfo(int index, string extension, string url)
+        /// <summary>
+        /// Doujin navigation property.
+        /// </summary>
+        public DoujinInfo Doujin { get; set; }
+
+        public int DoujinId { get; set; }
+
+        [Required] public string Url { get; set; }
+
+        public static void Describe(EntityTypeBuilder<PageInfo> entity)
         {
-            Index = index;
-            Extension = extension;
-            Url = url;
+            entity
+                .HasOne(p => p.Doujin)
+                .WithMany(d => d.Pages)
+                .HasForeignKey(p => p.DoujinId)
+                .IsRequired();
         }
     }
 }
