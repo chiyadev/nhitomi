@@ -67,7 +67,8 @@ namespace nhitomi.Database
                         context.FromDocuments<TagSubscriptionInfo>(response.Items.Select(
                             Document.FromAttributeMap)));
                 }
-            } while (lastEvaluatedKey.Count != 0);
+            }
+            while (lastEvaluatedKey.Count != 0);
 
             return subscriptions
                 .OrderBy(s => s.TagName)
@@ -107,7 +108,8 @@ namespace nhitomi.Database
                 lastEvaluatedKey = response.LastEvaluatedKey;
 
                 tags.AddRange(response.Items.Select(d => d["tagName"].S));
-            } while (lastEvaluatedKey.Count != 0);
+            }
+            while (lastEvaluatedKey.Count != 0);
 
             return tags
                 .OrderBy(t => t)

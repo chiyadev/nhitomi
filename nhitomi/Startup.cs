@@ -3,18 +3,18 @@
 // This software is released under the MIT License.
 // https://opensource.org/licenses/MIT
 
-using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using nhitomi.Core;
 using nhitomi.Core.Clients;
 using nhitomi.Database;
 using nhitomi.Services;
+using Newtonsoft.Json;
 
 namespace nhitomi
 {

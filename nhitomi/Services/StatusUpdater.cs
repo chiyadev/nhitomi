@@ -35,7 +35,8 @@ namespace nhitomi.Services
             do
             {
                 next = _rand.Next(_settings.Discord.Status.Games.Length);
-            } while (next == index);
+            }
+            while (next == index);
 
             _current = $"{_settings.Discord.Status.Games[next]} [{_settings.Discord.Prefix}help]";
         }

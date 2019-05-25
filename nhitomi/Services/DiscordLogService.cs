@@ -79,7 +79,8 @@ namespace nhitomi.Services
 
                 // Sleep
                 await Task.Delay(TimeSpan.FromSeconds(1), cancellationToken);
-            } while (!cancellationToken.IsCancellationRequested);
+            }
+            while (!cancellationToken.IsCancellationRequested);
         }
 
         sealed class DiscordLogger : ILogger
