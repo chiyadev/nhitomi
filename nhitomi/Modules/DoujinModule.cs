@@ -9,6 +9,7 @@ using Discord;
 using Discord.Commands;
 using Microsoft.Extensions.Options;
 using nhitomi.Core;
+using nhitomi.Interactivity;
 
 namespace nhitomi.Modules
 {
@@ -31,22 +32,20 @@ namespace nhitomi.Modules
         [Command("get"), Alias("g")]
         public async Task GetAsync(string source, string id)
         {
-            IUserMessage response;
+            Doujin doujin;
 
             using (Context.Channel.EnterTypingState())
             {
-                var doujin = await _database.GetDoujinAsync(source, id);
+                doujin = await _database.GetDoujinAsync(source, id);
 
                 if (doujin == null)
                 {
                     await ReplyAsync(_formatter.DoujinNotFound(source));
                     return;
                 }
-
-                response = await ReplyAsync(embed: _formatter.CreateDoujinEmbed(doujin));
             }
 
-            await _formatter.AddDoujinTriggersAsync(response);
+            await _interactive.SendInteractiveAsync(new DoujinMessage(doujin), Context);
         }
 
         [Command("all"), Alias("a")]
@@ -116,6 +115,8 @@ namespace nhitomi.Modules
         [Command("download"), Alias("dl")]
         public async Task DownloadAsync(string source, string id)
         {
+            Doujin doujin;
+
             using (Context.Channel.EnterTypingState())
             {
                 // allow downloading only for users of guild
@@ -131,16 +132,16 @@ namespace nhitomi.Modules
                     }
                 }
 
-                var doujin = await _database.GetDoujinAsync(source, id);
+                doujin = await _database.GetDoujinAsync(source, id);
 
                 if (doujin == null)
                 {
                     await ReplyAsync(_formatter.DoujinNotFound(source));
                     return;
                 }
-
-                await ReplyAsync(embed: _formatter.CreateDownloadEmbed(doujin));
             }
+
+            await _interactive.SendInteractiveAsync(new DownloadMessage(doujin), Context);
         }
     }
 }
