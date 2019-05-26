@@ -4,7 +4,6 @@
 // https://opensource.org/licenses/MIT
 
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
@@ -16,39 +15,27 @@ namespace nhitomi.Modules
     public class DoujinModule : ModuleBase
     {
         readonly AppSettings _settings;
-        readonly ISet<IDoujinClient> _clients;
+        readonly IDatabase _database;
         readonly MessageFormatter _formatter;
         readonly InteractiveManager _interactive;
 
-        public DoujinModule(
-            IOptions<AppSettings> options,
-            ISet<IDoujinClient> clients,
-            MessageFormatter formatter,
+        public DoujinModule(IOptions<AppSettings> options, IDatabase database, MessageFormatter formatter,
             InteractiveManager interactive)
         {
             _settings = options.Value;
-            _clients = clients;
+            _database = database;
             _formatter = formatter;
             _interactive = interactive;
         }
 
-        [Command("get")]
-        [Alias("g")]
+        [Command("get"), Alias("g")]
         public async Task GetAsync(string source, string id)
         {
-            var client = _clients.FindByName(source);
-
-            if (client == null)
-            {
-                await ReplyAsync(_formatter.UnsupportedSource(source));
-                return;
-            }
-
             IUserMessage response;
 
             using (Context.Channel.EnterTypingState())
             {
-                var doujin = await client.GetAsync(id);
+                var doujin = await _database.GetDoujinAsync(source, id);
 
                 if (doujin == null)
                 {
