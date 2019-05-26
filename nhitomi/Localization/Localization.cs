@@ -6,9 +6,9 @@ namespace nhitomi.Localization
     {
         public abstract CultureInfo Culture { get; }
 
-        public virtual DoujinMessageLocalization DoujinMessage { get; }
-        public virtual DownloadMessageLocalization DownloadMessage { get; }
-        public virtual HelpMessageLocalization HelpMessage { get; }
+        public virtual DoujinMessageLocalization DoujinMessage { get; } = new DoujinMessageLocalization();
+        public virtual DownloadMessageLocalization DownloadMessage { get; } = new DownloadMessageLocalization();
+        public virtual HelpMessageLocalization HelpMessage { get; } = new HelpMessageLocalization();
 
         public class DoujinMessageLocalization
         {
