@@ -5,83 +5,50 @@ using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
-using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
-namespace nhitomi
+namespace nhitomi.Http
 {
-    public class ProxyService : BackgroundService
+    public class ProxyService : IDisposable
     {
-        readonly HttpListener _listener;
         readonly HttpClient _client;
+        readonly ILogger<ProxyService> _logger;
 
-        public ProxyService()
+        public ProxyService(ILogger<ProxyService> logger)
         {
             // create http client
-            // we don't use DI injected factory because we need to set SocketsHtttpHandler
+            // we don't use DI injected factory because we use custom SocketsHttpHandler
             _client = new HttpClient(new SocketsHttpHandler
             {
                 AllowAutoRedirect = false,
                 AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate
             });
-
-            // use PORT envvar or 80
-            var port = int.TryParse(Environment.GetEnvironmentVariable("PORT"), out var p) ? p : 80;
-
-            // start listener
-            _listener = new HttpListener();
-            _listener.Prefixes.Add($"http://*:{port}/");
+            _logger = logger;
         }
 
-        protected override async Task ExecuteAsync(CancellationToken cancellationToken)
-        {
-            _listener.Start();
-            try
-            {
-                while (!cancellationToken.IsCancellationRequested)
-                {
-                    try
-                    {
-                        var context = await _listener.GetContextAsync();
-
-                        // handle context asynchronously
-                        _ = Task.Run(() => HandleContextAsync(context, cancellationToken), cancellationToken);
-                    }
-                    catch (Exception e)
-                    {
-                        Console.WriteLine($"Exception while receiving request: {e}");
-                    }
-                }
-            }
-            finally
-            {
-                _listener.Close();
-            }
-        }
-
-        async Task HandleContextAsync(HttpListenerContext context, CancellationToken cancellationToken = default)
+        public async Task HandleRequestAsync(HttpListenerContext context, string requestUrl,
+            CancellationToken cancellationToken = default)
         {
             var request = context.Request;
             var response = context.Response;
 
             try
             {
-                if (!Uri.TryCreate(
-                    HttpUtility.UrlDecode(request.Url.PathAndQuery.TrimStart('/')),
-                    UriKind.Absolute,
-                    out var forwardUri))
+                // validate request url
+                if (!Uri.TryCreate(HttpUtility.UrlDecode(requestUrl), UriKind.Absolute, out var requestUri))
                 {
                     response.StatusCode = 400;
                     response.StatusDescription = "Invalid upstream URL.";
                     return;
                 }
 
-                Console.WriteLine($"{request.HttpMethod} {forwardUri}");
+                _logger.LogDebug($"{request.HttpMethod} {requestUri}");
 
                 // create forward request
                 using (var forwardRequest = new HttpRequestMessage
                 {
                     Method = new HttpMethod(request.HttpMethod),
-                    RequestUri = forwardUri,
+                    RequestUri = requestUri,
                     Version = request.ProtocolVersion,
                     Content = new StreamContent(request.InputStream)
                 })
@@ -91,7 +58,7 @@ namespace nhitomi
                     {
                         var value = request.Headers[key];
 
-                        Console.WriteLine($"{key}: {value}");
+                        _logger.LogDebug($"{key}: {value}");
 
                         switch (key.ToLowerInvariant())
                         {
@@ -114,7 +81,7 @@ namespace nhitomi
                         }
                     }
 
-                    Console.WriteLine("Sending request...");
+                    _logger.LogDebug("Sending request...");
 
                     // send request
                     using (var forwardResponse = await _client.SendAsync(forwardRequest, cancellationToken))
@@ -131,42 +98,31 @@ namespace nhitomi
                             {
                                 // copy
                                 default:
-                                    Console.WriteLine($"{key}: {value}");
+                                    _logger.LogDebug($"{key}: {value}");
                                     response.AddHeader(key, value);
                                     break;
                             }
                         }
 
-                        Console.WriteLine("Sending response...");
+                        _logger.LogDebug("Sending response...");
 
                         // copy body
                         using (var stream = await forwardResponse.Content.ReadAsStreamAsync())
                             await stream.CopyToAsync(response.OutputStream, cancellationToken);
 
+                        // flush output
                         await response.OutputStream.FlushAsync(cancellationToken);
                     }
                 }
             }
             catch (Exception e)
             {
-                Console.WriteLine($"Exception while handling request: {e}");
+                _logger.LogWarning($"Exception while handling request: {e}");
 
                 response.StatusCode = 500;
             }
-            finally
-            {
-                // always close response
-                response.Close();
-
-                Console.WriteLine("Closed response.");
-            }
         }
 
-        public override void Dispose()
-        {
-            base.Dispose();
-
-            _client.Dispose();
-        }
+        public void Dispose() => _client.Dispose();
     }
 }
