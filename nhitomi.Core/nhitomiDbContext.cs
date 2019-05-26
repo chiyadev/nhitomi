@@ -30,6 +30,13 @@ namespace nhitomi.Core
         {
         }
 
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            Doujin.Describe(modelBuilder);
+        }
+
         IQueryable<TEntity> IDatabase.Query<TEntity>(bool readOnly)
         {
             IQueryable<TEntity> queryable = Set<TEntity>();
