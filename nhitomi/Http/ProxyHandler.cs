@@ -17,7 +17,7 @@ namespace nhitomi.Http
         public ProxyHandler(ILogger<ProxyHandler> logger)
         {
             // create http client
-            // we don't use DI injected factory because we use custom SocketsHttpHandler
+            // we don't use DI injected client because we use custom SocketsHttpHandler
             _client = new HttpClient(new SocketsHttpHandler
             {
                 AllowAutoRedirect = false,
