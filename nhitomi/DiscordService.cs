@@ -4,7 +4,6 @@
 // https://opensource.org/licenses/MIT
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -15,7 +14,6 @@ using Discord.WebSocket;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using nhitomi.Core;
 
 namespace nhitomi
 {
@@ -23,7 +21,6 @@ namespace nhitomi
     {
         readonly IServiceProvider _services;
         readonly AppSettings _settings;
-        readonly ISet<IDoujinClient> _clients;
         readonly MessageFormatter _formatter;
         readonly ILogger<DiscordService> _logger;
 
@@ -32,18 +29,15 @@ namespace nhitomi
         public DiscordSocketClient Socket { get; }
         public CommandService Commands { get; }
 
-        public DiscordService(IServiceProvider services, IOptions<AppSettings> options, ISet<IDoujinClient> clients,
-            MessageFormatter formatter, ILoggerFactory loggerFactory, IHostingEnvironment environment)
+        public DiscordService(IServiceProvider services, IOptions<AppSettings> options, MessageFormatter formatter,
+            ILoggerFactory loggerFactory, IHostingEnvironment environment)
         {
             _services = services;
             _settings = options.Value;
-            _clients = clients;
             _formatter = formatter;
 
             // build gallery regex to match all known formats
-            _galleryRegex = new Regex(
-                $"({string.Join(")|(", clients.Select(c => c.GalleryRegex))})",
-                RegexOptions.Compiled);
+            _galleryRegex = new Regex(GalleryRegex.Combined, RegexOptions.Compiled);
 
             //todo: sharding
             Socket = new DiscordSocketClient(_settings.Discord);
@@ -166,51 +160,27 @@ namespace nhitomi
             }
         }
 
-        public delegate Task GalleryDetectionHandler(IUserMessage message, IAsyncEnumerable<Doujin> doujins);
+        public delegate Task GalleryDetectionHandler(IUserMessage message, (string source, string id)[] ids);
 
         public event GalleryDetectionHandler DoujinsDetected;
 
-        async Task DetectGalleryUrlsAsync(SocketUserMessage message)
+        async Task DetectGalleryUrlsAsync(IUserMessage message)
         {
             var content = message.Content;
 
-            // try to recognise at least one gallery url
+            // try recognizing at least one gallery url
             if (!_galleryRegex.IsMatch(content))
                 return;
 
-
-            IAsyncEnumerable<Doujin> doujins;
-
-            using (message.Channel.EnterTypingState())
-            {
-                doujins = AsyncEnumerable.CreateEnumerable(() =>
-                {
-                    var enumerator = (IEnumerator<Match>) _galleryRegex.Matches(content).GetEnumerator();
-                    var current = (Doujin) null;
-
-                    return AsyncEnumerable.CreateEnumerator(
-                        async token =>
-                        {
-                            if (!enumerator.MoveNext())
-                                return false;
-
-                            var group = enumerator.Current.Groups.First(g =>
-                                g.Success &&
-                                _clients.Any(c => c.Name == g.Name));
-
-                            current = await _clients
-                                .First(c => c.Name == group.Name)
-                                .GetAsync(group.Value, token);
-
-                            return true;
-                        },
-                        () => current,
-                        enumerator.Dispose);
-                });
-            }
+            var ids = _galleryRegex
+                .Matches(content)
+                .SelectMany(m => m.Groups)
+                .Where(g => g.Name != null && g.Name.StartsWith("source_"))
+                .Select(g => (g.Name.Split('_', 2)[1], g.Value))
+                .ToArray();
 
             if (DoujinsDetected != null)
-                await DoujinsDetected(message, doujins);
+                await DoujinsDetected(message, ids);
         }
 
         Task HandleLogAsync(LogMessage m)
