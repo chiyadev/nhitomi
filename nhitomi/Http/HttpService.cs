@@ -14,10 +14,10 @@ namespace nhitomi.Http
         readonly HttpListener _listener;
 
         readonly AppSettings _settings;
-        readonly ProxyService _proxyService;
+        readonly ProxyHandler _proxyHandler;
         readonly ILogger<HttpService> _logger;
 
-        public HttpService(IOptions<AppSettings> options, ProxyService proxyService, ILogger<HttpService> logger)
+        public HttpService(IOptions<AppSettings> options, ProxyHandler proxyHandler, ILogger<HttpService> logger)
         {
             // use PORT envvar or 80
             var port = int.TryParse(Environment.GetEnvironmentVariable("PORT"), out var p) ? p : 80;
@@ -27,7 +27,7 @@ namespace nhitomi.Http
             _listener.Prefixes.Add($"http://*:{port}/");
 
             _settings = options.Value;
-            _proxyService = proxyService;
+            _proxyHandler = proxyHandler;
             _logger = logger;
         }
 
@@ -72,7 +72,7 @@ namespace nhitomi.Http
 
                 // proxy endpoint
                 if (_settings.Http.EnableProxy && segments[0] == "proxy")
-                    return _proxyService.HandleRequestAsync(
+                    return _proxyHandler.HandleRequestAsync(
                         context,
                         string.Join('/', segments.Subarray(1)) + request.Url.Query,
                         cancellationToken);

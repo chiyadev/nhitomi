@@ -53,7 +53,7 @@ namespace nhitomi
             // http server
             services
                 .AddHostedService<HttpService>()
-                .AddSingleton<ProxyService>();
+                .AddSingleton<ProxyHandler>();
         }
     }
 }

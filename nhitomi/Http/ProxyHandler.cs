@@ -9,12 +9,12 @@ using Microsoft.Extensions.Logging;
 
 namespace nhitomi.Http
 {
-    public class ProxyService : IDisposable
+    public class ProxyHandler : IDisposable
     {
         readonly HttpClient _client;
-        readonly ILogger<ProxyService> _logger;
+        readonly ILogger<ProxyHandler> _logger;
 
-        public ProxyService(ILogger<ProxyService> logger)
+        public ProxyHandler(ILogger<ProxyHandler> logger)
         {
             // create http client
             // we don't use DI injected factory because we use custom SocketsHttpHandler
