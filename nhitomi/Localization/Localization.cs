@@ -6,11 +6,11 @@ namespace nhitomi.Localization
     {
         public abstract CultureInfo Culture { get; }
 
-        public virtual DoujinMessageLocalization DoujinMessage { get; } = new DoujinMessageLocalization();
-        public virtual DownloadMessageLocalization DownloadMessage { get; } = new DownloadMessageLocalization();
-        public virtual HelpMessageLocalization HelpMessage { get; } = new HelpMessageLocalization();
+        public abstract DoujinMessageLocalization DoujinMessage { get; }
+        public abstract DownloadMessageLocalization DownloadMessage { get; }
+        public abstract HelpMessageLocalization HelpMessage { get; }
 
-        public class DoujinMessageLocalization
+        public abstract class DoujinMessageLocalization
         {
             public virtual string Language => "Language";
             public virtual string ParodyOf => "Parody of";
@@ -20,13 +20,13 @@ namespace nhitomi.Localization
             public virtual string Contents => "Content";
         }
 
-        public class DownloadMessageLocalization
+        public abstract class DownloadMessageLocalization
         {
             public virtual string Description(string name) =>
                 $"Click the link above to start downloading `{name}`.";
         }
 
-        public class HelpMessageLocalization
+        public abstract class HelpMessageLocalization
         {
             public virtual string Title => "Help";
 
