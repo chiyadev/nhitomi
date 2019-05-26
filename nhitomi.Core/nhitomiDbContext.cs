@@ -1,9 +1,15 @@
+using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 
 namespace nhitomi.Core
 {
-    public class nhitomiDbContext : DbContext
+    public interface IDatabase
+    {
+        IQueryable<TEntity> Query<TEntity>() where TEntity : class;
+    }
+
+    public class nhitomiDbContext : DbContext, IDatabase
     {
         public DbSet<Doujin> Doujins { get; set; }
         public DbSet<Scanlator> Scanlators { get; set; }
@@ -19,6 +25,8 @@ namespace nhitomi.Core
         public nhitomiDbContext(DbContextOptions options) : base(options)
         {
         }
+
+        IQueryable<TEntity> IDatabase.Query<TEntity>() => Set<TEntity>().AsNoTracking();
     }
 
     public sealed class nhitomiDbContextDesignTimeFactory : IDesignTimeDbContextFactory<nhitomiDbContext>

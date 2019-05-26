@@ -1,9 +1,9 @@
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using nhitomi.Core;
-using nhitomi.Database;
 using nhitomi.Http;
 using nhitomi.Services;
 using Newtonsoft.Json;
@@ -46,8 +46,18 @@ namespace nhitomi
                 .AddHostedService<FeedUpdater>();
 
             // database
-            services
-                .AddSingleton<IDatabase, DynamoDbDatabase>();
+            if (host.HostingEnvironment.IsProduction())
+            {
+                services
+                    .AddDbContext<IDatabase, nhitomiDbContext>(d => d
+                        .UseMySql(host.Configuration.GetConnectionString("nhitomi")));
+            }
+            else
+            {
+                services
+                    .AddDbContext<IDatabase, nhitomiDbContext>(d => d
+                        .UseSqlite("Data Source=nhitomi.db"));
+            }
 
             // http server
             services
