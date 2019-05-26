@@ -46,9 +46,6 @@ namespace nhitomi
                 .AddHostedService<FeedUpdater>();
 
             // database
-            services
-                .AddSingleton<Repository>();
-
             if (host.HostingEnvironment.IsProduction())
             {
                 services

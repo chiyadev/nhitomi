@@ -11,6 +11,8 @@ namespace nhitomi.Core
         IQueryable<TEntity> Query<TEntity>(bool readOnly = true) where TEntity : class;
 
         Task<bool> SaveAsync(CancellationToken cancellationToken = default);
+
+        Task<Doujin> GetDoujinAsync(string source, string id, CancellationToken cancellationToken = default);
     }
 
     public class nhitomiDbContext : DbContext, IDatabase
@@ -61,6 +63,22 @@ namespace nhitomi.Core
                 return false;
             }
         }
+
+        Task<Doujin> IDatabase.GetDoujinAsync(string source, string id, CancellationToken cancellationToken) =>
+            IncludeDoujin(Query<Doujin>())
+                .Where(d => d.Source == source && d.SourceId == id)
+                .FirstOrDefaultAsync();
+
+        static IQueryable<Doujin> IncludeDoujin(IQueryable<Doujin> queryable) => queryable
+            .Include(d => d.Scanlator)
+            .Include(d => d.Language)
+            .Include(d => d.ParodyOf)
+            .Include(d => d.Characters)
+            .Include(d => d.Categories)
+            .Include(d => d.Artists)
+            .Include(d => d.Groups)
+            .Include(d => d.Tags)
+            .Include(d => d.Pages);
     }
 
     public sealed class nhitomiDbContextDesignTimeFactory : IDesignTimeDbContextFactory<nhitomiDbContext>
