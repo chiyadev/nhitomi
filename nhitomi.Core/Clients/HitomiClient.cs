@@ -58,8 +58,6 @@ namespace nhitomi.Core.Clients
             IconUrl = "https://ltn.hitomi.la/favicon-160x160.png"
         };
 
-        public string GalleryRegex => @"\b((http|https):\/\/)?hitomi(\.la)?\/(galleries\/)?(?<Hitomi>[0-9]{1,7})\b";
-
         readonly IHttpClient _http;
         readonly JsonSerializer _json;
         readonly ILogger<HitomiClient> _logger;

@@ -83,8 +83,6 @@ namespace nhitomi.Core.Clients
             IconUrl = "https://cdn.cybrhome.com/media/website/live/icon/icon_nhentai.net_57f740.png"
         };
 
-        public string GalleryRegex => @"\b((http|https):\/\/)?nhentai(\.net)?\/(g\/)?(?<nhentai>[0-9]{1,6})\b";
-
         readonly IHttpClient _http;
         readonly JsonSerializer _json;
         readonly ILogger<nhentaiClient> _logger;
