@@ -5,20 +5,20 @@
 
 using System.Threading.Tasks;
 using Discord.Commands;
+using nhitomi.Interactivity;
 
 namespace nhitomi.Modules
 {
     public class HelpModule : ModuleBase
     {
-        readonly MessageFormatter _formatter;
+        readonly InteractiveManager _interactive;
 
-        public HelpModule(
-            MessageFormatter formatter)
+        public HelpModule(InteractiveManager interactive)
         {
-            _formatter = formatter;
+            _interactive = interactive;
         }
 
         [Command("help")]
-        public Task HelpAsync() => ReplyAsync(embed: _formatter.CreateHelpEmbed());
+        public Task HelpAsync() => _interactive.SendInteractiveAsync(new HelpMessage(), Context);
     }
 }
