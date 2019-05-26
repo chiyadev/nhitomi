@@ -4,6 +4,7 @@ using System.Linq;
 using Discord;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using nhitomi.Database;
 using nhitomi.Interactivity.Triggers;
 
 namespace nhitomi.Interactivity
@@ -12,7 +13,6 @@ namespace nhitomi.Interactivity
     {
         Doujins,
         Collections,
-        Tags,
         Other
     }
 
@@ -64,14 +64,6 @@ namespace nhitomi.Interactivity
 - {prefix}collection `name` list — Lists all doujins belonging to a collection.
 - {prefix}collection `name` sort `attribute` — Sorts doujins in a collection by an attribute ({string.Join(", ", Enum.GetNames(typeof(CollectionSortAttribute)).Select(s => s.ToLowerInvariant()))}).
 - {prefix}collection `name` delete — Deletes a collection, removing all doujins belonging to it.
-".Trim());
-                    break;
-
-                case HelpMessageSection.Tags:
-                    embed.AddField("  — Tag subscriptions —", $@"
-- {prefix}subscription — Lists all tags you are subscribed to.
-- {prefix}subscription add|remove `tag` — Adds or removes a tag subscription.
-- {prefix}subscription clear — Removes all tag subscriptions.
 ".Trim());
                     break;
 
