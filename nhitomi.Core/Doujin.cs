@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
 
@@ -91,20 +90,6 @@ namespace nhitomi.Core
 
             Page.Describe(model);
         }
-    }
-
-    public static class DoujinExtensions
-    {
-        public static IQueryable<Doujin> IncludeAll(IQueryable<Doujin> queryable) => queryable
-            .Include(d => d.Scanlator)
-            .Include(d => d.Language)
-            .Include(d => d.ParodyOf)
-            .Include(d => d.Characters)
-            .Include(d => d.Categories)
-            .Include(d => d.Artists)
-            .Include(d => d.Groups)
-            .Include(d => d.Tags)
-            .Include(d => d.Pages);
     }
 
     /// <summary>
