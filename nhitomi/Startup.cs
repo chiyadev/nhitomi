@@ -33,6 +33,10 @@ namespace nhitomi
                     .AddConsole()
                     .AddDebug());
 
+            // api
+            services
+                .AddSingleton<ApiClient>();
+
             // discord services
             services
                 .AddSingleton<DiscordService>()
