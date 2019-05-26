@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
@@ -16,6 +17,13 @@ namespace nhitomi.Core
 {
     public static class Extensions
     {
+        public static async Task<T> DeserializeAsync<T>(this JsonSerializer serializer, HttpContent content)
+        {
+            using (var reader = new StringReader(await content.ReadAsStringAsync()))
+            using (var jsonReader = new JsonTextReader(reader))
+                return serializer.Deserialize<T>(jsonReader);
+        }
+
         public static T Deserialize<T>(this JsonSerializer serializer, Stream stream)
         {
             using (var reader = new StreamReader(stream))
@@ -44,7 +52,7 @@ namespace nhitomi.Core
             .Select(x => x.Select(v => v.Value));
 
         public static IDoujinClient FindByName(this IEnumerable<IDoujinClient> clients, string name) =>
-            clients.FirstOrDefault(c => c.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
+            clients.FirstOrDefault(c => c.Info.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
 
         public static void Destructure<T>(this T[] items, out T t0, out T t1)
         {

@@ -51,10 +51,13 @@ namespace nhitomi.Core.Clients
 
     public sealed class HitomiClient : IDoujinClient
     {
-        public string Name => nameof(Hitomi);
+        public DoujinClientInfo Info => new DoujinClientInfo
+        {
+            Name = nameof(Hitomi),
+            Url = "https://hitomi.la/",
+            IconUrl = "https://ltn.hitomi.la/favicon-160x160.png"
+        };
 
-        public string Url => "https://hitomi.la/";
-        public string IconUrl => "https://ltn.hitomi.la/favicon-160x160.png";
         public string GalleryRegex => @"\b((http|https):\/\/)?hitomi(\.la)?\/(galleries\/)?(?<Hitomi>[0-9]{1,7})\b";
 
         readonly IHttpClient _http;
@@ -108,7 +111,7 @@ namespace nhitomi.Core.Clients
 
                 UploadTime = DateTime.Parse(Sanitize(root.SelectSingleNode(Hitomi.XPath.Date))),
 
-                Source = this,
+                Source = Info,
                 SourceId = id,
 
                 Language = ConvertLanguage(Sanitize(root.SelectSingleNode(Hitomi.XPath.Language))),

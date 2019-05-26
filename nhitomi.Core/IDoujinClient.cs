@@ -12,10 +12,8 @@ namespace nhitomi.Core
 {
     public interface IDoujinClient : IDisposable
     {
-        string Name { get; }
+        DoujinClientInfo Info { get; }
 
-        string Url { get; }
-        string IconUrl { get; }
         string GalleryRegex { get; }
 
         Task<DoujinInfo> GetAsync(string id, CancellationToken cancellationToken = default);

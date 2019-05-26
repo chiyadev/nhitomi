@@ -13,7 +13,7 @@ namespace nhitomi.Core
 
         public DateTime UploadTime { get; set; }
 
-        public IDoujinClient Source { get; set; }
+        public DoujinClientInfo Source { get; set; }
         public string SourceId { get; set; }
 
         public string Scanlator { get; set; }
