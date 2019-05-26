@@ -15,9 +15,8 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using nhitomi.Core;
-using nhitomi.Database;
 
-namespace nhitomi.Services
+namespace nhitomi
 {
     public class FeedUpdater : BackgroundService
     {
@@ -28,13 +27,8 @@ namespace nhitomi.Services
         readonly IDatabase _database;
         readonly ILogger<FeedUpdater> _logger;
 
-        public FeedUpdater(
-            IOptions<AppSettings> options,
-            ISet<IDoujinClient> clients,
-            DiscordService discord,
-            MessageFormatter formatter,
-            IDatabase database,
-            ILogger<FeedUpdater> logger)
+        public FeedUpdater(IOptions<AppSettings> options, ISet<IDoujinClient> clients, DiscordService discord,
+            MessageFormatter formatter, IDatabase database, ILogger<FeedUpdater> logger)
         {
             _settings = options.Value;
             _clients = clients;
