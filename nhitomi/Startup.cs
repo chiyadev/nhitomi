@@ -45,15 +45,16 @@ namespace nhitomi
             services
                 .AddSingleton<IDatabase, DynamoDbDatabase>();
 
-            // other stuff
-            services
-                .AddHttpClient()
-                .AddTransient(s => JsonSerializer.Create(new nhitomiSerializerSettings()));
-
             // http server
             services
                 .AddHostedService<HttpService>()
                 .AddSingleton<ProxyHandler>();
+
+            // other stuff
+            services
+                .AddHttpClient()
+                .AddTransient<IHttpClient, HttpClientWrapper>()
+                .AddTransient(s => JsonSerializer.Create(new nhitomiSerializerSettings()));
         }
     }
 }

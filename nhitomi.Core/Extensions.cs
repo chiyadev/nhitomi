@@ -16,6 +16,13 @@ namespace nhitomi.Core
 {
     public static class Extensions
     {
+        public static T Deserialize<T>(this JsonSerializer serializer, Stream stream)
+        {
+            using (var reader = new StreamReader(stream))
+            using (var jsonReader = new JsonTextReader(reader))
+                return serializer.Deserialize<T>(jsonReader);
+        }
+
         public static T[] Subarray<T>(this T[] array, int index) =>
             array.Subarray(index, array.Length - index);
 
