@@ -1,4 +1,7 @@
+using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
@@ -13,6 +16,7 @@ namespace nhitomi.Core
         Task<bool> SaveAsync(CancellationToken cancellationToken = default);
 
         Task<Doujin> GetDoujinAsync(string source, string id, CancellationToken cancellationToken = default);
+        IAsyncEnumerable<Doujin> EnumerateDoujinsAsync(Expression<Func<Doujin, bool>> filter);
     }
 
     public class nhitomiDbContext : DbContext, IDatabase
@@ -64,10 +68,17 @@ namespace nhitomi.Core
             }
         }
 
+        const int _chunkedLoadSize = 64;
+
         Task<Doujin> IDatabase.GetDoujinAsync(string source, string id, CancellationToken cancellationToken) =>
             IncludeDoujin(Query<Doujin>())
                 .Where(d => d.Source == source && d.SourceId == id)
                 .FirstOrDefaultAsync();
+
+        IAsyncEnumerable<Doujin> IDatabase.EnumerateDoujinsAsync(Expression<Func<Doujin, bool>> filter) =>
+            IncludeDoujin(Query<Doujin>())
+                .Where(filter)
+                .ToChunkedAsyncEnumerable(_chunkedLoadSize);
 
         static IQueryable<Doujin> IncludeDoujin(IQueryable<Doujin> queryable) => queryable
             .Include(d => d.Scanlator)
