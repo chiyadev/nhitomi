@@ -49,8 +49,7 @@ namespace nhitomi.Modules
             await _formatter.AddDoujinTriggersAsync(response);
         }
 
-        [Command("all")]
-        [Alias("a")]
+        [Command("all"), Alias("a")]
         public async Task ListAsync([Remainder] string source = null)
         {
             DoujinListInteractive interactive;
@@ -83,8 +82,7 @@ namespace nhitomi.Modules
                 await _formatter.AddDoujinTriggersAsync(interactive.Message);
         }
 
-        [Command("search")]
-        [Alias("s")]
+        [Command("search"), Alias("s")]
         public async Task SearchAsync([Remainder] string query)
         {
             if (string.IsNullOrEmpty(query))
@@ -106,44 +104,34 @@ namespace nhitomi.Modules
                 await _formatter.AddDoujinTriggersAsync(interactive.Message);
         }
 
-        [Command("searchen")]
-        [Alias("se")]
+        [Command("searchen"), Alias("se")]
         public Task SearchEnglishAsync([Remainder] string query) => SearchAsync(query + " english");
 
-        [Command("searchjp")]
-        [Alias("sj")]
+        [Command("searchjp"), Alias("sj")]
         public Task SearchJapaneseAsync([Remainder] string query) => SearchAsync(query + " japanese");
 
-        [Command("searchch")]
-        [Alias("sc")]
+        [Command("searchch"), Alias("sc")]
         public Task SearchChineseAsync([Remainder] string query) => SearchAsync(query + " chinese");
 
-        [Command("download")]
-        [Alias("dl")]
+        [Command("download"), Alias("dl")]
         public async Task DownloadAsync(string source, string id)
         {
-            var client = _clients.FindByName(source);
-
-            if (client == null)
-            {
-                await ReplyAsync(_formatter.UnsupportedSource(source));
-                return;
-            }
-
             using (Context.Channel.EnterTypingState())
             {
-                var guild = await Context.Client.GetGuildAsync(_settings.Discord.Guild.GuildId);
-
                 // allow downloading only for users of guild
-                if (guild != null &&
-                    !_settings.Doujin.AllowNonGuildMemberDownloads &&
-                    await guild.GetUserAsync(Context.User.Id) == null)
+                if (!_settings.Doujin.AllowNonGuildMemberDownloads)
                 {
-                    await Context.User.SendMessageAsync(_formatter.JoinGuildForDownload);
-                    return;
+                    var guild = await Context.Client.GetGuildAsync(_settings.Discord.Guild.GuildId);
+
+                    // guild user is null; user is not in guild
+                    if (await guild.GetUserAsync(Context.User.Id) == null)
+                    {
+                        await Context.User.SendMessageAsync(_formatter.JoinGuildForDownload);
+                        return;
+                    }
                 }
 
-                var doujin = await client.GetAsync(id);
+                var doujin = await _database.GetDoujinAsync(source, id);
 
                 if (doujin == null)
                 {
