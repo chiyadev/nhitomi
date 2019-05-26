@@ -45,15 +45,17 @@ namespace nhitomi.Interactivity
         readonly IServiceProvider _services;
         readonly AppSettings _settings;
         readonly DiscordService _discord;
+        readonly IDatabase _database;
         readonly MessageFormatter _formatter;
         readonly ILogger<InteractiveManager> _logger;
 
         public InteractiveManager(IServiceProvider services, IOptions<AppSettings> options, DiscordService discord,
-            MessageFormatter formatter, ILogger<InteractiveManager> logger)
+            IDatabase database, MessageFormatter formatter, ILogger<InteractiveManager> logger)
         {
             _services = services;
             _settings = options.Value;
             _discord = discord;
+            _database = database;
             _formatter = formatter;
             _discord = discord;
             _logger = logger;
@@ -62,6 +64,34 @@ namespace nhitomi.Interactivity
             _discord.Socket.ReactionRemoved += HandleReactionAsync;
 
             _discord.DoujinsDetected += HandleDoujinsDetectedAsync;
+        }
+
+        async Task HandleDoujinsDetectedAsync(IUserMessage message, (string source, string id)[] ids,
+            CancellationToken cancellationToken = default)
+        {
+            // retrieve all doujins
+            var browser = new EnumerableBrowser<Doujin>(await _database.GetDoujinsAsync(ids, cancellationToken));
+
+            // create a dummy context to create an interactive in
+            var context = new DoujinDetectionContext(_discord.Socket, message);
+
+            // list interactive
+            await SendInteractiveAsync(new DoujinListMessage(browser), context, cancellationToken);
+        }
+
+        sealed class DoujinDetectionContext : ICommandContext
+        {
+            public IDiscordClient Client { get; }
+            public IGuild Guild => Channel is IGuildChannel c ? c.Guild : null;
+            public IMessageChannel Channel => Message.Channel;
+            public IUser User => Message.Author;
+            public IUserMessage Message { get; }
+
+            public DoujinDetectionContext(IDiscordClient client, IUserMessage message)
+            {
+                Client = client;
+                Message = message;
+            }
         }
 
         public readonly ConcurrentDictionary<ulong, InteractiveMessage> InteractiveMessages =
@@ -75,14 +105,6 @@ namespace nhitomi.Interactivity
 
             // add to list
             InteractiveMessages[interactive.Message.Id] = interactive;
-        }
-
-        async Task HandleDoujinsDetectedAsync(IUserMessage message, IAsyncEnumerable<Doujin> doujins)
-        {
-            var interactive = await CreateDoujinListInteractiveAsync(doujins, message.Channel.SendMessageAsync);
-
-            if (interactive != null)
-                await _formatter.AddDoujinTriggersAsync(interactive.Message);
         }
 
         static readonly Dictionary<IEmote, Func<ReactionTrigger>> _statelessTriggers = typeof(Startup).Assembly

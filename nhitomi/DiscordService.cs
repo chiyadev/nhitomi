@@ -160,9 +160,10 @@ namespace nhitomi
             }
         }
 
-        public delegate Task GalleryDetectionHandler(IUserMessage message, (string source, string id)[] ids);
+        public delegate Task DoujinDetectionAsyncHandler(IUserMessage message, (string source, string id)[] ids,
+            CancellationToken cancellationToken = default);
 
-        public event GalleryDetectionHandler DoujinsDetected;
+        public event DoujinDetectionAsyncHandler DoujinsDetected;
 
         async Task DetectGalleryUrlsAsync(IUserMessage message)
         {

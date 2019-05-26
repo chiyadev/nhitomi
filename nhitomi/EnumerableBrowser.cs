@@ -4,6 +4,7 @@
 // https://opensource.org/licenses/MIT
 
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -20,6 +21,10 @@ namespace nhitomi
         public EnumerableBrowser(IAsyncEnumerator<T> enumerator)
         {
             _enumerator = enumerator;
+        }
+
+        public EnumerableBrowser(IEnumerable<T> enumerable) : this(enumerable.ToAsyncEnumerable().GetEnumerator())
+        {
         }
 
         public async Task<bool> MoveNext(CancellationToken cancellationToken = default)
