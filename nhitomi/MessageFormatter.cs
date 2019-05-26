@@ -4,7 +4,6 @@
 // https://opensource.org/licenses/MIT
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Discord;
@@ -16,50 +15,15 @@ namespace nhitomi
 {
     public class MessageFormatter
     {
-        public static IEmote FloppyDiskEmote => new Emoji("\uD83D\uDCBE");
-        public static IEmote TrashcanEmote => new Emoji("\uD83D\uDDD1");
-        public static IEmote HeartEmote => new Emoji("\u2764");
-        public static IEmote LeftArrowEmote => new Emoji("\u25c0");
-        public static IEmote RightArrowEmote => new Emoji("\u25b6");
+        public static IEmote HeartEmote => ;
+        public static IEmote LeftArrowEmote => ;
+        public static IEmote RightArrowEmote => ;
 
         readonly AppSettings _settings;
 
         public MessageFormatter(IOptions<AppSettings> options)
         {
             _settings = options.Value;
-        }
-
-        static string Join(IEnumerable<string> values)
-        {
-            var array = values?.ToArray();
-
-            return array == null || array.Length == 0
-                ? null
-                : string.Join(", ", array);
-        }
-
-        public Embed CreateDoujinEmbed(Doujin doujin)
-        {
-            var embed = new EmbedBuilder()
-                .WithTitle(doujin.OriginalName ?? doujin.PrettyName)
-                .WithDescription(doujin.OriginalName == doujin.PrettyName ? null : doujin.PrettyName)
-                .WithAuthor(a => a
-                    .WithName(Join(doujin.Artists?.Select(x => x.Value)) ?? doujin.Source)
-                    .WithIconUrl(doujin.Source.IconUrl))
-                .WithUrl(doujin.GalleryUrl)
-                .WithImageUrl(doujin.Pages.First().Url)
-                .WithColor(Color.Green)
-                .WithFooter($"{doujin.Source}/{doujin.SourceId}");
-
-            embed.AddFieldSafe("Language", doujin.Language?.Value, true);
-            embed.AddFieldSafe("Parody of", doujin.ParodyOf?.Value, true);
-            embed.AddFieldSafe("Categories", Join(doujin.Categories?.Select(x => x.Value)), true);
-            embed.AddFieldSafe("Characters", Join(doujin.Characters?.Select(x => x.Value)), true);
-            embed.AddFieldSafe("Tags", Join(doujin.Tags?.Select(x => x.Value)), true);
-
-            embed.AddField("Content", $"{doujin.Pages.Count} pages", true);
-
-            return embed.Build();
         }
 
         public async Task AddDoujinTriggersAsync(IUserMessage message, bool isFeed = false)

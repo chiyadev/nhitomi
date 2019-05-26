@@ -166,17 +166,18 @@ namespace nhitomi
             }
         }
 
-        public delegate Task DoujinDetectHandler(IUserMessage message, IAsyncEnumerable<Doujin> doujins);
+        public delegate Task GalleryDetectionHandler(IUserMessage message, IAsyncEnumerable<Doujin> doujins);
 
-        public event DoujinDetectHandler DoujinsDetected;
+        public event GalleryDetectionHandler DoujinsDetected;
 
         async Task DetectGalleryUrlsAsync(SocketUserMessage message)
         {
             var content = message.Content;
 
-            // find all recognised gallery urls
+            // try to recognise at least one gallery url
             if (!_galleryRegex.IsMatch(content))
                 return;
+
 
             IAsyncEnumerable<Doujin> doujins;
 
@@ -198,8 +199,8 @@ namespace nhitomi
                                 _clients.Any(c => c.Name == g.Name));
 
                             current = await _clients
-                                .First(c => c.Name == @group.Name)
-                                .GetAsync(@group.Value, token);
+                                .First(c => c.Name == group.Name)
+                                .GetAsync(group.Value, token);
 
                             return true;
                         },

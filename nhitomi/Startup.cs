@@ -5,6 +5,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using nhitomi.Core;
 using nhitomi.Http;
+using nhitomi.Interactivity;
 using nhitomi.Services;
 using Newtonsoft.Json;
 

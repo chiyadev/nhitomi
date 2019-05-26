@@ -3,24 +3,13 @@
 // This software is released under the MIT License.
 // https://opensource.org/licenses/MIT
 
-using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace nhitomi
 {
-    public interface IEnumerableBrowser : IDisposable
-    {
-        int Index { get; }
-
-        Task<bool> MoveNext(CancellationToken cancellationToken = default);
-        bool MovePrevious();
-
-        void Reset();
-    }
-
-    public class EnumerableBrowser<T> : IAsyncEnumerator<T>, IEnumerableBrowser
+    public class EnumerableBrowser<T> : IAsyncEnumerator<T>
     {
         readonly IAsyncEnumerator<T> _enumerator;
         readonly Dictionary<int, T> _dict = new Dictionary<int, T>();
