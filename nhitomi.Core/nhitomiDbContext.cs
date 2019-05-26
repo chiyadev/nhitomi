@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
+using nhitomi.Core.Clients;
 
 namespace nhitomi.Core
 {
@@ -72,7 +73,8 @@ namespace nhitomi.Core
 
         Task<Doujin> IDatabase.GetDoujinAsync(string source, string id, CancellationToken cancellationToken) =>
             IncludeDoujin(Query<Doujin>())
-                .Where(d => d.Source == source && d.SourceId == id)
+                .Where(d => d.Source == ClientRegistry.FixSource(source) &&
+                            d.SourceId == ClientRegistry.FixId(id))
                 .FirstOrDefaultAsync();
 
         IAsyncEnumerable<Doujin> IDatabase.EnumerateDoujinsAsync(Expression<Func<Doujin, bool>> filter) =>
