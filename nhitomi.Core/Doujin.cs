@@ -75,6 +75,9 @@ namespace nhitomi.Core
             entity.HasIndex(d => d.PrettyName);
             entity.HasIndex(d => d.OriginalName);
 
+            entity.HasIndex(d => d.Source);
+            entity.HasIndex(d => d.SourceId);
+
             Scanlator.Describe(model, d => d.Scanlator);
             Language.Describe(model, d => d.Language);
             ParodyOf.Describe(model, d => d.ParodyOf);
