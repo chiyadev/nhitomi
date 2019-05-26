@@ -1,10 +1,12 @@
 using System;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Runtime.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using nhitomi.Core;
 using Newtonsoft.Json;
 
@@ -20,24 +22,40 @@ namespace nhitomi
     {
         static Uri BaseUri { get; } = new Uri("https://nhitomi.chiya.dev/api");
 
+        readonly AppSettings _settings;
         readonly IHttpClient _httpClient;
         readonly JsonSerializer _serializer;
         readonly ILogger<ApiClient> _logger;
 
-        public ApiClient(IHttpClient httpClient, JsonSerializer serializer, ILogger<ApiClient> logger)
+        public ApiClient(IOptions<AppSettings> options, IHttpClient httpClient, JsonSerializer serializer,
+            ILogger<ApiClient> logger)
         {
+            _settings = options.Value;
             _httpClient = httpClient;
             _serializer = serializer;
             _logger = logger;
         }
 
+        HttpRequestMessage CreateRequest(HttpMethod method, string path)
+        {
+            // create message
+            var message = new HttpRequestMessage
+            {
+                Method = method,
+                RequestUri = new Uri(BaseUri, path.TrimStart('/'))
+            };
+
+            // authentication header
+            message.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _settings.Api.AuthToken);
+
+            return message;
+        }
+
         public async Task<DoujinClientInfo[]> GetSourcesAsync(CancellationToken cancellationToken = default)
         {
-            using (var response = await _httpClient.SendAsync(new HttpRequestMessage
-            {
-                Method = HttpMethod.Get,
-                RequestUri = new Uri(BaseUri, "doujins/sources")
-            }, cancellationToken))
+            using (var response = await _httpClient.SendAsync(
+                CreateRequest(HttpMethod.Get, "doujins/sources"),
+                cancellationToken))
             {
                 if (response.IsSuccessStatusCode)
                     return await _serializer.DeserializeAsync<DoujinClientInfo[]>(response.Content);
@@ -49,11 +67,9 @@ namespace nhitomi
         public async Task<Doujin> GetDoujinAsync(string source, string id,
             CancellationToken cancellationToken = default)
         {
-            using (var response = await _httpClient.SendAsync(new HttpRequestMessage
-            {
-                Method = HttpMethod.Get,
-                RequestUri = new Uri(BaseUri, $"doujins/{source}/{id}")
-            }, cancellationToken))
+            using (var response = await _httpClient.SendAsync(
+                CreateRequest(HttpMethod.Get, $"doujins/{source}/{id}"),
+                cancellationToken))
             {
                 if (response.IsSuccessStatusCode)
                     return await _serializer.DeserializeAsync<Doujin>(response.Content);
