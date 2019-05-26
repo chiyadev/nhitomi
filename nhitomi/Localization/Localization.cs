@@ -42,7 +42,7 @@ namespace nhitomi.Localization
             public virtual string DoujinsSearch => "Searches for doujins that match your query.";
             public virtual string DoujinsDownload => "Sends a download link for a doujin.";
 
-            public virtual string CollectionsHeading => "Collection management";
+            public virtual string CollectionsHeading => "Collection Management";
             public virtual string Collections => "Lists all collections you own.";
             public virtual string CollectionsShow => "Displays the doujins in a collection.";
             public virtual string CollectionsAddRemove => "Adds or removes a doujin in a collection.";
@@ -52,9 +52,9 @@ namespace nhitomi.Localization
 
             public virtual string SourcesHeading => "Sources";
 
-            public virtual string ContributionHeading => "Contribution";
-            public virtual string ContributionLicense => "This project is licensed under the MIT License.";
-            public virtual string ContributionMessage(string url) => $"Contributions are welcome! <{url}>";
+            public virtual string OpenSourceHeading => "Open Source";
+            public virtual string OpenSourceLicense => "This project is licensed under the MIT License.";
+            public virtual string OpenSourceContribution(string url) => $"Contributions are welcome! <{url}>";
         }
     }
 }
