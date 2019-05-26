@@ -17,6 +17,8 @@ namespace nhitomi.Core
         Task<bool> SaveAsync(CancellationToken cancellationToken = default);
 
         Task<Doujin> GetDoujinAsync(string source, string id, CancellationToken cancellationToken = default);
+        Task<Doujin[]> GetDoujinsAsync((string source, string id)[] ids, CancellationToken cancellationToken = default);
+
         IAsyncEnumerable<Doujin> EnumerateDoujinsAsync(Expression<Func<Doujin, bool>> filter);
     }
 
@@ -71,11 +73,27 @@ namespace nhitomi.Core
 
         const int _chunkedLoadSize = 64;
 
-        Task<Doujin> IDatabase.GetDoujinAsync(string source, string id, CancellationToken cancellationToken) =>
-            IncludeDoujin(Query<Doujin>())
-                .Where(d => d.SourceId == ClientRegistry.FixId(id) &&
-                            d.Source == ClientRegistry.FixSource(source))
-                .FirstOrDefaultAsync();
+        Task<Doujin> IDatabase.GetDoujinAsync(string source, string id, CancellationToken cancellationToken)
+        {
+            source = ClientRegistry.FixSource(source);
+            id = ClientRegistry.FixId(id);
+
+            return IncludeDoujin(Query<Doujin>())
+                .Where(d => d.SourceId == id &&
+                            d.Source == source)
+                .FirstOrDefaultAsync(cancellationToken);
+        }
+
+        Task<Doujin[]> IDatabase.GetDoujinsAsync((string source, string id)[] ids, CancellationToken cancellationToken)
+        {
+            var source = ids.Select(x => ClientRegistry.FixSource(x.source)).ToArray();
+            var id = ids.Select(x => ClientRegistry.FixId(x.id)).ToArray();
+
+            return IncludeDoujin(Query<Doujin>())
+                .Where(d => id.Contains(d.SourceId) &&
+                            source.Contains(d.Source))
+                .ToArrayAsync(cancellationToken);
+        }
 
         IAsyncEnumerable<Doujin> IDatabase.EnumerateDoujinsAsync(Expression<Func<Doujin, bool>> filter) =>
             IncludeDoujin(Query<Doujin>())
