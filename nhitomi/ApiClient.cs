@@ -10,7 +10,7 @@ using Newtonsoft.Json;
 
 namespace nhitomi
 {
-    public class ApiClient
+    public class ApiClient : IApiClient
     {
         static Uri BaseUri { get; } = new Uri("https://nhitomi.chiya.dev/api");
 

@@ -35,7 +35,7 @@ namespace nhitomi
 
             // api
             services
-                .AddSingleton<ApiClient>();
+                .AddSingleton<IApiClient, ApiClient>();
 
             // discord services
             services
