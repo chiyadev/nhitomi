@@ -38,28 +38,31 @@ namespace nhitomi.Interactivity
                 : string.Join(", ", array);
         }
 
-        protected override async Task UpdateViewAsync(CancellationToken cancellationToken = default)
+        public static Embed CreateEmbed(Doujin doujin)
         {
             var embed = new EmbedBuilder()
-                .WithTitle(Doujin.OriginalName ?? Doujin.PrettyName)
-                .WithDescription(Doujin.OriginalName == Doujin.PrettyName ? null : Doujin.PrettyName)
+                .WithTitle(doujin.OriginalName ?? doujin.PrettyName)
+                .WithDescription(doujin.OriginalName == doujin.PrettyName ? null : doujin.PrettyName)
                 .WithAuthor(a => a
-                    .WithName(Join(Doujin.Artists?.Select(x => x.Value)) ?? Doujin.Source)
-                    .WithIconUrl(Doujin.Source.IconUrl))
-                .WithUrl(Doujin.GalleryUrl)
-                .WithImageUrl(Doujin.Pages.First().Url)
+                    .WithName(Join(doujin.Artists?.Select(x => x.Value)) ?? doujin.Source)
+                    .WithIconUrl(doujin.Source.IconUrl))
+                .WithUrl(doujin.GalleryUrl)
+                .WithImageUrl(doujin.Pages.First().Url)
                 .WithColor(Color.Green)
-                .WithFooter($"{Doujin.Source}/{Doujin.SourceId}");
+                .WithFooter($"{doujin.Source}/{doujin.SourceId}");
 
-            embed.AddFieldSafe("Language", Doujin.Language?.Value, true);
-            embed.AddFieldSafe("Parody of", Doujin.ParodyOf?.Value, true);
-            embed.AddFieldSafe("Categories", Join(Doujin.Categories?.Select(x => x.Value)), true);
-            embed.AddFieldSafe("Characters", Join(Doujin.Characters?.Select(x => x.Value)), true);
-            embed.AddFieldSafe("Tags", Join(Doujin.Tags?.Select(x => x.Value)), true);
-            embed.AddFieldSafe("Content", $"{Doujin.Pages.Count} pages", true);
+            embed.AddFieldSafe("Language", doujin.Language?.Value, true);
+            embed.AddFieldSafe("Parody of", doujin.ParodyOf?.Value, true);
+            embed.AddFieldSafe("Categories", Join(doujin.Categories?.Select(x => x.Value)), true);
+            embed.AddFieldSafe("Characters", Join(doujin.Characters?.Select(x => x.Value)), true);
+            embed.AddFieldSafe("Tags", Join(doujin.Tags?.Select(x => x.Value)), true);
+            embed.AddFieldSafe("Content", $"{doujin.Pages.Count} pages", true);
 
-            await SetViewAsync(embed.Build(), cancellationToken);
+            return embed.Build();
         }
+
+        protected override Task UpdateViewAsync(CancellationToken cancellationToken = default) =>
+            SetViewAsync(CreateEmbed(Doujin), cancellationToken);
 
         public static bool TryParseDoujinIdFromMessage(IMessage message, out (string source, string id) id)
         {
