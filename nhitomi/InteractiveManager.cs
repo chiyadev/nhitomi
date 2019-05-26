@@ -15,13 +15,12 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using nhitomi.Core;
 using nhitomi.Database;
-using nhitomi.Services;
 
 namespace nhitomi
 {
     public delegate Task<IUserMessage> SendMessageAsync(
         string text = null,
-        bool isTTS = false,
+        bool isTts = false,
         Embed embed = null,
         RequestOptions options = null);
 
@@ -48,12 +47,12 @@ namespace nhitomi
     {
         public IUserMessage DownloadMessage;
 
-        public DoujinListInteractive(IAsyncEnumerable<IDoujin> doujins)
-            : base(new EnumerableBrowser<IDoujin>(doujins.GetEnumerator()))
+        public DoujinListInteractive(IAsyncEnumerable<Doujin> doujins)
+            : base(new EnumerableBrowser<Doujin>(doujins.GetEnumerator()))
         {
         }
 
-        IDoujin Current => ((IAsyncEnumerator<IDoujin>) Browser).Current;
+        Doujin Current => ((IAsyncEnumerator<Doujin>) Browser).Current;
 
         public override Embed CreateEmbed(MessageFormatter formatter) => formatter.CreateDoujinEmbed(Current);
 
@@ -165,7 +164,7 @@ namespace nhitomi
         }
 
         public async Task<DoujinListInteractive> CreateDoujinListInteractiveAsync(
-            IAsyncEnumerable<IDoujin> doujins,
+            IAsyncEnumerable<Doujin> doujins,
             SendMessageAsync sendMessage,
             CancellationToken cancellationToken = default)
         {
@@ -185,7 +184,7 @@ namespace nhitomi
             return await CreateListInteractiveAsync(interactive, sendMessage, cancellationToken) ? interactive : null;
         }
 
-        async Task HandleDoujinsDetected(IUserMessage message, IAsyncEnumerable<IDoujin> doujins)
+        async Task HandleDoujinsDetected(IUserMessage message, IAsyncEnumerable<Doujin> doujins)
         {
             var interactive = await CreateDoujinListInteractiveAsync(doujins, message.Channel.SendMessageAsync);
 
@@ -297,7 +296,7 @@ namespace nhitomi
             }
         }
 
-        async Task<IDoujin> GetDoujinFromMessage(IMessage message)
+        async Task<Doujin> GetDoujinFromMessage(IMessage message)
         {
             // source/id
             var identifier = message.Embeds.FirstOrDefault(e => e is Embed)?.Footer?.Text;
