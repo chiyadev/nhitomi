@@ -10,6 +10,12 @@ using Newtonsoft.Json;
 
 namespace nhitomi
 {
+    public interface IApiClient
+    {
+        Task<DoujinClientInfo[]> GetSourcesAsync(CancellationToken cancellationToken = default);
+        Task<Doujin> GetDoujinAsync(string source, string id, CancellationToken cancellationToken = default);
+    }
+
     public class ApiClient : IApiClient
     {
         static Uri BaseUri { get; } = new Uri("https://nhitomi.chiya.dev/api");
@@ -25,6 +31,21 @@ namespace nhitomi
             _logger = logger;
         }
 
+        public async Task<DoujinClientInfo[]> GetSourcesAsync(CancellationToken cancellationToken = default)
+        {
+            using (var response = await _httpClient.SendAsync(new HttpRequestMessage
+            {
+                Method = HttpMethod.Get,
+                RequestUri = new Uri(BaseUri, "doujins/sources")
+            }, cancellationToken))
+            {
+                if (response.IsSuccessStatusCode)
+                    return await _serializer.DeserializeAsync<DoujinClientInfo[]>(response.Content);
+
+                throw new ApiException(response, "Could not retrieve doujin sources.");
+            }
+        }
+
         public async Task<Doujin> GetDoujinAsync(string source, string id,
             CancellationToken cancellationToken = default)
         {
@@ -34,18 +55,12 @@ namespace nhitomi
                 RequestUri = new Uri(BaseUri, $"doujins/{source}/{id}")
             }, cancellationToken))
             {
-                switch (response.StatusCode)
-                {
-                    case HttpStatusCode.OK:
-                        using (var stream = await response.Content.ReadAsStreamAsync())
-                            return _serializer.Deserialize<Doujin>(stream);
+                if (response.IsSuccessStatusCode)
+                    return await _serializer.DeserializeAsync<Doujin>(response.Content);
+                if (response.StatusCode == HttpStatusCode.NotFound)
+                    return null;
 
-                    case HttpStatusCode.NotFound:
-                        return null;
-
-                    default:
-                        throw new ApiException(response, $"Could not get doujin '{source}/{id}'");
-                }
+                throw new ApiException(response, $"Could not get doujin '{source}/{id}'");
             }
         }
     }
