@@ -73,8 +73,8 @@ namespace nhitomi.Core
 
         Task<Doujin> IDatabase.GetDoujinAsync(string source, string id, CancellationToken cancellationToken) =>
             IncludeDoujin(Query<Doujin>())
-                .Where(d => d.Source == ClientRegistry.FixSource(source) &&
-                            d.SourceId == ClientRegistry.FixId(id))
+                .Where(d => d.SourceId == ClientRegistry.FixId(id) &&
+                            d.Source == ClientRegistry.FixSource(source))
                 .FirstOrDefaultAsync();
 
         IAsyncEnumerable<Doujin> IDatabase.EnumerateDoujinsAsync(Expression<Func<Doujin, bool>> filter) =>
