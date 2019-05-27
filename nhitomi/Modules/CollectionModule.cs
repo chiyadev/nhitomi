@@ -160,6 +160,8 @@ namespace nhitomi.Modules
                     _database.Remove(collection);
                 }
                 while (!await _database.SaveAsync());
+
+                await ReplyAsync(_formatter.CollectionDeleted(name));
             }
         }
 
@@ -170,7 +172,7 @@ namespace nhitomi.Modules
                 return;
 
             // parse sort attribute
-            if (!Enum.TryParse<CollectionSortAttribute>(attribute, true, out var attributeValue))
+            if (!Enum.TryParse<CollectionSort>(attribute, true, out var sortValue))
             {
                 await ReplyAsync(_formatter.InvalidSortAttribute(attribute));
                 return;
@@ -178,10 +180,21 @@ namespace nhitomi.Modules
 
             using (Context.Channel.EnterTypingState())
             {
-                if (await _database.TrySetCollectionSortAsync(Context.User.Id, name, attributeValue))
-                    await ReplyAsync(_formatter.SortAttributeUpdated(attributeValue));
-                else
-                    await ReplyAsync(_formatter.CollectionNotFound);
+                do
+                {
+                    var collection = await _database.GetCollectionAsync(Context.User.Id, name);
+
+                    if (collection == null)
+                    {
+                        await ReplyAsync(_formatter.CollectionNotFound);
+                        return;
+                    }
+
+                    collection.Sort = sortValue;
+                }
+                while (!await _database.SaveAsync());
+
+                await ReplyAsync(_formatter.SortAttributeUpdated(sortValue));
             }
         }
     }

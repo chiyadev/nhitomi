@@ -90,7 +90,7 @@ namespace nhitomi
             $"**nhitomi**: Attribute `{attribute}` is invalid. " +
             $"See **{_settings.Discord.Prefix}help** for a list of valid sort attributes.";
 
-        public string SortAttributeUpdated(CollectionSortAttribute attribute) =>
+        public string SortAttributeUpdated(CollectionSort attribute) =>
             $"**nhitomi**: Updated collection sorting attribute to `{attribute}`.";
     }
 }
