@@ -40,8 +40,4 @@
         <ProjectReference Include="..\nhitomi.Core\nhitomi.Core.csproj" />
     </ItemGroup>
 
-    <ItemGroup>
-        <EmbeddedResource Include="Controllers\DownloadClient.html" />
-    </ItemGroup>
-
 </Project>
