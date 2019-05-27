@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
+using Microsoft.Extensions.DependencyInjection;
 using nhitomi.Interactivity.Triggers;
 
 namespace nhitomi.Interactivity
@@ -23,6 +24,8 @@ namespace nhitomi.Interactivity
         public override async Task<bool> InitializeAsync(IServiceProvider services, ICommandContext context,
             CancellationToken cancellationToken = default)
         {
+            var manager = services.GetRequiredService<InteractiveManager>();
+
             if (!await base.InitializeAsync(services, context, cancellationToken))
                 return false;
 
@@ -32,7 +35,9 @@ namespace nhitomi.Interactivity
             foreach (var trigger in Triggers.Values)
                 trigger.Initialize(this);
 
-            await Message.AddReactionsAsync(Triggers.Keys.ToArray());
+            // enqueue adding reactions
+            // this is to avoid blocking the command handling thread with reaction rate limiting
+            manager.EnqueueReactions(Message, Triggers.Keys);
 
             return true;
         }

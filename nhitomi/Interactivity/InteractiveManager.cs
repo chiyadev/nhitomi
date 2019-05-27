@@ -45,6 +45,30 @@ namespace nhitomi.Interactivity
                 InteractiveMessages[message.Message.Id] = interactiveMessage;
         }
 
+        readonly ConcurrentQueue<(IUserMessage message, IEmote[] emotes)> _reactionQueue =
+            new ConcurrentQueue<(IUserMessage message, IEmote[] emotes)>();
+
+        public void EnqueueReactions(IUserMessage message, IEnumerable<IEmote> emotes)
+        {
+            _reactionQueue.Enqueue((message, emotes.ToArray()));
+
+            _ = Task.Run(async () =>
+            {
+                while (_reactionQueue.TryDequeue(out var x))
+                {
+                    try
+                    {
+                        await x.message.AddReactionsAsync(x.emotes);
+                    }
+                    catch
+                    {
+                        // message may have been deleted
+                        // or we don't have the perms
+                    }
+                }
+            });
+        }
+
         static readonly Dictionary<IEmote, Func<ReactionTrigger>> _statelessTriggers = typeof(Startup).Assembly
             .GetTypes()
             .Where(t => !t.IsAbstract && t.IsClass && t.IsSubclassOf(typeof(ReactionTrigger)))
