@@ -30,9 +30,9 @@ namespace nhitomi.Modules
         {
             using (Context.Channel.EnterTypingState())
             {
-                var collectionNames = await _database.GetCollectionsAsync(Context.User.Id);
+                var collections = await _database.GetCollectionsAsync(Context.User.Id);
 
-                await ReplyAsync(embed: _formatter.CreateCollectionListEmbed(collectionNames));
+                await _interactive.SendInteractiveAsync(new CollectionListMessage(collections), Context);
             }
         }
 
