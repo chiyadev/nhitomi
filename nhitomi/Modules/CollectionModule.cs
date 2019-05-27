@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using Discord.Commands;
 using nhitomi.Core;
@@ -13,15 +12,12 @@ namespace nhitomi.Modules
         readonly IDatabase _database;
         readonly MessageFormatter _formatter;
         readonly InteractiveManager _interactive;
-        readonly ISet<IDoujinClient> _clients;
 
-        public CollectionModule(IDatabase database, MessageFormatter formatter, InteractiveManager interactive,
-            ISet<IDoujinClient> clients)
+        public CollectionModule(IDatabase database, MessageFormatter formatter, InteractiveManager interactive)
         {
             _database = database;
             _formatter = formatter;
             _interactive = interactive;
-            _clients = clients;
         }
 
         [Command]
@@ -36,7 +32,7 @@ namespace nhitomi.Modules
         }
 
         [Command]
-        public async Task ShowAsync(string collectionName)
+        public async Task ViewAsync(string collectionName)
         {
             using (Context.Channel.EnterTypingState())
             {
@@ -53,32 +49,18 @@ namespace nhitomi.Modules
         }
 
         [Command]
-        public async Task AddOrRemoveAsync(string collectionName, string operation, string source, string id)
+        public Task AddOrRemoveAsync(string collectionName, string operation, string source, string id)
         {
-            if (operation != "add" && operation != "remove")
-                return;
-
-            var client = _clients.FindByName(source);
-
-            if (client == null)
-            {
-                await ReplyAsync(_formatter.UnsupportedSource(source));
-                return;
-            }
-
             switch (operation)
             {
-                case "add":
-                    await AddAsync(collectionName, client, source, id);
-                    break;
-
-                case "remove":
-                    await RemoveAsync(collectionName, source, id);
-                    break;
+                case "add": return AddAsync(collectionName, source, id);
+                case "remove": return RemoveAsync(collectionName, source, id);
             }
+
+            return Task.CompletedTask;
         }
 
-        async Task AddAsync(string collectionName, IDoujinClient client, string source, string id)
+        async Task AddAsync(string collectionName, string source, string id)
         {
             using (Context.Channel.EnterTypingState())
             {
@@ -118,18 +100,15 @@ namespace nhitomi.Modules
         }
 
         [Command]
-        public async Task ListOrDeleteAsync(string collectionName, string operation)
+        public Task ListOrDeleteAsync(string collectionName, string operation)
         {
             switch (operation)
             {
-                case "list":
-                    await ListAsync(collectionName);
-                    break;
-
-                case "delete":
-                    await DeleteAsync(collectionName);
-                    break;
+                case "list": return ListAsync(collectionName);
+                case "delete": return DeleteAsync(collectionName);
             }
+
+            return Task.CompletedTask;
         }
 
         async Task ListAsync(string collectionName)
