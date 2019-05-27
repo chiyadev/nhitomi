@@ -4,7 +4,6 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
-using nhitomi.Core.Clients;
 
 namespace nhitomi.Core
 {
@@ -144,30 +143,31 @@ namespace nhitomi.Core
 
         public static IQueryable<Doujin> FromSource(this IQueryable<Doujin> queryable, string source)
         {
-            source = ClientRegistry.FixSource(source);
-
             return queryable.Where(d => d.Source == source);
         }
 
         public static IQueryable<Doujin> HasId(this IQueryable<Doujin> queryable, string id)
         {
-            id = ClientRegistry.FixSourceId(id);
-
             return queryable.Where(d => d.SourceId == id);
         }
 
         public static IQueryable<Doujin> FromSources(this IQueryable<Doujin> queryable, IEnumerable<string> sources)
         {
-            var source = sources.Select(ClientRegistry.FixSource).ToArray();
+            var source = sources.ToArray();
 
             return queryable.Where(d => source.Contains(d.Source));
         }
 
         public static IQueryable<Doujin> HasAnyId(this IQueryable<Doujin> queryable, IEnumerable<string> ids)
         {
-            var idd = ids.Select(ClientRegistry.FixSourceId).ToArray();
+            var idd = ids.ToArray();
 
             return queryable.Where(d => idd.Contains(d.SourceId));
+        }
+
+        public static IQueryable<Doujin> HasMetadata(this IQueryable<Doujin> queryable, string value)
+        {
+            value = value.ToLowerInvariant();
         }
     }
 }
