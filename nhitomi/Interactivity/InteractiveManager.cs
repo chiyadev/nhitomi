@@ -11,100 +11,37 @@ using System.Threading;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
-using Discord.WebSocket;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using nhitomi.Core;
-using nhitomi.Database;
+using nhitomi.Discord;
 using nhitomi.Interactivity.Triggers;
 
 namespace nhitomi.Interactivity
 {
-    public class CollectionInteractive : ListInteractive
-    {
-        const int _itemsPerPage = 14;
-
-        readonly string _collectionName;
-
-        public CollectionInteractive(string collectionName, IEnumerable<CollectionItemInfo> items) : base(
-            new EnumerableBrowser<IEnumerable<CollectionItemInfo>>(
-                items.ChunkBy(_itemsPerPage).ToAsyncEnumerable().GetEnumerator()))
-        {
-            _collectionName = collectionName;
-        }
-
-        IEnumerable<CollectionItemInfo> Current =>
-            ((IAsyncEnumerator<IEnumerable<CollectionItemInfo>>) Browser).Current;
-
-        public override Embed CreateEmbed(MessageFormatter formatter) =>
-            formatter.CreateCollectionEmbed(_collectionName, Current.ToArray());
-    }
-
-    public class InteractiveManager : IDisposable
+    public class InteractiveManager : IReactionHandler
     {
         readonly IServiceProvider _services;
-        readonly AppSettings _settings;
         readonly DiscordService _discord;
-        readonly IDatabase _database;
-        readonly MessageFormatter _formatter;
         readonly ILogger<InteractiveManager> _logger;
 
-        public InteractiveManager(IServiceProvider services, IOptions<AppSettings> options, DiscordService discord,
-            IDatabase database, MessageFormatter formatter, ILogger<InteractiveManager> logger)
+        public InteractiveManager(IServiceProvider services, DiscordService discord, ILogger<InteractiveManager> logger)
         {
             _services = services;
-            _settings = options.Value;
-            _discord = discord;
-            _database = database;
-            _formatter = formatter;
             _discord = discord;
             _logger = logger;
-
-            _discord.Socket.ReactionAdded += HandleReactionAsync;
-            _discord.Socket.ReactionRemoved += HandleReactionAsync;
-
-            _discord.DoujinsDetected += HandleDoujinsDetectedAsync;
-        }
-
-        async Task HandleDoujinsDetectedAsync(IUserMessage message, (string source, string id)[] ids,
-            CancellationToken cancellationToken = default)
-        {
-            // retrieve all doujins
-            var browser = new EnumerableBrowser<Doujin>(await _database.GetDoujinsAsync(ids, cancellationToken));
-
-            // create a dummy context to create an interactive in
-            var context = new DoujinDetectionContext(_discord.Socket, message);
-
-            // list interactive
-            await SendInteractiveAsync(new DoujinListMessage(browser), context, cancellationToken);
-        }
-
-        sealed class DoujinDetectionContext : ICommandContext
-        {
-            public IDiscordClient Client { get; }
-            public IGuild Guild => Channel is IGuildChannel c ? c.Guild : null;
-            public IMessageChannel Channel => Message.Channel;
-            public IUser User => Message.Author;
-            public IUserMessage Message { get; }
-
-            public DoujinDetectionContext(IDiscordClient client, IUserMessage message)
-            {
-                Client = client;
-                Message = message;
-            }
         }
 
         public readonly ConcurrentDictionary<ulong, InteractiveMessage> InteractiveMessages =
             new ConcurrentDictionary<ulong, InteractiveMessage>();
 
-        public async Task SendInteractiveAsync(InteractiveMessage interactive, ICommandContext context,
+        public async Task SendInteractiveAsync(EmbedMessage message, ICommandContext context,
             CancellationToken cancellationToken = default)
         {
             // initialize interactive
-            await interactive.InitializeAsync(_services, context, cancellationToken);
+            await message.InitializeAsync(_services, context, cancellationToken);
 
-            // add to list
-            InteractiveMessages[interactive.Message.Id] = interactive;
+            // add to interactive list
+            if (message is InteractiveMessage interactiveMessage)
+                InteractiveMessages[message.Message.Id] = interactiveMessage;
         }
 
         static readonly Dictionary<IEmote, Func<ReactionTrigger>> _statelessTriggers = typeof(Startup).Assembly
@@ -114,68 +51,51 @@ namespace nhitomi.Interactivity
             .Where(x => x().CanRunStateless)
             .ToDictionary(x => x().Emote, x => x);
 
-        Task HandleReactionAsync(Cacheable<IUserMessage, ulong> cacheable, ISocketMessageChannel channel,
-            SocketReaction reaction)
-        {
-            Task.Run(() => HandleReactionAsync(reaction));
-            return Task.CompletedTask;
-        }
+        Task IReactionHandler.InitializeAsync(CancellationToken cancellationToken) => Task.CompletedTask;
 
-        async Task HandleReactionAsync(SocketReaction reaction, CancellationToken cancellationToken = default)
+        public async Task<bool> TryHandleAsync(ReactionContext context, CancellationToken cancellationToken = default)
         {
+            var commandContext = new DiscordContext(_discord, context);
+
+            var message = context.Message;
+            var reaction = context.Reaction;
+
             try
             {
-                // don't trigger reactions by us
-                if (reaction.UserId == _discord.Socket.CurrentUser.Id)
-                    return;
-
                 ReactionTrigger trigger;
 
                 // get interactive object for the message
-                if (!InteractiveMessages.TryGetValue(reaction.MessageId, out var interactive))
+                if (InteractiveMessages.TryGetValue(message.Id, out var interactive))
+                {
+                    // get trigger for this reaction
+                    if (!interactive.Triggers.TryGetValue(reaction.Emote, out trigger))
+                        return false;
+                }
+                else
                 {
                     // no interactive; try triggering in stateless mode
                     if (!_statelessTriggers.TryGetValue(reaction.Emote, out var factory))
-                        return;
-
-                    // retrieve message
-                    var message = reaction.Message.IsSpecified
-                        ? reaction.Message.Value
-                        : (IUserMessage) await reaction.Channel.GetMessageAsync(reaction.MessageId);
+                        return false;
 
                     // message must be authored by us
-                    if (message.Author.Id != _discord.Socket.CurrentUser.Id ||
-                        !(message.Reactions.TryGetValue(reaction.Emote, out var metadata) && metadata.IsMe))
-                        return;
+                    if (!message.Reactions.TryGetValue(reaction.Emote, out var metadata) || !metadata.IsMe)
+                        return false;
 
                     trigger = factory();
-                    trigger.Initialize(_services, null, message);
-
-                    await trigger.RunAsync(cancellationToken);
-                    return;
+                    trigger.Initialize(_services, commandContext, message);
                 }
-
-                // get trigger for this reaction
-                if (!interactive.Triggers.TryGetValue(reaction.Emote, out trigger))
-                    return;
 
                 await trigger.RunAsync(cancellationToken);
             }
             catch (Exception e)
             {
-                _logger.LogWarning(e,
-                    $"Exception while handling reaction {reaction.Emote.Name} by user {reaction.UserId}: {e.Message}");
+                _logger.LogWarning(e, "Exception while handling reaction {0} by for message {1}.",
+                    reaction.Emote.Name, message.Id);
 
-                await reaction.Channel.SendMessageAsync(embed: _formatter.CreateErrorEmbed());
+                await SendInteractiveAsync(new ErrorMessage(e), commandContext, cancellationToken);
             }
-        }
 
-        public void Dispose()
-        {
-            _discord.Socket.ReactionAdded -= HandleReactionAsync;
-            _discord.Socket.ReactionRemoved -= HandleReactionAsync;
-
-            _discord.DoujinsDetected -= HandleDoujinsDetectedAsync;
+            return true;
         }
     }
 }

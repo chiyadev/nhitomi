@@ -1,3 +1,4 @@
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Discord;
@@ -8,6 +9,13 @@ namespace nhitomi.Interactivity
 {
     public class ErrorMessage : EmbedMessage
     {
+        readonly Exception _exception;
+
+        public ErrorMessage(Exception exception)
+        {
+            _exception = exception;
+        }
+
         protected override async Task UpdateViewAsync(CancellationToken cancellationToken = default)
         {
             var settings = Services.GetRequiredService<IOptions<AppSettings>>().Value;
@@ -15,8 +23,8 @@ namespace nhitomi.Interactivity
             var embed = new EmbedBuilder()
                 .WithTitle("**nhitomi**: Error")
                 .WithDescription(
-                    "Sorry, we encountered an unexpected error and have reported it to the developers! " +
-                    $"Please join our official server for further assistance: {settings.Discord.Guild.GuildInvite}")
+                    $"Message: `{_exception.Message ?? "<null>"}`\n" +
+                    $"Error has been reported. For further assistance, please join <{settings.Discord.Guild.GuildInvite}>")
                 .WithColor(Color.Red)
                 .WithCurrentTimestamp()
                 .Build();

@@ -51,14 +51,22 @@ namespace nhitomi.Interactivity
                 .WithColor(Color.Green)
                 .WithFooter($"{doujin.Source}/{doujin.SourceId}");
 
-            embed.AddFieldSafe("Language", doujin.Language?.Value, true);
-            embed.AddFieldSafe("Parody of", doujin.ParodyOf?.Value, true);
-            embed.AddFieldSafe("Categories", Join(doujin.Categories?.Select(x => x.Value)), true);
-            embed.AddFieldSafe("Characters", Join(doujin.Characters?.Select(x => x.Value)), true);
-            embed.AddFieldSafe("Tags", Join(doujin.Tags?.Select(x => x.Value)), true);
-            embed.AddFieldSafe("Content", $"{doujin.Pages.Count} pages", true);
+            AddField(embed, "Language", doujin.Language?.Value, true);
+            AddField(embed, "Parody of", doujin.ParodyOf?.Value, true);
+            AddField(embed, "Categories", Join(doujin.Categories?.Select(x => x.Value)), true);
+            AddField(embed, "Characters", Join(doujin.Characters?.Select(x => x.Value)), true);
+            AddField(embed, "Tags", Join(doujin.Tags?.Select(x => x.Value)), true);
+            AddField(embed, "Content", $"{doujin.Pages.Count} pages", true);
 
             return embed.Build();
+        }
+
+        static void AddField(EmbedBuilder builder, string name, string value, bool inline = false)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+                return;
+
+            builder.AddField(name, value, inline);
         }
 
         protected override Task UpdateViewAsync(CancellationToken cancellationToken = default) =>

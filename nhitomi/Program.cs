@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using nhitomi.Core;
+using nhitomi.Discord;
 
 namespace nhitomi
 {
@@ -24,7 +25,21 @@ namespace nhitomi
                     await scope.ServiceProvider.GetRequiredService<nhitomiDbContext>().Database.MigrateAsync();
             }
 
-            await host.RunAsync();
+            var discord = host.Services.GetRequiredService<DiscordService>();
+
+            // connect discord
+            await discord.ConnectAsync();
+
+            try
+            {
+                // run host
+                await host.RunAsync();
+            }
+            finally
+            {
+                // disconnect discord
+                await discord.DisconnectAsync();
+            }
         }
     }
 }

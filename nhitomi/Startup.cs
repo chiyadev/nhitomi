@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using nhitomi.Core;
+using nhitomi.Discord;
 using nhitomi.Http;
 using nhitomi.Interactivity;
 using Newtonsoft.Json;
@@ -37,14 +38,6 @@ namespace nhitomi
             services
                 .AddSingleton<IApiClient, ApiClient>();
 
-            // discord services
-            services
-                .AddSingleton<DiscordService>()
-                .AddSingleton<InteractiveManager>()
-                .AddSingleton<MessageFormatter>()
-                .AddHostedService<StatusUpdater>()
-                .AddHostedService<FeedUpdater>();
-
             // database
             if (host.HostingEnvironment.IsProduction())
             {
@@ -58,6 +51,17 @@ namespace nhitomi
                     .AddDbContext<IDatabase, nhitomiDbContext>(d => d
                         .UseSqlite("Data Source=nhitomi.db"));
             }
+
+            // discord services
+            services
+                .AddSingleton<DiscordService>()
+                .AddSingleton<CommandExecutor>()
+                .AddSingleton<GalleryUrlDetector>()
+                .AddSingleton<InteractiveManager>()
+                .AddHostedService<MessageHandlerService>()
+                .AddHostedService<ReactionHandlerService>()
+                .AddHostedService<StatusUpdater>()
+                .AddHostedService<FeedUpdater>();
 
             // http server
             services

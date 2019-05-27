@@ -18,12 +18,9 @@ namespace nhitomi.Interactivity
             Services = services;
             Context = context;
 
-            // update view
-            // this also sends the initial message
+            // update the view
+            // the implementation should also sends the initial message using SetViewAsync
             await UpdateViewAsync(cancellationToken);
-
-            if (Message == null)
-                throw new InvalidOperationException($"{GetType().Name} did not initialize its initial view.");
         }
 
         protected abstract Task UpdateViewAsync(CancellationToken cancellationToken = default);
