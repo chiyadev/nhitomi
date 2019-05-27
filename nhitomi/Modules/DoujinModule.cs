@@ -73,6 +73,14 @@ namespace nhitomi.Modules
                 return;
             }
 
+            using (Context.Channel.EnterTypingState())
+            {
+                var doujins = _database.EnumerateDoujinsAsync(x => x
+                    .FullTextSearch(_database, query,
+                        d => d.OriginalName,
+                        d => d.PrettyName));
+            }
+
             DoujinListInteractive interactive;
 
             using (Context.Channel.EnterTypingState())
