@@ -22,19 +22,14 @@ namespace nhitomi.Localization
 
         public abstract class DownloadMessageLocalization
         {
-            public virtual string Description(string name) =>
-                $"Click the link above to start downloading `{name}`.";
+            public virtual string Description => "Click the link above to start downloading `{doujin.Name}`.";
         }
 
         public abstract class HelpMessageLocalization
         {
             public virtual string Title => "Help";
-
-            public virtual string AboutNhitomi =>
-                "nhitomi — a Discord bot for searching and downloading doujinshi, by **chiya.dev**.";
-
-            public virtual string OfficialServer(string url) =>
-                $"Official server: <{url}>";
+            public virtual string About => "a Discord bot for searching and downloading doujinshi, by **chiya.dev**.";
+            public virtual string OfficialServer => "Official server: <{invite}>";
 
             public virtual string DoujinsHeading => "Doujinshi";
             public virtual string DoujinsGet => "Displays doujin information from a source by its ID.";
@@ -54,7 +49,7 @@ namespace nhitomi.Localization
 
             public virtual string OpenSourceHeading => "Open Source";
             public virtual string OpenSourceLicense => "This project is licensed under the MIT License.";
-            public virtual string OpenSourceContribution(string url) => $"Contributions are welcome! <{url}>";
+            public virtual string OpenSourceContribution => "Contributions are welcome! <{repoUrl}>";
         }
     }
 }
