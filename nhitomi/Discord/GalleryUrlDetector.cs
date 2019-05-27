@@ -69,12 +69,11 @@ namespace nhitomi.Discord
             if (_logger.IsEnabled(LogLevel.Debug))
                 _logger.LogDebug($"Matched galleries: {string.Join(", ", ids.Select((s, i) => $"{s}/{i}"))}");
 
-            // retrieve all doujins
-            var browser = _database.GetDoujinsAsync(ids).CreateAsyncBrowser();
+            var doujins = _database.GetDoujinsAsync(ids);
 
             // send interactive
             await _interactive.SendInteractiveAsync(
-                new DoujinListMessage(browser),
+                new DoujinListMessage(doujins),
                 new DiscordContext(_discord, context),
                 cancellationToken);
 
