@@ -79,19 +79,9 @@ namespace nhitomi.Modules
                     .FullTextSearch(_database, query,
                         d => d.OriginalName,
                         d => d.PrettyName));
+
+                await _interactive.SendInteractiveAsync(new DoujinListMessage(doujins), Context);
             }
-
-            DoujinListInteractive interactive;
-
-            using (Context.Channel.EnterTypingState())
-            {
-                var results = Extensions.Interleave(await Task.WhenAll(_clients.Select(c => c.SearchAsync(query))));
-
-                interactive = await _interactive.CreateDoujinListInteractiveAsync(results, ReplyAsync);
-            }
-
-            if (interactive != null)
-                await _formatter.AddDoujinTriggersAsync(interactive.Message);
         }
 
         [Command("searchen"), Alias("se")]
