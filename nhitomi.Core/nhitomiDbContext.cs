@@ -79,8 +79,8 @@ namespace nhitomi.Core
             id = ClientRegistry.FixId(id);
 
             return IncludeDoujin(Query<Doujin>())
-                .Where(d => d.SourceId == id &&
-                            d.Source == source)
+                .Where(d => d.Source == source &&
+                            d.SourceId == id)
                 .FirstOrDefaultAsync(cancellationToken);
         }
 
@@ -90,8 +90,8 @@ namespace nhitomi.Core
             var id = ids.Select(x => ClientRegistry.FixId(x.id)).ToArray();
 
             return IncludeDoujin(Query<Doujin>())
-                .Where(d => id.Contains(d.SourceId) &&
-                            source.Contains(d.Source))
+                .Where(d => source.Contains(d.Source) &&
+                            id.Contains(d.SourceId))
                 .ToArrayAsync(cancellationToken);
         }
 
