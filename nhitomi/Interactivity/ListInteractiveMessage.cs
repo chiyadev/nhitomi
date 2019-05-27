@@ -8,11 +8,11 @@ namespace nhitomi.Interactivity
 {
     public abstract class ListInteractiveMessage<T> : InteractiveMessage
     {
-        readonly EnumerableBrowser<T> _enumerable;
+        readonly AsyncEnumerableBrowser<T> _enumerable;
 
         protected T Current => _enumerable.Current;
 
-        protected ListInteractiveMessage(EnumerableBrowser<T> enumerable)
+        protected ListInteractiveMessage(AsyncEnumerableBrowser<T> enumerable)
         {
             _enumerable = enumerable;
         }

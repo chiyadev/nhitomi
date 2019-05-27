@@ -4,7 +4,6 @@ using System.Linq;
 using Discord;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using nhitomi.Database;
 using nhitomi.Interactivity.Triggers;
 
 namespace nhitomi.Interactivity
@@ -18,8 +17,10 @@ namespace nhitomi.Interactivity
 
     public class HelpMessage : ListInteractiveMessage<HelpMessageSection>
     {
-        public HelpMessage() : base(new EnumerableBrowser<HelpMessageSection>(
-            Enum.GetValues(typeof(HelpMessageSection)).Cast<HelpMessageSection>()))
+        public HelpMessage() : base(Enum
+            .GetValues(typeof(HelpMessageSection))
+            .Cast<HelpMessageSection>()
+            .CreateAsyncBrowser())
         {
         }
 

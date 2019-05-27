@@ -70,7 +70,7 @@ namespace nhitomi.Discord
                 _logger.LogDebug($"Matched galleries: {string.Join(", ", ids.Select((s, i) => $"{s}/{i}"))}");
 
             // retrieve all doujins
-            var browser = new EnumerableBrowser<Doujin>(await _database.GetDoujinsAsync(ids, cancellationToken));
+            var browser = _database.GetDoujinsAsync(ids).CreateAsyncBrowser();
 
             // send interactive
             await _interactive.SendInteractiveAsync(

@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace nhitomi
 {
-    public class EnumerableBrowser<T> : IAsyncEnumerator<T>
+    public class AsyncEnumerableBrowser<T> : IAsyncEnumerator<T>
     {
         readonly IAsyncEnumerator<T> _enumerator;
         readonly Dictionary<int, T> _dict = new Dictionary<int, T>();
@@ -18,13 +18,9 @@ namespace nhitomi
         public T Current => _dict[Index];
         public int Index { get; private set; } = -1;
 
-        public EnumerableBrowser(IAsyncEnumerator<T> enumerator)
+        public AsyncEnumerableBrowser(IAsyncEnumerator<T> enumerator)
         {
             _enumerator = enumerator;
-        }
-
-        public EnumerableBrowser(IEnumerable<T> enumerable) : this(enumerable.ToAsyncEnumerable().GetEnumerator())
-        {
         }
 
         public async Task<bool> MoveNext(CancellationToken cancellationToken = default)
@@ -54,5 +50,14 @@ namespace nhitomi
         public void Reset() => Index = -1;
 
         public void Dispose() => _enumerator.Dispose();
+    }
+
+    public static class EnumerableBrowserExtensions
+    {
+        public static AsyncEnumerableBrowser<T> CreateAsyncBrowser<T>(this IAsyncEnumerable<T> enumerable) =>
+            new AsyncEnumerableBrowser<T>(enumerable.GetEnumerator());
+
+        public static AsyncEnumerableBrowser<T> CreateAsyncBrowser<T>(this IEnumerable<T> enumerable) =>
+            enumerable.ToAsyncEnumerable().CreateAsyncBrowser();
     }
 }
