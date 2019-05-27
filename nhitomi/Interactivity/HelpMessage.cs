@@ -52,7 +52,7 @@ namespace nhitomi.Interactivity
                 case HelpMessageSection.Doujins:
                     embed.AddField("  — Doujinshi —", $@"
 - {prefix}get `source` `id` — Displays doujin information from a source by its ID.
-- {prefix}all `source` — Displays all doujins from a source uploaded recently.
+- {prefix}from `source` — Displays all doujins from a source.
 - {prefix}search `query` — Searches for doujins by the title and tags that satisfy your query.
 - {prefix}download `source` `id` — Sends a download link for a doujin by its ID.
 ".Trim());
