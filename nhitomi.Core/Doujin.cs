@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
 
 namespace nhitomi.Core
@@ -67,9 +66,9 @@ namespace nhitomi.Core
         public Language Language { get; set; }
         public ParodyOf ParodyOf { get; set; }
 
-        public ICollection<Character> Characters { get; set; }
-        public ICollection<Category> Categories { get; set; }
-        public ICollection<Tag> Tags { get; set; }
+        public ICollection<Character.Reference> Characters { get; set; }
+        public ICollection<Category.Reference> Categories { get; set; }
+        public ICollection<Tag.Reference> Tags { get; set; }
 
         /// <summary>
         /// Gets the pages of this doujinshi.
@@ -84,13 +83,14 @@ namespace nhitomi.Core
 
         public static void Describe(ModelBuilder model)
         {
-            var entity = model.Entity<Doujin>();
+            model.Entity<Doujin>(doujin =>
+            {
+                doujin.HasIndex(d => d.PrettyName);
+                doujin.HasIndex(d => d.OriginalName);
 
-            entity.HasIndex(d => d.PrettyName);
-            entity.HasIndex(d => d.OriginalName);
-
-            entity.HasIndex(d => d.Source);
-            entity.HasIndex(d => d.SourceId);
+                doujin.HasIndex(d => d.Source);
+                doujin.HasIndex(d => d.SourceId);
+            });
 
             Artist.Describe(model, d => d.Artist);
             Group.Describe(model, d => d.Group);
@@ -106,80 +106,6 @@ namespace nhitomi.Core
         }
     }
 
-    /// <summary>
-    /// Base class that represents a metadata entry.
-    /// Many-to-many is not used for performance.
-    /// </summary>
-    public abstract class MetadataBase<TEntity>
-        where TEntity : MetadataBase<TEntity>
-    {
-        [Key] public int Id { get; set; }
-
-        public Doujin Doujin { get; set; }
-        public int DoujinId { get; set; }
-
-        [Required] public string Value { get; set; }
-
-        static void Describe(ModelBuilder model)
-        {
-            model.Entity<TEntity>().HasIndex(t => t.Value);
-        }
-
-        public static void Describe(ModelBuilder model, Expression<Func<Doujin, TEntity>> path)
-        {
-            Describe(model);
-
-            model.Entity<TEntity>()
-                .HasOne(t => t.Doujin)
-                .WithOne(path)
-                .HasForeignKey<TEntity>(t => t.DoujinId)
-                .IsRequired(false);
-        }
-
-        public static void Describe(ModelBuilder model, Expression<Func<Doujin, IEnumerable<TEntity>>> path)
-        {
-            Describe(model);
-
-            model.Entity<TEntity>()
-                .HasOne(t => t.Doujin)
-                .WithMany(path)
-                .HasForeignKey(t => t.DoujinId)
-                .IsRequired();
-        }
-    }
-
-    public class Scanlator : MetadataBase<Scanlator>
-    {
-    }
-
-    public class Language : MetadataBase<Language>
-    {
-    }
-
-    public class ParodyOf : MetadataBase<ParodyOf>
-    {
-    }
-
-    public class Character : MetadataBase<Character>
-    {
-    }
-
-    public class Category : MetadataBase<Category>
-    {
-    }
-
-    public class Artist : MetadataBase<Artist>
-    {
-    }
-
-    public class Group : MetadataBase<Group>
-    {
-    }
-
-    public class Tag : MetadataBase<Tag>
-    {
-    }
-
     public class Page
     {
         [Key] public int Id { get; set; }
@@ -191,13 +117,13 @@ namespace nhitomi.Core
 
         public static void Describe(ModelBuilder model)
         {
-            var entity = model.Entity<Page>();
-
-            entity
-                .HasOne(p => p.Doujin)
-                .WithMany(d => d.Pages)
-                .HasForeignKey(p => p.DoujinId)
-                .IsRequired();
+            model.Entity<Page>(page =>
+            {
+                page.HasOne(p => p.Doujin)
+                    .WithMany(d => d.Pages)
+                    .HasForeignKey(p => p.DoujinId)
+                    .IsRequired();
+            });
         }
     }
 }
