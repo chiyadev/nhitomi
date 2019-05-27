@@ -25,7 +25,8 @@ namespace nhitomi.Core
             model.Entity<TMetadata>(meta =>
             {
                 meta.HasMany(m => m.Doujins)
-                    .WithOne(path);
+                    .WithOne(path)
+                    .IsRequired(false);
 
                 meta.HasIndex(m => m.Value).IsUnique();
             });

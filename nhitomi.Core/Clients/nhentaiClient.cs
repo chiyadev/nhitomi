@@ -122,13 +122,13 @@ namespace nhitomi.Core.Clients
                 Source = Info,
                 SourceId = id,
 
+                Artist = data.Tags?.FirstOrDefault(t => t.Type == "artist").Name,
                 Scanlator = data.Scanlator,
                 Language = data.Tags?.FirstOrDefault(t => t.Type == "language" && t.Name != "translated").Name,
                 ParodyOf = data.Tags?.FirstOrDefault(t => t.Type == "parody" && t.Name != "original").Name,
 
                 Characters = data.Tags?.Where(t => t.Type == "character").Select(t => t.Name),
                 Categories = data.Tags?.Where(t => t.Type == "category" && t.Name != "doujinshi").Select(t => t.Name),
-                Artists = data.Tags?.Where(t => t.Type == "artist").Select(t => t.Name),
                 Tags = data.Tags?.Where(t => t.Type == "tag").Select(t => t.Name),
 
                 Images = data.Images.Pages?.Select(p =>

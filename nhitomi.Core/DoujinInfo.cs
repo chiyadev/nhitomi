@@ -16,14 +16,14 @@ namespace nhitomi.Core
         public DoujinClientInfo Source { get; set; }
         public string SourceId { get; set; }
 
+        public string Artist { get; set; }
+        public string Group { get; set; }
         public string Scanlator { get; set; }
         public string Language { get; set; }
         public string ParodyOf { get; set; }
 
         public IEnumerable<string> Characters { get; set; }
         public IEnumerable<string> Categories { get; set; }
-        public IEnumerable<string> Artists { get; set; }
-        public IEnumerable<string> Groups { get; set; }
         public IEnumerable<string> Tags { get; set; }
 
         public IEnumerable<string> Images { get; set; }
@@ -40,15 +40,15 @@ namespace nhitomi.Core
             Source = Source.Name,
             SourceId = SourceId,
 
+            Artist = IsNull(Artist) ? null : new Artist {Value = Artist},
+            Group = IsNull(Group) ? null : new Group {Value = Group},
             Scanlator = IsNull(Scanlator) ? null : new Scanlator {Value = Scanlator},
             Language = IsNull(Language) ? null : new Language {Value = Language},
             ParodyOf = IsNull(ParodyOf) ? null : new ParodyOf {Value = ParodyOf},
 
-            Characters = Characters?.Where(IsSpecified).Select(c => new Character {Value = c}).ToList(),
-            Categories = Categories?.Where(IsSpecified).Select(c => new Category {Value = c}).ToList(),
-            Artists = Artists?.Where(IsSpecified).Select(a => new Artist {Value = a}).ToList(),
-            Groups = Artists?.Where(IsSpecified).Select(g => new Group {Value = g}).ToList(),
-            Tags = Artists?.Where(IsSpecified).Select(t => new Tag {Value = t}).ToList(),
+            Characters = Characters?.Where(IsSpecified).Select(c => new Character.Reference(c)).ToList(),
+            Categories = Categories?.Where(IsSpecified).Select(c => new Category.Reference(c)).ToList(),
+            Tags = Tags?.Where(IsSpecified).Select(t => new Tag.Reference(t)).ToList(),
 
             Pages = Images?.Where(IsSpecified).Select(p => new Page {Url = p}).ToList()
         };

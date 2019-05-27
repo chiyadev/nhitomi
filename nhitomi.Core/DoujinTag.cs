@@ -17,7 +17,7 @@ namespace nhitomi.Core
     /// Many-to-many is used.
     /// </summary>
     public abstract class TagBase<TTag, TJoin>
-        where TTag : TagBase<TTag, TJoin>
+        where TTag : TagBase<TTag, TJoin>, new()
         where TJoin : TagBase<TTag, TJoin>.JoinBase
     {
         [Key] public int Id { get; set; }
@@ -37,6 +37,18 @@ namespace nhitomi.Core
 
             public int TagId { get; set; }
             public TTag Tag { get; set; }
+
+            protected JoinBase()
+            {
+            }
+
+            protected JoinBase(string value)
+            {
+                Tag = new TTag
+                {
+                    Value = value
+                };
+            }
         }
 
         public static void Describe(ModelBuilder model, Expression<Func<Doujin, IEnumerable<TJoin>>> path)
@@ -66,6 +78,13 @@ namespace nhitomi.Core
     {
         public class Reference : JoinBase
         {
+            public Reference()
+            {
+            }
+
+            public Reference(string value) : base(value)
+            {
+            }
         }
     }
 
@@ -73,6 +92,13 @@ namespace nhitomi.Core
     {
         public class Reference : JoinBase
         {
+            public Reference()
+            {
+            }
+
+            public Reference(string value) : base(value)
+            {
+            }
         }
     }
 
@@ -80,6 +106,13 @@ namespace nhitomi.Core
     {
         public class Reference : JoinBase
         {
+            public Reference()
+            {
+            }
+
+            public Reference(string value) : base(value)
+            {
+            }
         }
     }
 }
