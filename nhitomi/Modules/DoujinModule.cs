@@ -51,13 +51,13 @@ namespace nhitomi.Modules
         {
             using (Context.Channel.EnterTypingState())
             {
-                var doujins = _database.EnumerateDoujinsAsync(query =>
+                var doujins = _database.EnumerateDoujinsAsync(x =>
                 {
                     if (!string.IsNullOrEmpty(source))
-                        query = query.FromSource(source);
+                        x = x.Where(d => d.Source == source);
 
                     // todo: ascending option
-                    return query.OrderByDescending(d => d.UploadTime);
+                    return x.OrderByDescending(d => d.UploadTime);
                 });
 
                 await _interactive.SendInteractiveAsync(new DoujinListMessage(doujins), Context);

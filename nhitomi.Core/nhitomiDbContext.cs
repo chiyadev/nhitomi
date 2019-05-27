@@ -83,8 +83,8 @@ namespace nhitomi.Core
 
         public Task<Doujin> GetDoujinAsync(string source, string id, CancellationToken cancellationToken = default) =>
             Query<Doujin>()
-                .FromSource(source)
-                .HasId(id)
+                .Where(d => d.Source == source &&
+                            d.SourceId == id)
                 .IncludeRelated()
                 .FirstOrDefaultAsync(cancellationToken);
 
@@ -96,9 +96,12 @@ namespace nhitomi.Core
                     return AsyncEnumerable.Empty<Doujin>();
             }
 
-            return EnumerateDoujinsAsync(d => d
-                .FromSources(ids.Select(x => x.source))
-                .HasAnyId(ids.Select(x => x.id)));
+            var source = ids.Select(x => x.source);
+            var id = ids.Select(x => x.id);
+
+            return EnumerateDoujinsAsync(x => x
+                .Where(d => source.Contains(d.Source) &&
+                            id.Contains(d.SourceId)));
         }
 
         public IAsyncEnumerable<Doujin> EnumerateDoujinsAsync(Func<IQueryable<Doujin>, IQueryable<Doujin>> query) =>

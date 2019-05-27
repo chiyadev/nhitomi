@@ -140,34 +140,5 @@ namespace nhitomi.Core
             .Include(d => d.Categories).ThenInclude(x => x.Tag)
             .Include(d => d.Tags).ThenInclude(x => x.Tag)
             .Include(d => d.Pages);
-
-        public static IQueryable<Doujin> FromSource(this IQueryable<Doujin> queryable, string source)
-        {
-            return queryable.Where(d => d.Source == source);
-        }
-
-        public static IQueryable<Doujin> HasId(this IQueryable<Doujin> queryable, string id)
-        {
-            return queryable.Where(d => d.SourceId == id);
-        }
-
-        public static IQueryable<Doujin> FromSources(this IQueryable<Doujin> queryable, IEnumerable<string> sources)
-        {
-            var source = sources.ToArray();
-
-            return queryable.Where(d => source.Contains(d.Source));
-        }
-
-        public static IQueryable<Doujin> HasAnyId(this IQueryable<Doujin> queryable, IEnumerable<string> ids)
-        {
-            var idd = ids.ToArray();
-
-            return queryable.Where(d => idd.Contains(d.SourceId));
-        }
-
-        public static IQueryable<Doujin> HasMetadata(this IQueryable<Doujin> queryable, string value)
-        {
-            value = value.ToLowerInvariant();
-        }
     }
 }
