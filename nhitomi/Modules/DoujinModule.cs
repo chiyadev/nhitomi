@@ -3,6 +3,7 @@
 // This software is released under the MIT License.
 // https://opensource.org/licenses/MIT
 
+using System.Linq;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
@@ -46,11 +47,18 @@ namespace nhitomi.Modules
         }
 
         [Command("from"), Alias("f")]
-        public async Task GetFromAsync([Remainder] string source = null)
+        public async Task FromAsync([Remainder] string source = null)
         {
             using (Context.Channel.EnterTypingState())
             {
-                var doujins = _database.EnumerateDoujinsAsync(d => d.FromSource(source));
+                var doujins = _database.EnumerateDoujinsAsync(query =>
+                {
+                    if (!string.IsNullOrEmpty(source))
+                        query = query.FromSource(source);
+
+                    // todo: ascending option
+                    return query.OrderByDescending(d => d.UploadTime);
+                });
 
                 await _interactive.SendInteractiveAsync(new DoujinListMessage(doujins), Context);
             }
