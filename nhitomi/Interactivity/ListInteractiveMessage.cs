@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -23,10 +24,11 @@ namespace nhitomi.Interactivity
             yield return new ListTrigger<T>(MoveDirection.Right);
         }
 
-        protected abstract Embed CreateEmbed(T value);
-        protected abstract Embed CreateEmptyEmbed();
+        protected abstract Embed CreateEmbed(IServiceProvider services, T value);
+        protected abstract Embed CreateEmptyEmbed(IServiceProvider services);
 
-        protected sealed override async Task<bool> InitializeViewAsync(CancellationToken cancellationToken = default)
+        protected sealed override async Task<bool> InitializeViewAsync(IServiceProvider services,
+            CancellationToken cancellationToken = default)
         {
             // move initially if we haven't started enumerating
             if (_enumerable.Index == -1 && !await _enumerable.MoveNext(cancellationToken))
@@ -34,21 +36,22 @@ namespace nhitomi.Interactivity
                 Dispose();
 
                 // embed saying there is nothing in this list
-                await SetViewAsync(CreateEmptyEmbed(), cancellationToken);
+                await SetViewAsync(CreateEmptyEmbed(services), cancellationToken);
 
                 return false;
             }
 
             // show the first item
-            await UpdateViewAsync(Current, cancellationToken);
+            await UpdateViewAsync(services, Current, cancellationToken);
 
             return true;
         }
 
-        protected virtual Task UpdateViewAsync(T value, CancellationToken cancellationToken = default) =>
-            SetViewAsync(CreateEmbed(value), cancellationToken);
+        protected virtual Task UpdateViewAsync(IServiceProvider services, T value,
+            CancellationToken cancellationToken = default) =>
+            SetViewAsync(CreateEmbed(services, value), cancellationToken);
 
-        public async Task NextAsync(CancellationToken cancellationToken = default)
+        public async Task NextAsync(IServiceProvider services, CancellationToken cancellationToken = default)
         {
             if (!await _enumerable.MoveNext(cancellationToken))
             {
@@ -56,17 +59,17 @@ namespace nhitomi.Interactivity
                 return;
             }
 
-            await UpdateViewAsync(Current, cancellationToken);
+            await UpdateViewAsync(services, Current, cancellationToken);
         }
 
-        public async Task PreviousAsync(CancellationToken cancellationToken = default)
+        public async Task PreviousAsync(IServiceProvider services, CancellationToken cancellationToken = default)
         {
             if (!_enumerable.MovePrevious())
             {
                 return;
             }
 
-            await UpdateViewAsync(Current, cancellationToken);
+            await UpdateViewAsync(services, Current, cancellationToken);
         }
 
         public override void Dispose()

@@ -17,7 +17,6 @@ namespace nhitomi.Interactivity.Triggers
         public virtual bool CanRunStateless => false;
 
         protected InteractiveMessage Interactive { get; private set; }
-        protected IServiceProvider Services { get; private set; }
         protected ICommandContext Context { get; private set; }
         protected IUserMessage Message { get; private set; }
 
@@ -25,17 +24,16 @@ namespace nhitomi.Interactivity.Triggers
         {
             Interactive = interactive;
 
-            Initialize(interactive.Services, interactive.Context, interactive.Message);
+            Initialize(interactive.Context, interactive.Message);
         }
 
-        public void Initialize(IServiceProvider services, ICommandContext context, IUserMessage message)
+        public void Initialize(ICommandContext context, IUserMessage message)
         {
-            Services = services;
             Context = context;
             Message = message;
         }
 
-        public abstract Task RunAsync(CancellationToken cancellationToken = default);
+        public abstract Task RunAsync(IServiceProvider services, CancellationToken cancellationToken = default);
     }
 
     public abstract class ReactionTrigger<TMessage> : ReactionTrigger

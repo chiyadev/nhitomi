@@ -11,6 +11,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using nhitomi.Discord;
 using nhitomi.Interactivity.Triggers;
@@ -36,9 +37,13 @@ namespace nhitomi.Interactivity
         public async Task SendInteractiveAsync(EmbedMessage message, ICommandContext context,
             CancellationToken cancellationToken = default)
         {
-            // initialize interactive
-            if (!await message.InitializeAsync(_services, context, cancellationToken))
-                return;
+            // create dependency scope to initialize the interactive within
+            using (var scope = _services.CreateScope())
+            {
+                // initialize interactive
+                if (!await message.InitializeAsync(scope.ServiceProvider, context, cancellationToken))
+                    return;
+            }
 
             // add to interactive list
             if (message is InteractiveMessage interactiveMessage)
@@ -107,10 +112,11 @@ namespace nhitomi.Interactivity
                         return false;
 
                     trigger = factory();
-                    trigger.Initialize(_services, commandContext, message);
+                    trigger.Initialize(commandContext, message);
                 }
 
-                await trigger.RunAsync(cancellationToken);
+                using (var scope = _services.CreateScope())
+                    await trigger.RunAsync(scope.ServiceProvider, cancellationToken);
             }
             catch (Exception e)
             {

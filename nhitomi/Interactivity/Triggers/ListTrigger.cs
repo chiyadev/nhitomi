@@ -39,16 +39,16 @@ namespace nhitomi.Interactivity.Triggers
             _direction = direction;
         }
 
-        public override async Task RunAsync(CancellationToken cancellationToken = default)
+        public override async Task RunAsync(IServiceProvider services, CancellationToken cancellationToken = default)
         {
             switch (_direction)
             {
                 case MoveDirection.Left:
-                    await Interactive.PreviousAsync(cancellationToken);
+                    await Interactive.PreviousAsync(services, cancellationToken);
                     break;
 
                 case MoveDirection.Right:
-                    await Interactive.NextAsync(cancellationToken);
+                    await Interactive.NextAsync(services, cancellationToken);
                     break;
             }
         }

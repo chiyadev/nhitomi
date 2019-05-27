@@ -1,3 +1,4 @@
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Discord;
@@ -11,10 +12,10 @@ namespace nhitomi.Interactivity.Triggers
         public override IEmote Emote => new Emoji("\uD83D\uDDD1");
         public override bool CanRunStateless => true;
 
-        public override async Task RunAsync(CancellationToken cancellationToken = default)
+        public override async Task RunAsync(IServiceProvider services, CancellationToken cancellationToken = default)
         {
             // remove from interactive list
-            Services.GetRequiredService<InteractiveManager>().InteractiveMessages.TryRemove(Message.Id, out _);
+            services.GetRequiredService<InteractiveManager>().InteractiveMessages.TryRemove(Message.Id, out _);
 
             // dispose interactive object
             Interactive?.Dispose();

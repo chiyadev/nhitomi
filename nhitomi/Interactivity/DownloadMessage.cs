@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -21,7 +22,8 @@ namespace nhitomi.Interactivity
             yield return new DeleteTrigger();
         }
 
-        protected override async Task<bool> InitializeViewAsync(CancellationToken cancellationToken = default)
+        protected override async Task<bool> InitializeViewAsync(IServiceProvider services,
+            CancellationToken cancellationToken = default)
         {
             var embed = new EmbedBuilder()
                 .WithTitle($"**{_doujin.Source}**: {_doujin.OriginalName ?? _doujin.PrettyName}")

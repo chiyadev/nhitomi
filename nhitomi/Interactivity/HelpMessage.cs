@@ -33,9 +33,9 @@ namespace nhitomi.Interactivity
             yield return new DeleteTrigger();
         }
 
-        protected override Embed CreateEmbed(HelpMessageSection value)
+        protected override Embed CreateEmbed(IServiceProvider services, HelpMessageSection value)
         {
-            var settings = Services.GetRequiredService<IOptions<AppSettings>>().Value;
+            var settings = services.GetRequiredService<IOptions<AppSettings>>().Value;
             var prefix = settings.Discord.Prefix;
 
             var embed = new EmbedBuilder()
@@ -84,6 +84,6 @@ Contributions are welcome! <https://github.com/chiyadev/nhitomi>
             return embed.Build();
         }
 
-        protected override Embed CreateEmptyEmbed() => throw new System.NotImplementedException();
+        protected override Embed CreateEmptyEmbed(IServiceProvider services) => throw new NotImplementedException();
     }
 }

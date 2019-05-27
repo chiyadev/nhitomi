@@ -1,3 +1,4 @@
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Discord;
@@ -12,9 +13,9 @@ namespace nhitomi.Interactivity.Triggers
         public override IEmote Emote => new Emoji("\uD83D\uDCBE");
         public override bool CanRunStateless => true;
 
-        public override async Task RunAsync(CancellationToken cancellationToken = default)
+        public override async Task RunAsync(IServiceProvider services, CancellationToken cancellationToken = default)
         {
-            var manager = Services.GetRequiredService<InteractiveManager>();
+            var manager = services.GetRequiredService<InteractiveManager>();
 
             // retrieve doujin
             var doujin = Interactive?.Doujin;
@@ -25,7 +26,7 @@ namespace nhitomi.Interactivity.Triggers
                 if (!DoujinMessage.TryParseDoujinIdFromMessage(Message, out var id))
                     return;
 
-                doujin = await Services.GetRequiredService<IDatabase>()
+                doujin = await services.GetRequiredService<IDatabase>()
                     .GetDoujinAsync(id.source, id.id, cancellationToken);
 
                 if (doujin == null)

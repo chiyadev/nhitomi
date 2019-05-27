@@ -16,9 +16,10 @@ namespace nhitomi.Interactivity
             _exception = exception;
         }
 
-        protected override async Task<bool> InitializeViewAsync(CancellationToken cancellationToken = default)
+        protected override async Task<bool> InitializeViewAsync(IServiceProvider services,
+            CancellationToken cancellationToken = default)
         {
-            var settings = Services.GetRequiredService<IOptions<AppSettings>>().Value;
+            var settings = services.GetRequiredService<IOptions<AppSettings>>().Value;
 
             var embed = new EmbedBuilder()
                 .WithTitle("**nhitomi**: Error")

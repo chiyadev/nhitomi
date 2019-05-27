@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -22,7 +23,8 @@ namespace nhitomi.Interactivity
             yield return new DeleteTrigger();
         }
 
-        protected override async Task<bool> InitializeViewAsync(CancellationToken cancellationToken = default)
+        protected override async Task<bool> InitializeViewAsync(IServiceProvider services,
+            CancellationToken cancellationToken = default)
         {
             //todo: more info
             var embed = new EmbedBuilder()

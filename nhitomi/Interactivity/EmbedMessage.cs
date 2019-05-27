@@ -8,18 +8,16 @@ namespace nhitomi.Interactivity
 {
     public abstract class EmbedMessage
     {
-        public IServiceProvider Services { get; private set; }
         public ICommandContext Context { get; private set; }
         public IUserMessage Message { get; private set; }
 
         public virtual async Task<bool> InitializeAsync(IServiceProvider services, ICommandContext context,
             CancellationToken cancellationToken = default)
         {
-            Services = services;
             Context = context;
 
             // initialize the view
-            if (!await InitializeViewAsync(cancellationToken))
+            if (!await InitializeViewAsync(services, cancellationToken))
                 return false;
 
             if (Message != null)
@@ -28,7 +26,8 @@ namespace nhitomi.Interactivity
             return true;
         }
 
-        protected abstract Task<bool> InitializeViewAsync(CancellationToken cancellationToken = default);
+        protected abstract Task<bool> InitializeViewAsync(IServiceProvider services,
+            CancellationToken cancellationToken = default);
 
         protected async Task SetViewAsync(Embed embed, CancellationToken cancellationToken = default)
         {

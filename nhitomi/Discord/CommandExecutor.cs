@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Discord.Commands;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using nhitomi.Interactivity;
@@ -53,9 +54,16 @@ namespace nhitomi.Discord
                 !context.Message.HasMentionPrefix(_discord.Socket.CurrentUser, ref argIndex))
                 return false;
 
-            // execute command
-            var commandContext = new DiscordContext(_discord, context);
-            var result = await _discord.Command.ExecuteAsync(commandContext, argIndex, _services);
+            IResult result;
+
+            // dependency scope
+            using (var scope = _services.CreateScope())
+            {
+                var commandContext = new DiscordContext(_discord, context);
+
+                // execute command
+                result = await _discord.Command.ExecuteAsync(commandContext, argIndex, scope.ServiceProvider);
+            }
 
             // check for any errors during command execution
             if (result.Error == CommandError.Exception)

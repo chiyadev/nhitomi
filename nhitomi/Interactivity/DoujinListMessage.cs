@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Discord;
 using nhitomi.Core;
@@ -22,7 +23,9 @@ namespace nhitomi.Interactivity
             yield return new DeleteTrigger();
         }
 
-        protected override Embed CreateEmbed(Doujin value) => DoujinMessage.CreateEmbed(value);
-        protected override Embed CreateEmptyEmbed() => throw new System.NotImplementedException();
+        protected override Embed CreateEmbed(IServiceProvider services, Doujin value) =>
+            DoujinMessage.CreateEmbed(value);
+
+        protected override Embed CreateEmptyEmbed(IServiceProvider services) => throw new NotImplementedException();
     }
 }

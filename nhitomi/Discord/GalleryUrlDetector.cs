@@ -1,7 +1,9 @@
+using System;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using nhitomi.Core;
 using nhitomi.Interactivity;
@@ -16,19 +18,19 @@ namespace nhitomi.Discord
         const string _hitomi =
             @"\b((http|https):\/\/)?hitomi(\.la)?\/(galleries\/)?(?<source_Hitomi>[0-9]{1,7})\b";
 
+        readonly IServiceProvider _services;
         readonly DiscordService _discord;
-        readonly IDatabase _database;
         readonly InteractiveManager _interactive;
         readonly ILogger<GalleryUrlDetector> _logger;
 
         readonly Regex _galleryRegex;
 
-        public GalleryUrlDetector(DiscordService discord, InteractiveManager interactive, IDatabase database,
+        public GalleryUrlDetector(IServiceProvider services, DiscordService discord, InteractiveManager interactive,
             ILogger<GalleryUrlDetector> logger)
         {
+            _services = services;
             _discord = discord;
             _interactive = interactive;
-            _database = database;
             _logger = logger;
 
             // build gallery regex to match all known formats
@@ -69,13 +71,17 @@ namespace nhitomi.Discord
             if (_logger.IsEnabled(LogLevel.Debug))
                 _logger.LogDebug($"Matched galleries: {string.Join(", ", ids.Select((s, i) => $"{s}/{i}"))}");
 
-            var doujins = _database.GetDoujinsAsync(ids);
+            using (var scope = _services.CreateScope())
+            {
+                var doujins = scope.ServiceProvider.GetRequiredService<IDatabase>()
+                    .GetDoujinsAsync(ids);
 
-            // send interactive
-            await _interactive.SendInteractiveAsync(
-                new DoujinListMessage(doujins),
-                new DiscordContext(_discord, context),
-                cancellationToken);
+                // send interactive
+                await _interactive.SendInteractiveAsync(
+                    new DoujinListMessage(doujins),
+                    new DiscordContext(_discord, context),
+                    cancellationToken);
+            }
 
             return true;
         }
