@@ -31,15 +31,13 @@ namespace nhitomi.Interactivity
         /// </summary>
         protected sealed override async Task UpdateViewAsync(CancellationToken cancellationToken = default)
         {
-            // move once initially
-            if (!await _enumerable.MoveNext(cancellationToken))
+            // move initially if we haven't started enumerating
+            if (_enumerable.Index == -1 && !await _enumerable.MoveNext(cancellationToken))
             {
                 Dispose();
 
                 // embed saying there is nothing in this list
                 await SetViewAsync(CreateEmptyEmbed(), cancellationToken);
-
-                return;
             }
 
             // show the first item
