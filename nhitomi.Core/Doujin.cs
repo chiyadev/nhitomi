@@ -2,7 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq;
 using Microsoft.EntityFrameworkCore;
+using nhitomi.Core.Clients;
 
 namespace nhitomi.Core
 {
@@ -124,6 +126,48 @@ namespace nhitomi.Core
                     .HasForeignKey(p => p.DoujinId)
                     .IsRequired();
             });
+        }
+    }
+
+    public static class DoujinQueryExtensions
+    {
+        public static IQueryable<Doujin> IncludeRelated(this IQueryable<Doujin> queryable) => queryable
+            .Include(d => d.Artist)
+            .Include(d => d.Group)
+            .Include(d => d.Scanlator)
+            .Include(d => d.Language)
+            .Include(d => d.ParodyOf)
+            .Include(d => d.Characters).ThenInclude(x => x.Tag)
+            .Include(d => d.Categories).ThenInclude(x => x.Tag)
+            .Include(d => d.Tags).ThenInclude(x => x.Tag)
+            .Include(d => d.Pages);
+
+        public static IQueryable<Doujin> FromSource(this IQueryable<Doujin> queryable, string source)
+        {
+            source = ClientRegistry.FixSource(source);
+
+            return queryable.Where(d => d.Source == source);
+        }
+
+        public static IQueryable<Doujin> HasId(this IQueryable<Doujin> queryable, string id)
+        {
+            id = ClientRegistry.FixSourceId(id);
+
+            return queryable.Where(d => d.SourceId == id);
+        }
+
+        public static IQueryable<Doujin> FromSources(this IQueryable<Doujin> queryable, IEnumerable<string> sources)
+        {
+            var source = sources.Select(ClientRegistry.FixSource).ToArray();
+
+            return queryable.Where(d => source.Contains(d.Source));
+        }
+
+        public static IQueryable<Doujin> HasAnyId(this IQueryable<Doujin> queryable, IEnumerable<string> ids)
+        {
+            var idd = ids.Select(ClientRegistry.FixSourceId).ToArray();
+
+            return queryable.Where(d => idd.Contains(d.SourceId));
         }
     }
 }

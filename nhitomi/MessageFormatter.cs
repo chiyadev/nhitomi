@@ -3,109 +3,15 @@
 // This software is released under the MIT License.
 // https://opensource.org/licenses/MIT
 
-using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Discord;
-using Microsoft.Extensions.Options;
 using nhitomi.Core;
-using nhitomi.Database;
 
 namespace nhitomi
 {
     public class MessageFormatter
     {
-        public static IEmote HeartEmote => ;
-        public static IEmote LeftArrowEmote => ;
-        public static IEmote RightArrowEmote => ;
-
-        readonly AppSettings _settings;
-
-        public MessageFormatter(IOptions<AppSettings> options)
-        {
-            _settings = options.Value;
-        }
-
-        public async Task AddDoujinTriggersAsync(IUserMessage message, bool isFeed = false)
-        {
-            await message.AddReactionAsync(HeartEmote);
-
-            if (!isFeed)
-            {
-                await message.AddReactionsAsync(new[]
-                {
-                    FloppyDiskEmote,
-                    TrashcanEmote
-                });
-            }
-        }
-
-        public Task AddListTriggersAsync(IUserMessage message) =>
-            message.AddReactionsAsync(new[]
-            {
-                LeftArrowEmote,
-                RightArrowEmote
-            });
-
-        public Embed CreateHelpEmbed() =>
-            new EmbedBuilder()
-                .WithTitle("**nhitomi**: Help")
-                .WithDescription(
-                    "nhitomi — a Discord bot for searching and downloading doujinshi, by **chiya.dev** - https://chiya.dev\n" +
-                    $"Official server: {_settings.Discord.Guild.GuildInvite}")
-                .AddField("  — Doujinshi —", $@"
-- {_settings.Discord.Prefix}get `source` `id` — Displays doujin information from a source by its ID.
-- {_settings.Discord.Prefix}all `source` — Displays all doujins from a source uploaded recently.
-- {_settings.Discord.Prefix}search `query` — Searches for doujins by the title and tags that satisfy your query.
-- {_settings.Discord.Prefix}download `source` `id` — Sends a download link for a doujin by its ID.
-".Trim())
-                .AddField("  — Tag subscriptions —", $@"
-- {_settings.Discord.Prefix}subscription — Lists all tags you are subscribed to.
-- {_settings.Discord.Prefix}subscription add|remove `tag` — Adds or removes a tag subscription.
-- {_settings.Discord.Prefix}subscription clear — Removes all tag subscriptions.
-".Trim())
-                .AddField("  — Collection management —", $@"
-- {_settings.Discord.Prefix}collection — Lists all collections belonging to you.
-- {_settings.Discord.Prefix}collection `name` — Displays doujins belonging to a collection.
-- {_settings.Discord.Prefix}collection `name` add|remove `source` `id` — Adds or removes a doujin in a collection.
-- {_settings.Discord.Prefix}collection `name` list — Lists all doujins belonging to a collection.
-- {_settings.Discord.Prefix}collection `name` sort `attribute` — Sorts doujins in a collection by an attribute ({string.Join(", ", Enum.GetNames(typeof(CollectionSortAttribute)).Select(s => s.ToLowerInvariant()))}).
-- {_settings.Discord.Prefix}collection `name` delete — Deletes a collection, removing all doujins belonging to it.
-".Trim())
-                .AddField("  — Sources —", @"
-- nhentai — `https://nhentai.net/`
-- hitomi — `https://hitomi.la/`
-".Trim())
-                .AddField("  — Contribution —", @"
-This project is licensed under the MIT License.
-Contributions are welcome! <https://github.com/chiyadev/nhitomi>
-".Trim())
-                .WithColor(Color.Purple)
-                .WithThumbnailUrl(_settings.ImageUrl)
-                .WithCurrentTimestamp()
-                .Build();
-
-        public Embed CreateErrorEmbed() =>
-            new EmbedBuilder()
-                .WithTitle("**nhitomi**: Error")
-                .WithDescription(
-                    "Sorry, we encountered an unexpected error and have reported it to the developers! " +
-                    $"Please join our official server for further assistance: {_settings.Discord.Guild.GuildInvite}")
-                .WithColor(Color.Red)
-                .WithCurrentTimestamp()
-                .Build();
-
-        // ReSharper disable once MemberCanBeMadeStatic.Global
-        public Embed CreateDownloadEmbed(Doujin doujin) =>
-            new EmbedBuilder()
-                .WithTitle($"**{doujin.Source}**: {doujin.OriginalName ?? doujin.PrettyName}")
-                .WithUrl($"https://nhitomi.chiya.dev/dl/{doujin.Source}/{doujin.SourceId}")
-                .WithDescription(
-                    $"Click the link above to start downloading `{doujin.OriginalName ?? doujin.PrettyName}`.\n")
-                .WithColor(Color.LightOrange)
-                .WithCurrentTimestamp()
-                .Build();
-
         public string UnsupportedSource(string source) =>
             $"**nhitomi**: Source `{source}` is not supported. " +
             $"See **{_settings.Discord.Prefix}help** for a list of supported sources.";

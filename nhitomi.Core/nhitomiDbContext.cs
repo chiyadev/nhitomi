@@ -5,7 +5,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
-using nhitomi.Core.Clients;
 
 namespace nhitomi.Core
 {
@@ -15,19 +14,15 @@ namespace nhitomi.Core
 
         Task<bool> SaveAsync(CancellationToken cancellationToken = default);
 
-        Task<Doujin> GetDoujinAsync(string source, string id,
-            CancellationToken cancellationToken = default);
-
-        Task<Doujin[]> GetDoujinsAsync((string source, string id)[] ids,
-            CancellationToken cancellationToken = default);
-
+        Task<Doujin> GetDoujinAsync(string source, string id, CancellationToken cancellationToken = default);
+        IAsyncEnumerable<Doujin> GetDoujinsAsync((string source, string id)[] ids);
         IAsyncEnumerable<Doujin> EnumerateDoujinsAsync(Func<IQueryable<Doujin>, IQueryable<Doujin>> query);
 
         Task<Collection> GetCollectionAsync(ulong userId, string name,
             CancellationToken cancellationToken = default);
 
         Task<IAsyncEnumerable<Doujin>> EnumerateCollectionAsync(ulong userId, string name,
-            CancellationToken cancellationToken = default);
+            Func<IQueryable<Doujin>, IQueryable<Doujin>> query, CancellationToken cancellationToken = default);
     }
 
     public class nhitomiDbContext : DbContext, IDatabase
@@ -84,54 +79,32 @@ namespace nhitomi.Core
             }
         }
 
-        public Task<Doujin> GetDoujinAsync(string source, string id, CancellationToken cancellationToken = default)
-        {
-            source = ClientRegistry.FixSource(source);
-            id = ClientRegistry.FixId(id);
+        const int _chunkLoadSize = 64;
 
-            return IncludeDoujin(Query<Doujin>())
-                .Where(d => d.Source == source &&
-                            d.SourceId == id)
+        public Task<Doujin> GetDoujinAsync(string source, string id, CancellationToken cancellationToken = default) =>
+            Query<Doujin>()
+                .FromSource(source)
+                .HasId(id)
+                .IncludeRelated()
                 .FirstOrDefaultAsync(cancellationToken);
-        }
 
-        public async Task<Doujin[]> GetDoujinsAsync((string source, string id)[] ids,
-            CancellationToken cancellationToken = default)
+        public IAsyncEnumerable<Doujin> GetDoujinsAsync((string source, string id)[] ids)
         {
             switch (ids.Length)
             {
                 case 0:
-                    return new Doujin[0];
-                case 1:
-                    return new[] {await GetDoujinAsync(ids[0].source, ids[0].id, cancellationToken)};
+                    return AsyncEnumerable.Empty<Doujin>();
             }
 
-            var source = ids.Select(x => ClientRegistry.FixSource(x.source)).ToArray();
-            var id = ids.Select(x => ClientRegistry.FixId(x.id)).ToArray();
-
-            return await IncludeDoujin(Query<Doujin>())
-                .Where(d => source.Contains(d.Source) &&
-                            id.Contains(d.SourceId))
-                // should use async enumerable instead?
-                .ToArrayAsync(cancellationToken);
+            return EnumerateDoujinsAsync(d => d
+                .FromSources(ids.Select(x => x.source))
+                .HasAnyId(ids.Select(x => x.id)));
         }
 
-        const int _chunkedLoadSize = 64;
-
         public IAsyncEnumerable<Doujin> EnumerateDoujinsAsync(Func<IQueryable<Doujin>, IQueryable<Doujin>> query) =>
-            IncludeDoujin(query(Query<Doujin>()))
-                .ToChunkedAsyncEnumerable(_chunkedLoadSize);
-
-        static IQueryable<Doujin> IncludeDoujin(IQueryable<Doujin> queryable) => queryable
-            .Include(d => d.Artist)
-            .Include(d => d.Group)
-            .Include(d => d.Scanlator)
-            .Include(d => d.Language)
-            .Include(d => d.ParodyOf)
-            .Include(d => d.Characters)
-            .Include(d => d.Categories)
-            .Include(d => d.Tags)
-            .Include(d => d.Pages);
+            query(Query<Doujin>())
+                .IncludeRelated()
+                .ToChunkedAsyncEnumerable(_chunkLoadSize);
 
         public Task<Collection> GetCollectionAsync(ulong userId, string name,
             CancellationToken cancellationToken = default)
@@ -145,7 +118,7 @@ namespace nhitomi.Core
         }
 
         public async Task<IAsyncEnumerable<Doujin>> EnumerateCollectionAsync(ulong userId, string name,
-            CancellationToken cancellationToken = default)
+            Func<IQueryable<Doujin>, IQueryable<Doujin>> query, CancellationToken cancellationToken = default)
         {
             //todo: use one query to retrieve everything
             var collection = await GetCollectionAsync(userId, name, cancellationToken);
@@ -155,10 +128,11 @@ namespace nhitomi.Core
 
             var id = collection.Doujins.Select(x => x.DoujinId).ToArray();
 
-            return IncludeDoujin(Query<Doujin>())
+            return query(Query<Doujin>())
                 .Where(d => id.Contains(d.Id))
                 .OrderBy(collection.Sort, collection.SortDescending)
-                .ToChunkedAsyncEnumerable(_chunkedLoadSize);
+                .IncludeRelated()
+                .ToChunkedAsyncEnumerable(_chunkLoadSize);
         }
     }
 

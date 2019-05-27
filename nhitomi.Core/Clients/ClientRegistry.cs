@@ -21,6 +21,6 @@ namespace nhitomi.Core.Clients
         }
 
         // fixes trailing zeros if ID is an integer
-        public static string FixId(string id) => long.TryParse(id, out var longId) ? longId.ToString() : id;
+        public static string FixSourceId(string id) => long.TryParse(id, out var longId) ? longId.ToString() : id;
     }
 }

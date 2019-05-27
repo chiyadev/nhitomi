@@ -4,12 +4,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using Discord.Commands;
 using nhitomi.Core;
-using nhitomi.Database;
+using nhitomi.Interactivity;
 
 namespace nhitomi.Modules
 {
-    [Group("collection")]
-    [Alias("c")]
+    [Group("collection"), Alias("c")]
     public class CollectionModule : ModuleBase
     {
         readonly IDatabase _database;
@@ -17,10 +16,7 @@ namespace nhitomi.Modules
         readonly InteractiveManager _interactive;
         readonly ISet<IDoujinClient> _clients;
 
-        public CollectionModule(
-            IDatabase database,
-            MessageFormatter formatter,
-            InteractiveManager interactive,
+        public CollectionModule(IDatabase database, MessageFormatter formatter, InteractiveManager interactive,
             ISet<IDoujinClient> clients)
         {
             _database = database;
