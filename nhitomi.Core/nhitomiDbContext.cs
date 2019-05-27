@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Design;
 
 namespace nhitomi.Core
@@ -11,6 +12,9 @@ namespace nhitomi.Core
 
     public interface IDatabase
     {
+        EntityEntry<TEntity> Add<TEntity>(TEntity entity) where TEntity : class;
+        EntityEntry<TEntity> Remove<TEntity>(TEntity entity) where TEntity : class;
+
         IQueryable<TEntity> Query<TEntity>(bool readOnly = true) where TEntity : class;
 
         Task<bool> SaveAsync(CancellationToken cancellationToken = default);

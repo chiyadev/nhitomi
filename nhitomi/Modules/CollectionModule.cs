@@ -1,4 +1,6 @@
 using System;
+using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Discord.Commands;
 using nhitomi.Core;
@@ -32,11 +34,11 @@ namespace nhitomi.Modules
         }
 
         [Command]
-        public async Task ViewAsync(string collectionName)
+        public async Task ViewAsync(string name)
         {
             using (Context.Channel.EnterTypingState())
             {
-                var doujins = await _database.EnumerateCollectionAsync(Context.User.Id, collectionName, x => x);
+                var doujins = await _database.EnumerateCollectionAsync(Context.User.Id, name, x => x);
 
                 if (doujins == null)
                 {
@@ -49,23 +51,45 @@ namespace nhitomi.Modules
         }
 
         [Command]
-        public Task AddOrRemoveAsync(string collectionName, string operation, string source, string id)
+        public async Task AddOrRemoveAsync(string name, string operation, string source, string id)
         {
             switch (operation)
             {
-                case "add": return AddAsync(collectionName, source, id);
-                case "remove": return RemoveAsync(collectionName, source, id);
-            }
+                case "add":
+                    using (Context.Channel.EnterTypingState())
+                        await AddAsync(name, source, id);
+                    break;
 
-            return Task.CompletedTask;
+                case "remove":
+                    using (Context.Channel.EnterTypingState())
+                        await RemoveAsync(name, source, id);
+                    break;
+            }
         }
 
-        async Task AddAsync(string collectionName, string source, string id)
+        async Task AddAsync(string name, string source, string id, CancellationToken cancellationToken = default)
         {
-            using (Context.Channel.EnterTypingState())
+            Doujin doujin;
+
+            do
             {
-                // get doujin to create collection item from
-                var doujin = await client.GetAsync(id);
+                var collection = await _database.GetCollectionAsync(Context.User.Id, name, cancellationToken);
+
+                if (collection == null)
+                {
+                    collection = new Collection
+                    {
+                        Name = name,
+                        Owner = new User
+                        {
+                            Id = Context.User.Id
+                        }
+                    };
+
+                    _database.Add(collection);
+                }
+
+                doujin = await _database.GetDoujinAsync(source, id, cancellationToken);
 
                 if (doujin == null)
                 {
@@ -73,51 +97,65 @@ namespace nhitomi.Modules
                     return;
                 }
 
-                // add to collection
-                if (await _database.TryAddToCollectionAsync(Context.User.Id, collectionName, doujin))
-                    await ReplyAsync(_formatter.AddedToCollection(collectionName, doujin));
-                else
-                    await ReplyAsync(_formatter.AlreadyInCollection(collectionName, doujin));
+                collection.Doujins.Add(new DoujinCollection
+                {
+                    DoujinId = doujin.Id
+                });
             }
+            while (!await _database.SaveAsync(cancellationToken));
+
+            await ReplyAsync(_formatter.AddedToCollection(name, doujin));
         }
 
-        async Task RemoveAsync(string collectionName, string source, string id)
+        async Task RemoveAsync(string name, string source, string id, CancellationToken cancellationToken = default)
         {
-            using (Context.Channel.EnterTypingState())
+            do
             {
-                var item = new CollectionItemInfo
-                {
-                    Source = source,
-                    Id = id
-                };
+                var collection = await _database.GetCollectionAsync(Context.User.Id, name, cancellationToken);
 
-                // remove from collection
-                if (await _database.TryRemoveFromCollectionAsync(Context.User.Id, collectionName, item))
-                    await ReplyAsync(_formatter.RemovedFromCollection(collectionName, item));
-                else
-                    await ReplyAsync(_formatter.NotInCollection(collectionName, item));
+                if (collection == null)
+                {
+                    await ReplyAsync(_formatter.CollectionNotFound);
+                    return;
+                }
+
+                var doujin = await _database.GetDoujinAsync(source, id, cancellationToken);
+
+                if (doujin == null)
+                {
+                    await ReplyAsync(_formatter.DoujinNotFound(source));
+                    return;
+                }
+
+                var item = collection.Doujins.FirstOrDefault(x => x.DoujinId == doujin.Id);
+
+                if (item != null)
+                    collection.Doujins.Remove(item);
             }
+            while (!await _database.SaveAsync(cancellationToken));
+
+            await ReplyAsync(_formatter.RemovedFromCollection(name, item));
         }
 
         [Command]
-        public Task ListOrDeleteAsync(string collectionName, string operation)
+        public Task ListOrDeleteAsync(string name, string operation)
         {
             switch (operation)
             {
-                case "list": return ListAsync(collectionName);
-                case "delete": return DeleteAsync(collectionName);
+                case "list": return ListAsync(name);
+                case "delete": return DeleteAsync(name);
             }
 
             return Task.CompletedTask;
         }
 
-        async Task ListAsync(string collectionName)
+        async Task ListAsync(string name)
         {
             CollectionInteractive interactive;
 
             using (Context.Channel.EnterTypingState())
             {
-                var items = await _database.GetCollectionAsync(Context.User.Id, collectionName);
+                var items = await _database.GetCollectionAsync(Context.User.Id, name);
 
                 if (items == null)
                 {
@@ -126,26 +164,26 @@ namespace nhitomi.Modules
                 }
 
                 interactive =
-                    await _interactive.CreateCollectionInteractiveAsync(collectionName, items, ReplyAsync);
+                    await _interactive.CreateCollectionInteractiveAsync(name, items, ReplyAsync);
             }
 
             if (interactive != null)
                 await _formatter.AddCollectionTriggersAsync(interactive.Message);
         }
 
-        async Task DeleteAsync(string collectionName)
+        async Task DeleteAsync(string name)
         {
             using (Context.Channel.EnterTypingState())
             {
-                if (await _database.TryDeleteCollectionAsync(Context.User.Id, collectionName))
-                    await ReplyAsync(_formatter.CollectionDeleted(collectionName));
+                if (await _database.TryDeleteCollectionAsync(Context.User.Id, name))
+                    await ReplyAsync(_formatter.CollectionDeleted(name));
                 else
                     await ReplyAsync(_formatter.CollectionNotFound);
             }
         }
 
         [Command]
-        public async Task SortAsync(string collectionName, string sort, string attribute)
+        public async Task SortAsync(string name, string sort, string attribute)
         {
             if (sort != nameof(sort))
                 return;
@@ -159,7 +197,7 @@ namespace nhitomi.Modules
 
             using (Context.Channel.EnterTypingState())
             {
-                if (await _database.TrySetCollectionSortAsync(Context.User.Id, collectionName, attributeValue))
+                if (await _database.TrySetCollectionSortAsync(Context.User.Id, name, attributeValue))
                     await ReplyAsync(_formatter.SortAttributeUpdated(attributeValue));
                 else
                     await ReplyAsync(_formatter.CollectionNotFound);
