@@ -60,8 +60,7 @@ namespace nhitomi
                 .AddSingleton<InteractiveManager>()
                 .AddHostedService<MessageHandlerService>()
                 .AddHostedService<ReactionHandlerService>()
-                .AddHostedService<StatusUpdater>()
-                .AddHostedService<FeedUpdater>();
+                .AddHostedService<StatusUpdater>();
 
             // http server
             services
