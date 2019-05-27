@@ -4,7 +4,6 @@
 // https://opensource.org/licenses/MIT
 
 using System.Linq;
-using System.Threading.Tasks;
 using Discord;
 using nhitomi.Core;
 
@@ -59,40 +58,27 @@ namespace nhitomi
         public string ClearedSubscriptions =>
             "**nhitomi**: Cleared all tag subscriptions.";
 
-        public Embed CreateCollectionListEmbed(string[] collectionNames) =>
-            new EmbedBuilder()
-                .WithTitle("**nhitomi**: Collections")
-                .WithDescription(collectionNames == null || collectionNames.Length == 0
-                    ? "You have no collections."
-                    : $"- {string.Join("\n- ", collectionNames)}")
-                .WithColor(Color.Teal)
-                .WithCurrentTimestamp()
-                .Build();
-
         public string AddedToCollection(string collectionName, Doujin doujin) =>
             $"**nhitomi**: Added `{doujin.OriginalName ?? doujin.PrettyName}` to collection `{collectionName}`.";
 
         public string AlreadyInCollection(string collectionName, Doujin doujin) =>
             $"**nhitomi**: `{doujin.OriginalName ?? doujin.PrettyName}` already exists in collection `{collectionName}`.";
 
-        public string RemovedFromCollection(string collectionName, CollectionItemInfo item) =>
-            $"**nhitomi**: Removed `{item.Name}` from collection `{collectionName}`.";
+        public string RemovedFromCollection(string collectionName, Doujin doujin) =>
+            $"**nhitomi**: Removed `{doujin.Name}` from collection `{collectionName}`.";
 
-        public string NotInCollection(string collectionName, CollectionItemInfo item) =>
-            $"**nhitomi**: `{item.Source}/{item.Id}` does not exist in collection `{collectionName}`.";
+        public string NotInCollection(string collectionName, Doujin doujin) =>
+            $"**nhitomi**: `{doujin.Source}/{doujin.Id}` does not exist in collection `{collectionName}`.";
 
-        public Embed CreateCollectionEmbed(string collectionName, CollectionItemInfo[] items) =>
+        public Embed CreateCollectionEmbed(string collectionName, Doujin[] doujin) =>
             new EmbedBuilder()
                 .WithTitle($"**nhitomi**: Collection `{collectionName}`")
-                .WithDescription(items == null || items.Length == 0
+                .WithDescription(doujin == null || doujin.Length == 0
                     ? "There are no doujins in this collection."
-                    : $"- {string.Join("\n- ", items.Select(i => $"`{i.Source}|{i.Id}` *{i.Artist ?? i.Source}* — `{i.Name}`"))}")
+                    : $"- {string.Join("\n- ", doujin.Select(i => $"`{i.Source}|{i.Id}` *{i.Artist ?? i.Source}* — `{i.Name}`"))}")
                 .WithColor(Color.Teal)
                 .WithCurrentTimestamp()
                 .Build();
-
-        public Task AddCollectionTriggersAsync(IUserMessage message) =>
-            message.AddReactionAsync(TrashcanEmote);
 
         public string CollectionDeleted(string collectionName) =>
             $"**nhitomi**: Deleted collection `{collectionName}`.";

@@ -109,6 +109,8 @@ namespace nhitomi.Modules
 
         async Task RemoveAsync(string name, string source, string id, CancellationToken cancellationToken = default)
         {
+            Doujin doujin;
+
             do
             {
                 var collection = await _database.GetCollectionAsync(Context.User.Id, name, cancellationToken);
@@ -119,7 +121,7 @@ namespace nhitomi.Modules
                     return;
                 }
 
-                var doujin = await _database.GetDoujinAsync(source, id, cancellationToken);
+                doujin = await _database.GetDoujinAsync(source, id, cancellationToken);
 
                 if (doujin == null)
                 {
@@ -134,51 +136,30 @@ namespace nhitomi.Modules
             }
             while (!await _database.SaveAsync(cancellationToken));
 
-            await ReplyAsync(_formatter.RemovedFromCollection(name, item));
+            await ReplyAsync(_formatter.RemovedFromCollection(name, doujin));
         }
 
         [Command]
-        public Task ListOrDeleteAsync(string name, string operation)
+        public async Task DeleteAsync(string name, string delete)
         {
-            switch (operation)
-            {
-                case "list": return ListAsync(name);
-                case "delete": return DeleteAsync(name);
-            }
-
-            return Task.CompletedTask;
-        }
-
-        async Task ListAsync(string name)
-        {
-            CollectionInteractive interactive;
+            if (delete != nameof(delete))
+                return;
 
             using (Context.Channel.EnterTypingState())
             {
-                var items = await _database.GetCollectionAsync(Context.User.Id, name);
-
-                if (items == null)
+                do
                 {
-                    await ReplyAsync(_formatter.CollectionNotFound);
-                    return;
+                    var collection = await _database.GetCollectionAsync(Context.User.Id, name);
+
+                    if (collection == null)
+                    {
+                        await ReplyAsync(_formatter.CollectionNotFound);
+                        return;
+                    }
+
+                    _database.Remove(collection);
                 }
-
-                interactive =
-                    await _interactive.CreateCollectionInteractiveAsync(name, items, ReplyAsync);
-            }
-
-            if (interactive != null)
-                await _formatter.AddCollectionTriggersAsync(interactive.Message);
-        }
-
-        async Task DeleteAsync(string name)
-        {
-            using (Context.Channel.EnterTypingState())
-            {
-                if (await _database.TryDeleteCollectionAsync(Context.User.Id, name))
-                    await ReplyAsync(_formatter.CollectionDeleted(name));
-                else
-                    await ReplyAsync(_formatter.CollectionNotFound);
+                while (!await _database.SaveAsync());
             }
         }
 
