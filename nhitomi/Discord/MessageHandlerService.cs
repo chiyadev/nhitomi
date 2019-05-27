@@ -87,10 +87,10 @@ namespace nhitomi.Discord
                 // handle on another thread to not block the gateway thread
                 _ = Task.Run(async () =>
                 {
-                    var context = new MessageContext(userMessage, eventType);
-
                     try
                     {
+                        var context = new MessageContext(userMessage, eventType);
+
                         foreach (var handler in _messageHandlers)
                             if (await handler.TryHandleAsync(context))
                                 return;

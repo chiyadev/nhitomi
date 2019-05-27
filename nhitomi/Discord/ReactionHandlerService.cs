@@ -91,20 +91,20 @@ namespace nhitomi.Discord
                 // handle on another thread to not block the gateway thread
                 _ = Task.Run(async () =>
                 {
-                    // retrieve message
-                    var message = reaction.Message.IsSpecified
-                        ? reaction.Message.Value
-                        : (IUserMessage) await channel.GetMessageAsync(reaction.MessageId);
-
-                    // retrieve user
-                    var user = reaction.User.IsSpecified
-                        ? reaction.User.Value
-                        : await channel.GetUserAsync(reaction.UserId);
-
-                    var context = new ReactionContext(message, reaction, user, eventType);
-
                     try
                     {
+                        // retrieve message
+                        var message = reaction.Message.IsSpecified
+                            ? reaction.Message.Value
+                            : (IUserMessage) await channel.GetMessageAsync(reaction.MessageId);
+
+                        // retrieve user
+                        var user = reaction.User.IsSpecified
+                            ? reaction.User.Value
+                            : await channel.GetUserAsync(reaction.UserId);
+
+                        var context = new ReactionContext(message, reaction, user, eventType);
+
                         foreach (var handler in _reactionHandlers)
                             if (await handler.TryHandleAsync(context))
                                 return;
