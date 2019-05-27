@@ -20,10 +20,11 @@ namespace nhitomi.Interactivity
 
         protected abstract IEnumerable<ReactionTrigger> CreateTriggers();
 
-        public override async Task InitializeAsync(IServiceProvider services, ICommandContext context,
+        public override async Task<bool> InitializeAsync(IServiceProvider services, ICommandContext context,
             CancellationToken cancellationToken = default)
         {
-            await base.InitializeAsync(services, context, cancellationToken);
+            if (!await base.InitializeAsync(services, context, cancellationToken))
+                return false;
 
             // initialize reaction triggers
             Triggers = CreateTriggers().ToDictionary(t => t.Emote);
@@ -32,6 +33,8 @@ namespace nhitomi.Interactivity
                 trigger.Initialize(this);
 
             await Message.AddReactionsAsync(Triggers.Keys.ToArray());
+
+            return true;
         }
 
         public virtual void Dispose()

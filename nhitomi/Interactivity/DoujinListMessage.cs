@@ -7,7 +7,7 @@ namespace nhitomi.Interactivity
 {
     public class DoujinListMessage : ListInteractiveMessage<Doujin>
     {
-        public DoujinListMessage(AsyncEnumerableBrowser<Doujin> enumerable) : base(enumerable)
+        public DoujinListMessage(IAsyncEnumerable<Doujin> enumerable) : base(enumerable)
         {
         }
 

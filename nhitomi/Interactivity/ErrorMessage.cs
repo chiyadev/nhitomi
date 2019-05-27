@@ -16,7 +16,7 @@ namespace nhitomi.Interactivity
             _exception = exception;
         }
 
-        protected override async Task UpdateViewAsync(CancellationToken cancellationToken = default)
+        protected override async Task<bool> InitializeViewAsync(CancellationToken cancellationToken = default)
         {
             var settings = Services.GetRequiredService<IOptions<AppSettings>>().Value;
 
@@ -30,6 +30,8 @@ namespace nhitomi.Interactivity
                 .Build();
 
             await SetViewAsync(embed, cancellationToken);
+
+            return true;
         }
     }
 }

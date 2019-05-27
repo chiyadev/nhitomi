@@ -4,6 +4,7 @@ using System.Linq;
 using Discord;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using nhitomi.Core;
 using nhitomi.Interactivity.Triggers;
 
 namespace nhitomi.Interactivity
@@ -20,7 +21,7 @@ namespace nhitomi.Interactivity
         public HelpMessage() : base(Enum
             .GetValues(typeof(HelpMessageSection))
             .Cast<HelpMessageSection>()
-            .CreateAsyncBrowser())
+            .ToAsyncEnumerable())
         {
         }
 
@@ -63,7 +64,7 @@ namespace nhitomi.Interactivity
 - {prefix}collection `name` — Displays doujins belonging to a collection.
 - {prefix}collection `name` add|remove `source` `id` — Adds or removes a doujin in a collection.
 - {prefix}collection `name` list — Lists all doujins belonging to a collection.
-- {prefix}collection `name` sort `attribute` — Sorts doujins in a collection by an attribute ({string.Join(", ", Enum.GetNames(typeof(CollectionSortAttribute)).Select(s => s.ToLowerInvariant()))}).
+- {prefix}collection `name` sort `attribute` — Sorts doujins in a collection by an attribute ({string.Join(", ", Enum.GetNames(typeof(CollectionSort)).Select(s => s.ToLowerInvariant()))}).
 - {prefix}collection `name` delete — Deletes a collection, removing all doujins belonging to it.
 ".Trim());
                     break;

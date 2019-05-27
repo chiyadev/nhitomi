@@ -12,18 +12,17 @@ namespace nhitomi.Interactivity
         public ICommandContext Context { get; private set; }
         public IUserMessage Message { get; private set; }
 
-        public virtual async Task InitializeAsync(IServiceProvider services, ICommandContext context,
+        public virtual Task<bool> InitializeAsync(IServiceProvider services, ICommandContext context,
             CancellationToken cancellationToken = default)
         {
             Services = services;
             Context = context;
 
-            // update the view
-            // the implementation should also sends the initial message using SetViewAsync
-            await UpdateViewAsync(cancellationToken);
+            // initialize the view
+            return InitializeViewAsync(cancellationToken);
         }
 
-        protected abstract Task UpdateViewAsync(CancellationToken cancellationToken = default);
+        protected abstract Task<bool> InitializeViewAsync(CancellationToken cancellationToken = default);
 
         protected async Task SetViewAsync(Embed embed, CancellationToken cancellationToken = default)
         {

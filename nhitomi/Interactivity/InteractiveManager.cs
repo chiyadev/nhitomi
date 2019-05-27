@@ -37,7 +37,8 @@ namespace nhitomi.Interactivity
             CancellationToken cancellationToken = default)
         {
             // initialize interactive
-            await message.InitializeAsync(_services, context, cancellationToken);
+            if (!await message.InitializeAsync(_services, context, cancellationToken))
+                return;
 
             // add to interactive list
             if (message is InteractiveMessage interactiveMessage)

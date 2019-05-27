@@ -12,9 +12,9 @@ namespace nhitomi.Interactivity
 
         protected T Current => _enumerable.Current;
 
-        protected ListInteractiveMessage(AsyncEnumerableBrowser<T> enumerable)
+        protected ListInteractiveMessage(IAsyncEnumerable<T> enumerable)
         {
-            _enumerable = enumerable;
+            _enumerable = enumerable.CreateAsyncBrowser();
         }
 
         protected override IEnumerable<ReactionTrigger> CreateTriggers()
@@ -26,10 +26,7 @@ namespace nhitomi.Interactivity
         protected abstract Embed CreateEmbed(T value);
         protected abstract Embed CreateEmptyEmbed();
 
-        /// <summary>
-        /// This method is only called at the initialization stage.
-        /// </summary>
-        protected sealed override async Task UpdateViewAsync(CancellationToken cancellationToken = default)
+        protected sealed override async Task<bool> InitializeViewAsync(CancellationToken cancellationToken = default)
         {
             // move initially if we haven't started enumerating
             if (_enumerable.Index == -1 && !await _enumerable.MoveNext(cancellationToken))
@@ -38,11 +35,18 @@ namespace nhitomi.Interactivity
 
                 // embed saying there is nothing in this list
                 await SetViewAsync(CreateEmptyEmbed(), cancellationToken);
+
+                return false;
             }
 
             // show the first item
             await UpdateViewAsync(Current, cancellationToken);
+
+            return true;
         }
+
+        protected virtual Task UpdateViewAsync(T value, CancellationToken cancellationToken = default) =>
+            SetViewAsync(CreateEmbed(value), cancellationToken);
 
         public async Task NextAsync(CancellationToken cancellationToken = default)
         {
@@ -64,9 +68,6 @@ namespace nhitomi.Interactivity
 
             await UpdateViewAsync(Current, cancellationToken);
         }
-
-        protected virtual Task UpdateViewAsync(T value, CancellationToken cancellationToken = default) =>
-            SetViewAsync(CreateEmbed(value), cancellationToken);
 
         public override void Dispose()
         {
