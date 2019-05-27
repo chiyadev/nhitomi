@@ -10,7 +10,6 @@ namespace nhitomi.Core
 
         /// <summary>
         /// Name of this collection.
-        /// Collection names should always be lower-case.
         /// </summary>
         [Required, MinLength(1), MaxLength(32)]
         public string Name { get; set; }
