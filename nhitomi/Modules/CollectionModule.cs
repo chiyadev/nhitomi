@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Discord.Commands;
 using nhitomi.Core;
@@ -39,47 +38,18 @@ namespace nhitomi.Modules
         [Command]
         public async Task ShowAsync(string collectionName)
         {
-            DoujinListInteractive interactive;
-
             using (Context.Channel.EnterTypingState())
             {
-                var items = (IEnumerable<CollectionItemInfo>)
-                    await _database.GetCollectionAsync(Context.User.Id, collectionName);
+                var doujins = await _database.EnumerateCollectionAsync(Context.User.Id, collectionName, x => x);
 
-                if (items == null)
+                if (doujins == null)
                 {
                     await ReplyAsync(_formatter.CollectionNotFound);
                     return;
                 }
 
-                var doujins = AsyncEnumerable.CreateEnumerable(() =>
-                {
-                    var enumerator = items.GetEnumerator();
-                    IDoujin current = null;
-
-                    return AsyncEnumerable.CreateEnumerator(
-                        async token =>
-                        {
-                            if (!enumerator.MoveNext())
-                                return false;
-
-                            var client = _clients.FindByName(enumerator.Current.Source);
-                            if (client == null)
-                                return false;
-
-                            current = await client.GetAsync(enumerator.Current.Id, token);
-
-                            return current != null;
-                        },
-                        () => current,
-                        enumerator.Dispose);
-                });
-
-                interactive = await _interactive.CreateDoujinListInteractiveAsync(doujins, ReplyAsync);
+                await _interactive.SendInteractiveAsync(new DoujinListMessage(doujins), Context);
             }
-
-            if (interactive != null)
-                await _formatter.AddDoujinTriggersAsync(interactive.Message);
         }
 
         [Command]
