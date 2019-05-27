@@ -54,16 +54,7 @@ namespace nhitomi.Core
             User.Describe(modelBuilder);
         }
 
-        public IQueryable<TEntity> Query<TEntity>(bool readOnly)
-            where TEntity : class
-        {
-            IQueryable<TEntity> queryable = Set<TEntity>();
-
-            if (readOnly)
-                queryable = queryable.AsNoTracking();
-
-            return queryable;
-        }
+        public IQueryable<TEntity> Query<TEntity>(bool readOnly = true) where TEntity : class => Set<TEntity>();
 
         public async Task<bool> SaveAsync(CancellationToken cancellationToken = default)
         {
@@ -76,6 +67,13 @@ namespace nhitomi.Core
             catch (DbUpdateConcurrencyException)
             {
                 // optimistic concurrency handling
+                // forget stale data by detaching all entities
+                foreach (var entry in ChangeTracker.Entries())
+                {
+                    if (entry.Entity != null)
+                        entry.State = EntityState.Detached;
+                }
+
                 return false;
             }
         }
