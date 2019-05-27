@@ -33,6 +33,7 @@ namespace nhitomi.Core
 
         /// <summary>
         /// Original name or pretty name.
+        /// This property is not mapped and should not be used in queries.
         /// </summary>
         [NotMapped]
         public string Name => OriginalName ?? PrettyName;
@@ -60,20 +61,26 @@ namespace nhitomi.Core
         [Required]
         public string SourceId { get; set; }
 
+        public Artist Artist { get; set; }
+        public Group Group { get; set; }
         public Scanlator Scanlator { get; set; }
         public Language Language { get; set; }
         public ParodyOf ParodyOf { get; set; }
 
         public ICollection<Character> Characters { get; set; }
         public ICollection<Category> Categories { get; set; }
-        public ICollection<Artist> Artists { get; set; }
-        public ICollection<Group> Groups { get; set; }
         public ICollection<Tag> Tags { get; set; }
 
         /// <summary>
         /// Gets the pages of this doujinshi.
         /// </summary>
         public ICollection<Page> Pages { get; set; }
+
+        /// <summary>
+        /// Gets the collections that contain this doujin.
+        /// This is for navigation only and should not be included in queries.
+        /// </summary>
+        public ICollection<DoujinCollection> Collections { get; set; }
 
         public static void Describe(ModelBuilder model)
         {
@@ -85,14 +92,14 @@ namespace nhitomi.Core
             entity.HasIndex(d => d.Source);
             entity.HasIndex(d => d.SourceId);
 
+            Artist.Describe(model, d => d.Artist);
+            Group.Describe(model, d => d.Group);
             Scanlator.Describe(model, d => d.Scanlator);
             Language.Describe(model, d => d.Language);
             ParodyOf.Describe(model, d => d.ParodyOf);
 
             Character.Describe(model, d => d.Characters);
             Category.Describe(model, d => d.Categories);
-            Artist.Describe(model, d => d.Artists);
-            Group.Describe(model, d => d.Groups);
             Tag.Describe(model, d => d.Tags);
 
             Page.Describe(model);
