@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -8,6 +7,8 @@ using Microsoft.EntityFrameworkCore.Design;
 
 namespace nhitomi.Core
 {
+    public delegate IQueryable<T> QueryFilterDelegate<T>(IQueryable<T> query);
+
     public interface IDatabase
     {
         IQueryable<TEntity> Query<TEntity>(bool readOnly = true) where TEntity : class;
@@ -16,13 +17,13 @@ namespace nhitomi.Core
 
         Task<Doujin> GetDoujinAsync(string source, string id, CancellationToken cancellationToken = default);
         IAsyncEnumerable<Doujin> GetDoujinsAsync((string source, string id)[] ids);
-        IAsyncEnumerable<Doujin> EnumerateDoujinsAsync(Func<IQueryable<Doujin>, IQueryable<Doujin>> query);
+        IAsyncEnumerable<Doujin> EnumerateDoujinsAsync(QueryFilterDelegate<Doujin> query);
 
-        Task<Collection> GetCollectionAsync(ulong userId, string name,
-            CancellationToken cancellationToken = default);
+        Task<Collection> GetCollectionAsync(ulong userId, string name, CancellationToken cancellationToken = default);
+        Task<Collection[]> GetCollectionsAsync(ulong userId, CancellationToken cancellationToken = default);
 
         Task<IAsyncEnumerable<Doujin>> EnumerateCollectionAsync(ulong userId, string name,
-            Func<IQueryable<Doujin>, IQueryable<Doujin>> query, CancellationToken cancellationToken = default);
+            QueryFilterDelegate<Doujin> query, CancellationToken cancellationToken = default);
     }
 
     public class nhitomiDbContext : DbContext, IDatabase
@@ -104,24 +105,25 @@ namespace nhitomi.Core
                             id.Contains(d.SourceId)));
         }
 
-        public IAsyncEnumerable<Doujin> EnumerateDoujinsAsync(Func<IQueryable<Doujin>, IQueryable<Doujin>> query) =>
+        public IAsyncEnumerable<Doujin> EnumerateDoujinsAsync(QueryFilterDelegate<Doujin> query) =>
             query(Query<Doujin>())
                 .IncludeRelated()
                 .ToChunkedAsyncEnumerable(_chunkLoadSize);
 
         public Task<Collection> GetCollectionAsync(ulong userId, string name,
-            CancellationToken cancellationToken = default)
-        {
-            name = name.ToLowerInvariant();
-
-            return Query<Collection>()
-                // include join table only
-                .Include(c => c.Doujins)
+            CancellationToken cancellationToken = default) =>
+            Query<Collection>()
+                .Include(c => c.Doujins) // join table
                 .FirstOrDefaultAsync(c => c.OwnerId == userId && c.Name == name, cancellationToken);
-        }
+
+        public Task<Collection[]> GetCollectionsAsync(ulong userId, CancellationToken cancellationToken = default) =>
+            Query<Collection>()
+                .Include(c => c.Doujins) // join table
+                .Where(c => c.OwnerId == userId)
+                .ToArrayAsync(cancellationToken);
 
         public async Task<IAsyncEnumerable<Doujin>> EnumerateCollectionAsync(ulong userId, string name,
-            Func<IQueryable<Doujin>, IQueryable<Doujin>> query, CancellationToken cancellationToken = default)
+            QueryFilterDelegate<Doujin> query, CancellationToken cancellationToken = default)
         {
             //todo: use one query to retrieve everything
             var collection = await GetCollectionAsync(userId, name, cancellationToken);
