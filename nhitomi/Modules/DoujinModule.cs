@@ -3,7 +3,6 @@
 // This software is released under the MIT License.
 // https://opensource.org/licenses/MIT
 
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
@@ -32,53 +31,29 @@ namespace nhitomi.Modules
         [Command("get"), Alias("g")]
         public async Task GetAsync(string source, string id)
         {
-            Doujin doujin;
-
             using (Context.Channel.EnterTypingState())
             {
-                doujin = await _database.GetDoujinAsync(source, id);
+                var doujin = await _database.GetDoujinAsync(source, id);
 
                 if (doujin == null)
                 {
                     await ReplyAsync(_formatter.DoujinNotFound(source));
                     return;
                 }
-            }
 
-            await _interactive.SendInteractiveAsync(new DoujinMessage(doujin), Context);
+                await _interactive.SendInteractiveAsync(new DoujinMessage(doujin), Context);
+            }
         }
 
-        [Command("all"), Alias("a")]
-        public async Task ListAsync([Remainder] string source = null)
+        [Command("from"), Alias("f")]
+        public async Task GetFromAsync([Remainder] string source = null)
         {
-            DoujinListInteractive interactive;
-
             using (Context.Channel.EnterTypingState())
             {
-                IAsyncEnumerable<IDoujin> results;
+                var doujins = _database.EnumerateDoujinsAsync(d => d.FromSource(source));
 
-                if (string.IsNullOrWhiteSpace(source))
-                {
-                    results = Extensions.Interleave(await Task.WhenAll(_clients.Select(c => c.SearchAsync(null))));
-                }
-                else
-                {
-                    var client = _clients.FindByName(source);
-
-                    if (client == null)
-                    {
-                        await ReplyAsync(_formatter.UnsupportedSource(source));
-                        return;
-                    }
-
-                    results = await client.SearchAsync(null);
-                }
-
-                interactive = await _interactive.CreateDoujinListInteractiveAsync(results, ReplyAsync);
+                await _interactive.SendInteractiveAsync(new DoujinListMessage(doujins), Context);
             }
-
-            if (interactive != null)
-                await _formatter.AddDoujinTriggersAsync(interactive.Message);
         }
 
         [Command("search"), Alias("s")]
