@@ -84,15 +84,6 @@ namespace nhitomi.Modules
             }
         }
 
-        [Command("searchen"), Alias("se")]
-        public Task SearchEnglishAsync([Remainder] string query) => SearchAsync(query + " english");
-
-        [Command("searchjp"), Alias("sj")]
-        public Task SearchJapaneseAsync([Remainder] string query) => SearchAsync(query + " japanese");
-
-        [Command("searchch"), Alias("sc")]
-        public Task SearchChineseAsync([Remainder] string query) => SearchAsync(query + " chinese");
-
         [Command("download"), Alias("dl")]
         public async Task DownloadAsync(string source, string id)
         {
