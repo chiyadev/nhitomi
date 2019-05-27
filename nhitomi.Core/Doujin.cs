@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
 
@@ -18,7 +19,7 @@ namespace nhitomi.Core
 
         /// <summary>
         /// Prettified name of the doujinshi.
-        /// This is often English.
+        /// This is usually English.
         /// </summary>
         [Required]
         public string PrettyName { get; set; }
@@ -29,6 +30,12 @@ namespace nhitomi.Core
         /// </summary>
         [Required]
         public string OriginalName { get; set; }
+
+        /// <summary>
+        /// Original name or pretty name.
+        /// </summary>
+        [NotMapped]
+        public string Name => OriginalName ?? PrettyName;
 
         /// <summary>
         /// The time at which this doujinshi was uploaded.
