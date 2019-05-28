@@ -5,8 +5,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using Discord.Commands;
 using nhitomi.Core;
+using nhitomi.Globalization;
 using nhitomi.Interactivity;
-using nhitomi.Localization;
 
 namespace nhitomi.Modules
 {

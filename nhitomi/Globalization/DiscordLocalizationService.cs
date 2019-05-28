@@ -11,7 +11,7 @@ using Microsoft.Extensions.Hosting;
 using nhitomi.Core;
 using nhitomi.Discord;
 
-namespace nhitomi.Localization
+namespace nhitomi.Globalization
 {
     public interface ILocalization
     {

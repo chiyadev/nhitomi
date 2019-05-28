@@ -5,9 +5,9 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using nhitomi.Core;
 using nhitomi.Discord;
+using nhitomi.Globalization;
 using nhitomi.Http;
 using nhitomi.Interactivity;
-using nhitomi.Localization;
 using Newtonsoft.Json;
 
 namespace nhitomi

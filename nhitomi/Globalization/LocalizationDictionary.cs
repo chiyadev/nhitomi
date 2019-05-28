@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
-namespace nhitomi.Localization
+namespace nhitomi.Globalization
 {
     public class LocalizationDictionary : IReadOnlyDictionary<string, string>
     {

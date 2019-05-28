@@ -1,6 +1,6 @@
 using System.Globalization;
 
-namespace nhitomi.Localization
+namespace nhitomi.Globalization
 {
     public class EnglishLocalization : Localization
     {

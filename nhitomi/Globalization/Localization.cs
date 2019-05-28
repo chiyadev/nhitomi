@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 
-namespace nhitomi.Localization
+namespace nhitomi.Globalization
 {
     public abstract class Localization
     {

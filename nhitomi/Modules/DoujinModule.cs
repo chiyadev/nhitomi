@@ -10,8 +10,8 @@ using Discord;
 using Discord.Commands;
 using Microsoft.Extensions.Options;
 using nhitomi.Core;
+using nhitomi.Globalization;
 using nhitomi.Interactivity;
-using nhitomi.Localization;
 
 namespace nhitomi.Modules
 {
