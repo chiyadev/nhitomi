@@ -14,7 +14,6 @@ namespace nhitomi
 {
     public interface IApiClient
     {
-        Task<DoujinClientInfo[]> GetSourcesAsync(CancellationToken cancellationToken = default);
         Task<Doujin> GetDoujinAsync(string source, string id, CancellationToken cancellationToken = default);
     }
 
@@ -49,19 +48,6 @@ namespace nhitomi
             message.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _settings.Api.AuthToken);
 
             return message;
-        }
-
-        public async Task<DoujinClientInfo[]> GetSourcesAsync(CancellationToken cancellationToken = default)
-        {
-            using (var response = await _httpClient.SendAsync(
-                CreateRequest(HttpMethod.Get, "doujins/sources"),
-                cancellationToken))
-            {
-                if (response.IsSuccessStatusCode)
-                    return await _serializer.DeserializeAsync<DoujinClientInfo[]>(response.Content);
-
-                throw new ApiException(response, "Could not retrieve doujin sources.");
-            }
         }
 
         public async Task<Doujin> GetDoujinAsync(string source, string id,
