@@ -7,6 +7,7 @@ using nhitomi.Core;
 using nhitomi.Discord;
 using nhitomi.Http;
 using nhitomi.Interactivity;
+using nhitomi.Localization;
 using Newtonsoft.Json;
 
 namespace nhitomi
@@ -70,6 +71,7 @@ namespace nhitomi
             // other stuff
             services
                 .AddHttpClient()
+                .AddScoped<ILocalization, DatabaseLocalizationProvider>()
                 .AddTransient<IHttpClient, HttpClientWrapper>()
                 .AddTransient(s => JsonSerializer.Create(new nhitomiSerializerSettings()));
         }
