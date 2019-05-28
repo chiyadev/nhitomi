@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -47,7 +48,9 @@ namespace nhitomi.Modules
                     return;
                 }
 
-                await _interactive.SendInteractiveAsync(new DoujinListMessage(doujins), Context);
+                IAsyncEnumerable<Doujin> enumerate(IDatabase db, int offset) => doujins;
+
+                await _interactive.SendInteractiveAsync(new DoujinListMessage(enumerate), Context);
             }
         }
 
