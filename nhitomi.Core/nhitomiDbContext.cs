@@ -30,7 +30,9 @@ namespace nhitomi.Core
             QueryFilterDelegate<Doujin> query, CancellationToken cancellationToken = default);
 
         Task<User> GetUserAsync(ulong userId, CancellationToken cancellationToken = default);
+
         Task<Guild> GetGuildAsync(ulong guildId, CancellationToken cancellationToken = default);
+        Task<Guild[]> GetGuildsAsync(ulong[] guildIds, CancellationToken cancellationToken = default);
     }
 
     public class nhitomiDbContext : DbContext, IDatabase
@@ -169,7 +171,7 @@ namespace nhitomi.Core
         public async Task<Guild> GetGuildAsync(ulong guildId, CancellationToken cancellationToken = default)
         {
             var guild = await Query<Guild>()
-                .FirstOrDefaultAsync(u => u.Id == guildId, cancellationToken);
+                .FirstOrDefaultAsync(g => g.Id == guildId, cancellationToken);
 
             if (guild == null)
             {
@@ -183,6 +185,28 @@ namespace nhitomi.Core
             }
 
             return guild;
+        }
+
+        public async Task<Guild[]> GetGuildsAsync(ulong[] guildIds, CancellationToken cancellationToken = default)
+        {
+            var guilds = await Query<Guild>()
+                .Where(g => guildIds.Contains(g.Id))
+                .ToListAsync(cancellationToken);
+
+            // create entities for missing guilds
+            foreach (var guildId in guildIds.Where(i => guilds.All(g => g.Id != i)))
+            {
+                var guild = new Guild
+                {
+                    Id = guildId
+                };
+
+                guilds.Add(guild);
+
+                Add(guilds);
+            }
+
+            return guilds.ToArray();
         }
     }
 
