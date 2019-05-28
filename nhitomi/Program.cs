@@ -13,17 +13,18 @@ namespace nhitomi
         static async Task Main()
         {
             // build host
-            var host = new HostBuilder()
+            using (var host = new HostBuilder()
                 .ConfigureAppConfiguration(Startup.Configure)
                 .ConfigureServices(Startup.ConfigureServices)
-                .Build();
+                .Build())
+            {
+                // initialization
+                using (var scope = host.Services.CreateScope())
+                    await DependencyUtility<Initialization>.Factory(scope.ServiceProvider).RunAsync();
 
-            // initialization
-            using (var scope = host.Services.CreateScope())
-                await DependencyUtility<Initialization>.Factory(scope.ServiceProvider).RunAsync();
-
-            // run host
-            await host.RunAsync();
+                // run host
+                await host.RunAsync();
+            }
         }
 
         sealed class Initialization
