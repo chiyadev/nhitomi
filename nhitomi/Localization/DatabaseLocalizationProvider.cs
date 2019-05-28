@@ -7,7 +7,7 @@ namespace nhitomi.Localization
 {
     public interface ILocalization
     {
-        Task<Localization> GetLocalizationAsync(ICommandContext context, CancellationToken cancellationToken = default);
+        Task<Localization> GetAsync(ICommandContext context, CancellationToken cancellationToken = default);
     }
 
     public class DatabaseLocalizationProvider : ILocalization
@@ -19,7 +19,7 @@ namespace nhitomi.Localization
             _db = db;
         }
 
-        public async Task<Localization> GetLocalizationAsync(ICommandContext context,
+        public async Task<Localization> GetAsync(ICommandContext context,
             CancellationToken cancellationToken = default)
         {
             //todo: CACHE THE RESULT
