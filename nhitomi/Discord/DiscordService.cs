@@ -7,8 +7,8 @@ using System;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
-using Discord.Rest;
 using Discord.WebSocket;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace nhitomi.Discord
@@ -16,13 +16,15 @@ namespace nhitomi.Discord
     public class DiscordService : IDisposable
     {
         readonly AppSettings _settings;
+        readonly ILogger<DiscordService> _logger;
 
         public BaseSocketClient Socket { get; }
         public CommandService Command { get; }
 
-        public DiscordService(IOptions<AppSettings> options)
+        public DiscordService(IOptions<AppSettings> options, ILogger<DiscordService> logger)
         {
             _settings = options.Value;
+            _logger = logger;
 
             Socket = new DiscordSocketClient(_settings.Discord);
             Command = new CommandService(_settings.Discord.Command);
@@ -33,36 +35,17 @@ namespace nhitomi.Discord
             if (Socket.LoginState != LoginState.LoggedOut)
                 return;
 
-            // login
-            switch (Socket)
-            {
-                case BaseDiscordClient client:
-                    await client.LoginAsync(TokenType.Bot, _settings.Discord.Token);
-                    break;
-            }
+            _logger.LogDebug("Login started.");
 
-            // start
+            // login
+            await Socket.LoginAsync(TokenType.Bot, _settings.Discord.Token);
             await Socket.StartAsync();
         }
 
-        public async Task DisconnectAsync()
+        public void Dispose()
         {
-            if (Socket.LoginState != LoginState.LoggedIn)
-                return;
-
-            // stop
-            await Socket.StopAsync();
-
-            // logout
-            switch (Socket)
-            {
-                case BaseDiscordClient client:
-                    await client.LogoutAsync();
-                    break;
-            }
+            Socket.Dispose();
+            // Commands.Dispose does not exist
         }
-
-        public void Dispose() => Socket.Dispose();
-        // Commands.Dispose does not exist
     }
 }
