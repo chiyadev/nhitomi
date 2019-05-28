@@ -40,16 +40,19 @@ namespace nhitomi
                 .AddSingleton<IApiClient, ApiClient>();
 
             // database
+            services
+                .AddScoped<IDatabase>(s => s.GetRequiredService<nhitomiDbContext>());
+
             if (host.HostingEnvironment.IsProduction())
             {
                 services
-                    .AddDbContext<IDatabase, nhitomiDbContext>(d => d
+                    .AddDbContext<nhitomiDbContext>(d => d
                         .UseMySql(host.Configuration.GetConnectionString("nhitomi")));
             }
             else
             {
                 services
-                    .AddDbContext<IDatabase, nhitomiDbContext>(d => d
+                    .AddDbContext<nhitomiDbContext>(d => d
                         .UseSqlite("Data Source=nhitomi.db"));
             }
 
