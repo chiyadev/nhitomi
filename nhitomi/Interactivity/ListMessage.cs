@@ -34,7 +34,7 @@ namespace nhitomi.Interactivity
             view.ListMessage = this;
         }
 
-        protected abstract Task<IEnumerable<TValue>> GetValuesAsync(TView view, int offset,
+        protected abstract IAsyncEnumerable<TValue> GetValuesAsync(TView view, int offset,
             CancellationToken cancellationToken = default);
 
         public abstract class ListViewBase : ViewBase
@@ -58,7 +58,9 @@ namespace nhitomi.Interactivity
                     return default;
                 }
 
-                var values = (await ListMessage.GetValuesAsync((TView) this, index, cancellationToken)).ToArray();
+                var values = await ListMessage
+                    .GetValuesAsync((TView) this, index, cancellationToken)
+                    .ToArray(cancellationToken);
 
                 if (values.Length == 0)
                 {

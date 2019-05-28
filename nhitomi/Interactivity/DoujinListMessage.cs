@@ -1,20 +1,17 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
-using System.Threading.Tasks;
 using Discord;
 using nhitomi.Core;
 using nhitomi.Interactivity.Triggers;
 
 namespace nhitomi.Interactivity
 {
-    public delegate Task<IEnumerable<Doujin>> DoujinListEnumerator(IDatabase database, int offset);
-
     public class DoujinListMessage : ListMessage<DoujinListMessage.View, Doujin>
     {
-        readonly DoujinListEnumerator _enumerator;
+        readonly DoujinEnumerator _enumerator;
 
-        public DoujinListMessage(DoujinListEnumerator enumerator)
+        public DoujinListMessage(DoujinEnumerator enumerator)
         {
             _enumerator = enumerator;
         }
@@ -30,7 +27,9 @@ namespace nhitomi.Interactivity
             yield return new DeleteTrigger();
         }
 
-        protected override Task<IEnumerable<Doujin>> GetValuesAsync(View view, int offset,
+        public delegate IAsyncEnumerable<Doujin> DoujinEnumerator(IDatabase database, int offset);
+
+        protected override IAsyncEnumerable<Doujin> GetValuesAsync(View view, int offset,
             CancellationToken cancellationToken = default) =>
             _enumerator(view.Database, offset);
 

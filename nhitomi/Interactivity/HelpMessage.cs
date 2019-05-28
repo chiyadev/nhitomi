@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
 using Discord;
 using Microsoft.Extensions.Options;
 using nhitomi.Core;
@@ -27,11 +26,12 @@ namespace nhitomi.Interactivity
             yield return new DeleteTrigger();
         }
 
-        protected override Task<IEnumerable<HelpMessageSection>> GetValuesAsync(View view, int offset,
-            CancellationToken cancellationToken = default) => Task.FromResult(
+        protected override IAsyncEnumerable<HelpMessageSection> GetValuesAsync(View view, int offset,
+            CancellationToken cancellationToken = default) =>
             Enum.GetValues(typeof(HelpMessageSection))
                 .Cast<HelpMessageSection>()
-                .Skip(offset));
+                .Skip(offset)
+                .ToAsyncEnumerable();
 
         public class View : ListViewBase
         {
