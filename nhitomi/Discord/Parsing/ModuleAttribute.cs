@@ -13,6 +13,7 @@ namespace nhitomi.Discord.Parsing
         public ModuleAttribute(string name)
         {
             Name = name;
+            Aliases = new[] {name[0].ToString()};
         }
 
         public string[] GetNames()
