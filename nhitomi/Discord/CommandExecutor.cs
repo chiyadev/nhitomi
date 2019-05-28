@@ -36,7 +36,10 @@ namespace nhitomi.Discord
             _commands.AddRange(typeof(Startup).Assembly
                 .GetTypes()
                 .Where(t => !t.IsAbstract && t.IsClass)
-                .SelectMany(t => t.GetMethods().Where(m => m.GetCustomAttribute<CommandAttribute>() != null))
+                .SelectMany(t => t.GetMethods())
+                .Where(t => t.GetCustomAttribute<CommandAttribute>() != null)
+                .OrderBy(t => t.Name)
+                .ThenByDescending(t => t.GetParameters().Length) // prioritize specific commands
                 .Select(t => new CommandInfo(t)));
 
             _logger.LogDebug($"Loaded commands: {string.Join(", ", _commands.Select(c => c.Attribute.Name))}");
