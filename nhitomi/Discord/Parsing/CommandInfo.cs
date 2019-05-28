@@ -173,6 +173,13 @@ namespace nhitomi.Discord.Parsing
 
         public bool TryParse(string str, out object[] args)
         {
+            // optimization on commands with no parameters
+            if (_requiredParams == 0)
+            {
+                args = new object[0];
+                return true;
+            }
+
             args = null;
 
             // match name
