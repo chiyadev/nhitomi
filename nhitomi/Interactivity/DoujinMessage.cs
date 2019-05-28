@@ -39,37 +39,30 @@ namespace nhitomi.Interactivity
         {
             public Doujin Doujin;
 
-            readonly ILocalization _localization;
+            protected override Embed CreateEmbed() => CreateEmbed(Doujin, Context.Localization);
 
-            public View(ILocalization localization)
+            public static Embed CreateEmbed(Doujin doujin, Localization l)
             {
-                _localization = localization;
-            }
-
-            protected override Embed CreateEmbed() => CreateEmbed(Doujin, _localization[Context]);
-
-            public static Embed CreateEmbed(Doujin doujin, Localization localization)
-            {
-                var local = localization["doujinMessage"];
+                var path = new LocalizationPath("doujinMessage");
 
                 var embed = new EmbedBuilder()
                     .WithTitle(doujin.OriginalName ?? doujin.PrettyName)
                     .WithDescription(doujin.OriginalName == doujin.PrettyName ? null : doujin.PrettyName)
                     .WithAuthor(a => a
                         .WithName(doujin.Artist.Value ?? doujin.Source)
-                        .WithIconUrl(local["sourceIcons"][doujin.Source]))
+                        .WithIconUrl(path["sourceIcons"][doujin.Source][l]()))
                     .WithUrl(doujin.GalleryUrl)
                     .WithImageUrl(doujin.Pages.First().Url)
                     .WithColor(Color.Green)
                     .WithFooter($"{doujin.Source}/{doujin.SourceId}");
 
-                AddField(embed, local["language"], doujin.Language?.Value);
-                AddField(embed, local["group"], doujin.Group?.Value);
-                AddField(embed, local["parodyOf"], doujin.ParodyOf?.Value);
-                AddField(embed, local["categories"], doujin.Categories?.Select(x => x.Tag.Value));
-                AddField(embed, local["characters"], doujin.Characters?.Select(x => x.Tag.Value));
-                AddField(embed, local["tags"], doujin.Tags?.Select(x => x.Tag.Value));
-                AddField(embed, local["content"], $"{doujin.Pages.Count} pages");
+                AddField(embed, path["language"][l](), doujin.Language?.Value);
+                AddField(embed, path["group"][l](), doujin.Group?.Value);
+                AddField(embed, path["parodyOf"][l](), doujin.ParodyOf?.Value);
+                AddField(embed, path["categories"][l](), doujin.Categories?.Select(x => x.Tag.Value));
+                AddField(embed, path["characters"][l](), doujin.Characters?.Select(x => x.Tag.Value));
+                AddField(embed, path["tags"][l](), doujin.Tags?.Select(x => x.Tag.Value));
+                AddField(embed, path["content"][l](), $"{doujin.Pages.Count} pages");
 
                 return embed.Build();
             }

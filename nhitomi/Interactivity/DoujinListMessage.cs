@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Threading;
 using Discord;
 using nhitomi.Core;
-using nhitomi.Globalization;
 using nhitomi.Interactivity.Triggers;
 
 namespace nhitomi.Interactivity
@@ -38,16 +37,13 @@ namespace nhitomi.Interactivity
         {
             public readonly IDatabase Database;
 
-            readonly ILocalization _localization;
-
-            public View(IDatabase database, ILocalization localization)
+            public View(IDatabase database)
             {
                 Database = database;
-                _localization = localization;
             }
 
             protected override Embed CreateEmbed(Doujin value) =>
-                DoujinMessage.View.CreateEmbed(value, _localization[Context]);
+                DoujinMessage.View.CreateEmbed(value, Context.Localization);
 
             protected override Embed CreateEmptyEmbed() => throw new NotImplementedException();
         }
