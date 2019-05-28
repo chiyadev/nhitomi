@@ -74,12 +74,16 @@ namespace nhitomi.Discord
 
             try
             {
+                var content = _settings.Discord.Prefix;
+
                 // message has command prefix
-                if (!context.Message.Content.StartsWith(_settings.Discord.Prefix))
+                if (!content.StartsWith(_settings.Discord.Prefix))
                     return false;
 
+                content = content.Substring(_settings.Discord.Prefix.Length);
+
                 // parse command
-                if (!TryParseCommand(context.Message.Content, out var command, out var args))
+                if (!TryParseCommand(content, out var command, out var args))
                     return false;
 
                 // dependency scope
