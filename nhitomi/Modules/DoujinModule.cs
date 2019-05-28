@@ -3,6 +3,7 @@
 // This software is released under the MIT License.
 // https://opensource.org/licenses/MIT
 
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Discord;
@@ -51,16 +52,18 @@ namespace nhitomi.Modules
         {
             using (Context.Channel.EnterTypingState())
             {
-                var doujins = _database.EnumerateDoujinsAsync(x =>
+                IAsyncEnumerable<Doujin> enumerate(IDatabase db, int offset) => db.EnumerateDoujinsAsync(x =>
                 {
                     if (!string.IsNullOrEmpty(source))
                         x = x.Where(d => d.Source == source);
 
                     // todo: ascending option
-                    return x.OrderByDescending(d => d.UploadTime);
+                    x = x.OrderByDescending(d => d.UploadTime);
+
+                    return x.Skip(offset).Take(50);
                 });
 
-                await _interactive.SendInteractiveAsync(new DoujinListMessage(doujins), Context);
+                await _interactive.SendInteractiveAsync(new DoujinListMessage(enumerate), Context);
             }
         }
 
@@ -75,12 +78,12 @@ namespace nhitomi.Modules
 
             using (Context.Channel.EnterTypingState())
             {
-                var doujins = _database.EnumerateDoujinsAsync(x => x
-                    .FullTextSearch(_database, query,
+                IAsyncEnumerable<Doujin> enumerate(IDatabase db, int offset) => db.EnumerateDoujinsAsync(x =>
+                    x.FullTextSearch(_database, query,
                         d => d.OriginalName,
                         d => d.PrettyName));
 
-                await _interactive.SendInteractiveAsync(new DoujinListMessage(doujins), Context);
+                await _interactive.SendInteractiveAsync(new DoujinListMessage(enumerate), Context);
             }
         }
 
