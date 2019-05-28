@@ -66,6 +66,7 @@ namespace nhitomi
                 .AddHostedService<MessageHandlerService>()
                 .AddHostedService<ReactionHandlerService>()
                 .AddHostedService<StatusUpdateService>()
+                .AddHostedService<LogHandlerService>()
                 .AddHostedService<DiscordLocalizationService>();
 
             // http server
