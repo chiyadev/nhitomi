@@ -42,7 +42,7 @@ namespace nhitomi.Globalization
                 categories = "Categories",
                 characters = "Characters",
                 tags = "Tags",
-                Contents = "Contents"
+                contents = "Contents"
             },
             downloadMessage = new
             {
