@@ -4,9 +4,10 @@ namespace nhitomi.Localization
 {
     public class LocalizationKorean : Localization
     {
-        public override CultureInfo Culture => new CultureInfo("ko");
+        protected override CultureInfo Culture { get; } = new CultureInfo("ko");
+        protected override CultureInfo FallbackCulture { get; } = new CultureInfo("en");
 
-        public override LocalizationDictionary Dictionary { get; } = new LocalizationDictionary(new
+        protected override object CreateDefinition() => new
         {
             meta = new
             {
@@ -50,6 +51,6 @@ namespace nhitomi.Localization
                     heading = "공개 소프트웨어"
                 }
             }
-        });
+        };
     }
 }

@@ -4,9 +4,10 @@ namespace nhitomi.Localization
 {
     public class LocalizationEnglish : Localization
     {
-        public override CultureInfo Culture => new CultureInfo("en");
+        protected override CultureInfo Culture { get; } = new CultureInfo("en");
+        protected override CultureInfo FallbackCulture => null;
 
-        public override LocalizationDictionary Dictionary { get; } = new LocalizationDictionary(new
+        protected override object CreateDefinition() => new
         {
             meta = new
             {
@@ -61,6 +62,6 @@ namespace nhitomi.Localization
                     contribution = "Contributions are welcome! <{repoUrl}>"
                 }
             }
-        });
+        };
     }
 }

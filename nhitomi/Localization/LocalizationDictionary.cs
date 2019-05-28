@@ -8,16 +8,18 @@ namespace nhitomi.Localization
 {
     public class LocalizationDictionary : IReadOnlyDictionary<string, string>
     {
+        readonly LocalizationDictionary _fallback;
+
         readonly Dictionary<string, string> _dict = new Dictionary<string, string>();
 
-        public LocalizationDictionary(object obj)
+        public LocalizationDictionary(LocalizationDictionary fallback = null)
         {
-            AddDefinition(obj);
+            _fallback = fallback;
         }
 
         static string FixKey(string key) => key.ToLowerInvariant();
 
-        void AddDefinition(object obj, string prefix = null)
+        public void AddDefinition(object obj, string prefix = null)
         {
             foreach (var property in obj.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance))
             {
@@ -34,9 +36,7 @@ namespace nhitomi.Localization
             }
         }
 
-        string IReadOnlyDictionary<string, string>.this[string key] =>
-            TryGetValue(FixKey(key), out var value) ? value : $"`{key}`";
-
+        string IReadOnlyDictionary<string, string>.this[string key] => GetValue(key);
         public LocalizationCategory this[string key] => new LocalizationCategory(this, key);
 
         public int Count => _dict.Count;
@@ -45,8 +45,22 @@ namespace nhitomi.Localization
         public IEnumerable<string> Values => _dict.Values;
 
         public bool ContainsKey(string key) => _dict.ContainsKey(FixKey(key));
-        public bool TryGetValue(string key, out string value) => _dict.TryGetValue(FixKey(key), out value);
 
+        public string GetValue(string key) => TryGetValue(FixKey(key), out var value) ? value : $"`{key}`";
+
+        public bool TryGetValue(string key, out string value)
+        {
+            if (_dict.TryGetValue(FixKey(key), out value))
+                return true;
+
+            // fallback to parent
+            return _fallback != null && _fallback.TryGetValue(key, out value);
+        }
+
+        /// <inheritdoc />
+        /// <summary>
+        /// This will only enumerate definitions within this localization (i.e. no fallback).
+        /// </summary>
         public IEnumerator<KeyValuePair<string, string>> GetEnumerator() =>
             _dict.Select(x => new KeyValuePair<string, string>(FixKey(x.Key), x.Value)).GetEnumerator();
 
@@ -71,7 +85,7 @@ namespace nhitomi.Localization
 
         public LocalizationCategory this[string key] => new LocalizationCategory(_dict, key, this);
 
-        public override string ToString() => _dict[_path];
+        public override string ToString() => _dict.GetValue(_path);
 
         public static implicit operator string(LocalizationCategory category) => category.ToString();
     }
