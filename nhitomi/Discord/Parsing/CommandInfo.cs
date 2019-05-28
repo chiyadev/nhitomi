@@ -12,8 +12,7 @@ namespace nhitomi.Discord.Parsing
     public class CommandInfo
     {
         readonly MethodBase _method;
-
-        public readonly Func<object, object[], Task> InvokeAsync;
+        readonly DependencyFactory<object> _moduleFactory;
 
         readonly Regex _nameRegex;
         readonly Regex _parameterRegex;
@@ -26,12 +25,11 @@ namespace nhitomi.Discord.Parsing
         public CommandInfo(MethodInfo method)
         {
             _method = method;
+            _moduleFactory = DependencyUtility.CreateFactory(method.DeclaringType);
 
             if (method.ReturnType != typeof(Task) &&
                 method.ReturnType.GetGenericTypeDefinition() != typeof(Task<>))
                 throw new ArgumentException($"{method} is not asynchronous.");
-
-            InvokeAsync = (module, args) => (Task) method.Invoke(module, args);
 
             // build name regex
             var attr = method.GetCustomAttribute<CommandAttribute>();
@@ -295,6 +293,15 @@ namespace nhitomi.Discord.Parsing
 
             value = null;
             return false;
+        }
+
+        public async Task InvokeAsync(IServiceProvider services, object[] args)
+        {
+            // create module
+            var module = _moduleFactory(services);
+
+            // invoke asynchronously
+            await (dynamic) _method.Invoke(module, args);
         }
     }
 }
