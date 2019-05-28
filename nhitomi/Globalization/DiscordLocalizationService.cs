@@ -15,12 +15,20 @@ namespace nhitomi.Globalization
 {
     public interface ILocalization
     {
+        void EnqueueRefresh(ICommandContext context);
+
         Localization this[ICommandContext context] { get; }
     }
 
     public class LocalizationCache : ConcurrentDictionary<ulong, Localization>, ILocalization
     {
         public readonly ConcurrentQueue<ulong> RefreshQueue = new ConcurrentQueue<ulong>();
+
+        public void EnqueueRefresh(ICommandContext context)
+        {
+            if (context.Guild != null)
+                RefreshQueue.Enqueue(context.Guild.Id);
+        }
 
         public Localization this[ICommandContext context] =>
             TryGetValue(context.Guild?.Id ?? 0, out var localization)
@@ -34,11 +42,12 @@ namespace nhitomi.Globalization
         readonly LocalizationCache _cache;
         readonly DiscordService _discord;
 
-        public DiscordLocalizationService(IServiceProvider services, LocalizationCache cache, DiscordService discord)
+        public DiscordLocalizationService(IServiceProvider services, ILocalization localization, DiscordService discord)
         {
-            _cache = cache;
-            _discord = discord;
             _services = services;
+            _cache = localization as LocalizationCache ??
+                     throw new ArgumentException($"{nameof(localization)} must be {nameof(LocalizationCache)}");
+            _discord = discord;
 
             _discord.Socket.GuildAvailable += RefreshGuildAsync;
             _discord.Socket.JoinedGuild += RefreshGuildAsync;
