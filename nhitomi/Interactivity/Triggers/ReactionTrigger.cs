@@ -6,48 +6,66 @@ using Discord.Commands;
 
 namespace nhitomi.Interactivity.Triggers
 {
-    public abstract class ReactionTrigger
+    public interface IReactionTrigger
     {
-        public abstract string Name { get; }
-        public abstract IEmote Emote { get; }
+        string Name { get; }
+        IEmote Emote { get; }
 
         /// <summary>
         /// Whether this action can be triggered without a fully initialized interactive system.
         /// </summary>
-        public virtual bool CanRunStateless => false;
+        bool CanRunStateless { get; }
 
-        protected InteractiveMessage Interactive { get; private set; }
-        protected ICommandContext Context { get; private set; }
-        protected IUserMessage Message { get; private set; }
-
-        public virtual void Initialize(InteractiveMessage interactive)
-        {
-            Interactive = interactive;
-
-            Initialize(interactive.Context, interactive.Message);
-        }
-
-        public void Initialize(ICommandContext context, IUserMessage message)
-        {
-            Context = context;
-            Message = message;
-        }
-
-        public abstract Task RunAsync(IServiceProvider services, CancellationToken cancellationToken = default);
+        Task<bool> RunAsync(IServiceProvider services, ICommandContext context, IInteractiveMessage interactive,
+            CancellationToken cancellationToken = default);
     }
 
-    public abstract class ReactionTrigger<TMessage> : ReactionTrigger
-        where TMessage : class
+    public abstract class ReactionTrigger<TAction> : IReactionTrigger
+        where TAction : ReactionTrigger<TAction>.ActionBase
     {
-        protected new TMessage Interactive => base.Interactive as TMessage;
+        public abstract string Name { get; }
+        public abstract IEmote Emote { get; }
 
-        public override void Initialize(InteractiveMessage interactive)
+        public virtual bool CanRunStateless => false;
+
+        static readonly DependencyFactory<TAction> _actionFactory = DependencyUtility<TAction>.Factory;
+
+        public Task<bool> RunAsync(IServiceProvider services, ICommandContext context, IInteractiveMessage interactive,
+            CancellationToken cancellationToken = default)
         {
-            if (!(interactive is TMessage))
-                throw new InvalidOperationException(
-                    $"Cannot attach {GetType().Name} to a {interactive.GetType().Name} interactive.");
+            if (interactive == null && !CanRunStateless)
+                throw new InvalidOperationException($"Cannot initialize trigger {GetType()} in stateless mode.");
 
-            base.Initialize(interactive);
+            // create action
+            var action = _actionFactory(services);
+            action.Context = context;
+            action.Interactive = interactive;
+
+            InitializeAction(action);
+
+            // trigger the action
+            return action.RunAsync(cancellationToken);
+        }
+
+        protected virtual void InitializeAction(TAction action)
+        {
+        }
+
+        public abstract class ActionBase
+        {
+            public ICommandContext Context { get; set; }
+            public IInteractiveMessage Interactive { get; set; }
+
+            public abstract Task<bool> RunAsync(CancellationToken cancellationToken = default);
+        }
+
+        public abstract class ActionBase<TInteractive> : ActionBase
+            where TInteractive : IInteractiveMessage
+        {
+            public new TInteractive Interactive => (TInteractive) base.Interactive;
+
+            public override Task<bool> RunAsync(CancellationToken cancellationToken = default) =>
+                Task.FromResult(base.Interactive is TInteractive);
         }
     }
 }

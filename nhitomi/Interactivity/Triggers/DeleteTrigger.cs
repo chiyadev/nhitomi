@@ -1,27 +1,44 @@
-using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Discord;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace nhitomi.Interactivity.Triggers
 {
-    public class DeleteTrigger : ReactionTrigger
+    public class DeleteTrigger : ReactionTrigger<DeleteTrigger.Action>
     {
         public override string Name => "Delete";
         public override IEmote Emote => new Emoji("\uD83D\uDDD1");
         public override bool CanRunStateless => true;
 
-        public override async Task RunAsync(IServiceProvider services, CancellationToken cancellationToken = default)
+        public class Action : ActionBase
         {
-            // remove from interactive list
-            services.GetRequiredService<InteractiveManager>().InteractiveMessages.TryRemove(Message.Id, out _);
+            readonly InteractiveManager _interactive;
 
-            // dispose interactive object
-            Interactive?.Dispose();
+            public Action(InteractiveManager interactive)
+            {
+                _interactive = interactive;
+            }
 
-            // delete message
-            await Message.DeleteAsync();
+            public override async Task<bool> RunAsync(CancellationToken cancellationToken = default)
+            {
+                try
+                {
+                    // remove from interactive list
+                    _interactive.InteractiveMessages.TryRemove(Context.Message.Id, out _);
+
+                    // dispose interactive object
+                    Interactive?.Dispose();
+
+                    // delete message
+                    await Context.Message.DeleteAsync();
+
+                    return true;
+                }
+                catch
+                {
+                    return false;
+                }
+            }
         }
     }
 }

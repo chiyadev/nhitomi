@@ -31,22 +31,22 @@ namespace nhitomi.Interactivity
             _logger = logger;
         }
 
-        public readonly ConcurrentDictionary<ulong, InteractiveMessage> InteractiveMessages =
-            new ConcurrentDictionary<ulong, InteractiveMessage>();
+        public readonly ConcurrentDictionary<ulong, IInteractiveMessage> InteractiveMessages =
+            new ConcurrentDictionary<ulong, IInteractiveMessage>();
 
-        public async Task SendInteractiveAsync(EmbedMessage message, ICommandContext context,
+        public async Task SendInteractiveAsync(IEmbedMessage message, ICommandContext context,
             CancellationToken cancellationToken = default)
         {
             // create dependency scope to initialize the interactive within
             using (var scope = _services.CreateScope())
             {
                 // initialize interactive
-                if (!await message.InitializeAsync(scope.ServiceProvider, context, cancellationToken))
+                if (!await message.UpdateViewAsync(scope.ServiceProvider, context, cancellationToken))
                     return;
             }
 
             // add to interactive list
-            if (message is InteractiveMessage interactiveMessage)
+            if (message is IInteractiveMessage interactiveMessage)
                 InteractiveMessages[message.Message.Id] = interactiveMessage;
         }
 
@@ -74,10 +74,10 @@ namespace nhitomi.Interactivity
             });
         }
 
-        static readonly Dictionary<IEmote, Func<ReactionTrigger>> _statelessTriggers = typeof(Startup).Assembly
+        static readonly Dictionary<IEmote, Func<IReactionTrigger>> _statelessTriggers = typeof(Startup).Assembly
             .GetTypes()
-            .Where(t => !t.IsAbstract && t.IsClass && t.IsSubclassOf(typeof(ReactionTrigger)))
-            .Select(t => (Func<ReactionTrigger>) (() => Activator.CreateInstance(t) as ReactionTrigger))
+            .Where(t => !t.IsAbstract && t.IsClass && typeof(IReactionTrigger).IsAssignableFrom(t))
+            .Select(t => (Func<IReactionTrigger>) (() => Activator.CreateInstance(t) as IReactionTrigger))
             .Where(x => x().CanRunStateless)
             .ToDictionary(x => x().Emote, x => x);
 
@@ -92,7 +92,7 @@ namespace nhitomi.Interactivity
 
             try
             {
-                ReactionTrigger trigger;
+                IReactionTrigger trigger;
 
                 // get interactive object for the message
                 if (InteractiveMessages.TryGetValue(message.Id, out var interactive))
@@ -112,11 +112,10 @@ namespace nhitomi.Interactivity
                         return false;
 
                     trigger = factory();
-                    trigger.Initialize(commandContext, message);
                 }
 
                 using (var scope = _services.CreateScope())
-                    await trigger.RunAsync(scope.ServiceProvider, cancellationToken);
+                    await trigger.RunAsync(scope.ServiceProvider, commandContext, interactive, cancellationToken);
             }
             catch (Exception e)
             {

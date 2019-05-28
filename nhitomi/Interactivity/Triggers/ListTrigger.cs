@@ -11,7 +11,7 @@ namespace nhitomi.Interactivity.Triggers
         Right
     }
 
-    public class ListTrigger<T> : ReactionTrigger<ListInteractiveMessage<T>>
+    public class ListTrigger : ReactionTrigger<ListTrigger.Action>
     {
         readonly MoveDirection _direction;
 
@@ -39,17 +39,41 @@ namespace nhitomi.Interactivity.Triggers
             _direction = direction;
         }
 
-        public override async Task RunAsync(IServiceProvider services, CancellationToken cancellationToken = default)
+        protected override void InitializeAction(Action action)
         {
-            switch (_direction)
-            {
-                case MoveDirection.Left:
-                    await Interactive.PreviousAsync(services, cancellationToken);
-                    break;
+            base.InitializeAction(action);
 
-                case MoveDirection.Right:
-                    await Interactive.NextAsync(services, cancellationToken);
-                    break;
+            action.Direction = _direction;
+        }
+
+        public class Action : ActionBase<IListMessage>
+        {
+            public MoveDirection Direction;
+
+            readonly IServiceProvider _services;
+
+            public Action(IServiceProvider services)
+            {
+                _services = services;
+            }
+
+            public override async Task<bool> RunAsync(CancellationToken cancellationToken = default)
+            {
+                if (!await base.RunAsync(cancellationToken))
+                    return false;
+
+                switch (Direction)
+                {
+                    case MoveDirection.Left:
+                        Interactive.Position += 1;
+                        break;
+
+                    case MoveDirection.Right:
+                        Interactive.Position += 1;
+                        break;
+                }
+
+                return await Interactive.UpdateViewAsync(_services, Context, cancellationToken);
             }
         }
     }

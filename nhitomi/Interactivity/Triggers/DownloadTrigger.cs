@@ -1,40 +1,52 @@
-using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Discord;
-using Microsoft.Extensions.DependencyInjection;
 using nhitomi.Core;
 
 namespace nhitomi.Interactivity.Triggers
 {
-    public class DownloadTrigger : ReactionTrigger<IDoujinInteractive>
+    public class DownloadTrigger : ReactionTrigger<DownloadTrigger.Action>
     {
         public override string Name => "Download";
         public override IEmote Emote => new Emoji("\uD83D\uDCBE");
         public override bool CanRunStateless => true;
 
-        public override async Task RunAsync(IServiceProvider services, CancellationToken cancellationToken = default)
+        public class Action : ActionBase<IDoujinMessage>
         {
-            var manager = services.GetRequiredService<InteractiveManager>();
+            readonly IDatabase _database;
+            readonly InteractiveManager _interactive;
 
-            // retrieve doujin
-            var doujin = Interactive?.Doujin;
-
-            if (doujin == null)
+            public Action(IDatabase database, InteractiveManager interactive)
             {
-                // stateless mode
-                if (!DoujinMessage.TryParseDoujinIdFromMessage(Message, out var id))
-                    return;
-
-                doujin = await services.GetRequiredService<IDatabase>()
-                    .GetDoujinAsync(id.source, id.id, cancellationToken);
-
-                if (doujin == null)
-                    return;
+                _database = database;
+                _interactive = interactive;
             }
 
-            // send download interactive
-            await manager.SendInteractiveAsync(new DownloadMessage(doujin), Context, cancellationToken);
+            public override async Task<bool> RunAsync(CancellationToken cancellationToken = default)
+            {
+                if (!await base.RunAsync(cancellationToken))
+                    return false;
+
+                // retrieve doujin
+                var doujin = Interactive?.Doujin;
+
+                if (doujin == null)
+                {
+                    // stateless mode
+                    if (!DoujinMessage.TryParseDoujinIdFromMessage(Context.Message, out var id))
+                        return false;
+
+                    doujin = await _database.GetDoujinAsync(id.source, id.id, cancellationToken);
+
+                    if (doujin == null)
+                        return false;
+                }
+
+                // send download interactive
+                await _interactive.SendInteractiveAsync(new DownloadMessage(doujin), Context, cancellationToken);
+
+                return true;
+            }
         }
     }
 }

@@ -6,35 +6,74 @@ using Discord.Commands;
 
 namespace nhitomi.Interactivity
 {
-    public abstract class EmbedMessage
+    public interface IEmbedMessage
     {
-        public ICommandContext Context { get; private set; }
+        IUserMessage Message { get; }
+
+        Task<bool> UpdateViewAsync(IServiceProvider services, ICommandContext context,
+            CancellationToken cancellationToken = default);
+    }
+
+    public abstract class EmbedMessage<TView> : IEmbedMessage
+        where TView : EmbedMessage<TView>.ViewBase
+    {
         public IUserMessage Message { get; private set; }
 
-        public virtual async Task<bool> InitializeAsync(IServiceProvider services, ICommandContext context,
+        static readonly DependencyFactory<TView> _viewFactory = DependencyUtility<TView>.Factory;
+
+        public virtual Task<bool> UpdateViewAsync(IServiceProvider services, ICommandContext context,
             CancellationToken cancellationToken = default)
         {
-            Context = context;
+            // create view object
+            var view = _viewFactory(services);
+            view.Context = context;
 
-            // initialize the view
-            if (!await InitializeViewAsync(services, cancellationToken))
-                return false;
+            InitializeView(view);
 
-            if (Message != null)
-                throw new InvalidOperationException($"{GetType().Name} did not initialize its initial view.");
-
-            return true;
+            // update the view
+            return view.UpdateAsync(cancellationToken);
         }
 
-        protected abstract Task<bool> InitializeViewAsync(IServiceProvider services,
-            CancellationToken cancellationToken = default);
-
-        protected async Task SetViewAsync(Embed embed, CancellationToken cancellationToken = default)
+        protected virtual void InitializeView(TView view)
         {
-            if (Message == null)
-                Message = await Context.Channel.SendMessageAsync(embed: embed);
-            else
-                await Message.ModifyAsync(m => m.Embed = embed);
+            view.EmbedMessage = this;
+        }
+
+        public abstract class ViewBase
+        {
+            public EmbedMessage<TView> EmbedMessage;
+
+            public ICommandContext Context { get; set; }
+
+            public abstract Task<bool> UpdateAsync(CancellationToken cancellationToken = default);
+
+            protected async Task SetMessageAsync(string content, CancellationToken cancellationToken = default)
+            {
+                if (EmbedMessage.Message == null)
+                    EmbedMessage.Message = await Context.Channel.SendMessageAsync(content);
+                else
+                    await EmbedMessage.Message.ModifyAsync(m => m.Content = content);
+            }
+
+            protected async Task SetEmbedAsync(Embed embed, CancellationToken cancellationToken = default)
+            {
+                if (EmbedMessage.Message == null)
+                    EmbedMessage.Message = await Context.Channel.SendMessageAsync(embed: embed);
+                else
+                    await EmbedMessage.Message.ModifyAsync(m => m.Embed = embed);
+            }
+        }
+
+        public abstract class EmbedViewBase : ViewBase
+        {
+            protected abstract Embed CreateEmbed();
+
+            public override async Task<bool> UpdateAsync(CancellationToken cancellationToken = default)
+            {
+                await SetEmbedAsync(CreateEmbed(), cancellationToken);
+
+                return true;
+            }
         }
     }
 }

@@ -1,15 +1,12 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using Discord;
 using nhitomi.Core;
 using nhitomi.Interactivity.Triggers;
 
 namespace nhitomi.Interactivity
 {
-    public class CollectionListMessage : InteractiveMessage
+    public class CollectionListMessage : InteractiveMessage<CollectionListMessage.View>
     {
         readonly Collection[] _collections;
 
@@ -18,27 +15,31 @@ namespace nhitomi.Interactivity
             _collections = collections;
         }
 
-        protected override IEnumerable<ReactionTrigger> CreateTriggers()
+        protected override IEnumerable<IReactionTrigger> CreateTriggers()
         {
             yield return new DeleteTrigger();
         }
 
-        protected override async Task<bool> InitializeViewAsync(IServiceProvider services,
-            CancellationToken cancellationToken = default)
+        protected override void InitializeView(View view)
         {
+            base.InitializeView(view);
+
+            view.Collections = _collections;
+        }
+
+        public class View : EmbedViewBase
+        {
+            public Collection[] Collections;
+
             //todo: more info
-            var embed = new EmbedBuilder()
+            protected override Embed CreateEmbed() => new EmbedBuilder()
                 .WithTitle("**nhitomi**: Collections")
-                .WithDescription(_collections.Length == 0
+                .WithDescription(Collections.Length == 0
                     ? "You have no collections."
-                    : $"- {string.Join("\n- ", _collections.Select(c => c.Name))}")
+                    : $"- {string.Join("\n- ", Collections.Select(c => c.Name))}")
                 .WithColor(Color.Teal)
                 .WithCurrentTimestamp()
                 .Build();
-
-            await SetViewAsync(embed, cancellationToken);
-
-            return true;
         }
     }
 }

@@ -1,8 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Discord;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using nhitomi.Core;
 using nhitomi.Interactivity.Triggers;
@@ -16,16 +17,9 @@ namespace nhitomi.Interactivity
         Other
     }
 
-    public class HelpMessage : ListInteractiveMessage<HelpMessageSection>
+    public class HelpMessage : ListMessage<HelpMessage.View, HelpMessageSection>
     {
-        public HelpMessage() : base(Enum
-            .GetValues(typeof(HelpMessageSection))
-            .Cast<HelpMessageSection>()
-            .ToAsyncEnumerable())
-        {
-        }
-
-        protected override IEnumerable<ReactionTrigger> CreateTriggers()
+        protected override IEnumerable<IReactionTrigger> CreateTriggers()
         {
             foreach (var trigger in base.CreateTriggers())
                 yield return trigger;
@@ -33,33 +27,47 @@ namespace nhitomi.Interactivity
             yield return new DeleteTrigger();
         }
 
-        protected override Embed CreateEmbed(IServiceProvider services, HelpMessageSection value)
+        protected override Task<IEnumerable<HelpMessageSection>> GetValuesAsync(View view, int offset,
+            CancellationToken cancellationToken = default) => Task.FromResult(
+            Enum.GetValues(typeof(HelpMessageSection))
+                .Cast<HelpMessageSection>()
+                .Skip(offset));
+
+        public class View : ListViewBase
         {
-            var settings = services.GetRequiredService<IOptions<AppSettings>>().Value;
-            var prefix = settings.Discord.Prefix;
+            readonly AppSettings _settings;
 
-            var embed = new EmbedBuilder()
-                .WithTitle("**nhitomi**: Help")
-                .WithDescription(
-                    "nhitomi — a Discord bot for searching and downloading doujinshi, by **chiya.dev** - https://chiya.dev\n" +
-                    $"Official server: {settings.Discord.Guild.GuildInvite}")
-                .WithColor(Color.Purple)
-                .WithThumbnailUrl(settings.ImageUrl)
-                .WithCurrentTimestamp();
-
-            switch (value)
+            public View(IOptions<AppSettings> options)
             {
-                case HelpMessageSection.Doujins:
-                    embed.AddField("  — Doujinshi —", $@"
+                _settings = options.Value;
+            }
+
+            protected override Embed CreateEmbed(HelpMessageSection value)
+            {
+                var embed = new EmbedBuilder()
+                    .WithTitle("**nhitomi**: Help")
+                    .WithDescription(
+                        "nhitomi — a Discord bot for searching and downloading doujinshi, by **chiya.dev** - https://chiya.dev\n" +
+                        $"Official server: {_settings.Discord.Guild.GuildInvite}")
+                    .WithColor(Color.Purple)
+                    .WithThumbnailUrl(_settings.ImageUrl)
+                    .WithCurrentTimestamp();
+
+                var prefix = _settings.Discord.Prefix;
+
+                switch (value)
+                {
+                    case HelpMessageSection.Doujins:
+                        embed.AddField("  — Doujinshi —", $@"
 - {prefix}get `source` `id` — Displays doujin information from a source by its ID.
 - {prefix}from `source` — Displays all doujins from a source.
 - {prefix}search `query` — Searches for doujins by the title and tags that satisfy your query.
 - {prefix}download `source` `id` — Sends a download link for a doujin by its ID.
 ".Trim());
-                    break;
+                        break;
 
-                case HelpMessageSection.Collections:
-                    embed.AddField("  — Collection management —", $@"
+                    case HelpMessageSection.Collections:
+                        embed.AddField("  — Collection management —", $@"
 - {prefix}collection — Lists all collections belonging to you.
 - {prefix}collection `name` — Displays doujins belonging to a collection.
 - {prefix}collection `name` add|remove `source` `id` — Adds or removes a doujin in a collection.
@@ -67,23 +75,24 @@ namespace nhitomi.Interactivity
 - {prefix}collection `name` sort `attribute` — Sorts doujins in a collection by an attribute ({string.Join(", ", Enum.GetNames(typeof(CollectionSort)).Select(s => s.ToLowerInvariant()))}).
 - {prefix}collection `name` delete — Deletes a collection, removing all doujins belonging to it.
 ".Trim());
-                    break;
+                        break;
 
-                case HelpMessageSection.Other:
-                    embed.AddField("  — Sources —", @"
+                    case HelpMessageSection.Other:
+                        embed.AddField("  — Sources —", @"
 - nhentai — `https://nhentai.net/`
 - Hitomi — `https://hitomi.la/`
 ".Trim())
-                        .AddField("  — Contribution —", @"
+                            .AddField("  — Contribution —", @"
 This project is licensed under the MIT License.
 Contributions are welcome! <https://github.com/chiyadev/nhitomi>
 ".Trim());
-                    break;
+                        break;
+                }
+
+                return embed.Build();
             }
 
-            return embed.Build();
+            protected override Embed CreateEmptyEmbed() => throw new NotImplementedException();
         }
-
-        protected override Embed CreateEmptyEmbed(IServiceProvider services) => throw new NotImplementedException();
     }
 }

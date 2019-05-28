@@ -1,18 +1,25 @@
 using System;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using Discord;
 using nhitomi.Core;
 using nhitomi.Interactivity.Triggers;
 
 namespace nhitomi.Interactivity
 {
-    public class DoujinListMessage : ListInteractiveMessage<Doujin>
+    public delegate Task<IEnumerable<Doujin>> DoujinListEnumerator(IDatabase database, int offset);
+
+    public class DoujinListMessage : ListMessage<DoujinListMessage.View, Doujin>
     {
-        public DoujinListMessage(IAsyncEnumerable<Doujin> enumerable) : base(enumerable)
+        readonly DoujinListEnumerator _enumerator;
+
+        public DoujinListMessage(DoujinListEnumerator enumerator)
         {
+            _enumerator = enumerator;
         }
 
-        protected override IEnumerable<ReactionTrigger> CreateTriggers()
+        protected override IEnumerable<IReactionTrigger> CreateTriggers()
         {
             yield return new FavoriteTrigger();
             yield return new DownloadTrigger();
@@ -23,9 +30,21 @@ namespace nhitomi.Interactivity
             yield return new DeleteTrigger();
         }
 
-        protected override Embed CreateEmbed(IServiceProvider services, Doujin value) =>
-            DoujinMessage.CreateEmbed(value);
+        protected override Task<IEnumerable<Doujin>> GetValuesAsync(View view, int offset,
+            CancellationToken cancellationToken = default) =>
+            _enumerator(view.Database, offset);
 
-        protected override Embed CreateEmptyEmbed(IServiceProvider services) => throw new NotImplementedException();
+        public class View : ListViewBase
+        {
+            public readonly IDatabase Database;
+
+            public View(IDatabase database)
+            {
+                Database = database;
+            }
+
+            protected override Embed CreateEmbed(Doujin value) => DoujinMessage.View.CreateEmbed(value);
+            protected override Embed CreateEmptyEmbed() => throw new NotImplementedException();
+        }
     }
 }

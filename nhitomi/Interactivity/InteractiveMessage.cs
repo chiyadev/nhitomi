@@ -10,34 +10,38 @@ using nhitomi.Interactivity.Triggers;
 
 namespace nhitomi.Interactivity
 {
-    public abstract class InteractiveMessage : EmbedMessage, IDisposable
+    public interface IInteractiveMessage : IEmbedMessage, IDisposable
     {
-        public IReadOnlyDictionary<IEmote, ReactionTrigger> Triggers { get; private set; }
+        IReadOnlyDictionary<IEmote, IReactionTrigger> Triggers { get; }
+    }
+
+    public abstract class InteractiveMessage<TView> : EmbedMessage<TView>, IInteractiveMessage
+        where TView : EmbedMessage<TView>.ViewBase
+    {
+        public IReadOnlyDictionary<IEmote, IReactionTrigger> Triggers { get; private set; }
 
         protected InteractiveMessage()
         {
             Triggers = CreateTriggers().ToDictionary(t => t.Emote);
         }
 
-        protected abstract IEnumerable<ReactionTrigger> CreateTriggers();
+        protected abstract IEnumerable<IReactionTrigger> CreateTriggers();
 
-        public override async Task<bool> InitializeAsync(IServiceProvider services, ICommandContext context,
+        public override async Task<bool> UpdateViewAsync(IServiceProvider services, ICommandContext context,
             CancellationToken cancellationToken = default)
         {
-            var manager = services.GetRequiredService<InteractiveManager>();
-
-            if (!await base.InitializeAsync(services, context, cancellationToken))
+            if (!await base.UpdateViewAsync(services, context, cancellationToken))
                 return false;
 
-            // initialize reaction triggers
-            Triggers = CreateTriggers().ToDictionary(t => t.Emote);
+            if (Triggers == null)
+            {
+                // initialize reaction triggers
+                Triggers = CreateTriggers().ToDictionary(t => t.Emote);
 
-            foreach (var trigger in Triggers.Values)
-                trigger.Initialize(this);
-
-            // enqueue adding reactions
-            // this is to avoid blocking the command handling thread with reaction rate limiting
-            manager.EnqueueReactions(Message, Triggers.Keys);
+                // enqueue adding reactions
+                // this is to avoid blocking the command handling thread with reaction rate limiting
+                services.GetService<InteractiveManager>()?.EnqueueReactions(Message, Triggers.Keys);
+            }
 
             return true;
         }

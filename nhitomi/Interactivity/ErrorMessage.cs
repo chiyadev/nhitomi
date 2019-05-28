@@ -1,13 +1,10 @@
 using System;
-using System.Threading;
-using System.Threading.Tasks;
 using Discord;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
 namespace nhitomi.Interactivity
 {
-    public class ErrorMessage : EmbedMessage
+    public class ErrorMessage : EmbedMessage<ErrorMessage.View>
     {
         readonly Exception _exception;
 
@@ -16,23 +13,32 @@ namespace nhitomi.Interactivity
             _exception = exception;
         }
 
-        protected override async Task<bool> InitializeViewAsync(IServiceProvider services,
-            CancellationToken cancellationToken = default)
+        protected override void InitializeView(View view)
         {
-            var settings = services.GetRequiredService<IOptions<AppSettings>>().Value;
+            base.InitializeView(view);
 
-            var embed = new EmbedBuilder()
+            view.Exception = _exception;
+        }
+
+        public class View : EmbedViewBase
+        {
+            public Exception Exception;
+
+            readonly AppSettings _settings;
+
+            public View(IOptions<AppSettings> options)
+            {
+                _settings = options.Value;
+            }
+
+            protected override Embed CreateEmbed() => new EmbedBuilder()
                 .WithTitle("**nhitomi**: Error")
                 .WithDescription(
-                    $"Message: `{_exception.Message ?? "<null>"}`\n" +
-                    $"Error has been reported. For further assistance, please join <{settings.Discord.Guild.GuildInvite}>")
+                    $"Message: `{Exception.Message ?? "<null>"}`\n" +
+                    $"Error has been reported. For further assistance, please join <{_settings.Discord.Guild.GuildInvite}>")
                 .WithColor(Color.Red)
                 .WithCurrentTimestamp()
                 .Build();
-
-            await SetViewAsync(embed, cancellationToken);
-
-            return true;
         }
     }
 }

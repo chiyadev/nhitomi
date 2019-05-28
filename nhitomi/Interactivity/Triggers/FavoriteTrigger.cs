@@ -1,72 +1,83 @@
-using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Discord;
-using Microsoft.Extensions.DependencyInjection;
 using nhitomi.Core;
 using nhitomi.Discord;
 
 namespace nhitomi.Interactivity.Triggers
 {
-    public class FavoriteTrigger : ReactionTrigger<IDoujinInteractive>
+    public class FavoriteTrigger : ReactionTrigger<FavoriteTrigger.Action>
     {
-        const string _collectionName = "Favorites";
-
         public override string Name => "Favorite";
         public override IEmote Emote => new Emoji("\u2764");
         public override bool CanRunStateless => true;
 
-        public override async Task RunAsync(IServiceProvider services, CancellationToken cancellationToken = default)
+        public class Action : ActionBase<IDoujinMessage>
         {
-            var discord = services.GetRequiredService<DiscordService>();
-            var database = services.GetRequiredService<IDatabase>();
+            readonly DiscordService _discord;
+            readonly IDatabase _database;
 
-            // retrieve doujin
-            var doujin = Interactive?.Doujin;
-
-            if (doujin == null)
+            public Action(DiscordService discord, IDatabase database)
             {
-                // stateless mode
-                if (!DoujinMessage.TryParseDoujinIdFromMessage(Message, out var id))
-                    return;
+                _discord = discord;
+                _database = database;
+            }
 
-                doujin = await services.GetRequiredService<IDatabase>()
-                    .GetDoujinAsync(id.source, id.id, cancellationToken);
+            const string _collectionName = "Favorites";
+
+            public override async Task<bool> RunAsync(CancellationToken cancellationToken = default)
+            {
+                if (!await base.RunAsync(cancellationToken))
+                    return false;
+
+                // retrieve doujin
+                var doujin = Interactive?.Doujin;
 
                 if (doujin == null)
-                    return;
-            }
-
-            do
-            {
-                var collection = await database.GetCollectionAsync(Context.User.Id, _collectionName, cancellationToken);
-
-                if (collection == null)
                 {
-                    // create new collection for favorites
-                    collection = new Collection
-                    {
-                        Name = _collectionName,
-                        Owner = new User
-                        {
-                            Id = Context.User.Id
-                        }
-                    };
+                    // stateless mode
+                    if (!DoujinMessage.TryParseDoujinIdFromMessage(Context.Message, out var id))
+                        return false;
 
-                    database.Add(collection);
+                    doujin = await _database.GetDoujinAsync(id.source, id.id, cancellationToken);
+
+                    if (doujin == null)
+                        return false;
                 }
 
-                // add to favorites collection
-                collection.Doujins.Add(new DoujinCollection
+                do
                 {
-                    DoujinId = doujin.Id
-                });
+                    var collection = await _database.GetCollectionAsync(
+                        Context.User.Id, _collectionName, cancellationToken);
+
+                    if (collection == null)
+                    {
+                        // create new collection for favorites
+                        collection = new Collection
+                        {
+                            Name = _collectionName,
+                            Owner = new User
+                            {
+                                Id = Context.User.Id
+                            }
+                        };
+
+                        _database.Add(collection);
+                    }
+
+                    // add to favorites collection
+                    collection.Doujins.Add(new DoujinCollection
+                    {
+                        DoujinId = doujin.Id
+                    });
+                }
+                while (!await _database.SaveAsync(cancellationToken));
+
+                var channel = await _discord.Socket.GetUser(Context.User.Id).GetOrCreateDMChannelAsync();
+
+                //await channel.SendMessageAsync(_formatter.AddedToCollection(_favoritesCollection, doujin));
+                return true;
             }
-            while (!await database.SaveAsync(cancellationToken));
-
-            var channel = await discord.Socket.GetUser(Context.User.Id).GetOrCreateDMChannelAsync();
-
-            //await channel.SendMessageAsync(_formatter.AddedToCollection(_favoritesCollection, doujin));
         }
     }
 }
