@@ -28,6 +28,8 @@ namespace nhitomi.Core
 
         Task<IAsyncEnumerable<Doujin>> EnumerateCollectionAsync(ulong userId, string name,
             QueryFilterDelegate<Doujin> query, CancellationToken cancellationToken = default);
+
+        Task<User> GetUserAsync(ulong userId, CancellationToken cancellationToken = default);
     }
 
     public class nhitomiDbContext : DbContext, IDatabase
@@ -140,6 +142,26 @@ namespace nhitomi.Core
                 .OrderBy(collection.Sort, collection.SortDescending)
                 .IncludeRelated()
                 .ToChunkedAsyncEnumerable(_chunkLoadSize);
+        }
+
+        public async Task<User> GetUserAsync(ulong userId, CancellationToken cancellationToken = default)
+        {
+            var user = await Query<User>()
+                .Include(u => u.Collections)
+                .FirstOrDefaultAsync(u => u.Id == userId, cancellationToken);
+
+            if (user == null)
+            {
+                // create entity for this user
+                user = new User
+                {
+                    Id = userId
+                };
+
+                Add(user);
+            }
+
+            return user;
         }
     }
 
