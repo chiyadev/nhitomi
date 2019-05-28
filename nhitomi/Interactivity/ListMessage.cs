@@ -90,7 +90,6 @@ namespace nhitomi.Interactivity
                 {
                     // show the first item
                     await SetEmbedAsync(CreateEmbed(current), cancellationToken);
-                    await SetMessageAsync(null, cancellationToken);
 
                     return true;
                 }
