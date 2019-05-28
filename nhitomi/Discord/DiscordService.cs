@@ -3,10 +3,12 @@
 // This software is released under the MIT License.
 // https://opensource.org/licenses/MIT
 
+using System;
 using System.Threading.Tasks;
 using Discord;
 using Discord.WebSocket;
 using Microsoft.Extensions.Options;
+using nhitomi.Globalization;
 
 namespace nhitomi.Discord
 {
@@ -16,6 +18,7 @@ namespace nhitomi.Discord
         IMessageChannel Channel { get; }
 
         IUser User { get; }
+        Localization Localization { get; }
     }
 
     public class DiscordService : DiscordSocketClient
@@ -36,5 +39,13 @@ namespace nhitomi.Discord
             await LoginAsync(TokenType.Bot, _settings.Discord.Token);
             await StartAsync();
         }
+    }
+
+    public static class DiscordContextExtensions
+    {
+        public static IDisposable BeginTyping(this IDiscordContext context) => context.Channel.EnterTypingState();
+
+        public static Task ReplyAsync(this IDiscordContext context, string localizationKey, object variables = null) =>
+            context.Channel.SendMessageAsync(new LocalizationPath(localizationKey)[context.Localization](variables));
     }
 }
