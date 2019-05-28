@@ -23,15 +23,28 @@ namespace nhitomi.Localization
         {
             foreach (var property in obj.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance))
             {
-                if (property.PropertyType == typeof(string))
+                var type = property.PropertyType;
+
+                if (type == typeof(string))
                 {
                     // add string property
-                    _dict[prefix + FixKey(property.Name)] = (string) property.GetValue(obj);
+                    _dict[FixKey(prefix + property.Name)] = (string) property.GetValue(obj);
+                }
+                else if (type.IsArray && type.GetElementType() == typeof(string))
+                {
+                    var values = (string[]) property.GetValue(property);
+
+                    // join values as list
+                    _dict[FixKey(prefix + property.Name)] = string.Join(", ", values);
+                }
+                else if (type.IsClass)
+                {
+                    // recurse on complex types
+                    AddDefinition(property.GetValue(obj), $"{prefix}{property.Name}.");
                 }
                 else
                 {
-                    // recurse on complex types
-                    AddDefinition(property.GetValue(obj), $"{prefix}{FixKey(property.Name)}.");
+                    throw new ArgumentException($"Could not convert property {type.Name} ({type}) of definition obj.");
                 }
             }
         }
