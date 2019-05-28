@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Discord.Commands;
 using nhitomi.Core;
 using nhitomi.Interactivity;
+using nhitomi.Localization;
 
 namespace nhitomi.Modules
 {
@@ -12,14 +13,14 @@ namespace nhitomi.Modules
     public class CollectionModule : ModuleBase
     {
         readonly IDatabase _database;
-        readonly MessageFormatter _formatter;
         readonly InteractiveManager _interactive;
+        readonly ILocalization _localization;
 
-        public CollectionModule(IDatabase database, MessageFormatter formatter, InteractiveManager interactive)
+        public CollectionModule(IDatabase database, InteractiveManager interactive, ILocalization localization)
         {
             _database = database;
-            _formatter = formatter;
             _interactive = interactive;
+            _localization = localization;
         }
 
         [Command]
@@ -42,7 +43,7 @@ namespace nhitomi.Modules
 
                 if (doujins == null)
                 {
-                    await ReplyAsync(_formatter.CollectionNotFound);
+                    await ReplyAsync(_localization[Context]["messages.collectionNotFound"]);
                     return;
                 }
 
@@ -93,7 +94,7 @@ namespace nhitomi.Modules
 
                 if (doujin == null)
                 {
-                    await ReplyAsync(_formatter.DoujinNotFound(source));
+                    await ReplyAsync(_localization[Context]["messages.doujinNotFound"]);
                     return;
                 }
 
@@ -104,7 +105,7 @@ namespace nhitomi.Modules
             }
             while (!await _database.SaveAsync(cancellationToken));
 
-            await ReplyAsync(_formatter.AddedToCollection(name, doujin));
+            await ReplyAsync(_localization[Context]["messages.addedToCollection"]);
         }
 
         async Task RemoveAsync(string name, string source, string id, CancellationToken cancellationToken = default)
@@ -117,7 +118,7 @@ namespace nhitomi.Modules
 
                 if (collection == null)
                 {
-                    await ReplyAsync(_formatter.CollectionNotFound);
+                    await ReplyAsync(_localization[Context]["messages.collectionNotFound"]);
                     return;
                 }
 
@@ -125,7 +126,7 @@ namespace nhitomi.Modules
 
                 if (doujin == null)
                 {
-                    await ReplyAsync(_formatter.DoujinNotFound(source));
+                    await ReplyAsync(_localization[Context]["messages.doujinNotFound"]);
                     return;
                 }
 
@@ -136,7 +137,7 @@ namespace nhitomi.Modules
             }
             while (!await _database.SaveAsync(cancellationToken));
 
-            await ReplyAsync(_formatter.RemovedFromCollection(name, doujin));
+            await ReplyAsync(_localization[Context]["messages.removedFromCollection"]);
         }
 
         [Command]
@@ -153,7 +154,7 @@ namespace nhitomi.Modules
 
                     if (collection == null)
                     {
-                        await ReplyAsync(_formatter.CollectionNotFound);
+                        await ReplyAsync(_localization[Context]["messages.collectionNotFound"]);
                         return;
                     }
 
@@ -161,7 +162,7 @@ namespace nhitomi.Modules
                 }
                 while (!await _database.SaveAsync());
 
-                await ReplyAsync(_formatter.CollectionDeleted(name));
+                await ReplyAsync(_localization[Context]["messages.collectionDeleted"]);
             }
         }
 
@@ -174,7 +175,7 @@ namespace nhitomi.Modules
             // parse sort attribute
             if (!Enum.TryParse<CollectionSort>(attribute, true, out var sortValue))
             {
-                await ReplyAsync(_formatter.InvalidSortAttribute(attribute));
+                await ReplyAsync(_localization[Context]["messages.invalidCollectionSort"]);
                 return;
             }
 
@@ -186,7 +187,7 @@ namespace nhitomi.Modules
 
                     if (collection == null)
                     {
-                        await ReplyAsync(_formatter.CollectionNotFound);
+                        await ReplyAsync(_localization[Context]["messages.collectionNotFound"]);
                         return;
                     }
 
@@ -194,7 +195,7 @@ namespace nhitomi.Modules
                 }
                 while (!await _database.SaveAsync());
 
-                await ReplyAsync(_formatter.SortAttributeUpdated(sortValue));
+                await ReplyAsync(_localization[Context]["messages.collectionSorted"]);
             }
         }
     }

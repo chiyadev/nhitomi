@@ -11,6 +11,7 @@ using Discord.Commands;
 using Microsoft.Extensions.Options;
 using nhitomi.Core;
 using nhitomi.Interactivity;
+using nhitomi.Localization;
 
 namespace nhitomi.Modules
 {
@@ -18,16 +19,16 @@ namespace nhitomi.Modules
     {
         readonly AppSettings _settings;
         readonly IDatabase _database;
-        readonly MessageFormatter _formatter;
         readonly InteractiveManager _interactive;
+        readonly ILocalization _localization;
 
-        public DoujinModule(IOptions<AppSettings> options, IDatabase database, MessageFormatter formatter,
-            InteractiveManager interactive)
+        public DoujinModule(IOptions<AppSettings> options, IDatabase database, InteractiveManager interactive,
+            ILocalization localization)
         {
             _settings = options.Value;
             _database = database;
-            _formatter = formatter;
             _interactive = interactive;
+            _localization = localization;
         }
 
         [Command("get"), Alias("g")]
@@ -39,7 +40,7 @@ namespace nhitomi.Modules
 
                 if (doujin == null)
                 {
-                    await ReplyAsync(_formatter.DoujinNotFound(source));
+                    await ReplyAsync(_localization[Context]["messages.doujinNotFound"]);
                     return;
                 }
 
@@ -72,7 +73,7 @@ namespace nhitomi.Modules
         {
             if (string.IsNullOrEmpty(query))
             {
-                await ReplyAsync(_formatter.InvalidQuery());
+                await ReplyAsync(_localization[Context]["messages.invalidQuery"]);
                 return;
             }
 
@@ -102,7 +103,7 @@ namespace nhitomi.Modules
                     // guild user is null; user is not in guild
                     if (await guild.GetUserAsync(Context.User.Id) == null)
                     {
-                        await Context.User.SendMessageAsync(_formatter.JoinGuildForDownload);
+                        await Context.User.SendMessageAsync(_localization[Context]["messages.joinForDownload"]);
                         return;
                     }
                 }
@@ -111,7 +112,7 @@ namespace nhitomi.Modules
 
                 if (doujin == null)
                 {
-                    await ReplyAsync(_formatter.DoujinNotFound(source));
+                    await ReplyAsync(_localization[Context]["messages.doujinNotFound"]);
                     return;
                 }
             }
