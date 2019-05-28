@@ -50,8 +50,7 @@ namespace nhitomi.Interactivity
                         "nhitomi — a Discord bot for searching and downloading doujinshi, by **chiya.dev** - https://chiya.dev\n" +
                         $"Official server: {_settings.Discord.Guild.GuildInvite}")
                     .WithColor(Color.Purple)
-                    .WithThumbnailUrl(_settings.ImageUrl)
-                    .WithCurrentTimestamp();
+                    .WithThumbnailUrl(_settings.ImageUrl);
 
                 var prefix = _settings.Discord.Prefix;
 
