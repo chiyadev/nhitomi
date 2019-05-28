@@ -65,7 +65,7 @@ namespace nhitomi.Interactivity.Triggers
                 switch (Direction)
                 {
                     case MoveDirection.Left:
-                        Interactive.Position += 1;
+                        Interactive.Position -= 1;
                         break;
 
                     case MoveDirection.Right:
