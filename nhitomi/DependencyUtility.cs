@@ -1,19 +1,15 @@
 using System;
 using System.Linq;
-using System.Reflection;
 
 namespace nhitomi
 {
     public delegate T DependencyFactory<out T>(IServiceProvider services);
 
-    public static class DependencyExtensions
+    public static class DependencyUtility<T>
     {
-        public static Type[] GetConcreteTypes<T>(this Assembly assembly) => assembly
-            .GetTypes()
-            .Where(t => !t.IsAbstract && (t.IsClass || t.IsValueType) && typeof(T).IsAssignableFrom(t))
-            .ToArray();
+        public static DependencyFactory<T> DependencyFactory { get; }
 
-        public static DependencyFactory<T> GetDependencyFactory<T>()
+        static DependencyUtility()
         {
             var type = typeof(T);
             var constructor = type.GetConstructors().FirstOrDefault();
@@ -32,7 +28,7 @@ namespace nhitomi
                 })
                 .ToArray();
 
-            return s =>
+            DependencyFactory = s =>
             {
                 var arguments = new object[parameters.Length];
 
