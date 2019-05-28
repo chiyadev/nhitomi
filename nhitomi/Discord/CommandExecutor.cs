@@ -1,5 +1,4 @@
 using System;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Discord.Commands;
@@ -30,8 +29,11 @@ namespace nhitomi.Discord
 
         public async Task InitializeAsync(CancellationToken cancellationToken = default)
         {
-            // load command modules
-            await _discord.Command.AddModulesAsync(typeof(Startup).Assembly, _services);
+            using (var scope = _services.CreateScope())
+            {
+                // load command modules
+                await _discord.Command.AddModulesAsync(typeof(Startup).Assembly, scope.ServiceProvider);
+            }
 
             _logger.LogDebug($"Loaded commands: {string.Join(", ", _discord.Command.Commands.Select(c => c.Name))}");
         }

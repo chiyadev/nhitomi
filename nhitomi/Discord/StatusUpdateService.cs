@@ -45,7 +45,7 @@ namespace nhitomi.Discord
                 CycleGame();
 
                 // send update
-                await _discord.Socket.SetGameAsync(_current);
+                await _discord.SetGameAsync(_current);
 
                 // sleep
                 await Task.Delay(TimeSpan.FromMinutes(_settings.Discord.Status.UpdateInterval), stoppingToken);

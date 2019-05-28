@@ -3,47 +3,30 @@
 // This software is released under the MIT License.
 // https://opensource.org/licenses/MIT
 
-using System;
 using System.Threading.Tasks;
 using Discord;
-using Discord.Commands;
 using Discord.WebSocket;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace nhitomi.Discord
 {
-    public class DiscordService : IDisposable
+    public class DiscordService : DiscordSocketClient
     {
         readonly AppSettings _settings;
-        readonly ILogger<DiscordService> _logger;
 
-        public BaseSocketClient Socket { get; }
-        public CommandService Command { get; }
-
-        public DiscordService(IOptions<AppSettings> options, ILogger<DiscordService> logger)
+        public DiscordService(IOptions<AppSettings> options) : base(options.Value.Discord)
         {
             _settings = options.Value;
-            _logger = logger;
-
-            Socket = new DiscordSocketClient(_settings.Discord);
-            Command = new CommandService(_settings.Discord.Command);
         }
 
         public async Task ConnectAsync()
         {
-            if (Socket.LoginState != LoginState.LoggedOut)
+            if (LoginState != LoginState.LoggedOut)
                 return;
 
             // login
-            await Socket.LoginAsync(TokenType.Bot, _settings.Discord.Token);
-            await Socket.StartAsync();
-        }
-
-        public void Dispose()
-        {
-            Socket.Dispose();
-            // Commands.Dispose does not exist
+            await LoginAsync(TokenType.Bot, _settings.Discord.Token);
+            await StartAsync();
         }
     }
 }

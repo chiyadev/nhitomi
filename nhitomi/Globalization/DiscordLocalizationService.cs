@@ -49,8 +49,8 @@ namespace nhitomi.Globalization
                      throw new ArgumentException($"{nameof(localization)} must be {nameof(LocalizationCache)}");
             _discord = discord;
 
-            _discord.Socket.GuildAvailable += RefreshGuildAsync;
-            _discord.Socket.JoinedGuild += RefreshGuildAsync;
+            _discord.GuildAvailable += RefreshGuildAsync;
+            _discord.JoinedGuild += RefreshGuildAsync;
         }
 
         static readonly DependencyFactory<RefreshQueueProcessor> _factory =
@@ -109,8 +109,8 @@ namespace nhitomi.Globalization
         {
             base.Dispose();
 
-            _discord.Socket.GuildAvailable -= RefreshGuildAsync;
-            _discord.Socket.JoinedGuild -= RefreshGuildAsync;
+            _discord.GuildAvailable -= RefreshGuildAsync;
+            _discord.JoinedGuild -= RefreshGuildAsync;
         }
     }
 }

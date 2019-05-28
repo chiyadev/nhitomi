@@ -28,9 +28,9 @@ namespace nhitomi.Discord
         IMessageChannel ICommandContext.Channel => Message.Channel;
         IUser ICommandContext.User => Message.Author;
 
-        public MessageContext(DiscordService discord, IUserMessage message, MessageEvent @event)
+        public MessageContext(IDiscordClient discord, IUserMessage message, MessageEvent @event)
         {
-            Client = discord.Socket;
+            Client = discord;
             Message = message;
             Event = @event;
         }
@@ -68,14 +68,14 @@ namespace nhitomi.Discord
         {
             await Task.WhenAll(_messageHandlers.Select(h => h.InitializeAsync(cancellationToken)));
 
-            _discord.Socket.MessageReceived += MessageReceived;
-            _discord.Socket.MessageUpdated += MessageUpdated;
+            _discord.MessageReceived += MessageReceived;
+            _discord.MessageUpdated += MessageUpdated;
         }
 
         public Task StopAsync(CancellationToken cancellationToken)
         {
-            _discord.Socket.MessageReceived -= MessageReceived;
-            _discord.Socket.MessageUpdated -= MessageUpdated;
+            _discord.MessageReceived -= MessageReceived;
+            _discord.MessageUpdated -= MessageUpdated;
 
             return Task.CompletedTask;
         }
@@ -89,7 +89,7 @@ namespace nhitomi.Discord
         Task HandleMessageAsync(SocketMessage socketMessage, MessageEvent eventType)
         {
             if (socketMessage is IUserMessage message &&
-                socketMessage.Author.Id != _discord.Socket.CurrentUser.Id)
+                socketMessage.Author.Id != _discord.CurrentUser.Id)
             {
                 // handle on another thread to not block the gateway thread
                 _ = Task.Run(async () =>

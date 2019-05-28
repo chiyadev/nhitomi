@@ -30,10 +30,10 @@ namespace nhitomi.Discord
         IGuild ICommandContext.Guild => Message.Channel is IGuildChannel c ? c.Guild : null;
         IMessageChannel ICommandContext.Channel => Message.Channel;
 
-        public ReactionContext(DiscordService discord, IUserMessage message, IReaction reaction, IUser user,
+        public ReactionContext(IDiscordClient discord, IUserMessage message, IReaction reaction, IUser user,
             ReactionEvent eventType)
         {
-            Client = discord.Socket;
+            Client = discord;
             Message = message;
             Reaction = reaction;
             User = user;
@@ -71,15 +71,15 @@ namespace nhitomi.Discord
         {
             await Task.WhenAll(_reactionHandlers.Select(h => h.InitializeAsync(cancellationToken)));
 
-            _discord.Socket.ReactionAdded += ReactionAdded;
-            _discord.Socket.ReactionRemoved += ReactionRemoved;
+            _discord.ReactionAdded += ReactionAdded;
+            _discord.ReactionRemoved += ReactionRemoved;
         }
 
 
         public Task StopAsync(CancellationToken cancellationToken)
         {
-            _discord.Socket.ReactionAdded -= ReactionAdded;
-            _discord.Socket.ReactionRemoved -= ReactionRemoved;
+            _discord.ReactionAdded -= ReactionAdded;
+            _discord.ReactionRemoved -= ReactionRemoved;
 
             return Task.CompletedTask;
         }
@@ -92,7 +92,7 @@ namespace nhitomi.Discord
 
         Task HandleReactionAsync(IMessageChannel channel, SocketReaction reaction, ReactionEvent eventType)
         {
-            if (reaction.UserId != _discord.Socket.CurrentUser.Id)
+            if (reaction.UserId != _discord.CurrentUser.Id)
             {
                 // handle on another thread to not block the gateway thread
                 _ = Task.Run(async () =>

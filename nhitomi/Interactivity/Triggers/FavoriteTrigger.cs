@@ -73,7 +73,7 @@ namespace nhitomi.Interactivity.Triggers
                 }
                 while (!await _database.SaveAsync(cancellationToken));
 
-                var channel = await _discord.Socket.GetUser(Context.User.Id).GetOrCreateDMChannelAsync();
+                var channel = await _discord.GetUser(Context.User.Id).GetOrCreateDMChannelAsync();
 
                 //await channel.SendMessageAsync(_formatter.AddedToCollection(_favoritesCollection, doujin));
                 return true;
