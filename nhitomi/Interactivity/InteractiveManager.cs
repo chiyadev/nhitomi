@@ -111,8 +111,16 @@ namespace nhitomi.Interactivity
                     trigger = factory();
                 }
 
+                // dependency scope
                 using (var scope = _services.CreateScope())
-                    return await trigger.RunAsync(scope.ServiceProvider, context, interactive, cancellationToken);
+                {
+                    var services = new ServiceDictionary(scope.ServiceProvider)
+                    {
+                        {typeof(IDiscordContext), context}
+                    };
+
+                    return await trigger.RunAsync(services, context, interactive, cancellationToken);
+                }
             }
             catch (Exception e)
             {

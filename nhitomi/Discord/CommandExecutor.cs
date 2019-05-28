@@ -89,8 +89,13 @@ namespace nhitomi.Discord
                 // dependency scope
                 using (var scope = _services.CreateScope())
                 {
+                    var services = new ServiceDictionary(scope.ServiceProvider)
+                    {
+                        {typeof(IMessageContext), context}
+                    };
+
                     // invoke command
-                    await command.InvokeAsync(scope.ServiceProvider, args);
+                    await command.InvokeAsync(services, args);
                 }
             }
             catch (Exception e)
