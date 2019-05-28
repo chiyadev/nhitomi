@@ -1,3 +1,4 @@
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -11,34 +12,41 @@ namespace nhitomi
     {
         static async Task Main()
         {
+            // build host
             var host = new HostBuilder()
                 .ConfigureAppConfiguration(Startup.Configure)
                 .ConfigureServices(Startup.ConfigureServices)
                 .Build();
 
-            var environment = host.Services.GetRequiredService<IHostingEnvironment>();
+            // initialization
+            using (var scope = host.Services.CreateScope())
+                await DependencyUtility<Initialization>.Factory(scope.ServiceProvider).RunAsync();
 
-            // migrate database
-            if (environment.IsDevelopment())
+            // run host
+            await host.RunAsync();
+        }
+
+        sealed class Initialization
+        {
+            readonly IHostingEnvironment _environment;
+            readonly nhitomiDbContext _db;
+            readonly DiscordService _discord;
+
+            public Initialization(IHostingEnvironment environment, nhitomiDbContext db, DiscordService discord)
             {
-                using (var scope = host.Services.CreateScope())
-                    await scope.ServiceProvider.GetRequiredService<nhitomiDbContext>().Database.MigrateAsync();
+                _environment = environment;
+                _db = db;
+                _discord = discord;
             }
 
-            var discord = host.Services.GetRequiredService<DiscordService>();
-
-            // connect discord
-            await discord.ConnectAsync();
-
-            try
+            public async Task RunAsync(CancellationToken cancellationToken = default)
             {
-                // run host
-                await host.RunAsync();
-            }
-            finally
-            {
-                // disconnect discord
-                await discord.DisconnectAsync();
+                // migrate database in production
+                if (_environment.IsProduction())
+                    await _db.Database.MigrateAsync(cancellationToken);
+
+                // start discord
+                await _discord.ConnectAsync();
             }
         }
     }

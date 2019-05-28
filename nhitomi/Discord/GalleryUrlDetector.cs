@@ -73,8 +73,7 @@ namespace nhitomi.Discord
 
             using (var scope = _services.CreateScope())
             {
-                var doujins = scope.ServiceProvider.GetRequiredService<IDatabase>()
-                    .GetDoujinsAsync(ids);
+                var doujins = scope.ServiceProvider.GetRequiredService<IDatabase>().GetDoujinsAsync(ids);
 
                 // send interactive
                 await _interactive.SendInteractiveAsync(new DoujinListMessage(doujins), context, cancellationToken);
