@@ -13,14 +13,7 @@ using nhitomi.Discord;
 
 namespace nhitomi.Globalization
 {
-    public interface ILocalization
-    {
-        void EnqueueRefresh(IDiscordContext context);
-
-        Localization this[IDiscordContext context] { get; }
-    }
-
-    public class LocalizationCache : ConcurrentDictionary<ulong, Localization>, ILocalization
+    public class LocalizationCache : ConcurrentDictionary<ulong, Localization>
     {
         public readonly ConcurrentQueue<ulong> RefreshQueue = new ConcurrentQueue<ulong>();
 
@@ -42,11 +35,10 @@ namespace nhitomi.Globalization
         readonly LocalizationCache _cache;
         readonly DiscordService _discord;
 
-        public DiscordLocalizationService(IServiceProvider services, ILocalization localization, DiscordService discord)
+        public DiscordLocalizationService(IServiceProvider services, LocalizationCache cache, DiscordService discord)
         {
             _services = services;
-            _cache = localization as LocalizationCache ??
-                     throw new ArgumentException($"{nameof(localization)} must be {nameof(LocalizationCache)}");
+            _cache = cache;
             _discord = discord;
 
             _discord.GuildAvailable += RefreshGuildAsync;

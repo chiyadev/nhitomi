@@ -62,7 +62,7 @@ namespace nhitomi
                 .AddSingleton<CommandExecutor>()
                 .AddSingleton<GalleryUrlDetector>()
                 .AddSingleton<InteractiveManager>()
-                .AddSingleton<ILocalization, LocalizationCache>()
+                .AddSingleton<LocalizationCache>()
                 .AddHostedService<MessageHandlerService>()
                 .AddHostedService<ReactionHandlerService>()
                 .AddHostedService<StatusUpdateService>()
