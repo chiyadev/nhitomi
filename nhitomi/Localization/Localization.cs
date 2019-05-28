@@ -7,14 +7,16 @@ namespace nhitomi.Localization
 {
     public abstract class Localization
     {
-        static readonly Dictionary<CultureInfo, Localization> _localizations = typeof(Startup).Assembly
+        static readonly Dictionary<string, Localization> _localizations = typeof(Startup).Assembly
             .GetTypes()
             .Where(t => !t.IsAbstract && t.IsClass && t.IsSubclassOf(typeof(Localization)))
             .Select(t => (Localization) Activator.CreateInstance(t))
-            .ToDictionary(l => l.Culture);
+            .ToDictionary(l => l.Culture.Name);
 
-        public static Localization GetLocalization(CultureInfo culture) =>
-            _localizations.TryGetValue(culture, out var localization) ? localization : null;
+        public static Localization GetLocalization(string culture) =>
+            // ReSharper disable once TailRecursiveCall
+            // default to English if not found
+            _localizations.TryGetValue(culture, out var localization) ? localization : GetLocalization("en");
 
         readonly Lazy<LocalizationDictionary> _dict;
 
