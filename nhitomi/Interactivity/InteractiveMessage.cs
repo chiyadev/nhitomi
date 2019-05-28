@@ -20,11 +20,6 @@ namespace nhitomi.Interactivity
     {
         public IReadOnlyDictionary<IEmote, IReactionTrigger> Triggers { get; private set; }
 
-        protected InteractiveMessage()
-        {
-            Triggers = CreateTriggers().ToDictionary(t => t.Emote);
-        }
-
         protected abstract IEnumerable<IReactionTrigger> CreateTriggers();
 
         public override async Task<bool> UpdateViewAsync(IServiceProvider services, IDiscordContext context,
