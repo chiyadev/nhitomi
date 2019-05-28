@@ -61,11 +61,9 @@ namespace nhitomi.Discord.Parsing
             do
             {
                 var moduleAttr = type.GetCustomAttribute<ModuleAttribute>();
-                if (moduleAttr == null)
-                    throw new ArgumentException($"{type} is not a module.");
 
                 // add if prefixed
-                if (moduleAttr.IsPrefixed)
+                if (moduleAttr != null && moduleAttr.IsPrefixed)
                     prefixes.Add(string.Join('|', moduleAttr.GetNames()));
 
                 // traverse upwards
