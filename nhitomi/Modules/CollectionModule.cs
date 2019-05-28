@@ -12,11 +12,11 @@ namespace nhitomi.Modules
     [Module("collection")]
     public class CollectionModule
     {
-        readonly IDiscordContext _context;
+        readonly IMessageContext _context;
         readonly IDatabase _database;
         readonly InteractiveManager _interactive;
 
-        public CollectionModule(IDiscordContext context, IDatabase database, InteractiveManager interactive)
+        public CollectionModule(IMessageContext context, IDatabase database, InteractiveManager interactive)
         {
             _context = context;
             _database = database;

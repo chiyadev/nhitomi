@@ -17,12 +17,12 @@ namespace nhitomi.Modules
     [Module("doujin", IsPrefixed = false)]
     public class DoujinModule
     {
-        readonly IDiscordContext _context;
+        readonly IMessageContext _context;
         readonly AppSettings _settings;
         readonly IDatabase _database;
         readonly InteractiveManager _interactive;
 
-        public DoujinModule(IDiscordContext context, IOptions<AppSettings> options, IDatabase database,
+        public DoujinModule(IMessageContext context, IOptions<AppSettings> options, IDatabase database,
             InteractiveManager interactive)
         {
             _context = context;

@@ -13,10 +13,10 @@ namespace nhitomi.Modules
     [Module("help", IsPrefixed = false)]
     public class HelpModule
     {
-        readonly IDiscordContext _context;
+        readonly IMessageContext _context;
         readonly InteractiveManager _interactive;
 
-        public HelpModule(IDiscordContext context, InteractiveManager interactive)
+        public HelpModule(IMessageContext context, InteractiveManager interactive)
         {
             _context = context;
             _interactive = interactive;
