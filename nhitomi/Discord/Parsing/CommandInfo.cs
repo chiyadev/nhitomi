@@ -124,7 +124,7 @@ namespace nhitomi.Discord.Parsing
                         builder
                             .Append(@"(?<")
                             .Append(name)
-                            .Append(@">\S+");
+                            .Append(@">\S+)");
                 }
                 else
                 {
