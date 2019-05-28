@@ -47,7 +47,7 @@ namespace nhitomi.Discord
             return Task.CompletedTask;
         }
 
-        bool TryParseCommand(string str, out CommandInfo command, out object[] args)
+        bool TryParseCommand(string str, out CommandInfo command, out Dictionary<string, object> args)
         {
             foreach (var c in _commands)
                 if (c.TryParse(str, out args))

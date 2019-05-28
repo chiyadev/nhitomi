@@ -14,19 +14,23 @@ namespace nhitomi.Discord.Parsing
         public readonly CommandAttribute Attribute;
 
         readonly MethodBase _method;
+        readonly ParameterInfo[] _parameters;
+        readonly int _requiredParams;
+
         readonly DependencyFactory<object> _moduleFactory;
 
         readonly Regex _nameRegex;
         readonly Regex _parameterRegex;
         readonly Regex _optionRegex;
 
-        readonly int _requiredParams;
-
         const RegexOptions _options = RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.Singleline;
 
         public CommandInfo(MethodInfo method)
         {
             _method = method;
+            _parameters = method.GetParameters();
+            _requiredParams = _parameters.Count(p => !p.IsOptional);
+
             _moduleFactory = DependencyUtility.CreateFactory(method.DeclaringType);
 
             if (method.ReturnType != typeof(Task) &&
@@ -43,13 +47,12 @@ namespace nhitomi.Discord.Parsing
 
             // build parameter regex
             var bindingExpression = method.GetCustomAttribute<BindingAttribute>()?.Expression ??
-                                    $"[{string.Join("] [", method.GetParameters().Select(p => p.Name))}]";
+                                    $"[{string.Join("] [", _parameters.Select(p => p.Name))}]";
 
             _parameterRegex = new Regex(BuildParameterPattern(bindingExpression), _options);
-            _requiredParams = method.GetParameters().Count(p => !p.IsOptional);
 
             // build optional parameter regex
-            _optionRegex = new Regex(BuildOptionPattern(method), _options);
+            _optionRegex = new Regex(BuildOptionPattern(_parameters), _options);
         }
 
         static string BuildNamePattern(MemberInfo member, CommandAttribute commandAttr)
@@ -140,9 +143,10 @@ namespace nhitomi.Discord.Parsing
             return builder.ToString();
         }
 
-        static string BuildOptionPattern(MethodBase method)
+        static string BuildOptionPattern(ParameterInfo[] parameters)
         {
-            var parameters = method.GetParameters().Where(p => p.IsOptional).ToArray();
+            parameters = parameters.Where(p => p.IsOptional).ToArray();
+
             var usedNames = new HashSet<string>();
 
             var builder = new StringBuilder().Append('^');
@@ -171,12 +175,12 @@ namespace nhitomi.Discord.Parsing
             return builder.ToString();
         }
 
-        public bool TryParse(string str, out object[] args)
+        public bool TryParse(string str, out Dictionary<string, object> args)
         {
             // optimization on commands with no parameters
             if (_requiredParams == 0)
             {
-                args = new object[0];
+                args = new Dictionary<string, object>();
                 return true;
             }
 
@@ -186,8 +190,6 @@ namespace nhitomi.Discord.Parsing
             var nameMatch = _nameRegex.Match(str);
             if (!nameMatch.Success)
                 return false;
-
-            var argDict = new Dictionary<string, string>();
 
             // split required parameters and options
             var hyphenIndex = str.IndexOf('-');
@@ -201,8 +203,10 @@ namespace nhitomi.Discord.Parsing
             if (paramGroups.Length != _requiredParams)
                 return false;
 
+            var argStrings = new Dictionary<string, string>();
+
             foreach (var group in paramGroups)
-                argDict[group.Name] = group.Value.Trim();
+                argStrings[group.Name] = group.Value.Trim();
 
             // match options
             if (!string.IsNullOrWhiteSpace(optionStr))
@@ -210,26 +214,25 @@ namespace nhitomi.Discord.Parsing
                 var optionMatches = _optionRegex.Matches(optionStr);
 
                 foreach (var group in optionMatches.SelectMany(m => m.Groups.Where(g => g.Name != null)))
-                    argDict[group.Name] = group.Value.Trim();
+                    argStrings[group.Name] = group.Value.Trim();
             }
 
-            // bind values to parameters
-            var argList = new List<object>();
+            args = new Dictionary<string, object>();
 
-            foreach (var parameter in _method.GetParameters())
+            // parse values
+            foreach (var parameter in _parameters)
             {
                 // required parameter is missing
-                if (!argDict.TryGetValue(parameter.Name.ToLowerInvariant(), out var value) && !parameter.IsOptional)
+                if (!argStrings.TryGetValue(parameter.Name.ToLowerInvariant(), out var value) && !parameter.IsOptional)
                     return false;
 
                 // invalid value
                 if (!TryParse(parameter, value, out var obj))
                     return false;
 
-                argList.Add(obj);
+                args[parameter.Name] = obj;
             }
 
-            args = argList.ToArray();
             return true;
         }
 
@@ -303,13 +306,34 @@ namespace nhitomi.Discord.Parsing
             return false;
         }
 
-        public async Task InvokeAsync(IServiceProvider services, object[] args)
+        public async Task InvokeAsync(IServiceProvider services, Dictionary<string, object> args)
         {
             // create module
             var module = _moduleFactory(services);
 
+            // convert to argument list
+            var argList = new List<object>();
+
+            foreach (var parameter in _parameters)
+            {
+                if (args.TryGetValue(parameter.Name, out var value))
+                {
+                    argList.Add(value);
+                }
+                else
+                {
+                    // fill missing optional arguments from services
+                    var service = services.GetService(parameter.ParameterType);
+
+                    if (service == null)
+                        throw new InvalidOperationException($"Could not inject {parameter} of {_method}.");
+
+                    argList.Add(service);
+                }
+            }
+
             // invoke asynchronously
-            await (dynamic) _method.Invoke(module, args);
+            await (dynamic) _method.Invoke(module, argList.ToArray());
         }
     }
 }
