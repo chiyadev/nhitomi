@@ -7,7 +7,7 @@ namespace nhitomi
 
     public static class DependencyUtility<T>
     {
-        public static DependencyFactory<T> DependencyFactory { get; }
+        public static DependencyFactory<T> Factory { get; }
 
         static DependencyUtility()
         {
@@ -28,7 +28,7 @@ namespace nhitomi
                 })
                 .ToArray();
 
-            DependencyFactory = s =>
+            Factory = s =>
             {
                 var arguments = new object[parameters.Length];
 
