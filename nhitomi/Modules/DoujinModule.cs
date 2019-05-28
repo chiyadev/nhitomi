@@ -6,16 +6,16 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Discord;
-using Discord.Commands;
 using Microsoft.Extensions.Options;
 using nhitomi.Core;
+using nhitomi.Discord.Parsing;
 using nhitomi.Globalization;
 using nhitomi.Interactivity;
 
 namespace nhitomi.Modules
 {
-    public class DoujinModule : ModuleBase
+    [Module("doujin", IsPrefixed = false)]
+    public class DoujinModule
     {
         readonly AppSettings _settings;
         readonly IDatabase _database;
@@ -31,7 +31,7 @@ namespace nhitomi.Modules
             _localization = localization;
         }
 
-        [Command("get"), Alias("g")]
+        [Command("get")]
         public async Task GetAsync(string source, string id)
         {
             using (Context.Channel.EnterTypingState())
@@ -48,8 +48,8 @@ namespace nhitomi.Modules
             }
         }
 
-        [Command("from"), Alias("f")]
-        public async Task FromAsync([Remainder] string source = null)
+        [Command("from")]
+        public async Task FromAsync(string source)
         {
             using (Context.Channel.EnterTypingState())
             {
@@ -68,8 +68,8 @@ namespace nhitomi.Modules
             }
         }
 
-        [Command("search"), Alias("s")]
-        public async Task SearchAsync([Remainder] string query)
+        [Command("search"), Binding("[query+]")]
+        public async Task SearchAsync(string query)
         {
             if (string.IsNullOrEmpty(query))
             {
@@ -88,7 +88,7 @@ namespace nhitomi.Modules
             }
         }
 
-        [Command("download"), Alias("dl")]
+        [Command("download", Aliases = new[] {"dl"})]
         public async Task DownloadAsync(string source, string id)
         {
             Doujin doujin;

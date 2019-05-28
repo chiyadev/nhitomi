@@ -4,12 +4,13 @@
 // https://opensource.org/licenses/MIT
 
 using System.Threading.Tasks;
-using Discord.Commands;
+using nhitomi.Discord.Parsing;
 using nhitomi.Interactivity;
 
 namespace nhitomi.Modules
 {
-    public class HelpModule : ModuleBase
+    [Module("help", IsPrefixed = false)]
+    public class HelpModule
     {
         readonly InteractiveManager _interactive;
 
