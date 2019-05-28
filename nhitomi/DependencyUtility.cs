@@ -39,7 +39,7 @@ namespace nhitomi
                     {
                         if (!parameter.optional)
                             throw new InvalidOperationException(
-                                $"Unable to resolve service for parameter'{parameter.name}' ({parameter.type}) while attempting to activate '{type}'.");
+                                $"Unable to resolve service for parameter '{parameter.name}' ({parameter.type}) while attempting to activate '{type}'.");
 
                         argument = parameter.defaultValue;
                     }
