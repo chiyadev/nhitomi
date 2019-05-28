@@ -7,6 +7,7 @@ using Discord;
 using Discord.WebSocket;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using nhitomi.Globalization;
 using nhitomi.Interactivity;
 
 namespace nhitomi.Discord
@@ -33,15 +34,17 @@ namespace nhitomi.Discord
     public class ReactionHandlerService : IHostedService
     {
         readonly DiscordService _discord;
+        readonly LocalizationCache _localizationCache;
         readonly ILogger<ReactionHandlerService> _logger;
 
         readonly IReactionHandler[] _reactionHandlers;
 
         [SuppressMessage("ReSharper", "SuggestBaseTypeForParameter")]
-        public ReactionHandlerService(DiscordService discord, ILogger<ReactionHandlerService> logger,
-            InteractiveManager interactiveManager)
+        public ReactionHandlerService(DiscordService discord, LocalizationCache localizationCache,
+            ILogger<ReactionHandlerService> logger, InteractiveManager interactiveManager)
         {
             _discord = discord;
+            _localizationCache = localizationCache;
             _logger = logger;
 
             _reactionHandlers = new IReactionHandler[]
@@ -92,7 +95,16 @@ namespace nhitomi.Discord
                             ? reaction.User.Value
                             : await channel.GetUserAsync(reaction.UserId);
 
-                        var context = new ReactionContext(message, reaction, user, eventType);
+                        // create context
+                        var context = new ReactionContext
+                        {
+                            Client = _discord,
+                            Message = message,
+                            User = user,
+                            Reaction = reaction,
+                            Event = eventType
+                        };
+                        context.Localization = _localizationCache[context];
 
                         foreach (var handler in _reactionHandlers)
                             if (await handler.TryHandleAsync(context))
@@ -110,20 +122,14 @@ namespace nhitomi.Discord
 
         class ReactionContext : IReactionContext
         {
-            public IUserMessage Message { get; }
+            public IDiscordClient Client { get; set; }
+            public IUserMessage Message { get; set; }
             public IMessageChannel Channel => Message.Channel;
+            public IUser User { get; set; }
+            public Localization Localization { get; set; }
 
-            public IUser User { get; }
-            public IReaction Reaction { get; }
-            public ReactionEvent Event { get; }
-
-            public ReactionContext(IUserMessage message, IReaction reaction, IUser user, ReactionEvent eventType)
-            {
-                Message = message;
-                Reaction = reaction;
-                User = user;
-                Event = eventType;
-            }
+            public IReaction Reaction { get; set; }
+            public ReactionEvent Event { get; set; }
         }
     }
 }

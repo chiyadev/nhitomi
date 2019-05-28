@@ -7,6 +7,7 @@ using Discord;
 using Discord.WebSocket;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using nhitomi.Globalization;
 
 namespace nhitomi.Discord
 {
@@ -31,16 +32,18 @@ namespace nhitomi.Discord
     public class MessageHandlerService : IHostedService
     {
         readonly DiscordService _discord;
+        readonly LocalizationCache _localizationCache;
         readonly ILogger<MessageHandlerService> _logger;
 
         readonly IMessageHandler[] _messageHandlers;
 
         [SuppressMessage("ReSharper", "SuggestBaseTypeForParameter")]
-        public MessageHandlerService(DiscordService discord, ILogger<MessageHandlerService> logger,
-            CommandExecutor commandExecutor,
+        public MessageHandlerService(DiscordService discord, LocalizationCache localizationCache,
+            ILogger<MessageHandlerService> logger, CommandExecutor commandExecutor,
             GalleryUrlDetector galleryUrlDetector)
         {
             _discord = discord;
+            _localizationCache = localizationCache;
             _logger = logger;
 
             _messageHandlers = new IMessageHandler[]
@@ -82,7 +85,14 @@ namespace nhitomi.Discord
                 {
                     try
                     {
-                        var context = new MessageContext(message, eventType);
+                        // create context
+                        var context = new MessageContext
+                        {
+                            Client = _discord,
+                            Message = message,
+                            Event = eventType
+                        };
+                        context.Localization = _localizationCache[context];
 
                         foreach (var handler in _messageHandlers)
                             if (await handler.TryHandleAsync(context))
@@ -100,17 +110,13 @@ namespace nhitomi.Discord
 
         class MessageContext : IMessageContext
         {
-            public IUserMessage Message { get; }
+            public IDiscordClient Client { get; set; }
+            public IUserMessage Message { get; set; }
             public IMessageChannel Channel => Message.Channel;
             public IUser User => Message.Author;
+            public Localization Localization { get; set; }
 
-            public MessageEvent Event { get; }
-
-            public MessageContext(IUserMessage message, MessageEvent @event)
-            {
-                Message = message;
-                Event = @event;
-            }
+            public MessageEvent Event { get; set; }
         }
     }
 }
