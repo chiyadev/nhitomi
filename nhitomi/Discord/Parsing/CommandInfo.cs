@@ -46,10 +46,12 @@ namespace nhitomi.Discord.Parsing
             _nameRegex = new Regex(BuildNamePattern(method, Attribute), _options);
 
             // build parameter regex
-            var bindingExpression = method.GetCustomAttribute<BindingAttribute>()?.Expression ??
-                                    $"[{string.Join("] [", _parameters.Select(p => p.Name))}]";
+            var bindingExpression = method.GetCustomAttribute<BindingAttribute>()?.Expression;
 
-            _parameterRegex = new Regex(BuildParameterPattern(bindingExpression), _options);
+            if (bindingExpression == null && _parameters.Length != 0)
+                bindingExpression = $"[{string.Join("] [", _parameters.Select(p => p.Name))}]";
+
+            _parameterRegex = new Regex(BuildParameterPattern(bindingExpression ?? ""), _options);
 
             // build optional parameter regex
             _optionRegex = new Regex(BuildOptionPattern(_parameters), _options);
@@ -111,7 +113,7 @@ namespace nhitomi.Discord.Parsing
                 var part = parts[i];
 
                 // parameter binding
-                if (part.StartsWith('[') && part.EndsWith(']'))
+                if (part.Length > 2 && part.StartsWith('[') && part.EndsWith(']'))
                 {
                     var name = part.Substring(1, part.Length - 2);
 
@@ -177,13 +179,6 @@ namespace nhitomi.Discord.Parsing
 
         public bool TryParse(string str, out Dictionary<string, object> args)
         {
-            // optimization on commands with no parameters
-            if (_requiredParams == 0)
-            {
-                args = new Dictionary<string, object>();
-                return true;
-            }
-
             args = null;
 
             // match name
@@ -196,17 +191,20 @@ namespace nhitomi.Discord.Parsing
             var paramStr = hyphenIndex == -1 ? str : str.Substring(0, hyphenIndex);
             var optionStr = hyphenIndex == -1 ? null : str.Substring(hyphenIndex);
 
-            // match parameters
-            var paramMatch = _parameterRegex.Match(paramStr);
-            var paramGroups = paramMatch.Groups.Where(g => g.Success && g.Name != null).ToArray();
-
-            if (paramGroups.Length != _requiredParams)
-                return false;
-
             var argStrings = new Dictionary<string, string>();
 
-            foreach (var group in paramGroups)
-                argStrings[group.Name] = group.Value.Trim();
+            // match parameters
+            if (_requiredParams != 0 && !string.IsNullOrWhiteSpace(paramStr))
+            {
+                var paramMatch = _parameterRegex.Match(paramStr);
+                var paramGroups = paramMatch.Groups.Where(g => g.Success && g.Name != null).ToArray();
+
+                if (paramGroups.Length != _requiredParams)
+                    return false;
+
+                foreach (var group in paramGroups)
+                    argStrings[group.Name] = group.Value.Trim();
+            }
 
             // match options
             if (!string.IsNullOrWhiteSpace(optionStr))
