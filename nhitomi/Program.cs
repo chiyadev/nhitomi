@@ -1,3 +1,4 @@
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
@@ -14,6 +15,7 @@ namespace nhitomi
         {
             // build host
             using (var host = new HostBuilder()
+                .UseContentRoot(Environment.CurrentDirectory)
                 .ConfigureAppConfiguration(Startup.Configure)
                 .ConfigureServices(Startup.ConfigureServices)
                 .Build())
