@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
@@ -14,8 +13,9 @@ namespace nhitomi
             .Where(t => !t.IsAbstract && (t.IsClass || t.IsValueType) && typeof(T).IsAssignableFrom(t))
             .ToArray();
 
-        public static DependencyFactory<T> GetDependencyFactory<T>(this Type type)
+        public static DependencyFactory<T> GetDependencyFactory<T>()
         {
+            var type = typeof(T);
             var constructor = type.GetConstructors().FirstOrDefault();
 
             if (constructor == null)
@@ -56,9 +56,5 @@ namespace nhitomi
                 return (T) Activator.CreateInstance(type, arguments);
             };
         }
-
-        public static DependencyFactory<T>[] GetDependencyFactories<T>(this IEnumerable<Type> types) => types
-            .Select(GetDependencyFactory<T>)
-            .ToArray();
     }
 }
