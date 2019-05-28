@@ -51,7 +51,7 @@ namespace nhitomi.Discord
 
             // message has command prefix
             if (!context.Message.HasStringPrefix(_settings.Discord.Prefix, ref argIndex) &&
-                !context.Message.HasMentionPrefix(_discord.Socket.CurrentUser, ref argIndex))
+                !context.Message.HasMentionPrefix(context.Client.CurrentUser, ref argIndex))
                 return false;
 
             IResult result;
