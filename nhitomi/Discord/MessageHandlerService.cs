@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Discord;
+using Discord.Commands;
 using Discord.WebSocket;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -17,13 +18,19 @@ namespace nhitomi.Discord
         Task<bool> TryHandleAsync(MessageContext context, CancellationToken cancellationToken = default);
     }
 
-    public class MessageContext
+    public class MessageContext : ICommandContext
     {
+        public IDiscordClient Client { get; }
         public IUserMessage Message { get; }
         public MessageEvent Event { get; }
 
-        public MessageContext(IUserMessage message, MessageEvent @event)
+        IGuild ICommandContext.Guild => Message.Channel is IGuildChannel c ? c.Guild : null;
+        IMessageChannel ICommandContext.Channel => Message.Channel;
+        IUser ICommandContext.User => Message.Author;
+
+        public MessageContext(DiscordService discord, IUserMessage message, MessageEvent @event)
         {
+            Client = discord.Socket;
             Message = message;
             Event = @event;
         }
@@ -79,17 +86,17 @@ namespace nhitomi.Discord
         Task MessageUpdated(Cacheable<IMessage, ulong> _, SocketMessage message, IMessageChannel channel) =>
             HandleMessageAsync(message, MessageEvent.Edit);
 
-        Task HandleMessageAsync(SocketMessage message, MessageEvent eventType)
+        Task HandleMessageAsync(SocketMessage socketMessage, MessageEvent eventType)
         {
-            if (message is SocketUserMessage userMessage &&
-                message.Author.Id != _discord.Socket.CurrentUser.Id)
+            if (socketMessage is IUserMessage message &&
+                socketMessage.Author.Id != _discord.Socket.CurrentUser.Id)
             {
                 // handle on another thread to not block the gateway thread
                 _ = Task.Run(async () =>
                 {
                     try
                     {
-                        var context = new MessageContext(userMessage, eventType);
+                        var context = new MessageContext(_discord, message, eventType);
 
                         foreach (var handler in _messageHandlers)
                             if (await handler.TryHandleAsync(context))

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Discord;
+using Discord.Commands;
 using Discord.WebSocket;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -18,20 +19,25 @@ namespace nhitomi.Discord
         Task<bool> TryHandleAsync(ReactionContext context, CancellationToken cancellationToken = default);
     }
 
-    public class ReactionContext
+    public class ReactionContext : ICommandContext
     {
+        public IDiscordClient Client { get; }
         public IUserMessage Message { get; }
-
         public IUser User { get; }
         public IReaction Reaction { get; }
         public ReactionEvent Event { get; }
 
-        public ReactionContext(IUserMessage message, IReaction reaction, IUser user, ReactionEvent @event)
+        IGuild ICommandContext.Guild => Message.Channel is IGuildChannel c ? c.Guild : null;
+        IMessageChannel ICommandContext.Channel => Message.Channel;
+
+        public ReactionContext(DiscordService discord, IUserMessage message, IReaction reaction, IUser user,
+            ReactionEvent eventType)
         {
+            Client = discord.Socket;
             Message = message;
             Reaction = reaction;
             User = user;
-            Event = @event;
+            Event = eventType;
         }
     }
 
@@ -103,7 +109,7 @@ namespace nhitomi.Discord
                             ? reaction.User.Value
                             : await channel.GetUserAsync(reaction.UserId);
 
-                        var context = new ReactionContext(message, reaction, user, eventType);
+                        var context = new ReactionContext(_discord, message, reaction, user, eventType);
 
                         foreach (var handler in _reactionHandlers)
                             if (await handler.TryHandleAsync(context))

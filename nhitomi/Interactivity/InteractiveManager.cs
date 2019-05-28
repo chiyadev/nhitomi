@@ -85,8 +85,6 @@ namespace nhitomi.Interactivity
 
         public async Task<bool> TryHandleAsync(ReactionContext context, CancellationToken cancellationToken = default)
         {
-            var commandContext = new DiscordContext(_discord, context);
-
             var message = context.Message;
             var reaction = context.Reaction;
 
@@ -115,14 +113,14 @@ namespace nhitomi.Interactivity
                 }
 
                 using (var scope = _services.CreateScope())
-                    await trigger.RunAsync(scope.ServiceProvider, commandContext, interactive, cancellationToken);
+                    return await trigger.RunAsync(scope.ServiceProvider, context, interactive, cancellationToken);
             }
             catch (Exception e)
             {
                 _logger.LogWarning(e, "Exception while handling reaction {0} by for message {1}.",
                     reaction.Emote.Name, message.Id);
 
-                await SendInteractiveAsync(new ErrorMessage(e), commandContext, cancellationToken);
+                await SendInteractiveAsync(new ErrorMessage(e), context, cancellationToken);
             }
 
             return true;

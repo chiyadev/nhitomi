@@ -77,10 +77,7 @@ namespace nhitomi.Discord
                     .GetDoujinsAsync(ids);
 
                 // send interactive
-                await _interactive.SendInteractiveAsync(
-                    new DoujinListMessage(doujins),
-                    new DiscordContext(_discord, context),
-                    cancellationToken);
+                await _interactive.SendInteractiveAsync(new DoujinListMessage(doujins), context, cancellationToken);
             }
 
             return true;

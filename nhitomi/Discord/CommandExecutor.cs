@@ -59,10 +59,8 @@ namespace nhitomi.Discord
             // dependency scope
             using (var scope = _services.CreateScope())
             {
-                var commandContext = new DiscordContext(_discord, context);
-
                 // execute command
-                result = await _discord.Command.ExecuteAsync(commandContext, argIndex, scope.ServiceProvider);
+                result = await _discord.Command.ExecuteAsync(context, argIndex, scope.ServiceProvider);
             }
 
             // check for any errors during command execution
@@ -73,10 +71,7 @@ namespace nhitomi.Discord
                 _logger.LogWarning(e, "Exception while handling message {0}.", context.Message.Id);
 
                 // notify the user about this error
-                await _interactive.SendInteractiveAsync(
-                    new ErrorMessage(e),
-                    new DiscordContext(_discord, context),
-                    cancellationToken);
+                await _interactive.SendInteractiveAsync(new ErrorMessage(e), context, cancellationToken);
             }
 
             return true;
