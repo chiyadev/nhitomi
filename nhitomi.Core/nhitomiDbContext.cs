@@ -46,6 +46,7 @@ namespace nhitomi.Core
         public DbSet<Page> Pages { get; set; }
         public DbSet<Collection> Collections { get; set; }
         public DbSet<User> Users { get; set; }
+        public DbSet<Guild> Guilds { get; set; }
 
         public nhitomiDbContext(DbContextOptions options) : base(options)
         {
