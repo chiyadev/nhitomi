@@ -16,22 +16,22 @@ namespace nhitomi.Localization
         public static Localization GetLocalization(CultureInfo culture) =>
             _localizations.TryGetValue(culture, out var localization) ? localization : null;
 
-        readonly Lazy<LocalizationDictionary> _lazyDict;
+        readonly Lazy<LocalizationDictionary> _dict;
 
         protected abstract CultureInfo Culture { get; }
         protected abstract CultureInfo FallbackCulture { get; }
 
-        public LocalizationDictionary Dictionary => _lazyDict.Value;
+        public LocalizationCategory this[string key] => _dict.Value[key];
 
         protected Localization()
         {
-            _lazyDict = new Lazy<LocalizationDictionary>(LoadDictionary);
+            _dict = new Lazy<LocalizationDictionary>(LoadDictionary);
         }
 
         LocalizationDictionary LoadDictionary()
         {
             var fallback = GetLocalization(FallbackCulture);
-            var dict = new LocalizationDictionary(fallback?.Dictionary);
+            var dict = new LocalizationDictionary(fallback?._dict.Value);
 
             dict.AddDefinition(CreateDefinition());
 
