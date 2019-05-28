@@ -30,6 +30,7 @@ namespace nhitomi.Core
             QueryFilterDelegate<Doujin> query, CancellationToken cancellationToken = default);
 
         Task<User> GetUserAsync(ulong userId, CancellationToken cancellationToken = default);
+        Task<Guild> GetGuildAsync(ulong guildId, CancellationToken cancellationToken = default);
     }
 
     public class nhitomiDbContext : DbContext, IDatabase
@@ -163,6 +164,25 @@ namespace nhitomi.Core
             }
 
             return user;
+        }
+
+        public async Task<Guild> GetGuildAsync(ulong guildId, CancellationToken cancellationToken = default)
+        {
+            var guild = await Query<Guild>()
+                .FirstOrDefaultAsync(u => u.Id == guildId, cancellationToken);
+
+            if (guild == null)
+            {
+                // create entity for this guild
+                guild = new Guild
+                {
+                    Id = guildId
+                };
+
+                Add(guild);
+            }
+
+            return guild;
         }
     }
 
