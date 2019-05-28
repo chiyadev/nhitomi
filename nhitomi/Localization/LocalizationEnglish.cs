@@ -16,6 +16,25 @@ namespace nhitomi.Localization
                     "phosphene47"
                 }
             },
+            messages = new
+            {
+                doujinNotFound = "**nhitomi**: No such doujin!",
+                invalidQuery = "**nhitomi**: Please specify your query.",
+                joinForDownload = "**nhitomi**: Please join our server to enable downloading! <{invite}>",
+
+                listBeginning = "**nhitomi**: Beginning of the list!",
+                listEnd = "**nhitomi**: End of the list!",
+                emptyList = "**nhitomi**: No results!",
+
+                collectionNotFound = "**nhitomi**: No such collection!",
+                collectionDeleted = "**nhitomi**: Deleted collection `{collection.Name}`.",
+
+                addedToCollection = "**nhitomi**: Added `{doujin.Name}` to collection `{collection.Name}`.",
+                removedFromCollection = "**nhitomi**: Removed `{doujin.Name}` from collection `{collection.Name`.",
+                collectionSorted = "**nhitomi**: Updated collection sorting attribute to `{attribute}`.",
+                invalidCollectionSort = "**nhitomi**: Could not sort collection by attribute `{attribute}`. " +
+                                        "Please refer to **{prefix}help**."
+            },
             doujinMessage = new
             {
                 langage = "Language",
