@@ -10,6 +10,8 @@ namespace nhitomi.Core
 
         public ICollection<Collection> Collections { get; set; }
 
+        public string Language { get; set; }
+
         public static void Describe(ModelBuilder model)
         {
         }
