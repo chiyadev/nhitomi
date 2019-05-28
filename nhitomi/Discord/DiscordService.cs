@@ -24,7 +24,6 @@ namespace nhitomi.Discord
         {
             _settings = options.Value;
 
-            //todo: sharding
             Socket = new DiscordSocketClient(_settings.Discord);
             Command = new CommandService(_settings.Discord.Command);
         }
