@@ -80,6 +80,11 @@ namespace nhitomi.Localization
                     license = "This project is licensed under the MIT License.",
                     contribution = "Contributions are welcome! <{repoUrl}>"
                 }
+            },
+            sourceIcons = new
+            {
+                nhentai = "https://cdn.cybrhome.com/media/website/live/icon/icon_nhentai.net_57f740.png",
+                hitomi = "https://ltn.hitomi.la/favicon-160x160.png"
             }
         };
     }
