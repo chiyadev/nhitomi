@@ -74,7 +74,7 @@ namespace nhitomi.Discord
 
             try
             {
-                var content = _settings.Discord.Prefix;
+                var content = context.Message.Content;
 
                 // message has command prefix
                 if (!content.StartsWith(_settings.Discord.Prefix))
