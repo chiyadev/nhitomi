@@ -4,6 +4,7 @@
 // https://opensource.org/licenses/MIT
 
 using System.Threading.Tasks;
+using nhitomi.Discord;
 using nhitomi.Discord.Parsing;
 using nhitomi.Interactivity;
 
@@ -12,14 +13,16 @@ namespace nhitomi.Modules
     [Module("help", IsPrefixed = false)]
     public class HelpModule
     {
+        readonly IDiscordContext _context;
         readonly InteractiveManager _interactive;
 
-        public HelpModule(InteractiveManager interactive)
+        public HelpModule(IDiscordContext context, InteractiveManager interactive)
         {
+            _context = context;
             _interactive = interactive;
         }
 
         [Command("help")]
-        public Task HelpAsync() => _interactive.SendInteractiveAsync(new HelpMessage(), Context);
+        public Task HelpAsync() => _interactive.SendInteractiveAsync(new HelpMessage(), _context);
     }
 }
