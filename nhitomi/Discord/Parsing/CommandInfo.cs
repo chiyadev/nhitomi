@@ -5,7 +5,6 @@ using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using nhitomi.Core;
 
 namespace nhitomi.Discord.Parsing
 {
@@ -120,7 +119,7 @@ namespace nhitomi.Discord.Parsing
                     if (name.EndsWith('+'))
                         builder
                             .Append(@"(?<")
-                            .Append(name.SubstringFromEnd(1))
+                            .Append(name.Remove(name.Length - 1))
                             .Append(@">.+)");
                     else
                         builder
