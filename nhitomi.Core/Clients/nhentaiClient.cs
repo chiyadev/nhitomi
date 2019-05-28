@@ -76,12 +76,8 @@ namespace nhitomi.Core.Clients
 
     public sealed class nhentaiClient : IDoujinClient
     {
-        public DoujinClientInfo Info => new DoujinClientInfo
-        {
-            Name = nameof(nhentai),
-            Url = "https://nhentai.net/",
-            IconUrl = "https://cdn.cybrhome.com/media/website/live/icon/icon_nhentai.net_57f740.png"
-        };
+        public string Name => nameof(nhentai);
+        public string Url => "https://nhentai.net/";
 
         readonly IHttpClient _http;
         readonly JsonSerializer _json;
@@ -119,7 +115,7 @@ namespace nhitomi.Core.Clients
 
                 UploadTime = DateTimeOffset.FromUnixTimeSeconds(data.UploadDate).UtcDateTime,
 
-                Source = Info,
+                Source = this,
                 SourceId = id,
 
                 Artist = data.Tags?.FirstOrDefault(t => t.Type == "artist").Name,

@@ -52,7 +52,7 @@ namespace nhitomi.Core
             .Select(x => x.Select(v => v.Value));
 
         public static IDoujinClient FindByName(this IEnumerable<IDoujinClient> clients, string name) =>
-            clients.FirstOrDefault(c => c.Info.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
+            clients.FirstOrDefault(c => c.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
 
         public static void Destructure<T>(this T[] items, out T t0, out T t1)
         {

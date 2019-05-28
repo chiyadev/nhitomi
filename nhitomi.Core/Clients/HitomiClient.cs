@@ -51,12 +51,8 @@ namespace nhitomi.Core.Clients
 
     public sealed class HitomiClient : IDoujinClient
     {
-        public DoujinClientInfo Info => new DoujinClientInfo
-        {
-            Name = nameof(Hitomi),
-            Url = "https://hitomi.la/",
-            IconUrl = "https://ltn.hitomi.la/favicon-160x160.png"
-        };
+        public string Name => nameof(Hitomi);
+        public string Url => "https://hitomi.la/";
 
         readonly IHttpClient _http;
         readonly JsonSerializer _json;
@@ -109,7 +105,7 @@ namespace nhitomi.Core.Clients
 
                 UploadTime = DateTime.Parse(Sanitize(root.SelectSingleNode(Hitomi.XPath.Date))),
 
-                Source = Info,
+                Source = this,
                 SourceId = id,
 
                 Artist = Sanitize(root.SelectSingleNode(Hitomi.XPath.Artists)),
