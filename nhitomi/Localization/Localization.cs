@@ -23,7 +23,7 @@ namespace nhitomi.Localization
         readonly Lazy<LocalizationDictionary> _dict;
 
         protected abstract CultureInfo Culture { get; }
-        protected abstract CultureInfo FallbackCulture { get; }
+        protected virtual CultureInfo FallbackCulture => Default.Culture;
 
         public LocalizationCategory this[string key] => _dict.Value[key];
 

@@ -5,7 +5,6 @@ namespace nhitomi.Localization
     public class KoreanLocalization : Localization
     {
         protected override CultureInfo Culture { get; } = new CultureInfo("ko");
-        protected override CultureInfo FallbackCulture { get; } = new CultureInfo("en");
 
         protected override object CreateDefinition() => new
         {
