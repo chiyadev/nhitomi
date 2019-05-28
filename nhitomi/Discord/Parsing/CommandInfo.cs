@@ -11,6 +11,8 @@ namespace nhitomi.Discord.Parsing
 {
     public class CommandInfo
     {
+        public readonly CommandAttribute Attribute;
+
         readonly MethodBase _method;
         readonly DependencyFactory<object> _moduleFactory;
 
@@ -32,11 +34,12 @@ namespace nhitomi.Discord.Parsing
                 throw new ArgumentException($"{method} is not asynchronous.");
 
             // build name regex
-            var attr = method.GetCustomAttribute<CommandAttribute>();
-            if (attr == null)
+            Attribute = method.GetCustomAttribute<CommandAttribute>();
+
+            if (Attribute == null)
                 throw new ArgumentException($"{method} is not a command.");
 
-            _nameRegex = new Regex(BuildNamePattern(method, attr), _options);
+            _nameRegex = new Regex(BuildNamePattern(method, Attribute), _options);
 
             // build parameter regex
             var bindingExpression = method.GetCustomAttribute<BindingAttribute>()?.Expression ??
