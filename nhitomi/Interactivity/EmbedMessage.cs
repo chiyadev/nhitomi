@@ -52,7 +52,7 @@ namespace nhitomi.Interactivity
                 if (EmbedMessage.Message == null)
                     EmbedMessage.Message = await Context.Channel.SendMessageAsync(content);
                 else
-                    await EmbedMessage.Message.ModifyAsync(m => m.Content = content);
+                    await EmbedMessage.Message.ModifyAsync(m => m.Content = content ?? "");
             }
 
             protected async Task SetEmbedAsync(Embed embed, CancellationToken cancellationToken = default)
