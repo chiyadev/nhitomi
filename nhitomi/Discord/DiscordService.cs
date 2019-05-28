@@ -14,6 +14,7 @@ namespace nhitomi.Discord
 {
     public interface IDiscordContext
     {
+        IDiscordClient Client { get; }
         IUserMessage Message { get; }
         IMessageChannel Channel { get; }
 
