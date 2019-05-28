@@ -35,8 +35,6 @@ namespace nhitomi.Discord
             if (Socket.LoginState != LoginState.LoggedOut)
                 return;
 
-            _logger.LogDebug("Login started.");
-
             // login
             await Socket.LoginAsync(TokenType.Bot, _settings.Discord.Token);
             await Socket.StartAsync();
