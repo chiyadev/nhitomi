@@ -28,10 +28,10 @@ namespace nhitomi.Localization
 
                 collectionNotFound = "**nhitomi**: No such collection!",
                 collectionDeleted = "**nhitomi**: Deleted collection `{collection.Name}`.",
+                collectionSorted = "**nhitomi**: Updated collection sorting attribute to `{attribute}`.",
 
                 addedToCollection = "**nhitomi**: Added `{doujin.Name}` to collection `{collection.Name}`.",
                 removedFromCollection = "**nhitomi**: Removed `{doujin.Name}` from collection `{collection.Name`.",
-                collectionSorted = "**nhitomi**: Updated collection sorting attribute to `{attribute}`.",
                 invalidCollectionSort = "**nhitomi**: Could not sort collection by attribute `{attribute}`. " +
                                         "Please refer to **{prefix}help**."
             },
