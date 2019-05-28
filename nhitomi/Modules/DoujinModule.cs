@@ -8,8 +8,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
 using nhitomi.Core;
+using nhitomi.Discord;
 using nhitomi.Discord.Parsing;
-using nhitomi.Globalization;
 using nhitomi.Interactivity;
 
 namespace nhitomi.Modules
@@ -21,28 +21,26 @@ namespace nhitomi.Modules
         readonly AppSettings _settings;
         readonly IDatabase _database;
         readonly InteractiveManager _interactive;
-        readonly ILocalization _localization;
 
         public DoujinModule(IDiscordContext context, IOptions<AppSettings> options, IDatabase database,
-            InteractiveManager interactive, ILocalization localization)
+            InteractiveManager interactive)
         {
             _context = context;
             _settings = options.Value;
             _database = database;
             _interactive = interactive;
-            _localization = localization;
         }
 
         [Command("get")]
         public async Task GetAsync(string source, string id)
         {
-            using (_context.Channel.EnterTypingState())
+            using (_context.BeginTyping())
             {
                 var doujin = await _database.GetDoujinAsync(source, id);
 
                 if (doujin == null)
                 {
-                    await ReplyAsync(_localization[_context]["messages.doujinNotFound"]);
+                    await _context.ReplyAsync("messages.doujinNotFound");
                     return;
                 }
 
@@ -53,7 +51,7 @@ namespace nhitomi.Modules
         [Command("from")]
         public async Task FromAsync(string source)
         {
-            using (_context.Channel.EnterTypingState())
+            using (_context.BeginTyping())
             {
                 IAsyncEnumerable<Doujin> enumerate(IDatabase db, int offset) => db.EnumerateDoujinsAsync(x =>
                 {
@@ -75,11 +73,11 @@ namespace nhitomi.Modules
         {
             if (string.IsNullOrEmpty(query))
             {
-                await ReplyAsync(_localization[_context]["messages.invalidQuery"]);
+                await _context.ReplyAsync("messages.invalidQuery");
                 return;
             }
 
-            using (_context.Channel.EnterTypingState())
+            using (_context.BeginTyping())
             {
                 IAsyncEnumerable<Doujin> enumerate(IDatabase db, int offset) => db.EnumerateDoujinsAsync(x =>
                     x.FullTextSearch(_database, query,
@@ -95,7 +93,7 @@ namespace nhitomi.Modules
         {
             Doujin doujin;
 
-            using (_context.Channel.EnterTypingState())
+            using (_context.BeginTyping())
             {
                 // allow downloading only for users of guild
                 if (!_settings.Doujin.AllowNonGuildMemberDownloads)
@@ -105,7 +103,7 @@ namespace nhitomi.Modules
                     // guild user is null; user is not in guild
                     if (await guild.GetUserAsync(_context.User.Id) == null)
                     {
-                        await _context.User.SendMessageAsync(_localization[_context]["messages.joinForDownload"]);
+                        await _context.ReplyAsync("messages.joinForDownload");
                         return;
                     }
                 }
@@ -114,7 +112,7 @@ namespace nhitomi.Modules
 
                 if (doujin == null)
                 {
-                    await ReplyAsync(_localization[_context]["messages.doujinNotFound"]);
+                    await _context.ReplyAsync("messages.doujinNotFound");
                     return;
                 }
             }
