@@ -25,7 +25,7 @@ namespace nhitomi.Globalization
         protected abstract CultureInfo Culture { get; }
         protected virtual CultureInfo FallbackCulture => Default.Culture;
 
-        public LocalizationCategory this[string key] => _dict.Value[key];
+        public string this[string key] => _dict.Value[key];
 
         protected Localization()
         {

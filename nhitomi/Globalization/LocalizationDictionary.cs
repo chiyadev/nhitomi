@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using SmartFormat;
 
 namespace nhitomi.Globalization
 {
@@ -50,13 +49,7 @@ namespace nhitomi.Globalization
             }
         }
 
-        string IReadOnlyDictionary<string, string>.this[string key] => GetValue(key);
-
-        public LocalizationCategory this[string key] =>
-            new LocalizationCategory(this, key);
-
-        public LocalizationCategory this[params string[] keys] =>
-            new LocalizationCategory(this, string.Join('.', keys));
+        public string this[string key] => TryGetValue(FixKey(key), out var value) ? value : $"`{key}`";
 
         public int Count => _dict.Count;
 
@@ -64,8 +57,6 @@ namespace nhitomi.Globalization
         public IEnumerable<string> Values => _dict.Values;
 
         public bool ContainsKey(string key) => _dict.ContainsKey(FixKey(key));
-
-        public string GetValue(string key) => TryGetValue(FixKey(key), out var value) ? value : $"`{key}`";
 
         public bool TryGetValue(string key, out string value)
         {
@@ -84,34 +75,5 @@ namespace nhitomi.Globalization
             _dict.Select(x => new KeyValuePair<string, string>(FixKey(x.Key), x.Value)).GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-    }
-
-    public sealed class LocalizationCategory
-    {
-        readonly LocalizationDictionary _dict;
-        readonly string _path;
-
-        public LocalizationCategory(LocalizationDictionary dict, string name, LocalizationCategory parent = null)
-        {
-            if (string.IsNullOrEmpty(name))
-                throw new ArgumentException("Value cannot be null or empty.", nameof(name));
-
-            _dict = dict;
-            _path = parent == null
-                ? name
-                : $"{parent._path}.{name}";
-        }
-
-        public LocalizationCategory this[string key] =>
-            new LocalizationCategory(_dict, key, this);
-
-        public LocalizationCategory this[params string[] keys] =>
-            new LocalizationCategory(_dict, string.Join('.', keys), this);
-
-        public string Value(object substitution) => Smart.Format(this, substitution);
-
-        public override string ToString() => _dict.GetValue(_path);
-
-        public static implicit operator string(LocalizationCategory category) => category.ToString();
     }
 }
