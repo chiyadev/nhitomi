@@ -5,13 +5,10 @@ namespace nhitomi
 {
     public delegate T DependencyFactory<out T>(IServiceProvider services);
 
-    public static class DependencyUtility<T>
+    public static class DependencyUtility
     {
-        public static DependencyFactory<T> Factory { get; }
-
-        static DependencyUtility()
+        public static DependencyFactory<object> CreateFactory(Type type)
         {
-            var type = typeof(T);
             var constructor = type.GetConstructors().FirstOrDefault();
 
             if (constructor == null)
@@ -28,7 +25,7 @@ namespace nhitomi
                 })
                 .ToArray();
 
-            Factory = s =>
+            return s =>
             {
                 var arguments = new object[parameters.Length];
 
@@ -49,8 +46,15 @@ namespace nhitomi
                     arguments[i] = argument;
                 }
 
-                return (T) Activator.CreateInstance(type, arguments);
+                return Activator.CreateInstance(type, arguments);
             };
         }
+    }
+
+    public static class DependencyUtility<T>
+    {
+        static readonly DependencyFactory<object> _factory = DependencyUtility.CreateFactory(typeof(T));
+
+        public static DependencyFactory<T> Factory => s => (T) _factory(s);
     }
 }
