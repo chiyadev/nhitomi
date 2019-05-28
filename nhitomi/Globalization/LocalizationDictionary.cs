@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using SmartFormat;
 
 namespace nhitomi.Globalization
 {
@@ -106,6 +107,8 @@ namespace nhitomi.Globalization
 
         public LocalizationCategory this[params string[] keys] =>
             new LocalizationCategory(_dict, string.Join('.', keys), this);
+
+        public string Value(object substitution) => Smart.Format(this, substitution);
 
         public override string ToString() => _dict.GetValue(_path);
 
