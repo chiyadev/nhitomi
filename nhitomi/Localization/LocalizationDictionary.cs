@@ -96,7 +96,11 @@ namespace nhitomi.Localization
                 : $"{parent._path}.{name}";
         }
 
-        public LocalizationCategory this[string key] => new LocalizationCategory(_dict, key, this);
+        public LocalizationCategory this[string key] =>
+            new LocalizationCategory(_dict, key, this);
+
+        public LocalizationCategory this[params string[] keys] =>
+            new LocalizationCategory(_dict, string.Join('.', keys), this);
 
         public override string ToString() => _dict.GetValue(_path);
 
