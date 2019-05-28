@@ -9,24 +9,26 @@ namespace nhitomi.Globalization
 
     public class LocalizationPath
     {
-        readonly string[] _paths;
+        readonly string[] _levels;
 
         public LocalizationPath(params string[] paths) : this((IEnumerable<string>) paths)
         {
         }
 
-        public LocalizationPath(IEnumerable<string> paths)
+        public LocalizationPath(IEnumerable<string> paths) : this(string.Join('.', paths))
         {
-            _paths = string
-                .Join('.', paths)
-                .Split('.', StringSplitOptions.RemoveEmptyEntries);
         }
 
-        public LocalizationPath Up => new LocalizationPath(_paths.SkipLast(1));
+        public LocalizationPath(string path)
+        {
+            _levels = path.Split('.', StringSplitOptions.RemoveEmptyEntries);
+        }
 
-        public LocalizationPath this[string key] => new LocalizationPath(_paths.Append(key));
+        public LocalizationPath Up => new LocalizationPath(_levels.SkipLast(1));
 
-        string FullPath => string.Join('.', _paths);
+        public LocalizationPath this[string key] => new LocalizationPath(_levels.Append(key));
+
+        string FullPath => string.Join('.', _levels);
 
         public LocalizationFormatter this[Localization localization]
         {
@@ -37,5 +39,7 @@ namespace nhitomi.Globalization
                 return v => v == null ? template : Smart.Format(template, v);
             }
         }
+
+        public static implicit operator LocalizationPath(string path) => new LocalizationPath(path);
     }
 }
