@@ -73,6 +73,7 @@ namespace nhitomi.Discord
 
             using (var scope = _services.CreateScope())
             {
+                //todo: avoid service locator?
                 var doujins = scope.ServiceProvider.GetRequiredService<IDatabase>().GetDoujinsAsync(ids);
 
                 // send interactive
