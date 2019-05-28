@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Discord;
 using nhitomi.Core;
+using nhitomi.Globalization;
 using nhitomi.Interactivity.Triggers;
 
 namespace nhitomi.Interactivity
@@ -38,39 +39,39 @@ namespace nhitomi.Interactivity
         {
             public Doujin Doujin;
 
-            protected override Embed CreateEmbed() => CreateEmbed(Doujin);
+            readonly ILocalization _localization;
 
-            public static Embed CreateEmbed(Doujin doujin)
+            public View(ILocalization localization)
             {
+                _localization = localization;
+            }
+
+            protected override Embed CreateEmbed() => CreateEmbed(Doujin, _localization[Context]);
+
+            public static Embed CreateEmbed(Doujin doujin, Localization localization)
+            {
+                var local = localization["doujinMessage"];
+
                 var embed = new EmbedBuilder()
                     .WithTitle(doujin.OriginalName ?? doujin.PrettyName)
                     .WithDescription(doujin.OriginalName == doujin.PrettyName ? null : doujin.PrettyName)
                     .WithAuthor(a => a
                         .WithName(doujin.Artist.Value ?? doujin.Source)
-                        .WithIconUrl(doujin.Source.IconUrl))
+                        .WithIconUrl(local["sourceIcons"][doujin.Source]))
                     .WithUrl(doujin.GalleryUrl)
                     .WithImageUrl(doujin.Pages.First().Url)
                     .WithColor(Color.Green)
                     .WithFooter($"{doujin.Source}/{doujin.SourceId}");
 
-                AddField(embed, "Language", doujin.Language?.Value, true);
-                AddField(embed, "Group", doujin.Group?.Value, true);
-                AddField(embed, "Parody of", doujin.ParodyOf?.Value, true);
-                AddField(embed, "Categories", Join(doujin.Categories?.Select(x => x.Tag.Value)), true);
-                AddField(embed, "Characters", Join(doujin.Characters?.Select(x => x.Tag.Value)), true);
-                AddField(embed, "Tags", Join(doujin.Tags?.Select(x => x.Tag.Value)), true);
-                AddField(embed, "Content", $"{doujin.Pages.Count} pages", true);
+                AddField(embed, local["language"], doujin.Language?.Value);
+                AddField(embed, local["group"], doujin.Group?.Value);
+                AddField(embed, local["parodyOf"], doujin.ParodyOf?.Value);
+                AddField(embed, local["categories"], doujin.Categories?.Select(x => x.Tag.Value));
+                AddField(embed, local["characters"], doujin.Characters?.Select(x => x.Tag.Value));
+                AddField(embed, local["tags"], doujin.Tags?.Select(x => x.Tag.Value));
+                AddField(embed, local["content"], $"{doujin.Pages.Count} pages");
 
                 return embed.Build();
-            }
-
-            static string Join(IEnumerable<string> values)
-            {
-                var array = values?.ToArray();
-
-                return array == null || array.Length == 0
-                    ? null
-                    : string.Join(", ", array);
             }
 
             static void AddField(EmbedBuilder builder, string name, string value, bool inline = false)
@@ -78,7 +79,17 @@ namespace nhitomi.Interactivity
                 if (string.IsNullOrWhiteSpace(value))
                     return;
 
-                builder.AddField(name, value, inline);
+                builder.AddField(name.Trim(), value.Trim(), inline);
+            }
+
+            static void AddField(EmbedBuilder builder, string name, IEnumerable<string> values, bool inline = true)
+            {
+                var array = values?.ToArray();
+
+                if (array == null || array.Length == 0)
+                    return;
+
+                AddField(builder, name, string.Join(", ", array), inline);
             }
         }
 
