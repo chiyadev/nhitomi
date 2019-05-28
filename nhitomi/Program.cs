@@ -16,6 +16,7 @@ namespace nhitomi
             // build host
             using (var host = new HostBuilder()
                 .UseContentRoot(Environment.CurrentDirectory)
+                .UseEnvironment(Environment.GetEnvironmentVariable("ENVIRONMENT") ?? EnvironmentName.Development)
                 .ConfigureAppConfiguration(Startup.Configure)
                 .ConfigureServices(Startup.ConfigureServices)
                 .Build())
