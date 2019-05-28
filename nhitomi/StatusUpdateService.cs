@@ -7,12 +7,12 @@ using nhitomi.Discord;
 
 namespace nhitomi
 {
-    public class StatusUpdater : BackgroundService
+    public class StatusUpdateService : BackgroundService
     {
         readonly AppSettings _settings;
         readonly DiscordService _discord;
 
-        public StatusUpdater(IOptions<AppSettings> options, DiscordService discord)
+        public StatusUpdateService(IOptions<AppSettings> options, DiscordService discord)
         {
             _settings = options.Value;
             _discord = discord;

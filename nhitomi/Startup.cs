@@ -62,7 +62,7 @@ namespace nhitomi
                 .AddSingleton<ILocalization, LocalizationCache>()
                 .AddHostedService<MessageHandlerService>()
                 .AddHostedService<ReactionHandlerService>()
-                .AddHostedService<StatusUpdater>()
+                .AddHostedService<StatusUpdateService>()
                 .AddHostedService<DiscordLocalizationService>();
 
             // http server
