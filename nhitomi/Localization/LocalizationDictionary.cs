@@ -50,7 +50,12 @@ namespace nhitomi.Localization
         }
 
         string IReadOnlyDictionary<string, string>.this[string key] => GetValue(key);
-        public LocalizationCategory this[string key] => new LocalizationCategory(this, key);
+
+        public LocalizationCategory this[string key] =>
+            new LocalizationCategory(this, key);
+
+        public LocalizationCategory this[params string[] keys] =>
+            new LocalizationCategory(this, string.Join('.', keys));
 
         public int Count => _dict.Count;
 
