@@ -2,7 +2,7 @@ using System.Globalization;
 
 namespace nhitomi.Localization
 {
-    public class LocalizationKorean : Localization
+    public class KoreanLocalization : Localization
     {
         protected override CultureInfo Culture { get; } = new CultureInfo("ko");
         protected override CultureInfo FallbackCulture { get; } = new CultureInfo("en");
