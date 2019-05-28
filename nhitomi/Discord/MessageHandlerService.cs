@@ -112,7 +112,7 @@ namespace nhitomi.Discord
         {
             public IDiscordClient Client { get; set; }
             public IUserMessage Message { get; set; }
-            public IMessageChannel Channel => Message.Channel;
+            public IMessageChannel Channel => Message?.Channel;
             public IUser User => Message.Author;
             public Localization Localization { get; set; }
 
