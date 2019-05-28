@@ -15,7 +15,7 @@ namespace nhitomi
             var constructor = type.GetConstructors().FirstOrDefault();
 
             if (constructor == null)
-                throw new ArgumentException($"Type {type} does not have an injectable constructor");
+                throw new ArgumentException($"{type} does not have an injectable constructor");
 
             var parameters = constructor
                 .GetParameters()
@@ -41,7 +41,7 @@ namespace nhitomi
                     {
                         if (!parameter.optional)
                             throw new InvalidOperationException(
-                                $"Could not inject dependency {parameter.name} ({parameter.type}) of {type}.");
+                                $"Unable to resolve service for parameter'{parameter.name}' ({parameter.type}) while attempting to activate '{type}'.");
 
                         argument = parameter.defaultValue;
                     }
