@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Discord.Commands;
+using Discord;
 using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -15,23 +15,23 @@ namespace nhitomi.Globalization
 {
     public interface ILocalization
     {
-        void EnqueueRefresh(ICommandContext context);
+        void EnqueueRefresh(IDiscordContext context);
 
-        Localization this[ICommandContext context] { get; }
+        Localization this[IDiscordContext context] { get; }
     }
 
     public class LocalizationCache : ConcurrentDictionary<ulong, Localization>, ILocalization
     {
         public readonly ConcurrentQueue<ulong> RefreshQueue = new ConcurrentQueue<ulong>();
 
-        public void EnqueueRefresh(ICommandContext context)
+        public void EnqueueRefresh(IDiscordContext context)
         {
-            if (context.Guild != null)
-                RefreshQueue.Enqueue(context.Guild.Id);
+            if (context.Channel is IGuildChannel channel && channel.Guild != null)
+                RefreshQueue.Enqueue(channel.Guild.Id);
         }
 
-        public Localization this[ICommandContext context] =>
-            TryGetValue(context.Guild?.Id ?? 0, out var localization)
+        public Localization this[IDiscordContext context] =>
+            context.Channel is IGuildChannel channel && TryGetValue(channel.Guild?.Id ?? 0, out var localization)
                 ? localization
                 : Localization.Default;
     }

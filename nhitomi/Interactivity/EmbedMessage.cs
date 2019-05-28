@@ -2,7 +2,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Discord;
-using Discord.Commands;
+using nhitomi.Discord;
 
 namespace nhitomi.Interactivity
 {
@@ -10,7 +10,7 @@ namespace nhitomi.Interactivity
     {
         IUserMessage Message { get; }
 
-        Task<bool> UpdateViewAsync(IServiceProvider services, ICommandContext context,
+        Task<bool> UpdateViewAsync(IServiceProvider services, IDiscordContext context,
             CancellationToken cancellationToken = default);
     }
 
@@ -21,7 +21,7 @@ namespace nhitomi.Interactivity
 
         static readonly DependencyFactory<TView> _viewFactory = DependencyUtility<TView>.Factory;
 
-        public virtual Task<bool> UpdateViewAsync(IServiceProvider services, ICommandContext context,
+        public virtual Task<bool> UpdateViewAsync(IServiceProvider services, IDiscordContext context,
             CancellationToken cancellationToken = default)
         {
             // create view object
@@ -43,7 +43,7 @@ namespace nhitomi.Interactivity
         {
             public EmbedMessage<TView> EmbedMessage;
 
-            public ICommandContext Context { get; set; }
+            public IDiscordContext Context { get; set; }
 
             public abstract Task<bool> UpdateAsync(CancellationToken cancellationToken = default);
 

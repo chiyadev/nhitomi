@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Discord;
-using Discord.Commands;
 using Discord.WebSocket;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -16,29 +15,13 @@ namespace nhitomi.Discord
     {
         Task InitializeAsync(CancellationToken cancellationToken = default);
 
-        Task<bool> TryHandleAsync(ReactionContext context, CancellationToken cancellationToken = default);
+        Task<bool> TryHandleAsync(IReactionContext context, CancellationToken cancellationToken = default);
     }
 
-    public class ReactionContext : ICommandContext
+    public interface IReactionContext : IDiscordContext
     {
-        public IDiscordClient Client { get; }
-        public IUserMessage Message { get; }
-        public IUser User { get; }
-        public IReaction Reaction { get; }
-        public ReactionEvent Event { get; }
-
-        IGuild ICommandContext.Guild => Message.Channel is IGuildChannel c ? c.Guild : null;
-        IMessageChannel ICommandContext.Channel => Message.Channel;
-
-        public ReactionContext(IDiscordClient discord, IUserMessage message, IReaction reaction, IUser user,
-            ReactionEvent eventType)
-        {
-            Client = discord;
-            Message = message;
-            Reaction = reaction;
-            User = user;
-            Event = eventType;
-        }
+        IReaction Reaction { get; }
+        ReactionEvent Event { get; }
     }
 
     public enum ReactionEvent
@@ -109,7 +92,7 @@ namespace nhitomi.Discord
                             ? reaction.User.Value
                             : await channel.GetUserAsync(reaction.UserId);
 
-                        var context = new ReactionContext(_discord, message, reaction, user, eventType);
+                        var context = new ReactionContext(message, reaction, user, eventType);
 
                         foreach (var handler in _reactionHandlers)
                             if (await handler.TryHandleAsync(context))
@@ -123,6 +106,24 @@ namespace nhitomi.Discord
             }
 
             return Task.CompletedTask;
+        }
+
+        class ReactionContext : IReactionContext
+        {
+            public IUserMessage Message { get; }
+            public IMessageChannel Channel => Message.Channel;
+
+            public IUser User { get; }
+            public IReaction Reaction { get; }
+            public ReactionEvent Event { get; }
+
+            public ReactionContext(IUserMessage message, IReaction reaction, IUser user, ReactionEvent eventType)
+            {
+                Message = message;
+                Reaction = reaction;
+                User = user;
+                Event = eventType;
+            }
         }
     }
 }

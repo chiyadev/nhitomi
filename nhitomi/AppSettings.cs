@@ -3,7 +3,6 @@
 // This software is released under the MIT License.
 // https://opensource.org/licenses/MIT
 
-using Discord.Commands;
 using Discord.WebSocket;
 
 namespace nhitomi
@@ -25,13 +24,6 @@ namespace nhitomi
             {
                 public double UpdateInterval { get; set; }
                 public string[] Games { get; set; }
-            }
-
-            public CommandSettings Command { get; set; } = new CommandSettings();
-
-            public sealed class CommandSettings : CommandServiceConfig
-            {
-                public double InteractiveExpiry { get; set; }
             }
 
             public GuildSettings Guild { get; set; } = new GuildSettings();

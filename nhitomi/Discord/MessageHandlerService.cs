@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Discord;
-using Discord.Commands;
 using Discord.WebSocket;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -15,25 +14,12 @@ namespace nhitomi.Discord
     {
         Task InitializeAsync(CancellationToken cancellationToken = default);
 
-        Task<bool> TryHandleAsync(MessageContext context, CancellationToken cancellationToken = default);
+        Task<bool> TryHandleAsync(IMessageContext context, CancellationToken cancellationToken = default);
     }
 
-    public class MessageContext : ICommandContext
+    public interface IMessageContext : IDiscordContext
     {
-        public IDiscordClient Client { get; }
-        public IUserMessage Message { get; }
-        public MessageEvent Event { get; }
-
-        IGuild ICommandContext.Guild => Message.Channel is IGuildChannel c ? c.Guild : null;
-        IMessageChannel ICommandContext.Channel => Message.Channel;
-        IUser ICommandContext.User => Message.Author;
-
-        public MessageContext(IDiscordClient discord, IUserMessage message, MessageEvent @event)
-        {
-            Client = discord;
-            Message = message;
-            Event = @event;
-        }
+        MessageEvent Event { get; }
     }
 
     public enum MessageEvent
@@ -96,7 +82,7 @@ namespace nhitomi.Discord
                 {
                     try
                     {
-                        var context = new MessageContext(_discord, message, eventType);
+                        var context = new MessageContext(message, eventType);
 
                         foreach (var handler in _messageHandlers)
                             if (await handler.TryHandleAsync(context))
@@ -110,6 +96,21 @@ namespace nhitomi.Discord
             }
 
             return Task.CompletedTask;
+        }
+
+        class MessageContext : IMessageContext
+        {
+            public IUserMessage Message { get; }
+            public IMessageChannel Channel => Message.Channel;
+            public IUser User => Message.Author;
+
+            public MessageEvent Event { get; }
+
+            public MessageContext(IUserMessage message, MessageEvent @event)
+            {
+                Message = message;
+                Event = @event;
+            }
         }
     }
 }

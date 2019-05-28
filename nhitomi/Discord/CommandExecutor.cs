@@ -61,7 +61,7 @@ namespace nhitomi.Discord
             return false;
         }
 
-        public async Task<bool> TryHandleAsync(MessageContext context, CancellationToken cancellationToken = default)
+        public async Task<bool> TryHandleAsync(IMessageContext context, CancellationToken cancellationToken = default)
         {
             switch (context.Event)
             {

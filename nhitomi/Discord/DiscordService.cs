@@ -10,6 +10,14 @@ using Microsoft.Extensions.Options;
 
 namespace nhitomi.Discord
 {
+    public interface IDiscordContext
+    {
+        IUserMessage Message { get; }
+        IMessageChannel Channel { get; }
+
+        IUser User { get; }
+    }
+
     public class DiscordService : DiscordSocketClient
     {
         readonly AppSettings _settings;

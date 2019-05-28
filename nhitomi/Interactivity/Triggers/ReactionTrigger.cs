@@ -2,7 +2,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Discord;
-using Discord.Commands;
+using nhitomi.Discord;
 
 namespace nhitomi.Interactivity.Triggers
 {
@@ -16,7 +16,7 @@ namespace nhitomi.Interactivity.Triggers
         /// </summary>
         bool CanRunStateless { get; }
 
-        Task<bool> RunAsync(IServiceProvider services, ICommandContext context, IInteractiveMessage interactive,
+        Task<bool> RunAsync(IServiceProvider services, IDiscordContext context, IInteractiveMessage interactive,
             CancellationToken cancellationToken = default);
     }
 
@@ -30,7 +30,7 @@ namespace nhitomi.Interactivity.Triggers
 
         static readonly DependencyFactory<TAction> _actionFactory = DependencyUtility<TAction>.Factory;
 
-        public Task<bool> RunAsync(IServiceProvider services, ICommandContext context, IInteractiveMessage interactive,
+        public Task<bool> RunAsync(IServiceProvider services, IDiscordContext context, IInteractiveMessage interactive,
             CancellationToken cancellationToken = default)
         {
             if (interactive == null && !CanRunStateless)
@@ -53,7 +53,7 @@ namespace nhitomi.Interactivity.Triggers
 
         public abstract class ActionBase
         {
-            public ICommandContext Context { get; set; }
+            public IDiscordContext Context { get; set; }
             public IInteractiveMessage Interactive { get; set; }
 
             public abstract Task<bool> RunAsync(CancellationToken cancellationToken = default);

@@ -10,7 +10,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Discord;
-using Discord.Commands;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using nhitomi.Discord;
@@ -34,7 +33,7 @@ namespace nhitomi.Interactivity
         public readonly ConcurrentDictionary<ulong, IInteractiveMessage> InteractiveMessages =
             new ConcurrentDictionary<ulong, IInteractiveMessage>();
 
-        public async Task SendInteractiveAsync(IEmbedMessage message, ICommandContext context,
+        public async Task SendInteractiveAsync(IEmbedMessage message, IDiscordContext context,
             CancellationToken cancellationToken = default)
         {
             // create dependency scope to initialize the interactive within
@@ -83,7 +82,7 @@ namespace nhitomi.Interactivity
 
         Task IReactionHandler.InitializeAsync(CancellationToken cancellationToken) => Task.CompletedTask;
 
-        public async Task<bool> TryHandleAsync(ReactionContext context, CancellationToken cancellationToken = default)
+        public async Task<bool> TryHandleAsync(IReactionContext context, CancellationToken cancellationToken = default)
         {
             var message = context.Message;
             var reaction = context.Reaction;
