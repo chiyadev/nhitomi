@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace nhitomi
@@ -56,5 +57,20 @@ namespace nhitomi
         static readonly DependencyFactory<object> _factory = DependencyUtility.CreateFactory(typeof(T));
 
         public static DependencyFactory<T> Factory => s => (T) _factory(s);
+    }
+
+    public class ServiceDictionary : Dictionary<Type, object>, IServiceProvider
+    {
+        readonly IServiceProvider _fallback;
+
+        public ServiceDictionary(IServiceProvider fallback = null)
+        {
+            _fallback = fallback;
+        }
+
+        public object GetService(Type serviceType) =>
+            TryGetValue(serviceType, out var obj)
+                ? obj
+                : _fallback?.GetService(serviceType);
     }
 }
