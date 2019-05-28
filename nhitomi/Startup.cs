@@ -59,9 +59,11 @@ namespace nhitomi
                 .AddSingleton<CommandExecutor>()
                 .AddSingleton<GalleryUrlDetector>()
                 .AddSingleton<InteractiveManager>()
+                .AddSingleton<ILocalization, LocalizationCache>()
                 .AddHostedService<MessageHandlerService>()
                 .AddHostedService<ReactionHandlerService>()
-                .AddHostedService<StatusUpdater>();
+                .AddHostedService<StatusUpdater>()
+                .AddHostedService<DiscordLocalizationService>();
 
             // http server
             services
@@ -71,7 +73,6 @@ namespace nhitomi
             // other stuff
             services
                 .AddHttpClient()
-                .AddScoped<ILocalization, DatabaseLocalizationProvider>()
                 .AddTransient<IHttpClient, HttpClientWrapper>()
                 .AddTransient(s => JsonSerializer.Create(new nhitomiSerializerSettings()));
         }
