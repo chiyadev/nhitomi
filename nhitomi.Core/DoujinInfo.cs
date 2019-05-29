@@ -40,16 +40,26 @@ namespace nhitomi.Core
             Source = Source.Name,
             SourceId = SourceId,
 
-            Artist = IsNull(Artist) ? null : new Artist {Value = Artist},
-            Group = IsNull(Group) ? null : new Group {Value = Group},
-            Scanlator = IsNull(Scanlator) ? null : new Scanlator {Value = Scanlator},
-            Language = IsNull(Language) ? null : new Language {Value = Language},
-            ParodyOf = IsNull(Parody) ? null : new ParodyOf {Value = Parody},
-
-            Characters = Characters?.Where(IsSpecified).Select(c => new Character.Reference(c)).ToList(),
-            Categories = Categories?.Where(IsSpecified).Select(c => new Category.Reference(c)).ToList(),
-            Tags = Tags?.Where(IsSpecified).Select(t => new Tag.Reference(t)).ToList()
+            Tags = CreateTagRefs().ToList()
         };
+
+        IEnumerable<TagRef> CreateTagRefs()
+        {
+            yield return new TagRef(TagType.Artist, Artist);
+            yield return new TagRef(TagType.Group, Group);
+            yield return new TagRef(TagType.Scanlator, Scanlator);
+            yield return new TagRef(TagType.Language, Language);
+            yield return new TagRef(TagType.Parody, Parody);
+
+            foreach (var character in Characters)
+                yield return new TagRef(TagType.Character, character);
+
+            foreach (var category in Categories)
+                yield return new TagRef(TagType.Category, category);
+
+            foreach (var tag in Tags)
+                yield return new TagRef(TagType.Tag, tag);
+        }
 
         static bool IsNull(string str) => string.IsNullOrEmpty(str);
         static bool IsSpecified(string str) => !IsNull(str);
