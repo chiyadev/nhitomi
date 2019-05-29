@@ -82,7 +82,7 @@ namespace nhitomi.Modules
                     return;
                 }
 
-                collection.Doujins.Add(new DoujinCollection
+                collection.Doujins.Add(new CollectionRef
                 {
                     DoujinId = doujin.Id
                 });

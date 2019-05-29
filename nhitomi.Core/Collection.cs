@@ -20,7 +20,7 @@ namespace nhitomi.Core
         public ulong OwnerId { get; set; }
         public User Owner { get; set; }
 
-        public ICollection<DoujinCollection> Doujins { get; set; }
+        public ICollection<CollectionRef> Doujins { get; set; }
 
         public static void Describe(ModelBuilder model)
         {
@@ -33,14 +33,14 @@ namespace nhitomi.Core
                 .WithMany(u => u.Collections)
                 .HasForeignKey(c => c.OwnerId);
 
-            DoujinCollection.Describe(model);
+            CollectionRef.Describe(model);
         }
     }
 
     /// <summary>
     /// Join table
     /// </summary>
-    public class DoujinCollection
+    public class CollectionRef
     {
         public int CollectionId { get; set; }
         public Collection Collection { get; set; }
@@ -50,9 +50,7 @@ namespace nhitomi.Core
 
         public static void Describe(ModelBuilder model)
         {
-            var entity = model.Entity<DoujinCollection>();
-
-            entity.ToTable("CollectionRefs");
+            var entity = model.Entity<CollectionRef>();
 
             entity.HasKey(x => new {x.CollectionId, x.DoujinId});
 

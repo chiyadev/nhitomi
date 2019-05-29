@@ -12,7 +12,7 @@ namespace nhitomi.Core
         Group,
         Scanlator,
         Language,
-        ParodyOf
+        Parody
     }
 
     public static class CollectionSortExtensions
@@ -34,19 +34,24 @@ namespace nhitomi.Core
                     queryable = queryable.OrderBy(d => d.PrettyName).ThenBy(d => d.OriginalName);
                     break;
                 case CollectionSort.Artist:
-                    queryable = queryable.OrderBy(d => d.Artist.Value);
+                    queryable = queryable
+                        .OrderBy(d => d.Tags.Select(t => t.Tag).First(t => t.Type == TagType.Artist));
                     break;
                 case CollectionSort.Group:
-                    queryable = queryable.OrderBy(d => d.Group.Value);
+                    queryable = queryable
+                        .OrderBy(d => d.Tags.Select(t => t.Tag).First(t => t.Type == TagType.Group));
                     break;
                 case CollectionSort.Scanlator:
-                    queryable = queryable.OrderBy(d => d.Scanlator.Value);
+                    queryable = queryable
+                        .OrderBy(d => d.Tags.Select(t => t.Tag).First(t => t.Type == TagType.Scanlator));
                     break;
                 case CollectionSort.Language:
-                    queryable = queryable.OrderBy(d => d.Language.Value);
+                    queryable = queryable
+                        .OrderBy(d => d.Tags.Select(t => t.Tag).First(t => t.Type == TagType.Language));
                     break;
-                case CollectionSort.ParodyOf:
-                    queryable = queryable.OrderBy(d => d.ParodyOf.Value);
+                case CollectionSort.Parody:
+                    queryable = queryable
+                        .OrderBy(d => d.Tags.Select(t => t.Tag).First(t => t.Type == TagType.Parody));
                     break;
             }
 

@@ -66,7 +66,7 @@ namespace nhitomi.Interactivity.Triggers
                     }
 
                     // add to favorites collection
-                    collection.Doujins.Add(new DoujinCollection
+                    collection.Doujins.Add(new CollectionRef
                     {
                         DoujinId = doujin.Id
                     });

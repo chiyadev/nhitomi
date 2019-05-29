@@ -38,13 +38,6 @@ namespace nhitomi.Core
     public class nhitomiDbContext : DbContext, IDatabase
     {
         public DbSet<Doujin> Doujins { get; set; }
-        public DbSet<Artist> Artists { get; set; }
-        public DbSet<Group> Groups { get; set; }
-        public DbSet<Scanlator> Scanlators { get; set; }
-        public DbSet<Language> Languages { get; set; }
-        public DbSet<ParodyOf> Parodies { get; set; }
-        public DbSet<Character> Characters { get; set; }
-        public DbSet<Category> Categories { get; set; }
         public DbSet<Tag> Tags { get; set; }
         public DbSet<Collection> Collections { get; set; }
         public DbSet<User> Users { get; set; }
