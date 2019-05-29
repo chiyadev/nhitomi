@@ -45,8 +45,8 @@ namespace nhitomi
 
             public async Task RunAsync(CancellationToken cancellationToken = default)
             {
-                // migrate database in production
-                if (_environment.IsProduction())
+                // migrate local database in development
+                if (_environment.IsDevelopment())
                     await _db.Database.MigrateAsync(cancellationToken);
 
                 // start discord
