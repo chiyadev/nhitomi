@@ -35,10 +35,6 @@ namespace nhitomi
                     .AddConsole()
                     .AddDebug());
 
-            // api
-            services
-                .AddSingleton<IApiClient, ApiClient>();
-
             // database
             services
                 .AddScoped<IDatabase>(s => s.GetRequiredService<nhitomiDbContext>());
