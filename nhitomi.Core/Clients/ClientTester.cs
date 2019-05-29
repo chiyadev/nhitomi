@@ -36,7 +36,7 @@ namespace nhitomi.Core.Clients
                     var doujin = await client.GetAsync(testCase.DoujinId, cancellationToken);
 
                     // compare the retrieved doujin with the known value
-                    if (DoujinEquals(doujin, testCase.KnownValue))
+                    if (!DoujinEquals(doujin, testCase.KnownValue))
                         throw new ClientTesterException(
                             $"Doujin '{testCase.DoujinId}' returned by {client.GetType().Name} did not pass test {testCase.GetType().Name}.");
                 }
