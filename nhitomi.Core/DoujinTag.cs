@@ -63,6 +63,8 @@ namespace nhitomi.Core
             {
                 join.ToTable($"Doujin{typeof(TTag).Name}");
 
+                join.HasKey(x => new {x.DoujinId, x.TagId});
+
                 join.HasOne(x => x.Doujin)
                     .WithMany(path)
                     .HasForeignKey(x => x.DoujinId);
