@@ -36,6 +36,7 @@ namespace nhitomi.Core
             OriginalName = OriginalName,
 
             UploadTime = UploadTime,
+            ProcessTime = DateTime.UtcNow,
 
             Source = Source.Name,
             SourceId = SourceId,
