@@ -26,6 +26,8 @@ namespace nhitomi.Core
 
         public ICollection<TagRef> Doujins { get; set; }
 
+        public override string ToString() => $"{Id} {Type} '{Value ?? "<null>"}'";
+
         public static void Describe(ModelBuilder model)
         {
             model.Entity<Tag>(tag =>
