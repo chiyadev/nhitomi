@@ -43,6 +43,13 @@ namespace nhitomi.Interactivity
 
             async Task<(bool, TValue)> TryGetCurrentAsync(CancellationToken cancellationToken = default)
             {
+                if (ListMessage.Position < 0)
+                {
+                    ListMessage.Position = 0;
+
+                    return default;
+                }
+
                 var cache = ListMessage._valueCache;
                 var index = ListMessage.Position;
 
