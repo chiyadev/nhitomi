@@ -119,9 +119,6 @@ namespace nhitomi.Core.Migrations
 
                 b.HasKey("Id", "Type");
 
-                b.HasIndex("Value")
-                    .IsUnique();
-
                 b.ToTable("Tags");
             });
 

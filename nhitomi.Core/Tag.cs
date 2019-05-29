@@ -35,9 +35,6 @@ namespace nhitomi.Core
 
                 // id is automatic
                 tag.Property(t => t.Id).ValueGeneratedOnAdd();
-
-                // unique index for tag value
-                tag.HasIndex(m => m.Value).IsUnique();
             });
 
             model.Entity<TagRef>(join =>
