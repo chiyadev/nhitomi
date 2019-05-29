@@ -8,6 +8,11 @@ namespace nhitomi.Core
     {
         public HttpClient Http { get; }
 
+        public HttpClientWrapper(HttpClient httpClient)
+        {
+            Http = httpClient;
+        }
+
         public HttpClientWrapper(IHttpClientFactory httpClientFactory)
         {
             Http = httpClientFactory.CreateClient(nameof(HttpClientWrapper));
