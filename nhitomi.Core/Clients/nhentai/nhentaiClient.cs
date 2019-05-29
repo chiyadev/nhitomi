@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
-namespace nhitomi.Core.Clients
+namespace nhitomi.Core.Clients.nhentai
 {
     public static class nhentai
     {

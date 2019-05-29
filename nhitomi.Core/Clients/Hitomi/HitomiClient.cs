@@ -9,7 +9,7 @@ using HtmlAgilityPack;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
-namespace nhitomi.Core.Clients
+namespace nhitomi.Core.Clients.Hitomi
 {
     public static class Hitomi
     {
