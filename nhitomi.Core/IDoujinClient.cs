@@ -12,5 +12,7 @@ namespace nhitomi.Core
 
         Task<DoujinInfo> GetAsync(string id, CancellationToken cancellationToken = default);
         Task<IEnumerable<string>> EnumerateAsync(string startId = null, CancellationToken cancellationToken = default);
+
+        IEnumerable<string> PopulatePages(Doujin doujin);
     }
 }

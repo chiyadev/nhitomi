@@ -138,8 +138,6 @@ namespace nhitomi.Core.Clients.nhentai
             public string Extensions;
         }
 
-        static string FixExtension(string ext) => ext[0] == 'p' ? "png" : "jpg";
-
         public async Task<IEnumerable<string>> EnumerateAsync(string startId = null,
             CancellationToken cancellationToken = default)
         {
@@ -170,6 +168,23 @@ namespace nhitomi.Core.Clients.nhentai
             for (var i = oldest; i <= latest; i++)
                 yield return i.ToString();
         }
+
+        public IEnumerable<string> PopulatePages(Doujin doujin)
+        {
+            var data = _serializer.Deserialize<InternalDoujinData>(doujin.Data);
+
+            if (data.MediaId == 0 || data.Extensions == null)
+                yield break;
+
+            for (var i = 0; i < data.Extensions.Length; i++)
+            {
+                var ext = data.Extensions[i];
+
+                yield return nhentai.Image(data.MediaId, i, FixExtension(ext));
+            }
+        }
+
+        static string FixExtension(char ext) => ext == 'p' ? "png" : "jpg";
 
         public void Dispose()
         {
