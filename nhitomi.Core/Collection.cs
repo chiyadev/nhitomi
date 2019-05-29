@@ -52,6 +52,8 @@ namespace nhitomi.Core
         {
             var entity = model.Entity<DoujinCollection>();
 
+            entity.ToTable("CollectionRefs");
+
             entity.HasKey(x => new {x.CollectionId, x.DoujinId});
 
             entity
