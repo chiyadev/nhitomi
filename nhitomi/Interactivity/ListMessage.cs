@@ -41,28 +41,34 @@ namespace nhitomi.Interactivity
         {
             public ListMessage<TView, TValue> ListMessage;
 
-            async Task<(bool, TValue)> TryGetCurrentAsync(CancellationToken cancellationToken = default)
+            enum Status
             {
-                if (ListMessage.Position < 0)
-                {
-                    ListMessage.Position = 0;
+                Start,
+                End,
+                Ok
+            }
 
-                    return default;
-                }
-
+            async Task<(Status, TValue)> TryGetCurrentAsync(CancellationToken cancellationToken = default)
+            {
                 var cache = ListMessage._valueCache;
                 var index = ListMessage.Position;
 
+                if (index < 0)
+                {
+                    ListMessage.Position = 0;
+
+                    return (Status.Start, default);
+                }
+
                 // return cached value if possible
                 if (index < cache.Count)
-                    return (true, cache[index]);
+                    return (Status.Ok, cache[index]);
 
                 if (ListMessage._fullyLoaded)
                 {
-                    // clamp position
-                    ListMessage.Position = Math.Clamp(index, 0, cache.Count - 1);
+                    ListMessage.Position = Math.Min(index, cache.Count);
 
-                    return default;
+                    return (Status.End, default);
                 }
 
                 var values = await ListMessage
@@ -74,8 +80,7 @@ namespace nhitomi.Interactivity
                     // set fully loaded flag so we don't bother enumerating again
                     ListMessage._fullyLoaded = values.Length == 0;
 
-                    // clamp position
-                    ListMessage.Position = Math.Clamp(index, 0, cache.Count - 1);
+                    ListMessage.Position = Math.Min(index, cache.Count);
 
                     return default;
                 }
@@ -83,7 +88,7 @@ namespace nhitomi.Interactivity
                 // add new values to cache
                 cache.AddRange(values);
 
-                return (true, values[0]);
+                return (Status.Ok, values[0]);
             }
 
             protected abstract Embed CreateEmbed(TValue value);
@@ -91,9 +96,9 @@ namespace nhitomi.Interactivity
 
             public override async Task<bool> UpdateAsync(CancellationToken cancellationToken = default)
             {
-                var (success, current) = await TryGetCurrentAsync(cancellationToken);
+                var (status, current) = await TryGetCurrentAsync(cancellationToken);
 
-                if (success)
+                if (status == Status.Ok)
                 {
                     // show the first item
                     await SetEmbedAsync(CreateEmbed(current), cancellationToken);
@@ -103,16 +108,25 @@ namespace nhitomi.Interactivity
 
                 // embed saying there is nothing in this list
                 if (ListMessage._valueCache.Count == 0)
+                {
                     await SetEmbedAsync(CreateEmptyEmbed(), cancellationToken);
+
+                    return false;
+                }
 
                 // reached start of list
                 //todo: localize
-                else if (ListMessage.Position <= 0)
-                    await SetMessageAsync("start of list", cancellationToken);
 
-                // reached end of list
-                else
-                    await SetMessageAsync("end of list", cancellationToken);
+                switch (status)
+                {
+                    // reached end of list
+                    case Status.Start:
+                        await SetMessageAsync("start of list", cancellationToken);
+                        break;
+                    case Status.End:
+                        await SetMessageAsync("end of list", cancellationToken);
+                        break;
+                }
 
                 return false;
             }
