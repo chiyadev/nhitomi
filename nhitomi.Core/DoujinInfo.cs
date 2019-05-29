@@ -46,23 +46,32 @@ namespace nhitomi.Core
 
         IEnumerable<TagRef> CreateTagRefs()
         {
-            yield return new TagRef(TagType.Artist, Artist);
-            yield return new TagRef(TagType.Group, Group);
-            yield return new TagRef(TagType.Scanlator, Scanlator);
-            yield return new TagRef(TagType.Language, Language);
-            yield return new TagRef(TagType.Parody, Parody);
+            if (!string.IsNullOrWhiteSpace(Artist))
+                yield return new TagRef(TagType.Artist, Artist);
 
-            foreach (var character in Characters)
-                yield return new TagRef(TagType.Character, character);
+            if (!string.IsNullOrWhiteSpace(Group))
+                yield return new TagRef(TagType.Group, Group);
 
-            foreach (var category in Categories)
-                yield return new TagRef(TagType.Category, category);
+            if (!string.IsNullOrWhiteSpace(Scanlator))
+                yield return new TagRef(TagType.Scanlator, Scanlator);
 
-            foreach (var tag in Tags)
-                yield return new TagRef(TagType.Tag, tag);
+            if (!string.IsNullOrWhiteSpace(Language))
+                yield return new TagRef(TagType.Language, Language);
+
+            if (!string.IsNullOrWhiteSpace(Parody))
+                yield return new TagRef(TagType.Parody, Parody);
+
+            if (Characters != null)
+                foreach (var character in Characters)
+                    yield return new TagRef(TagType.Character, character);
+
+            if (Categories != null)
+                foreach (var category in Categories)
+                    yield return new TagRef(TagType.Category, category);
+
+            if (Tags != null)
+                foreach (var tag in Tags)
+                    yield return new TagRef(TagType.Tag, tag);
         }
-
-        static bool IsNull(string str) => string.IsNullOrEmpty(str);
-        static bool IsSpecified(string str) => !IsNull(str);
     }
 }
