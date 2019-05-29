@@ -1,6 +1,6 @@
 using System;
 
-namespace nhitomi.Core.Clients.Testing
+namespace nhitomi.Core.Clients
 {
     public abstract class ClientTestCase
     {

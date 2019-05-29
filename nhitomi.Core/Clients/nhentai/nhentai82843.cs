@@ -1,5 +1,4 @@
 using System;
-using nhitomi.Core.Clients.Testing;
 
 namespace nhitomi.Core.Clients.nhentai
 {

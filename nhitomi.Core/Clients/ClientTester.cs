@@ -5,7 +5,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace nhitomi.Core.Clients.Testing
+namespace nhitomi.Core.Clients
 {
     /// <summary>
     /// Used to test doujin clients.
