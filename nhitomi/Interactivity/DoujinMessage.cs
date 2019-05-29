@@ -52,7 +52,7 @@ namespace nhitomi.Interactivity
                         .WithName(doujin.Artist.Value ?? doujin.Source)
                         .WithIconUrl(path["sourceIcons"][doujin.Source][l]()))
                     .WithUrl(doujin.GalleryUrl)
-                    .WithImageUrl(doujin.Pages.First().Url)
+                    .WithImageUrl($"https://s.chiya.dev/nhitomi/{doujin.Id}/1.jpeg")
                     .WithColor(Color.Green)
                     .WithFooter($"{doujin.Source}/{doujin.SourceId}");
 
@@ -62,7 +62,7 @@ namespace nhitomi.Interactivity
                 AddField(embed, path["categories"][l](), doujin.Categories?.Select(x => x.Tag.Value));
                 AddField(embed, path["characters"][l](), doujin.Characters?.Select(x => x.Tag.Value));
                 AddField(embed, path["tags"][l](), doujin.Tags?.Select(x => x.Tag.Value));
-                AddField(embed, path["content"][l](), $"{doujin.Pages.Count} pages");
+                AddField(embed, path["content"][l](), $"{doujin.PageCount} pages");
 
                 return embed.Build();
             }
