@@ -36,7 +36,7 @@ namespace nhitomi.Core.Clients
                     var doujin = await client.GetAsync(testCase.DoujinId, cancellationToken);
 
                     // compare the retrieved doujin with the known value
-                    if (!doujin.Equals(testCase.KnownValue))
+                    if (DoujinEquals(doujin, testCase.KnownValue))
                         throw new ClientTesterException(
                             $"Doujin '{testCase.DoujinId}' returned by {client.GetType().Name} did not pass test {testCase.GetType().Name}.");
                 }
@@ -74,6 +74,21 @@ namespace nhitomi.Core.Clients
                     throw new AggregateException(exceptions);
             }
         }
+
+        static bool DoujinEquals(DoujinInfo x, DoujinInfo y) =>
+            x.GalleryUrl == y.GalleryUrl &&
+            x.PrettyName == y.PrettyName &&
+            x.OriginalName == y.OriginalName &&
+            x.UploadTime == y.UploadTime &&
+            x.SourceId == y.SourceId &&
+            x.Artist == y.Artist &&
+            x.Group == y.Group &&
+            x.Scanlator == y.Scanlator &&
+            x.Language == y.Language &&
+            x.ParodyOf == y.ParodyOf &&
+            x.Characters.OrderlessEquals(y.Characters) &&
+            x.Categories.OrderlessEquals(y.Categories) &&
+            x.Tags.OrderlessEquals(y.Tags);
     }
 
     [Serializable]
