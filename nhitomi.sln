@@ -6,6 +6,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "nhitomi", "nhitomi\nhitomi.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "nhitomi.Core", "nhitomi.Core\nhitomi.Core.csproj", "{43251C3A-0508-483D-8859-639DE3B92154}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "nhitomi.Core.UnitTests", "nhitomi.Core.UnitTests\nhitomi.Core.UnitTests.csproj", "{6EE471E6-8AC8-467F-B7E0-9EC5649B05CE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -43,5 +45,17 @@ Global
 		{43251C3A-0508-483D-8859-639DE3B92154}.Release|x64.Build.0 = Release|Any CPU
 		{43251C3A-0508-483D-8859-639DE3B92154}.Release|x86.ActiveCfg = Release|Any CPU
 		{43251C3A-0508-483D-8859-639DE3B92154}.Release|x86.Build.0 = Release|Any CPU
+		{6EE471E6-8AC8-467F-B7E0-9EC5649B05CE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6EE471E6-8AC8-467F-B7E0-9EC5649B05CE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6EE471E6-8AC8-467F-B7E0-9EC5649B05CE}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{6EE471E6-8AC8-467F-B7E0-9EC5649B05CE}.Debug|x64.Build.0 = Debug|Any CPU
+		{6EE471E6-8AC8-467F-B7E0-9EC5649B05CE}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{6EE471E6-8AC8-467F-B7E0-9EC5649B05CE}.Debug|x86.Build.0 = Debug|Any CPU
+		{6EE471E6-8AC8-467F-B7E0-9EC5649B05CE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6EE471E6-8AC8-467F-B7E0-9EC5649B05CE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6EE471E6-8AC8-467F-B7E0-9EC5649B05CE}.Release|x64.ActiveCfg = Release|Any CPU
+		{6EE471E6-8AC8-467F-B7E0-9EC5649B05CE}.Release|x64.Build.0 = Release|Any CPU
+		{6EE471E6-8AC8-467F-B7E0-9EC5649B05CE}.Release|x86.ActiveCfg = Release|Any CPU
+		{6EE471E6-8AC8-467F-B7E0-9EC5649B05CE}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
