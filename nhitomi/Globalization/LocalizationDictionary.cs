@@ -30,9 +30,9 @@ namespace nhitomi.Globalization
                     // add string property
                     _dict[FixKey(prefix + property.Name)] = (string) property.GetValue(obj);
                 }
-                else if (type.IsArray && type.GetElementType() == typeof(string))
+                else if (typeof(IEnumerable<string>).IsAssignableFrom(type))
                 {
-                    var values = (string[]) property.GetValue(property);
+                    var values = (IEnumerable<string>) property.GetValue(obj);
 
                     // join values as list
                     _dict[FixKey(prefix + property.Name)] = string.Join(", ", values);
