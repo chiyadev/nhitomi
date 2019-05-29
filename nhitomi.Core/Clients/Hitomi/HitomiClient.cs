@@ -50,13 +50,13 @@ namespace nhitomi.Core.Clients.Hitomi
         public string Url => "https://hitomi.la/";
 
         readonly IHttpClient _http;
-        readonly JsonSerializer _json;
+        readonly JsonSerializer _serializer;
         readonly ILogger<HitomiClient> _logger;
 
-        public HitomiClient(IHttpClient http, JsonSerializer json, ILogger<HitomiClient> logger)
+        public HitomiClient(IHttpClient http, JsonSerializer serializer, ILogger<HitomiClient> logger)
         {
             _http = http;
-            _json = json;
+            _serializer = serializer;
             _logger = logger;
         }
 
@@ -125,10 +125,20 @@ namespace nhitomi.Core.Clients.Hitomi
                 while ((char) textReader.Peek() != '[')
                     textReader.Read();
 
-                doujin.Images = _json.Deserialize<ImageInfo[]>(jsonReader)?.Select(i => Hitomi.Image(intId, i.Name));
+                var images = _serializer.Deserialize<ImageInfo[]>(jsonReader);
+
+                doujin.Data = _serializer.Serialize(new InternalDoujinData
+                {
+                    Images = images.Select(i => i.Name).ToArray()
+                });
             }
 
             return doujin;
+        }
+
+        sealed class InternalDoujinData
+        {
+            public string[] Images;
         }
 
         static string ConvertLanguage(string language)

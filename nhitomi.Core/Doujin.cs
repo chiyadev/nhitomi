@@ -60,6 +60,16 @@ namespace nhitomi.Core
         [Required]
         public string SourceId { get; set; }
 
+        /// <summary>
+        /// Internal data used to store doujin client-specific information.
+        /// </summary>
+        public string Data { get; set; }
+
+        /// <summary>
+        /// Number of pages in this doujin.
+        /// </summary>
+        public int PageCount { get; set; }
+
         public ICollection<TagRef> Tags { get; set; }
 
         /// <summary>
@@ -67,11 +77,6 @@ namespace nhitomi.Core
         /// This is for navigation only and should not be included in queries.
         /// </summary>
         public ICollection<CollectionRef> Collections { get; set; }
-
-        /// <summary>
-        /// Number of pages in this doujin.
-        /// </summary>
-        public int PageCount { get; set; }
 
         public static void Describe(ModelBuilder model)
         {

@@ -47,7 +47,7 @@ namespace nhitomi.Core.Clients.nhentai
 
                 public struct ImageData
                 {
-                    [JsonProperty("t")] public string T;
+                    [JsonProperty("t")] public char T;
                 }
             }
 
@@ -75,13 +75,13 @@ namespace nhitomi.Core.Clients.nhentai
         public string Url => "https://nhentai.net/";
 
         readonly IHttpClient _http;
-        readonly JsonSerializer _json;
+        readonly JsonSerializer _serializer;
         readonly ILogger<nhentaiClient> _logger;
 
-        public nhentaiClient(IHttpClient http, JsonSerializer json, ILogger<nhentaiClient> logger)
+        public nhentaiClient(IHttpClient http, JsonSerializer serializer, ILogger<nhentaiClient> logger)
         {
             _http = http;
-            _json = json;
+            _serializer = serializer;
             _logger = logger;
         }
 
@@ -99,7 +99,7 @@ namespace nhitomi.Core.Clients.nhentai
             }, cancellationToken))
             using (var textReader = new StringReader(await response.Content.ReadAsStringAsync()))
             using (var jsonReader = new JsonTextReader(textReader))
-                data = _json.Deserialize<nhentai.DoujinData>(jsonReader);
+                data = _serializer.Deserialize<nhentai.DoujinData>(jsonReader);
 
             return new DoujinInfo
             {
@@ -123,9 +123,19 @@ namespace nhitomi.Core.Clients.nhentai
                 Categories = data.Tags?.Where(t => t.Type == "category" && t.Name != "doujinshi").Select(t => t.Name),
                 Tags = data.Tags?.Where(t => t.Type == "tag").Select(t => t.Name),
 
-                Images = data.Images.Pages?.Select(p =>
-                    nhentai.Image(data.MediaId, Array.IndexOf(data.Images.Pages, p), FixExtension(p.T)))
+                Data = _serializer.Serialize(new InternalDoujinData
+                {
+                    MediaId = data.MediaId,
+                    Extensions = new string(data.Images.Pages.Select(p => p.T).ToArray())
+                }),
+                PageCount = data.Images.Pages.Length
             };
+        }
+
+        sealed class InternalDoujinData
+        {
+            public int MediaId;
+            public string Extensions;
         }
 
         static string FixExtension(string ext) => ext[0] == 'p' ? "png" : "jpg";
@@ -144,7 +154,7 @@ namespace nhitomi.Core.Clients.nhentai
             using (var textReader = new StringReader(await response.Content.ReadAsStringAsync()))
             using (var jsonReader = new JsonTextReader(textReader))
             {
-                latestId = _json.Deserialize<nhentai.ListData>(jsonReader).Results
+                latestId = _serializer.Deserialize<nhentai.ListData>(jsonReader).Results
                     .OrderByDescending(d => d.Id)
                     .First().Id;
             }

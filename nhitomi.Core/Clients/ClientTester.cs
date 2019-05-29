@@ -88,7 +88,8 @@ namespace nhitomi.Core.Clients
             x.Parody == y.Parody &&
             x.Characters.OrderlessEquals(y.Characters) &&
             x.Categories.OrderlessEquals(y.Categories) &&
-            x.Tags.OrderlessEquals(y.Tags);
+            x.Tags.OrderlessEquals(y.Tags) &&
+            x.PageCount == y.PageCount;
     }
 
     [Serializable]

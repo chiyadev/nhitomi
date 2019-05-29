@@ -26,7 +26,8 @@ namespace nhitomi.Core
         public IEnumerable<string> Categories { get; set; }
         public IEnumerable<string> Tags { get; set; }
 
-        public IEnumerable<string> Images { get; set; }
+        public string Data { get; set; }
+        public int PageCount { get; set; }
 
         public Doujin ToDoujin() => new Doujin
         {
@@ -40,6 +41,9 @@ namespace nhitomi.Core
 
             Source = Source.Name,
             SourceId = SourceId,
+
+            Data = Data,
+            PageCount = PageCount,
 
             Tags = CreateTagRefs().ToList()
         };
