@@ -77,6 +77,11 @@ namespace nhitomi.Core
         /// </summary>
         public ICollection<DoujinCollection> Collections { get; set; }
 
+        /// <summary>
+        /// Number of pages in this doujin.
+        /// </summary>
+        public int PageCount { get; set; }
+
         public static void Describe(ModelBuilder model)
         {
             model.Entity<Doujin>(doujin =>
