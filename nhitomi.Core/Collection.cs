@@ -24,16 +24,30 @@ namespace nhitomi.Core
 
         public static void Describe(ModelBuilder model)
         {
-            var entity = model.Entity<Collection>();
+            model.Entity<Collection>(collection =>
+            {
+                collection.HasIndex(c => c.Name);
 
-            entity.HasIndex(c => c.Name);
+                collection
+                    .HasOne(c => c.Owner)
+                    .WithMany(u => u.Collections)
+                    .HasForeignKey(c => c.OwnerId);
+            });
 
-            entity
-                .HasOne(c => c.Owner)
-                .WithMany(u => u.Collections)
-                .HasForeignKey(c => c.OwnerId);
+            model.Entity<CollectionRef>(join =>
+            {
+                join.HasKey(x => new {x.CollectionId, x.DoujinId});
 
-            CollectionRef.Describe(model);
+                join
+                    .HasOne(x => x.Doujin)
+                    .WithMany(d => d.Collections)
+                    .HasForeignKey(x => x.DoujinId);
+
+                join
+                    .HasOne(x => x.Collection)
+                    .WithMany(c => c.Doujins)
+                    .HasForeignKey(x => x.CollectionId);
+            });
         }
     }
 
@@ -47,22 +61,5 @@ namespace nhitomi.Core
 
         public int DoujinId { get; set; }
         public Doujin Doujin { get; set; }
-
-        public static void Describe(ModelBuilder model)
-        {
-            var entity = model.Entity<CollectionRef>();
-
-            entity.HasKey(x => new {x.CollectionId, x.DoujinId});
-
-            entity
-                .HasOne(x => x.Doujin)
-                .WithMany(d => d.Collections)
-                .HasForeignKey(x => x.DoujinId);
-
-            entity
-                .HasOne(x => x.Collection)
-                .WithMany(c => c.Doujins)
-                .HasForeignKey(x => x.CollectionId);
-        }
     }
 }
