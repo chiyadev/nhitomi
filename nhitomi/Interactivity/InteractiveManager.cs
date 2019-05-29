@@ -1,8 +1,3 @@
-// Copyright (c) 2018-2019 chiya.dev
-//
-// This software is released under the MIT License.
-// https://opensource.org/licenses/MIT
-
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;

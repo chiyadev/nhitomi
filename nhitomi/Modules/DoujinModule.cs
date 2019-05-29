@@ -1,8 +1,3 @@
-// Copyright (c) 2018-2019 chiya.dev
-//
-// This software is released under the MIT License.
-// https://opensource.org/licenses/MIT
-
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;

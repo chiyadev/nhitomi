@@ -1,10 +1,3 @@
-<!--
- Copyright (c) 2018-2019 chiya.dev
-
- This software is released under the MIT License.
- https://opensource.org/licenses/MIT
--->
-
 # nhitomi ![Build status](https://ci.appveyor.com/api/projects/status/vtdjarua2c9i0k5t?svg=true)
 
 ![nhitomi](nhitomi.png)
@@ -38,6 +31,7 @@ Join our [Discord server](https://discord.gg/JFNga7q) or [invite nhitomi](https:
 - n!collection `name` delete — Deletes a collection, removing all doujins belonging to it.
 
 Useful shortcuts to remember:
+
 - `n!g` — `n!get`, `n!s` — `n!search`, `n!dl` — `n!download`
 - `n!se`, `n!sj`, `n!sc` — `n!search` + `english`, `japanese`, `chinese`, respectively
 - `source/id` — `n!get source id`, can specify multiple to show a list
