@@ -4,6 +4,7 @@ using Discord;
 using nhitomi.Core;
 using nhitomi.Globalization;
 using nhitomi.Interactivity.Triggers;
+using TagType = nhitomi.Core.TagType;
 
 namespace nhitomi.Interactivity
 {
@@ -49,19 +50,19 @@ namespace nhitomi.Interactivity
                     .WithTitle(doujin.OriginalName ?? doujin.PrettyName)
                     .WithDescription(doujin.OriginalName == doujin.PrettyName ? null : doujin.PrettyName)
                     .WithAuthor(a => a
-                        .WithName(doujin.Artist.Value ?? doujin.Source)
+                        .WithName(doujin.GetTag(TagType.Artist)?.Value ?? doujin.Source)
                         .WithIconUrl(path["sourceIcons"][doujin.Source][l]()))
                     .WithUrl(doujin.GalleryUrl)
                     .WithImageUrl($"https://s.chiya.dev/nhitomi/{doujin.Id}/1.jpeg")
                     .WithColor(Color.Green)
                     .WithFooter($"{doujin.Source}/{doujin.SourceId}");
 
-                AddField(embed, path["language"][l](), doujin.Language?.Value);
-                AddField(embed, path["group"][l](), doujin.Group?.Value);
-                AddField(embed, path["parody"][l](), doujin.ParodyOf?.Value);
-                AddField(embed, path["categories"][l](), doujin.Categories?.Select(x => x.Tag.Value));
-                AddField(embed, path["characters"][l](), doujin.Characters?.Select(x => x.Tag.Value));
-                AddField(embed, path["tags"][l](), doujin.Tags?.Select(x => x.Tag.Value));
+                AddField(embed, path["language"][l](), doujin.GetTag(TagType.Language)?.Value);
+                AddField(embed, path["group"][l](), doujin.GetTag(TagType.Group)?.Value);
+                AddField(embed, path["parody"][l](), doujin.GetTag(TagType.Parody)?.Value);
+                AddField(embed, path["categories"][l](), doujin.GetTags(TagType.Category).Select(t => t.Value));
+                AddField(embed, path["characters"][l](), doujin.GetTags(TagType.Character).Select(t => t.Value));
+                AddField(embed, path["tags"][l](), doujin.GetTags(TagType.Tag).Select(t => t.Value));
                 AddField(embed, path["content"][l](), $"{doujin.PageCount} pages");
 
                 return embed.Build();
