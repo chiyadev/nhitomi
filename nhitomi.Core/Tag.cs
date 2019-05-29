@@ -18,23 +18,20 @@ namespace nhitomi.Core
 
     public class Tag
     {
-        public int Id { get; set; }
+        [Key] public int Id { get; set; }
+
         public TagType Type { get; set; }
 
-        public ICollection<TagRef> Doujins { get; set; }
+        [Required, MaxLength(32)] public string Value { get; set; }
 
-        [Required, MinLength(1), MaxLength(32)]
-        public string Value { get; set; }
+        public ICollection<TagRef> Doujins { get; set; }
 
         public static void Describe(ModelBuilder model)
         {
             model.Entity<Tag>(tag =>
             {
-                // composite key consisting of id and type
-                tag.HasKey(t => new {t.Id, t.Type});
-
-                // id is automatic
-                tag.Property(t => t.Id).ValueGeneratedOnAdd();
+                // index on value
+                tag.HasIndex(t => t.Value);
             });
 
             model.Entity<TagRef>(join =>
@@ -47,7 +44,7 @@ namespace nhitomi.Core
 
                 join.HasOne(x => x.Tag)
                     .WithMany(t => t.Doujins)
-                    .HasForeignKey(x => new {x.TagId, x.TagType});
+                    .HasForeignKey(x => x.TagId);
             });
         }
     }
@@ -61,7 +58,6 @@ namespace nhitomi.Core
         public Doujin Doujin { get; set; }
 
         public int TagId { get; set; }
-        public TagType TagType { get; set; }
         public Tag Tag { get; set; }
 
         public TagRef()

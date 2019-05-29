@@ -94,9 +94,9 @@ namespace nhitomi.Core
             .Include(d => d.Tags).ThenInclude(x => x.Tag);
 
         public static Tag GetTag(this Doujin doujin, TagType type) =>
-            doujin.Tags.FirstOrDefault(x => x.TagType == type)?.Tag;
+            doujin.Tags.Select(x => x.Tag).FirstOrDefault(x => x.Type == type);
 
         public static Tag[] GetTags(this Doujin doujin, TagType type) =>
-            doujin.Tags.Where(t => t.TagType == type).Select(x => x.Tag).ToArray();
+            doujin.Tags.Select(x => x.Tag).Where(t => t.Type == type).ToArray();
     }
 }
