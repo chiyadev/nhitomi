@@ -1,11 +1,4 @@
-﻿<!--
- Copyright (c) 2018-2019 chiya.dev
- 
- This software is released under the MIT License.
- https://opensource.org/licenses/MIT
--->
-
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
     <PropertyGroup>
         <OutputType>Exe</OutputType>
