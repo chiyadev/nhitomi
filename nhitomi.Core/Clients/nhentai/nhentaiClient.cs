@@ -117,7 +117,7 @@ namespace nhitomi.Core.Clients.nhentai
                 Group = data.Tags?.FirstOrDefault(t => t.Type == "group").Name,
                 Scanlator = string.IsNullOrWhiteSpace(data.Scanlator) ? null : data.Scanlator,
                 Language = data.Tags?.FirstOrDefault(t => t.Type == "language" && t.Name != "translated").Name,
-                ParodyOf = data.Tags?.FirstOrDefault(t => t.Type == "parody" && t.Name != "original").Name,
+                Parody = data.Tags?.FirstOrDefault(t => t.Type == "parody" && t.Name != "original").Name,
 
                 Characters = data.Tags?.Where(t => t.Type == "character").Select(t => t.Name),
                 Categories = data.Tags?.Where(t => t.Type == "category" && t.Name != "doujinshi").Select(t => t.Name),

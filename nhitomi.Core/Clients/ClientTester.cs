@@ -85,7 +85,7 @@ namespace nhitomi.Core.Clients
             x.Group == y.Group &&
             x.Scanlator == y.Scanlator &&
             x.Language == y.Language &&
-            x.ParodyOf == y.ParodyOf &&
+            x.Parody == y.Parody &&
             x.Characters.OrderlessEquals(y.Characters) &&
             x.Categories.OrderlessEquals(y.Categories) &&
             x.Tags.OrderlessEquals(y.Tags);

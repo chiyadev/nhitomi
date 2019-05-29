@@ -14,7 +14,7 @@ namespace nhitomi.Core.Clients.nhentai
             OriginalName = "神様を痴漢",
             UploadTime = new DateTime(2014, 6, 28, 23, 14, 15),
             SourceId = "82843",
-            ParodyOf = "the world god only knows",
+            Parody = "the world god only knows",
             Characters = new[]
             {
                 "keima katsuragi"

@@ -20,7 +20,7 @@ namespace nhitomi.Core
         public string Group { get; set; }
         public string Scanlator { get; set; }
         public string Language { get; set; }
-        public string ParodyOf { get; set; }
+        public string Parody { get; set; }
 
         public IEnumerable<string> Characters { get; set; }
         public IEnumerable<string> Categories { get; set; }
@@ -44,7 +44,7 @@ namespace nhitomi.Core
             Group = IsNull(Group) ? null : new Group {Value = Group},
             Scanlator = IsNull(Scanlator) ? null : new Scanlator {Value = Scanlator},
             Language = IsNull(Language) ? null : new Language {Value = Language},
-            ParodyOf = IsNull(ParodyOf) ? null : new ParodyOf {Value = ParodyOf},
+            ParodyOf = IsNull(Parody) ? null : new ParodyOf {Value = Parody},
 
             Characters = Characters?.Where(IsSpecified).Select(c => new Character.Reference(c)).ToList(),
             Categories = Categories?.Where(IsSpecified).Select(c => new Category.Reference(c)).ToList(),

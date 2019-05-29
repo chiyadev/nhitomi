@@ -106,7 +106,7 @@ namespace nhitomi.Core.Clients.Hitomi
                 Artist = Sanitize(root.SelectSingleNode(Hitomi.XPath.Artists)),
                 Group = Sanitize(root.SelectSingleNode(Hitomi.XPath.Groups)),
                 Language = ConvertLanguage(Sanitize(root.SelectSingleNode(Hitomi.XPath.Language))),
-                ParodyOf = ConvertSeries(Sanitize(root.SelectSingleNode(Hitomi.XPath.Series))),
+                Parody = ConvertSeries(Sanitize(root.SelectSingleNode(Hitomi.XPath.Series))),
                 Characters = root.SelectNodes(Hitomi.XPath.Characters)?.Select(Sanitize),
 
                 Tags = root.SelectNodes(Hitomi.XPath.Tags)?.Select(n => ConvertTag(Sanitize(n)))
