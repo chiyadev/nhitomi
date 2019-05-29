@@ -69,9 +69,7 @@ namespace nhitomi.Core.Migrations
                 b.Property<string>("PrettyName")
                     .IsRequired();
 
-                b.Property<DateTime>("ProcessTime")
-                    .IsConcurrencyToken()
-                    .ValueGeneratedOnAddOrUpdate();
+                b.Property<DateTime>("ProcessTime");
 
                 b.Property<string>("Source")
                     .IsRequired();

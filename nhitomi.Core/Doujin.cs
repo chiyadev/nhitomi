@@ -46,7 +46,6 @@ namespace nhitomi.Core
         /// <summary>
         /// The time at which this doujinshi object was created/processed.
         /// </summary>
-        [Timestamp]
         public DateTime ProcessTime { get; set; }
 
         /// <summary>
