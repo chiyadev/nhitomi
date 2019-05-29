@@ -198,14 +198,18 @@ namespace nhitomi.Core.Clients.Hitomi
         {
             var indices = await ReadNozomiIndicesAsync(cancellationToken);
 
-            // skip to starting id
-            if (int.TryParse(startId, out var intId))
-            {
-                var startIndex = Array.IndexOf(indices, intId);
+            Array.Sort(indices);
 
-                if (startIndex != -1)
-                    indices = indices.Subarray(startIndex);
-            }
+            // skip to starting id
+            int.TryParse(startId, out var intId);
+
+            var startIndex = 0;
+
+            for (; startIndex < indices.Length; startIndex++)
+                if (indices[startIndex] >= intId)
+                    break;
+
+            indices = indices.Subarray(startIndex);
 
             return indices.Select(x => x.ToString());
         }
