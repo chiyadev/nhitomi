@@ -61,7 +61,7 @@ namespace nhitomi.Core
 
             model.Entity<TJoin>(join =>
             {
-                join.ToTable($"Doujin{typeof(TTag).Name}");
+                join.ToTable($"{typeof(TTag).Name}Refs");
 
                 join.HasKey(x => new {x.DoujinId, x.TagId});
 
