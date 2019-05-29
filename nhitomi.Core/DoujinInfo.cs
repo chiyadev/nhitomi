@@ -48,9 +48,7 @@ namespace nhitomi.Core
 
             Characters = Characters?.Where(IsSpecified).Select(c => new Character.Reference(c)).ToList(),
             Categories = Categories?.Where(IsSpecified).Select(c => new Category.Reference(c)).ToList(),
-            Tags = Tags?.Where(IsSpecified).Select(t => new Tag.Reference(t)).ToList(),
-
-            Pages = Images?.Where(IsSpecified).Select(p => new Page {Url = p}).ToList()
+            Tags = Tags?.Where(IsSpecified).Select(t => new Tag.Reference(t)).ToList()
         };
 
         static bool IsNull(string str) => string.IsNullOrEmpty(str);

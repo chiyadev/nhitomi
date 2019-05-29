@@ -72,11 +72,6 @@ namespace nhitomi.Core
         public ICollection<Tag.Reference> Tags { get; set; }
 
         /// <summary>
-        /// Gets the pages of this doujinshi.
-        /// </summary>
-        public ICollection<Page> Pages { get; set; }
-
-        /// <summary>
         /// Gets the collections that contain this doujin.
         /// This is for navigation only and should not be included in queries.
         /// </summary>
@@ -102,29 +97,6 @@ namespace nhitomi.Core
             Character.Describe(model, d => d.Characters);
             Category.Describe(model, d => d.Categories);
             Tag.Describe(model, d => d.Tags);
-
-            Page.Describe(model);
-        }
-    }
-
-    public class Page
-    {
-        [Key] public int Id { get; set; }
-
-        public Doujin Doujin { get; set; }
-        public int DoujinId { get; set; }
-
-        [Required] public string Url { get; set; }
-
-        public static void Describe(ModelBuilder model)
-        {
-            model.Entity<Page>(page =>
-            {
-                page.HasOne(p => p.Doujin)
-                    .WithMany(d => d.Pages)
-                    .HasForeignKey(p => p.DoujinId)
-                    .IsRequired();
-            });
         }
     }
 
@@ -138,7 +110,6 @@ namespace nhitomi.Core
             .Include(d => d.ParodyOf)
             .Include(d => d.Characters).ThenInclude(x => x.Tag)
             .Include(d => d.Categories).ThenInclude(x => x.Tag)
-            .Include(d => d.Tags).ThenInclude(x => x.Tag)
-            .Include(d => d.Pages);
+            .Include(d => d.Tags).ThenInclude(x => x.Tag);
     }
 }
