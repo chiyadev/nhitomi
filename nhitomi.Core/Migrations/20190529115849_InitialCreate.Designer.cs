@@ -9,7 +9,7 @@ using nhitomi.Core;
 namespace nhitomi.Core.Migrations
 {
     [DbContext(typeof(nhitomiDbContext))]
-    [Migration("20190529115849_InitialCreate")]
+    [Migration("20190529163233_InitialCreate")]
     partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -118,7 +118,9 @@ namespace nhitomi.Core.Migrations
                         .IsRequired()
                         .HasMaxLength(32);
 
-                    b.HasKey("Id", "Type");
+                    b.HasKey("Id");
+
+                    b.HasIndex("Value");
 
                     b.ToTable("Tags");
                 });
@@ -129,11 +131,9 @@ namespace nhitomi.Core.Migrations
 
                     b.Property<int>("TagId");
 
-                    b.Property<int>("TagType");
-
                     b.HasKey("DoujinId", "TagId");
 
-                    b.HasIndex("TagId", "TagType");
+                    b.HasIndex("TagId");
 
                     b.ToTable("TagRef");
                 });
@@ -178,7 +178,7 @@ namespace nhitomi.Core.Migrations
 
                     b.HasOne("nhitomi.Core.Tag", "Tag")
                         .WithMany("Doujins")
-                        .HasForeignKey("TagId", "TagType")
+                        .HasForeignKey("TagId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 #pragma warning restore 612, 618

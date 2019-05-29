@@ -47,7 +47,7 @@ namespace nhitomi.Core.Migrations
                     Type = table.Column<int>(),
                     Value = table.Column<string>(maxLength: 32)
                 },
-                constraints: table => { table.PrimaryKey("PK_Tags", x => new {x.Id, x.Type}); });
+                constraints: table => { table.PrimaryKey("PK_Tags", x => x.Id); });
 
             migrationBuilder.CreateTable(
                 "Users",
@@ -64,8 +64,7 @@ namespace nhitomi.Core.Migrations
                 table => new
                 {
                     DoujinId = table.Column<int>(),
-                    TagId = table.Column<int>(),
-                    TagType = table.Column<int>()
+                    TagId = table.Column<int>()
                 },
                 constraints: table =>
                 {
@@ -77,10 +76,10 @@ namespace nhitomi.Core.Migrations
                         "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        "FK_TagRef_Tags_TagId_TagType",
-                        x => new {x.TagId, x.TagType},
+                        "FK_TagRef_Tags_TagId",
+                        x => x.TagId,
                         "Tags",
-                        new[] {"Id", "Type"},
+                        "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -167,9 +166,14 @@ namespace nhitomi.Core.Migrations
                 "SourceId");
 
             migrationBuilder.CreateIndex(
-                "IX_TagRef_TagId_TagType",
+                "IX_TagRef_TagId",
                 "TagRef",
-                new[] {"TagId", "TagType"});
+                "TagId");
+
+            migrationBuilder.CreateIndex(
+                "IX_Tags_Value",
+                "Tags",
+                "Value");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
