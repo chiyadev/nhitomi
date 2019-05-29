@@ -14,6 +14,8 @@ namespace nhitomi.Discord.Parsing
 
         readonly MethodBase _method;
         readonly ParameterInfo[] _parameters;
+        readonly Dictionary<string, ParameterInfo> _parameterDict;
+
         readonly int _requiredParams;
 
         readonly DependencyFactory<object> _moduleFactory;
@@ -28,6 +30,7 @@ namespace nhitomi.Discord.Parsing
         {
             _method = method;
             _parameters = method.GetParameters();
+            _parameterDict = _parameters.ToDictionary(p => p.Name);
             _requiredParams = _parameters.Count(p => !p.IsOptional);
 
             _moduleFactory = DependencyUtility.CreateFactory(method.DeclaringType);
@@ -48,7 +51,7 @@ namespace nhitomi.Discord.Parsing
             var bindingExpression = method.GetCustomAttribute<BindingAttribute>()?.Expression;
 
             if (bindingExpression == null && _parameters.Length != 0)
-                bindingExpression = $"[{string.Join("] [", _parameters.Select(p => p.Name))}]";
+                bindingExpression = $"[{string.Join("] [", _parameterDict.Keys)}]";
 
             _parameterRegex = new Regex(BuildParameterPattern(bindingExpression ?? ""), _options);
 
@@ -185,6 +188,8 @@ namespace nhitomi.Discord.Parsing
             if (!nameMatch.Success)
                 return false;
 
+            str = str.Substring(nameMatch.Index + nameMatch.Length);
+
             // split required parameters and options
             var hyphenIndex = str.IndexOf('-');
             var paramStr = hyphenIndex == -1 ? str : str.Substring(0, hyphenIndex);
@@ -193,17 +198,17 @@ namespace nhitomi.Discord.Parsing
             var argStrings = new Dictionary<string, string>();
 
             // match parameters
-            if (_requiredParams != 0 && !string.IsNullOrWhiteSpace(paramStr))
-            {
-                var paramMatch = _parameterRegex.Match(paramStr);
-                var paramGroups = paramMatch.Groups.Where(g => g.Success && g.Name != null).ToArray();
+            var paramMatch = _parameterRegex.Match(paramStr);
+            var paramGroups = paramMatch.Groups
+                .Where(g => g.Success &&
+                            _parameterDict.ContainsKey(g.Name))
+                .ToArray();
 
-                if (paramGroups.Length != _requiredParams)
-                    return false;
+            if (paramGroups.Length != _requiredParams)
+                return false;
 
-                foreach (var group in paramGroups)
-                    argStrings[group.Name] = group.Value.Trim();
-            }
+            foreach (var group in paramGroups)
+                argStrings[group.Name] = group.Value.Trim();
 
             // match options
             if (!string.IsNullOrWhiteSpace(optionStr))
@@ -220,7 +225,7 @@ namespace nhitomi.Discord.Parsing
             foreach (var parameter in _parameters)
             {
                 // required parameter is missing
-                if (!argStrings.TryGetValue(parameter.Name.ToLowerInvariant(), out var value) && !parameter.IsOptional)
+                if (!argStrings.TryGetValue(parameter.Name, out var value) && !parameter.IsOptional)
                     return false;
 
                 // invalid value
