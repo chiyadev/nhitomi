@@ -12,6 +12,18 @@ namespace nhitomi.Core
 {
     public static class Extensions
     {
+        public static bool OrderlessEquals<T>(this IEnumerable<T> enumerable, IEnumerable<T> other)
+        {
+            var set = new HashSet<T>(enumerable);
+
+            // items in other must be present in set
+            if (other.Any(item => !set.Remove(item)))
+                return false;
+
+            // set should not be a superset
+            return set.Count == 0;
+        }
+
         public static async Task<T> DeserializeAsync<T>(this JsonSerializer serializer, HttpContent content)
         {
             using (var reader = new StringReader(await content.ReadAsStringAsync()))
