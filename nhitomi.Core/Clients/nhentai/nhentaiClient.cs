@@ -114,7 +114,8 @@ namespace nhitomi.Core.Clients.nhentai
                 SourceId = id,
 
                 Artist = data.Tags?.FirstOrDefault(t => t.Type == "artist").Name,
-                Scanlator = data.Scanlator,
+                Group = data.Tags?.FirstOrDefault(t => t.Type == "group").Name,
+                Scanlator = string.IsNullOrWhiteSpace(data.Scanlator) ? null : data.Scanlator,
                 Language = data.Tags?.FirstOrDefault(t => t.Type == "language" && t.Name != "translated").Name,
                 ParodyOf = data.Tags?.FirstOrDefault(t => t.Type == "parody" && t.Name != "original").Name,
 
