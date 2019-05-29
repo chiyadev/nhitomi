@@ -370,5 +370,12 @@ namespace nhitomi.Core
                 return writer.ToString();
             }
         }
+
+        public static T Deserialize<T>(this JsonSerializer json, string value)
+        {
+            using (var reader = new StringReader(value))
+            using (var jsonReader = new JsonTextReader(reader))
+                return json.Deserialize<T>(jsonReader);
+        }
     }
 }
