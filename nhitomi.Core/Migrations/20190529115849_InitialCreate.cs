@@ -13,6 +13,7 @@ namespace nhitomi.Core.Migrations
                 table => new
                 {
                     Id = table.Column<int>()
+                        .Annotation("Sqlite:Autoincrement", true)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
                     GalleryUrl = table.Column<string>(),
                     PrettyName = table.Column<string>(),
@@ -31,6 +32,7 @@ namespace nhitomi.Core.Migrations
                 table => new
                 {
                     Id = table.Column<ulong>()
+                        .Annotation("Sqlite:Autoincrement", true)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
                     Language = table.Column<string>(nullable: true)
                 },
@@ -41,6 +43,7 @@ namespace nhitomi.Core.Migrations
                 table => new
                 {
                     Id = table.Column<int>()
+                        .Annotation("Sqlite:Autoincrement", true)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
                     Type = table.Column<int>(),
                     Value = table.Column<string>(maxLength: 32)
@@ -52,6 +55,7 @@ namespace nhitomi.Core.Migrations
                 table => new
                 {
                     Id = table.Column<ulong>()
+                        .Annotation("Sqlite:Autoincrement", true)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn)
                 },
                 constraints: table => { table.PrimaryKey("PK_Users", x => x.Id); });
@@ -86,6 +90,7 @@ namespace nhitomi.Core.Migrations
                 table => new
                 {
                     Id = table.Column<int>()
+                        .Annotation("Sqlite:Autoincrement", true)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
                     Name = table.Column<string>(maxLength: 32),
                     Sort = table.Column<int>(),
