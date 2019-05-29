@@ -36,7 +36,10 @@ namespace nhitomi.Globalization
 
         LocalizationDictionary LoadDictionary()
         {
-            var fallback = GetLocalization(FallbackCulture?.Name);
+            var fallback = this == Default
+                ? null // no fallback to ourselves
+                : GetLocalization(FallbackCulture?.Name);
+
             var dict = new LocalizationDictionary(fallback?._dict.Value);
 
             dict.AddDefinition(CreateDefinition());
