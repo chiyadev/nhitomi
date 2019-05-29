@@ -19,8 +19,7 @@ namespace nhitomi.Core.Migrations
                     PrettyName = table.Column<string>(),
                     OriginalName = table.Column<string>(),
                     UploadTime = table.Column<DateTime>(),
-                    ProcessTime = table.Column<DateTime>()
-                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.ComputedColumn),
+                    ProcessTime = table.Column<DateTime>(),
                     Source = table.Column<string>(),
                     SourceId = table.Column<string>(),
                     PageCount = table.Column<int>()
@@ -171,12 +170,6 @@ namespace nhitomi.Core.Migrations
                 "IX_TagRef_TagId_TagType",
                 "TagRef",
                 new[] {"TagId", "TagType"});
-
-            migrationBuilder.CreateIndex(
-                "IX_Tags_Value",
-                "Tags",
-                "Value",
-                unique: true);
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)

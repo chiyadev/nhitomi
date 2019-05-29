@@ -72,9 +72,7 @@ namespace nhitomi.Core.Migrations
                     b.Property<string>("PrettyName")
                         .IsRequired();
 
-                    b.Property<DateTime>("ProcessTime")
-                        .IsConcurrencyToken()
-                        .ValueGeneratedOnAddOrUpdate();
+                    b.Property<DateTime>("ProcessTime");
 
                     b.Property<string>("Source")
                         .IsRequired();
@@ -121,9 +119,6 @@ namespace nhitomi.Core.Migrations
                         .HasMaxLength(32);
 
                     b.HasKey("Id", "Type");
-
-                    b.HasIndex("Value")
-                        .IsUnique();
 
                     b.ToTable("Tags");
                 });
