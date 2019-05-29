@@ -47,6 +47,6 @@ namespace nhitomi.Discord
         public static IDisposable BeginTyping(this IDiscordContext context) => context.Channel.EnterTypingState();
 
         public static Task ReplyAsync(this IDiscordContext context, string localizationKey, object variables = null) =>
-            context.Channel.SendMessageAsync(new LocalizationPath(localizationKey)[context.Localization](variables));
+            context.Channel.SendMessageAsync(new LocalizationPath(localizationKey)[context](variables));
     }
 }

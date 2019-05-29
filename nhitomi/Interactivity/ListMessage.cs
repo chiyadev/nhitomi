@@ -121,11 +121,11 @@ namespace nhitomi.Interactivity
                 switch (status)
                 {
                     case Status.Start:
-                        await SetMessageAsync(path["listBeginning"][Context.Localization](), cancellationToken);
+                        await SetMessageAsync(path["listBeginning"][Context](), cancellationToken);
                         break;
 
                     case Status.End:
-                        await SetMessageAsync(path["listEnd"][Context.Localization](), cancellationToken);
+                        await SetMessageAsync(path["listEnd"][Context](), cancellationToken);
                         break;
                 }
 
