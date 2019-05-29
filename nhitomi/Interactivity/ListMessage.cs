@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Discord;
+using nhitomi.Globalization;
 using nhitomi.Interactivity.Triggers;
 
 namespace nhitomi.Interactivity
@@ -106,25 +107,25 @@ namespace nhitomi.Interactivity
                     return true;
                 }
 
-                // embed saying there is nothing in this list
                 if (ListMessage._valueCache.Count == 0)
                 {
+                    // embed saying there is nothing in this list
                     await SetEmbedAsync(CreateEmptyEmbed(), cancellationToken);
 
                     return false;
                 }
 
-                // reached start of list
-                //todo: localize
+                // we reached the extremes
+                var path = new LocalizationPath("messages");
 
                 switch (status)
                 {
-                    // reached end of list
                     case Status.Start:
-                        await SetMessageAsync("start of list", cancellationToken);
+                        await SetMessageAsync(path["listBeginning"][Context.Localization](), cancellationToken);
                         break;
+
                     case Status.End:
-                        await SetMessageAsync("end of list", cancellationToken);
+                        await SetMessageAsync(path["listEnd"][Context.Localization](), cancellationToken);
                         break;
                 }
 
