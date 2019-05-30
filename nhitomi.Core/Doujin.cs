@@ -61,7 +61,7 @@ namespace nhitomi.Core
         public string SourceId { get; set; }
 
         /// <summary>
-        /// Internal data used to store doujin client-specific information, such as page information.
+        /// Internal data used to store <see cref="IDoujinClient"/>-specific information, such as page information.
         /// </summary>
         public string Data { get; set; }
 
