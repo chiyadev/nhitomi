@@ -81,6 +81,10 @@ namespace nhitomi.Core.Clients
         {
             if (Equals(x, y))
                 return;
+            // consider empty to be equal
+            if ((x != null & y?.Any() ?? false) || (x?.Any() ?? false) && y != null)
+                return;
+            // consider equality without order
             if (x != null && y != null && x.OrderlessEquals(y))
                 return;
 
