@@ -13,7 +13,7 @@ namespace nhitomi.Core.Clients.nhentai
             PrettyName =
                 "Onna no Karada ni Natta Ore wa Danshikou no Shuugaku Ryokou de, Classmate 30-ninZenin to Yarimashita.",
             OriginalName = "女の体になった俺は男子校の修学旅行で、クラスメイト30人全員とヤリました。",
-            UploadTime = new DateTime(2019, 5, 30, 9, 39, 59),
+            UploadTime = DateTime.Parse("2018-10-15T15:17:55+00:00"),
             SourceId = "250000",
             Tags = new[]
             {
