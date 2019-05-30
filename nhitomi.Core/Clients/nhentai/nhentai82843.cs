@@ -31,7 +31,8 @@ namespace nhitomi.Core.Clients.nhentai
             },
             Artist = "tomekichi",
             Group = "tottototomekichi",
-            Language = "japanese"
+            Language = "japanese",
+            PageCount = 26
         };
     }
 }
