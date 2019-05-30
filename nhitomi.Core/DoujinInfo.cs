@@ -33,8 +33,9 @@ namespace nhitomi.Core
         {
             GalleryUrl = GalleryUrl,
 
-            PrettyName = PrettyName,
-            OriginalName = OriginalName,
+            // ensure both are not null
+            PrettyName = PrettyName ?? OriginalName,
+            OriginalName = OriginalName ?? PrettyName,
 
             UploadTime = UploadTime,
             ProcessTime = DateTime.UtcNow,
