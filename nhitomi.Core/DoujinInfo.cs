@@ -52,31 +52,31 @@ namespace nhitomi.Core
         IEnumerable<TagRef> CreateTagRefs()
         {
             if (!string.IsNullOrWhiteSpace(Artist))
-                yield return new TagRef(TagType.Artist, Artist);
+                yield return new TagRef(TagType.Artist, Artist.ToLowerInvariant());
 
             if (!string.IsNullOrWhiteSpace(Group))
-                yield return new TagRef(TagType.Group, Group);
+                yield return new TagRef(TagType.Group, Group.ToLowerInvariant());
 
             if (!string.IsNullOrWhiteSpace(Scanlator))
-                yield return new TagRef(TagType.Scanlator, Scanlator);
+                yield return new TagRef(TagType.Scanlator, Scanlator.ToLowerInvariant());
 
             if (!string.IsNullOrWhiteSpace(Language))
-                yield return new TagRef(TagType.Language, Language);
+                yield return new TagRef(TagType.Language, Language.ToLowerInvariant());
 
             if (!string.IsNullOrWhiteSpace(Parody))
-                yield return new TagRef(TagType.Parody, Parody);
+                yield return new TagRef(TagType.Parody, Parody.ToLowerInvariant());
 
             if (Characters != null)
                 foreach (var character in Characters)
-                    yield return new TagRef(TagType.Character, character);
+                    yield return new TagRef(TagType.Character, character.ToLowerInvariant());
 
             if (Categories != null)
                 foreach (var category in Categories)
-                    yield return new TagRef(TagType.Category, category);
+                    yield return new TagRef(TagType.Category, category.ToLowerInvariant());
 
             if (Tags != null)
                 foreach (var tag in Tags)
-                    yield return new TagRef(TagType.Tag, tag);
+                    yield return new TagRef(TagType.Tag, tag.ToLowerInvariant());
         }
     }
 }
