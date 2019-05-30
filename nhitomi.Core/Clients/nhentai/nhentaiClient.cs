@@ -43,7 +43,7 @@ namespace nhitomi.Core.Clients.nhentai
 
             public struct ImagesData
             {
-                [JsonProperty("images")] public ImageData[] Pages;
+                [JsonProperty("pages")] public ImageData[] Pages;
 
                 public struct ImageData
                 {
