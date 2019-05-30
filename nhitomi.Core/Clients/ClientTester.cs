@@ -81,11 +81,13 @@ namespace nhitomi.Core.Clients
         {
             if (Equals(x, y))
                 return;
+
             // consider empty to be equal
-            if (x != null && (y?.Any() ?? false) || (x?.Any() ?? false) && y != null)
-                return;
+            x = x ?? Enumerable.Empty<T>();
+            y = y ?? Enumerable.Empty<T>();
+
             // consider equality without order
-            if (x != null && y != null && x.OrderlessEquals(y))
+            if (x.OrderlessEquals(y))
                 return;
 
             throw new ClientTesterException($"Property '{propertyName}' did not match. " +
