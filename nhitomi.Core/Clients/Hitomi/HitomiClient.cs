@@ -226,15 +226,15 @@ namespace nhitomi.Core.Clients.Hitomi
             return indices.Select(x => x.ToString());
         }
 
-        public IEnumerable<string> PopulatePages(Doujin doujin)
+        public IEnumerable<string> PopulatePages(string data)
         {
-            var data = _serializer.Deserialize<InternalDoujinData>(doujin.Data);
+            var doujin = _serializer.Deserialize<InternalDoujinData>(data);
 
-            if (data.Images == null)
+            if (doujin.Images == null)
                 yield break;
 
-            foreach (var image in data.Images)
-                yield return Hitomi.Image(data.Id, image);
+            foreach (var image in doujin.Images)
+                yield return Hitomi.Image(doujin.Id, image);
         }
 
         public void Dispose()
