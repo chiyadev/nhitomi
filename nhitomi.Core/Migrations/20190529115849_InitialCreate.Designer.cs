@@ -9,7 +9,7 @@ using nhitomi.Core;
 namespace nhitomi.Core.Migrations
 {
     [DbContext(typeof(nhitomiDbContext))]
-    [Migration("20190529163233_InitialCreate")]
+    [Migration("20190529115849_InitialCreate")]
     partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
