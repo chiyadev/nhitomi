@@ -2,6 +2,7 @@ using System;
 
 namespace nhitomi.Core.Clients.Hitomi
 {
+    [Ignored]
     public class Hitomi1422964 : ClientTestCase
     {
         public override string DoujinId => "1422964";

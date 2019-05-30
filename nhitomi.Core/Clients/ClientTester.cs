@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
@@ -16,7 +17,8 @@ namespace nhitomi.Core.Clients
     {
         static readonly Dictionary<Type, ClientTestCase[]> _testCases = typeof(IDoujinClient).Assembly
             .GetTypes()
-            .Where(t => !t.IsAbstract && t.IsClass && t.IsSubclassOf(typeof(ClientTestCase)))
+            .Where(t => !t.IsAbstract && t.IsClass && t.IsSubclassOf(typeof(ClientTestCase)) &&
+                        t.GetCustomAttribute<IgnoredAttribute>() == null)
             .Select(t => (ClientTestCase) Activator.CreateInstance(t))
             .GroupBy(c => c.ClientType)
             .ToDictionary(g => g.Key, g => g.ToArray());
