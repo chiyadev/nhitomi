@@ -43,7 +43,7 @@ namespace nhitomi.Core
         public DbSet<User> Users { get; set; }
         public DbSet<Guild> Guilds { get; set; }
 
-        public nhitomiDbContext(DbContextOptions options) : base(options)
+        public nhitomiDbContext(DbContextOptions<nhitomiDbContext> options) : base(options)
         {
         }
 
@@ -205,6 +205,6 @@ namespace nhitomi.Core
     public sealed class nhitomiDbContextDesignTimeFactory : IDesignTimeDbContextFactory<nhitomiDbContext>
     {
         public nhitomiDbContext CreateDbContext(string[] args) => new nhitomiDbContext(
-            new DbContextOptionsBuilder().UseMySql("Server=localhost;").Options);
+            new DbContextOptionsBuilder<nhitomiDbContext>().UseMySql("Server=localhost;").Options);
     }
 }
