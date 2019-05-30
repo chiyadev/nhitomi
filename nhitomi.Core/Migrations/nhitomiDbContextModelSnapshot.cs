@@ -58,6 +58,8 @@ namespace nhitomi.Core.Migrations
                 b.Property<int>("Id")
                     .ValueGeneratedOnAdd();
 
+                b.Property<string>("Data");
+
                 b.Property<string>("GalleryUrl")
                     .IsRequired();
 
