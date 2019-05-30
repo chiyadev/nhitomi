@@ -34,8 +34,8 @@ namespace nhitomi.Core.Clients
                 foreach (var testCase in testCases)
                 {
                     // retrieve doujin
-                    var x = await client.GetAsync(testCase.DoujinId, cancellationToken);
-                    var y = testCase.KnownValue;
+                    var x = testCase.KnownValue;
+                    var y = await client.GetAsync(testCase.DoujinId, cancellationToken);
 
                     // compare the retrieved doujin with the known value
                     Compare(x.GalleryUrl, y.GalleryUrl, nameof(DoujinInfo.GalleryUrl));
@@ -72,7 +72,8 @@ namespace nhitomi.Core.Clients
             if (Equals(x, y))
                 return;
 
-            throw new ClientTesterException($"Property '{propertyName}' did not match: '{x}' != '{y}'");
+            throw new ClientTesterException(
+                $"Property '{propertyName}' did not match. Expected: '{x}', Actual: '{y}'.");
         }
 
         [SuppressMessage("ReSharper", "PossibleMultipleEnumeration")]
@@ -83,8 +84,9 @@ namespace nhitomi.Core.Clients
             if (x != null && y != null && x.OrderlessEquals(y))
                 return;
 
-            throw new ClientTesterException($"Property '{propertyName}' did not match: " +
-                                            $"'{(x == null ? "<null>" : string.Join("', '", x))}' != '{(y == null ? "<null>" : string.Join("', '", y))}'");
+            throw new ClientTesterException($"Property '{propertyName}' did not match. " +
+                                            $"Expected: '{(x == null ? "<null>" : string.Join("', '", x))}', " +
+                                            $"Actual: '{(y == null ? "<null>" : string.Join("', '", y))}'.");
         }
 
         public void ThrowExceptions()
