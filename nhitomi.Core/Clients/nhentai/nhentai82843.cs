@@ -12,7 +12,7 @@ namespace nhitomi.Core.Clients.nhentai
             GalleryUrl = "https://nhentai.net/g/82843/",
             PrettyName = "Kami-sama o Chikan",
             OriginalName = "神様を痴漢",
-            UploadTime = DateTime.Parse("2014-06-28T23:14:15+00:00"),
+            UploadTime = DateTime.Parse("2014-06-28T23:14:15+00:00").ToUniversalTime(),
             SourceId = "82843",
             Parody = "the world god only knows",
             Characters = new[]
