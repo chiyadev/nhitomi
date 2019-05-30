@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -105,8 +106,8 @@ namespace nhitomi.Core.Clients.nhentai
             {
                 GalleryUrl = $"https://nhentai.net/g/{id}/",
 
-                PrettyName = data.Title.Pretty,
-                OriginalName = data.Title.Japanese,
+                PrettyName = FixTitle(data.Title.Pretty),
+                OriginalName = FixTitle(data.Title.Japanese),
 
                 UploadTime = DateTimeOffset.FromUnixTimeSeconds(data.UploadDate).UtcDateTime,
 
@@ -130,6 +131,21 @@ namespace nhitomi.Core.Clients.nhentai
                 }),
                 PageCount = data.Images.Pages.Length
             };
+        }
+
+        // regex to match () and [] in titles
+        static readonly Regex _bracketsRegex = new Regex(@"\([^)]*\)|\[[^\]]*\]",
+            RegexOptions.Compiled | RegexOptions.Singleline);
+
+        static string FixTitle(string japanese)
+        {
+            if (string.IsNullOrWhiteSpace(japanese))
+                return null;
+
+            // replace stuff in brackets with nothing
+            japanese = _bracketsRegex.Replace(japanese, "").Trim();
+
+            return string.IsNullOrEmpty(japanese) ? null : japanese;
         }
 
         sealed class InternalDoujinData
