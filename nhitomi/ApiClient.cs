@@ -187,7 +187,7 @@ namespace nhitomi
             }
         }
 
-        public Uri GetCoverUri(Doujin doujin) => new DownloadToken(doujin, null, GetRequestUri).GetUri(0);
+        public Uri GetCoverUri(Doujin doujin) => new DownloadToken(doujin, null, GetRequestUri).GetUri(-1);
     }
 
     [Serializable]
