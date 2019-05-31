@@ -38,6 +38,7 @@ namespace nhitomi.Globalization
             doujinMessage = new
             {
                 language = "Language",
+                group = "Group",
                 parody = "Parody of",
                 categories = "Categories",
                 characters = "Characters",
