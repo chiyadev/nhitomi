@@ -13,6 +13,9 @@ namespace nhitomi.Core
         Task<DoujinInfo> GetAsync(string id, CancellationToken cancellationToken = default);
         Task<IEnumerable<string>> EnumerateAsync(string startId = null, CancellationToken cancellationToken = default);
 
+        /// <summary>
+        /// Gets image URL of the pages in the doujin.
+        /// </summary>
         IEnumerable<string> PopulatePages(Doujin doujin);
     }
 }
