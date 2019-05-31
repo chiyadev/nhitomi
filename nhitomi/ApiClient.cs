@@ -111,13 +111,13 @@ namespace nhitomi
 
         sealed class LoginRequest
         {
-            [JsonProperty("id")] public string Id { get; set; }
+            [JsonProperty("id")] public string AuthToken { get; set; }
         }
 
         sealed class LoginResult
         {
             [JsonProperty("user")] public UserInfo User { get; set; }
-            [JsonProperty("token")] public string Token { get; set; }
+            [JsonProperty("token")] public string AccessToken { get; set; }
 
             public class UserInfo
             {
@@ -138,7 +138,7 @@ namespace nhitomi
                 using (var response = await RequestAsync(HttpMethod.Post, "users/auth", new LoginRequest
                 {
                     // contact phosphene47#0001 for an api token
-                    Id = _settings.Api.AuthToken
+                    AuthToken = _settings.Api.AuthToken
                 }, cancellationToken, false))
                 {
                     if (!response.IsSuccessStatusCode)
@@ -148,7 +148,7 @@ namespace nhitomi
                     var result = _serializer.Deserialize<LoginResult>(await response.Content.ReadAsStringAsync());
 
                     // remember token to be used for later requests
-                    _accessToken = result.Token;
+                    _accessToken = result.AccessToken;
                 }
             }
             finally
@@ -166,7 +166,7 @@ namespace nhitomi
         sealed class CreateDownloadResult
         {
             [JsonProperty("doujin")] public Doujin Doujin { get; set; }
-            [JsonProperty("token")] public string Token { get; set; }
+            [JsonProperty("token")] public string DownloadToken { get; set; }
         }
 
         public async Task<DownloadToken> CreateDownloadAsync(Doujin doujin,
@@ -183,7 +183,7 @@ namespace nhitomi
 
                 var result = _serializer.Deserialize<CreateDownloadResult>(await response.Content.ReadAsStringAsync());
 
-                return new DownloadToken(doujin, result.Token, GetRequestUri);
+                return new DownloadToken(doujin, result.DownloadToken, GetRequestUri);
             }
         }
 
