@@ -71,8 +71,10 @@ namespace nhitomi
             };
 
             // authentication
-            if (_accessToken != null)
-                message.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _accessToken);
+            var accessToken = _accessToken;
+
+            if (accessToken != null)
+                message.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
 
             // request body
             if (body != null)
