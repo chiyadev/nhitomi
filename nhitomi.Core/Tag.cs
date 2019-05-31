@@ -22,7 +22,7 @@ namespace nhitomi.Core
 
         public TagType Type { get; set; }
 
-        [Required, MaxLength(32)] public string Value { get; set; }
+        [Required, MaxLength(64)] public string Value { get; set; }
 
         public ICollection<TagRef> Doujins { get; set; }
 
