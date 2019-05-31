@@ -37,8 +37,7 @@ namespace nhitomi
     {
         Task LoginAsync(CancellationToken cancellationToken = default);
 
-        Task<DownloadToken> CreateDownloadAsync(string source, string id,
-            CancellationToken cancellationToken = default);
+        Task<DownloadToken> CreateDownloadAsync(Doujin doujin, CancellationToken cancellationToken = default);
     }
 
     public class ApiClient : IApiClient
@@ -160,13 +159,13 @@ namespace nhitomi
             [JsonProperty("token")] public string Token { get; set; }
         }
 
-        public async Task<DownloadToken> CreateDownloadAsync(string source, string id,
+        public async Task<DownloadToken> CreateDownloadAsync(Doujin doujin,
             CancellationToken cancellationToken = default)
         {
             using (var response = await RequestAsync(HttpMethod.Post, "dl", new CreateDownloadRequest
             {
-                Source = source,
-                Id = id
+                Source = doujin.Source,
+                Id = doujin.SourceId
             }, cancellationToken))
             {
                 if (!response.IsSuccessStatusCode)
@@ -174,7 +173,7 @@ namespace nhitomi
 
                 var result = _serializer.Deserialize<CreateDownloadResult>(await response.Content.ReadAsStringAsync());
 
-                return new DownloadToken(source, id, result.Token, GetRequestUri);
+                return new DownloadToken(doujin.Source, doujin.SourceId, result.Token, GetRequestUri);
             }
         }
     }
