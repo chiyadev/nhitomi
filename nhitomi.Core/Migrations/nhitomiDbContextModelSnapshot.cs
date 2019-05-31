@@ -115,7 +115,7 @@ namespace nhitomi.Core.Migrations
 
                 b.Property<string>("Value")
                     .IsRequired()
-                    .HasMaxLength(32);
+                    .HasMaxLength(64);
 
                 b.HasKey("Id");
 
