@@ -1,34 +1,47 @@
 using System;
 using System.Linq;
-using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
 
 namespace nhitomi.Core
 {
     public static class SearchHelper
     {
-        public static IQueryable<T> FullTextSearch<T, TProperty>(this IQueryable<T> queryable, IDatabase db,
-            string query, params Expression<Func<T, TProperty>>[] paths)
+        public static IQueryable<T> FullTextSearch<T>(this IQueryable<T> queryable, IDatabase db, string query)
+            where T : class
         {
             if (!(db is DbContext context))
                 throw new ArgumentException($"{nameof(db)} is not a {nameof(DbContext)}.");
 
             switch (context.Database.ProviderName)
             {
-                case "Pomelo.EntityFrameworkCore.MySql": return queryable.MySqlMatch(query, paths);
-                case "Microsoft.EntityFrameworkCore.Sqlite": return queryable.SqliteMatch(query, paths);
+                case "Pomelo.EntityFrameworkCore.MySql": return queryable.MySqlMatch(query);
+                case "Microsoft.EntityFrameworkCore.Sqlite": return queryable.SqliteMatch(query);
             }
 
             throw new NotSupportedException($"Unknown database provider {context.Database.ProviderName}.");
         }
 
-        //todo:
-        public static IQueryable<T> MySqlMatch<T, TProperty>(this IQueryable<T> queryable,
-            string query, params Expression<Func<T, TProperty>>[] paths) =>
-            queryable;
+        static IQueryable<T> MySqlMatch<T>(this IQueryable<T> queryable, string query)
+            where T : class =>
+            queryable.FromSql(@"
+SELECT *
+FROM `Doujins`
+WHERE
+    MATCH `PrettyName` AGAINST ({0} IN NATURAL LANGUAGE MODE) OR
+    MATCH `OriginalName` AGAINST ({0} IN NATURAL LANGUAGE MODE) OR
+    `Doujins`.`Id` IN (
+        SELECT `DoujinId`
+        FROM `TagRef`
+        WHERE `TagRef`.`TagId` IN (
+            SELECT `Id`
+            FROM `Tags`
+            WHERE MATCH `Value` AGAINST ({0} IN NATURAL LANGUAGE MODE)))
+ORDER BY
+    MATCH `PrettyName` AGAINST ({0} IN NATURAL LANGUAGE MODE) +
+    MATCH `OriginalName` AGAINST ({0} IN NATURAL LANGUAGE MODE) DESC", query);
 
-        public static IQueryable<T> SqliteMatch<T, TProperty>(this IQueryable<T> queryable,
-            string query, params Expression<Func<T, TProperty>>[] paths) =>
+        //todo:
+        static IQueryable<T> SqliteMatch<T>(this IQueryable<T> queryable, string query) =>
             queryable;
     }
 }
