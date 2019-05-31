@@ -72,7 +72,7 @@ namespace nhitomi.Interactivity
                 AddField(embed, path["categories"][l](), doujin.GetTags(TagType.Category).Select(t => t.Value));
                 AddField(embed, path["characters"][l](), doujin.GetTags(TagType.Character).Select(t => t.Value));
                 AddField(embed, path["tags"][l](), doujin.GetTags(TagType.Tag).Select(t => t.Value));
-                AddField(embed, path["content"][l](), $"{doujin.PageCount} pages");
+                AddField(embed, path["contents"][l](), $"{doujin.PageCount} pages");
 
                 return embed.Build();
             }
