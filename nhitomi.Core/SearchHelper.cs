@@ -23,6 +23,7 @@ namespace nhitomi.Core
 
         static IQueryable<T> MySqlMatch<T>(this IQueryable<T> queryable, string query)
             where T : class =>
+            //todo: optimize this dumb shit
             queryable.FromSql(@"
 SELECT *
 FROM `Doujins`
