@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
@@ -57,7 +58,7 @@ namespace nhitomi.Http
             }
         }
 
-        Task HandleRequestAsync(HttpListenerContext context, CancellationToken cancellationToken = default)
+        async Task HandleRequestAsync(HttpListenerContext context, CancellationToken cancellationToken = default)
         {
             var request = context.Request;
             var response = context.Response;
@@ -68,17 +69,28 @@ namespace nhitomi.Http
 
                 // default endpoint
                 if (segments.Length == 0)
-                    return Task.CompletedTask;
+                {
+                    response.Redirect("https://chiya.dev");
+                    return;
+                }
 
                 // proxy endpoint
                 if (_settings.Http.EnableProxy && segments[0] == "proxy")
-                    return _proxyHandler.HandleRequestAsync(
+                {
+                    await _proxyHandler.HandleRequestAsync(
                         context,
                         string.Join('/', segments.Subarray(1)) + request.Url.Query,
                         cancellationToken);
 
+                    return;
+                }
+
                 // not found
                 response.StatusCode = 400;
+                response.ContentType = "text/plain";
+
+                using (var writer = new StreamWriter(response.OutputStream))
+                    await writer.WriteLineAsync("404 Not Found");
             }
             catch (Exception e)
             {
@@ -89,8 +101,6 @@ namespace nhitomi.Http
                 // always close response
                 response.Close();
             }
-
-            return Task.CompletedTask;
         }
     }
 }
