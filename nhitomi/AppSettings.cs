@@ -39,6 +39,7 @@ namespace nhitomi
 
         public sealed class ApiSettings
         {
+            public string BaseUrl { get; set; }
             public string AuthToken { get; set; }
         }
 

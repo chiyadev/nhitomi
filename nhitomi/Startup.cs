@@ -65,6 +65,10 @@ namespace nhitomi
                 .AddHostedService<LogHandlerService>()
                 .AddHostedService<DiscordLocalizationService>();
 
+            // api service
+            services
+                .AddSingleton<IApiClient, ApiClient>();
+
             // http server
             services
                 .AddHostedService<HttpService>()
