@@ -58,26 +58,32 @@ namespace nhitomi.Core.Migrations
                 b.Property<int>("Id")
                     .ValueGeneratedOnAdd();
 
-                b.Property<string>("Data");
+                b.Property<string>("Data")
+                    .HasMaxLength(4096);
 
                 b.Property<string>("GalleryUrl")
-                    .IsRequired();
+                    .IsRequired()
+                    .HasMaxLength(64);
 
                 b.Property<string>("OriginalName")
-                    .IsRequired();
+                    .IsRequired()
+                    .HasMaxLength(256);
 
                 b.Property<int>("PageCount");
 
                 b.Property<string>("PrettyName")
-                    .IsRequired();
+                    .IsRequired()
+                    .HasMaxLength(256);
 
                 b.Property<DateTime>("ProcessTime");
 
                 b.Property<string>("Source")
-                    .IsRequired();
+                    .IsRequired()
+                    .HasMaxLength(16);
 
                 b.Property<string>("SourceId")
-                    .IsRequired();
+                    .IsRequired()
+                    .HasMaxLength(16);
 
                 b.Property<DateTime>("UploadTime");
 

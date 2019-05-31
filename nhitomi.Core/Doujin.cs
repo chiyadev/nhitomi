@@ -14,21 +14,21 @@ namespace nhitomi.Core
         /// <summary>
         /// The URL at which this doujinshi was initially found at.
         /// </summary>
-        [Required]
+        [Required, MaxLength(64)]
         public string GalleryUrl { get; set; }
 
         /// <summary>
         /// Prettified name of the doujinshi.
         /// This is usually English.
         /// </summary>
-        [Required]
+        [Required, MaxLength(256)]
         public string PrettyName { get; set; }
 
         /// <summary>
         /// Original name of the doujinshi.
         /// This is usually the original language of the doujinshi (i.e. Japanese).
         /// </summary>
-        [Required]
+        [Required, MaxLength(256)]
         public string OriginalName { get; set; }
 
         /// <summary>
@@ -51,18 +51,19 @@ namespace nhitomi.Core
         /// <summary>
         /// The source of this doujinshi (e.g. nhentai, hitomi, etc.).
         /// </summary>
-        [Required]
+        [Required, MaxLength(16)]
         public string Source { get; set; }
 
         /// <summary>
         /// The identifier used by the source (e.g. gallery ID for nhentai).
         /// </summary>
-        [Required]
+        [Required, MaxLength(16)]
         public string SourceId { get; set; }
 
         /// <summary>
         /// Internal data used to store <see cref="IDoujinClient"/>-specific information, such as page information.
         /// </summary>
+        [MaxLength(4096)]
         public string Data { get; set; }
 
         /// <summary>
