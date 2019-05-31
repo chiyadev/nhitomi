@@ -195,18 +195,18 @@ namespace nhitomi.Core.Clients.nhentai
                 yield return i.ToString();
         }
 
-        public IEnumerable<string> PopulatePages(string data)
+        public IEnumerable<string> PopulatePages(Doujin doujin)
         {
-            var doujin = _serializer.Deserialize<InternalDoujinData>(data);
+            var data = _serializer.Deserialize<InternalDoujinData>(doujin.Data);
 
-            if (doujin.MediaId == 0 || doujin.Extensions == null)
+            if (data.MediaId == 0 || data.Extensions == null)
                 yield break;
 
-            for (var i = 0; i < doujin.Extensions.Length; i++)
+            for (var i = 0; i < data.Extensions.Length; i++)
             {
-                var ext = doujin.Extensions[i];
+                var ext = data.Extensions[i];
 
-                yield return nhentai.Image(doujin.MediaId, i, FixExtension(ext));
+                yield return nhentai.Image(data.MediaId, i, FixExtension(ext));
             }
         }
 
