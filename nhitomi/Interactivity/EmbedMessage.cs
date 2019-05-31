@@ -72,14 +72,9 @@ namespace nhitomi.Interactivity
         {
             protected abstract Embed CreateEmbed();
 
-            protected virtual Task<Embed> CreateEmbedAsync(CancellationToken cancellationToken = default) =>
-                Task.FromResult(CreateEmbed());
-
             public override async Task<bool> UpdateAsync(CancellationToken cancellationToken = default)
             {
-                var embed = await CreateEmbedAsync(cancellationToken);
-
-                await SetEmbedAsync(embed, cancellationToken);
+                await SetEmbedAsync(CreateEmbed(), cancellationToken);
 
                 return true;
             }
