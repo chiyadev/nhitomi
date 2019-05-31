@@ -73,12 +73,17 @@ namespace nhitomi.Core.Clients.Hitomi
                 Method = HttpMethod.Get,
                 RequestUri = new Uri(Hitomi.Gallery(intId))
             }, cancellationToken))
-            using (var reader = new StringReader(await response.Content.ReadAsStringAsync()))
             {
-                var doc = new HtmlDocument();
-                doc.Load(reader);
+                if (!response.IsSuccessStatusCode)
+                    return null;
 
-                root = doc.DocumentNode;
+                using (var reader = new StringReader(await response.Content.ReadAsStringAsync()))
+                {
+                    var doc = new HtmlDocument();
+                    doc.Load(reader);
+
+                    root = doc.DocumentNode;
+                }
             }
 
             // filter out anime
@@ -118,20 +123,25 @@ namespace nhitomi.Core.Clients.Hitomi
                 Method = HttpMethod.Get,
                 RequestUri = new Uri(Hitomi.GalleryInfo(intId))
             }, cancellationToken))
-            using (var textReader = new StringReader(await response.Content.ReadAsStringAsync()))
-            using (var jsonReader = new JsonTextReader(textReader))
             {
-                // discard javascript bit and start at json
-                while ((char) textReader.Peek() != '[')
-                    textReader.Read();
+                if (!response.IsSuccessStatusCode)
+                    return null;
 
-                var images = _serializer.Deserialize<ImageInfo[]>(jsonReader);
-
-                doujin.Data = _serializer.Serialize(new InternalDoujinData
+                using (var textReader = new StringReader(await response.Content.ReadAsStringAsync()))
+                using (var jsonReader = new JsonTextReader(textReader))
                 {
-                    Id = intId,
-                    Images = images.Select(i => i.Name).ToArray()
-                });
+                    // discard javascript bit and start at json
+                    while ((char) textReader.Peek() != '[')
+                        textReader.Read();
+
+                    var images = _serializer.Deserialize<ImageInfo[]>(jsonReader);
+
+                    doujin.Data = _serializer.Serialize(new InternalDoujinData
+                    {
+                        Id = intId,
+                        Images = images.Select(i => i.Name).ToArray()
+                    });
+                }
             }
 
             return doujin;
@@ -188,12 +198,17 @@ namespace nhitomi.Core.Clients.Hitomi
                     Method = HttpMethod.Get,
                     RequestUri = new Uri(Hitomi.NozomiIndex)
                 }, cancellationToken))
-                using (var stream = await response.Content.ReadAsStreamAsync())
-                    await stream.CopyToAsync(memory, 4096, cancellationToken);
+                {
+                    if (!response.IsSuccessStatusCode)
+                        return null;
+
+                    using (var stream = await response.Content.ReadAsStreamAsync())
+                        await stream.CopyToAsync(memory, 4096, cancellationToken);
+
+                    memory.Position = 0;
+                }
 
                 var indices = new int[memory.Length / sizeof(int)];
-
-                memory.Position = 0;
 
                 using (var reader = new BinaryReader(memory))
                 {
@@ -209,6 +224,9 @@ namespace nhitomi.Core.Clients.Hitomi
             CancellationToken cancellationToken = default)
         {
             var indices = await ReadNozomiIndicesAsync(cancellationToken);
+
+            if (indices == null)
+                return null;
 
             Array.Sort(indices);
 

@@ -98,9 +98,14 @@ namespace nhitomi.Core.Clients.nhentai
                 Method = HttpMethod.Get,
                 RequestUri = new Uri(nhentai.Gallery(intId))
             }, cancellationToken))
-            using (var textReader = new StringReader(await response.Content.ReadAsStringAsync()))
-            using (var jsonReader = new JsonTextReader(textReader))
-                data = _serializer.Deserialize<nhentai.DoujinData>(jsonReader);
+            {
+                if (!response.IsSuccessStatusCode)
+                    return null;
+
+                using (var textReader = new StringReader(await response.Content.ReadAsStringAsync()))
+                using (var jsonReader = new JsonTextReader(textReader))
+                    data = _serializer.Deserialize<nhentai.DoujinData>(jsonReader);
+            }
 
             return new DoujinInfo
             {
@@ -165,12 +170,17 @@ namespace nhitomi.Core.Clients.nhentai
                 Method = HttpMethod.Get,
                 RequestUri = new Uri(nhentai.All(0))
             }, cancellationToken))
-            using (var textReader = new StringReader(await response.Content.ReadAsStringAsync()))
-            using (var jsonReader = new JsonTextReader(textReader))
             {
-                latestId = _serializer.Deserialize<nhentai.ListData>(jsonReader).Results
-                    .OrderByDescending(d => d.Id)
-                    .First().Id;
+                if (!response.IsSuccessStatusCode)
+                    return null;
+
+                using (var textReader = new StringReader(await response.Content.ReadAsStringAsync()))
+                using (var jsonReader = new JsonTextReader(textReader))
+                {
+                    latestId = _serializer.Deserialize<nhentai.ListData>(jsonReader).Results
+                        .OrderByDescending(d => d.Id)
+                        .First().Id;
+                }
             }
 
             int.TryParse(startId, out var oldestId);
