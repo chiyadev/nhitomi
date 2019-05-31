@@ -71,16 +71,8 @@ namespace nhitomi
             };
 
             // authentication
-            await _loginSemaphore.WaitAsync(cancellationToken);
-            try
-            {
-                if (_accessToken != null)
-                    message.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _accessToken);
-            }
-            finally
-            {
-                _loginSemaphore.Release();
-            }
+            if (_accessToken != null)
+                message.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _accessToken);
 
             // request body
             if (body != null)
