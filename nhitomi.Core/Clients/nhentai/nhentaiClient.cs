@@ -6,6 +6,7 @@ using System.Net.Http;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Web;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
@@ -150,7 +151,7 @@ namespace nhitomi.Core.Clients.nhentai
             // replace stuff in brackets with nothing
             japanese = _bracketsRegex.Replace(japanese, "").Trim();
 
-            return string.IsNullOrEmpty(japanese) ? null : japanese;
+            return string.IsNullOrEmpty(japanese) ? null : HttpUtility.HtmlDecode(japanese);
         }
 
         sealed class InternalDoujinData
