@@ -20,17 +20,25 @@ namespace nhitomi
         readonly string _value;
         readonly Func<string, Uri> _getUri;
 
-        public DownloadToken(string source, string id, string value, Func<string, Uri> getUri)
+        public DownloadToken(Doujin doujin, string value, Func<string, Uri> getUri)
         {
-            _source = source;
-            _id = id;
+            _source = doujin.Source;
+            _id = doujin.SourceId;
             _value = value;
             _getUri = getUri;
         }
 
         public override string ToString() => _value;
 
-        public Uri GetUri(int pageIndex) => _getUri($"{_source}/{_id}/{pageIndex}?token={_value}");
+        public Uri GetUri(int pageIndex)
+        {
+            var path = $"dl/{_source}/{_id}/{pageIndex}";
+
+            if (_value == null)
+                path += $"?token={_value}";
+
+            return _getUri(path);
+        }
     }
 
     public interface IApiClient
@@ -38,6 +46,8 @@ namespace nhitomi
         Task LoginAsync(CancellationToken cancellationToken = default);
 
         Task<DownloadToken> CreateDownloadAsync(Doujin doujin, CancellationToken cancellationToken = default);
+
+        Uri GetCoverUri(Doujin doujin);
     }
 
     public class ApiClient : IApiClient
@@ -173,9 +183,11 @@ namespace nhitomi
 
                 var result = _serializer.Deserialize<CreateDownloadResult>(await response.Content.ReadAsStringAsync());
 
-                return new DownloadToken(doujin.Source, doujin.SourceId, result.Token, GetRequestUri);
+                return new DownloadToken(doujin, result.Token, GetRequestUri);
             }
         }
+
+        public Uri GetCoverUri(Doujin doujin) => new DownloadToken(doujin, null, GetRequestUri).GetUri(0);
     }
 
     [Serializable]
