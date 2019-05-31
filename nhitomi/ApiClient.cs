@@ -15,20 +15,22 @@ namespace nhitomi
 {
     public class DownloadToken
     {
-        public readonly string Source;
-        public readonly string Id;
-        public readonly string Value;
+        readonly string _source;
+        readonly string _id;
+        readonly string _value;
+        readonly Func<string, Uri> _getUri;
 
-        public DownloadToken(string source, string id, string value)
+        public DownloadToken(string source, string id, string value, Func<string, Uri> getUri)
         {
-            Source = source;
-            Id = id;
-            Value = value;
+            _source = source;
+            _id = id;
+            _value = value;
+            _getUri = getUri;
         }
 
-        public override string ToString() => Value;
+        public override string ToString() => _value;
 
-        public static implicit operator string(DownloadToken token) => token.Value;
+        public Uri GetUri(int pageIndex) => _getUri($"{_source}/{_id}/{pageIndex}?token={_value}");
     }
 
     public interface IApiClient
@@ -37,8 +39,6 @@ namespace nhitomi
 
         Task<DownloadToken> CreateDownloadAsync(string source, string id,
             CancellationToken cancellationToken = default);
-
-        Uri GetDownloadUri(DownloadToken token);
     }
 
     public class ApiClient : IApiClient
@@ -174,12 +174,9 @@ namespace nhitomi
 
                 var result = _serializer.Deserialize<CreateDownloadResult>(await response.Content.ReadAsStringAsync());
 
-                return new DownloadToken(source, id, result.Token);
+                return new DownloadToken(source, id, result.Token, GetRequestUri);
             }
         }
-
-        public Uri GetDownloadUri(DownloadToken token) =>
-            GetRequestUri($"dl/{token.Source}/{token.Id}/{token.Value}");
     }
 
     [Serializable]
