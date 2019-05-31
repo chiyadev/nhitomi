@@ -6,6 +6,7 @@ using System.Runtime.Serialization;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using nhitomi.Core;
 using Newtonsoft.Json;
@@ -45,12 +46,15 @@ namespace nhitomi
         readonly AppSettings _settings;
         readonly IHttpClient _httpClient;
         readonly JsonSerializer _serializer;
+        readonly ILogger<ApiClient> _logger;
 
-        public ApiClient(IOptions<AppSettings> options, IHttpClient httpClient, JsonSerializer serializer)
+        public ApiClient(IOptions<AppSettings> options, IHttpClient httpClient, JsonSerializer serializer,
+            ILogger<ApiClient> logger)
         {
             _settings = options.Value;
             _httpClient = httpClient;
             _serializer = serializer;
+            _logger = logger;
         }
 
         Uri GetRequestUri(string path) => new Uri($"{_settings.Api.BaseUrl}/v1/{path}");
@@ -67,8 +71,16 @@ namespace nhitomi
             };
 
             // authentication
-            if (_accessToken != null)
-                message.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _accessToken);
+            await _loginSemaphore.WaitAsync(cancellationToken);
+            try
+            {
+                if (_accessToken != null)
+                    message.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _accessToken);
+            }
+            finally
+            {
+                _loginSemaphore.Release();
+            }
 
             // request body
             if (body != null)
@@ -111,21 +123,34 @@ namespace nhitomi
             }
         }
 
+        readonly SemaphoreSlim _loginSemaphore = new SemaphoreSlim(1);
+
         public async Task LoginAsync(CancellationToken cancellationToken = default)
         {
-            using (var response = await RequestAsync(HttpMethod.Post, "users/auth", new LoginRequest
+            await _loginSemaphore.WaitAsync(cancellationToken);
+            try
             {
-                // contact phosphene47#0001 for an api token
-                Id = _settings.Api.AuthToken
-            }, cancellationToken, false))
+                _logger.LogInformation("Logging in to API...");
+
+                using (var response = await RequestAsync(HttpMethod.Post, "users/auth", new LoginRequest
+                {
+                    // contact phosphene47#0001 for an api token
+                    Id = _settings.Api.AuthToken
+                }, cancellationToken, false))
+                {
+                    if (!response.IsSuccessStatusCode)
+                        throw new ApiClientException(
+                            $"API authentication failed: {response.ReasonPhrase ?? "no reason"}");
+
+                    var result = _serializer.Deserialize<LoginResult>(await response.Content.ReadAsStringAsync());
+
+                    // remember token to be used for later requests
+                    _accessToken = result.Token;
+                }
+            }
+            finally
             {
-                if (!response.IsSuccessStatusCode)
-                    throw new ApiClientException($"API authentication failed: {response.ReasonPhrase ?? "no reason"}");
-
-                var result = _serializer.Deserialize<LoginResult>(await response.Content.ReadAsStringAsync());
-
-                // remember token to be used for later requests
-                _accessToken = result.Token;
+                _loginSemaphore.Release();
             }
         }
 
