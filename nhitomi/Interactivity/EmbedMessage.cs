@@ -79,7 +79,7 @@ namespace nhitomi.Interactivity
             {
                 var embed = await CreateEmbedAsync(cancellationToken);
 
-                await SetEmbedAsync(_embed, cancellationToken);
+                await SetEmbedAsync(embed, cancellationToken);
 
                 return true;
             }
