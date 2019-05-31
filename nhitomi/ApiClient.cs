@@ -1,4 +1,5 @@
 using System;
+using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Runtime.Serialization;
@@ -56,8 +57,8 @@ namespace nhitomi
 
         string _accessToken;
 
-        Task<HttpResponseMessage> RequestAsync(HttpMethod method, string path, object body = null,
-            CancellationToken cancellationToken = default)
+        async Task<HttpResponseMessage> RequestAsync(HttpMethod method, string path, object body = null,
+            CancellationToken cancellationToken = default, bool ensureAuth = true)
         {
             var message = new HttpRequestMessage
             {
@@ -78,7 +79,19 @@ namespace nhitomi
                     "application/json");
             }
 
-            return _httpClient.SendAsync(message, cancellationToken);
+            // send request
+            var response = await _httpClient.SendAsync(message, cancellationToken);
+
+            if (ensureAuth && response.StatusCode == HttpStatusCode.Forbidden)
+            {
+                // access token may have expired
+                await LoginAsync(cancellationToken);
+
+                // retry this request
+                response = await RequestAsync(method, path, body, cancellationToken, false);
+            }
+
+            return response;
         }
 
         sealed class LoginRequest
@@ -104,7 +117,7 @@ namespace nhitomi
             {
                 // contact phosphene47#0001 for an api token
                 Id = _settings.Api.AuthToken
-            }, cancellationToken))
+            }, cancellationToken, false))
             {
                 if (!response.IsSuccessStatusCode)
                     throw new ApiClientException($"API authentication failed: {response.ReasonPhrase ?? "no reason"}");
