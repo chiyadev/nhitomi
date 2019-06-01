@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using Discord;
@@ -41,17 +40,10 @@ namespace nhitomi.Interactivity
         {
             public Doujin Doujin;
 
-            readonly IApiClient _apiClient;
-
-            public View(IApiClient apiClient)
-            {
-                _apiClient = apiClient;
-            }
-
             protected override Embed CreateEmbed() =>
-                CreateEmbed(Doujin, _apiClient.GetCoverUri(Doujin), Context.Localization);
+                CreateEmbed(Doujin, Context.Localization);
 
-            public static Embed CreateEmbed(Doujin doujin, Uri coverUri, Localization l)
+            public static Embed CreateEmbed(Doujin doujin, Localization l)
             {
                 var path = new LocalizationPath("doujinMessage");
 
@@ -62,7 +54,7 @@ namespace nhitomi.Interactivity
                         .WithName(doujin.GetTag(TagType.Artist)?.Value ?? doujin.Source)
                         .WithIconUrl(path["sourceIcons"][doujin.Source][l]()))
                     .WithUrl(doujin.GalleryUrl)
-                    .WithImageUrl(coverUri.ToString())
+                    .WithImageUrl($"https://nhitomi.chiya.dev/v1/image/{doujin.Id}/-1")
                     .WithColor(Color.Green)
                     .WithFooter($"{doujin.Source}/{doujin.SourceId}");
 
