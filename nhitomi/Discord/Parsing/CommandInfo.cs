@@ -98,7 +98,7 @@ namespace nhitomi.Discord.Parsing
                 .Append('(')
                 .Append(string.Join('|', commandAttr.GetNames()))
                 .Append(')')
-                .Append(@"\b\s*");
+                .Append(@"($|\s+)");
 
             return builder.ToString();
         }
@@ -139,9 +139,9 @@ namespace nhitomi.Discord.Parsing
                         .Append(')');
                 }
 
-                builder
-                    .Append(@"\b\s")
-                    .Append(i == parts.Length - 1 ? "*" : "+");
+                builder.Append(i == parts.Length - 1
+                    ? @"($|\s+)"
+                    : @"\b\s+");
             }
 
             return builder.ToString();
@@ -200,8 +200,7 @@ namespace nhitomi.Discord.Parsing
             // match parameters
             var paramMatch = _parameterRegex.Match(paramStr);
             var paramGroups = paramMatch.Groups
-                .Where(g => g.Success &&
-                            _parameterDict.ContainsKey(g.Name))
+                .Where(g => g.Success && _parameterDict.ContainsKey(g.Name))
                 .ToArray();
 
             if (paramGroups.Length != _requiredParams)
