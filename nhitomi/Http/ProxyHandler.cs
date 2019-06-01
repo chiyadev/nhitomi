@@ -26,8 +26,7 @@ namespace nhitomi.Http
             _logger = logger;
         }
 
-        public async Task HandleRequestAsync(HttpListenerContext context, string requestUrl,
-            CancellationToken cancellationToken = default)
+        public async Task HandleRequestAsync(HttpListenerContext context, CancellationToken cancellationToken = default)
         {
             var request = context.Request;
             var response = context.Response;
@@ -35,6 +34,8 @@ namespace nhitomi.Http
             try
             {
                 // validate request url
+                var requestUrl = request.Headers.Get("Upstream");
+
                 if (!Uri.TryCreate(HttpUtility.UrlDecode(requestUrl), UriKind.Absolute, out var requestUri))
                 {
                     response.StatusCode = 400;
@@ -64,6 +65,7 @@ namespace nhitomi.Http
                         {
                             // ignored headers
                             case "host":
+                            case "upstream":
                                 continue;
 
                             // content headers

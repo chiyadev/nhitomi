@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using nhitomi.Core;
 
 namespace nhitomi.Http
 {
@@ -65,24 +64,17 @@ namespace nhitomi.Http
 
             try
             {
-                var segments = request.Url.Segments.Subarray(1);
-
-                // default endpoint
-                if (segments.Length == 0)
+                switch (request.Url.AbsolutePath)
                 {
-                    response.Redirect("https://chiya.dev");
-                    return;
-                }
+                    // default endpoint
+                    case "/":
+                        response.Redirect("https://chiya.dev");
+                        return;
 
-                // proxy endpoint
-                if (_settings.Http.EnableProxy && segments[0] == "proxy")
-                {
-                    await _proxyHandler.HandleRequestAsync(
-                        context,
-                        string.Join('/', segments.Subarray(1)) + request.Url.Query,
-                        cancellationToken);
-
-                    return;
+                    // proxy endpoint
+                    case "/proxy" when _settings.Http.EnableProxy:
+                        await _proxyHandler.HandleRequestAsync(context, cancellationToken);
+                        return;
                 }
 
                 // not found
