@@ -35,14 +35,6 @@ namespace nhitomi
             }
         }
 
-        public ApiSettings Api { get; set; } = new ApiSettings();
-
-        public sealed class ApiSettings
-        {
-            public string BaseUrl { get; set; }
-            public string AuthToken { get; set; }
-        }
-
         public DoujinSettings Doujin { get; set; } = new DoujinSettings();
 
         public sealed class DoujinSettings
