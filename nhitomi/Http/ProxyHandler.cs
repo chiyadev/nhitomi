@@ -4,7 +4,6 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Web;
 using Microsoft.Extensions.Logging;
 
 namespace nhitomi.Http
@@ -36,7 +35,7 @@ namespace nhitomi.Http
                 // validate request url
                 var requestUrl = request.Headers.Get("Upstream");
 
-                if (!Uri.TryCreate(HttpUtility.UrlDecode(requestUrl), UriKind.Absolute, out var requestUri))
+                if (!Uri.TryCreate(requestUrl, UriKind.Absolute, out var requestUri))
                 {
                     response.StatusCode = 400;
                     response.StatusDescription = "Invalid upstream URL.";
