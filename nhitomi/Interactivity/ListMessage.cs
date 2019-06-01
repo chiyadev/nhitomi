@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -67,7 +66,7 @@ namespace nhitomi.Interactivity
 
                 if (ListMessage._fullyLoaded)
                 {
-                    ListMessage.Position = Math.Min(index, cache.Count);
+                    ListMessage.Position = cache.Count - 1;
 
                     return (Status.End, default);
                 }
@@ -81,7 +80,7 @@ namespace nhitomi.Interactivity
                     // set fully loaded flag so we don't bother enumerating again
                     ListMessage._fullyLoaded = values.Length == 0;
 
-                    ListMessage.Position = Math.Min(index, cache.Count);
+                    ListMessage.Position = cache.Count - 1;
 
                     return (Status.End, default);
                 }
