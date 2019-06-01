@@ -83,7 +83,7 @@ namespace nhitomi.Interactivity
 
                     ListMessage.Position = Math.Min(index, cache.Count);
 
-                    return default;
+                    return (Status.End, default);
                 }
 
                 // add new values to cache
