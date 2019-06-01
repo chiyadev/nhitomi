@@ -39,6 +39,13 @@ namespace nhitomi.Core.Clients
                     var x = testCase.KnownValue;
                     var y = await client.GetAsync(testCase.DoujinId, cancellationToken);
 
+                    if (x == y)
+                        continue;
+                    if (x == null || y == null)
+                        throw new ClientTesterException(
+                            $"Expected value was {(x == null ? "null" : "not null")}, " +
+                            $"but actual value was {(y == null ? "null" : "not null")}.");
+
                     // compare the retrieved doujin with the known value
                     Compare(x.GalleryUrl, y.GalleryUrl, nameof(DoujinInfo.GalleryUrl));
                     Compare(x.PrettyName, y.PrettyName, nameof(DoujinInfo.PrettyName));
