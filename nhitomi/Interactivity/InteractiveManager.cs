@@ -114,8 +114,6 @@ namespace nhitomi.Interactivity
 
                 return await trigger.RunAsync(services, context, interactive, cancellationToken);
             }
-
-            return true;
         }
     }
 }
