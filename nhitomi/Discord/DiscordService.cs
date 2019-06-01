@@ -28,7 +28,7 @@ namespace nhitomi.Discord
 
         public async Task ConnectAsync()
         {
-            if (LoginState != LoginState.LoggedOut)
+            if (LoginState != LoginState.LoggedOut || _settings.Discord.Token == null)
                 return;
 
             // login

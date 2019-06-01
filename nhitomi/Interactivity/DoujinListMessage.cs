@@ -37,13 +37,16 @@ namespace nhitomi.Interactivity
         {
             public readonly IDatabase Database;
 
-            public View(IDatabase database)
+            readonly IApiClient _apiClient;
+
+            public View(IDatabase database, IApiClient apiClient)
             {
                 Database = database;
+                _apiClient = apiClient;
             }
 
             protected override Embed CreateEmbed(Doujin value) =>
-                DoujinMessage.View.CreateEmbed(value, Context.Localization);
+                DoujinMessage.View.CreateEmbed(value, _apiClient.GetCoverUri(value), Context.Localization);
 
             protected override Embed CreateEmptyEmbed() => throw new NotImplementedException();
         }

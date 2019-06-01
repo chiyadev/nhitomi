@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Discord;
@@ -40,9 +41,17 @@ namespace nhitomi.Interactivity
         {
             public Doujin Doujin;
 
-            protected override Embed CreateEmbed() => CreateEmbed(Doujin, Context.Localization);
+            readonly IApiClient _apiClient;
 
-            public static Embed CreateEmbed(Doujin doujin, Localization l)
+            public View(IApiClient apiClient)
+            {
+                _apiClient = apiClient;
+            }
+
+            protected override Embed CreateEmbed() =>
+                CreateEmbed(Doujin, _apiClient.GetCoverUri(Doujin), Context.Localization);
+
+            public static Embed CreateEmbed(Doujin doujin, Uri coverUri, Localization l)
             {
                 var path = new LocalizationPath("doujinMessage");
 
@@ -53,7 +62,7 @@ namespace nhitomi.Interactivity
                         .WithName(doujin.GetTag(TagType.Artist)?.Value ?? doujin.Source)
                         .WithIconUrl(path["sourceIcons"][doujin.Source][l]()))
                     .WithUrl(doujin.GalleryUrl)
-                    .WithImageUrl($"https://s.chiya.dev/nhitomi/{doujin.Id}/1.jpeg")
+                    .WithImageUrl(coverUri.ToString())
                     .WithColor(Color.Green)
                     .WithFooter($"{doujin.Source}/{doujin.SourceId}");
 
@@ -63,7 +72,7 @@ namespace nhitomi.Interactivity
                 AddField(embed, path["categories"][l](), doujin.GetTags(TagType.Category).Select(t => t.Value));
                 AddField(embed, path["characters"][l](), doujin.GetTags(TagType.Character).Select(t => t.Value));
                 AddField(embed, path["tags"][l](), doujin.GetTags(TagType.Tag).Select(t => t.Value));
-                AddField(embed, path["content"][l](), $"{doujin.PageCount} pages");
+                AddField(embed, path["contents"][l](), $"{doujin.PageCount} pages");
 
                 return embed.Build();
             }

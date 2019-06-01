@@ -1,7 +1,6 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using nhitomi.Core;
@@ -35,19 +34,25 @@ namespace nhitomi
             readonly IHostingEnvironment _environment;
             readonly nhitomiDbContext _db;
             readonly DiscordService _discord;
+            readonly IApiClient _apiClient;
 
-            public Initialization(IHostingEnvironment environment, nhitomiDbContext db, DiscordService discord)
+            public Initialization(IHostingEnvironment environment, nhitomiDbContext db, DiscordService discord,
+                IApiClient apiClient)
             {
                 _environment = environment;
                 _db = db;
                 _discord = discord;
+                _apiClient = apiClient;
             }
 
             public async Task RunAsync(CancellationToken cancellationToken = default)
             {
-                // migrate local database in development
+                // login to api
+                await _apiClient.LoginAsync(cancellationToken);
+
+                // create local database for development
                 if (_environment.IsDevelopment())
-                    await _db.Database.MigrateAsync(cancellationToken);
+                    await _db.Database.EnsureCreatedAsync(cancellationToken);
 
                 // start discord
                 await _discord.ConnectAsync();
