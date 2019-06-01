@@ -34,8 +34,8 @@ namespace nhitomi.Core
             GalleryUrl = GalleryUrl,
 
             // ensure both are not null
-            PrettyName = PrettyName ?? OriginalName,
-            OriginalName = OriginalName ?? PrettyName,
+            PrettyName = string.IsNullOrWhiteSpace(PrettyName) ? OriginalName : PrettyName,
+            OriginalName = string.IsNullOrWhiteSpace(OriginalName) ? PrettyName : OriginalName,
 
             UploadTime = UploadTime,
             ProcessTime = DateTime.UtcNow,
