@@ -82,47 +82,37 @@ namespace nhitomi.Interactivity
             var message = context.Message;
             var reaction = context.Reaction;
 
-            try
+            IReactionTrigger trigger;
+
+            // get interactive object for the message
+            if (InteractiveMessages.TryGetValue(message.Id, out var interactive))
             {
-                IReactionTrigger trigger;
-
-                // get interactive object for the message
-                if (InteractiveMessages.TryGetValue(message.Id, out var interactive))
-                {
-                    // get trigger for this reaction
-                    if (!interactive.Triggers.TryGetValue(reaction.Emote, out trigger))
-                        return false;
-                }
-                else
-                {
-                    // no interactive; try triggering in stateless mode
-                    if (!_statelessTriggers.TryGetValue(reaction.Emote, out var factory))
-                        return false;
-
-                    // message must be authored by us
-                    if (!message.Reactions.TryGetValue(reaction.Emote, out var metadata) || !metadata.IsMe)
-                        return false;
-
-                    trigger = factory();
-                }
-
-                // dependency scope
-                using (var scope = _services.CreateScope())
-                {
-                    var services = new ServiceDictionary(scope.ServiceProvider)
-                    {
-                        {typeof(IDiscordContext), context}
-                    };
-
-                    return await trigger.RunAsync(services, context, interactive, cancellationToken);
-                }
+                // get trigger for this reaction
+                if (!interactive.Triggers.TryGetValue(reaction.Emote, out trigger))
+                    return false;
             }
-            catch (Exception e)
+            else
             {
-                _logger.LogWarning(e, "Exception while handling reaction {0} by for message {1}.",
-                    reaction.Emote.Name, message.Id);
+                // no interactive; try triggering in stateless mode
+                if (!_statelessTriggers.TryGetValue(reaction.Emote, out var factory))
+                    return false;
 
-                await SendInteractiveAsync(new ErrorMessage(e), context, cancellationToken);
+                // message must be authored by us
+                if (!message.Reactions.TryGetValue(reaction.Emote, out var metadata) || !metadata.IsMe)
+                    return false;
+
+                trigger = factory();
+            }
+
+            // dependency scope
+            using (var scope = _services.CreateScope())
+            {
+                var services = new ServiceDictionary(scope.ServiceProvider)
+                {
+                    {typeof(IDiscordContext), context}
+                };
+
+                return await trigger.RunAsync(services, context, interactive, cancellationToken);
             }
 
             return true;

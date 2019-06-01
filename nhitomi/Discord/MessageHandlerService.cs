@@ -8,6 +8,7 @@ using Discord.WebSocket;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using nhitomi.Globalization;
+using nhitomi.Interactivity;
 
 namespace nhitomi.Discord
 {
@@ -33,17 +34,19 @@ namespace nhitomi.Discord
     {
         readonly DiscordService _discord;
         readonly LocalizationCache _localizationCache;
+        readonly InteractiveManager _interactiveManager;
         readonly ILogger<MessageHandlerService> _logger;
 
         readonly IMessageHandler[] _messageHandlers;
 
         [SuppressMessage("ReSharper", "SuggestBaseTypeForParameter")]
         public MessageHandlerService(DiscordService discord, LocalizationCache localizationCache,
-            ILogger<MessageHandlerService> logger, CommandExecutor commandExecutor,
-            GalleryUrlDetector galleryUrlDetector)
+            InteractiveManager interactiveManager, ILogger<MessageHandlerService> logger,
+            CommandExecutor commandExecutor, GalleryUrlDetector galleryUrlDetector)
         {
             _discord = discord;
             _localizationCache = localizationCache;
+            _interactiveManager = interactiveManager;
             _logger = logger;
 
             _messageHandlers = new IMessageHandler[]
@@ -83,17 +86,17 @@ namespace nhitomi.Discord
                 // handle on another thread to not block the gateway thread
                 _ = Task.Run(async () =>
                 {
+                    // create context
+                    var context = new MessageContext
+                    {
+                        Client = _discord,
+                        Message = message,
+                        Event = eventType
+                    };
+                    context.Localization = _localizationCache[context];
+
                     try
                     {
-                        // create context
-                        var context = new MessageContext
-                        {
-                            Client = _discord,
-                            Message = message,
-                            Event = eventType
-                        };
-                        context.Localization = _localizationCache[context];
-
                         foreach (var handler in _messageHandlers)
                             if (await handler.TryHandleAsync(context))
                                 return;
@@ -101,6 +104,8 @@ namespace nhitomi.Discord
                     catch (Exception e)
                     {
                         _logger.LogWarning(e, "Unhandled exception while handling message.");
+
+                        await _interactiveManager.SendInteractiveAsync(new ErrorMessage(e), context);
                     }
                 });
             }

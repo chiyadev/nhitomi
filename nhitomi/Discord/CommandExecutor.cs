@@ -8,7 +8,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using nhitomi.Discord.Parsing;
-using nhitomi.Interactivity;
 
 namespace nhitomi.Discord
 {
@@ -16,15 +15,13 @@ namespace nhitomi.Discord
     {
         readonly IServiceProvider _services;
         readonly AppSettings _settings;
-        readonly InteractiveManager _interactive;
         readonly ILogger<CommandExecutor> _logger;
 
-        public CommandExecutor(IServiceProvider services, IOptions<AppSettings> options, InteractiveManager interactive,
+        public CommandExecutor(IServiceProvider services, IOptions<AppSettings> options,
             ILogger<CommandExecutor> logger)
         {
             _services = services;
             _settings = options.Value;
-            _interactive = interactive;
             _logger = logger;
         }
 
@@ -72,38 +69,27 @@ namespace nhitomi.Discord
                     return false;
             }
 
-            try
+            var content = context.Message.Content;
+
+            // message has command prefix
+            if (!content.StartsWith(_settings.Discord.Prefix))
+                return false;
+
+            content = content.Substring(_settings.Discord.Prefix.Length);
+
+            // parse command
+            if (!TryParseCommand(content, out var command, out var args))
+                return false;
+
+            using (var scope = _services.CreateScope())
             {
-                var content = context.Message.Content;
-
-                // message has command prefix
-                if (!content.StartsWith(_settings.Discord.Prefix))
-                    return false;
-
-                content = content.Substring(_settings.Discord.Prefix.Length);
-
-                // parse command
-                if (!TryParseCommand(content, out var command, out var args))
-                    return false;
-
-                // dependency scope
-                using (var scope = _services.CreateScope())
+                var services = new ServiceDictionary(scope.ServiceProvider)
                 {
-                    var services = new ServiceDictionary(scope.ServiceProvider)
-                    {
-                        {typeof(IMessageContext), context}
-                    };
+                    {typeof(IMessageContext), context}
+                };
 
-                    // invoke command
-                    await command.InvokeAsync(services, args);
-                }
-            }
-            catch (Exception e)
-            {
-                _logger.LogWarning(e, "Exception while handling message {0}.", context.Message.Id);
-
-                // notify the user about this error
-                await _interactive.SendInteractiveAsync(new ErrorMessage(e), context, cancellationToken);
+                // invoke command
+                await command.InvokeAsync(services, args);
             }
 
             return true;
