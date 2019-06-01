@@ -34,7 +34,7 @@ namespace nhitomi.Interactivity
             protected override Embed CreateEmbed() => new EmbedBuilder()
                 .WithTitle("**nhitomi**: Error")
                 .WithDescription(
-                    $"Message: `{Exception.Message ?? "<null>"}`\n" +
+                    $"`{Exception.Message ?? "<null>"}`\n" +
                     $"Error has been reported. For further assistance, please join <{_settings.Discord.Guild.GuildInvite}>")
                 .WithColor(Color.Red)
                 .WithCurrentTimestamp()
