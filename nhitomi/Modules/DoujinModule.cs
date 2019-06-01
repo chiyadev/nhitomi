@@ -74,8 +74,9 @@ namespace nhitomi.Modules
 
             using (_context.BeginTyping())
             {
-                IAsyncEnumerable<Doujin> enumerate(IDatabase db, int offset) => db.EnumerateDoujinsAsync(x =>
-                    x.FullTextSearch(_database, query));
+                IAsyncEnumerable<Doujin> enumerate(IDatabase db, int offset) => db.EnumerateDoujinsAsync(x => x
+                    .FullTextSearch(_database, query)
+                    .Skip(offset));
 
                 await _interactive.SendInteractiveAsync(new DoujinListMessage(enumerate), _context);
             }
