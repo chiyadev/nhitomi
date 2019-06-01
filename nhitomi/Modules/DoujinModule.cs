@@ -56,7 +56,7 @@ namespace nhitomi.Modules
                     // todo: ascending option
                     x = x.OrderByDescending(d => d.UploadTime);
 
-                    return x.Skip(offset).Take(50);
+                    return x.Skip(offset);
                 });
 
                 await _interactive.SendInteractiveAsync(new DoujinListMessage(enumerate), _context);
