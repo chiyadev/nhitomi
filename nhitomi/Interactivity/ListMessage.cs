@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Discord;
@@ -34,12 +33,11 @@ namespace nhitomi.Interactivity
             view.ListMessage = this;
         }
 
-        protected abstract IAsyncEnumerable<TValue> GetValuesAsync(TView view, int offset,
-            CancellationToken cancellationToken = default);
-
         public abstract class ListViewBase : ViewBase
         {
             public ListMessage<TView, TValue> ListMessage;
+
+            protected abstract Task<TValue[]> GetValuesAsync(int offset, CancellationToken cancellationToken = default);
 
             enum Status
             {
@@ -71,9 +69,7 @@ namespace nhitomi.Interactivity
                     return (Status.End, default);
                 }
 
-                var values = await ListMessage
-                    .GetValuesAsync((TView) this, index, cancellationToken)
-                    .ToArray(cancellationToken);
+                var values = await GetValuesAsync(index, cancellationToken);
 
                 if (values.Length == 0)
                 {
