@@ -269,7 +269,7 @@ namespace nhitomi.Discord.Parsing
                     args[parameter.Name] = obj;
 
                 // couldn't parse value and parameter is required
-                if (!parameter.IsOptional)
+                else if (!parameter.IsOptional)
                     return false;
             }
 
