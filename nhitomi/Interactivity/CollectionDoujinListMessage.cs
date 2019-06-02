@@ -5,12 +5,12 @@ using nhitomi.Core;
 
 namespace nhitomi.Interactivity
 {
-    public sealed class CollectionViewMessage : DoujinListMessage<CollectionViewMessage.View>
+    public sealed class CollectionDoujinListMessage : DoujinListMessage<CollectionDoujinListMessage.View>
     {
         readonly ulong _userId;
         readonly string _collectionName;
 
-        public CollectionViewMessage(ulong userId, string collectionName)
+        public CollectionDoujinListMessage(ulong userId, string collectionName)
         {
             _userId = userId;
             _collectionName = collectionName;
@@ -18,7 +18,7 @@ namespace nhitomi.Interactivity
 
         public class View : DoujinListView
         {
-            new CollectionViewMessage Message => (CollectionViewMessage) base.Message;
+            new CollectionDoujinListMessage Message => (CollectionDoujinListMessage) base.Message;
 
             readonly IDatabase _db;
 

@@ -39,7 +39,7 @@ namespace nhitomi.Modules
                 return;
             }
 
-            await _interactive.SendInteractiveAsync(new CollectionViewMessage(_context.User.Id, name), _context);
+            await _interactive.SendInteractiveAsync(new CollectionDoujinListMessage(_context.User.Id, name), _context);
         }
 
         [Command("add", BindName = false), Binding("[name] add|a [source] [id]")]
