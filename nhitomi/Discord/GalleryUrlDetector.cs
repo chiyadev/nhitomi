@@ -26,6 +26,7 @@ namespace nhitomi.Discord
         public GalleryUrlDetector(IOptions<AppSettings> options, InteractiveManager interactive,
             ILogger<GalleryUrlDetector> logger)
         {
+            _settings = options.Value;
             _interactive = interactive;
             _logger = logger;
 
