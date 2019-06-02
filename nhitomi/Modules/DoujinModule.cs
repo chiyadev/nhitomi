@@ -132,7 +132,7 @@ namespace nhitomi.Modules
                 var guild = await _context.Client.GetGuildAsync(_settings.Discord.Guild.GuildId);
 
                 // guild user is null; user is not in guild
-                if (await guild.GetUserAsync(_context.User.Id) == null)
+                if (guild != null && await guild.GetUserAsync(_context.User.Id) == null)
                 {
                     await _context.ReplyAsync("messages.joinForDownload");
                     return;
