@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -34,22 +33,53 @@ namespace nhitomi.Modules
             }
         }
 
+        sealed class CollectionViewMessage : DoujinListMessage<CollectionViewMessage.View>
+        {
+            readonly ulong _userId;
+            readonly string _collectionName;
+
+            public CollectionViewMessage(ulong userId, string collectionName)
+            {
+                _userId = userId;
+                _collectionName = collectionName;
+            }
+
+            public class View : DoujinListView
+            {
+                public new CollectionViewMessage Message => (CollectionViewMessage) base.Message;
+
+                readonly IDatabase _db;
+
+                public View(IDatabase db)
+                {
+                    _db = db;
+                }
+
+                protected override Task<Doujin[]> GetValuesAsync(int offset,
+                    CancellationToken cancellationToken = default) =>
+                    _db.GetCollectionAsync(
+                        Message._userId,
+                        Message._collectionName,
+                        d => d.Skip(offset).Take(10),
+                        cancellationToken);
+            }
+        }
+
         [Command("view")]
         public async Task ViewAsync(string name)
         {
             using (_context.BeginTyping())
             {
-                var doujins = await _database.EnumerateCollectionAsync(_context.User.Id, name, x => x);
+                // check if collection exists first
+                var collection = await _database.GetCollectionAsync(_context.User.Id, name);
 
-                if (doujins == null)
+                if (collection == null)
                 {
                     await _context.ReplyAsync("messages.collectionNotFound");
                     return;
                 }
 
-                IAsyncEnumerable<Doujin> enumerate(IDatabase db, int offset) => doujins;
-
-                await _interactive.SendInteractiveAsync(new DoujinListMessage(enumerate), _context);
+                await _interactive.SendInteractiveAsync(new CollectionViewMessage(_context.User.Id, name), _context);
             }
         }
 
