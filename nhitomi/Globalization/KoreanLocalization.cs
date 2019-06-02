@@ -4,7 +4,7 @@ namespace nhitomi.Globalization
 {
     public class KoreanLocalization : Localization
     {
-        protected override CultureInfo Culture { get; } = new CultureInfo("ko");
+        public override CultureInfo Culture { get; } = new CultureInfo("ko");
 
         protected override object CreateDefinition() => new
         {
