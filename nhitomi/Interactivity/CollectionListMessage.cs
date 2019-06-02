@@ -42,9 +42,7 @@ namespace nhitomi.Interactivity
             protected override Embed CreateEmbed(Collection value)
             {
                 var embed = new EmbedBuilder()
-                    .WithTitle($"**nhitomi**: {value.Name}")
-                    .WithAuthor(a => a
-                        .WithName(Context.User.Username))
+                    .WithTitle($"**{Context.User.Username}**: {value.Name}")
                     .WithColor(Color.Teal)
                     .WithCurrentTimestamp();
 
