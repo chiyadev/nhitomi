@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Discord;
@@ -64,6 +65,12 @@ namespace nhitomi.Interactivity.Triggers
                             _database.Add(collection);
                         }
 
+                        if (collection.Doujins.Any(x => x.DoujinId == doujin.Id))
+                        {
+                            await Context.ReplyDmAsync("messages.doujinInCollection");
+                            return true;
+                        }
+
                         // add to favorites collection
                         collection.Doujins.Add(new CollectionRef
                         {
@@ -72,24 +79,8 @@ namespace nhitomi.Interactivity.Triggers
                     }
                     while (!await _database.SaveAsync(cancellationToken));
 
-                    try
-                    {
-                        await Context.ReplyAsync("messages.addedToCollection");
-                    }
-                    catch
-                    {
-                        try
-                        {
-                            // try replying in DM if we don't have perms
-                            var channel = await Context.User.GetOrCreateDMChannelAsync();
-
-                            await Context.ReplyAsync(channel, "messages.addedToCollection");
-                        }
-                        catch
-                        {
-                            // ignored
-                        }
-                    }
+                    // try replying in DM if we don't have perms
+                    await Context.ReplyDmAsync("messages.addedToCollection");
                 }
 
                 return true;
