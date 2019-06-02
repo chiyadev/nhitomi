@@ -24,7 +24,7 @@ namespace nhitomi.Globalization
 
         readonly Lazy<LocalizationDictionary> _dict;
 
-        protected abstract CultureInfo Culture { get; }
+        public abstract CultureInfo Culture { get; }
         protected virtual CultureInfo FallbackCulture => Default.Culture;
 
         public string this[string key] => _dict.Value[key];
