@@ -307,7 +307,7 @@ namespace nhitomi.Discord.Parsing
 
             else if (type.IsEnum)
             {
-                if (Enum.TryParse(type, str, out var val))
+                if (Enum.TryParse(type, str, true, out var val))
                 {
                     value = val;
                     return true;
