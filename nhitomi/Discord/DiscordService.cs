@@ -43,7 +43,7 @@ namespace nhitomi.Discord
 
         public static Task ReplyAsync(this IDiscordContext context, IMessageChannel channel, string localizationKey,
             object variables = null) =>
-            channel.SendMessageAsync(new LocalizationPath(localizationKey)[context, variables]);
+            channel.SendMessageAsync(new LocalizationPath(localizationKey)[context.Localization, variables]);
 
         public static Task ReplyAsync(this IDiscordContext context, string localizationKey, object variables = null) =>
             context.ReplyAsync(context.Channel, localizationKey, variables);

@@ -47,7 +47,7 @@ namespace nhitomi.Modules
         {
             if (string.IsNullOrEmpty(query))
             {
-                await _context.ReplyAsync("messages.invalidQuery");
+                await _context.ReplyAsync("messages.invalidQuery", new {query});
                 return;
             }
 
@@ -65,7 +65,8 @@ namespace nhitomi.Modules
                 // guild user is null; user is not in guild
                 if (guild != null && await guild.GetUserAsync(_context.User.Id) == null)
                 {
-                    await _context.ReplyAsync("messages.joinForDownload");
+                    await _context.ReplyAsync("messages.joinForDownload",
+                        new {invite = _settings.Discord.Guild.GuildInvite});
                     return;
                 }
             }

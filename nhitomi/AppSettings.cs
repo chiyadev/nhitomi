@@ -4,8 +4,6 @@ namespace nhitomi
 {
     public sealed class AppSettings
     {
-        public string ImageUrl { get; set; }
-
         public DiscordSettings Discord { get; set; } = new DiscordSettings();
 
         public sealed class DiscordSettings : DiscordSocketConfig

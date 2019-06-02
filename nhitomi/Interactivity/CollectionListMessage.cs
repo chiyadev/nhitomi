@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Discord;
 using nhitomi.Core;
+using nhitomi.Globalization;
 using nhitomi.Interactivity.Triggers;
 
 namespace nhitomi.Interactivity
@@ -42,24 +43,22 @@ namespace nhitomi.Interactivity
                     ? _db.GetCollectionsAsync(Message._userId, cancellationToken)
                     : Task.FromResult(new Collection[0]);
 
-            protected override Embed CreateEmbed(Collection value)
+            protected override Embed CreateEmbed(Collection collection)
             {
+                var path = new LocalizationPath("collectionMessage");
+                var l = Context.Localization;
+
                 var embed = new EmbedBuilder()
-                    .WithTitle($"**{Context.User.Username}**: {value.Name}")
+                    .WithTitle(path["title"][l, new {context = Context, collection}])
                     .WithColor(Color.Teal);
 
-                if (value.Doujins.Count == 0)
-                    embed.Description = "Empty collection";
+                if (collection.Doujins.Count == 0)
+                    embed.Description = path["empty"][l];
                 else
-                    embed.ThumbnailUrl = $"https://nhitomi.chiya.dev/v1/image/{value.Doujins.First().DoujinId}/-1";
+                    embed.ThumbnailUrl = $"https://nhitomi.chiya.dev/v1/image/{collection.Doujins.First().DoujinId}/-1";
 
-                var sort = value.Sort.ToString();
-
-                if (value.SortDescending)
-                    sort += " (desc)";
-
-                embed.AddField("Sort", sort);
-                embed.AddField("Contents", $"{value.Doujins.Count} doujins");
+                embed.AddField(path["sort"][l], path["sortValues"][collection.Sort.ToString()][l]);
+                embed.AddField(path["contents"][l], path["contentsValue"][l, new {collection}]);
 
                 return embed.Build();
             }

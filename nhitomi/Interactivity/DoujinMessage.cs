@@ -41,7 +41,7 @@ namespace nhitomi.Interactivity
                 var path = new LocalizationPath("doujinMessage");
 
                 var embed = new EmbedBuilder()
-                    .WithTitle(doujin.OriginalName ?? doujin.PrettyName)
+                    .WithTitle(path["title"][l, new {doujin}])
                     .WithDescription(doujin.OriginalName == doujin.PrettyName ? null : doujin.PrettyName)
                     .WithAuthor(a => a
                         .WithName(doujin.GetTag(TagType.Artist)?.Value ?? doujin.Source)
@@ -49,7 +49,7 @@ namespace nhitomi.Interactivity
                     .WithUrl(doujin.GalleryUrl)
                     .WithImageUrl($"https://nhitomi.chiya.dev/v1/image/{doujin.Id}/-1")
                     .WithColor(Color.Green)
-                    .WithFooter($"{doujin.Source}/{doujin.SourceId}");
+                    .WithFooter(path["footer"][l, new {doujin}]);
 
                 AddField(embed, path["language"][l], doujin.GetTag(TagType.Language)?.Value);
                 AddField(embed, path["group"][l], doujin.GetTag(TagType.Group)?.Value);
@@ -57,7 +57,7 @@ namespace nhitomi.Interactivity
                 AddField(embed, path["categories"][l], doujin.GetTags(TagType.Category).Select(t => t.Value));
                 AddField(embed, path["characters"][l], doujin.GetTags(TagType.Character).Select(t => t.Value));
                 AddField(embed, path["tags"][l], doujin.GetTags(TagType.Tag).Select(t => t.Value));
-                AddField(embed, path["contents"][l], $"{doujin.PageCount} pages");
+                AddField(embed, path["contents"][l], path["contentsValue"][l, new {doujin}]);
 
                 return embed.Build();
             }

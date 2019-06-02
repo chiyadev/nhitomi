@@ -45,9 +45,12 @@ namespace nhitomi.Modules
         [Command("add", BindName = false), Binding("[name] add|a [source] [id]")]
         public async Task AddAsync(string name, string source, string id, CancellationToken cancellationToken = default)
         {
+            Doujin doujin;
+            Collection collection;
+
             do
             {
-                var collection = await _database.GetCollectionAsync(_context.User.Id, name, cancellationToken);
+                collection = await _database.GetCollectionAsync(_context.User.Id, name, cancellationToken);
 
                 if (collection == null)
                 {
@@ -61,7 +64,7 @@ namespace nhitomi.Modules
                     _database.Add(collection);
                 }
 
-                var doujin = await _database.GetDoujinAsync(source, id, cancellationToken);
+                doujin = await _database.GetDoujinAsync(source, id, cancellationToken);
 
                 if (doujin == null)
                 {
@@ -71,7 +74,7 @@ namespace nhitomi.Modules
 
                 if (collection.Doujins.Any(x => x.DoujinId == doujin.Id))
                 {
-                    await _context.ReplyAsync("messages.doujinInCollection");
+                    await _context.ReplyAsync("messages.alreadyInCollection", new {doujin, collection});
                     return;
                 }
 
@@ -82,7 +85,7 @@ namespace nhitomi.Modules
             }
             while (!await _database.SaveAsync(cancellationToken));
 
-            await _context.ReplyAsync("messages.addedToCollection");
+            await _context.ReplyAsync("messages.addedToCollection", new {doujin, collection});
         }
 
         [Command("remove", BindName = false), Binding("[name] remove|r [source] [id]")]
@@ -90,10 +93,11 @@ namespace nhitomi.Modules
             CancellationToken cancellationToken = default)
         {
             Doujin doujin;
+            Collection collection;
 
             do
             {
-                var collection = await _database.GetCollectionAsync(_context.User.Id, name, cancellationToken);
+                collection = await _database.GetCollectionAsync(_context.User.Id, name, cancellationToken);
 
                 if (collection == null)
                 {
@@ -113,7 +117,7 @@ namespace nhitomi.Modules
 
                 if (item == null)
                 {
-                    await _context.ReplyAsync("messages.doujinNotInCollection");
+                    await _context.ReplyAsync("messages.notInCollection", new {doujin, collection});
                     return;
                 }
 
@@ -121,15 +125,17 @@ namespace nhitomi.Modules
             }
             while (!await _database.SaveAsync(cancellationToken));
 
-            await _context.ReplyAsync("messages.removedFromCollection");
+            await _context.ReplyAsync("messages.removedFromCollection", new {doujin, collection});
         }
 
         [Command("delete", BindName = false), Binding("[name] delete|d")]
         public async Task DeleteAsync(string name)
         {
+            Collection collection;
+
             do
             {
-                var collection = await _database.GetCollectionAsync(_context.User.Id, name);
+                collection = await _database.GetCollectionAsync(_context.User.Id, name);
 
                 if (collection == null)
                 {
@@ -141,15 +147,17 @@ namespace nhitomi.Modules
             }
             while (!await _database.SaveAsync());
 
-            await _context.ReplyAsync("messages.collectionDeleted");
+            await _context.ReplyAsync("messages.collectionDeleted", new {collection});
         }
 
         [Command("sort", BindName = false), Binding("[name] sort|s [sort]")]
         public async Task SortAsync(string name, CollectionSort sort)
         {
+            Collection collection;
+
             do
             {
-                var collection = await _database.GetCollectionAsync(_context.User.Id, name);
+                collection = await _database.GetCollectionAsync(_context.User.Id, name);
 
                 if (collection == null)
                 {
@@ -161,7 +169,7 @@ namespace nhitomi.Modules
             }
             while (!await _database.SaveAsync());
 
-            await _context.ReplyAsync("messages.collectionSorted");
+            await _context.ReplyAsync("messages.collectionSorted", new {collection, attribute = sort});
         }
     }
 }

@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Discord;
 using nhitomi.Core;
+using nhitomi.Globalization;
 using nhitomi.Interactivity.Triggers;
 
 namespace nhitomi.Interactivity
@@ -23,13 +24,20 @@ namespace nhitomi.Interactivity
         {
             new DownloadMessage Message => (DownloadMessage) base.Message;
 
-            protected override Embed CreateEmbed() => new EmbedBuilder()
-                .WithTitle($"**{Message._doujin.Source}**: {Message._doujin.Name}")
-                .WithUrl($"https://nhitomi.chiya.dev/v1/dl/{Message._doujin.Source}/{Message._doujin.SourceId}")
-                .WithDescription(
-                    $"Click the link above to start downloading `{Message._doujin.Name}`.\n")
-                .WithColor(Color.LightOrange)
-                .Build();
+            protected override Embed CreateEmbed()
+            {
+                var path = new LocalizationPath("downloadMessage");
+                var l = Context.Localization;
+
+                return new EmbedBuilder()
+                    .WithTitle(path["title"][l, new {doujin = Message._doujin}])
+                    .WithUrl(GetUrl(Message._doujin))
+                    .WithDescription(path["text"][l, new {doujin = Message._doujin}])
+                    .WithColor(Color.LightOrange)
+                    .Build();
+            }
+
+            static string GetUrl(Doujin d) => $"https://nhitomi.chiya.dev/v1/download/{d.Id}";
         }
     }
 }

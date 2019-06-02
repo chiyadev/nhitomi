@@ -1,6 +1,7 @@
 using System;
 using Discord;
 using Microsoft.Extensions.Options;
+using nhitomi.Globalization;
 
 namespace nhitomi.Interactivity
 {
@@ -24,14 +25,20 @@ namespace nhitomi.Interactivity
                 _settings = options.Value;
             }
 
-            protected override Embed CreateEmbed() => new EmbedBuilder()
-                .WithTitle("**nhitomi**: Error")
-                .WithDescription(
-                    $"`{Message._exception.Message ?? "<null>"}`\n" +
-                    $"Error has been reported. For further assistance, please join <{_settings.Discord.Guild.GuildInvite}>")
-                .WithColor(Color.Red)
-                .WithCurrentTimestamp()
-                .Build();
+            protected override Embed CreateEmbed()
+            {
+                var path = new LocalizationPath("errorMessage");
+                var l = Context.Localization;
+
+                return new EmbedBuilder()
+                    .WithTitle(path["title"][l])
+                    .WithDescription(
+                        $"`{Message._exception.Message ?? "<null>"}`\n" +
+                        path["text"][l, new {invite = _settings.Discord.Guild.GuildInvite}])
+                    .WithColor(Color.Red)
+                    .WithCurrentTimestamp()
+                    .Build();
+            }
         }
     }
 }

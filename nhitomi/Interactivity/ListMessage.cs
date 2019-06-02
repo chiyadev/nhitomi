@@ -118,15 +118,16 @@ namespace nhitomi.Interactivity
 
                 // we reached the extremes
                 var path = new LocalizationPath("messages");
+                var l = Context.Localization;
 
                 switch (status)
                 {
                     case Status.Start:
-                        await SetMessageAsync(path["listBeginning"][Context], cancellationToken);
+                        await SetMessageAsync(path["listBeginning"][l], cancellationToken);
                         break;
 
                     case Status.End:
-                        await SetMessageAsync(path["listEnd"][Context], cancellationToken);
+                        await SetMessageAsync(path["listEnd"][l], cancellationToken);
                         break;
                 }
 

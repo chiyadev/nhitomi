@@ -47,13 +47,13 @@ namespace nhitomi.Interactivity
             protected override Embed CreateEmbed(HelpMessageSection value)
             {
                 var path = new LocalizationPath("helpMessage");
-                var c = Context;
+                var l = Context.Localization;
 
                 var embed = new EmbedBuilder()
-                    .WithTitle($"**nhitomi**: {path["title"][c]}")
+                    .WithTitle(path["title"][l])
                     .WithColor(Color.Purple)
-                    .WithThumbnailUrl(_settings.ImageUrl) //todo: go into localization
-                    .WithFooter(path["footer"][c]);
+                    .WithThumbnailUrl("https://github.com/chiyadev/nhitomi/raw/master/nhitomi.png")
+                    .WithFooter(path["footer"][l]);
 
                 var prefix = _settings.Discord.Prefix;
 
@@ -61,55 +61,55 @@ namespace nhitomi.Interactivity
                 {
                     case HelpMessageSection.Doujins:
                         embed.Description =
-                            $"nhitomi — {path["about"][c]}\n\n" +
-                            $"{path["invite"][c, new {invite = _settings.Discord.Guild.GuildInvite}]}";
+                            $"nhitomi — {path["about"][l]}\n\n" +
+                            $"{path["invite"][l, new {invite = _settings.Discord.Guild.GuildInvite}]}";
 
                         path = path["doujins"];
 
-                        embed.AddField($"— {path["heading"][c]} —", $@"
-- {prefix}get `source` `id` — {path["get"][c]}
-- {prefix}from `source` — {path["from"][c]}
-- {prefix}search `query` — {path["search"][c]}
-- {prefix}download `source` `id` — {path["download"][c]}
+                        embed.AddField($"— {path["heading"][l]} —", $@"
+- {prefix}get `source` `id` — {path["get"][l]}
+- {prefix}from `source` — {path["from"][l]}
+- {prefix}search `query` — {path["search"][l]}
+- {prefix}download `source` `id` — {path["download"][l]}
 ".Trim());
                         break;
 
                     case HelpMessageSection.Collections:
                         path = path["collections"];
 
-                        embed.AddField($"— {path["heading"][c]} —", $@"
-- {prefix}collection list — {path["list"][c]}
-- {prefix}collection `name` — {path["view"][c]}
-- {prefix}collection `name` add `source` `id` — {path["add"][c]}
-- {prefix}collection `name` remove `source` `id` — {path["remove"][c]}
-- {prefix}collection `name` sort `attribute` — {path["sort"][c]}
-- {prefix}collection `name` delete — {path["delete"][c]}
+                        embed.AddField($"— {path["heading"][l]} —", $@"
+- {prefix}collection list — {path["list"][l]}
+- {prefix}collection `name` — {path["view"][l]}
+- {prefix}collection `name` add `source` `id` — {path["add"][l]}
+- {prefix}collection `name` remove `source` `id` — {path["remove"][l]}
+- {prefix}collection `name` sort `attribute` — {path["sort"][l]}
+- {prefix}collection `name` delete — {path["delete"][l]}
 ".Trim());
                         break;
 
                     case HelpMessageSection.Other:
                         path = path["sources"];
 
-                        embed.AddField($"— {path["heading"][c]} —", @"
+                        embed.AddField($"— {path["heading"][l]} —", @"
 - nhentai — `https://nhentai.net/`
 - Hitomi — `https://hitomi.la/`
 ".Trim());
 
                         // only add translations if not English
-                        if (c != Localization.Default)
+                        if (l != Localization.Default)
                         {
                             path = path.Up["translations"];
 
                             embed.AddField(
-                                $"— {path["heading"][c]} —",
-                                path["text"][c, new {translators = new LocalizationPath()["meta"]["translators"][c]}]);
+                                $"— {path["heading"][l]} —",
+                                path["text"][l, new {translators = new LocalizationPath()["meta"]["translators"][l]}]);
                         }
 
                         path = path.Up["openSource"];
 
-                        embed.AddField($"— {path["heading"][c]} —", $@"
-{path["license"][c]}
-{path["contribution"][c, new {repoUrl = "https://github.com/chiyadev/nhitomi"}]}
+                        embed.AddField($"— {path["heading"][l]} —", $@"
+{path["license"][l]}
+{path["contribution"][l, new {repoUrl = "https://github.com/chiyadev/nhitomi"}]}
 ".Trim());
                         break;
                 }

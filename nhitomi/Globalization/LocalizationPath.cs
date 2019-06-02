@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using nhitomi.Discord;
 using SmartFormat;
 
 namespace nhitomi.Globalization
@@ -38,8 +37,6 @@ namespace nhitomi.Globalization
                 return variables == null ? template : Smart.Format(template, variables);
             }
         }
-
-        public string this[IDiscordContext context, object variables = null] => this[context.Localization, variables];
 
         public static implicit operator LocalizationPath(string path) => new LocalizationPath(path);
     }
