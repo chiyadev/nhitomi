@@ -32,10 +32,14 @@ namespace nhitomi.Globalization
                 }
                 else if (typeof(IEnumerable<string>).IsAssignableFrom(type))
                 {
-                    var values = (IEnumerable<string>) property.GetValue(obj);
+                    var values = ((Array) property.GetValue(obj)).Cast<string>().ToArray();
 
                     // join values as list
                     _dict[FixKey(prefix + property.Name)] = string.Join(", ", values);
+
+                    // add each item as indices
+                    for (var i = 0; i < values.Length; i++)
+                        _dict[FixKey(prefix + property.Name + "." + i)] = values[i];
                 }
                 else if (type.IsClass)
                 {
