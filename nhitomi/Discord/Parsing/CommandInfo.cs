@@ -115,32 +115,24 @@ namespace nhitomi.Discord.Parsing
             var builder = new StringBuilder().Append('^');
 
             // prepend prefixes
-            for (var i = 0; i < prefixes.Count; i++)
+            foreach (var prefix in prefixes)
             {
-                var prefix = prefixes[i];
-
                 builder
                     .Append('(')
                     .Append(prefix)
-                    .Append(')');
-
-                if (i != prefixes.Count - 1)
-                    builder.Append(@"\b\s+");
+                    .Append(')')
+                    .Append(@"\b\s+");
             }
 
             if (commandAttr.BindName)
             {
-                if (prefixes.Count != 0)
-                    builder.Append(@"\b\s+");
-
                 // append command name
                 builder
                     .Append('(')
                     .Append(string.Join('|', commandAttr.GetNames()))
-                    .Append(')');
+                    .Append(')')
+                    .Append(@"($|\s+)");
             }
-
-            builder.Append(@"($|\s+)");
 
             return builder.ToString();
         }
