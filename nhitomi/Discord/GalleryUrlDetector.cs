@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -65,12 +64,36 @@ namespace nhitomi.Discord
             if (_logger.IsEnabled(LogLevel.Debug))
                 _logger.LogDebug($"Matched galleries: {string.Join(", ", ids.Select((s, i) => $"{s}/{i}"))}");
 
-            IAsyncEnumerable<Doujin> enumerate(IDatabase db, int offset) => db.GetDoujinsAsync(ids);
-
             // send interactive
-            await _interactive.SendInteractiveAsync(new DoujinListMessage(enumerate), context, cancellationToken);
+            await _interactive.SendInteractiveAsync(new GalleryUrlDetectedMessage(ids), context, cancellationToken);
 
             return true;
+        }
+
+        sealed class GalleryUrlDetectedMessage : DoujinListMessage<GalleryUrlDetectedMessage.View>
+        {
+            readonly (string, string)[] _ids;
+
+            public GalleryUrlDetectedMessage((string, string)[] ids)
+            {
+                _ids = ids;
+            }
+
+            public class View : DoujinListView
+            {
+                new GalleryUrlDetectedMessage Message => (GalleryUrlDetectedMessage) base.Message;
+
+                readonly IDatabase _db;
+
+                public View(IDatabase db)
+                {
+                    _db = db;
+                }
+
+                protected override Task<Doujin[]> GetValuesAsync(int offset,
+                    CancellationToken cancellationToken = default) =>
+                    _db.GetDoujinsAsync(Message._ids.Skip(offset).Take(10).ToArray());
+            }
         }
     }
 }
