@@ -9,6 +9,11 @@ namespace nhitomi.Discord.Parsing
         public string Name { get; }
         public string[] Aliases { get; set; }
 
+        /// <summary>
+        /// Whether the name should be bound automatically.
+        /// </summary>
+        public bool BindName { get; set; } = true;
+
         public CommandAttribute(string name)
         {
             Name = name;

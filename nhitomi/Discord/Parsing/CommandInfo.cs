@@ -124,12 +124,15 @@ namespace nhitomi.Discord.Parsing
                     .Append(@"\b\s+");
             }
 
-            // append command name
-            builder
-                .Append('(')
-                .Append(string.Join('|', commandAttr.GetNames()))
-                .Append(')')
-                .Append(@"($|\s+)");
+            if (commandAttr.BindName)
+            {
+                // append command name
+                builder
+                    .Append('(')
+                    .Append(string.Join('|', commandAttr.GetNames()))
+                    .Append(')')
+                    .Append(@"($|\s+)");
+            }
 
             return builder.ToString();
         }
