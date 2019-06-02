@@ -264,11 +264,13 @@ namespace nhitomi.Discord.Parsing
                 if (!argStrings.TryGetValue(parameter.Name, out var value) && !parameter.IsOptional)
                     return false;
 
-                // invalid value
-                if (!TryParse(parameter, value, out var obj))
-                    return false;
+                // parse value
+                if (TryParse(parameter, value, out var obj))
+                    args[parameter.Name] = obj;
 
-                args[parameter.Name] = obj;
+                // couldn't parse value and parameter is required
+                if (!parameter.IsOptional)
+                    return false;
             }
 
             return true;
