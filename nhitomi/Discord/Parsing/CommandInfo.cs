@@ -56,7 +56,7 @@ namespace nhitomi.Discord.Parsing
             _parameterRegex = new Regex(BuildParameterPattern(bindingExpression ?? ""), _options);
 
             // build optional parameter regex
-            _optionRegex = new Regex(BuildOptionPattern(_parameters), _options);
+            _optionRegex = new Regex(BuildOptionPattern(_parameters.Where(p => p.IsOptional).ToArray()), _options);
         }
 
         static string BuildNamePattern(MemberInfo member, CommandAttribute commandAttr)
@@ -105,10 +105,10 @@ namespace nhitomi.Discord.Parsing
 
         static string BuildParameterPattern(string bindingExpression)
         {
+            var builder = new StringBuilder().Append('^');
+
             // split into parts
             var parts = bindingExpression.Trim().Split(' ', StringSplitOptions.RemoveEmptyEntries);
-
-            var builder = new StringBuilder().Append('^');
 
             for (var i = 0; i < parts.Length; i++)
             {
@@ -139,23 +139,22 @@ namespace nhitomi.Discord.Parsing
                         .Append(')');
                 }
 
-                builder.Append(i == parts.Length - 1
-                    ? @"($|\s+)"
-                    : @"\b\s+");
+                if (i != parts.Length - 1)
+                    builder.Append(@"\b\s+");
             }
+
+            builder.Append(@"($|\s+)");
 
             return builder.ToString();
         }
 
-        static string BuildOptionPattern(ParameterInfo[] parameters)
+        static string BuildOptionPattern(IReadOnlyList<ParameterInfo> parameters)
         {
-            parameters = parameters.Where(p => p.IsOptional).ToArray();
-
             var usedNames = new HashSet<string>();
 
             var builder = new StringBuilder().Append('^');
 
-            for (var i = 0; i < parameters.Length; i++)
+            for (var i = 0; i < parameters.Count; i++)
             {
                 var parameter = parameters[i];
 
@@ -172,7 +171,7 @@ namespace nhitomi.Discord.Parsing
                     .Append(attr.Name)
                     .Append(@">[^-]+))");
 
-                if (i != parameters.Length - 1)
+                if (i != parameters.Count - 1)
                     builder.Append('|');
             }
 
@@ -204,6 +203,10 @@ namespace nhitomi.Discord.Parsing
                 .ToArray();
 
             if (paramGroups.Length != _requiredParams)
+                return false;
+
+            // parameters must match exactly
+            if (!string.IsNullOrWhiteSpace(paramStr.Remove(paramMatch.Index, paramMatch.Length)))
                 return false;
 
             foreach (var group in paramGroups)
