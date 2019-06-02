@@ -28,7 +28,7 @@ namespace nhitomi.Interactivity
 
         public abstract class ListViewBase : ViewBase
         {
-            public new ListMessage<TView, TValue> Message => (ListMessage<TView, TValue>) base.Message;
+            new ListMessage<TView, TValue> Message => (ListMessage<TView, TValue>) base.Message;
 
             protected abstract Task<TValue[]> GetValuesAsync(int offset, CancellationToken cancellationToken = default);
 

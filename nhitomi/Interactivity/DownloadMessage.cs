@@ -21,7 +21,7 @@ namespace nhitomi.Interactivity
 
         public class View : EmbedViewBase
         {
-            public new DownloadMessage Message => (DownloadMessage) base.Message;
+            new DownloadMessage Message => (DownloadMessage) base.Message;
 
             protected override Embed CreateEmbed() => new EmbedBuilder()
                 .WithTitle($"**{Message._doujin.Source}**: {Message._doujin.Name}")

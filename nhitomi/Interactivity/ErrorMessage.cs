@@ -15,7 +15,7 @@ namespace nhitomi.Interactivity
 
         public class View : EmbedViewBase
         {
-            public new ErrorMessage Message => (ErrorMessage) base.Message;
+            new ErrorMessage Message => (ErrorMessage) base.Message;
 
             readonly AppSettings _settings;
 

@@ -22,7 +22,7 @@ namespace nhitomi.Interactivity
 
         public class View : EmbedViewBase
         {
-            public new CollectionListMessage Message => (CollectionListMessage) base.Message;
+            new CollectionListMessage Message => (CollectionListMessage) base.Message;
 
             //todo: more info
             protected override Embed CreateEmbed() => new EmbedBuilder()

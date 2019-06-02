@@ -41,7 +41,7 @@ namespace nhitomi.Interactivity.Triggers
 
         public class Action : ActionBase<IListMessage>
         {
-            public new ListTrigger Trigger => (ListTrigger) base.Trigger;
+            new ListTrigger Trigger => (ListTrigger) base.Trigger;
 
             readonly IServiceProvider _services;
 

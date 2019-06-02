@@ -31,7 +31,7 @@ namespace nhitomi.Interactivity
 
         public class View : EmbedViewBase
         {
-            public new DoujinMessage Message => (DoujinMessage) base.Message;
+            new DoujinMessage Message => (DoujinMessage) base.Message;
 
             protected override Embed CreateEmbed() =>
                 CreateEmbed(Message.Doujin, Context.Localization);
