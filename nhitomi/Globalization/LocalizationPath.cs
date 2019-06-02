@@ -6,8 +6,6 @@ using SmartFormat;
 
 namespace nhitomi.Globalization
 {
-    public delegate string LocalizationFormatter(object variables = null);
-
     public class LocalizationPath
     {
         readonly string[] _levels;
@@ -31,17 +29,17 @@ namespace nhitomi.Globalization
 
         string FullPath => string.Join('.', _levels);
 
-        public LocalizationFormatter this[Localization localization]
+        public string this[Localization localization, object variables = null]
         {
             get
             {
                 var template = localization[FullPath];
 
-                return v => v == null ? template : Smart.Format(template, v);
+                return variables == null ? template : Smart.Format(template, variables);
             }
         }
 
-        public LocalizationFormatter this[IDiscordContext context] => this[context.Localization];
+        public string this[IDiscordContext context, object variables = null] => this[context.Localization, variables];
 
         public static implicit operator LocalizationPath(string path) => new LocalizationPath(path);
     }

@@ -45,19 +45,19 @@ namespace nhitomi.Interactivity
                     .WithDescription(doujin.OriginalName == doujin.PrettyName ? null : doujin.PrettyName)
                     .WithAuthor(a => a
                         .WithName(doujin.GetTag(TagType.Artist)?.Value ?? doujin.Source)
-                        .WithIconUrl(path["sourceIcons"][doujin.Source][l]()))
+                        .WithIconUrl(path["sourceIcons"][doujin.Source][l]))
                     .WithUrl(doujin.GalleryUrl)
                     .WithImageUrl($"https://nhitomi.chiya.dev/v1/image/{doujin.Id}/-1")
                     .WithColor(Color.Green)
                     .WithFooter($"{doujin.Source}/{doujin.SourceId}");
 
-                AddField(embed, path["language"][l](), doujin.GetTag(TagType.Language)?.Value);
-                AddField(embed, path["group"][l](), doujin.GetTag(TagType.Group)?.Value);
-                AddField(embed, path["parody"][l](), doujin.GetTag(TagType.Parody)?.Value);
-                AddField(embed, path["categories"][l](), doujin.GetTags(TagType.Category).Select(t => t.Value));
-                AddField(embed, path["characters"][l](), doujin.GetTags(TagType.Character).Select(t => t.Value));
-                AddField(embed, path["tags"][l](), doujin.GetTags(TagType.Tag).Select(t => t.Value));
-                AddField(embed, path["contents"][l](), $"{doujin.PageCount} pages");
+                AddField(embed, path["language"][l], doujin.GetTag(TagType.Language)?.Value);
+                AddField(embed, path["group"][l], doujin.GetTag(TagType.Group)?.Value);
+                AddField(embed, path["parody"][l], doujin.GetTag(TagType.Parody)?.Value);
+                AddField(embed, path["categories"][l], doujin.GetTags(TagType.Category).Select(t => t.Value));
+                AddField(embed, path["characters"][l], doujin.GetTags(TagType.Character).Select(t => t.Value));
+                AddField(embed, path["tags"][l], doujin.GetTags(TagType.Tag).Select(t => t.Value));
+                AddField(embed, path["contents"][l], $"{doujin.PageCount} pages");
 
                 return embed.Build();
             }

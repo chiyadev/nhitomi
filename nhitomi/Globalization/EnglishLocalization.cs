@@ -56,8 +56,8 @@ namespace nhitomi.Globalization
             },
             helpMessage = new
             {
-                title = "Help",
-                about = "a Discord bot for searching and downloading doujinshi, by **chiya.dev**.",
+                title = "**nhitomi**: Help",
+                about = "a Discord bot for searching and downloading doujinshi",
                 invite = "Official server: <{invite}>",
                 doujin = new
                 {
