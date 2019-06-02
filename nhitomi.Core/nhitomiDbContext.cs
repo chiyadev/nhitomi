@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -20,14 +19,16 @@ namespace nhitomi.Core
         Task<bool> SaveAsync(CancellationToken cancellationToken = default);
 
         Task<Doujin> GetDoujinAsync(string source, string id, CancellationToken cancellationToken = default);
-        IAsyncEnumerable<Doujin> GetDoujinsAsync((string source, string id)[] ids);
-        IAsyncEnumerable<Doujin> EnumerateDoujinsAsync(QueryFilterDelegate<Doujin> query);
+        Task<Doujin[]> GetDoujinsAsync((string source, string id)[] ids, CancellationToken cancellationToken = default);
+
+        Task<Doujin[]> GetDoujinsAsync(QueryFilterDelegate<Doujin> query,
+            CancellationToken cancellationToken = default);
 
         Task<Collection> GetCollectionAsync(ulong userId, string name, CancellationToken cancellationToken = default);
         Task<Collection[]> GetCollectionsAsync(ulong userId, CancellationToken cancellationToken = default);
 
-        Task<IAsyncEnumerable<Doujin>> EnumerateCollectionAsync(ulong userId, string name,
-            QueryFilterDelegate<Doujin> query, CancellationToken cancellationToken = default);
+        Task<Doujin[]> GetCollectionAsync(ulong userId, string name, QueryFilterDelegate<Doujin> query,
+            CancellationToken cancellationToken = default);
 
         Task<User> GetUserAsync(ulong userId, CancellationToken cancellationToken = default);
 
@@ -80,7 +81,7 @@ namespace nhitomi.Core
             }
         }
 
-        const int _chunkLoadSize = 64;
+        const int _chunkLoadSize = 1;
 
         public Task<Doujin> GetDoujinAsync(string source, string id, CancellationToken cancellationToken = default) =>
             Query<Doujin>()
@@ -89,26 +90,29 @@ namespace nhitomi.Core
                 .IncludeRelated()
                 .FirstOrDefaultAsync(cancellationToken);
 
-        public IAsyncEnumerable<Doujin> GetDoujinsAsync((string source, string id)[] ids)
+        public Task<Doujin[]> GetDoujinsAsync((string source, string id)[] ids,
+            CancellationToken cancellationToken = default)
         {
             switch (ids.Length)
             {
                 case 0:
-                    return AsyncEnumerable.Empty<Doujin>();
+                    return Task.FromResult(new Doujin[0]);
             }
 
             var source = ids.Select(x => x.source);
             var id = ids.Select(x => x.id);
 
-            return EnumerateDoujinsAsync(x => x
+            return Query<Doujin>()
                 .Where(d => source.Contains(d.Source) &&
-                            id.Contains(d.SourceId)));
+                            id.Contains(d.SourceId))
+                .ToArrayAsync(cancellationToken);
         }
 
-        public IAsyncEnumerable<Doujin> EnumerateDoujinsAsync(QueryFilterDelegate<Doujin> query) =>
+        public Task<Doujin[]> GetDoujinsAsync(QueryFilterDelegate<Doujin> query,
+            CancellationToken cancellationToken = default) =>
             query(Query<Doujin>())
                 .IncludeRelated()
-                .ToChunkedAsyncEnumerable(_chunkLoadSize);
+                .ToArrayAsync(cancellationToken);
 
         public Task<Collection> GetCollectionAsync(ulong userId, string name,
             CancellationToken cancellationToken = default) =>
@@ -122,7 +126,7 @@ namespace nhitomi.Core
                 .Where(c => c.OwnerId == userId)
                 .ToArrayAsync(cancellationToken);
 
-        public async Task<IAsyncEnumerable<Doujin>> EnumerateCollectionAsync(ulong userId, string name,
+        public async Task<Doujin[]> GetCollectionAsync(ulong userId, string name,
             QueryFilterDelegate<Doujin> query, CancellationToken cancellationToken = default)
         {
             //todo: use one query to retrieve everything
@@ -133,11 +137,11 @@ namespace nhitomi.Core
 
             var id = collection.Doujins.Select(x => x.DoujinId).ToArray();
 
-            return query(Query<Doujin>())
+            return await query(Query<Doujin>())
                 .Where(d => id.Contains(d.Id))
                 .OrderBy(collection.Sort, collection.SortDescending)
                 .IncludeRelated()
-                .ToChunkedAsyncEnumerable(_chunkLoadSize);
+                .ToArrayAsync(cancellationToken);
         }
 
         public async Task<User> GetUserAsync(ulong userId, CancellationToken cancellationToken = default)
