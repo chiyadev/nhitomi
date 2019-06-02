@@ -29,18 +29,15 @@ namespace nhitomi.Modules
         [Command("get")]
         public async Task GetAsync(string source, string id)
         {
-            using (_context.BeginTyping())
+            var doujin = await _database.GetDoujinAsync(source, id);
+
+            if (doujin == null)
             {
-                var doujin = await _database.GetDoujinAsync(source, id);
-
-                if (doujin == null)
-                {
-                    await _context.ReplyAsync("messages.doujinNotFound");
-                    return;
-                }
-
-                await _interactive.SendInteractiveAsync(new DoujinMessage(doujin), _context);
+                await _context.ReplyAsync("messages.doujinNotFound");
+                return;
             }
+
+            await _interactive.SendInteractiveAsync(new DoujinMessage(doujin), _context);
         }
 
         sealed class DoujinFromMessage : DoujinListMessage<DoujinFromMessage.View>
@@ -82,8 +79,7 @@ namespace nhitomi.Modules
         [Command("from")]
         public async Task FromAsync(string source)
         {
-            using (_context.BeginTyping())
-                await _interactive.SendInteractiveAsync(new DoujinFromMessage(source), _context);
+            await _interactive.SendInteractiveAsync(new DoujinFromMessage(source), _context);
         }
 
         sealed class DoujinSearchMessage : DoujinListMessage<DoujinSearchMessage.View>
@@ -124,37 +120,31 @@ namespace nhitomi.Modules
                 return;
             }
 
-            using (_context.BeginTyping())
-                await _interactive.SendInteractiveAsync(new DoujinSearchMessage(query), _context);
+            await _interactive.SendInteractiveAsync(new DoujinSearchMessage(query), _context);
         }
 
         [Command("download", Aliases = new[] {"dl"})]
         public async Task DownloadAsync(string source, string id)
         {
-            Doujin doujin;
-
-            using (_context.BeginTyping())
+            // allow downloading only for users of guild
+            if (!_settings.Doujin.AllowNonGuildMemberDownloads)
             {
-                // allow downloading only for users of guild
-                if (!_settings.Doujin.AllowNonGuildMemberDownloads)
+                var guild = await _context.Client.GetGuildAsync(_settings.Discord.Guild.GuildId);
+
+                // guild user is null; user is not in guild
+                if (await guild.GetUserAsync(_context.User.Id) == null)
                 {
-                    var guild = await _context.Client.GetGuildAsync(_settings.Discord.Guild.GuildId);
-
-                    // guild user is null; user is not in guild
-                    if (await guild.GetUserAsync(_context.User.Id) == null)
-                    {
-                        await _context.ReplyAsync("messages.joinForDownload");
-                        return;
-                    }
-                }
-
-                doujin = await _database.GetDoujinAsync(source, id);
-
-                if (doujin == null)
-                {
-                    await _context.ReplyAsync("messages.doujinNotFound");
+                    await _context.ReplyAsync("messages.joinForDownload");
                     return;
                 }
+            }
+
+            var doujin = await _database.GetDoujinAsync(source, id);
+
+            if (doujin == null)
+            {
+                await _context.ReplyAsync("messages.doujinNotFound");
+                return;
             }
 
             await _interactive.SendInteractiveAsync(new DownloadMessage(doujin), _context);

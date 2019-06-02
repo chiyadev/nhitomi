@@ -25,12 +25,9 @@ namespace nhitomi.Modules
         [Command("list")]
         public async Task ListCollectionsAsync()
         {
-            using (_context.BeginTyping())
-            {
-                var collections = await _database.GetCollectionsAsync(_context.User.Id);
+            var collections = await _database.GetCollectionsAsync(_context.User.Id);
 
-                await _interactive.SendInteractiveAsync(new CollectionListMessage(collections), _context);
-            }
+            await _interactive.SendInteractiveAsync(new CollectionListMessage(collections), _context);
         }
 
         sealed class CollectionViewMessage : DoujinListMessage<CollectionViewMessage.View>
@@ -68,19 +65,16 @@ namespace nhitomi.Modules
         [Command("view")]
         public async Task ViewAsync(string name)
         {
-            using (_context.BeginTyping())
+            // check if collection exists first
+            var collection = await _database.GetCollectionAsync(_context.User.Id, name);
+
+            if (collection == null)
             {
-                // check if collection exists first
-                var collection = await _database.GetCollectionAsync(_context.User.Id, name);
-
-                if (collection == null)
-                {
-                    await _context.ReplyAsync("messages.collectionNotFound");
-                    return;
-                }
-
-                await _interactive.SendInteractiveAsync(new CollectionViewMessage(_context.User.Id, name), _context);
+                await _context.ReplyAsync("messages.collectionNotFound");
+                return;
             }
+
+            await _interactive.SendInteractiveAsync(new CollectionViewMessage(_context.User.Id, name), _context);
         }
 
         [Command("add"), Binding("[name] add [source] [id]")]
@@ -159,47 +153,41 @@ namespace nhitomi.Modules
         [Command("delete")]
         public async Task DeleteAsync(string name)
         {
-            using (_context.BeginTyping())
+            do
             {
-                do
+                var collection = await _database.GetCollectionAsync(_context.User.Id, name);
+
+                if (collection == null)
                 {
-                    var collection = await _database.GetCollectionAsync(_context.User.Id, name);
-
-                    if (collection == null)
-                    {
-                        await _context.ReplyAsync("messages.collectionNotFound");
-                        return;
-                    }
-
-                    _database.Remove(collection);
+                    await _context.ReplyAsync("messages.collectionNotFound");
+                    return;
                 }
-                while (!await _database.SaveAsync());
 
-                await _context.ReplyAsync("messages.collectionDeleted");
+                _database.Remove(collection);
             }
+            while (!await _database.SaveAsync());
+
+            await _context.ReplyAsync("messages.collectionDeleted");
         }
 
         [Command("sort")]
         public async Task SortAsync(string name, CollectionSort sort)
         {
-            using (_context.BeginTyping())
+            do
             {
-                do
+                var collection = await _database.GetCollectionAsync(_context.User.Id, name);
+
+                if (collection == null)
                 {
-                    var collection = await _database.GetCollectionAsync(_context.User.Id, name);
-
-                    if (collection == null)
-                    {
-                        await _context.ReplyAsync("messages.collectionNotFound");
-                        return;
-                    }
-
-                    collection.Sort = sort;
+                    await _context.ReplyAsync("messages.collectionNotFound");
+                    return;
                 }
-                while (!await _database.SaveAsync());
 
-                await _context.ReplyAsync("messages.collectionSorted");
+                collection.Sort = sort;
             }
+            while (!await _database.SaveAsync());
+
+            await _context.ReplyAsync("messages.collectionSorted");
         }
     }
 }

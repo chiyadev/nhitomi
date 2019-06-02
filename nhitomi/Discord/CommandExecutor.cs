@@ -90,7 +90,8 @@ namespace nhitomi.Discord
                 };
 
                 // invoke command
-                await command.InvokeAsync(services, args);
+                using (context.BeginTyping())
+                    await command.InvokeAsync(services, args);
             }
 
             return true;
