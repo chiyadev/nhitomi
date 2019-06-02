@@ -32,19 +32,24 @@ namespace nhitomi.Globalization
             helpMessage = new
             {
                 title = "도움말",
-                about = "nhitomi — 디스코드 동인지 로봇 by **chiya.dev**.",
+                about = "디스코드 동인지 로봇",
                 invite = "공식 서버: <{invite}>",
-                doujin = new
+                doujins = new
                 {
                     heading = "동인지"
                 },
-                collection = new
+                collections = new
                 {
                     heading = "콜렉션 관리"
                 },
-                source = new
+                sources = new
                 {
                     heading = "제공"
+                },
+                translations = new
+                {
+                    heading = "번역",
+                    text = "한국어 번역을 도와주신 분들: {translators}"
                 },
                 openSource = new
                 {

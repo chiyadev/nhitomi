@@ -5,7 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Discord;
 using Microsoft.Extensions.Options;
-using nhitomi.Core;
+using nhitomi.Globalization;
 using nhitomi.Interactivity.Triggers;
 
 namespace nhitomi.Interactivity
@@ -46,10 +46,14 @@ namespace nhitomi.Interactivity
 
             protected override Embed CreateEmbed(HelpMessageSection value)
             {
+                var path = new LocalizationPath("helpMessage");
+                var c = Context;
+
                 var embed = new EmbedBuilder()
-                    .WithTitle("**nhitomi**: Help")
+                    .WithTitle($"**nhitomi**: {path["title"][c]}")
                     .WithColor(Color.Purple)
-                    .WithThumbnailUrl(_settings.ImageUrl);
+                    .WithThumbnailUrl(_settings.ImageUrl) //todo: go into localization
+                    .WithFooter(path["footer"][c]);
 
                 var prefix = _settings.Discord.Prefix;
 
@@ -57,36 +61,55 @@ namespace nhitomi.Interactivity
                 {
                     case HelpMessageSection.Doujins:
                         embed.Description =
-                            "nhitomi — a Discord bot for searching and downloading doujinshi, by **chiya.dev** - https://chiya.dev\n\n" +
-                            $"Official server: {_settings.Discord.Guild.GuildInvite}";
+                            $"nhitomi — {path["about"][c]}\n\n" +
+                            $"{path["invite"][c, new {invite = _settings.Discord.Guild.GuildInvite}]}";
 
-                        embed.AddField("  — Doujinshi —", $@"
-- {prefix}get `source` `id` — Displays doujin information from a source by its ID.
-- {prefix}from `source` — Displays all doujins from a source.
-- {prefix}search `query` — Searches for doujins by the title and tags that satisfy your query.
-- {prefix}download `source` `id` — Sends a download link for a doujin by its ID.
+                        path = path["doujins"];
+
+                        embed.AddField($"— {path["heading"][c]} —", $@"
+- {prefix}get `source` `id` — {path["get"][c]}
+- {prefix}from `source` — {path["from"][c]}
+- {prefix}search `query` — {path["search"][c]}
+- {prefix}download `source` `id` — {path["download"][c]}
 ".Trim());
                         break;
 
                     case HelpMessageSection.Collections:
-                        embed.AddField("  — Collection management —", $@"
-- {prefix}collection — Lists all collections belonging to you.
-- {prefix}collection `name` — Displays doujins belonging to a collection.
-- {prefix}collection `name` add|remove `source` `id` — Adds or removes a doujin in a collection.
-- {prefix}collection `name` list — Lists all doujins belonging to a collection.
-- {prefix}collection `name` sort `attribute` — Sorts doujins in a collection by an attribute ({string.Join(", ", Enum.GetNames(typeof(CollectionSort)).Select(s => s.ToLowerInvariant()))}).
-- {prefix}collection `name` delete — Deletes a collection, removing all doujins belonging to it.
+                        path = path["collections"];
+
+                        embed.AddField($"— {path["heading"][c]} —", $@"
+- {prefix}collection list — {path["list"][c]}
+- {prefix}collection `name` — {path["view"][c]}
+- {prefix}collection `name` add `source` `id` — {path["add"][c]}
+- {prefix}collection `name` remove `source` `id` — {path["remove"][c]}
+- {prefix}collection `name` sort `attribute` — {path["sort"][c]}
+- {prefix}collection `name` delete — {path["delete"][c]}
 ".Trim());
                         break;
 
                     case HelpMessageSection.Other:
-                        embed.AddField("  — Sources —", @"
+                        path = path["sources"];
+
+                        embed.AddField($"— {path["heading"][c]} —", @"
 - nhentai — `https://nhentai.net/`
 - Hitomi — `https://hitomi.la/`
-".Trim())
-                            .AddField("  — Contribution —", @"
-This project is licensed under the MIT License.
-Contributions are welcome! <https://github.com/chiyadev/nhitomi>
+".Trim());
+
+                        // only add translations if not English
+                        if (c != Localization.Default)
+                        {
+                            path = path.Up["translations"];
+
+                            embed.AddField(
+                                $"— {path["heading"][c]} —",
+                                path["text"][c, new {translators = new LocalizationPath()["meta"]["translators"][c]}]);
+                        }
+
+                        path = path.Up["openSource"];
+
+                        embed.AddField($"— {path["heading"][c]} —", $@"
+{path["license"][c]}
+{path["contribution"][c, new {repoUrl = "https://github.com/chiyadev/nhitomi"}]}
 ".Trim());
                         break;
                 }

@@ -4,17 +4,13 @@ namespace nhitomi.Globalization
 {
     public class EnglishLocalization : Localization
     {
-        protected override CultureInfo Culture { get; } = new CultureInfo("en");
+        public override CultureInfo Culture { get; } = new CultureInfo("en");
         protected override CultureInfo FallbackCulture => null;
 
         protected override object CreateDefinition() => new
         {
             meta = new
             {
-                translators = new[]
-                {
-                    "phosphene47"
-                }
             },
             messages = new
             {
@@ -56,24 +52,26 @@ namespace nhitomi.Globalization
             },
             helpMessage = new
             {
-                title = "**nhitomi**: Help",
+                title = "Help",
+                footer = "Powered by chiya.dev",
                 about = "a Discord bot for searching and downloading doujinshi",
                 invite = "Official server: <{invite}>",
-                doujin = new
+                doujins = new
                 {
                     heading = "Doujinshi",
-                    get = "Displays doujin information from a source by its ID.",
+                    get = "Displays full doujin information.",
                     from = "Displays all doujins from a source.",
-                    search = "Searches for doujins that match your query.",
-                    download = "Sends a download link for a doujin."
+                    search = "Searches for doujins by their title and tags.",
+                    download = "Sends the download link for a doujin."
                 },
-                collection = new
+                collections = new
                 {
                     heading = "Collection Management",
-                    list = "Lists all collections you own.",
-                    view = "Displays the doujins in a collection.",
-                    addRemove = "Adds or removes a doujin in a collection.",
-                    sort = "Sorts a collection by a doujin's attribute.",
+                    list = "Shows all collections you own.",
+                    view = "Shows the doujins in a collection.",
+                    add = "Adds a doujin to a collection",
+                    remove = "Removes a doujin from a collection",
+                    sort = "Sorts a collection by a doujin attribute.",
                     delete = "Deletes a collection, removing all doujins in it."
                 },
                 sources = new
