@@ -65,7 +65,8 @@ namespace nhitomi.Discord
                 _logger.LogDebug($"Matched galleries: {string.Join(", ", ids.Select((s, i) => $"{s}/{i}"))}");
 
             // send interactive
-            await _interactive.SendInteractiveAsync(new GalleryUrlDetectedMessage(ids), context, cancellationToken);
+            using (context.BeginTyping())
+                await _interactive.SendInteractiveAsync(new GalleryUrlDetectedMessage(ids), context, cancellationToken);
 
             return true;
         }
