@@ -19,22 +19,15 @@ namespace nhitomi.Interactivity
             yield return new DeleteTrigger();
         }
 
-        protected override void InitializeView(View view)
-        {
-            base.InitializeView(view);
-
-            view.Doujin = _doujin;
-        }
-
         public class View : EmbedViewBase
         {
-            public Doujin Doujin;
+            public new DownloadMessage Message => (DownloadMessage) base.Message;
 
             protected override Embed CreateEmbed() => new EmbedBuilder()
-                .WithTitle($"**{Doujin.Source}**: {Doujin.OriginalName ?? Doujin.PrettyName}")
-                .WithUrl($"https://nhitomi.chiya.dev/dl/{Doujin.Source}/{Doujin.SourceId}")
+                .WithTitle($"**{Message._doujin.Source}**: {Message._doujin.Name}")
+                .WithUrl($"https://nhitomi.chiya.dev/v1/dl/{Message._doujin.Source}/{Message._doujin.SourceId}")
                 .WithDescription(
-                    $"Click the link above to start downloading `{Doujin.OriginalName ?? Doujin.PrettyName}`.\n")
+                    $"Click the link above to start downloading `{Message._doujin.Name}`.\n")
                 .WithColor(Color.LightOrange)
                 .WithCurrentTimestamp()
                 .Build();

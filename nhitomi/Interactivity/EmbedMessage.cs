@@ -27,40 +27,33 @@ namespace nhitomi.Interactivity
             // create view object
             var view = _viewFactory(services);
             view.Context = context;
-
-            InitializeView(view);
+            view.Message = this;
 
             // update the view
             return view.UpdateAsync(cancellationToken);
         }
 
-        protected virtual void InitializeView(TView view)
-        {
-            view.EmbedMessage = this;
-        }
-
         public abstract class ViewBase
         {
-            public EmbedMessage<TView> EmbedMessage;
-
+            public EmbedMessage<TView> Message { get; set; }
             public IDiscordContext Context { get; set; }
 
             public abstract Task<bool> UpdateAsync(CancellationToken cancellationToken = default);
 
             protected async Task SetMessageAsync(string content, CancellationToken cancellationToken = default)
             {
-                if (EmbedMessage.Message == null)
-                    EmbedMessage.Message = await Context.Channel.SendMessageAsync(content);
+                if (Message.Message == null)
+                    Message.Message = await Context.Channel.SendMessageAsync(content);
                 else
-                    await EmbedMessage.Message.ModifyAsync(m => m.Content = content ?? "");
+                    await Message.Message.ModifyAsync(m => m.Content = content ?? "");
             }
 
             protected async Task SetEmbedAsync(Embed embed, CancellationToken cancellationToken = default)
             {
-                if (EmbedMessage.Message == null)
-                    EmbedMessage.Message = await Context.Channel.SendMessageAsync(embed: embed);
+                if (Message.Message == null)
+                    Message.Message = await Context.Channel.SendMessageAsync(embed: embed);
                 else
-                    await EmbedMessage.Message.ModifyAsync(m =>
+                    await Message.Message.ModifyAsync(m =>
                     {
                         m.Embed = embed;
                         m.Content = null;

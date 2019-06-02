@@ -20,23 +20,16 @@ namespace nhitomi.Interactivity
             yield return new DeleteTrigger();
         }
 
-        protected override void InitializeView(View view)
-        {
-            base.InitializeView(view);
-
-            view.Collections = _collections;
-        }
-
         public class View : EmbedViewBase
         {
-            public Collection[] Collections;
+            public new CollectionListMessage Message => (CollectionListMessage) base.Message;
 
             //todo: more info
             protected override Embed CreateEmbed() => new EmbedBuilder()
                 .WithTitle("**nhitomi**: Collections")
-                .WithDescription(Collections.Length == 0
+                .WithDescription(Message._collections.Length == 0
                     ? "You have no collections."
-                    : $"- {string.Join("\n- ", Collections.Select(c => c.Name))}")
+                    : $"- {string.Join("\n- ", Message._collections.Select(c => c.Name))}")
                 .WithColor(Color.Teal)
                 .WithCurrentTimestamp()
                 .Build();

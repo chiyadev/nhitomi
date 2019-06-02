@@ -29,19 +29,12 @@ namespace nhitomi.Interactivity
             yield return new DeleteTrigger();
         }
 
-        protected override void InitializeView(View view)
-        {
-            base.InitializeView(view);
-
-            view.Doujin = Doujin;
-        }
-
         public class View : EmbedViewBase
         {
-            public Doujin Doujin;
+            public new DoujinMessage Message => (DoujinMessage) base.Message;
 
             protected override Embed CreateEmbed() =>
-                CreateEmbed(Doujin, Context.Localization);
+                CreateEmbed(Message.Doujin, Context.Localization);
 
             public static Embed CreateEmbed(Doujin doujin, Localization l)
             {

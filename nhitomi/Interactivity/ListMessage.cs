@@ -26,16 +26,9 @@ namespace nhitomi.Interactivity
             yield return new ListTrigger(MoveDirection.Right);
         }
 
-        protected override void InitializeView(TView view)
-        {
-            base.InitializeView(view);
-
-            view.ListMessage = this;
-        }
-
         public abstract class ListViewBase : ViewBase
         {
-            public ListMessage<TView, TValue> ListMessage;
+            public new ListMessage<TView, TValue> Message => (ListMessage<TView, TValue>) base.Message;
 
             protected abstract Task<TValue[]> GetValuesAsync(int offset, CancellationToken cancellationToken = default);
 
@@ -48,12 +41,12 @@ namespace nhitomi.Interactivity
 
             async Task<(Status, TValue)> TryGetCurrentAsync(CancellationToken cancellationToken = default)
             {
-                var cache = ListMessage._valueCache;
-                var index = ListMessage.Position;
+                var cache = Message._valueCache;
+                var index = Message.Position;
 
                 if (index < 0)
                 {
-                    ListMessage.Position = 0;
+                    Message.Position = 0;
 
                     return (Status.Start, default);
                 }
@@ -62,9 +55,9 @@ namespace nhitomi.Interactivity
                 if (index < cache.Count)
                     return (Status.Ok, cache[index]);
 
-                if (ListMessage._fullyLoaded)
+                if (Message._fullyLoaded)
                 {
-                    ListMessage.Position = cache.Count - 1;
+                    Message.Position = cache.Count - 1;
 
                     return (Status.End, default);
                 }
@@ -74,9 +67,9 @@ namespace nhitomi.Interactivity
                 if (values.Length == 0)
                 {
                     // set fully loaded flag so we don't bother enumerating again
-                    ListMessage._fullyLoaded = values.Length == 0;
+                    Message._fullyLoaded = values.Length == 0;
 
-                    ListMessage.Position = cache.Count - 1;
+                    Message.Position = cache.Count - 1;
 
                     return (Status.End, default);
                 }
@@ -102,7 +95,7 @@ namespace nhitomi.Interactivity
                     return true;
                 }
 
-                if (ListMessage._valueCache.Count == 0)
+                if (Message._valueCache.Count == 0)
                 {
                     // embed saying there is nothing in this list
                     await SetEmbedAsync(CreateEmptyEmbed(), cancellationToken);

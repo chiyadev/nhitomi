@@ -13,16 +13,9 @@ namespace nhitomi.Interactivity
             _exception = exception;
         }
 
-        protected override void InitializeView(View view)
-        {
-            base.InitializeView(view);
-
-            view.Exception = _exception;
-        }
-
         public class View : EmbedViewBase
         {
-            public Exception Exception;
+            public new ErrorMessage Message => (ErrorMessage) base.Message;
 
             readonly AppSettings _settings;
 
@@ -34,7 +27,7 @@ namespace nhitomi.Interactivity
             protected override Embed CreateEmbed() => new EmbedBuilder()
                 .WithTitle("**nhitomi**: Error")
                 .WithDescription(
-                    $"`{Exception.Message ?? "<null>"}`\n" +
+                    $"`{Message._exception.Message ?? "<null>"}`\n" +
                     $"Error has been reported. For further assistance, please join <{_settings.Discord.Guild.GuildInvite}>")
                 .WithColor(Color.Red)
                 .WithCurrentTimestamp()
