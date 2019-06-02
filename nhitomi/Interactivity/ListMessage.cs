@@ -64,10 +64,10 @@ namespace nhitomi.Interactivity
 
                 var values = await GetValuesAsync(index, cancellationToken);
 
-                if (values.Length == 0)
+                if (values == null || values.Length == 0)
                 {
                     // set fully loaded flag so we don't bother enumerating again
-                    Message._fullyLoaded = values.Length == 0;
+                    Message._fullyLoaded = true;
 
                     Message.Position = cache.Count - 1;
 
