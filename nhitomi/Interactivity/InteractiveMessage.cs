@@ -17,6 +17,8 @@ namespace nhitomi.Interactivity
     public abstract class InteractiveMessage<TView> : EmbedMessage<TView>, IInteractiveMessage
         where TView : EmbedMessage<TView>.ViewBase
     {
+        readonly SemaphoreSlim _semaphore = new SemaphoreSlim(1);
+
         public IReadOnlyDictionary<IEmote, IReactionTrigger> Triggers { get; private set; }
 
         protected abstract IEnumerable<IReactionTrigger> CreateTriggers();
@@ -24,24 +26,35 @@ namespace nhitomi.Interactivity
         public override async Task<bool> UpdateViewAsync(IServiceProvider services,
             CancellationToken cancellationToken = default)
         {
-            if (!await base.UpdateViewAsync(services, cancellationToken))
-                return false;
+            // disallow concurrent view updates
+            await _semaphore.WaitAsync(cancellationToken);
 
-            if (Triggers == null)
+            try
             {
-                // initialize reaction triggers
-                Triggers = CreateTriggers().ToDictionary(t => t.Emote);
+                if (!await base.UpdateViewAsync(services, cancellationToken))
+                    return false;
 
-                // enqueue adding reactions
-                // this is to avoid blocking the command handling thread with reaction rate limiting
-                services.GetService<InteractiveManager>()?.EnqueueReactions(Message, Triggers.Keys);
+                if (Triggers == null)
+                {
+                    // initialize reaction triggers
+                    Triggers = CreateTriggers().ToDictionary(t => t.Emote);
+
+                    // enqueue adding reactions
+                    // this is to avoid blocking the command handling thread with reaction rate limiting
+                    services.GetService<InteractiveManager>()?.EnqueueReactions(Message, Triggers.Keys);
+                }
+
+                return true;
             }
-
-            return true;
+            finally
+            {
+                _semaphore.Release();
+            }
         }
 
         public virtual void Dispose()
         {
+            _semaphore.Dispose();
         }
     }
 }
