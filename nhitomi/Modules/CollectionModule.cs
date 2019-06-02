@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -23,44 +24,8 @@ namespace nhitomi.Modules
         }
 
         [Command("list")]
-        public async Task ListCollectionsAsync()
-        {
-            var collections = await _database.GetCollectionsAsync(_context.User.Id);
-
-            await _interactive.SendInteractiveAsync(new CollectionListMessage(collections), _context);
-        }
-
-        sealed class CollectionViewMessage : DoujinListMessage<CollectionViewMessage.View>
-        {
-            readonly ulong _userId;
-            readonly string _collectionName;
-
-            public CollectionViewMessage(ulong userId, string collectionName)
-            {
-                _userId = userId;
-                _collectionName = collectionName;
-            }
-
-            public class View : DoujinListView
-            {
-                new CollectionViewMessage Message => (CollectionViewMessage) base.Message;
-
-                readonly IDatabase _db;
-
-                public View(IDatabase db)
-                {
-                    _db = db;
-                }
-
-                protected override Task<Doujin[]> GetValuesAsync(int offset,
-                    CancellationToken cancellationToken = default) =>
-                    _db.GetCollectionAsync(
-                        Message._userId,
-                        Message._collectionName,
-                        d => d.Skip(offset).Take(10),
-                        cancellationToken);
-            }
-        }
+        public Task ListAsync() =>
+            _interactive.SendInteractiveAsync(new CollectionListMessage(_context.User.Id), _context);
 
         [Command("view", BindName = false), Binding("[name] view|v")]
         public async Task ViewAsync(string name)
@@ -92,7 +57,8 @@ namespace nhitomi.Modules
                         Owner = new User
                         {
                             Id = _context.User.Id
-                        }
+                        },
+                        Doujins = new List<CollectionRef>()
                     };
 
                     _database.Add(collection);
@@ -103,6 +69,12 @@ namespace nhitomi.Modules
                 if (doujin == null)
                 {
                     await _context.ReplyAsync("messages.doujinNotFound");
+                    return;
+                }
+
+                if (collection.Doujins.Any(x => x.DoujinId == doujin.Id))
+                {
+                    await _context.ReplyAsync("messages.doujinInCollection");
                     return;
                 }
 
@@ -142,8 +114,13 @@ namespace nhitomi.Modules
 
                 var item = collection.Doujins.FirstOrDefault(x => x.DoujinId == doujin.Id);
 
-                if (item != null)
-                    collection.Doujins.Remove(item);
+                if (item == null)
+                {
+                    await _context.ReplyAsync("messages.doujinNotInCollection");
+                    return;
+                }
+
+                collection.Doujins.Remove(item);
             }
             while (!await _database.SaveAsync(cancellationToken));
 

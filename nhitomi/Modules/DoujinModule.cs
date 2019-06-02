@@ -1,5 +1,3 @@
-using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
 using nhitomi.Core;
@@ -40,76 +38,9 @@ namespace nhitomi.Modules
             await _interactive.SendInteractiveAsync(new DoujinMessage(doujin), _context);
         }
 
-        sealed class DoujinFromMessage : DoujinListMessage<DoujinFromMessage.View>
-        {
-            readonly string _source;
-
-            public DoujinFromMessage(string source)
-            {
-                _source = source;
-            }
-
-            public class View : DoujinListView
-            {
-                new DoujinFromMessage Message => (DoujinFromMessage) base.Message;
-
-                readonly IDatabase _db;
-
-                public View(IDatabase db)
-                {
-                    _db = db;
-                }
-
-                protected override Task<Doujin[]> GetValuesAsync(int offset,
-                    CancellationToken cancellationToken = default) =>
-                    _db.GetDoujinsAsync(x =>
-                    {
-                        x = x.Where(d => d.Source == Message._source);
-
-                        // todo: ascending option
-                        x = x.OrderByDescending(d => d.UploadTime);
-
-                        return x
-                            .Skip(offset)
-                            .Take(10);
-                    });
-            }
-        }
-
         [Command("from")]
-        public async Task FromAsync(string source)
-        {
-            await _interactive.SendInteractiveAsync(new DoujinFromMessage(source), _context);
-        }
-
-        sealed class DoujinSearchMessage : DoujinListMessage<DoujinSearchMessage.View>
-        {
-            readonly string _query;
-
-            public DoujinSearchMessage(string query)
-            {
-                _query = query;
-            }
-
-            public class View : DoujinListView
-            {
-                new DoujinSearchMessage Message => (DoujinSearchMessage) base.Message;
-
-                readonly IDatabase _db;
-
-                public View(IDatabase db)
-                {
-                    _db = db;
-                }
-
-                protected override Task<Doujin[]> GetValuesAsync(int offset,
-                    CancellationToken cancellationToken = default) =>
-                    _db.GetDoujinsAsync(x => x
-                        .FullTextSearch(_db, Message._query)
-                        .Skip(offset)
-                        .Take(10));
-            }
-        }
+        public Task FromAsync(string source) =>
+            _interactive.SendInteractiveAsync(new DoujinListFromSourceMessage(source), _context);
 
         [Command("search"), Binding("[query+]")]
         public async Task SearchAsync(string query)
@@ -120,7 +51,7 @@ namespace nhitomi.Modules
                 return;
             }
 
-            await _interactive.SendInteractiveAsync(new DoujinSearchMessage(query), _context);
+            await _interactive.SendInteractiveAsync(new DoujinListFromQueryMessage(query), _context);
         }
 
         [Command("download", Aliases = new[] {"dl"})]
