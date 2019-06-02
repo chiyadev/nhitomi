@@ -68,9 +68,16 @@ namespace nhitomi
             _fallback = fallback;
         }
 
-        public object GetService(Type serviceType) =>
-            TryGetValue(serviceType, out var obj)
+        public object GetService(Type serviceType)
+        {
+            // override IServiceProvider
+            if (serviceType == typeof(IServiceProvider) ||
+                serviceType == typeof(ServiceDictionary))
+                return this;
+
+            return TryGetValue(serviceType, out var obj)
                 ? obj
                 : _fallback?.GetService(serviceType);
+        }
     }
 }
