@@ -90,10 +90,16 @@ namespace nhitomi.Discord
                             ? reaction.Message.Value
                             : (IUserMessage) await channel.GetMessageAsync(reaction.MessageId);
 
+                        if (message == null)
+                            return;
+
                         // retrieve user
                         var user = reaction.User.IsSpecified
                             ? reaction.User.Value
                             : await channel.GetUserAsync(reaction.UserId);
+
+                        if (user == null)
+                            return;
 
                         // create context
                         var context = new ReactionContext
