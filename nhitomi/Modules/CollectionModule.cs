@@ -46,7 +46,7 @@ namespace nhitomi.Modules
 
             public class View : DoujinListView
             {
-                public new CollectionViewMessage Message => (CollectionViewMessage) base.Message;
+                new CollectionViewMessage Message => (CollectionViewMessage) base.Message;
 
                 readonly IDatabase _db;
 
