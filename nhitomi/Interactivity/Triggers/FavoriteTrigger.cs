@@ -67,7 +67,7 @@ namespace nhitomi.Interactivity.Triggers
 
                         if (collection.Doujins.Any(x => x.DoujinId == doujin.Id))
                         {
-                            await Context.ReplyDmAsync("messages.doujinInCollection");
+                            await Context.ReplyDmAsync("messages.alreadyInCollection");
                             return true;
                         }
 
