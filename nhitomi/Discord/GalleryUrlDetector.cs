@@ -3,6 +3,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using nhitomi.Core;
 using nhitomi.Interactivity;
 
@@ -16,12 +17,14 @@ namespace nhitomi.Discord
         const string _hitomi =
             @"\b((http|https):\/\/)?hitomi(\.la)?\/(galleries\/)?(?<source_Hitomi>[0-9]{1,7})\b";
 
+        readonly AppSettings _settings;
         readonly InteractiveManager _interactive;
         readonly ILogger<GalleryUrlDetector> _logger;
 
         readonly Regex _galleryRegex;
 
-        public GalleryUrlDetector(InteractiveManager interactive, ILogger<GalleryUrlDetector> logger)
+        public GalleryUrlDetector(IOptions<AppSettings> options, InteractiveManager interactive,
+            ILogger<GalleryUrlDetector> logger)
         {
             _interactive = interactive;
             _logger = logger;
@@ -48,6 +51,10 @@ namespace nhitomi.Discord
             }
 
             var content = context.Message.Content;
+
+            // ignore urls in commands
+            if (content.StartsWith(_settings.Discord.Prefix))
+                return false;
 
             // try recognizing at least one gallery url
             if (!_galleryRegex.IsMatch(content))
