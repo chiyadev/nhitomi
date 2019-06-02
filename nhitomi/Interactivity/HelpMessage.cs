@@ -48,9 +48,6 @@ namespace nhitomi.Interactivity
             {
                 var embed = new EmbedBuilder()
                     .WithTitle("**nhitomi**: Help")
-                    .WithDescription(
-                        "nhitomi — a Discord bot for searching and downloading doujinshi, by **chiya.dev** - https://chiya.dev\n" +
-                        $"Official server: {_settings.Discord.Guild.GuildInvite}")
                     .WithColor(Color.Purple)
                     .WithThumbnailUrl(_settings.ImageUrl);
 
@@ -59,6 +56,10 @@ namespace nhitomi.Interactivity
                 switch (value)
                 {
                     case HelpMessageSection.Doujins:
+                        embed.Description =
+                            "nhitomi — a Discord bot for searching and downloading doujinshi, by **chiya.dev** - https://chiya.dev\n\n" +
+                            $"Official server: {_settings.Discord.Guild.GuildInvite}";
+
                         embed.AddField("  — Doujinshi —", $@"
 - {prefix}get `source` `id` — Displays doujin information from a source by its ID.
 - {prefix}from `source` — Displays all doujins from a source.
