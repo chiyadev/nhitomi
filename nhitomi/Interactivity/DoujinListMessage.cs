@@ -6,9 +6,11 @@ using nhitomi.Interactivity.Triggers;
 
 namespace nhitomi.Interactivity
 {
-    public abstract class DoujinListMessage<TView> : ListMessage<TView, Doujin>
+    public abstract class DoujinListMessage<TView> : ListMessage<TView, Doujin>, IDoujinMessage
         where TView : DoujinListMessage<TView>.DoujinListView
     {
+        public Doujin Doujin { get; private set; }
+
         protected override IEnumerable<IReactionTrigger> CreateTriggers()
         {
             yield return new FavoriteTrigger();
@@ -22,8 +24,14 @@ namespace nhitomi.Interactivity
 
         public abstract class DoujinListView : ListViewBase
         {
-            protected override Embed CreateEmbed(Doujin value) =>
-                DoujinMessage.View.CreateEmbed(value, Context.Localization);
+            new DoujinListMessage<TView> Message => (DoujinListMessage<TView>) base.Message;
+
+            protected override Embed CreateEmbed(Doujin value)
+            {
+                Message.Doujin = value;
+
+                return DoujinMessage.View.CreateEmbed(value, Context.Localization);
+            }
 
             protected override Embed CreateEmptyEmbed() => throw new NotImplementedException();
         }
