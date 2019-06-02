@@ -47,5 +47,9 @@ namespace nhitomi.Discord
 
         public static Task ReplyAsync(this IDiscordContext context, string localizationKey, object variables = null) =>
             context.ReplyAsync(context.Channel, localizationKey, variables);
+
+        public static async Task ReplyDmAsync(this IDiscordContext context, string localizationKey,
+            object variables = null) =>
+            await context.ReplyAsync(await context.User.GetOrCreateDMChannelAsync(), localizationKey, variables);
     }
 }
