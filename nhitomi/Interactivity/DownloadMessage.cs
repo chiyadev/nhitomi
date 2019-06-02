@@ -29,7 +29,6 @@ namespace nhitomi.Interactivity
                 .WithDescription(
                     $"Click the link above to start downloading `{Message._doujin.Name}`.\n")
                 .WithColor(Color.LightOrange)
-                .WithCurrentTimestamp()
                 .Build();
         }
     }

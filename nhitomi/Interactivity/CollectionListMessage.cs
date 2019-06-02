@@ -46,8 +46,7 @@ namespace nhitomi.Interactivity
             {
                 var embed = new EmbedBuilder()
                     .WithTitle($"**{Context.User.Username}**: {value.Name}")
-                    .WithColor(Color.Teal)
-                    .WithCurrentTimestamp();
+                    .WithColor(Color.Teal);
 
                 if (value.Doujins.Count == 0)
                     embed.Description = "Empty collection";
