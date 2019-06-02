@@ -19,6 +19,9 @@ namespace nhitomi.Interactivity
 
         protected override IEnumerable<IReactionTrigger> CreateTriggers()
         {
+            foreach (var trigger in base.CreateTriggers())
+                yield return trigger;
+
             yield return new DeleteTrigger();
         }
 
