@@ -18,21 +18,12 @@ namespace nhitomi.Core
         public bool SortDescending { get; set; }
 
         public ulong OwnerId { get; set; }
-        public User Owner { get; set; }
 
         public ICollection<CollectionRef> Doujins { get; set; }
 
         public static void Describe(ModelBuilder model)
         {
-            model.Entity<Collection>(collection =>
-            {
-                collection.HasIndex(c => c.Name);
-
-                collection
-                    .HasOne(c => c.Owner)
-                    .WithMany(u => u.Collections)
-                    .HasForeignKey(c => c.OwnerId);
-            });
+            model.Entity<Collection>(collection => { collection.HasIndex(c => c.Name); });
 
             model.Entity<CollectionRef>(join =>
             {

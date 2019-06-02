@@ -30,8 +30,6 @@ namespace nhitomi.Core
         Task<Doujin[]> GetCollectionAsync(ulong userId, string name, QueryFilterDelegate<Doujin> query,
             CancellationToken cancellationToken = default);
 
-        Task<User> GetUserAsync(ulong userId, CancellationToken cancellationToken = default);
-
         Task<Guild> GetGuildAsync(ulong guildId, CancellationToken cancellationToken = default);
         Task<Guild[]> GetGuildsAsync(ulong[] guildIds, CancellationToken cancellationToken = default);
     }
@@ -41,7 +39,6 @@ namespace nhitomi.Core
         public DbSet<Doujin> Doujins { get; set; }
         public DbSet<Tag> Tags { get; set; }
         public DbSet<Collection> Collections { get; set; }
-        public DbSet<User> Users { get; set; }
         public DbSet<Guild> Guilds { get; set; }
 
         public nhitomiDbContext(DbContextOptions<nhitomiDbContext> options) : base(options)
@@ -54,7 +51,6 @@ namespace nhitomi.Core
 
             Doujin.Describe(modelBuilder);
             Collection.Describe(modelBuilder);
-            User.Describe(modelBuilder);
         }
 
         public IQueryable<TEntity> Query<TEntity>(bool readOnly = true) where TEntity : class => Set<TEntity>();
@@ -142,26 +138,6 @@ namespace nhitomi.Core
                 .OrderBy(collection.Sort, collection.SortDescending)
                 .IncludeRelated()
                 .ToArrayAsync(cancellationToken);
-        }
-
-        public async Task<User> GetUserAsync(ulong userId, CancellationToken cancellationToken = default)
-        {
-            var user = await Query<User>()
-                .Include(u => u.Collections)
-                .FirstOrDefaultAsync(u => u.Id == userId, cancellationToken);
-
-            if (user == null)
-            {
-                // create entity for this user
-                user = new User
-                {
-                    Id = userId
-                };
-
-                Add(user);
-            }
-
-            return user;
         }
 
         public async Task<Guild> GetGuildAsync(ulong guildId, CancellationToken cancellationToken = default)

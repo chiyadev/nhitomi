@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Discord;
@@ -56,10 +57,8 @@ namespace nhitomi.Interactivity.Triggers
                         collection = new Collection
                         {
                             Name = _collectionName,
-                            Owner = new User
-                            {
-                                Id = Context.User.Id
-                            }
+                            OwnerId = Context.User.Id,
+                            Doujins = new List<CollectionRef>()
                         };
 
                         _database.Add(collection);

@@ -35,8 +35,6 @@ namespace nhitomi.Core.Migrations
 
                 b.HasIndex("Name");
 
-                b.HasIndex("OwnerId");
-
                 b.ToTable("Collections");
             });
 
@@ -141,24 +139,6 @@ namespace nhitomi.Core.Migrations
                 b.HasIndex("TagId");
 
                 b.ToTable("TagRef");
-            });
-
-            modelBuilder.Entity("nhitomi.Core.User", b =>
-            {
-                b.Property<ulong>("Id")
-                    .ValueGeneratedOnAdd();
-
-                b.HasKey("Id");
-
-                b.ToTable("Users");
-            });
-
-            modelBuilder.Entity("nhitomi.Core.Collection", b =>
-            {
-                b.HasOne("nhitomi.Core.User", "Owner")
-                    .WithMany("Collections")
-                    .HasForeignKey("OwnerId")
-                    .OnDelete(DeleteBehavior.Cascade);
             });
 
             modelBuilder.Entity("nhitomi.Core.CollectionRef", b =>

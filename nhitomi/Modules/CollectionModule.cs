@@ -54,10 +54,7 @@ namespace nhitomi.Modules
                     collection = new Collection
                     {
                         Name = name,
-                        Owner = new User
-                        {
-                            Id = _context.User.Id
-                        },
+                        OwnerId = _context.User.Id,
                         Doujins = new List<CollectionRef>()
                     };
 
