@@ -39,16 +39,9 @@ namespace nhitomi.Interactivity.Triggers
             _direction = direction;
         }
 
-        protected override void InitializeAction(Action action)
-        {
-            base.InitializeAction(action);
-
-            action.Direction = _direction;
-        }
-
         public class Action : ActionBase<IListMessage>
         {
-            public MoveDirection Direction;
+            public new ListTrigger Trigger => (ListTrigger) base.Trigger;
 
             readonly IServiceProvider _services;
 
@@ -62,7 +55,7 @@ namespace nhitomi.Interactivity.Triggers
                 if (!await base.RunAsync(cancellationToken))
                     return false;
 
-                switch (Direction)
+                switch (Trigger._direction)
                 {
                     case MoveDirection.Left:
                         Interactive.Position -= 1;
@@ -73,7 +66,7 @@ namespace nhitomi.Interactivity.Triggers
                         break;
                 }
 
-                return await Interactive.UpdateViewAsync(_services, Context, cancellationToken);
+                return await Interactive.UpdateViewAsync(_services, cancellationToken);
             }
         }
     }

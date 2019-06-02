@@ -5,7 +5,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Discord;
 using Microsoft.Extensions.DependencyInjection;
-using nhitomi.Discord;
 using nhitomi.Interactivity.Triggers;
 
 namespace nhitomi.Interactivity
@@ -22,10 +21,10 @@ namespace nhitomi.Interactivity
 
         protected abstract IEnumerable<IReactionTrigger> CreateTriggers();
 
-        public override async Task<bool> UpdateViewAsync(IServiceProvider services, IDiscordContext context,
+        public override async Task<bool> UpdateViewAsync(IServiceProvider services,
             CancellationToken cancellationToken = default)
         {
-            if (!await base.UpdateViewAsync(services, context, cancellationToken))
+            if (!await base.UpdateViewAsync(services, cancellationToken))
                 return false;
 
             if (Triggers == null)

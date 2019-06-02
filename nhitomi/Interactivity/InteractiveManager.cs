@@ -118,7 +118,7 @@ namespace nhitomi.Interactivity
                     {typeof(IReactionContext), context}
                 };
 
-                return await trigger.RunAsync(services, context, interactive, cancellationToken);
+                return await trigger.RunAsync(services, interactive, cancellationToken);
             }
         }
     }

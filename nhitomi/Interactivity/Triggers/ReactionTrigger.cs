@@ -2,6 +2,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Discord;
+using Microsoft.Extensions.DependencyInjection;
 using nhitomi.Discord;
 
 namespace nhitomi.Interactivity.Triggers
@@ -16,7 +17,7 @@ namespace nhitomi.Interactivity.Triggers
         /// </summary>
         bool CanRunStateless { get; }
 
-        Task<bool> RunAsync(IServiceProvider services, IDiscordContext context, IInteractiveMessage interactive,
+        Task<bool> RunAsync(IServiceProvider services, IInteractiveMessage interactive,
             CancellationToken cancellationToken = default);
     }
 
@@ -30,31 +31,27 @@ namespace nhitomi.Interactivity.Triggers
 
         static readonly DependencyFactory<TAction> _actionFactory = DependencyUtility<TAction>.Factory;
 
-        public Task<bool> RunAsync(IServiceProvider services, IDiscordContext context, IInteractiveMessage interactive,
+        public Task<bool> RunAsync(IServiceProvider services, IInteractiveMessage interactive,
             CancellationToken cancellationToken = default)
         {
             if (interactive == null && !CanRunStateless)
                 throw new InvalidOperationException($"Cannot initialize trigger {GetType()} in stateless mode.");
 
-            // create action
+            // create action object
             var action = _actionFactory(services);
-            action.Context = context;
+            action.Trigger = this;
             action.Interactive = interactive;
-
-            InitializeAction(action);
+            action.Context = services.GetRequiredService<IDiscordContext>();
 
             // trigger the action
             return action.RunAsync(cancellationToken);
         }
 
-        protected virtual void InitializeAction(TAction action)
-        {
-        }
-
         public abstract class ActionBase
         {
-            public IDiscordContext Context { get; set; }
+            public ReactionTrigger<TAction> Trigger { get; set; }
             public IInteractiveMessage Interactive { get; set; }
+            public IDiscordContext Context { get; set; }
 
             public abstract Task<bool> RunAsync(CancellationToken cancellationToken = default);
         }
