@@ -62,7 +62,7 @@ namespace nhitomi.Modules
             }
         }
 
-        [Command("view")]
+        [Command("view", BindName = false), Binding("[name] view|v")]
         public async Task ViewAsync(string name)
         {
             // check if collection exists first
@@ -77,7 +77,7 @@ namespace nhitomi.Modules
             await _interactive.SendInteractiveAsync(new CollectionViewMessage(_context.User.Id, name), _context);
         }
 
-        [Command("add"), Binding("[name] add [source] [id]")]
+        [Command("add", BindName = false), Binding("[name] add|a [source] [id]")]
         public async Task AddAsync(string name, string source, string id, CancellationToken cancellationToken = default)
         {
             do
@@ -116,7 +116,7 @@ namespace nhitomi.Modules
             await _context.ReplyAsync("messages.addedToCollection");
         }
 
-        [Command("remove"), Binding("[name] remove [source] [id]")]
+        [Command("remove", BindName = false), Binding("[name] remove|r [source] [id]")]
         public async Task RemoveAsync(string name, string source, string id,
             CancellationToken cancellationToken = default)
         {
@@ -150,7 +150,7 @@ namespace nhitomi.Modules
             await _context.ReplyAsync("messages.removedFromCollection");
         }
 
-        [Command("delete")]
+        [Command("delete", BindName = false), Binding("[name] delete|d")]
         public async Task DeleteAsync(string name)
         {
             do
@@ -170,7 +170,7 @@ namespace nhitomi.Modules
             await _context.ReplyAsync("messages.collectionDeleted");
         }
 
-        [Command("sort")]
+        [Command("sort", BindName = false), Binding("[name] sort|s [sort]")]
         public async Task SortAsync(string name, CollectionSort sort)
         {
             do
