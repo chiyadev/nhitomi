@@ -85,6 +85,7 @@ namespace nhitomi.Discord
             {
                 var services = new ServiceDictionary(scope.ServiceProvider)
                 {
+                    {typeof(IDiscordContext), context},
                     {typeof(IMessageContext), context}
                 };
 

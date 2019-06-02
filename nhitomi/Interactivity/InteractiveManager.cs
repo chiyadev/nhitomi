@@ -34,8 +34,13 @@ namespace nhitomi.Interactivity
             // create dependency scope to initialize the interactive within
             using (var scope = _services.CreateScope())
             {
+                var services = new ServiceDictionary(scope.ServiceProvider)
+                {
+                    {typeof(IDiscordContext), context}
+                };
+
                 // initialize interactive
-                if (!await message.UpdateViewAsync(scope.ServiceProvider, context, cancellationToken))
+                if (!await message.UpdateViewAsync(services, cancellationToken))
                     return;
             }
 
@@ -109,7 +114,8 @@ namespace nhitomi.Interactivity
             {
                 var services = new ServiceDictionary(scope.ServiceProvider)
                 {
-                    {typeof(IDiscordContext), context}
+                    {typeof(IDiscordContext), context},
+                    {typeof(IReactionContext), context}
                 };
 
                 return await trigger.RunAsync(services, context, interactive, cancellationToken);
