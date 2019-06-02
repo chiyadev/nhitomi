@@ -47,9 +47,11 @@ namespace nhitomi.Interactivity.Triggers
                             return false;
                     }
 
+                    Collection collection;
+
                     do
                     {
-                        var collection = await _database.GetCollectionAsync(
+                        collection = await _database.GetCollectionAsync(
                             Context.User.Id, _favoritesCollection, cancellationToken);
 
                         if (collection == null)
@@ -80,7 +82,7 @@ namespace nhitomi.Interactivity.Triggers
                     while (!await _database.SaveAsync(cancellationToken));
 
                     // try replying in DM if we don't have perms
-                    await Context.ReplyDmAsync("messages.addedToCollection");
+                    await Context.ReplyDmAsync("messages.addedToCollection", new {doujin, collection});
                 }
 
                 return true;
