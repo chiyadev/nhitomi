@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Discord;
+using nhitomi.Discord;
 using nhitomi.Globalization;
 using nhitomi.Interactivity.Triggers;
 
@@ -62,7 +63,19 @@ namespace nhitomi.Interactivity
                     return (Status.End, default);
                 }
 
-                var values = await GetValuesAsync(index, cancellationToken);
+                // get new values
+                TValue[] values;
+
+                if (Context is IReactionContext)
+                {
+                    // show typing indication if we are triggered by a reaction
+                    using (Context.BeginTyping())
+                        values = await GetValuesAsync(index, cancellationToken);
+                }
+                else
+                {
+                    values = await GetValuesAsync(index, cancellationToken);
+                }
 
                 if (values == null || values.Length == 0)
                 {
