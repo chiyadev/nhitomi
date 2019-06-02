@@ -77,8 +77,6 @@ namespace nhitomi.Core
             }
         }
 
-        const int _chunkLoadSize = 1;
-
         public Task<Doujin> GetDoujinAsync(string source, string id, CancellationToken cancellationToken = default) =>
             Query<Doujin>()
                 .Where(d => d.Source == source &&
@@ -133,8 +131,7 @@ namespace nhitomi.Core
 
             var id = collection.Doujins.Select(x => x.DoujinId).ToArray();
 
-            return await query(Query<Doujin>())
-                .Where(d => id.Contains(d.Id))
+            return await query(Query<Doujin>().Where(d => id.Contains(d.Id)))
                 .OrderBy(collection.Sort, collection.SortDescending)
                 .IncludeRelated()
                 .ToArrayAsync(cancellationToken);
