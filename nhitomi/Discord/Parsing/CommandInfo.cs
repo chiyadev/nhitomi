@@ -10,7 +10,38 @@ namespace nhitomi.Discord.Parsing
 {
     public class CommandInfo
     {
-        public readonly CommandAttribute Attribute;
+        public string FullName
+        {
+            get
+            {
+                var names = new List<string>
+                {
+                    _attribute.Name
+                };
+
+                var type = _method.DeclaringType;
+
+                do
+                {
+                    var moduleAttr = type.GetCustomAttribute<ModuleAttribute>();
+
+                    // add if prefixed
+                    if (moduleAttr != null && moduleAttr.IsPrefixed)
+                        names.Add(moduleAttr.Name);
+
+                    // traverse upwards
+                    type = type.DeclaringType;
+                }
+                while (type != null);
+
+                // reverse
+                names.Reverse();
+
+                return string.Join('/', names);
+            }
+        }
+
+        readonly CommandAttribute _attribute;
 
         readonly MethodBase _method;
         readonly ParameterInfo[] _parameters;
@@ -40,12 +71,12 @@ namespace nhitomi.Discord.Parsing
                 throw new ArgumentException($"{method} is not asynchronous.");
 
             // build name regex
-            Attribute = method.GetCustomAttribute<CommandAttribute>();
+            _attribute = method.GetCustomAttribute<CommandAttribute>();
 
-            if (Attribute == null)
+            if (_attribute == null)
                 throw new ArgumentException($"{method} is not a command.");
 
-            _nameRegex = new Regex(BuildNamePattern(method, Attribute), _options);
+            _nameRegex = new Regex(BuildNamePattern(method, _attribute), _options);
 
             // build parameter regex
             var bindingExpression = method.GetCustomAttribute<BindingAttribute>()?.Expression;

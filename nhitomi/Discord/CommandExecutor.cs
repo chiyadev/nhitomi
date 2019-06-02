@@ -39,7 +39,8 @@ namespace nhitomi.Discord
                 .ThenByDescending(t => t.GetParameters().Length) // prioritize specific commands
                 .Select(t => new CommandInfo(t)));
 
-            _logger.LogDebug($"Loaded commands: {string.Join(", ", _commands.Select(c => c.Attribute.Name))}");
+            if (_logger.IsEnabled(LogLevel.Debug))
+                _logger.LogDebug($"Loaded commands: '{string.Join("', '", _commands.Select(c => c.FullName))}'");
 
             return Task.CompletedTask;
         }
