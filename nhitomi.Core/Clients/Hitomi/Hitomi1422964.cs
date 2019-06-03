@@ -30,7 +30,8 @@ namespace nhitomi.Core.Clients.Hitomi
                 "twintails",
                 "unusual pupils",
                 "sole male"
-            }
+            },
+            PageCount = 22
         };
     }
 }
