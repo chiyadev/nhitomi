@@ -33,7 +33,7 @@ namespace nhitomi.Globalization
             },
             doujinMessage = new
             {
-                title = "{doujin.Name}",
+                title = "{doujin.OriginalName}",
                 footer = "{doujin.Source}/{doujin.SourceId}",
                 language = "Language",
                 group = "Group",
