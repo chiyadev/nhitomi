@@ -25,6 +25,8 @@ namespace nhitomi.Core.Clients
 
         public readonly ConcurrentQueue<Exception> Exceptions = new ConcurrentQueue<Exception>();
 
+        public bool ConcurrentTest { get; set; }
+
         public async Task<bool> TestAsync(IDoujinClient client, CancellationToken cancellationToken = default)
         {
             try
@@ -33,14 +35,14 @@ namespace nhitomi.Core.Clients
                 if (!_testCases.TryGetValue(client.GetType(), out var testCases))
                     return true;
 
-                foreach (var testCase in testCases)
+                var tasks = testCases.Select(async testCase =>
                 {
                     // retrieve doujin
                     var x = testCase.KnownValue;
                     var y = await client.GetAsync(testCase.DoujinId, cancellationToken);
 
                     if (x == y)
-                        continue;
+                        return;
                     if (x == null || y == null)
                         throw new ClientTesterException(
                             $"Expected value was {(x == null ? "null" : "not null")}, " +
@@ -60,6 +62,16 @@ namespace nhitomi.Core.Clients
                     Compare(x.Categories, y.Categories, nameof(DoujinInfo.Categories));
                     Compare(x.Tags, y.Tags, nameof(DoujinInfo.Tags));
                     Compare(x.PageCount, y.PageCount, nameof(DoujinInfo.PageCount));
+                });
+
+                if (ConcurrentTest)
+                {
+                    await Task.WhenAll(tasks);
+                }
+                else
+                {
+                    foreach (var task in tasks)
+                        await task;
                 }
 
                 return true;
