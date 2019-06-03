@@ -3,7 +3,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Discord;
 using nhitomi.Discord;
-using nhitomi.Globalization;
 using nhitomi.Interactivity.Triggers;
 
 namespace nhitomi.Interactivity
@@ -63,19 +62,12 @@ namespace nhitomi.Interactivity
                     return (Status.End, default);
                 }
 
-                // get new values
-                TValue[] values;
-
+                // show loading indication if we are triggered by a reaction
                 if (Context is IReactionContext)
-                {
-                    // show typing indication if we are triggered by a reaction
-                    using (Context.BeginTyping())
-                        values = await GetValuesAsync(index, cancellationToken);
-                }
-                else
-                {
-                    values = await GetValuesAsync(index, cancellationToken);
-                }
+                    await SetMessageAsync("messages.listLoading", null, cancellationToken);
+
+                // get new values
+                var values = await GetValuesAsync(index, cancellationToken);
 
                 if (values == null || values.Length == 0)
                 {
@@ -117,17 +109,14 @@ namespace nhitomi.Interactivity
                 }
 
                 // we reached the extremes
-                var path = new LocalizationPath("messages");
-                var l = Context.Localization;
-
                 switch (status)
                 {
                     case Status.Start:
-                        await SetMessageAsync(path["listBeginning"][l], cancellationToken);
+                        await SetMessageAsync("messages.listBeginning", null, cancellationToken);
                         break;
 
                     case Status.End:
-                        await SetMessageAsync(path["listEnd"][l], cancellationToken);
+                        await SetMessageAsync("messages.listEnd", null, cancellationToken);
                         break;
                 }
 

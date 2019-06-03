@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Discord;
 using Microsoft.Extensions.DependencyInjection;
 using nhitomi.Discord;
+using nhitomi.Globalization;
 
 namespace nhitomi.Interactivity
 {
@@ -40,12 +41,16 @@ namespace nhitomi.Interactivity
 
             public abstract Task<bool> UpdateAsync(CancellationToken cancellationToken = default);
 
-            protected async Task SetMessageAsync(string content, CancellationToken cancellationToken = default)
+            protected async Task SetMessageAsync(string localizationKey, object variables = null,
+                CancellationToken cancellationToken = default)
             {
+                var path = new LocalizationPath(localizationKey);
+                var l = Context.Localization;
+
                 if (Message.Message == null)
-                    Message.Message = await Context.Channel.SendMessageAsync(content);
+                    Message.Message = await Context.Channel.SendMessageAsync(path[l, variables]);
                 else
-                    await Message.Message.ModifyAsync(m => m.Content = content ?? "");
+                    await Message.Message.ModifyAsync(m => m.Content = path[l, variables]);
             }
 
             protected async Task SetEmbedAsync(Embed embed, CancellationToken cancellationToken = default)
