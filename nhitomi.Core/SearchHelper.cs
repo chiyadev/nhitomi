@@ -30,13 +30,13 @@ SELECT *,
   MATCH `OriginalName` AGAINST ({0} IN NATURAL LANGUAGE MODE) AS OriginalNameRelevance,
   (SELECT
      SUM(MATCH `Value` AGAINST ({0} IN NATURAL LANGUAGE MODE))
-     FROM `Tags`
-     WHERE
-       `Id` IN
-         (SELECT `TagId`
-          FROM `TagRef`
-          WHERE `DoujinId` = `Doujins`.`Id`) AND
-       MATCH `Value` AGAINST ({0} IN NATURAL LANGUAGE MODE)) AS TagRelevance
+   FROM `Tags`
+   WHERE
+     `Id` IN
+       (SELECT `TagId`
+        FROM `TagRef`
+        WHERE `DoujinId` = `Doujins`.`Id`) AND
+     MATCH `Value` AGAINST ({0} IN NATURAL LANGUAGE MODE)) AS TagRelevance
 FROM `Doujins`
 WHERE
   MATCH `PrettyName` AGAINST ({0} IN NATURAL LANGUAGE MODE) OR
