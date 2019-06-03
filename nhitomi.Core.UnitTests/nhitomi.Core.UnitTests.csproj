@@ -6,6 +6,8 @@
         <LangVersion>latest</LangVersion>
         <Title>nhitomi.Core.UnitTests</Title>
         <Authors>chiya.dev</Authors>
+        <Version>2.0-Krunewing</Version>
+        <AssemblyVersion>2.0</AssemblyVersion>
         <Description>Unit tests for nhitomi core components</Description>
         <Copyright>Copyright (c) chiya.dev</Copyright>
         <PackageProjectUrl>https://github.com/chiyadev/nhitomi</PackageProjectUrl>
