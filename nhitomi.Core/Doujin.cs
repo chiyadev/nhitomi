@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 
@@ -30,13 +29,6 @@ namespace nhitomi.Core
         /// </summary>
         [Required, MaxLength(256)]
         public string OriginalName { get; set; }
-
-        /// <summary>
-        /// Original name or pretty name.
-        /// This property is not mapped and should not be used in queries.
-        /// </summary>
-        [NotMapped]
-        public string Name => OriginalName ?? PrettyName;
 
         /// <summary>
         /// The time at which this doujinshi was uploaded.
