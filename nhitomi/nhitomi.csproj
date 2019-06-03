@@ -6,8 +6,8 @@
         <LangVersion>latest</LangVersion>
         <Title>nhitomi</Title>
         <Authors>chiya.dev</Authors>
-        <Version>2.0-Krunewing</Version>
-        <AssemblyVersion>2.0</AssemblyVersion>
+        <Version>2.0</Version>
+        <InformationalVersion>Krunewing</InformationalVersion>
         <Description>Discord bot for browsing and downloading doujinshi</Description>
         <Copyright>Copyright (c) chiya.dev</Copyright>
         <PackageProjectUrl>https://github.com/chiyadev/nhitomi</PackageProjectUrl>
