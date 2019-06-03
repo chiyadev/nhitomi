@@ -27,7 +27,7 @@ namespace nhitomi.Modules
         public Task ListAsync() =>
             _interactive.SendInteractiveAsync(new CollectionListMessage(_context.User.Id), _context);
 
-        [Command("view", BindName = false), Binding("[name] view|v")]
+        [Command("view", BindName = false), Binding("[name]")]
         public async Task ViewAsync(string name)
         {
             // check if collection exists first
