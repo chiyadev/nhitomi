@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Discord;
@@ -12,9 +13,7 @@ namespace nhitomi.Interactivity
 {
     public enum HelpMessageSection
     {
-        Doujins,
-        Collections,
-        Aliases,
+        DoujinAndCollection,
         Other
     }
 
@@ -54,13 +53,21 @@ namespace nhitomi.Interactivity
                     .WithTitle(path["title"][l])
                     .WithColor(Color.Purple)
                     .WithThumbnailUrl("https://github.com/chiyadev/nhitomi/raw/master/nhitomi.png")
-                    .WithFooter(path["footer"][l]);
+                    .WithFooter(path["footer"][l, new
+                    {
+                        version = typeof(Startup).Assembly
+                            .GetName().Version
+                            .ToString(2),
+                        codename = typeof(Startup).Assembly
+                            .GetCustomAttribute<AssemblyInformationalVersionAttribute>()
+                            .InformationalVersion
+                    }]);
 
                 var prefix = _settings.Discord.Prefix;
 
                 switch (value)
                 {
-                    case HelpMessageSection.Doujins:
+                    case HelpMessageSection.DoujinAndCollection:
                         embed.Description =
                             $"nhitomi — {path["about"][l]}\n\n" +
                             $"{path["invite"][l, new {invite = _settings.Discord.Guild.GuildInvite}]}";
@@ -73,10 +80,8 @@ namespace nhitomi.Interactivity
 - {prefix}search `query` — {path["search"][l]}
 - {prefix}download `source` `id` — {path["download"][l]}
 ".Trim());
-                        break;
 
-                    case HelpMessageSection.Collections:
-                        path = path["collections"];
+                        path = path.Up["collections"];
 
                         embed.AddField($"— {path["heading"][l]} —", $@"
 - {prefix}collection list — {path["list"][l]}
@@ -88,7 +93,7 @@ namespace nhitomi.Interactivity
 ".Trim());
                         break;
 
-                    case HelpMessageSection.Aliases:
+                    case HelpMessageSection.Other:
                         path = path["aliases"];
 
                         embed.AddField($"— {path["heading"][l]} —", $@"
@@ -104,10 +109,8 @@ namespace nhitomi.Interactivity
 {prefix}**c** `name` **s** `attribute` — collection sort
 {prefix}**c** `name` **d** — collection delete
 ".Trim());
-                        break;
 
-                    case HelpMessageSection.Other:
-                        path = path["sources"];
+                        path = path.Up["sources"];
 
                         embed.AddField($"— {path["heading"][l]} —", @"
 - nhentai — `https://nhentai.net/`

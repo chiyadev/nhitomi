@@ -76,7 +76,7 @@ namespace nhitomi.Globalization
             helpMessage = new
             {
                 title = "**nhitomi**: Help",
-                footer = "Powered by chiya.dev",
+                footer = "v{version} {codename} — powered by chiya.dev",
                 about = "a Discord bot for searching and downloading doujinshi",
                 invite = "Official server: <{invite}>",
                 doujins = new
@@ -109,7 +109,7 @@ namespace nhitomi.Globalization
                 {
                     heading = "Open Source",
                     license = "This project is licensed under the MIT License.",
-                    contribution = "Contributions are welcome! <{repoUrl}>"
+                    contribution = "Contributions are welcome!\n<{repoUrl}>"
                 }
             },
             errorMessage = new
