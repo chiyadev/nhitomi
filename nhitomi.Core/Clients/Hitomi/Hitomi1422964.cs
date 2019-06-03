@@ -5,7 +5,7 @@ namespace nhitomi.Core.Clients.Hitomi
     public class Hitomi1422964 : ClientTestCase
     {
         public override string DoujinId => "1422964";
-        public override Type ClientType => typeof(Hitomi);
+        public override Type ClientType => typeof(HitomiClient);
 
         public override DoujinInfo KnownValue { get; } = new DoujinInfo
         {
