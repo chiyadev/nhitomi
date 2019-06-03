@@ -14,6 +14,7 @@ namespace nhitomi.Interactivity
     {
         Doujins,
         Collections,
+        Aliases,
         Other
     }
 
@@ -84,6 +85,24 @@ namespace nhitomi.Interactivity
 - {prefix}collection `name` remove `source` `id` — {path["remove"][l]}
 - {prefix}collection `name` sort `attribute` — {path["sort"][l]}
 - {prefix}collection `name` delete — {path["delete"][l]}
+".Trim());
+                        break;
+
+                    case HelpMessageSection.Aliases:
+                        path = path["aliases"];
+
+                        embed.AddField($"— {path["heading"][l]} —", $@"
+{prefix}**h** — help
+{prefix}**g** `source` `id` — get
+{prefix}**f** `source` — from
+{prefix}**s** `query` — search
+{prefix}**dl** `source` `id` — download
+{prefix}**c** **l** — collection list
+{prefix}**c** `name` — collection
+{prefix}**c** `name` **a** `source` `id` — collection add
+{prefix}**c** `name` **r** `source` `id` — collection remove
+{prefix}**c** `name` **s** `attribute` — collection sort
+{prefix}**c** `name` **d** — collection delete
 ".Trim());
                         break;
 

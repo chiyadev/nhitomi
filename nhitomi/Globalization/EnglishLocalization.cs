@@ -97,6 +97,10 @@ namespace nhitomi.Globalization
                     sort = "Sorts a collection by a doujin attribute.",
                     delete = "Deletes a collection, removing all doujins in it."
                 },
+                aliases = new
+                {
+                    heading = "Command Aliases"
+                },
                 sources = new
                 {
                     heading = "Sources"
