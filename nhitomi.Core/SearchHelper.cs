@@ -25,21 +25,34 @@ namespace nhitomi.Core
             where T : class =>
             //todo: optimize this dumb shit
             queryable.FromSql(@"
-SELECT *
+SELECT *,
+  MATCH `PrettyName` AGAINST ({0} IN NATURAL LANGUAGE MODE) AS PrettyNameRelevance,
+  MATCH `OriginalName` AGAINST ({0} IN NATURAL LANGUAGE MODE) AS OriginalNameRelevance,
+  (SELECT
+     SUM(MATCH `Value` AGAINST ({0} IN NATURAL LANGUAGE MODE))
+     FROM `Tags`
+     WHERE
+       `Id` IN
+         (SELECT `TagId`
+          FROM `TagRef`
+          WHERE `DoujinId` = `Doujins`.`Id`) AND
+       MATCH `Value` AGAINST ({0} IN NATURAL LANGUAGE MODE)) AS TagRelevance
 FROM `Doujins`
 WHERE
-    MATCH `PrettyName` AGAINST ({0} IN NATURAL LANGUAGE MODE) OR
-    MATCH `OriginalName` AGAINST ({0} IN NATURAL LANGUAGE MODE) OR
-    `Doujins`.`Id` IN (
-        SELECT `DoujinId`
-        FROM `TagRef`
-        WHERE `TagRef`.`TagId` IN (
-            SELECT `Id`
-            FROM `Tags`
-            WHERE MATCH `Value` AGAINST ({0} IN NATURAL LANGUAGE MODE)))
+  MATCH `PrettyName` AGAINST ({0} IN NATURAL LANGUAGE MODE) OR
+  MATCH `OriginalName` AGAINST ({0} IN NATURAL LANGUAGE MODE) OR
+  `Id` IN
+    (SELECT `DoujinId`
+     FROM `TagRef`
+     WHERE `TagId` IN
+       (SELECT `Id`
+        FROM `Tags`
+        WHERE
+          MATCH `Value` AGAINST ({0} IN NATURAL LANGUAGE MODE)))
 ORDER BY
-    MATCH `PrettyName` AGAINST ({0} IN NATURAL LANGUAGE MODE) +
-    MATCH `OriginalName` AGAINST ({0} IN NATURAL LANGUAGE MODE) DESC", query);
+  `PrettyNameRelevance` + `OriginalNameRelevance` + `TagRelevance` DESC,
+  `UploadTime` DESC,
+  `ProcessTime` DESC", query);
 
         //todo:
         static IQueryable<T> SqliteMatch<T>(this IQueryable<T> queryable, string query) =>
