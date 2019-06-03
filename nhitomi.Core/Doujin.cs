@@ -88,9 +88,6 @@ namespace nhitomi.Core
 
     public static class DoujinExtensions
     {
-        public static IQueryable<Doujin> IncludeRelated(this IQueryable<Doujin> queryable) => queryable
-            .Include(d => d.Tags).ThenInclude(x => x.Tag);
-
         public static Tag GetTag(this Doujin doujin, TagType type) =>
             doujin.Tags.Select(x => x.Tag).FirstOrDefault(x => x.Type == type);
 
