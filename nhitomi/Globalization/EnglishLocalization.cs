@@ -18,6 +18,7 @@ namespace nhitomi.Globalization
                 invalidQuery = "**nhitomi**: `{query}` is not valid.",
                 joinForDownload = "**nhitomi**: Please join our server to enable downloading! <{invite}>",
 
+                listLoading = "**nhitomi**: Loading...",
                 listBeginning = "**nhitomi**: Beginning of the list!",
                 listEnd = "**nhitomi**: End of the list!",
 
