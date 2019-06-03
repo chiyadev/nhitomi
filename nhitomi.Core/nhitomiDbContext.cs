@@ -78,34 +78,37 @@ namespace nhitomi.Core
             }
         }
 
-        public async Task<Doujin> GetDoujinAsync(string source, string id,
-            CancellationToken cancellationToken = default)
-        {
-            var doujin = await Query<Doujin>()
+        public Task<Doujin> GetDoujinAsync(string source, string id,
+            CancellationToken cancellationToken = default) =>
+            Query<Doujin>()
                 .Where(d => d.Source == source &&
                             d.SourceId == id)
+                .Include(d => d.Tags).ThenInclude(x => x.Tag)
                 .FirstOrDefaultAsync(cancellationToken);
 
-            await PopulateTags(doujin, cancellationToken);
-
-            return doujin;
-        }
-
-        public async Task<Doujin[]> GetDoujinsAsync((string source, string id)[] ids,
+        public Task<Doujin[]> GetDoujinsAsync((string source, string id)[] ids,
             CancellationToken cancellationToken = default)
         {
             switch (ids.Length)
             {
                 case 0:
-                    return new Doujin[0];
+                    return Task.FromResult(new Doujin[0]);
             }
 
             var source = ids.Select(x => x.source);
             var id = ids.Select(x => x.id);
 
-            var doujins = await Query<Doujin>()
+            return Query<Doujin>()
                 .Where(d => source.Contains(d.Source) &&
                             id.Contains(d.SourceId))
+                .Include(d => d.Tags).ThenInclude(x => x.Tag)
+                .ToArrayAsync(cancellationToken);
+        }
+
+        public async Task<Doujin[]> GetDoujinsAsync(QueryFilterDelegate<Doujin> query,
+            CancellationToken cancellationToken = default)
+        {
+            var doujins = await query(Query<Doujin>())
                 .ToArrayAsync(cancellationToken);
 
             await PopulateTags(doujins, cancellationToken);
@@ -113,18 +116,9 @@ namespace nhitomi.Core
             return doujins;
         }
 
-        // do not populate tags using Include.
+        // in some queries, do not populate tags using Include.
         // when using Include with fulltext searching, EF Core automatically
-        // orders doujins by their ID and ignores relevancy ordering,
-        // which is not what we want.
-        async Task PopulateTags(Doujin doujin, CancellationToken cancellationToken = default)
-        {
-            doujin.Tags = await Query<TagRef>()
-                .Where(x => x.DoujinId == doujin.Id)
-                .Include(x => x.Tag)
-                .ToListAsync(cancellationToken);
-        }
-
+        // orders doujins by their ID at the end and relevancy ordering is ignored.
         async Task PopulateTags(IEnumerable<Doujin> doujins, CancellationToken cancellationToken = default)
         {
             var dict = doujins.ToDictionary(d => d.Id);
@@ -137,17 +131,6 @@ namespace nhitomi.Core
 
             foreach (var group in tags.GroupBy(x => x.DoujinId))
                 dict[group.Key].Tags = group.ToList();
-        }
-
-        public async Task<Doujin[]> GetDoujinsAsync(QueryFilterDelegate<Doujin> query,
-            CancellationToken cancellationToken = default)
-        {
-            var doujins = await query(Query<Doujin>())
-                .ToArrayAsync(cancellationToken);
-
-            await PopulateTags(doujins, cancellationToken);
-
-            return doujins;
         }
 
         public Task<Collection> GetCollectionAsync(ulong userId, string name,
