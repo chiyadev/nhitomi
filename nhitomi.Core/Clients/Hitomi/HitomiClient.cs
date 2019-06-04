@@ -274,7 +274,7 @@ namespace nhitomi.Core.Clients.Hitomi
 
         public IEnumerable<string> PopulatePages(Doujin doujin)
         {
-            if (int.TryParse(doujin.SourceId, out var intId))
+            if (!int.TryParse(doujin.SourceId, out var intId))
                 yield break;
 
             var data = _serializer.Deserialize<InternalDoujinData>(doujin.Data);
