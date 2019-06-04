@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using Microsoft.EntityFrameworkCore;
@@ -6,7 +7,7 @@ namespace nhitomi.Core
 {
     public class Collection
     {
-        [Key] public int Id { get; set; }
+        [Key] public Guid Id { get; set; }
 
         /// <summary>
         /// Name of this collection.
@@ -47,10 +48,10 @@ namespace nhitomi.Core
     /// </summary>
     public class CollectionRef
     {
-        public int CollectionId { get; set; }
+        public Guid CollectionId { get; set; }
         public Collection Collection { get; set; }
 
-        public int DoujinId { get; set; }
+        public Guid DoujinId { get; set; }
         public Doujin Doujin { get; set; }
     }
 }

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using Microsoft.EntityFrameworkCore;
@@ -18,7 +19,7 @@ namespace nhitomi.Core
 
     public class Tag
     {
-        [Key] public int Id { get; set; }
+        [Key] public Guid Id { get; set; }
 
         public TagType Type { get; set; }
 
@@ -56,10 +57,10 @@ namespace nhitomi.Core
     /// </summary>
     public class TagRef
     {
-        public int DoujinId { get; set; }
+        public Guid DoujinId { get; set; }
         public Doujin Doujin { get; set; }
 
-        public int TagId { get; set; }
+        public Guid TagId { get; set; }
         public Tag Tag { get; set; }
 
         public TagRef()
@@ -70,6 +71,7 @@ namespace nhitomi.Core
         {
             Tag = new Tag
             {
+                Id = Guid.NewGuid(),
                 Type = type,
                 Value = value
             };

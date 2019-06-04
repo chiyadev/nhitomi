@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -59,6 +60,7 @@ namespace nhitomi.Interactivity.Triggers
                             // create new collection for favorites
                             collection = new Collection
                             {
+                                Id = Guid.NewGuid(),
                                 Name = _favoritesCollection,
                                 OwnerId = Context.User.Id,
                                 Doujins = new List<CollectionRef>()
