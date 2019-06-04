@@ -176,6 +176,7 @@ namespace nhitomi.Core.Clients.Hitomi
                                 case ".jpg": return 'j';
                                 case ".jpeg": return 'J';
                                 case ".png": return 'p';
+                                case ".gif": return 'g';
                                 default:
                                     throw new NotSupportedException($"Unknown image format '{ext}'.");
                             }
@@ -293,6 +294,9 @@ namespace nhitomi.Core.Clients.Hitomi
                         break;
                     case 'J':
                         extension = ".jpeg";
+                        break;
+                    case 'g':
+                        extension = ".gif";
                         break;
                     default:
                         extension = ".jpg";
