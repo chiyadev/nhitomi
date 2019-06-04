@@ -65,6 +65,10 @@ namespace nhitomi.Core.Clients.Hitomi
         static readonly Regex _bracketsRegex = new Regex(@"\([^)]*\)|\[[^\]]*\]",
             RegexOptions.Compiled | RegexOptions.Singleline);
 
+        // regex to match index-language-page
+        static readonly Regex _languageHrefRegex = new Regex(@"index-(?<language>\w+)-\d+",
+            RegexOptions.Compiled | RegexOptions.Singleline);
+
         public async Task<DoujinInfo> GetAsync(string id, CancellationToken cancellationToken = default)
         {
             if (!int.TryParse(id, out var intId))
@@ -115,6 +119,10 @@ namespace nhitomi.Core.Clients.Hitomi
                 originalName = originalName.Substring(pipeIndex + 1).Trim();
             }
 
+            // parse language
+            var languageHref = root.SelectSingleNode(Hitomi.XPath.Language).Attributes["href"].Value;
+            var language = _languageHrefRegex.Match(languageHref).Groups["language"].Value;
+
             var doujin = new DoujinInfo
             {
                 GalleryUrl = $"https://hitomi.la/galleries/{id}.html",
@@ -129,7 +137,7 @@ namespace nhitomi.Core.Clients.Hitomi
 
                 Artist = Sanitize(root.SelectSingleNode(Hitomi.XPath.Artists)).ToLowerInvariant(),
                 Group = Sanitize(root.SelectSingleNode(Hitomi.XPath.Groups)).ToLowerInvariant(),
-                Language = ConvertLanguage(Sanitize(root.SelectSingleNode(Hitomi.XPath.Language))).ToLowerInvariant(),
+                Language = language.ToLowerInvariant(),
                 Parody = ConvertSeries(Sanitize(root.SelectSingleNode(Hitomi.XPath.Series))).ToLowerInvariant(),
                 Characters = root.SelectNodes(Hitomi.XPath.Characters)?.Select(n => Sanitize(n).ToLowerInvariant()),
                 Tags = root.SelectNodes(Hitomi.XPath.Tags)?.Select(n => ConvertTag(Sanitize(n).ToLowerInvariant()))
@@ -170,19 +178,6 @@ namespace nhitomi.Core.Clients.Hitomi
         {
             public int Id;
             public string[] Images;
-        }
-
-        static string ConvertLanguage(string language)
-        {
-            switch (language)
-            {
-                case "日本語": return "Japanese";
-                case "한국어": return "Korean";
-                case "中文": return "Chinese";
-
-                default:
-                    return language;
-            }
         }
 
         static string ConvertSeries(string series) =>
