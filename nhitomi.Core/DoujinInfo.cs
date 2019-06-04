@@ -67,19 +67,16 @@ namespace nhitomi.Core
                 yield return new TagRef(TagType.Parody, Parody.ToLowerInvariant());
 
             if (Characters != null)
-                foreach (var character in Characters)
-                    if (!string.IsNullOrWhiteSpace(character))
-                        yield return new TagRef(TagType.Character, character.ToLowerInvariant());
+                foreach (var character in Characters.Where(c => !string.IsNullOrWhiteSpace(c)).Distinct())
+                    yield return new TagRef(TagType.Character, character.ToLowerInvariant());
 
             if (Categories != null)
-                foreach (var category in Categories)
-                    if (!string.IsNullOrWhiteSpace(category))
-                        yield return new TagRef(TagType.Category, category.ToLowerInvariant());
+                foreach (var category in Categories.Where(c => !string.IsNullOrWhiteSpace(c)).Distinct())
+                    yield return new TagRef(TagType.Category, category.ToLowerInvariant());
 
             if (Tags != null)
-                foreach (var tag in Tags)
-                    if (!string.IsNullOrWhiteSpace(tag))
-                        yield return new TagRef(TagType.Tag, tag.ToLowerInvariant());
+                foreach (var tag in Tags.Where(c => !string.IsNullOrWhiteSpace(c)).Distinct())
+                    yield return new TagRef(TagType.Tag, tag.ToLowerInvariant());
         }
     }
 }
