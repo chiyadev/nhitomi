@@ -31,7 +31,6 @@ namespace nhitomi.Core
 
         public Doujin ToDoujin() => new Doujin
         {
-            Id = Guid.NewGuid(),
             GalleryUrl = GalleryUrl,
 
             // ensure both are not null

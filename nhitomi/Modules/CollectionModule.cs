@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -57,7 +56,6 @@ namespace nhitomi.Modules
                 {
                     collection = new Collection
                     {
-                        Id = Guid.NewGuid(),
                         Name = name,
                         OwnerId = _context.User.Id,
                         Doujins = new List<CollectionRef>()

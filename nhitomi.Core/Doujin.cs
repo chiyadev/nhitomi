@@ -8,7 +8,7 @@ namespace nhitomi.Core
 {
     public class Doujin
     {
-        [Key] public Guid Id { get; set; }
+        [Key] public int Id { get; set; }
 
         /// <summary>
         /// The URL at which this doujinshi was initially found at.
