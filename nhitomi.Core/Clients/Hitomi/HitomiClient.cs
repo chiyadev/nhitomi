@@ -167,7 +167,6 @@ namespace nhitomi.Core.Clients.Hitomi
                     doujin.PageCount = images.Length;
                     doujin.Data = _serializer.Serialize(new InternalDoujinData
                     {
-                        Id = intId,
                         Images = images.Select(i => i.Name).ToArray()
                     });
                 }
@@ -178,7 +177,6 @@ namespace nhitomi.Core.Clients.Hitomi
 
         sealed class InternalDoujinData
         {
-            public int Id;
             public string[] Images;
         }
 
@@ -262,13 +260,16 @@ namespace nhitomi.Core.Clients.Hitomi
 
         public IEnumerable<string> PopulatePages(Doujin doujin)
         {
+            if (int.TryParse(doujin.SourceId, out var intId))
+                yield break;
+
             var data = _serializer.Deserialize<InternalDoujinData>(doujin.Data);
 
             if (data.Images == null)
                 yield break;
 
             foreach (var image in data.Images)
-                yield return Hitomi.Image(data.Id, image);
+                yield return Hitomi.Image(intId, image);
         }
 
         public void Dispose()
