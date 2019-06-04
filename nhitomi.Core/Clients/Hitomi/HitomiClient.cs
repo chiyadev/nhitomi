@@ -167,7 +167,19 @@ namespace nhitomi.Core.Clients.Hitomi
                     doujin.PageCount = images.Length;
                     doujin.Data = _serializer.Serialize(new InternalDoujinData
                     {
-                        Images = images.Select(i => i.Name).ToArray()
+                        ImageNames = images.Select(i => Path.GetFileNameWithoutExtension(i.Name)).ToArray(),
+                        Extensions = new string(images.Select(i =>
+                        {
+                            var ext = Path.GetExtension(i.Name);
+                            switch (ext)
+                            {
+                                case ".jpg": return 'j';
+                                case ".jpeg": return 'J';
+                                case ".png": return 'p';
+                                default:
+                                    throw new NotSupportedException($"Unknown image format '{ext}'.");
+                            }
+                        }).ToArray())
                     });
                 }
             }
@@ -177,7 +189,8 @@ namespace nhitomi.Core.Clients.Hitomi
 
         sealed class InternalDoujinData
         {
-            public string[] Images;
+            public string[] ImageNames;
+            public string Extensions;
         }
 
         static string ConvertSeries(string series) =>
@@ -265,11 +278,29 @@ namespace nhitomi.Core.Clients.Hitomi
 
             var data = _serializer.Deserialize<InternalDoujinData>(doujin.Data);
 
-            if (data.Images == null)
+            if (data.ImageNames == null || data.Extensions == null)
                 yield break;
 
-            foreach (var image in data.Images)
-                yield return Hitomi.Image(intId, image);
+            for (var i = 0; i < data.ImageNames.Length; i++)
+            {
+                var name = data.ImageNames[i];
+                string extension;
+
+                switch (data.Extensions[i])
+                {
+                    case 'p':
+                        extension = ".png";
+                        break;
+                    case 'J':
+                        extension = ".jpeg";
+                        break;
+                    default:
+                        extension = ".jpg";
+                        break;
+                }
+
+                yield return Hitomi.Image(intId, name + extension);
+            }
         }
 
         public void Dispose()
