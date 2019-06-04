@@ -9,7 +9,7 @@ using nhitomi.Core;
 namespace nhitomi.Core.Migrations
 {
     [DbContext(typeof(nhitomiDbContext))]
-    [Migration("20190604091952_InitialCreate")]
+    [Migration("20190604095238_InitialCreate")]
     partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -21,7 +21,7 @@ namespace nhitomi.Core.Migrations
 
             modelBuilder.Entity("nhitomi.Core.Collection", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
 
                     b.Property<string>("Name")
@@ -43,9 +43,9 @@ namespace nhitomi.Core.Migrations
 
             modelBuilder.Entity("nhitomi.Core.CollectionRef", b =>
                 {
-                    b.Property<Guid>("CollectionId");
+                    b.Property<int>("CollectionId");
 
-                    b.Property<Guid>("DoujinId");
+                    b.Property<int>("DoujinId");
 
                     b.HasKey("CollectionId", "DoujinId");
 
@@ -56,8 +56,10 @@ namespace nhitomi.Core.Migrations
 
             modelBuilder.Entity("nhitomi.Core.Doujin", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
+
+                    b.Property<Guid>("AccessId");
 
                     b.Property<string>("Data")
                         .HasMaxLength(4096);
@@ -90,6 +92,8 @@ namespace nhitomi.Core.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("AccessId");
+
                     b.HasIndex("OriginalName");
 
                     b.HasIndex("PrettyName");
@@ -115,8 +119,10 @@ namespace nhitomi.Core.Migrations
 
             modelBuilder.Entity("nhitomi.Core.Tag", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
+
+                    b.Property<Guid>("AccessId");
 
                     b.Property<int>("Type");
 
@@ -126,6 +132,8 @@ namespace nhitomi.Core.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("AccessId");
+
                     b.HasIndex("Value");
 
                     b.ToTable("Tags");
@@ -133,9 +141,9 @@ namespace nhitomi.Core.Migrations
 
             modelBuilder.Entity("nhitomi.Core.TagRef", b =>
                 {
-                    b.Property<Guid>("DoujinId");
+                    b.Property<int>("DoujinId");
 
-                    b.Property<Guid>("TagId");
+                    b.Property<int>("TagId");
 
                     b.HasKey("DoujinId", "TagId");
 

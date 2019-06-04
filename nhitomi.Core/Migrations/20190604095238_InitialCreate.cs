@@ -12,7 +12,9 @@ namespace nhitomi.Core.Migrations
                 "Collections",
                 table => new
                 {
-                    Id = table.Column<Guid>(),
+                    Id = table.Column<int>()
+                        .Annotation("Sqlite:Autoincrement", true)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
                     Name = table.Column<string>(maxLength: 32),
                     Sort = table.Column<int>(),
                     SortDescending = table.Column<bool>(),
@@ -24,7 +26,10 @@ namespace nhitomi.Core.Migrations
                 "Doujins",
                 table => new
                 {
-                    Id = table.Column<Guid>(),
+                    Id = table.Column<int>()
+                        .Annotation("Sqlite:Autoincrement", true)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    AccessId = table.Column<Guid>(),
                     GalleryUrl = table.Column<string>(maxLength: 64),
                     PrettyName = table.Column<string>(maxLength: 256),
                     OriginalName = table.Column<string>(maxLength: 256),
@@ -41,8 +46,7 @@ namespace nhitomi.Core.Migrations
                 "Guilds",
                 table => new
                 {
-                    Id = table.Column<ulong>()
-                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    Id = table.Column<ulong>(),
                     Language = table.Column<string>(nullable: true)
                 },
                 constraints: table => { table.PrimaryKey("PK_Guilds", x => x.Id); });
@@ -51,7 +55,10 @@ namespace nhitomi.Core.Migrations
                 "Tags",
                 table => new
                 {
-                    Id = table.Column<Guid>(),
+                    Id = table.Column<int>()
+                        .Annotation("Sqlite:Autoincrement", true)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    AccessId = table.Column<Guid>(),
                     Type = table.Column<int>(),
                     Value = table.Column<string>(maxLength: 64)
                 },
@@ -61,8 +68,8 @@ namespace nhitomi.Core.Migrations
                 "CollectionRef",
                 table => new
                 {
-                    CollectionId = table.Column<Guid>(),
-                    DoujinId = table.Column<Guid>()
+                    CollectionId = table.Column<int>(),
+                    DoujinId = table.Column<int>()
                 },
                 constraints: table =>
                 {
@@ -85,8 +92,8 @@ namespace nhitomi.Core.Migrations
                 "TagRef",
                 table => new
                 {
-                    DoujinId = table.Column<Guid>(),
-                    TagId = table.Column<Guid>()
+                    DoujinId = table.Column<int>(),
+                    TagId = table.Column<int>()
                 },
                 constraints: table =>
                 {
@@ -116,6 +123,11 @@ namespace nhitomi.Core.Migrations
                 "Name");
 
             migrationBuilder.CreateIndex(
+                "IX_Doujins_AccessId",
+                "Doujins",
+                "AccessId");
+
+            migrationBuilder.CreateIndex(
                 "IX_Doujins_OriginalName",
                 "Doujins",
                 "OriginalName");
@@ -139,6 +151,11 @@ namespace nhitomi.Core.Migrations
                 "IX_TagRef_TagId",
                 "TagRef",
                 "TagId");
+
+            migrationBuilder.CreateIndex(
+                "IX_Tags_AccessId",
+                "Tags",
+                "AccessId");
 
             migrationBuilder.CreateIndex(
                 "IX_Tags_Value",
