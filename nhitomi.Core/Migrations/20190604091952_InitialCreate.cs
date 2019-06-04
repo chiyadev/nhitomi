@@ -9,19 +9,30 @@ namespace nhitomi.Core.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
+                "Collections",
+                table => new
+                {
+                    Id = table.Column<Guid>(),
+                    Name = table.Column<string>(maxLength: 32),
+                    Sort = table.Column<int>(),
+                    SortDescending = table.Column<bool>(),
+                    OwnerId = table.Column<ulong>()
+                },
+                constraints: table => { table.PrimaryKey("PK_Collections", x => x.Id); });
+
+            migrationBuilder.CreateTable(
                 "Doujins",
                 table => new
                 {
-                    Id = table.Column<int>()
-                        .Annotation("Sqlite:Autoincrement", true)
-                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    GalleryUrl = table.Column<string>(),
-                    PrettyName = table.Column<string>(),
-                    OriginalName = table.Column<string>(),
+                    Id = table.Column<Guid>(),
+                    GalleryUrl = table.Column<string>(maxLength: 64),
+                    PrettyName = table.Column<string>(maxLength: 256),
+                    OriginalName = table.Column<string>(maxLength: 256),
                     UploadTime = table.Column<DateTime>(),
                     ProcessTime = table.Column<DateTime>(),
-                    Source = table.Column<string>(),
-                    SourceId = table.Column<string>(),
+                    Source = table.Column<string>(maxLength: 16),
+                    SourceId = table.Column<string>(maxLength: 16),
+                    Data = table.Column<string>(maxLength: 4096, nullable: true),
                     PageCount = table.Column<int>()
                 },
                 constraints: table => { table.PrimaryKey("PK_Doujins", x => x.Id); });
@@ -31,7 +42,6 @@ namespace nhitomi.Core.Migrations
                 table => new
                 {
                     Id = table.Column<ulong>()
-                        .Annotation("Sqlite:Autoincrement", true)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
                     Language = table.Column<string>(nullable: true)
                 },
@@ -41,77 +51,18 @@ namespace nhitomi.Core.Migrations
                 "Tags",
                 table => new
                 {
-                    Id = table.Column<int>()
-                        .Annotation("Sqlite:Autoincrement", true)
-                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    Id = table.Column<Guid>(),
                     Type = table.Column<int>(),
-                    Value = table.Column<string>(maxLength: 32)
+                    Value = table.Column<string>(maxLength: 64)
                 },
                 constraints: table => { table.PrimaryKey("PK_Tags", x => x.Id); });
-
-            migrationBuilder.CreateTable(
-                "Users",
-                table => new
-                {
-                    Id = table.Column<ulong>()
-                        .Annotation("Sqlite:Autoincrement", true)
-                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn)
-                },
-                constraints: table => { table.PrimaryKey("PK_Users", x => x.Id); });
-
-            migrationBuilder.CreateTable(
-                "TagRef",
-                table => new
-                {
-                    DoujinId = table.Column<int>(),
-                    TagId = table.Column<int>()
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_TagRef", x => new {x.DoujinId, x.TagId});
-                    table.ForeignKey(
-                        "FK_TagRef_Doujins_DoujinId",
-                        x => x.DoujinId,
-                        "Doujins",
-                        "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        "FK_TagRef_Tags_TagId",
-                        x => x.TagId,
-                        "Tags",
-                        "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                "Collections",
-                table => new
-                {
-                    Id = table.Column<int>()
-                        .Annotation("Sqlite:Autoincrement", true)
-                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    Name = table.Column<string>(maxLength: 32),
-                    Sort = table.Column<int>(),
-                    SortDescending = table.Column<bool>(),
-                    OwnerId = table.Column<ulong>()
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Collections", x => x.Id);
-                    table.ForeignKey(
-                        "FK_Collections_Users_OwnerId",
-                        x => x.OwnerId,
-                        "Users",
-                        "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
 
             migrationBuilder.CreateTable(
                 "CollectionRef",
                 table => new
                 {
-                    CollectionId = table.Column<int>(),
-                    DoujinId = table.Column<int>()
+                    CollectionId = table.Column<Guid>(),
+                    DoujinId = table.Column<Guid>()
                 },
                 constraints: table =>
                 {
@@ -130,6 +81,30 @@ namespace nhitomi.Core.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                "TagRef",
+                table => new
+                {
+                    DoujinId = table.Column<Guid>(),
+                    TagId = table.Column<Guid>()
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_TagRef", x => new {x.DoujinId, x.TagId});
+                    table.ForeignKey(
+                        "FK_TagRef_Doujins_DoujinId",
+                        x => x.DoujinId,
+                        "Doujins",
+                        "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        "FK_TagRef_Tags_TagId",
+                        x => x.TagId,
+                        "Tags",
+                        "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
             migrationBuilder.CreateIndex(
                 "IX_CollectionRef_DoujinId",
                 "CollectionRef",
@@ -139,11 +114,6 @@ namespace nhitomi.Core.Migrations
                 "IX_Collections_Name",
                 "Collections",
                 "Name");
-
-            migrationBuilder.CreateIndex(
-                "IX_Collections_OwnerId",
-                "Collections",
-                "OwnerId");
 
             migrationBuilder.CreateIndex(
                 "IX_Doujins_OriginalName",
@@ -195,9 +165,6 @@ namespace nhitomi.Core.Migrations
 
             migrationBuilder.DropTable(
                 "Tags");
-
-            migrationBuilder.DropTable(
-                "Users");
         }
     }
 }

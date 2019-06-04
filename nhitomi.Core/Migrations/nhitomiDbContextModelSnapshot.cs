@@ -18,7 +18,7 @@ namespace nhitomi.Core.Migrations
 
             modelBuilder.Entity("nhitomi.Core.Collection", b =>
             {
-                b.Property<int>("Id")
+                b.Property<Guid>("Id")
                     .ValueGeneratedOnAdd();
 
                 b.Property<string>("Name")
@@ -40,9 +40,9 @@ namespace nhitomi.Core.Migrations
 
             modelBuilder.Entity("nhitomi.Core.CollectionRef", b =>
             {
-                b.Property<int>("CollectionId");
+                b.Property<Guid>("CollectionId");
 
-                b.Property<int>("DoujinId");
+                b.Property<Guid>("DoujinId");
 
                 b.HasKey("CollectionId", "DoujinId");
 
@@ -53,7 +53,7 @@ namespace nhitomi.Core.Migrations
 
             modelBuilder.Entity("nhitomi.Core.Doujin", b =>
             {
-                b.Property<int>("Id")
+                b.Property<Guid>("Id")
                     .ValueGeneratedOnAdd();
 
                 b.Property<string>("Data")
@@ -112,7 +112,7 @@ namespace nhitomi.Core.Migrations
 
             modelBuilder.Entity("nhitomi.Core.Tag", b =>
             {
-                b.Property<int>("Id")
+                b.Property<Guid>("Id")
                     .ValueGeneratedOnAdd();
 
                 b.Property<int>("Type");
@@ -130,9 +130,9 @@ namespace nhitomi.Core.Migrations
 
             modelBuilder.Entity("nhitomi.Core.TagRef", b =>
             {
-                b.Property<int>("DoujinId");
+                b.Property<Guid>("DoujinId");
 
-                b.Property<int>("TagId");
+                b.Property<Guid>("TagId");
 
                 b.HasKey("DoujinId", "TagId");
 

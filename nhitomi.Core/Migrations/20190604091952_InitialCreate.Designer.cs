@@ -9,7 +9,7 @@ using nhitomi.Core;
 namespace nhitomi.Core.Migrations
 {
     [DbContext(typeof(nhitomiDbContext))]
-    [Migration("20190529115849_InitialCreate")]
+    [Migration("20190604091952_InitialCreate")]
     partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -21,7 +21,7 @@ namespace nhitomi.Core.Migrations
 
             modelBuilder.Entity("nhitomi.Core.Collection", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd();
 
                     b.Property<string>("Name")
@@ -38,16 +38,14 @@ namespace nhitomi.Core.Migrations
 
                     b.HasIndex("Name");
 
-                    b.HasIndex("OwnerId");
-
                     b.ToTable("Collections");
                 });
 
             modelBuilder.Entity("nhitomi.Core.CollectionRef", b =>
                 {
-                    b.Property<int>("CollectionId");
+                    b.Property<Guid>("CollectionId");
 
-                    b.Property<int>("DoujinId");
+                    b.Property<Guid>("DoujinId");
 
                     b.HasKey("CollectionId", "DoujinId");
 
@@ -58,27 +56,35 @@ namespace nhitomi.Core.Migrations
 
             modelBuilder.Entity("nhitomi.Core.Doujin", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd();
 
+                    b.Property<string>("Data")
+                        .HasMaxLength(4096);
+
                     b.Property<string>("GalleryUrl")
-                        .IsRequired();
+                        .IsRequired()
+                        .HasMaxLength(64);
 
                     b.Property<string>("OriginalName")
-                        .IsRequired();
+                        .IsRequired()
+                        .HasMaxLength(256);
 
                     b.Property<int>("PageCount");
 
                     b.Property<string>("PrettyName")
-                        .IsRequired();
+                        .IsRequired()
+                        .HasMaxLength(256);
 
                     b.Property<DateTime>("ProcessTime");
 
                     b.Property<string>("Source")
-                        .IsRequired();
+                        .IsRequired()
+                        .HasMaxLength(16);
 
                     b.Property<string>("SourceId")
-                        .IsRequired();
+                        .IsRequired()
+                        .HasMaxLength(16);
 
                     b.Property<DateTime>("UploadTime");
 
@@ -109,14 +115,14 @@ namespace nhitomi.Core.Migrations
 
             modelBuilder.Entity("nhitomi.Core.Tag", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd();
 
                     b.Property<int>("Type");
 
                     b.Property<string>("Value")
                         .IsRequired()
-                        .HasMaxLength(32);
+                        .HasMaxLength(64);
 
                     b.HasKey("Id");
 
@@ -127,33 +133,15 @@ namespace nhitomi.Core.Migrations
 
             modelBuilder.Entity("nhitomi.Core.TagRef", b =>
                 {
-                    b.Property<int>("DoujinId");
+                    b.Property<Guid>("DoujinId");
 
-                    b.Property<int>("TagId");
+                    b.Property<Guid>("TagId");
 
                     b.HasKey("DoujinId", "TagId");
 
                     b.HasIndex("TagId");
 
                     b.ToTable("TagRef");
-                });
-
-            modelBuilder.Entity("nhitomi.Core.User", b =>
-                {
-                    b.Property<ulong>("Id")
-                        .ValueGeneratedOnAdd();
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Users");
-                });
-
-            modelBuilder.Entity("nhitomi.Core.Collection", b =>
-                {
-                    b.HasOne("nhitomi.Core.User", "Owner")
-                        .WithMany("Collections")
-                        .HasForeignKey("OwnerId")
-                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("nhitomi.Core.CollectionRef", b =>
