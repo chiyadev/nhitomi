@@ -189,8 +189,8 @@ namespace nhitomi.Core.Clients.Hitomi
 
         sealed class InternalDoujinData
         {
-            public string[] ImageNames;
-            public string Extensions;
+            [JsonProperty("n")] public string[] ImageNames;
+            [JsonProperty("e")] public string Extensions;
         }
 
         static string ConvertSeries(string series) =>

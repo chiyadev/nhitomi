@@ -156,8 +156,8 @@ namespace nhitomi.Core.Clients.nhentai
 
         sealed class InternalDoujinData
         {
-            public int MediaId;
-            public string Extensions;
+            [JsonProperty("i")] public int MediaId;
+            [JsonProperty("e")] public string Extensions;
         }
 
         public async Task<IEnumerable<string>> EnumerateAsync(string startId = null,
