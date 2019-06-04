@@ -120,8 +120,10 @@ namespace nhitomi.Core.Clients.Hitomi
             }
 
             // parse language
-            var languageHref = root.SelectSingleNode(Hitomi.XPath.Language).Attributes["href"].Value;
-            var language = _languageHrefRegex.Match(languageHref).Groups["language"].Value;
+            var languageHref = root.SelectSingleNode(Hitomi.XPath.Language)?.Attributes["href"]?.Value;
+            var language = languageHref == null
+                ? null
+                : _languageHrefRegex.Match(languageHref).Groups["language"].Value;
 
             var doujin = new DoujinInfo
             {
@@ -135,12 +137,12 @@ namespace nhitomi.Core.Clients.Hitomi
                 Source = this,
                 SourceId = id,
 
-                Artist = Sanitize(root.SelectSingleNode(Hitomi.XPath.Artists)).ToLowerInvariant(),
-                Group = Sanitize(root.SelectSingleNode(Hitomi.XPath.Groups)).ToLowerInvariant(),
-                Language = language.ToLowerInvariant(),
-                Parody = ConvertSeries(Sanitize(root.SelectSingleNode(Hitomi.XPath.Series))).ToLowerInvariant(),
-                Characters = root.SelectNodes(Hitomi.XPath.Characters)?.Select(n => Sanitize(n).ToLowerInvariant()),
-                Tags = root.SelectNodes(Hitomi.XPath.Tags)?.Select(n => ConvertTag(Sanitize(n).ToLowerInvariant()))
+                Artist = Sanitize(root.SelectSingleNode(Hitomi.XPath.Artists))?.ToLowerInvariant(),
+                Group = Sanitize(root.SelectSingleNode(Hitomi.XPath.Groups))?.ToLowerInvariant(),
+                Language = language?.ToLowerInvariant(),
+                Parody = ConvertSeries(Sanitize(root.SelectSingleNode(Hitomi.XPath.Series)))?.ToLowerInvariant(),
+                Characters = root.SelectNodes(Hitomi.XPath.Characters)?.Select(n => Sanitize(n)?.ToLowerInvariant()),
+                Tags = root.SelectNodes(Hitomi.XPath.Tags)?.Select(n => ConvertTag(Sanitize(n)?.ToLowerInvariant()))
             };
 
             // parse images
