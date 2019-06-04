@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using HtmlAgilityPack;
@@ -60,6 +61,10 @@ namespace nhitomi.Core.Clients.Hitomi
             _logger = logger;
         }
 
+        // regex to match () and [] in titles
+        static readonly Regex _bracketsRegex = new Regex(@"\([^)]*\)|\[[^\]]*\]",
+            RegexOptions.Compiled | RegexOptions.Singleline);
+
         public async Task<DoujinInfo> GetAsync(string id, CancellationToken cancellationToken = default)
         {
             if (!int.TryParse(id, out var intId))
@@ -95,26 +100,39 @@ namespace nhitomi.Core.Clients.Hitomi
                 return null;
             }
 
-            // scrape data from html using xpath
+            var prettyName = Sanitize(root.SelectSingleNode(Hitomi.XPath.Name));
+
+            // replace stuff in brackets with nothing
+            prettyName = _bracketsRegex.Replace(prettyName, "");
+
+            var originalName = prettyName;
+
+            // parse names with two parts
+            var pipeIndex = prettyName.IndexOf('|');
+            if (pipeIndex != -1)
+            {
+                prettyName = prettyName.Substring(0, pipeIndex).Trim();
+                originalName = originalName.Substring(pipeIndex + 1).Trim();
+            }
+
             var doujin = new DoujinInfo
             {
                 GalleryUrl = $"https://hitomi.la/galleries/{id}.html",
 
-                PrettyName = Sanitize(root.SelectSingleNode(Hitomi.XPath.Name)),
-                OriginalName = Sanitize(root.SelectSingleNode(Hitomi.XPath.Name)),
+                PrettyName = prettyName,
+                OriginalName = originalName,
 
-                UploadTime = DateTime.Parse(Sanitize(root.SelectSingleNode(Hitomi.XPath.Date))),
+                UploadTime = DateTime.Parse(Sanitize(root.SelectSingleNode(Hitomi.XPath.Date))).ToUniversalTime(),
 
                 Source = this,
                 SourceId = id,
 
-                Artist = Sanitize(root.SelectSingleNode(Hitomi.XPath.Artists)),
-                Group = Sanitize(root.SelectSingleNode(Hitomi.XPath.Groups)),
-                Language = ConvertLanguage(Sanitize(root.SelectSingleNode(Hitomi.XPath.Language))),
-                Parody = ConvertSeries(Sanitize(root.SelectSingleNode(Hitomi.XPath.Series))),
-                Characters = root.SelectNodes(Hitomi.XPath.Characters)?.Select(Sanitize),
-
-                Tags = root.SelectNodes(Hitomi.XPath.Tags)?.Select(n => ConvertTag(Sanitize(n)))
+                Artist = Sanitize(root.SelectSingleNode(Hitomi.XPath.Artists)).ToLowerInvariant(),
+                Group = Sanitize(root.SelectSingleNode(Hitomi.XPath.Groups)).ToLowerInvariant(),
+                Language = ConvertLanguage(Sanitize(root.SelectSingleNode(Hitomi.XPath.Language))).ToLowerInvariant(),
+                Parody = ConvertSeries(Sanitize(root.SelectSingleNode(Hitomi.XPath.Series))).ToLowerInvariant(),
+                Characters = root.SelectNodes(Hitomi.XPath.Characters)?.Select(n => Sanitize(n).ToLowerInvariant()),
+                Tags = root.SelectNodes(Hitomi.XPath.Tags)?.Select(n => ConvertTag(Sanitize(n).ToLowerInvariant()))
             };
 
             // parse images
@@ -136,6 +154,7 @@ namespace nhitomi.Core.Clients.Hitomi
 
                     var images = _serializer.Deserialize<ImageInfo[]>(jsonReader);
 
+                    doujin.PageCount = images.Length;
                     doujin.Data = _serializer.Serialize(new InternalDoujinData
                     {
                         Id = intId,
