@@ -307,6 +307,12 @@ namespace nhitomi.Core.Clients.Hitomi
             }
         }
 
+        public void InitializeImageRequest(Doujin doujin, HttpRequestMessage message)
+        {
+            // hitomi seems to require the Referer header to download images
+            message.Headers.Referrer = new Uri($"https://hitomi.la/reader/{doujin.SourceId}.html");
+        }
+
         public void Dispose()
         {
         }

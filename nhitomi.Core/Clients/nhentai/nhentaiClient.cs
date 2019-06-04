@@ -211,6 +211,10 @@ namespace nhitomi.Core.Clients.nhentai
             }
         }
 
+        public void InitializeImageRequest(Doujin doujin, HttpRequestMessage message)
+        {
+        }
+
         static string FixExtension(char ext) => ext == 'p' ? "png" : "jpg";
 
         public void Dispose()

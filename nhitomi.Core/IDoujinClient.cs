@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -17,5 +18,7 @@ namespace nhitomi.Core
         /// Gets image URL of the pages in the doujin.
         /// </summary>
         IEnumerable<string> PopulatePages(Doujin doujin);
+
+        void InitializeImageRequest(Doujin doujin, HttpRequestMessage message);
     }
 }
