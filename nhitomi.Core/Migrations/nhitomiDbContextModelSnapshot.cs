@@ -89,7 +89,8 @@ namespace nhitomi.Core.Migrations
 
                 b.HasKey("Id");
 
-                b.HasIndex("AccessId");
+                b.HasIndex("AccessId")
+                    .IsUnique();
 
                 b.HasIndex("OriginalName");
 
@@ -129,7 +130,8 @@ namespace nhitomi.Core.Migrations
 
                 b.HasKey("Id");
 
-                b.HasIndex("AccessId");
+                b.HasIndex("AccessId")
+                    .IsUnique();
 
                 b.HasIndex("Value");
 

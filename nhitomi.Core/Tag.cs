@@ -38,7 +38,8 @@ namespace nhitomi.Core
         {
             model.Entity<Tag>(tag =>
             {
-                tag.HasIndex(t => t.AccessId);
+                tag.HasIndex(t => t.AccessId).IsUnique();
+
                 tag.HasIndex(t => t.Value);
             });
 

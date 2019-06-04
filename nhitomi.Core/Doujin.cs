@@ -80,7 +80,7 @@ namespace nhitomi.Core
         {
             model.Entity<Doujin>(doujin =>
             {
-                doujin.HasIndex(d => d.AccessId);
+                doujin.HasIndex(d => d.AccessId).IsUnique();
 
                 doujin.HasIndex(d => d.PrettyName);
                 doujin.HasIndex(d => d.OriginalName);
