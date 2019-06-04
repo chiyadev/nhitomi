@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using Microsoft.EntityFrameworkCore;
@@ -20,6 +21,11 @@ namespace nhitomi.Core
     {
         [Key] public int Id { get; set; }
 
+        /// <summary>
+        /// The identifier by which this tag should be referred.
+        /// </summary>
+        public Guid AccessId { get; set; }
+
         public TagType Type { get; set; }
 
         [Required, MaxLength(64)] public string Value { get; set; }
@@ -32,7 +38,7 @@ namespace nhitomi.Core
         {
             model.Entity<Tag>(tag =>
             {
-                // index on value
+                tag.HasIndex(t => t.AccessId);
                 tag.HasIndex(t => t.Value);
             });
 

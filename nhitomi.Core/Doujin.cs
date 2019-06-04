@@ -11,6 +11,11 @@ namespace nhitomi.Core
         [Key] public int Id { get; set; }
 
         /// <summary>
+        /// The identifier by which this doujinshi should be referred.
+        /// </summary>
+        public Guid AccessId { get; set; }
+
+        /// <summary>
         /// The URL at which this doujinshi was initially found at.
         /// </summary>
         [Required, MaxLength(64)]
@@ -75,6 +80,8 @@ namespace nhitomi.Core
         {
             model.Entity<Doujin>(doujin =>
             {
+                doujin.HasIndex(d => d.AccessId);
+
                 doujin.HasIndex(d => d.PrettyName);
                 doujin.HasIndex(d => d.OriginalName);
 
