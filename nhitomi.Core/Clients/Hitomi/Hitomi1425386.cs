@@ -27,6 +27,8 @@ namespace nhitomi.Core.Clients.Hitomi
             {
                 "collar",
                 "females only",
+                "piercing",
+                "sex toys",
                 "yuri"
             },
             PageCount = 30
