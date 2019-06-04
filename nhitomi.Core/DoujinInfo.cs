@@ -68,15 +68,18 @@ namespace nhitomi.Core
 
             if (Characters != null)
                 foreach (var character in Characters)
-                    yield return new TagRef(TagType.Character, character.ToLowerInvariant());
+                    if (!string.IsNullOrWhiteSpace(character))
+                        yield return new TagRef(TagType.Character, character.ToLowerInvariant());
 
             if (Categories != null)
                 foreach (var category in Categories)
-                    yield return new TagRef(TagType.Category, category.ToLowerInvariant());
+                    if (!string.IsNullOrWhiteSpace(category))
+                        yield return new TagRef(TagType.Category, category.ToLowerInvariant());
 
             if (Tags != null)
                 foreach (var tag in Tags)
-                    yield return new TagRef(TagType.Tag, tag.ToLowerInvariant());
+                    if (!string.IsNullOrWhiteSpace(tag))
+                        yield return new TagRef(TagType.Tag, tag.ToLowerInvariant());
         }
     }
 }
