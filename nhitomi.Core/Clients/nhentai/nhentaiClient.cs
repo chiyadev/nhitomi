@@ -87,7 +87,7 @@ namespace nhitomi.Core.Clients.nhentai
             _logger = logger;
         }
 
-        public string GetGalleryUrl(Doujin doujin) => $"https://nhentai.net/g/{doujin.SourceId}/";
+        public static string GetGalleryUrl(Doujin doujin) => $"https://nhentai.net/g/{doujin.SourceId}/";
 
         public async Task<DoujinInfo> GetAsync(string id, CancellationToken cancellationToken = default)
         {

@@ -11,8 +11,6 @@ namespace nhitomi.Core
         string Name { get; }
         string Url { get; }
 
-        string GetGalleryUrl(Doujin doujin);
-
         Task<DoujinInfo> GetAsync(string id, CancellationToken cancellationToken = default);
         Task<IEnumerable<string>> EnumerateAsync(string startId = null, CancellationToken cancellationToken = default);
 
