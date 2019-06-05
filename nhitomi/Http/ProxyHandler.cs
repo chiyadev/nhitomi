@@ -19,8 +19,7 @@ namespace nhitomi.Http
             // we don't use DI injected client because we use custom SocketsHttpHandler
             _client = new HttpClient(new SocketsHttpHandler
             {
-                AllowAutoRedirect = false,
-                AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate
+                AllowAutoRedirect = false
             });
             _logger = logger;
         }
