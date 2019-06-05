@@ -2,6 +2,8 @@ using System.Collections.Generic;
 using System.Linq;
 using Discord;
 using nhitomi.Core;
+using nhitomi.Core.Clients.Hitomi;
+using nhitomi.Core.Clients.nhentai;
 using nhitomi.Globalization;
 using nhitomi.Interactivity.Triggers;
 using TagType = nhitomi.Core.TagType;
@@ -46,7 +48,7 @@ namespace nhitomi.Interactivity
                     .WithAuthor(a => a
                         .WithName(doujin.GetTag(TagType.Artist)?.Value ?? doujin.Source)
                         .WithIconUrl(path["sourceIcons"][doujin.Source][l]))
-                    .WithUrl(doujin.GalleryUrl)
+                    .WithUrl(GetGalleryUrl(doujin))
                     .WithImageUrl($"https://nhitomi.chiya.dev/v1/image/{doujin.Id}/-1")
                     .WithColor(Color.Green)
                     .WithFooter(path["footer"][l, new {doujin}]);
@@ -78,6 +80,18 @@ namespace nhitomi.Interactivity
                     return;
 
                 AddField(builder, name, string.Join(", ", array), inline);
+            }
+
+            static string GetGalleryUrl(Doujin d)
+            {
+                switch (d.Source.ToLowerInvariant())
+                {
+                    case "nhentai": return nhentaiClient.GetGalleryUrl(d);
+                    case "hitomi": return HitomiClient.GetGalleryUrl(d);
+
+                    default:
+                        return null;
+                }
             }
         }
 
