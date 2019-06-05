@@ -62,7 +62,7 @@ namespace nhitomi.Http
 
                         switch (key.ToLowerInvariant())
                         {
-                            // ignored headers
+                            // ignored
                             case "host":
                             case "upstream":
                                 continue;
@@ -95,11 +95,30 @@ namespace nhitomi.Http
                         foreach (var (key, values) in forwardResponse.Headers)
                         foreach (var value in values)
                         {
+                            _logger.LogDebug($"{key}: {value}");
+
+                            switch (key.ToLowerInvariant())
+                            {
+                                // ignore
+                                case "connection":
+                                    continue;
+
+                                // copy
+                                default:
+                                    response.AddHeader(key, value);
+                                    break;
+                            }
+                        }
+
+                        foreach (var (key, values) in forwardResponse.Content.Headers)
+                        foreach (var value in values)
+                        {
+                            _logger.LogDebug($"{key}: {value}");
+
                             switch (key.ToLowerInvariant())
                             {
                                 // copy
                                 default:
-                                    _logger.LogDebug($"{key}: {value}");
                                     response.AddHeader(key, value);
                                     break;
                             }
