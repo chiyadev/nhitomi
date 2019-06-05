@@ -16,8 +16,8 @@ namespace nhitomi.Http
         public ProxyHandler(ILogger<ProxyHandler> logger)
         {
             // create http client
-            // we don't use DI injected client because we use custom SocketsHttpHandler
-            _client = new HttpClient(new SocketsHttpHandler
+            // we don't use DI injected client because we use custom HttpMessageHandler
+            _client = new HttpClient(new HttpClientHandler
             {
                 AllowAutoRedirect = false
             });
@@ -116,6 +116,12 @@ namespace nhitomi.Http
 
                             switch (key.ToLowerInvariant())
                             {
+                                // content headers
+                                case "content-length":
+                                    response.ContentLength64 = long.Parse(value);
+                                    response.SendChunked = false;
+                                    break;
+
                                 // copy
                                 default:
                                     response.AddHeader(key, value);
