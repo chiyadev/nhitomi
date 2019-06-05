@@ -61,10 +61,6 @@ namespace nhitomi.Core.Migrations
                 b.Property<string>("Data")
                     .HasMaxLength(4096);
 
-                b.Property<string>("GalleryUrl")
-                    .IsRequired()
-                    .HasMaxLength(64);
-
                 b.Property<string>("OriginalName")
                     .IsRequired()
                     .HasMaxLength(256);
