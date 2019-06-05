@@ -27,7 +27,7 @@ namespace nhitomi.Globalization
             },
             downloadMessage = new
             {
-                description = "위의 링크를 클릭해서 `{doujin.Name}`을(를) 다운로드 하실 수 있습니다."
+                description = "위의 링크를 클릭해서 `{doujin.OriginalName}`을(를) 다운로드 하실 수 있습니다."
             },
             helpMessage = new
             {

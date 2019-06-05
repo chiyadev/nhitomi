@@ -26,10 +26,10 @@ namespace nhitomi.Globalization
                 collectionDeleted = "**nhitomi**: Deleted collection `{collection.Name}`.",
                 collectionSorted = "**nhitomi**: Sorted collection `{collection.Name}` by `{attribute}`.",
 
-                addedToCollection = "**nhitomi**: Added `{doujin.Name}` to `{collection.Name}`.",
-                removedFromCollection = "**nhitomi**: Removed `{doujin.Name}` from `{collection.Name}`.",
-                alreadyInCollection = "**nhitomi**: `{doujin.Name}` already exists in `{collection.Name}`.",
-                notInCollection = "**nhitomi**: `{doujin.Name}` was not found in `{collection.Name}`."
+                addedToCollection = "**nhitomi**: Added `{doujin.OriginalName}` to `{collection.Name}`.",
+                removedFromCollection = "**nhitomi**: Removed `{doujin.OriginalName}` from `{collection.Name}`.",
+                alreadyInCollection = "**nhitomi**: `{doujin.OriginalName}` already exists in `{collection.Name}`.",
+                notInCollection = "**nhitomi**: `{doujin.OriginalName}` was not found in `{collection.Name}`."
             },
             doujinMessage = new
             {
@@ -51,8 +51,8 @@ namespace nhitomi.Globalization
             },
             downloadMessage = new
             {
-                title = "**{doujin.Source}**: {doujin.Name}",
-                text = "Click the link above to start downloading `{doujin.Name}`."
+                title = "**{doujin.Source}**: {doujin.OriginalName}",
+                text = "Click the link above to start downloading `{doujin.OriginalName}`."
             },
             collectionMessage = new
             {
