@@ -49,7 +49,6 @@ namespace nhitomi.Core.Clients
                             $"but actual value was {(y == null ? "null" : "not null")}.");
 
                     // compare the retrieved doujin with the known value
-                    Compare(x.GalleryUrl, y.GalleryUrl, nameof(DoujinInfo.GalleryUrl));
                     Compare(x.PrettyName, y.PrettyName, nameof(DoujinInfo.PrettyName));
                     Compare(x.OriginalName, y.OriginalName, nameof(DoujinInfo.OriginalName));
                     Compare(x.UploadTime, y.UploadTime, nameof(DoujinInfo.UploadTime));

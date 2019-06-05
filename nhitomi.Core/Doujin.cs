@@ -16,12 +16,6 @@ namespace nhitomi.Core
         public Guid AccessId { get; set; }
 
         /// <summary>
-        /// The URL at which this doujinshi was initially found at.
-        /// </summary>
-        [Required, MaxLength(64)]
-        public string GalleryUrl { get; set; }
-
-        /// <summary>
         /// Prettified name of the doujinshi.
         /// This is usually English.
         /// </summary>

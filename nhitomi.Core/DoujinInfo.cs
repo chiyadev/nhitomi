@@ -6,8 +6,6 @@ namespace nhitomi.Core
 {
     public class DoujinInfo
     {
-        public string GalleryUrl { get; set; }
-
         public string PrettyName { get; set; }
         public string OriginalName { get; set; }
 
@@ -31,8 +29,6 @@ namespace nhitomi.Core
 
         public Doujin ToDoujin() => new Doujin
         {
-            GalleryUrl = GalleryUrl,
-
             // ensure both are not null
             PrettyName = string.IsNullOrWhiteSpace(PrettyName) ? OriginalName : PrettyName,
             OriginalName = string.IsNullOrWhiteSpace(OriginalName) ? PrettyName : OriginalName,

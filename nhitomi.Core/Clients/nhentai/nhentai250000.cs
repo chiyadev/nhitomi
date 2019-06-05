@@ -9,7 +9,6 @@ namespace nhitomi.Core.Clients.nhentai
 
         public override DoujinInfo KnownValue { get; } = new DoujinInfo
         {
-            GalleryUrl = "https://nhentai.net/g/250000/",
             PrettyName =
                 "Onna no Karada ni Natta Ore wa Danshikou no Shuugaku Ryokou de, Classmate 30-ninZenin to Yarimashita.",
             OriginalName = "女の体になった俺は男子校の修学旅行で、クラスメイト30人全員とヤリました。",

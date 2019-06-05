@@ -9,7 +9,6 @@ namespace nhitomi.Core.Clients.Hitomi
 
         public override DoujinInfo KnownValue { get; } = new DoujinInfo
         {
-            GalleryUrl = "https://hitomi.la/galleries/1425386.html",
             PrettyName = "ALGOLAGNIA",
             OriginalName = "ALGOLAGNIA",
             Artist = "ukyo rst",

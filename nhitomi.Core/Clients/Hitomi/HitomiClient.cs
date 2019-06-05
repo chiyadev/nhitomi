@@ -69,6 +69,8 @@ namespace nhitomi.Core.Clients.Hitomi
         static readonly Regex _languageHrefRegex = new Regex(@"index-(?<language>\w+)-\d+",
             RegexOptions.Compiled | RegexOptions.Singleline);
 
+        public string GetGalleryUrl(Doujin doujin) => $"https://hitomi.la/galleries/{doujin.SourceId}.html";
+
         public async Task<DoujinInfo> GetAsync(string id, CancellationToken cancellationToken = default)
         {
             if (!int.TryParse(id, out var intId))
@@ -127,8 +129,6 @@ namespace nhitomi.Core.Clients.Hitomi
 
             var doujin = new DoujinInfo
             {
-                GalleryUrl = $"https://hitomi.la/galleries/{id}.html",
-
                 PrettyName = prettyName,
                 OriginalName = originalName,
 

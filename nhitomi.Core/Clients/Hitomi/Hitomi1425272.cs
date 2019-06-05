@@ -9,7 +9,6 @@ namespace nhitomi.Core.Clients.Hitomi
 
         public override DoujinInfo KnownValue { get; } = new DoujinInfo
         {
-            GalleryUrl = "https://hitomi.la/galleries/1425272.html",
             PrettyName = "Betsu ni Kimi to Blend Shitai Wake ja Nai kara ne...",
             OriginalName = "Betsu ni Kimi to Blend Shitai Wake ja Nai kara ne...",
             Artist = "staryume",
