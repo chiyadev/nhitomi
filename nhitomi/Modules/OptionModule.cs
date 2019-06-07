@@ -121,7 +121,15 @@ namespace nhitomi.Modules
                     var channel = await _db.GetFeedChannelAsync(_context.GuildSettings.Id, _context.Channel.Id,
                         cancellationToken);
 
-                    foreach (var t in await _db.GetTagsAsync(tag, cancellationToken))
+                    var tags = await _db.GetTagsAsync(tag, cancellationToken);
+
+                    if (tags.Length == 0)
+                    {
+                        await _context.ReplyAsync("messages.tagNotFound", new {tag});
+                        return;
+                    }
+
+                    foreach (var t in tags)
                     {
                         var tagRef = channel.Tags.FirstOrDefault(x => x.TagId == t.Id);
 
