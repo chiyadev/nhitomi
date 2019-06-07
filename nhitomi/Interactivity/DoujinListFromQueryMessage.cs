@@ -28,7 +28,10 @@ namespace nhitomi.Interactivity
             protected override Task<Doujin[]> GetValuesAsync(int offset,
                 CancellationToken cancellationToken = default) =>
                 _db.GetDoujinsAsync(x => x
-                    .FullTextSearch(_db, Message._query)
+                    .FullTextSearch(_db, new DoujinSearchArguments
+                    {
+                        Query = Message._query
+                    })
                     .Skip(offset)
                     .Take(10));
         }
