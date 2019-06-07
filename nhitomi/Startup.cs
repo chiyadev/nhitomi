@@ -62,7 +62,8 @@ namespace nhitomi
                 .AddHostedService<ReactionHandlerService>()
                 .AddHostedService<StatusUpdateService>()
                 .AddHostedService<LogHandlerService>()
-                .AddHostedService<GuildSettingsSyncService>();
+                .AddHostedService<GuildSettingsSyncService>()
+                .AddHostedService<FeedChannelUpdateService>();
 
             // http server
             services

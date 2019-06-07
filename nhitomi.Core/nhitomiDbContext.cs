@@ -33,6 +33,8 @@ namespace nhitomi.Core
 
         Task<Guild> GetGuildAsync(ulong guildId, CancellationToken cancellationToken = default);
         Task<Guild[]> GetGuildsAsync(ulong[] guildIds, CancellationToken cancellationToken = default);
+
+        Task<FeedChannel[]> GetFeedChannelsAsync(CancellationToken cancellationToken = default);
     }
 
     public class nhitomiDbContext : DbContext, IDatabase
@@ -41,6 +43,7 @@ namespace nhitomi.Core
         public DbSet<Tag> Tags { get; set; }
         public DbSet<Collection> Collections { get; set; }
         public DbSet<Guild> Guilds { get; set; }
+        public DbSet<FeedChannel> FeedChannels { get; set; }
 
         public nhitomiDbContext(DbContextOptions<nhitomiDbContext> options) : base(options)
         {
@@ -207,6 +210,13 @@ namespace nhitomi.Core
 
             return guilds.ToArray();
         }
+
+        public Task<FeedChannel[]> GetFeedChannelsAsync(CancellationToken cancellationToken = default) =>
+            Query<FeedChannel>()
+                .Include(c => c.Guild)
+                .Include(c => c.LastDoujin)
+                .Include(c => c.Tags).ThenInclude(x => x.Tag)
+                .ToArrayAsync(cancellationToken);
     }
 
     public sealed class nhitomiDbContextDesignTimeFactory : IDesignTimeDbContextFactory<nhitomiDbContext>

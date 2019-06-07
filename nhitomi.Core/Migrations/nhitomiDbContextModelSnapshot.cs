@@ -108,13 +108,15 @@ namespace nhitomi.Core.Migrations
 
                 b.Property<int>("LastDoujinId");
 
+                b.Property<int>("WhitelistType");
+
                 b.HasKey("Id");
 
                 b.HasIndex("GuildId");
 
                 b.HasIndex("LastDoujinId");
 
-                b.ToTable("FeedChannel");
+                b.ToTable("FeedChannels");
             });
 
             modelBuilder.Entity("nhitomi.Core.FeedChannelTag", b =>

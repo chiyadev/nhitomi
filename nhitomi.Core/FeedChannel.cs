@@ -4,6 +4,19 @@ using Microsoft.EntityFrameworkCore;
 
 namespace nhitomi.Core
 {
+    public enum FeedChannelWhitelistType
+    {
+        /// <summary>
+        /// Doujin must have all tags specified for a feed channel.
+        /// </summary>
+        All,
+
+        /// <summary>
+        /// Doujin must have any of the tags specified for a feed channel.
+        /// </summary>
+        Any
+    }
+
     public class FeedChannel
     {
         [Key] public ulong Id { get; set; }
@@ -15,6 +28,8 @@ namespace nhitomi.Core
         public int LastDoujinId { get; set; }
 
         public ICollection<FeedChannelTag> Tags { get; set; }
+
+        public FeedChannelWhitelistType WhitelistType { get; set; }
 
         public static void Describe(ModelBuilder model)
         {
