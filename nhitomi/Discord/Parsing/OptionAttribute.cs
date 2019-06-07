@@ -23,11 +23,11 @@ namespace nhitomi.Discord.Parsing
         {
             var list = new List<string>
             {
-                $"-{Name}"
+                $"--{Name}"
             };
 
             if (Character != null)
-                list.Add($"-{Character}");
+                list.Add($"--{Character}");
 
             return list.ToArray();
         }
