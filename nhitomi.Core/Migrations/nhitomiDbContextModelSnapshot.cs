@@ -106,6 +106,8 @@ namespace nhitomi.Core.Migrations
 
                 b.Property<string>("Language");
 
+                b.Property<bool?>("SearchQualityFilter");
+
                 b.HasKey("Id");
 
                 b.ToTable("Guilds");

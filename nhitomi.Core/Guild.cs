@@ -9,6 +9,8 @@ namespace nhitomi.Core
 
         public string Language { get; set; }
 
+        public bool? SearchQualityFilter { get; set; }
+
         public static void Describe(ModelBuilder model)
         {
         }
