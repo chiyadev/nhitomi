@@ -80,9 +80,10 @@ namespace nhitomi.Discord.Parsing
 
             // build parameter regex
             var bindingExpression = method.GetCustomAttribute<BindingAttribute>()?.Expression;
+            var requiredParameters = _parameterDict.Where(x => !x.Value.IsOptional).Select(x => x.Key);
 
-            if (bindingExpression == null && _parameters.Length != 0)
-                bindingExpression = $"[{string.Join("] [", _parameterDict.Keys)}]";
+            if (bindingExpression == null && _parameters.Any(p => !p.IsOptional))
+                bindingExpression = $"[{string.Join("] [", requiredParameters)}]";
 
             _parameterRegex = new Regex(BuildParameterPattern(bindingExpression ?? ""), _options);
 
