@@ -304,20 +304,19 @@ namespace nhitomi.Discord.Parsing
 
             if (type == typeof(bool))
             {
-                if (bool.TryParse(str, out var val))
-                {
-                    value = val;
-                    return true;
-                }
-
                 if (str != null)
                 {
                     switch (str.ToLowerInvariant())
                     {
+                        case "0":
                         case "on":
+                        case "true":
                             value = true;
                             return true;
+
+                        case "1":
                         case "off":
+                        case "false":
                             value = false;
                             return true;
                     }
