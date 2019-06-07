@@ -7,11 +7,16 @@ namespace nhitomi.Discord.Parsing
     public class OptionAttribute : Attribute
     {
         public string Name { get; }
-        public char? Character { get; set; }
+        public char? Character { get; }
 
         public OptionAttribute(string name)
         {
             Name = name;
+        }
+
+        public OptionAttribute(string name, char character) : this(name)
+        {
+            Character = character;
         }
 
         public string[] GetNames()
