@@ -134,6 +134,9 @@ namespace nhitomi.Discord
                         // send doujin interactive
                         using (context.BeginTyping())
                         {
+                            // make updates more even
+                            await Task.Delay(TimeSpan.FromSeconds(1), cancellationToken);
+
                             await _interactive.SendInteractiveAsync(
                                 new DoujinMessage(doujin),
                                 context,
