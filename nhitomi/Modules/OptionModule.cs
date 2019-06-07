@@ -38,7 +38,7 @@ namespace nhitomi.Modules
                     localization = Localization.GetLocalization(language)
                 });
 
-                // update immediately
+                // update cache
                 _settingsCache[_context.Channel] = guild;
             }
             else
