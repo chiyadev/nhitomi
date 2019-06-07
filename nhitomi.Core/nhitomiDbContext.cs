@@ -52,6 +52,9 @@ namespace nhitomi.Core
 
             Doujin.Describe(modelBuilder);
             Collection.Describe(modelBuilder);
+            Tag.Describe(modelBuilder);
+            Guild.Describe(modelBuilder);
+            FeedChannel.Describe(modelBuilder);
         }
 
         public IQueryable<TEntity> Query<TEntity>(bool readOnly = true) where TEntity : class => Set<TEntity>();

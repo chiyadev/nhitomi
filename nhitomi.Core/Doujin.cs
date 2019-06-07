@@ -70,6 +70,12 @@ namespace nhitomi.Core
         /// </summary>
         public ICollection<CollectionRef> Collections { get; set; }
 
+        /// <summary>
+        /// Gets the feed channels that sent this doujin.
+        /// This is for navigation only and should not be included in queries.
+        /// </summary>
+        public ICollection<FeedChannel> FeedChannels { get; set; }
+
         public static void Describe(ModelBuilder model)
         {
             model.Entity<Doujin>(doujin =>
@@ -82,8 +88,6 @@ namespace nhitomi.Core
                 doujin.HasIndex(d => d.Source);
                 doujin.HasIndex(d => d.SourceId);
             });
-
-            Tag.Describe(model);
         }
     }
 

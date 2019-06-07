@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,6 +11,8 @@ namespace nhitomi.Core
         public string Language { get; set; }
 
         public bool? SearchQualityFilter { get; set; }
+
+        public ICollection<FeedChannel> FeedChannels { get; set; }
 
         public static void Describe(ModelBuilder model)
         {

@@ -99,6 +99,37 @@ namespace nhitomi.Core.Migrations
                 b.ToTable("Doujins");
             });
 
+            modelBuilder.Entity("nhitomi.Core.FeedChannel", b =>
+            {
+                b.Property<ulong>("Id")
+                    .ValueGeneratedOnAdd();
+
+                b.Property<ulong>("GuildId");
+
+                b.Property<int>("LastDoujinId");
+
+                b.HasKey("Id");
+
+                b.HasIndex("GuildId");
+
+                b.HasIndex("LastDoujinId");
+
+                b.ToTable("FeedChannel");
+            });
+
+            modelBuilder.Entity("nhitomi.Core.FeedChannelTag", b =>
+            {
+                b.Property<ulong>("FeedChannelId");
+
+                b.Property<int>("TagId");
+
+                b.HasKey("FeedChannelId", "TagId");
+
+                b.HasIndex("TagId");
+
+                b.ToTable("FeedChannelTag");
+            });
+
             modelBuilder.Entity("nhitomi.Core.Guild", b =>
             {
                 b.Property<ulong>("Id")
@@ -159,6 +190,32 @@ namespace nhitomi.Core.Migrations
                 b.HasOne("nhitomi.Core.Doujin", "Doujin")
                     .WithMany("Collections")
                     .HasForeignKey("DoujinId")
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            modelBuilder.Entity("nhitomi.Core.FeedChannel", b =>
+            {
+                b.HasOne("nhitomi.Core.Guild", "Guild")
+                    .WithMany("FeedChannels")
+                    .HasForeignKey("GuildId")
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                b.HasOne("nhitomi.Core.Doujin", "LastDoujin")
+                    .WithMany("FeedChannels")
+                    .HasForeignKey("LastDoujinId")
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            modelBuilder.Entity("nhitomi.Core.FeedChannelTag", b =>
+            {
+                b.HasOne("nhitomi.Core.FeedChannel", "FeedChannel")
+                    .WithMany("Tags")
+                    .HasForeignKey("FeedChannelId")
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                b.HasOne("nhitomi.Core.Tag", "Tag")
+                    .WithMany("FeedChannels")
+                    .HasForeignKey("TagId")
                     .OnDelete(DeleteBehavior.Cascade);
             });
 

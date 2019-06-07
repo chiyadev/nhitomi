@@ -32,6 +32,12 @@ namespace nhitomi.Core
 
         public ICollection<TagRef> Doujins { get; set; }
 
+        /// <summary>
+        /// Gets the feed channels that are configured to whitelist this tag.
+        /// This is for navigation only and should not be included in queries.
+        /// </summary>
+        public ICollection<FeedChannelTag> FeedChannels { get; set; }
+
         public override string ToString() => $"{Id} {Type} '{Value ?? "<null>"}'";
 
         public static void Describe(ModelBuilder model)
