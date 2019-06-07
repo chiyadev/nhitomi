@@ -29,7 +29,16 @@ namespace nhitomi.Globalization
                 addedToCollection = "**nhitomi**: Added `{doujin.OriginalName}` to `{collection.Name}`.",
                 removedFromCollection = "**nhitomi**: Removed `{doujin.OriginalName}` from `{collection.Name}`.",
                 alreadyInCollection = "**nhitomi**: `{doujin.OriginalName}` already exists in `{collection.Name}`.",
-                notInCollection = "**nhitomi**: `{doujin.OriginalName}` was not found in `{collection.Name}`."
+                notInCollection = "**nhitomi**: `{doujin.OriginalName}` was not found in `{collection.Name}`.",
+
+                localizationChanged = "**nhitomi**: Guild language is set to `{localization.Culture.NativeName}`!",
+                localizationNotFound = "**nhitomi**: Language `{language}` is not supported.",
+
+                qualityFilterChanged = "**nhitomi**: Search quality filter is now `{state:enabled|disabled}` " +
+                                       "by default.",
+
+                commandInvokeNotInGuild = "**nhitomi**: You can only use this command in a guild.",
+                notGuildAdmin = "**nhitomi**: You must be a guild administrator to use this command."
             },
             doujinMessage = new
             {

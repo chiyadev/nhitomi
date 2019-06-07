@@ -26,7 +26,7 @@ namespace nhitomi.Modules
         {
             if (!(_context.User is IGuildUser user))
             {
-                await _context.ReplyAsync("messages.notInGuild");
+                await _context.ReplyAsync("messages.commandInvokeNotInGuild");
                 return false;
             }
 
@@ -68,7 +68,7 @@ namespace nhitomi.Modules
             }
             else
             {
-                await _context.ReplyAsync("messages.localizationNotFound");
+                await _context.ReplyAsync("messages.localizationNotFound", new {language});
             }
         }
 
@@ -91,7 +91,7 @@ namespace nhitomi.Modules
             // update cache
             _settingsCache[_context.Channel] = guild;
 
-            await _context.ReplyAsync("messages.filterChanged", new {enabled});
+            await _context.ReplyAsync("messages.qualityFilterChanged", new {state = enabled});
         }
     }
 }
