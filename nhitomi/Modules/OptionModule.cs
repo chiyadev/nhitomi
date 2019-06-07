@@ -1,5 +1,6 @@
 using System.Threading;
 using System.Threading.Tasks;
+using Discord;
 using nhitomi.Core;
 using nhitomi.Discord;
 using nhitomi.Discord.Parsing;
@@ -21,9 +22,29 @@ namespace nhitomi.Modules
             _settingsCache = settingsCache;
         }
 
+        async Task<bool> EnsureGuildAdminAsync(CancellationToken cancellationToken = default)
+        {
+            if (!(_context.User is IGuildUser user))
+            {
+                await _context.ReplyAsync("messages.notInGuild");
+                return false;
+            }
+
+            if (!user.GuildPermissions.ManageGuild)
+            {
+                await _context.ReplyAsync("messages.notGuildAdmin");
+                return false;
+            }
+
+            return true;
+        }
+
         [Command("language")]
         public async Task LanguageAsync(string language, CancellationToken cancellationToken = default)
         {
+            if (!await EnsureGuildAdminAsync(cancellationToken))
+                return;
+
             // ensure language exists
             if (Localization.IsAvailable(language))
             {
@@ -54,6 +75,9 @@ namespace nhitomi.Modules
         [Command("filter")]
         public async Task FilterAsync(bool enabled, CancellationToken cancellationToken = default)
         {
+            if (!await EnsureGuildAdminAsync(cancellationToken))
+                return;
+
             Guild guild;
 
             do
