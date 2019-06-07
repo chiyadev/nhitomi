@@ -107,6 +107,12 @@ namespace nhitomi.Globalization
                     sort = "Sorts a collection by a doujin attribute.",
                     delete = "Deletes a collection, removing all doujins in it."
                 },
+                options = new
+                {
+                    heading = "Options",
+                    language = "Changes the interface language within a guild.",
+                    filter = "Enables or disables search quality filter."
+                },
                 aliases = new
                 {
                     heading = "Command Aliases"

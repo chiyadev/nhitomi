@@ -95,7 +95,14 @@ namespace nhitomi.Interactivity
                         break;
 
                     case HelpMessageSection.Other:
-                        path = path["aliases"];
+                        path = path["options"];
+
+                        embed.AddField($"— {path["heading"][l]} —", $@"
+- {prefix}option language `name` — {path["language"][l]}
+- {prefix}option filter `on or off` — {path["filter"][l]}
+".Trim());
+
+                        path = path.Up["aliases"];
 
                         embed.AddField($"— {path["heading"][l]} —", $@"
 {prefix}**h** — help
