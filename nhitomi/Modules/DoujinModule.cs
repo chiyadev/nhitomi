@@ -43,7 +43,7 @@ namespace nhitomi.Modules
             _interactive.SendInteractiveAsync(new DoujinListFromSourceMessage(source), _context);
 
         [Command("search"), Binding("[query+]")]
-        public async Task SearchAsync(string query, bool? qualityFilter = default)
+        public async Task SearchAsync(string query, bool? filter = default)
         {
             if (string.IsNullOrEmpty(query))
             {
@@ -53,7 +53,7 @@ namespace nhitomi.Modules
 
             await _interactive.SendInteractiveAsync(new DoujinListFromQueryMessage(query)
             {
-                QualityFilter = qualityFilter ?? _context.GuildSettings.SearchQualityFilter ?? true
+                QualityFilter = filter ?? _context.GuildSettings.SearchQualityFilter ?? true
             }, _context);
         }
 

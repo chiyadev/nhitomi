@@ -12,10 +12,12 @@ namespace nhitomi.Discord.Parsing
         public OptionAttribute(string name)
         {
             Name = name;
+            Character = name[0];
         }
 
-        public OptionAttribute(string name, char character) : this(name)
+        public OptionAttribute(string name, char character)
         {
+            Name = name;
             Character = character;
         }
 

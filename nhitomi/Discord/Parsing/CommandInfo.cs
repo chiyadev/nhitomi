@@ -261,8 +261,11 @@ namespace nhitomi.Discord.Parsing
             foreach (var parameter in _parameters)
             {
                 // required parameter is missing
-                if (!argStrings.TryGetValue(parameter.Name, out var value) && !parameter.IsOptional)
-                    return false;
+                if (!argStrings.TryGetValue(parameter.Name, out var value))
+                {
+                    if (!parameter.IsOptional)
+                        return false;
+                }
 
                 // parse value
                 if (TryParse(parameter, value, out var obj))
@@ -298,7 +301,29 @@ namespace nhitomi.Discord.Parsing
                 return true;
             }
 
-            if (type == typeof(int))
+            if (type == typeof(bool))
+            {
+                if (bool.TryParse(str, out var val))
+                {
+                    value = val;
+                    return true;
+                }
+
+                if (str != null)
+                {
+                    switch (str.ToLowerInvariant())
+                    {
+                        case "on":
+                            value = true;
+                            return true;
+                        case "off":
+                            value = false;
+                            return true;
+                    }
+                }
+            }
+
+            else if (type == typeof(int))
             {
                 if (int.TryParse(str, out var val))
                 {
@@ -314,6 +339,12 @@ namespace nhitomi.Discord.Parsing
                     value = val;
                     return true;
                 }
+            }
+
+            else if (Nullable.GetUnderlyingType(type) != null)
+            {
+                if (TryParse(Nullable.GetUnderlyingType(type), str, out value))
+                    return true;
             }
 
             else if (type.IsArray)
