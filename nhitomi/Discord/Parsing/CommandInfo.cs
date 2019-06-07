@@ -224,7 +224,7 @@ namespace nhitomi.Discord.Parsing
             str = str.Substring(nameMatch.Index + nameMatch.Length);
 
             // split required parameters and options
-            var hyphenIndex = str.IndexOf('-');
+            var hyphenIndex = str.IndexOf("--", StringComparison.Ordinal);
             var paramStr = hyphenIndex == -1 ? str : str.Substring(0, hyphenIndex);
             var optionStr = hyphenIndex == -1 ? null : str.Substring(hyphenIndex);
 
