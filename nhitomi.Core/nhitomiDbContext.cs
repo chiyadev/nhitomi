@@ -15,7 +15,7 @@ namespace nhitomi.Core
         EntityEntry<TEntity> Add<TEntity>(TEntity entity) where TEntity : class;
         EntityEntry<TEntity> Remove<TEntity>(TEntity entity) where TEntity : class;
 
-        IQueryable<TEntity> Query<TEntity>(bool readOnly = true) where TEntity : class;
+        IQueryable<TEntity> Query<TEntity>() where TEntity : class;
 
         Task<bool> SaveAsync(CancellationToken cancellationToken = default);
 
@@ -25,6 +25,8 @@ namespace nhitomi.Core
         Task<Doujin[]> GetDoujinsAsync(QueryFilterDelegate<Doujin> query,
             CancellationToken cancellationToken = default);
 
+        Task<Tag[]> GetTagsAsync(string value, CancellationToken cancellationToken = default);
+
         Task<Collection> GetCollectionAsync(ulong userId, string name, CancellationToken cancellationToken = default);
         Task<Collection[]> GetCollectionsAsync(ulong userId, CancellationToken cancellationToken = default);
 
@@ -33,6 +35,9 @@ namespace nhitomi.Core
 
         Task<Guild> GetGuildAsync(ulong guildId, CancellationToken cancellationToken = default);
         Task<Guild[]> GetGuildsAsync(ulong[] guildIds, CancellationToken cancellationToken = default);
+
+        Task<FeedChannel> GetFeedChannelAsync(ulong guildId, ulong channelId,
+            CancellationToken cancellationToken = default);
 
         Task<FeedChannel[]> GetFeedChannelsAsync(CancellationToken cancellationToken = default);
     }
@@ -60,7 +65,7 @@ namespace nhitomi.Core
             FeedChannel.Describe(modelBuilder);
         }
 
-        public IQueryable<TEntity> Query<TEntity>(bool readOnly = true) where TEntity : class => Set<TEntity>();
+        public new IQueryable<TEntity> Query<TEntity>() where TEntity : class => Set<TEntity>();
 
         public async Task<bool> SaveAsync(CancellationToken cancellationToken = default)
         {
@@ -121,6 +126,11 @@ namespace nhitomi.Core
 
             return doujins;
         }
+
+        public Task<Tag[]> GetTagsAsync(string value, CancellationToken cancellationToken = default) =>
+            Query<Tag>()
+                .Where(t => t.Value == value)
+                .ToArrayAsync(cancellationToken);
 
         // in some queries, do not populate tags using Include.
         // when using Include with fulltext searching, EF Core automatically
@@ -209,6 +219,36 @@ namespace nhitomi.Core
             }
 
             return guilds.ToArray();
+        }
+
+        public async Task<FeedChannel> GetFeedChannelAsync(ulong guildId, ulong channelId,
+            CancellationToken cancellationToken = default)
+        {
+            var channel = await Query<FeedChannel>()
+                .Include(c => c.Guild)
+                .Include(c => c.LastDoujin)
+                .Include(c => c.Tags).ThenInclude(x => x.Tag)
+                .FirstOrDefaultAsync(c => c.Id == channelId, cancellationToken);
+
+            if (channel == null)
+            {
+                var lastDoujin = await Query<Doujin>()
+                    .OrderByDescending(d => d.UploadTime)
+                    .FirstOrDefaultAsync(cancellationToken);
+
+                // create entity for this channel
+                channel = new FeedChannel
+                {
+                    Id = channelId,
+                    Guild = await GetGuildAsync(guildId, cancellationToken),
+                    LastDoujin = lastDoujin,
+                    Tags = new List<FeedChannelTag>()
+                };
+
+                Add(channel);
+            }
+
+            return channel;
         }
 
         public Task<FeedChannel[]> GetFeedChannelsAsync(CancellationToken cancellationToken = default) =>

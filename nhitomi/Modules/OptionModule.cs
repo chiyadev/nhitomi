@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Discord;
@@ -22,17 +23,18 @@ namespace nhitomi.Modules
             _settingsCache = settingsCache;
         }
 
-        async Task<bool> EnsureGuildAdminAsync(CancellationToken cancellationToken = default)
+        static async Task<bool> EnsureGuildAdminAsync(IDiscordContext context,
+            CancellationToken cancellationToken = default)
         {
-            if (!(_context.User is IGuildUser user))
+            if (!(context.User is IGuildUser user))
             {
-                await _context.ReplyAsync("messages.commandInvokeNotInGuild");
+                await context.ReplyAsync("messages.commandInvokeNotInGuild");
                 return false;
             }
 
             if (!user.GuildPermissions.ManageGuild)
             {
-                await _context.ReplyAsync("messages.notGuildAdmin");
+                await context.ReplyAsync("messages.notGuildAdmin");
                 return false;
             }
 
@@ -42,7 +44,7 @@ namespace nhitomi.Modules
         [Command("language")]
         public async Task LanguageAsync(string language, CancellationToken cancellationToken = default)
         {
-            if (!await EnsureGuildAdminAsync(cancellationToken))
+            if (!await EnsureGuildAdminAsync(_context, cancellationToken))
                 return;
 
             // ensure language exists
@@ -75,7 +77,7 @@ namespace nhitomi.Modules
         [Command("filter")]
         public async Task FilterAsync(bool enabled, CancellationToken cancellationToken = default)
         {
-            if (!await EnsureGuildAdminAsync(cancellationToken))
+            if (!await EnsureGuildAdminAsync(_context, cancellationToken))
                 return;
 
             Guild guild;
@@ -92,6 +94,104 @@ namespace nhitomi.Modules
             _settingsCache[_context.Channel] = guild;
 
             await _context.ReplyAsync("messages.qualityFilterChanged", new {state = enabled});
+        }
+
+        [Module("feed")]
+        public class FeedModule
+        {
+            readonly IDiscordContext _context;
+            readonly IDatabase _db;
+
+            public FeedModule(IDiscordContext context, IDatabase db)
+            {
+                _context = context;
+                _db = db;
+            }
+
+            [Command("add"), Binding("[tag+]")]
+            public async Task AddAsync(string tag, CancellationToken cancellationToken = default)
+            {
+                if (!await EnsureGuildAdminAsync(_context, cancellationToken))
+                    return;
+
+                var added = false;
+
+                do
+                {
+                    var channel = await _db.GetFeedChannelAsync(_context.GuildSettings.Id, _context.Channel.Id,
+                        cancellationToken);
+
+                    foreach (var t in await _db.GetTagsAsync(tag, cancellationToken))
+                    {
+                        var tagRef = channel.Tags.FirstOrDefault(x => x.TagId == t.Id);
+
+                        if (tagRef == null)
+                        {
+                            channel.Tags.Add(new FeedChannelTag
+                            {
+                                Tag = t
+                            });
+                            added = true;
+                        }
+                    }
+                }
+                while (!await _db.SaveAsync(cancellationToken));
+
+                if (added)
+                    await _context.ReplyAsync("messages.feedTagAdded", new {tag});
+                else
+                    await _context.ReplyAsync("messages.feedTagAlreadyAdded", new {tag});
+            }
+
+            [Command("remove"), Binding("[tag+]")]
+            public async Task RemoveAsync(string tag, CancellationToken cancellationToken = default)
+            {
+                if (!await EnsureGuildAdminAsync(_context, cancellationToken))
+                    return;
+
+                var removed = false;
+
+                do
+                {
+                    var channel = await _db.GetFeedChannelAsync(_context.GuildSettings.Id, _context.Channel.Id,
+                        cancellationToken);
+
+                    foreach (var t in await _db.GetTagsAsync(tag, cancellationToken))
+                    {
+                        var tagRef = channel.Tags.FirstOrDefault(x => x.TagId == t.Id);
+
+                        if (tagRef != null)
+                        {
+                            channel.Tags.Remove(tagRef);
+                            removed = true;
+                        }
+                    }
+                }
+                while (!await _db.SaveAsync(cancellationToken));
+
+                if (removed)
+                    await _context.ReplyAsync("messages.feedTagRemoved", new {tag});
+                else
+                    await _context.ReplyAsync("messages.feedTagNotRemoved", new {tag});
+            }
+
+            [Command("mode")]
+            public async Task ModeAsync(FeedChannelWhitelistType type, CancellationToken cancellationToken = default)
+            {
+                if (!await EnsureGuildAdminAsync(_context, cancellationToken))
+                    return;
+
+                do
+                {
+                    var channel = await _db.GetFeedChannelAsync(_context.GuildSettings.Id, _context.Channel.Id,
+                        cancellationToken);
+
+                    channel.WhitelistType = type;
+                }
+                while (!await _db.SaveAsync(cancellationToken));
+
+                await _context.ReplyAsync("messages.feedModeChanged", new {type});
+            }
         }
     }
 }
