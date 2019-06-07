@@ -50,5 +50,24 @@ namespace nhitomi.Modules
                 await _context.ReplyAsync("messages.localizationNotFound");
             }
         }
+
+        [Command("filter")]
+        public async Task FilterAsync(bool enabled, CancellationToken cancellationToken = default)
+        {
+            Guild guild;
+
+            do
+            {
+                guild = await _db.GetGuildAsync(_context.GuildSettings.Id, cancellationToken);
+
+                guild.SearchQualityFilter = enabled;
+            }
+            while (!await _db.SaveAsync(cancellationToken));
+
+            // update cache
+            _settingsCache[_context.Channel] = guild;
+
+            await _context.ReplyAsync("messages.filterChanged", new {enabled});
+        }
     }
 }
