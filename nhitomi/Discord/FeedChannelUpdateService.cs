@@ -101,17 +101,17 @@ namespace nhitomi.Discord
                                 {
                                     case FeedChannelWhitelistType.All:
                                         query = q => q
-                                            .Where(d => d.UploadTime > channel.LastDoujin.UploadTime &&
+                                            .Where(d => d.ProcessTime > channel.LastDoujin.ProcessTime &&
                                                         d.Tags.All(x => tagIds.Contains(x.TagId)))
-                                            .OrderBy(d => d.UploadTime)
+                                            .OrderBy(d => d.ProcessTime)
                                             .Take(_chunkLoadCount);
                                         break;
 
                                     case FeedChannelWhitelistType.Any:
                                         query = q => q
-                                            .Where(d => d.UploadTime > channel.LastDoujin.UploadTime &&
+                                            .Where(d => d.ProcessTime > channel.LastDoujin.ProcessTime &&
                                                         d.Tags.Any(x => tagIds.Contains(x.TagId)))
-                                            .OrderBy(d => d.UploadTime)
+                                            .OrderBy(d => d.ProcessTime)
                                             .Take(_chunkLoadCount);
                                         break;
                                 }

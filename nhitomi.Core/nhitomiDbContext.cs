@@ -233,7 +233,7 @@ namespace nhitomi.Core
             if (channel == null)
             {
                 var lastDoujin = await Query<Doujin>()
-                    .OrderByDescending(d => d.UploadTime)
+                    .OrderByDescending(d => d.ProcessTime)
                     .FirstOrDefaultAsync(cancellationToken);
 
                 // create entity for this channel
