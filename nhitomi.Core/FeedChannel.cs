@@ -7,14 +7,14 @@ namespace nhitomi.Core
     public enum FeedChannelWhitelistType
     {
         /// <summary>
-        /// Doujin must have all tags specified for a feed channel.
-        /// </summary>
-        All,
-
-        /// <summary>
         /// Doujin must have any of the tags specified for a feed channel.
         /// </summary>
-        Any
+        Any,
+
+        /// <summary>
+        /// Doujin must have all tags specified for a feed channel.
+        /// </summary>
+        All
     }
 
     public class FeedChannel
