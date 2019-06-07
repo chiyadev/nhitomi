@@ -24,22 +24,26 @@ namespace nhitomi.Modules
         [Command("language")]
         public async Task LanguageAsync(string language, CancellationToken cancellationToken = default)
         {
-            var guild = await _db.GetGuildAsync(_context.GuildSettings.Id, cancellationToken);
-
             // ensure language exists
             if (Localization.IsAvailable(language))
             {
-                guild.Language = language;
+                Guild guild;
 
-                await _db.SaveAsync(cancellationToken);
+                do
+                {
+                    guild = await _db.GetGuildAsync(_context.GuildSettings.Id, cancellationToken);
+
+                    guild.Language = language;
+                }
+                while (!await _db.SaveAsync(cancellationToken));
+
+                // update cache
+                _settingsCache[_context.Channel] = guild;
 
                 await _context.ReplyAsync("messages.localizationChanged", new
                 {
                     localization = Localization.GetLocalization(language)
                 });
-
-                // update cache
-                _settingsCache[_context.Channel] = guild;
             }
             else
             {

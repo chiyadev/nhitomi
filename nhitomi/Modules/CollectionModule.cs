@@ -24,14 +24,14 @@ namespace nhitomi.Modules
         }
 
         [Command("list")]
-        public Task ListAsync() =>
-            _interactive.SendInteractiveAsync(new CollectionListMessage(_context.User.Id), _context);
+        public Task ListAsync(CancellationToken cancellationToken = default) =>
+            _interactive.SendInteractiveAsync(new CollectionListMessage(_context.User.Id), _context, cancellationToken);
 
         [Command("view", BindName = false), Binding("[name]")]
-        public async Task ViewAsync(string name)
+        public async Task ViewAsync(string name, CancellationToken cancellationToken = default)
         {
             // check if collection exists first
-            var collection = await _database.GetCollectionAsync(_context.User.Id, name);
+            var collection = await _database.GetCollectionAsync(_context.User.Id, name, cancellationToken);
 
             if (collection == null)
             {
@@ -39,7 +39,10 @@ namespace nhitomi.Modules
                 return;
             }
 
-            await _interactive.SendInteractiveAsync(new CollectionDoujinListMessage(_context.User.Id, name), _context);
+            await _interactive.SendInteractiveAsync(
+                new CollectionDoujinListMessage(_context.User.Id, name),
+                _context,
+                cancellationToken);
         }
 
         [Command("add", BindName = false), Binding("[name] add|a [source] [id]")]
@@ -129,13 +132,13 @@ namespace nhitomi.Modules
         }
 
         [Command("delete", BindName = false), Binding("[name] delete|d")]
-        public async Task DeleteAsync(string name)
+        public async Task DeleteAsync(string name, CancellationToken cancellationToken = default)
         {
             Collection collection;
 
             do
             {
-                collection = await _database.GetCollectionAsync(_context.User.Id, name);
+                collection = await _database.GetCollectionAsync(_context.User.Id, name, cancellationToken);
 
                 if (collection == null)
                 {
@@ -145,19 +148,19 @@ namespace nhitomi.Modules
 
                 _database.Remove(collection);
             }
-            while (!await _database.SaveAsync());
+            while (!await _database.SaveAsync(cancellationToken));
 
             await _context.ReplyAsync("messages.collectionDeleted", new {collection});
         }
 
         [Command("sort", BindName = false), Binding("[name] sort|s [sort]")]
-        public async Task SortAsync(string name, CollectionSort sort)
+        public async Task SortAsync(string name, CollectionSort sort, CancellationToken cancellationToken = default)
         {
             Collection collection;
 
             do
             {
-                collection = await _database.GetCollectionAsync(_context.User.Id, name);
+                collection = await _database.GetCollectionAsync(_context.User.Id, name, cancellationToken);
 
                 if (collection == null)
                 {
@@ -167,7 +170,7 @@ namespace nhitomi.Modules
 
                 collection.Sort = sort;
             }
-            while (!await _database.SaveAsync());
+            while (!await _database.SaveAsync(cancellationToken));
 
             await _context.ReplyAsync("messages.collectionSorted", new {collection, attribute = sort});
         }

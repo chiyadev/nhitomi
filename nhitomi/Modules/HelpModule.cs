@@ -1,3 +1,4 @@
+using System.Threading;
 using System.Threading.Tasks;
 using nhitomi.Discord;
 using nhitomi.Discord.Parsing;
@@ -18,6 +19,7 @@ namespace nhitomi.Modules
         }
 
         [Command("help")]
-        public Task HelpAsync() => _interactive.SendInteractiveAsync(new HelpMessage(), _context);
+        public Task HelpAsync(CancellationToken cancellationToken = default) =>
+            _interactive.SendInteractiveAsync(new HelpMessage(), _context, cancellationToken);
     }
 }

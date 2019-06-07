@@ -1,3 +1,4 @@
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
 using nhitomi.Core;
@@ -25,9 +26,9 @@ namespace nhitomi.Modules
         }
 
         [Command("get")]
-        public async Task GetAsync(string source, string id)
+        public async Task GetAsync(string source, string id, CancellationToken cancellationToken = default)
         {
-            var doujin = await _database.GetDoujinAsync(source, id);
+            var doujin = await _database.GetDoujinAsync(source, id, cancellationToken);
 
             if (doujin == null)
             {
@@ -35,15 +36,16 @@ namespace nhitomi.Modules
                 return;
             }
 
-            await _interactive.SendInteractiveAsync(new DoujinMessage(doujin), _context);
+            await _interactive.SendInteractiveAsync(new DoujinMessage(doujin), _context, cancellationToken);
         }
 
         [Command("from")]
-        public Task FromAsync(string source) =>
-            _interactive.SendInteractiveAsync(new DoujinListFromSourceMessage(source), _context);
+        public Task FromAsync(string source, CancellationToken cancellationToken = default) =>
+            _interactive.SendInteractiveAsync(new DoujinListFromSourceMessage(source), _context, cancellationToken);
 
         [Command("search"), Binding("[query+]")]
-        public async Task SearchAsync(string query, bool? filter = default)
+        public async Task SearchAsync(string query, bool? filter = default,
+            CancellationToken cancellationToken = default)
         {
             if (string.IsNullOrEmpty(query))
             {
@@ -51,14 +53,17 @@ namespace nhitomi.Modules
                 return;
             }
 
-            await _interactive.SendInteractiveAsync(new DoujinListFromQueryMessage(query)
-            {
-                QualityFilter = filter ?? _context.GuildSettings.SearchQualityFilter ?? true
-            }, _context);
+            await _interactive.SendInteractiveAsync(
+                new DoujinListFromQueryMessage(query)
+                {
+                    QualityFilter = filter ?? _context.GuildSettings.SearchQualityFilter ?? true
+                },
+                _context,
+                cancellationToken);
         }
 
         [Command("download", Aliases = new[] {"dl"})]
-        public async Task DownloadAsync(string source, string id)
+        public async Task DownloadAsync(string source, string id, CancellationToken cancellationToken = default)
         {
             // allow downloading only for users of guild
             if (!_settings.Doujin.AllowNonGuildMemberDownloads)
@@ -74,7 +79,7 @@ namespace nhitomi.Modules
                 }
             }
 
-            var doujin = await _database.GetDoujinAsync(source, id);
+            var doujin = await _database.GetDoujinAsync(source, id, cancellationToken);
 
             if (doujin == null)
             {
@@ -82,7 +87,7 @@ namespace nhitomi.Modules
                 return;
             }
 
-            await _interactive.SendInteractiveAsync(new DownloadMessage(doujin), _context);
+            await _interactive.SendInteractiveAsync(new DownloadMessage(doujin), _context, cancellationToken);
         }
     }
 }
