@@ -30,8 +30,8 @@ namespace nhitomi.Discord
             {
                 if (channel is IGuildChannel guildChannel)
                 {
-                    if (TryGetValue(guildChannel.GuildId, out var localization))
-                        return localization;
+                    if (TryGetValue(guildChannel.GuildId, out var guild))
+                        return guild;
 
                     return new Guild
                     {
@@ -43,6 +43,13 @@ namespace nhitomi.Discord
                 {
                     Id = channel.Id
                 };
+            }
+            set
+            {
+                if (channel is IGuildChannel guildChannel)
+                    this[guildChannel.GuildId] = value;
+                else
+                    this[channel.Id] = value;
             }
         }
     }

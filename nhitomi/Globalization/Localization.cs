@@ -16,11 +16,13 @@ namespace nhitomi.Globalization
         public static Localization Default => GetLocalization("en");
 
         public static Localization GetLocalization(string culture) =>
-            // ReSharper disable once TailRecursiveCall
             // default to English if not found
             culture != null && _localizations.TryGetValue(culture, out var localization)
                 ? localization
                 : Default;
+
+        public static bool IsAvailable(string culture) =>
+            culture != null && _localizations.ContainsKey(culture);
 
         readonly Lazy<LocalizationDictionary> _dict;
 
