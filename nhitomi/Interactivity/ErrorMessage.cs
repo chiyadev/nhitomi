@@ -1,6 +1,7 @@
 using System;
 using Discord;
 using Microsoft.Extensions.Options;
+using nhitomi.Discord;
 using nhitomi.Globalization;
 
 namespace nhitomi.Interactivity
@@ -28,7 +29,7 @@ namespace nhitomi.Interactivity
             protected override Embed CreateEmbed()
             {
                 var path = new LocalizationPath("errorMessage");
-                var l = Context.Localization;
+                var l = Context.GetLocalization();
 
                 return new EmbedBuilder()
                     .WithTitle(path["title"][l])

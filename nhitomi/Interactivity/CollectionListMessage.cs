@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Discord;
 using nhitomi.Core;
+using nhitomi.Discord;
 using nhitomi.Globalization;
 using nhitomi.Interactivity.Triggers;
 
@@ -46,7 +47,7 @@ namespace nhitomi.Interactivity
             protected override Embed CreateEmbed(Collection collection)
             {
                 var path = new LocalizationPath("collectionMessage");
-                var l = Context.Localization;
+                var l = Context.GetLocalization();
 
                 var embed = new EmbedBuilder()
                     .WithTitle(path["title"][l, new {context = Context, collection}])

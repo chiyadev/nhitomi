@@ -9,33 +9,51 @@ using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using nhitomi.Core;
-using nhitomi.Discord;
 
-namespace nhitomi.Globalization
+namespace nhitomi.Discord
 {
-    public class LocalizationCache : ConcurrentDictionary<ulong, Localization>
+    public class GuildSettingsCache : ConcurrentDictionary<ulong, Guild>
     {
         public readonly ConcurrentQueue<ulong> RefreshQueue = new ConcurrentQueue<ulong>();
 
-        public void EnqueueRefresh(IDiscordContext context)
+        public void EnqueueRefresh(IChannel channel)
         {
-            if (context.Channel is IGuildChannel channel && channel.Guild != null)
-                RefreshQueue.Enqueue(channel.Guild.Id);
+            if (channel is IGuildChannel guildChannel)
+                RefreshQueue.Enqueue(guildChannel.GuildId);
+            else
+                RefreshQueue.Enqueue(channel.Id);
         }
 
-        public Localization this[IDiscordContext context] =>
-            context.Channel is IGuildChannel channel && TryGetValue(channel.Guild?.Id ?? 0, out var localization)
-                ? localization
-                : Localization.Default;
+        public Guild this[IChannel channel]
+        {
+            get
+            {
+                if (channel is IGuildChannel guildChannel)
+                {
+                    if (TryGetValue(guildChannel.GuildId, out var localization))
+                        return localization;
+
+                    return new Guild
+                    {
+                        Id = guildChannel.GuildId
+                    };
+                }
+
+                return new Guild
+                {
+                    Id = channel.Id
+                };
+            }
+        }
     }
 
-    public class DiscordLocalizationService : BackgroundService
+    public class GuildSettingsSyncService : BackgroundService
     {
         readonly IServiceProvider _services;
-        readonly LocalizationCache _cache;
+        readonly GuildSettingsCache _cache;
         readonly DiscordService _discord;
 
-        public DiscordLocalizationService(IServiceProvider services, LocalizationCache cache, DiscordService discord)
+        public GuildSettingsSyncService(IServiceProvider services, GuildSettingsCache cache, DiscordService discord)
         {
             _services = services;
             _cache = cache;
@@ -73,9 +91,9 @@ namespace nhitomi.Globalization
         sealed class RefreshQueueProcessor
         {
             readonly IDatabase _database;
-            readonly LocalizationCache _cache;
+            readonly GuildSettingsCache _cache;
 
-            public RefreshQueueProcessor(IDatabase database, LocalizationCache cache)
+            public RefreshQueueProcessor(IDatabase database, GuildSettingsCache cache)
             {
                 _database = database;
                 _cache = cache;
@@ -93,7 +111,7 @@ namespace nhitomi.Globalization
 
                 // update the cache
                 foreach (var guild in guilds)
-                    _cache[guild.Id] = Localization.GetLocalization(guild.Language);
+                    _cache[guild.Id] = guild;
             }
         }
 

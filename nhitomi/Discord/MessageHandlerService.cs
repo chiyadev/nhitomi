@@ -7,7 +7,7 @@ using Discord;
 using Discord.WebSocket;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using nhitomi.Globalization;
+using nhitomi.Core;
 using nhitomi.Interactivity;
 
 namespace nhitomi.Discord
@@ -33,19 +33,19 @@ namespace nhitomi.Discord
     public class MessageHandlerService : IHostedService
     {
         readonly DiscordService _discord;
-        readonly LocalizationCache _localizationCache;
+        readonly GuildSettingsCache _guildSettingsCache;
         readonly InteractiveManager _interactiveManager;
         readonly ILogger<MessageHandlerService> _logger;
 
         readonly IMessageHandler[] _messageHandlers;
 
         [SuppressMessage("ReSharper", "SuggestBaseTypeForParameter")]
-        public MessageHandlerService(DiscordService discord, LocalizationCache localizationCache,
+        public MessageHandlerService(DiscordService discord, GuildSettingsCache guildSettingsCache,
             InteractiveManager interactiveManager, ILogger<MessageHandlerService> logger,
             CommandExecutor commandExecutor, GalleryUrlDetector galleryUrlDetector)
         {
             _discord = discord;
-            _localizationCache = localizationCache;
+            _guildSettingsCache = guildSettingsCache;
             _interactiveManager = interactiveManager;
             _logger = logger;
 
@@ -91,9 +91,9 @@ namespace nhitomi.Discord
                     {
                         Client = _discord,
                         Message = message,
-                        Event = eventType
+                        Event = eventType,
+                        GuildSettings = _guildSettingsCache[message.Channel]
                     };
-                    context.Localization = _localizationCache[context];
 
                     try
                     {
@@ -117,9 +117,9 @@ namespace nhitomi.Discord
         {
             public IDiscordClient Client { get; set; }
             public IUserMessage Message { get; set; }
-            public IMessageChannel Channel => Message?.Channel;
+            public IMessageChannel Channel => Message.Channel;
             public IUser User => Message.Author;
-            public Localization Localization { get; set; }
+            public Guild GuildSettings { get; set; }
 
             public MessageEvent Event { get; set; }
         }

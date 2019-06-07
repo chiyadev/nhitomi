@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Discord;
 using nhitomi.Core;
+using nhitomi.Discord;
 using nhitomi.Interactivity.Triggers;
 
 namespace nhitomi.Interactivity
@@ -30,7 +31,7 @@ namespace nhitomi.Interactivity
             {
                 Message.Doujin = value;
 
-                return DoujinMessage.View.CreateEmbed(value, Context.Localization);
+                return DoujinMessage.View.CreateEmbed(value, Context.GetLocalization());
             }
 
             protected override Embed CreateEmptyEmbed() => throw new NotImplementedException();

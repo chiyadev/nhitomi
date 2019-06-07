@@ -45,7 +45,7 @@ namespace nhitomi.Interactivity
                 CancellationToken cancellationToken = default)
             {
                 var path = new LocalizationPath(localizationKey);
-                var l = Context.Localization;
+                var l = Context.GetLocalization();
 
                 if (Message.Message == null)
                     Message.Message = await Context.Channel.SendMessageAsync(path[l, variables]);

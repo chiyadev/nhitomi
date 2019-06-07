@@ -4,6 +4,7 @@ using Discord;
 using nhitomi.Core;
 using nhitomi.Core.Clients.Hitomi;
 using nhitomi.Core.Clients.nhentai;
+using nhitomi.Discord;
 using nhitomi.Globalization;
 using nhitomi.Interactivity.Triggers;
 using TagType = nhitomi.Core.TagType;
@@ -36,7 +37,7 @@ namespace nhitomi.Interactivity
             new DoujinMessage Message => (DoujinMessage) base.Message;
 
             protected override Embed CreateEmbed() =>
-                CreateEmbed(Message.Doujin, Context.Localization);
+                CreateEmbed(Message.Doujin, Context.GetLocalization());
 
             public static Embed CreateEmbed(Doujin doujin, Localization l)
             {

@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Discord;
 using Microsoft.Extensions.Options;
+using nhitomi.Discord;
 using nhitomi.Globalization;
 using nhitomi.Interactivity.Triggers;
 
@@ -47,7 +48,7 @@ namespace nhitomi.Interactivity
             protected override Embed CreateEmbed(HelpMessageSection value)
             {
                 var path = new LocalizationPath("helpMessage");
-                var l = Context.Localization;
+                var l = Context.GetLocalization();
 
                 var embed = new EmbedBuilder()
                     .WithTitle(path["title"][l])

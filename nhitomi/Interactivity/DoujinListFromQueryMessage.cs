@@ -8,10 +8,12 @@ namespace nhitomi.Interactivity
     public sealed class DoujinListFromQueryMessage : DoujinListMessage<DoujinListFromQueryMessage.View>
     {
         readonly string _query;
+        readonly bool _qualityFilter;
 
-        public DoujinListFromQueryMessage(string query)
+        public DoujinListFromQueryMessage(string query, bool qualityFilter = true)
         {
             _query = query;
+            _qualityFilter = qualityFilter;
         }
 
         public class View : DoujinListView
@@ -30,7 +32,8 @@ namespace nhitomi.Interactivity
                 _db.GetDoujinsAsync(x => x
                     .FullTextSearch(_db, new DoujinSearchArguments
                     {
-                        Query = Message._query
+                        Query = Message._query,
+                        QualityFilter = Message._qualityFilter
                     })
                     .Skip(offset)
                     .Take(10));

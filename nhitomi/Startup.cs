@@ -5,7 +5,6 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using nhitomi.Core;
 using nhitomi.Discord;
-using nhitomi.Globalization;
 using nhitomi.Http;
 using nhitomi.Interactivity;
 using Newtonsoft.Json;
@@ -58,12 +57,12 @@ namespace nhitomi
                 .AddSingleton<CommandExecutor>()
                 .AddSingleton<GalleryUrlDetector>()
                 .AddSingleton<InteractiveManager>()
-                .AddSingleton<LocalizationCache>()
+                .AddSingleton<GuildSettingsCache>()
                 .AddHostedService<MessageHandlerService>()
                 .AddHostedService<ReactionHandlerService>()
                 .AddHostedService<StatusUpdateService>()
                 .AddHostedService<LogHandlerService>()
-                .AddHostedService<DiscordLocalizationService>();
+                .AddHostedService<GuildSettingsSyncService>();
 
             // http server
             services

@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Discord;
 using Discord.WebSocket;
 using Microsoft.Extensions.Options;
+using nhitomi.Core;
 using nhitomi.Globalization;
 
 namespace nhitomi.Discord
@@ -14,7 +15,7 @@ namespace nhitomi.Discord
         IMessageChannel Channel { get; }
 
         IUser User { get; }
-        Localization Localization { get; }
+        Guild GuildSettings { get; }
     }
 
     public class DiscordService : DiscordSocketClient
@@ -39,11 +40,14 @@ namespace nhitomi.Discord
 
     public static class DiscordContextExtensions
     {
+        public static Localization GetLocalization(this IDiscordContext context) =>
+            Localization.GetLocalization(context.GuildSettings?.Language);
+
         public static IDisposable BeginTyping(this IDiscordContext context) => context.Channel.EnterTypingState();
 
         public static Task ReplyAsync(this IDiscordContext context, IMessageChannel channel, string localizationKey,
             object variables = null) =>
-            channel.SendMessageAsync(new LocalizationPath(localizationKey)[context.Localization, variables]);
+            channel.SendMessageAsync(new LocalizationPath(localizationKey)[context.GetLocalization(), variables]);
 
         public static Task ReplyAsync(this IDiscordContext context, string localizationKey, object variables = null) =>
             context.ReplyAsync(context.Channel, localizationKey, variables);
