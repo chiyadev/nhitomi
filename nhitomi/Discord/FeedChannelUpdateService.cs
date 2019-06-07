@@ -133,10 +133,12 @@ namespace nhitomi.Discord
 
                         // send doujin interactive
                         using (context.BeginTyping())
+                        {
                             await _interactive.SendInteractiveAsync(
                                 new DoujinMessage(doujin),
                                 context,
                                 cancellationToken);
+                        }
 
                         // set last sent doujin
                         channel.LastDoujin = doujin;
