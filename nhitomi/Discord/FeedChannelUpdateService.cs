@@ -62,7 +62,8 @@ namespace nhitomi.Discord
                 await _db.SaveAsync(cancellationToken);
             }
 
-            const int _chunkLoadCount = 10;
+            const int _chunkLoadSize = 10;
+            const int _updateLimit = 50;
 
             async Task RunChannelAsync(FeedChannel channel, CancellationToken cancellationToken = default)
             {
@@ -95,28 +96,26 @@ namespace nhitomi.Discord
                             await _semaphore.WaitAsync(cancellationToken);
                             try
                             {
-                                QueryFilterDelegate<Doujin> query = null;
-
-                                switch (channel.WhitelistType)
+                                var doujins = await _db.GetDoujinsAsync(q =>
                                 {
-                                    case FeedChannelWhitelistType.All:
-                                        query = q => q
-                                            .Where(d => d.ProcessTime > channel.LastDoujin.ProcessTime &&
-                                                        d.Tags.All(x => tagIds.Contains(x.TagId)))
-                                            .OrderBy(d => d.UploadTime)
-                                            .Take(_chunkLoadCount);
-                                        break;
+                                    q = q.Where(d => d.ProcessTime > channel.LastDoujin.ProcessTime);
 
-                                    case FeedChannelWhitelistType.Any:
-                                        query = q => q
-                                            .Where(d => d.ProcessTime > channel.LastDoujin.ProcessTime &&
-                                                        d.Tags.Any(x => tagIds.Contains(x.TagId)))
-                                            .OrderBy(d => d.UploadTime)
-                                            .Take(_chunkLoadCount);
-                                        break;
-                                }
+                                    switch (channel.WhitelistType)
+                                    {
+                                        case FeedChannelWhitelistType.Any:
+                                            q = q.Where(d => d.Tags.Any(x => tagIds.Contains(x.TagId)));
+                                            break;
 
-                                var doujins = await _db.GetDoujinsAsync(query, cancellationToken);
+                                        case FeedChannelWhitelistType.All:
+                                            q = q.Where(d => d.Tags.All(x => tagIds.Contains(x.TagId)));
+                                            break;
+                                    }
+
+                                    return q
+                                        .OrderBy(d => d.UploadTime)
+                                        .TakeLast(_updateLimit)
+                                        .Take(_chunkLoadSize);
+                                }, cancellationToken);
 
                                 foreach (var d in doujins)
                                     queue.Enqueue(d);
