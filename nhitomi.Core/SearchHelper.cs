@@ -41,8 +41,7 @@ SELECT *, (
     `Id` IN (
       SELECT `TagId`
       FROM `TagRef`
-      WHERE `DoujinId` = `Doujins`.`Id`) AND
-    MATCH `Value` AGAINST ({0} IN NATURAL LANGUAGE MODE)
+      WHERE `DoujinId` = `Doujins`.`Id`)
   ) AS TagRelevance
 FROM `Doujins`
 WHERE");
