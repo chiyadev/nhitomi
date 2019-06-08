@@ -69,7 +69,7 @@ namespace nhitomi.Discord
             var ids = _galleryRegex
                 .Matches(content)
                 .SelectMany(m => m.Groups)
-                .Where(g => g.Name != null && g.Name.StartsWith("source_"))
+                .Where(g => g.Success && g.Name != null && g.Name.StartsWith("source_"))
                 .Select(g => (g.Name.Split('_', 2)[1], g.Value))
                 .ToArray();
 
