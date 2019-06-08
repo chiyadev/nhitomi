@@ -62,7 +62,7 @@ namespace nhitomi.Interactivity.Triggers
             public new TInteractive Interactive => (TInteractive) base.Interactive;
 
             public override Task<bool> RunAsync(CancellationToken cancellationToken = default) =>
-                Task.FromResult(base.Interactive is TInteractive);
+                Task.FromResult(base.Interactive == null || base.Interactive is TInteractive);
         }
     }
 }
