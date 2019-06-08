@@ -75,7 +75,9 @@ namespace nhitomi.Interactivity
 
         static readonly Dictionary<IEmote, Func<IReactionTrigger>> _statelessTriggers = typeof(Startup).Assembly
             .GetTypes()
-            .Where(t => !t.IsAbstract && t.IsClass && typeof(IReactionTrigger).IsAssignableFrom(t))
+            .Where(t => !t.IsAbstract && t.IsClass &&
+                        typeof(IReactionTrigger).IsAssignableFrom(t) &&
+                        t.GetConstructors().Any(c => c.GetParameters().Length == 0))
             .Select(t => (Func<IReactionTrigger>) (() => Activator.CreateInstance(t) as IReactionTrigger))
             .Where(x => x().CanRunStateless)
             .ToDictionary(x => x().Emote, x => x);

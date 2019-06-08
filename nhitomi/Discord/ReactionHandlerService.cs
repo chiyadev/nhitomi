@@ -86,19 +86,11 @@ namespace nhitomi.Discord
                     try
                     {
                         // retrieve message
-                        var message = reaction.Message.IsSpecified
-                            ? reaction.Message.Value
-                            : (IUserMessage) await channel.GetMessageAsync(reaction.MessageId);
-
-                        if (message == null)
+                        if (!(await channel.GetMessageAsync(reaction.MessageId) is IUserMessage message))
                             return;
 
                         // retrieve user
-                        var user = reaction.User.IsSpecified
-                            ? reaction.User.Value
-                            : await channel.GetUserAsync(reaction.UserId);
-
-                        if (user == null)
+                        if (!(await channel.GetUserAsync(reaction.UserId) is IUser user))
                             return;
 
                         // create context
