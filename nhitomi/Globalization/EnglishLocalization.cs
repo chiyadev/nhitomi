@@ -65,7 +65,7 @@ namespace nhitomi.Globalization
             },
             downloadMessage = new
             {
-                title = "**{doujin.Source}**: {doujin.OriginalName}",
+                title = "{doujin.OriginalName}",
                 text = "Click the link above to start downloading `{doujin.OriginalName}`."
             },
             collectionMessage = new
