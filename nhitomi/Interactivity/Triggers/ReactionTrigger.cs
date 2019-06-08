@@ -41,7 +41,7 @@ namespace nhitomi.Interactivity.Triggers
             var action = _actionFactory(services);
             action.Trigger = this;
             action.Interactive = interactive;
-            action.Context = services.GetRequiredService<IDiscordContext>();
+            action.Context = services.GetRequiredService<IReactionContext>();
 
             // trigger the action
             return action.RunAsync(cancellationToken);
@@ -51,7 +51,7 @@ namespace nhitomi.Interactivity.Triggers
         {
             public ReactionTrigger<TAction> Trigger { get; set; }
             public IInteractiveMessage Interactive { get; set; }
-            public IDiscordContext Context { get; set; }
+            public IReactionContext Context { get; set; }
 
             public abstract Task<bool> RunAsync(CancellationToken cancellationToken = default);
         }

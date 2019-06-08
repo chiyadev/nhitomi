@@ -30,60 +30,91 @@ namespace nhitomi.Interactivity.Triggers
                 if (!await base.RunAsync(cancellationToken))
                     return false;
 
-                using (Context.BeginTyping())
+                // retrieve doujin
+                var doujin = Interactive?.Doujin;
+
+                if (doujin == null)
                 {
-                    // retrieve doujin
-                    var doujin = Interactive?.Doujin;
+                    // stateless mode
+                    if (!DoujinMessage.TryParseDoujinIdFromMessage(Context.Message, out var id))
+                        return false;
+
+                    doujin = await _database.GetDoujinAsync(id.source, id.id, cancellationToken);
 
                     if (doujin == null)
-                    {
-                        // stateless mode
-                        if (!DoujinMessage.TryParseDoujinIdFromMessage(Context.Message, out var id))
-                            return false;
-
-                        doujin = await _database.GetDoujinAsync(id.source, id.id, cancellationToken);
-
-                        if (doujin == null)
-                            return false;
-                    }
-
-                    Collection collection;
-
-                    do
-                    {
-                        collection = await _database.GetCollectionAsync(
-                            Context.User.Id, _favoritesCollection, cancellationToken);
-
-                        if (collection == null)
-                        {
-                            // create new collection for favorites
-                            collection = new Collection
-                            {
-                                Name = _favoritesCollection,
-                                OwnerId = Context.User.Id,
-                                Doujins = new List<CollectionRef>()
-                            };
-
-                            _database.Add(collection);
-                        }
-
-                        if (collection.Doujins.Any(x => x.DoujinId == doujin.Id))
-                        {
-                            await Context.ReplyDmAsync("messages.alreadyInCollection", new {doujin, collection});
-                            return true;
-                        }
-
-                        // add to favorites collection
-                        collection.Doujins.Add(new CollectionRef
-                        {
-                            DoujinId = doujin.Id
-                        });
-                    }
-                    while (!await _database.SaveAsync(cancellationToken));
-
-                    // try replying in DM if we don't have perms
-                    await Context.ReplyDmAsync("messages.addedToCollection", new {doujin, collection});
+                        return false;
                 }
+
+                bool added;
+
+                Collection collection;
+
+                do
+                {
+                    collection = await _database.GetCollectionAsync(
+                        Context.User.Id, _favoritesCollection, cancellationToken);
+
+                    if (collection == null)
+                    {
+                        // create new collection for favorites
+                        collection = new Collection
+                        {
+                            Name = _favoritesCollection,
+                            OwnerId = Context.User.Id,
+                            Doujins = new List<CollectionRef>()
+                        };
+
+                        _database.Add(collection);
+                    }
+
+                    var existingRef = collection.Doujins.FirstOrDefault(x => x.DoujinId == doujin.Id);
+
+                    switch (Context.Event)
+                    {
+                        case ReactionEvent.Add:
+                            if (existingRef != null)
+                            {
+                                await Context.ReplyDmAsync("messages.alreadyInCollection",
+                                    new {doujin, collection});
+                                return true;
+                            }
+
+                            // add to favorites collection
+                            collection.Doujins.Add(new CollectionRef
+                            {
+                                DoujinId = doujin.Id
+                            });
+
+                            added = true;
+
+                            break;
+
+                        case ReactionEvent.Remove:
+                            if (existingRef == null)
+                            {
+                                await Context.ReplyDmAsync("messages.notInCollection",
+                                    new {doujin, collection});
+                                return true;
+                            }
+
+                            // remove from favorites collection
+                            collection.Doujins.Remove(existingRef);
+
+                            added = false;
+
+                            break;
+
+                        default:
+                            return false;
+                    }
+                }
+                while (!await _database.SaveAsync(cancellationToken));
+
+                // reply in DM
+                if (added)
+                    await Context.ReplyDmAsync("messages.addedToCollection", new {doujin, collection});
+                else
+                    await Context.ReplyDmAsync("messages.removedFromCollection", new {doujin, collection});
 
                 return true;
             }
