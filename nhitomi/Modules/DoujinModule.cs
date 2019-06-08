@@ -56,7 +56,7 @@ namespace nhitomi.Modules
             await _interactive.SendInteractiveAsync(
                 new DoujinListFromQueryMessage(query)
                 {
-                    QualityFilter = filter ?? _context.GuildSettings.SearchQualityFilter ?? true,
+                    QualityFilter = filter ?? _context.GuildSettings.SearchQualityFilter ?? false,
                     Source = source
                 },
                 _context,
