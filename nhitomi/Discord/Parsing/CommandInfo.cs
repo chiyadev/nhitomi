@@ -308,13 +308,13 @@ namespace nhitomi.Discord.Parsing
                 {
                     switch (str.ToLowerInvariant())
                     {
-                        case "0":
+                        case "1":
                         case "on":
                         case "true":
                             value = true;
                             return true;
 
-                        case "1":
+                        case "0":
                         case "off":
                         case "false":
                             value = false;
