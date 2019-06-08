@@ -1,7 +1,9 @@
+using System;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using nhitomi.Core;
@@ -19,15 +21,17 @@ namespace nhitomi.Discord
 
         readonly AppSettings _settings;
         readonly InteractiveManager _interactive;
+        readonly IServiceProvider _services;
         readonly ILogger<GalleryUrlDetector> _logger;
 
         readonly Regex _galleryRegex;
 
         public GalleryUrlDetector(IOptions<AppSettings> options, InteractiveManager interactive,
-            ILogger<GalleryUrlDetector> logger)
+            IServiceProvider services, ILogger<GalleryUrlDetector> logger)
         {
             _settings = options.Value;
             _interactive = interactive;
+            _services = services;
             _logger = logger;
 
             // build gallery regex to match all known formats
@@ -74,7 +78,36 @@ namespace nhitomi.Discord
 
             // send interactive
             using (context.BeginTyping())
-                await _interactive.SendInteractiveAsync(new GalleryUrlDetectedMessage(ids), context, cancellationToken);
+            {
+                // send one interactive if only one id detected
+                if (ids.Length == 1)
+                {
+                    var (source, id) = ids[0];
+
+                    Doujin doujin;
+
+                    using (var scope = _services.CreateScope())
+                    {
+                        doujin = await scope.ServiceProvider
+                            .GetRequiredService<IDatabase>()
+                            .GetDoujinAsync(source, id, cancellationToken);
+                    }
+
+                    await _interactive.SendInteractiveAsync(
+                        new DoujinMessage(doujin),
+                        context,
+                        cancellationToken);
+                }
+
+                // send as a list
+                else
+                {
+                    await _interactive.SendInteractiveAsync(
+                        new GalleryUrlDetectedMessage(ids),
+                        context,
+                        cancellationToken);
+                }
+            }
 
             return true;
         }
