@@ -173,6 +173,7 @@ namespace nhitomi.Core.Clients.Hitomi
                             var ext = Path.GetExtension(i.Name);
                             switch (ext)
                             {
+                                case "": return '.';
                                 case ".jpg": return 'j';
                                 case ".jpeg": return 'J';
                                 case ".png": return 'p';
@@ -289,6 +290,9 @@ namespace nhitomi.Core.Clients.Hitomi
 
                 switch (data.Extensions[i])
                 {
+                    case '.':
+                        extension = "";
+                        break;
                     case 'p':
                         extension = ".png";
                         break;
