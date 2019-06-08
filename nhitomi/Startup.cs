@@ -41,7 +41,7 @@ namespace nhitomi
             if (host.HostingEnvironment.IsProduction())
             {
                 services
-                    .AddDbContext<nhitomiDbContext>(d => d
+                    .AddDbContextPool<nhitomiDbContext>(d => d
                         .UseMySql(host.Configuration.GetConnectionString("nhitomi")));
             }
             else
