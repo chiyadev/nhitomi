@@ -15,6 +15,7 @@ namespace nhitomi.Interactivity
     public enum HelpMessageSection
     {
         DoujinAndCollection,
+        OptionsAndAliases,
         Other
     }
 
@@ -94,12 +95,15 @@ namespace nhitomi.Interactivity
 ".Trim());
                         break;
 
-                    case HelpMessageSection.Other:
+                    case HelpMessageSection.OptionsAndAliases:
                         path = path["options"];
 
                         embed.AddField($"— {path["heading"][l]} —", $@"
 - {prefix}option language `name` — {path["language"][l]}
 - {prefix}option filter `on or off` — {path["filter"][l]}
+- {prefix}option feed add `tag` — {path["feed.add"][l]}
+- {prefix}option feed remove `tag` — {path["feed.remove"][l]}
+- {prefix}option feed mode `mode` — {path["feed.mode"][l]}
 ".Trim());
 
                         path = path.Up["aliases"];
@@ -116,9 +120,16 @@ namespace nhitomi.Interactivity
 {prefix}**c** `name` **r** `source` `id` — collection remove
 {prefix}**c** `name` **s** `attribute` — collection sort
 {prefix}**c** `name` **d** — collection delete
+{prefix}**o** **l** `name` — option language
+{prefix}**o** **f** `on or off` — option filter
+{prefix}**o** **f** **a** `tag` — option feed add
+{prefix}**o** **f** **r** `tag` — option feed remove
+{prefix}**o** **f** **m** `mode` — option feed mode
 ".Trim());
+                        break;
 
-                        path = path.Up["sources"];
+                    case HelpMessageSection.Other:
+                        path = path["sources"];
 
                         embed.AddField($"— {path["heading"][l]} —", @"
 - nhentai — `https://nhentai.net/`
@@ -132,7 +143,7 @@ namespace nhitomi.Interactivity
 
                             embed.AddField(
                                 $"— {path["heading"][l]} —",
-                                path["text"][l, new {translators = new LocalizationPath()["meta"]["translators"][l]}]);
+                                path["text"][l, new {translators = new LocalizationPath()["meta.translators"][l]}]);
                         }
 
                         path = path.Up["openSource"];

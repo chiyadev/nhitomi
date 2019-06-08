@@ -38,7 +38,13 @@ namespace nhitomi.Globalization
                                        "by default.",
 
                 commandInvokeNotInGuild = "**nhitomi**: You can only use this command in a guild.",
-                notGuildAdmin = "**nhitomi**: You must be a guild administrator to use this command."
+                notGuildAdmin = "**nhitomi**: You must be a guild administrator to use this command.",
+
+                tagNotFound = "**nhitomi**: `{tag}` was not found.",
+                feedTagAdded = "**nhitomi**: `{channel.Name}` is now subscribed to `{tag}`.",
+                feedTagAlreadyAdded = "**nhitomi**: `{channel.Name}` is already subscribed to `{tag}`.",
+                feedTagRemoved = "**nhitomi**: `{channel.Name}` is now unsubscribed from `{tag}`.",
+                feedTagNotRemoved = "**nhitomi**: `{channel.Name}` is not subscribed to `{tag}`."
             },
             doujinMessage = new
             {
@@ -121,7 +127,13 @@ namespace nhitomi.Globalization
                 {
                     heading = "Options",
                     language = "Changes the interface language within a guild.",
-                    filter = "Enables or disables search quality filter."
+                    filter = "Toggles the search quality filter.",
+                    feed = new
+                    {
+                        add = "Subscribes a channel to the given tag.",
+                        remove = "Unsubscribes a channel from the given tag.",
+                        mode = "Changes the tag whitelist mode of a channel between `any` and `all`."
+                    }
                 },
                 aliases = new
                 {

@@ -146,9 +146,9 @@ namespace nhitomi.Modules
                 while (!await _db.SaveAsync(cancellationToken));
 
                 if (added)
-                    await _context.ReplyAsync("messages.feedTagAdded", new {tag});
+                    await _context.ReplyAsync("messages.feedTagAdded", new {tag, channel = _context.Channel});
                 else
-                    await _context.ReplyAsync("messages.feedTagAlreadyAdded", new {tag});
+                    await _context.ReplyAsync("messages.feedTagAlreadyAdded", new {tag, channel = _context.Channel});
             }
 
             [Command("remove"), Binding("[tag+]")]
@@ -178,9 +178,9 @@ namespace nhitomi.Modules
                 while (!await _db.SaveAsync(cancellationToken));
 
                 if (removed)
-                    await _context.ReplyAsync("messages.feedTagRemoved", new {tag});
+                    await _context.ReplyAsync("messages.feedTagRemoved", new {tag, channel = _context.Channel});
                 else
-                    await _context.ReplyAsync("messages.feedTagNotRemoved", new {tag});
+                    await _context.ReplyAsync("messages.feedTagNotRemoved", new {tag, channel = _context.Channel});
             }
 
             [Command("mode")]
@@ -198,7 +198,7 @@ namespace nhitomi.Modules
                 }
                 while (!await _db.SaveAsync(cancellationToken));
 
-                await _context.ReplyAsync("messages.feedModeChanged", new {type});
+                await _context.ReplyAsync("messages.feedModeChanged", new {type, channel = _context.Channel});
             }
         }
     }
