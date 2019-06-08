@@ -103,7 +103,7 @@ namespace nhitomi.Discord
                                         query = q => q
                                             .Where(d => d.ProcessTime > channel.LastDoujin.ProcessTime &&
                                                         d.Tags.All(x => tagIds.Contains(x.TagId)))
-                                            .OrderBy(d => d.ProcessTime)
+                                            .OrderBy(d => d.UploadTime)
                                             .Take(_chunkLoadCount);
                                         break;
 
@@ -111,7 +111,7 @@ namespace nhitomi.Discord
                                         query = q => q
                                             .Where(d => d.ProcessTime > channel.LastDoujin.ProcessTime &&
                                                         d.Tags.Any(x => tagIds.Contains(x.TagId)))
-                                            .OrderBy(d => d.ProcessTime)
+                                            .OrderBy(d => d.UploadTime)
                                             .Take(_chunkLoadCount);
                                         break;
                                 }
