@@ -9,6 +9,7 @@ namespace nhitomi.Core
     {
         public string Query { get; set; }
         public bool QualityFilter { get; set; } = true;
+        public string Source { get; set; }
     }
 
     public static class SearchHelper
@@ -46,9 +47,15 @@ SELECT *, (
 FROM `Doujins`
 WHERE");
 
+            if (!string.IsNullOrEmpty(args.Source))
+            {
+                sql.AppendLine(@"
+  `Source` = {1} AND");
+            }
+
             if (args.QualityFilter)
             {
-                // 327 is full color tag
+                // 327 full color
                 sql.AppendLine(@"
   `Id` IN (
     SELECT `DoujinId`
@@ -76,7 +83,7 @@ ORDER BY
   `UploadTime` DESC,
   `ProcessTime` DESC");
 
-            return queryable.FromSql(sql.ToString(), args.Query);
+            return queryable.FromSql(sql.ToString(), args.Query, args.Source);
         }
 
         //todo:

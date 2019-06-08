@@ -10,6 +10,7 @@ namespace nhitomi.Interactivity
         readonly string _query;
 
         public bool QualityFilter { get; set; }
+        public string Source { get; set; }
 
         public DoujinListFromQueryMessage(string query)
         {
@@ -33,7 +34,8 @@ namespace nhitomi.Interactivity
                     .FullTextSearch(_db, new DoujinSearchArguments
                     {
                         Query = Message._query,
-                        QualityFilter = Message.QualityFilter
+                        QualityFilter = Message.QualityFilter,
+                        Source = Message.Source
                     })
                     .Skip(offset)
                     .Take(10));
