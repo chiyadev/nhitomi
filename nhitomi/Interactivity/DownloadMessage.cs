@@ -38,7 +38,7 @@ namespace nhitomi.Interactivity
                     .Build();
             }
 
-            static string GetUrl(Doujin d) => $"https://nhitomi-beta.chiya.dev/v1/download/{d.AccessId}";
+            static string GetUrl(Doujin d) => $"https://nhitomi-beta.chiya.dev/api/v1/download/{d.AccessId}";
         }
     }
 }

@@ -54,9 +54,15 @@ namespace nhitomi.Interactivity
                     .WithColor(Color.Teal);
 
                 if (collection.Doujins.Count == 0)
-                    embed.Description = path["empty"][l];
+                {
+                    embed.Description = path["emptyCollection"][l];
+                }
                 else
-                    embed.ThumbnailUrl = $"https://nhitomi.chiya.dev/v1/image/{collection.Doujins.First().DoujinId}/-1";
+                {
+                    var first = collection.Doujins.First().DoujinId;
+
+                    embed.ThumbnailUrl = $"https://nhitomi-beta.chiya.dev/api/v1/images/{first}/-1";
+                }
 
                 embed.AddField(path["sort"][l], path["sortValues"][collection.Sort.ToString()][l]);
                 embed.AddField(path["contents"][l], path["contentsValue"][l, new {collection}]);
@@ -64,7 +70,17 @@ namespace nhitomi.Interactivity
                 return embed.Build();
             }
 
-            protected override Embed CreateEmptyEmbed() => throw new System.NotImplementedException();
+            protected override Embed CreateEmptyEmbed()
+            {
+                var path = new LocalizationPath("collectionMessage.empty");
+                var l = Context.GetLocalization();
+
+                return new EmbedBuilder()
+                    .WithTitle(path["title"][l, new {context = Context}])
+                    .WithColor(Color.Teal)
+                    .WithDescription(path["text"][l, new {context = Context}])
+                    .Build();
+            }
         }
     }
 }

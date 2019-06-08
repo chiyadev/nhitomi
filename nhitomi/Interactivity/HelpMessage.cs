@@ -147,7 +147,7 @@ namespace nhitomi.Interactivity
                 return embed.Build();
             }
 
-            protected override Embed CreateEmptyEmbed() => throw new NotImplementedException();
+            protected override Embed CreateEmptyEmbed() => throw new NotSupportedException();
         }
     }
 }

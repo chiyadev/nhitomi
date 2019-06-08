@@ -56,6 +56,11 @@ namespace nhitomi.Globalization
                 {
                     nhentai = "https://cdn.cybrhome.com/media/website/live/icon/icon_nhentai.net_57f740.png",
                     hitomi = "https://ltn.hitomi.la/favicon-160x160.png"
+                },
+                emptyList = new
+                {
+                    title = "**nhitomi**: No doujins",
+                    text = "There are no doujins in this list."
                 }
             },
             downloadMessage = new
@@ -66,7 +71,7 @@ namespace nhitomi.Globalization
             collectionMessage = new
             {
                 title = "**{context.User.Username}**: {collection.Name}",
-                empty = "Empty collection",
+                emptyCollection = "Empty collection",
                 sort = "Sort",
                 sortValues = new
                 {
@@ -81,7 +86,12 @@ namespace nhitomi.Globalization
                     parody = "Parody"
                 },
                 contents = "Contents",
-                contentsValue = "{collection.Doujins.Count} doujins"
+                contentsValue = "{collection.Doujins.Count} doujins",
+                empty = new
+                {
+                    title = "**{context.User.Username}**: No collections",
+                    text = "You have no collections."
+                }
             },
             helpMessage = new
             {
