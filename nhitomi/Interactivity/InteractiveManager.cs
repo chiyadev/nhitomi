@@ -44,9 +44,28 @@ namespace nhitomi.Interactivity
                     return;
             }
 
+            var id = message.Message.Id;
+
             // add to interactive list
             if (message is IInteractiveMessage interactiveMessage)
-                InteractiveMessages[message.Message.Id] = interactiveMessage;
+                InteractiveMessages[id] = interactiveMessage;
+
+            // forget interactives in an hour
+            _ = Task.Run(async () =>
+                {
+                    try
+                    {
+                        await Task.Delay(TimeSpan.FromHours(1), cancellationToken);
+                    }
+                    catch (TaskCanceledException)
+                    {
+                    }
+                    finally
+                    {
+                        InteractiveMessages.TryRemove(id, out _);
+                    }
+                },
+                cancellationToken);
         }
 
         readonly ConcurrentQueue<(IUserMessage message, IEmote[] emotes)> _reactionQueue =
