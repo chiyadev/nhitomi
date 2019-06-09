@@ -41,10 +41,11 @@ namespace nhitomi.Globalization
                 notGuildAdmin = "**nhitomi**: You must be a guild administrator to use this command.",
 
                 tagNotFound = "**nhitomi**: `{tag}` was not found.",
-                feedTagAdded = "**nhitomi**: `{channel.Name}` is now subscribed to `{tag}`.",
-                feedTagAlreadyAdded = "**nhitomi**: `{channel.Name}` is already subscribed to `{tag}`.",
-                feedTagRemoved = "**nhitomi**: `{channel.Name}` is now unsubscribed from `{tag}`.",
-                feedTagNotRemoved = "**nhitomi**: `{channel.Name}` is not subscribed to `{tag}`."
+                feedTagAdded = "**nhitomi**: `#{channel.Name}` is now subscribed to `{tag}`.",
+                feedTagAlreadyAdded = "**nhitomi**: `#{channel.Name}` is already subscribed to `{tag}`.",
+                feedTagRemoved = "**nhitomi**: `#{channel.Name}` is now unsubscribed from `{tag}`.",
+                feedTagNotRemoved = "**nhitomi**: `#{channel.Name}` is not subscribed to `{tag}`.",
+                feedModeChanged = "**nhitomi**: Changed feed mode of `#{channel.Name}` to `{type}`."
             },
             doujinMessage = new
             {
