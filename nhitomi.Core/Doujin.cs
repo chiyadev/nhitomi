@@ -117,6 +117,8 @@ namespace nhitomi.Core
 
         public DoujinText(Doujin d)
         {
+            Doujin = d;
+
             var parts = new List<string>();
 
             void add(string str) => parts.AddRange(str.Split(new[] {' '}, StringSplitOptions.RemoveEmptyEntries));
