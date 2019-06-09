@@ -181,6 +181,22 @@ namespace nhitomi.Core
         static readonly Regex _commonSymbols = new Regex(@"[-!$%^&*#@()_+|~=`{}\[\]:"";'<>?,.\\\/\s]",
             RegexOptions.Singleline | RegexOptions.Compiled);
 
+        static readonly string[] _mySqlStopwords =
+        {
+            // MySQL 5.7 InnoDB stopwords
+            "about", "are", "com", "for", "from", "how", "that", "the", "this", "was", "what", "when", "where", "who",
+            "will", "with", "und", "the", "www"
+        };
+
+        void FixMySqlQueryParts(HashSet<string> set)
+        {
+            // remove anything shorter than 3 characters (InnoDB)
+            set.RemoveWhere(s => s.Length < 3);
+
+            // stopwords can kill search results because they are not indexed
+            set.RemoveWhere(s => Array.IndexOf(_mySqlStopwords, s) != -1);
+        }
+
         async Task<Doujin[]> MySqlSearchAsync(DoujinSearchArgs args, CancellationToken cancellationToken = default)
         {
             // remove symbols
@@ -197,6 +213,8 @@ namespace nhitomi.Core
                 queryParts.Add("full");
                 queryParts.Add("color");
             }
+
+            FixMySqlQueryParts(queryParts);
 
             // every part of the query must be present as a tag
             args.Query = "+" + string.Join(" +", queryParts);
