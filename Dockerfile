@@ -1,25 +1,22 @@
-FROM microsoft/dotnet:sdk AS build-env
-WORKDIR /app
+# Build stage
+FROM microsoft/dotnet:sdk AS build
+WORKDIR /
 
-# Copy csproj and restore as distinct layers
-COPY nhitomi/nhitomi.csproj ./nhitomi/
-COPY nhitomi.Core/nhitomi.Core.csproj ./nhitomi.Core/
+# Copy everything
+COPY . ./
 
-RUN dotnet restore ./nhitomi/nhitomi.csproj
+# Publish project
+RUN dotnet publish nhitomi -c Release -o ./bin
 
-# Copy everything else and build
-COPY nhitomi ./nhitomi/
-COPY nhitomi.Core ./nhitomi.Core/
-
-RUN dotnet publish ./nhitomi/nhitomi.csproj -c Release -o out
-
-# Build runtime image
+# Runtime stage
 FROM microsoft/dotnet:aspnetcore-runtime
-WORKDIR /app
-COPY --from=build-env /app/nhitomi/out .
+WORKDIR /
 
-# Expose ports used by Kestrel
+# Copy publish output
+COPY --from=build /nhitomi/bin .
+
+# Expose ports
 EXPOSE 80
-EXPOSE 433
 
+# Entrypoint
 ENTRYPOINT ["dotnet", "nhitomi.dll"]
