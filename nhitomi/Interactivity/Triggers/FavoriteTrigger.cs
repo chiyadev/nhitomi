@@ -69,43 +69,22 @@ namespace nhitomi.Interactivity.Triggers
 
                     var existingRef = collection.Doujins.FirstOrDefault(x => x.DoujinId == doujin.Id);
 
-                    switch (Context.Event)
+                    if (existingRef == null)
                     {
-                        case ReactionEvent.Add:
-                            if (existingRef != null)
-                            {
-                                await Context.ReplyDmAsync("messages.alreadyInCollection",
-                                    new {doujin, collection});
-                                return true;
-                            }
+                        // add to favorites collection
+                        collection.Doujins.Add(new CollectionRef
+                        {
+                            DoujinId = doujin.Id
+                        });
 
-                            // add to favorites collection
-                            collection.Doujins.Add(new CollectionRef
-                            {
-                                DoujinId = doujin.Id
-                            });
+                        added = true;
+                    }
+                    else
+                    {
+                        // remove from favorites collection
+                        collection.Doujins.Remove(existingRef);
 
-                            added = true;
-
-                            break;
-
-                        case ReactionEvent.Remove:
-                            if (existingRef == null)
-                            {
-                                await Context.ReplyDmAsync("messages.notInCollection",
-                                    new {doujin, collection});
-                                return true;
-                            }
-
-                            // remove from favorites collection
-                            collection.Doujins.Remove(existingRef);
-
-                            added = false;
-
-                            break;
-
-                        default:
-                            return false;
+                        added = false;
                     }
                 }
                 while (!await _database.SaveAsync(cancellationToken));
