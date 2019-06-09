@@ -167,7 +167,7 @@ namespace nhitomi.Core
             throw new NotSupportedException($"Unsupported database provider {Database.ProviderName}.");
         }
 
-        static readonly Regex _commonSymbols = new Regex(@"[-!$%^&*#@()_+|~=`{}\[\]:"";'<>?,.\\\/\s]+",
+        static readonly Regex _commonSymbols = new Regex(@"[-!$%^&*#@()_+|~=`{}\[\]:"";'<>?,.\\\/\s]",
             RegexOptions.Singleline | RegexOptions.Compiled);
 
         async Task<Doujin[]> MySqlSearchAsync(DoujinSearchArgs args, CancellationToken cancellationToken = default)
