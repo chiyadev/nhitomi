@@ -18,6 +18,7 @@ namespace nhitomi.Core
         public int ScanRange { get; set; } = 256;
         public bool QualityFilter { get; set; } = true;
         public string Source { get; set; }
+        public bool? Exists { get; set; }
         public int? MaxCount { get; set; }
 
         public DoujinSearchArgs Next()
@@ -220,16 +221,23 @@ namespace nhitomi.Core
             // every part of the query must be present as a tag
             args.Query = "+" + string.Join(" +", queryParts);
 
+            Doujin[] doujins;
+
             // check if there is at least one matching item
-            var doujins = await Query<Doujin>()
-                .FromSql(@"
+            if (args.Exists == null)
+            {
+                doujins = await Query<Doujin>()
+                    .FromSql(@"
 SELECT *
 FROM `Doujins`
 WHERE MATCH `TagsDenormalized` AGAINST ({0} IN BOOLEAN MODE)
 LIMIT 1", args.Query)
-                .ToArrayAsync(cancellationToken);
+                    .ToArrayAsync(cancellationToken);
 
-            if (doujins.Length == 0)
+                args.Exists = doujins.Length != 0;
+            }
+
+            if (!args.Exists.Value)
                 return new Doujin[0];
 
             // count the number of rows we can scan
