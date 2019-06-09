@@ -65,6 +65,12 @@ namespace nhitomi.Core
         public ICollection<TagRef> Tags { get; set; }
 
         /// <summary>
+        /// Denormalized table of tags separated by spaces.
+        /// </summary>
+        [Required, MaxLength(2048)]
+        public string TagsDenormalized { get; set; }
+
+        /// <summary>
         /// Gets the collections that contain this doujin.
         /// This is for navigation only and should not be included in queries.
         /// </summary>
@@ -85,6 +91,8 @@ namespace nhitomi.Core
                 doujin.HasIndex(d => new {d.Source, d.SourceId});
                 doujin.HasIndex(d => d.UploadTime);
                 doujin.HasIndex(d => d.ProcessTime);
+
+                doujin.HasIndex(d => d.TagsDenormalized);
             });
         }
     }

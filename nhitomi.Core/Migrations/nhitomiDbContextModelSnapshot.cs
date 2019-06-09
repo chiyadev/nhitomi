@@ -81,6 +81,10 @@ namespace nhitomi.Core.Migrations
                     .IsRequired()
                     .HasMaxLength(16);
 
+                b.Property<string>("TagsDenormalized")
+                    .IsRequired()
+                    .HasMaxLength(2048);
+
                 b.Property<DateTime>("UploadTime");
 
                 b.HasKey("Id");
@@ -89,6 +93,8 @@ namespace nhitomi.Core.Migrations
                     .IsUnique();
 
                 b.HasIndex("ProcessTime");
+
+                b.HasIndex("TagsDenormalized");
 
                 b.HasIndex("UploadTime");
 
