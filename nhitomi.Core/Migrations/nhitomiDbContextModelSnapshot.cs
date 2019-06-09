@@ -97,21 +97,6 @@ namespace nhitomi.Core.Migrations
                 b.ToTable("Doujins");
             });
 
-            modelBuilder.Entity("nhitomi.Core.DoujinText", b =>
-            {
-                b.Property<int>("Id");
-
-                b.Property<string>("Value")
-                    .IsRequired()
-                    .HasMaxLength(4096);
-
-                b.HasKey("Id");
-
-                b.HasIndex("Value");
-
-                b.ToTable("DoujinTexts");
-            });
-
             modelBuilder.Entity("nhitomi.Core.FeedChannel", b =>
             {
                 b.Property<ulong>("Id")
@@ -205,14 +190,6 @@ namespace nhitomi.Core.Migrations
                 b.HasOne("nhitomi.Core.Doujin", "Doujin")
                     .WithMany("Collections")
                     .HasForeignKey("DoujinId")
-                    .OnDelete(DeleteBehavior.Cascade);
-            });
-
-            modelBuilder.Entity("nhitomi.Core.DoujinText", b =>
-            {
-                b.HasOne("nhitomi.Core.Doujin", "Doujin")
-                    .WithOne("Text")
-                    .HasForeignKey("nhitomi.Core.DoujinText", "Id")
                     .OnDelete(DeleteBehavior.Cascade);
             });
 

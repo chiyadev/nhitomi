@@ -45,7 +45,6 @@ namespace nhitomi.Core
     public class nhitomiDbContext : DbContext, IDatabase
     {
         public DbSet<Doujin> Doujins { get; set; }
-        public DbSet<DoujinText> DoujinTexts { get; set; }
         public DbSet<Tag> Tags { get; set; }
         public DbSet<Collection> Collections { get; set; }
         public DbSet<Guild> Guilds { get; set; }
