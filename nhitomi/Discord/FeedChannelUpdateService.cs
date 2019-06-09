@@ -111,7 +111,7 @@ namespace nhitomi.Discord
                                     }
 
                                     return q
-                                        .OrderBy(d => d.UploadTime)
+                                        .OrderBy(d => d.ProcessTime)
                                         .Take(_chunkLoadSize);
                                 }, cancellationToken);
 
