@@ -275,7 +275,7 @@ FROM (
 ) AS x
 
 # Join on doujins
-JOIN `Doujins` d ON d.`Id` = x.`Id`
+INNER JOIN `Doujins` d ON d.`Id` = x.`Id`
 
 # Filter items
 WHERE MATCH d.`TagsDenormalized` AGAINST ({{0}} IN BOOLEAN MODE)
