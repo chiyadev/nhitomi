@@ -9,9 +9,7 @@ namespace nhitomi.Core.Migrations
             migrationBuilder.AddColumn<string>(
                 "TagsDenormalized",
                 "Doujins",
-                maxLength: 2048,
-                nullable: false,
-                defaultValue: "");
+                maxLength: 2048);
 
             migrationBuilder.CreateIndex(
                 "IX_Doujins_TagsDenormalized",
