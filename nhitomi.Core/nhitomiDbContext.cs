@@ -154,17 +154,28 @@ namespace nhitomi.Core
             if (string.IsNullOrWhiteSpace(args.Query))
                 return new Doujin[0];
 
+            Doujin[] doujins;
+
             switch (Database.ProviderName)
             {
                 case "Pomelo.EntityFrameworkCore.MySql":
-                    return await MySqlSearchAsync(args, cancellationToken);
+                    doujins = await MySqlSearchAsync(args, cancellationToken);
+                    break;
 
                 //todo:
                 case "Microsoft.EntityFrameworkCore.Sqlite":
-                    return new Doujin[0];
+                    doujins = new Doujin[0];
+                    break;
+
+                default:
+                    throw new NotSupportedException($"Unsupported database provider {Database.ProviderName}.");
+                    break;
             }
 
-            throw new NotSupportedException($"Unsupported database provider {Database.ProviderName}.");
+            // populate tags
+            await PopulateTags(doujins, cancellationToken);
+
+            return doujins;
         }
 
         static readonly Regex _commonSymbols = new Regex(@"[-!$%^&*#@()_+|~=`{}\[\]:"";'<>?,.\\\/\s]",
