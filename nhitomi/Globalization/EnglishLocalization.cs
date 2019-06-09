@@ -9,9 +9,6 @@ namespace nhitomi.Globalization
 
         protected override object CreateDefinition() => new
         {
-            meta = new
-            {
-            },
             messages = new
             {
                 doujinNotFound = "**nhitomi**: No such doujin!",
