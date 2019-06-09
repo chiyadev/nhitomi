@@ -216,7 +216,7 @@ LIMIT 1", args.Query)
             var doujinList = new List<Doujin>();
 
             // iterate in chunks
-            while (doujinList.Count == 0)
+            do
             {
                 // get all matching items within the scanning range
                 var builder = new StringBuilder().AppendLine($@"
@@ -253,17 +253,12 @@ ORDER BY d.`UploadTime` DESC");
                     .FromSql(builder.ToString(), args.Query, args.Source)
                     .ToArrayAsync(cancellationToken);
 
-                if (doujins.Length == 0)
-                {
-                    // scan the next chunk if none found in this chunk
-                    args = args.Next();
-                }
-                else
-                {
-                    // we found some in this chunk
-                    doujinList.AddRange(doujins);
-                }
+                doujinList.AddRange(doujins);
+
+                // move to the next chunk
+                args = args.Next();
             }
+            while (doujinList.Count == 0);
 
             return doujinList.ToArray();
         }
