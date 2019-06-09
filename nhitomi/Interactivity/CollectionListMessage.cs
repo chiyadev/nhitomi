@@ -61,7 +61,7 @@ namespace nhitomi.Interactivity
                 {
                     var first = collection.Doujins.First().DoujinId;
 
-                    embed.ThumbnailUrl = $"https://nhitomi-beta.chiya.dev/api/v1/images/{first}/-1";
+                    embed.ThumbnailUrl = $"https://nhitomi.chiya.dev/api/v1/images/{first}/-1";
                 }
 
                 embed.AddField(path["sort"][l], path["sortValues"][collection.Sort.ToString()][l]);

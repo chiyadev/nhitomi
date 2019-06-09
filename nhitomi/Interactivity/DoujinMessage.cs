@@ -50,7 +50,7 @@ namespace nhitomi.Interactivity
                         .WithName(doujin.GetTag(TagType.Artist)?.Value ?? doujin.Source)
                         .WithIconUrl(path["sourceIcons"][doujin.Source][l]))
                     .WithUrl(GetGalleryUrl(doujin))
-                    .WithImageUrl($"https://nhitomi-beta.chiya.dev/api/v1/images/{doujin.AccessId}/-1")
+                    .WithImageUrl($"https://nhitomi.chiya.dev/api/v1/images/{doujin.AccessId}/-1")
                     .WithColor(Color.Green)
                     .WithFooter(path["footer"][l, new {doujin}]);
 
