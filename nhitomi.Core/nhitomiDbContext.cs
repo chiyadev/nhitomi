@@ -1,5 +1,8 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
@@ -8,6 +11,22 @@ using Microsoft.EntityFrameworkCore.Design;
 
 namespace nhitomi.Core
 {
+    public class DoujinSearchArgs
+    {
+        public string Query { get; set; }
+        public int ScanOffset { get; set; }
+        public int ScanRange { get; set; } = 1000;
+        public bool QualityFilter { get; set; } = true;
+        public string Source { get; set; }
+
+        public DoujinSearchArgs Next()
+        {
+            ScanOffset += ScanRange;
+
+            return this;
+        }
+    }
+
     public delegate IQueryable<T> QueryFilterDelegate<T>(IQueryable<T> query);
 
     public interface IDatabase
@@ -24,6 +43,8 @@ namespace nhitomi.Core
 
         Task<Doujin[]> GetDoujinsAsync(QueryFilterDelegate<Doujin> query,
             CancellationToken cancellationToken = default);
+
+        Task<Doujin[]> SearchDoujinsAsync(DoujinSearchArgs args, CancellationToken cancellationToken = default);
 
         Task<Tag[]> GetTagsAsync(string value, CancellationToken cancellationToken = default);
 
@@ -125,6 +146,115 @@ namespace nhitomi.Core
             await PopulateTags(doujins, cancellationToken);
 
             return doujins;
+        }
+
+        public async Task<Doujin[]> SearchDoujinsAsync(DoujinSearchArgs args,
+            CancellationToken cancellationToken = default)
+        {
+            if (string.IsNullOrWhiteSpace(args.Query))
+                return new Doujin[0];
+
+            switch (Database.ProviderName)
+            {
+                case "Pomelo.EntityFrameworkCore.MySql":
+                    return await MySqlSearchAsync(args, cancellationToken);
+
+                //todo:
+                case "Microsoft.EntityFrameworkCore.Sqlite":
+                    return new Doujin[0];
+            }
+
+            throw new NotSupportedException($"Unsupported database provider {Database.ProviderName}.");
+        }
+
+        static readonly Regex _commonSymbols = new Regex(@"[^-!$%^&*#@()_+|~=`{}\[\]:"";'<>?,.\\\/\s]+",
+            RegexOptions.Singleline | RegexOptions.Compiled);
+
+        async Task<Doujin[]> MySqlSearchAsync(DoujinSearchArgs args, CancellationToken cancellationToken = default)
+        {
+            // remove symbols
+            args.Query = _commonSymbols.Replace(args.Query, "");
+
+            // rebuild query for boolean search
+            var queryParts = new HashSet<string>(args.Query
+                .Split(new[] {' '}, StringSplitOptions.RemoveEmptyEntries)
+                .Select(s => s.ToLowerInvariant()));
+
+            if (args.QualityFilter)
+            {
+                // search quality filter
+                queryParts.Add("full");
+                queryParts.Add("color");
+            }
+
+            // every part of the query must be present as a tag
+            args.Query = "+" + string.Join(" +", queryParts);
+
+            // check if there are at least one matching item
+            var doujins = await Query<Doujin>()
+                .FromSql(@"
+SELECT *
+FROM `Doujins`
+WHERE MATCH `TagsDenormalized` AGAINST ({0} IN NATURAL LANGUAGE MODE)
+LIMIT 1", args.Query)
+                .ToArrayAsync(cancellationToken);
+
+            if (doujins.Length == 0)
+                return new Doujin[0];
+
+            var doujinList = new List<Doujin>();
+
+            // iterate in chunks
+            while (doujinList.Count == 0)
+            {
+                // get all matching items within the scanning range
+                var builder = new StringBuilder().AppendLine($@"
+SELECT d.*
+
+FROM (
+  # Sort then limit on the primary key
+  SELECT `Id`
+  FROM `Doujins`");
+
+                if (args.Source != null)
+                    builder.AppendLine(@"
+  # Limiting to source
+  WHERE `Source` = {1}");
+
+                builder.AppendLine($@"
+  # Return sorted by upload time descending
+  ORDER BY `UploadTime` DESC
+
+  LIMIT {args.ScanRange} OFFSET {args.ScanOffset}
+) AS x
+
+# Join on doujins
+JOIN `Doujins` d ON d.`Id` = x.`Id`
+
+# Filter items
+WHERE MATCH d.`TagsDenormalized` AGAINST ({{0}} IN NATURAL LANGUAGE MODE)
+
+# Sort again
+# MySql doesn't support FULLTEXT + BTREE composite index
+ORDER BY d.`UploadTime` DESC");
+
+                doujins = await Query<Doujin>()
+                    .FromSql(builder.ToString(), args.Query, args.Source)
+                    .ToArrayAsync(cancellationToken);
+
+                if (doujins.Length == 0)
+                {
+                    // scan the next chunk if none found in this chunk
+                    args = args.Next();
+                }
+                else
+                {
+                    // we found some in this chunk
+                    doujinList.AddRange(doujins);
+                }
+            }
+
+            return doujinList.ToArray();
         }
 
         public Task<Tag[]> GetTagsAsync(string value, CancellationToken cancellationToken = default) =>

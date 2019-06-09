@@ -54,11 +54,12 @@ namespace nhitomi.Modules
             }
 
             await _interactive.SendInteractiveAsync(
-                new DoujinListFromQueryMessage(query)
+                new DoujinListFromQueryMessage(new DoujinSearchArgs
                 {
+                    Query = query,
                     QualityFilter = filter ?? _context.GuildSettings.SearchQualityFilter ?? false,
                     Source = source
-                },
+                }),
                 _context,
                 cancellationToken);
         }

@@ -1,4 +1,3 @@
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using nhitomi.Core;
@@ -7,14 +6,11 @@ namespace nhitomi.Interactivity
 {
     public sealed class DoujinListFromQueryMessage : DoujinListMessage<DoujinListFromQueryMessage.View>
     {
-        readonly string _query;
+        readonly DoujinSearchArgs _args;
 
-        public bool QualityFilter { get; set; }
-        public string Source { get; set; }
-
-        public DoujinListFromQueryMessage(string query)
+        public DoujinListFromQueryMessage(DoujinSearchArgs args)
         {
-            _query = query;
+            _args = args;
         }
 
         public class View : DoujinListView
@@ -30,15 +26,7 @@ namespace nhitomi.Interactivity
 
             protected override Task<Doujin[]> GetValuesAsync(int offset,
                 CancellationToken cancellationToken = default) =>
-                _db.GetDoujinsAsync(x => x
-                    .FullTextSearch(_db, new DoujinSearchArguments
-                    {
-                        Query = Message._query,
-                        QualityFilter = Message.QualityFilter,
-                        Source = Message.Source
-                    })
-                    .Skip(offset)
-                    .Take(10));
+                _db.SearchDoujinsAsync(Message._args, cancellationToken);
         }
     }
 }
