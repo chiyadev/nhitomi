@@ -100,6 +100,8 @@ namespace nhitomi.Core.Migrations
 
                 b.HasIndex("Source", "SourceId");
 
+                b.HasIndex("Source", "UploadTime");
+
                 b.ToTable("Doujins");
             });
 

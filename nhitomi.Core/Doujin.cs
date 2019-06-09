@@ -89,6 +89,8 @@ namespace nhitomi.Core
                 doujin.HasIndex(d => d.AccessId).IsUnique();
 
                 doujin.HasIndex(d => new {d.Source, d.SourceId});
+                doujin.HasIndex(d => new {d.Source, d.UploadTime});
+
                 doujin.HasIndex(d => d.UploadTime);
                 doujin.HasIndex(d => d.ProcessTime);
 
