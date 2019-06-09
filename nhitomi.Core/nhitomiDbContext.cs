@@ -195,7 +195,7 @@ namespace nhitomi.Core
                 .FromSql(@"
 SELECT *
 FROM `Doujins`
-WHERE MATCH `TagsDenormalized` AGAINST ({0} IN NATURAL LANGUAGE MODE)
+WHERE MATCH `TagsDenormalized` AGAINST ({0} IN BOOLEAN MODE)
 LIMIT 1", args.Query)
                 .ToArrayAsync(cancellationToken);
 
@@ -232,7 +232,7 @@ FROM (
 JOIN `Doujins` d ON d.`Id` = x.`Id`
 
 # Filter items
-WHERE MATCH d.`TagsDenormalized` AGAINST ({{0}} IN NATURAL LANGUAGE MODE)
+WHERE MATCH d.`TagsDenormalized` AGAINST ({{0}} IN BOOLEAN MODE)
 
 # Sort again
 # MySql doesn't support FULLTEXT + BTREE composite index
