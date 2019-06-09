@@ -15,7 +15,7 @@ namespace nhitomi.Core
     {
         public string Query { get; set; }
         public int ScanOffset { get; set; }
-        public int ScanRange { get; set; } = 1000;
+        public int ScanRange { get; set; } = 256;
         public bool QualityFilter { get; set; } = true;
         public string Source { get; set; }
 
@@ -219,7 +219,7 @@ namespace nhitomi.Core
             // every part of the query must be present as a tag
             args.Query = "+" + string.Join(" +", queryParts);
 
-            // check if there are at least one matching item
+            // check if there is at least one matching item
             var doujins = await Query<Doujin>()
                 .FromSql(@"
 SELECT *
@@ -275,6 +275,10 @@ ORDER BY d.`UploadTime` DESC");
 
                 // move to the next chunk
                 args = args.Next();
+
+                // increase the scan range exponentially
+                if (doujins.Length <= 5)
+                    args.ScanRange *= 2;
             }
             while (doujinList.Count == 0);
 
