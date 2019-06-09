@@ -18,6 +18,7 @@ namespace nhitomi.Core
         public int ScanRange { get; set; } = 256;
         public bool QualityFilter { get; set; } = true;
         public string Source { get; set; }
+        public int? MaxCount { get; set; }
 
         public DoujinSearchArgs Next()
         {
@@ -231,6 +232,14 @@ LIMIT 1", args.Query)
             if (doujins.Length == 0)
                 return new Doujin[0];
 
+            // count the number of rows we can scan
+            int maxCount;
+
+            if (args.MaxCount == null)
+                args.MaxCount = maxCount = await Query<Doujin>().CountAsync(cancellationToken);
+            else
+                maxCount = args.MaxCount.Value;
+
             var doujinList = new List<Doujin>();
 
             // iterate in chunks
@@ -280,7 +289,7 @@ ORDER BY d.`UploadTime` DESC");
                 if (doujins.Length <= 5)
                     args.ScanRange *= 2;
             }
-            while (doujinList.Count == 0);
+            while (doujinList.Count == 0 && args.ScanOffset < maxCount);
 
             return doujinList.ToArray();
         }
