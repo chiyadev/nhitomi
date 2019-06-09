@@ -15,7 +15,7 @@ namespace nhitomi.Core
     {
         public string Query { get; set; }
         public int ScanOffset { get; set; }
-        public int ScanRange { get; set; } = 128;
+        public int ScanRange { get; set; } = 32;
         public bool QualityFilter { get; set; } = true;
         public string Source { get; set; }
         public bool? Exists { get; set; }
@@ -294,10 +294,12 @@ ORDER BY d.`UploadTime` DESC");
                 args = args.Next();
 
                 // increase the scan range exponentially
-                if (doujins.Length < 2)
-                    args.ScanRange *= 4;
+                if (doujins.Length < 1)
+                    args.ScanRange *= 8;
+                else if (doujins.Length < 2)
+                    args.ScanRange *= 6;
                 else if (doujins.Length < 4)
-                    args.ScanRange *= 3;
+                    args.ScanRange *= 4;
                 else if (doujins.Length < 8)
                     args.ScanRange *= 2;
             }
