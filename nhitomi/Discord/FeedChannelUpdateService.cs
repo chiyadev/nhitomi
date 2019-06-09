@@ -63,7 +63,6 @@ namespace nhitomi.Discord
             }
 
             const int _chunkLoadSize = 10;
-            const int _updateLimit = 50;
 
             async Task RunChannelAsync(FeedChannel channel, CancellationToken cancellationToken = default)
             {
@@ -113,7 +112,6 @@ namespace nhitomi.Discord
 
                                     return q
                                         .OrderBy(d => d.UploadTime)
-                                        .TakeLast(_updateLimit)
                                         .Take(_chunkLoadSize);
                                 }, cancellationToken);
 
