@@ -102,9 +102,9 @@ namespace nhitomi.Core
     public static class DoujinExtensions
     {
         public static Tag GetTag(this Doujin doujin, TagType type) =>
-            doujin.Tags.Select(x => x.Tag).FirstOrDefault(x => x.Type == type);
+            doujin.Tags?.Select(x => x.Tag).FirstOrDefault(x => x.Type == type);
 
         public static Tag[] GetTags(this Doujin doujin, TagType type) =>
-            doujin.Tags.Select(x => x.Tag).Where(t => t.Type == type).ToArray();
+            doujin.Tags?.Select(x => x.Tag).Where(t => t.Type == type).ToArray();
     }
 }
