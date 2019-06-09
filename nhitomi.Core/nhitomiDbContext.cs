@@ -18,7 +18,6 @@ namespace nhitomi.Core
         public int ScanRange { get; set; } = 32;
         public bool QualityFilter { get; set; } = true;
         public string Source { get; set; }
-        public bool? Exists { get; set; }
         public int? MaxCount { get; set; }
 
         public DoujinSearchArgs Next()
@@ -221,25 +220,6 @@ namespace nhitomi.Core
             // every part of the query must be present as a tag
             args.Query = "+" + string.Join(" +", queryParts);
 
-            Doujin[] doujins;
-
-            // check if there is at least one matching item
-            if (args.Exists == null)
-            {
-                doujins = await Query<Doujin>()
-                    .FromSql(@"
-SELECT *
-FROM `Doujins`
-WHERE MATCH `TagsDenormalized` AGAINST ({0} IN BOOLEAN MODE)
-LIMIT 1", args.Query)
-                    .ToArrayAsync(cancellationToken);
-
-                args.Exists = doujins.Length != 0;
-            }
-
-            if (!args.Exists.Value)
-                return new Doujin[0];
-
             // count the number of rows we can scan
             int maxCount;
 
@@ -284,7 +264,7 @@ WHERE MATCH d.`TagsDenormalized` AGAINST ({{0}} IN BOOLEAN MODE)
 # MySql doesn't support FULLTEXT + BTREE composite index
 ORDER BY d.`UploadTime` DESC");
 
-                doujins = await Query<Doujin>()
+                var doujins = await Query<Doujin>()
                     .FromSql(builder.ToString(), args.Query, args.Source)
                     .ToArrayAsync(cancellationToken);
 
