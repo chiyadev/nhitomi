@@ -184,7 +184,7 @@ namespace nhitomi.Core
         async Task<Doujin[]> MySqlSearchAsync(DoujinSearchArgs args, CancellationToken cancellationToken = default)
         {
             // remove symbols
-            args.Query = _commonSymbols.Replace(args.Query, "");
+            args.Query = _commonSymbols.Replace(args.Query, " ");
 
             // rebuild query for boolean search
             var queryParts = new HashSet<string>(args.Query
