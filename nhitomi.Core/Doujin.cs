@@ -10,6 +10,8 @@ namespace nhitomi.Core
     {
         [Key] public int Id { get; set; }
 
+        public DoujinText Text { get; set; }
+
         /// <summary>
         /// The identifier by which this doujinshi should be referred.
         /// </summary>
@@ -82,12 +84,52 @@ namespace nhitomi.Core
             {
                 doujin.HasIndex(d => d.AccessId).IsUnique();
 
-                doujin.HasIndex(d => d.PrettyName);
-                doujin.HasIndex(d => d.OriginalName);
-
-                doujin.HasIndex(d => d.Source);
-                doujin.HasIndex(d => d.SourceId);
+                doujin.HasIndex(d => new {d.Source, d.SourceId});
+                doujin.HasIndex(d => d.UploadTime);
+                doujin.HasIndex(d => d.ProcessTime);
             });
+
+            model.Entity<DoujinText>(text =>
+            {
+                text.HasOne(t => t.Doujin)
+                    .WithOne(d => d.Text)
+                    .HasForeignKey<DoujinText>(t => t.Id);
+
+                text.HasIndex(t => t.Value);
+            });
+        }
+    }
+
+    /// <summary>
+    /// A denormalized version of doujinshi for fulltext searching.
+    /// </summary>
+    public class DoujinText
+    {
+        [Key] public int Id { get; set; }
+
+        public Doujin Doujin { get; set; }
+
+        [Required, MaxLength(4096)] public string Value { get; set; }
+
+        public DoujinText()
+        {
+        }
+
+        public DoujinText(Doujin d)
+        {
+            var parts = new List<string>();
+
+            void add(string str) => parts.AddRange(str.Split(new[] {' '}, StringSplitOptions.RemoveEmptyEntries));
+
+            add(d.PrettyName);
+
+            if (!d.PrettyName.Equals(d.OriginalName, StringComparison.OrdinalIgnoreCase))
+                add(d.OriginalName);
+
+            foreach (var t in d.Tags.Select(x => x.Tag))
+                add(t.Value);
+
+            Value = string.Join(" ", parts.Distinct());
         }
     }
 
