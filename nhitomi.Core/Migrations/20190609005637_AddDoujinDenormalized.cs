@@ -27,7 +27,7 @@ namespace nhitomi.Core.Migrations
                 table => new
                 {
                     Id = table.Column<int>(),
-                    Value = table.Column<string>(maxLength: 4096)
+                    Value = table.Column<string>()
                 },
                 constraints: table =>
                 {
