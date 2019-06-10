@@ -46,8 +46,9 @@ namespace nhitomi.Interactivity
 
             var id = message.Message.Id;
 
-            // add to interactive list
-            if (message is IInteractiveMessage interactiveMessage)
+            // add to interactive list if we have stateful triggers
+            if (message is IInteractiveMessage interactiveMessage &&
+                interactiveMessage.Triggers.Values.Any(t => !t.CanRunStateless))
                 InteractiveMessages[id] = interactiveMessage;
 
             // forget interactives in an hour
