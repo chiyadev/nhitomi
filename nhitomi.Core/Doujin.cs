@@ -67,7 +67,6 @@ namespace nhitomi.Core
         /// <summary>
         /// Denormalized table of tags separated by spaces.
         /// </summary>
-        [MaxLength(2048)]
         public string TagsDenormalized { get; set; }
 
         /// <summary>
