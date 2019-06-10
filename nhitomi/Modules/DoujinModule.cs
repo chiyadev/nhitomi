@@ -67,20 +67,6 @@ namespace nhitomi.Modules
         [Command("download", Aliases = new[] {"dl"})]
         public async Task DownloadAsync(string source, string id, CancellationToken cancellationToken = default)
         {
-            // allow downloading only for users of guild
-            if (!_settings.Doujin.AllowNonGuildMemberDownloads)
-            {
-                var guild = await _context.Client.GetGuildAsync(_settings.Discord.Guild.GuildId);
-
-                // guild user is null; user is not in guild
-                if (guild != null && await guild.GetUserAsync(_context.User.Id) == null)
-                {
-                    await _context.ReplyAsync("messages.joinForDownload",
-                        new {invite = _settings.Discord.Guild.GuildInvite});
-                    return;
-                }
-            }
-
             var doujin = await _database.GetDoujinAsync(source, id, cancellationToken);
 
             if (doujin == null)

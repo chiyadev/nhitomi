@@ -24,20 +24,8 @@ namespace nhitomi
             public sealed class GuildSettings
             {
                 public ulong GuildId { get; set; }
-                public ulong LogChannelId { get; set; }
-                public ulong LogWarningChannelId { get; set; }
-                public ulong FeedCategoryId { get; set; }
-                public ulong LanguageFeedCategoryId { get; set; }
-
                 public string GuildInvite { get; set; }
             }
-        }
-
-        public DoujinSettings Doujin { get; set; } = new DoujinSettings();
-
-        public sealed class DoujinSettings
-        {
-            public bool AllowNonGuildMemberDownloads { get; set; }
         }
 
         public HttpSettings Http { get; set; } = new HttpSettings();
