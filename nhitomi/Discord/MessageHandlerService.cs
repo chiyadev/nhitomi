@@ -58,6 +58,8 @@ namespace nhitomi.Discord
 
         public async Task StartAsync(CancellationToken cancellationToken)
         {
+            await _discord.WaitForReadyAsync(cancellationToken);
+
             await Task.WhenAll(_messageHandlers.Select(h => h.InitializeAsync(cancellationToken)));
 
             _discord.MessageReceived += MessageReceived;

@@ -37,8 +37,7 @@ namespace nhitomi.Discord
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            //todo: only update status if we are shard 0
-            await _discord.ConnectAsync();
+            await _discord.WaitForReadyAsync(stoppingToken);
 
             while (!stoppingToken.IsCancellationRequested)
             {

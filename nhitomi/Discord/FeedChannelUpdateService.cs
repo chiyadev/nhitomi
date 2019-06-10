@@ -15,14 +15,18 @@ namespace nhitomi.Discord
     public class FeedChannelUpdateService : BackgroundService
     {
         readonly IServiceProvider _services;
+        readonly DiscordService _discord;
 
-        public FeedChannelUpdateService(IServiceProvider services)
+        public FeedChannelUpdateService(IServiceProvider services, DiscordService discord)
         {
             _services = services;
+            _discord = discord;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
+            await _discord.WaitForReadyAsync(stoppingToken);
+
             while (!stoppingToken.IsCancellationRequested)
             {
                 using (var scope = _services.CreateScope())

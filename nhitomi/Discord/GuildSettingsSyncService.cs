@@ -75,6 +75,8 @@ namespace nhitomi.Discord
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
+            await _discord.WaitForReadyAsync(stoppingToken);
+
             while (!stoppingToken.IsCancellationRequested)
             {
                 if (_cache.RefreshQueue.Count != 0)

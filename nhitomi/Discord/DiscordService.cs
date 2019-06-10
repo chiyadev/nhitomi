@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Concurrent;
+using System.Threading;
 using System.Threading.Tasks;
 using Discord;
 using Discord.WebSocket;
@@ -25,7 +27,18 @@ namespace nhitomi.Discord
         public DiscordService(IOptions<AppSettings> options) : base(options.Value.Discord)
         {
             _settings = options.Value;
+
+            Ready += () =>
+            {
+                while (_readyQueue.TryDequeue(out var source))
+                    source.TrySetResult(null);
+
+                return Task.CompletedTask;
+            };
         }
+
+        readonly ConcurrentQueue<TaskCompletionSource<object>> _readyQueue =
+            new ConcurrentQueue<TaskCompletionSource<object>>();
 
         public async Task ConnectAsync()
         {
@@ -35,6 +48,16 @@ namespace nhitomi.Discord
             // login
             await LoginAsync(TokenType.Bot, _settings.Discord.Token);
             await StartAsync();
+        }
+
+        public async Task WaitForReadyAsync(CancellationToken cancellationToken = default)
+        {
+            var source = new TaskCompletionSource<object>();
+
+            _readyQueue.Enqueue(source);
+
+            using (cancellationToken.Register(() => source.TrySetCanceled()))
+                await source.Task;
         }
     }
 
