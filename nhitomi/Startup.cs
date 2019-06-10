@@ -24,8 +24,6 @@ namespace nhitomi
 
         public static void ConfigureServices(HostBuilderContext host, IServiceCollection services)
         {
-            var settings = host.Configuration.Get<AppSettings>();
-
             // configuration
             services
                 .Configure<AppSettings>(host.Configuration);
@@ -37,13 +35,10 @@ namespace nhitomi
                     .AddDebug());
 
             // database
-            if (settings.UseDatabase)
-            {
-                services
-                    .AddScoped<IDatabase>(s => s.GetRequiredService<nhitomiDbContext>())
-                    .AddDbContextPool<nhitomiDbContext>(d => d
-                        .UseMySql(host.Configuration.GetConnectionString("nhitomi")));
-            }
+            services
+                .AddScoped<IDatabase>(s => s.GetRequiredService<nhitomiDbContext>())
+                .AddDbContextPool<nhitomiDbContext>(d => d
+                    .UseMySql(host.Configuration.GetConnectionString("nhitomi")));
 
             // discord services
             services
