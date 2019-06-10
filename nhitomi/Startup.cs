@@ -36,20 +36,9 @@ namespace nhitomi
 
             // database
             services
-                .AddScoped<IDatabase>(s => s.GetRequiredService<nhitomiDbContext>());
-
-            if (host.HostingEnvironment.IsProduction())
-            {
-                services
-                    .AddDbContextPool<nhitomiDbContext>(d => d
-                        .UseMySql(host.Configuration.GetConnectionString("nhitomi")));
-            }
-            else
-            {
-                services
-                    .AddDbContext<nhitomiDbContext>(d => d
-                        .UseSqlite("Data Source=nhitomi.db"));
-            }
+                .AddScoped<IDatabase>(s => s.GetRequiredService<nhitomiDbContext>())
+                .AddDbContextPool<nhitomiDbContext>(d => d
+                    .UseMySql(host.Configuration.GetConnectionString("nhitomi")));
 
             // discord services
             services
