@@ -74,7 +74,8 @@ namespace nhitomi
             services
                 .AddHttpClient()
                 .AddTransient<IHttpClient, HttpClientWrapper>()
-                .AddTransient(s => JsonSerializer.Create(new nhitomiSerializerSettings()));
+                .AddTransient(s => JsonSerializer.Create(new nhitomiSerializerSettings()))
+                .AddHostedService<ForcedGarbageCollector>();
         }
     }
 }
