@@ -68,20 +68,29 @@ namespace nhitomi.Discord
             {
                 try
                 {
-                    // don't run updates if no tags
-                    if (channel.Tags == null || channel.Tags.Count == 0)
-                        return;
-
                     var context = new FeedUpdateContext
                     {
                         Client = _discord,
-                        Channel = _discord.GetGuild(channel.GuildId).GetTextChannel(channel.Id),
+                        Channel = _discord.GetGuild(channel.GuildId)?.GetTextChannel(channel.Id),
                         GuildSettings = channel.Guild
                     };
 
-                    // channel not available
-                    if (context.Channel == null)
-                        return;
+                    // no tags or channel not available
+                    if (channel.Tags == null || channel.Tags.Count == 0 ||
+                        context.Channel == null)
+                    {
+                        await _semaphore.WaitAsync(cancellationToken);
+                        try
+                        {
+                            _db.Remove(channel);
+
+                            return;
+                        }
+                        finally
+                        {
+                            _semaphore.Release();
+                        }
+                    }
 
                     var tagIds = channel.Tags.Select(t => t.TagId).ToArray();
 
@@ -134,10 +143,10 @@ namespace nhitomi.Discord
                             // make updates more even
                             await Task.Delay(TimeSpan.FromSeconds(1), cancellationToken);
 
-                            await _interactive.SendInteractiveAsync(
+                            /*await _interactive.SendInteractiveAsync(
                                 new DoujinMessage(doujin),
                                 context,
-                                cancellationToken);
+                                cancellationToken);*/
                         }
 
                         // set last sent doujin
