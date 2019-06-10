@@ -47,31 +47,32 @@ namespace nhitomi
                 .AddSingleton<GalleryUrlDetector>()
                 .AddSingleton<InteractiveManager>()
                 .AddSingleton<GuildSettingsCache>()
-                .AddSingleton<MessageHandlerService>()
-                .AddSingleton<ReactionHandlerService>()
-                .AddSingleton<StatusUpdateService>()
-                .AddSingleton<LogHandlerService>()
-                .AddSingleton<GuildSettingsSyncService>()
-                .AddSingleton<FeedChannelUpdateService>()
-                .AddSingleton<IHostedService, MessageHandlerService>(s => s.GetService<MessageHandlerService>())
-                .AddSingleton<IHostedService, ReactionHandlerService>(s => s.GetService<ReactionHandlerService>())
-                .AddSingleton<IHostedService, StatusUpdateService>(s => s.GetService<StatusUpdateService>())
-                .AddSingleton<IHostedService, LogHandlerService>(s => s.GetService<LogHandlerService>())
-                .AddSingleton<IHostedService, GuildSettingsSyncService>(s => s.GetService<GuildSettingsSyncService>())
-                .AddSingleton<IHostedService, FeedChannelUpdateService>(s => s.GetService<FeedChannelUpdateService>());
+                .AddHostedInjectableService<MessageHandlerService>()
+                .AddHostedInjectableService<ReactionHandlerService>()
+                .AddHostedInjectableService<StatusUpdateService>()
+                .AddHostedInjectableService<LogHandlerService>()
+                .AddHostedInjectableService<GuildSettingsSyncService>()
+                .AddHostedInjectableService<FeedChannelUpdateService>();
 
             // http server
             services
-                .AddSingleton<HttpService>()
-                .AddSingleton<ProxyHandler>()
-                .AddSingleton<IHostedService, HttpService>(s => s.GetService<HttpService>());
+                .AddHostedInjectableService<HttpService>()
+                .AddSingleton<ProxyHandler>();
 
             // other stuff
             services
                 .AddHttpClient()
                 .AddTransient<IHttpClient, HttpClientWrapper>()
                 .AddTransient(s => JsonSerializer.Create(new nhitomiSerializerSettings()))
-                .AddHostedService<ForcedGarbageCollector>();
+                .AddHostedInjectableService<ForcedGarbageCollector>();
         }
+    }
+
+    public static class ServiceCollectionExtensions
+    {
+        public static IServiceCollection AddHostedInjectableService<TService>(this IServiceCollection collection)
+            where TService : class, IHostedService => collection
+            .AddSingleton<TService>()
+            .AddSingleton<IHostedService, TService>(s => s.GetService<TService>());
     }
 }
