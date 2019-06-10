@@ -26,8 +26,16 @@ namespace nhitomi.Interactivity
         public override async Task<bool> UpdateViewAsync(IServiceProvider services,
             CancellationToken cancellationToken = default)
         {
-            // disallow concurrent view updates
-            await _semaphore.WaitAsync(cancellationToken);
+            try
+            {
+                // disallow concurrent view updates
+                await _semaphore.WaitAsync(cancellationToken);
+            }
+            catch (ObjectDisposedException)
+            {
+                // message may have been deleted
+                return false;
+            }
 
             try
             {
