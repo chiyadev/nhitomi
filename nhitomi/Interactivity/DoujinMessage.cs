@@ -57,9 +57,9 @@ namespace nhitomi.Interactivity
                 AddField(embed, path["language"][l], doujin.GetTag(TagType.Language)?.Value);
                 AddField(embed, path["group"][l], doujin.GetTag(TagType.Group)?.Value);
                 AddField(embed, path["parody"][l], doujin.GetTag(TagType.Parody)?.Value);
-                AddField(embed, path["categories"][l], doujin.GetTags(TagType.Category).Select(t => t.Value));
-                AddField(embed, path["characters"][l], doujin.GetTags(TagType.Character).Select(t => t.Value));
-                AddField(embed, path["tags"][l], doujin.GetTags(TagType.Tag).Select(t => t.Value));
+                AddField(embed, path["categories"][l], doujin.GetTags(TagType.Category)?.Select(t => t.Value));
+                AddField(embed, path["characters"][l], doujin.GetTags(TagType.Character)?.Select(t => t.Value));
+                AddField(embed, path["tags"][l], doujin.GetTags(TagType.Tag)?.Select(t => t.Value));
                 AddField(embed, path["contents"][l], path["contentsValue"][l, new {doujin}]);
 
                 return embed.Build();
