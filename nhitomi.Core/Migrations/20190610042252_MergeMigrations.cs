@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace nhitomi.Core.Migrations
 {
-    public partial class InitialCreate : Migration
+    public partial class MergeMigrations : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -13,7 +13,6 @@ namespace nhitomi.Core.Migrations
                 table => new
                 {
                     Id = table.Column<int>()
-                        .Annotation("Sqlite:Autoincrement", true)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
                     Name = table.Column<string>(maxLength: 32),
                     Sort = table.Column<int>(),
@@ -27,10 +26,8 @@ namespace nhitomi.Core.Migrations
                 table => new
                 {
                     Id = table.Column<int>()
-                        .Annotation("Sqlite:Autoincrement", true)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
                     AccessId = table.Column<Guid>(),
-                    GalleryUrl = table.Column<string>(maxLength: 64),
                     PrettyName = table.Column<string>(maxLength: 256),
                     OriginalName = table.Column<string>(maxLength: 256),
                     UploadTime = table.Column<DateTime>(),
@@ -38,7 +35,8 @@ namespace nhitomi.Core.Migrations
                     Source = table.Column<string>(maxLength: 16),
                     SourceId = table.Column<string>(maxLength: 16),
                     Data = table.Column<string>(maxLength: 4096, nullable: true),
-                    PageCount = table.Column<int>()
+                    PageCount = table.Column<int>(),
+                    TagsDenormalized = table.Column<string>(nullable: true)
                 },
                 constraints: table => { table.PrimaryKey("PK_Doujins", x => x.Id); });
 
@@ -46,8 +44,10 @@ namespace nhitomi.Core.Migrations
                 "Guilds",
                 table => new
                 {
-                    Id = table.Column<ulong>(),
-                    Language = table.Column<string>(nullable: true)
+                    Id = table.Column<ulong>()
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    Language = table.Column<string>(nullable: true),
+                    SearchQualityFilter = table.Column<bool>(nullable: true)
                 },
                 constraints: table => { table.PrimaryKey("PK_Guilds", x => x.Id); });
 
@@ -56,11 +56,10 @@ namespace nhitomi.Core.Migrations
                 table => new
                 {
                     Id = table.Column<int>()
-                        .Annotation("Sqlite:Autoincrement", true)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
                     AccessId = table.Column<Guid>(),
                     Type = table.Column<int>(),
-                    Value = table.Column<string>(maxLength: 64)
+                    Value = table.Column<string>(maxLength: 128)
                 },
                 constraints: table => { table.PrimaryKey("PK_Tags", x => x.Id); });
 
@@ -83,6 +82,33 @@ namespace nhitomi.Core.Migrations
                     table.ForeignKey(
                         "FK_CollectionRef_Doujins_DoujinId",
                         x => x.DoujinId,
+                        "Doujins",
+                        "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                "FeedChannels",
+                table => new
+                {
+                    Id = table.Column<ulong>()
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    GuildId = table.Column<ulong>(),
+                    LastDoujinId = table.Column<int>(),
+                    WhitelistType = table.Column<int>()
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_FeedChannels", x => x.Id);
+                    table.ForeignKey(
+                        "FK_FeedChannels_Guilds_GuildId",
+                        x => x.GuildId,
+                        "Guilds",
+                        "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        "FK_FeedChannels_Doujins_LastDoujinId",
+                        x => x.LastDoujinId,
                         "Doujins",
                         "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -112,6 +138,30 @@ namespace nhitomi.Core.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                "FeedChannelTag",
+                table => new
+                {
+                    FeedChannelId = table.Column<ulong>(),
+                    TagId = table.Column<int>()
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_FeedChannelTag", x => new {x.FeedChannelId, x.TagId});
+                    table.ForeignKey(
+                        "FK_FeedChannelTag_FeedChannels_FeedChannelId",
+                        x => x.FeedChannelId,
+                        "FeedChannels",
+                        "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        "FK_FeedChannelTag_Tags_TagId",
+                        x => x.TagId,
+                        "Tags",
+                        "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
             migrationBuilder.CreateIndex(
                 "IX_CollectionRef_DoujinId",
                 "CollectionRef",
@@ -125,27 +175,48 @@ namespace nhitomi.Core.Migrations
             migrationBuilder.CreateIndex(
                 "IX_Doujins_AccessId",
                 "Doujins",
-                "AccessId");
+                "AccessId",
+                unique: true);
 
             migrationBuilder.CreateIndex(
-                "IX_Doujins_OriginalName",
+                "IX_Doujins_ProcessTime",
                 "Doujins",
-                "OriginalName");
+                "ProcessTime");
 
             migrationBuilder.CreateIndex(
-                "IX_Doujins_PrettyName",
+                "IX_Doujins_TagsDenormalized",
                 "Doujins",
-                "PrettyName");
+                "TagsDenormalized");
 
             migrationBuilder.CreateIndex(
-                "IX_Doujins_Source",
+                "IX_Doujins_UploadTime",
                 "Doujins",
-                "Source");
+                "UploadTime");
 
             migrationBuilder.CreateIndex(
-                "IX_Doujins_SourceId",
+                "IX_Doujins_Source_SourceId",
                 "Doujins",
-                "SourceId");
+                new[] {"Source", "SourceId"});
+
+            migrationBuilder.CreateIndex(
+                "IX_Doujins_Source_UploadTime",
+                "Doujins",
+                new[] {"Source", "UploadTime"});
+
+            migrationBuilder.CreateIndex(
+                "IX_FeedChannels_GuildId",
+                "FeedChannels",
+                "GuildId");
+
+            migrationBuilder.CreateIndex(
+                "IX_FeedChannels_LastDoujinId",
+                "FeedChannels",
+                "LastDoujinId");
+
+            migrationBuilder.CreateIndex(
+                "IX_FeedChannelTag_TagId",
+                "FeedChannelTag",
+                "TagId");
 
             migrationBuilder.CreateIndex(
                 "IX_TagRef_TagId",
@@ -155,7 +226,8 @@ namespace nhitomi.Core.Migrations
             migrationBuilder.CreateIndex(
                 "IX_Tags_AccessId",
                 "Tags",
-                "AccessId");
+                "AccessId",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 "IX_Tags_Value",
@@ -169,7 +241,7 @@ namespace nhitomi.Core.Migrations
                 "CollectionRef");
 
             migrationBuilder.DropTable(
-                "Guilds");
+                "FeedChannelTag");
 
             migrationBuilder.DropTable(
                 "TagRef");
@@ -178,10 +250,16 @@ namespace nhitomi.Core.Migrations
                 "Collections");
 
             migrationBuilder.DropTable(
-                "Doujins");
+                "FeedChannels");
 
             migrationBuilder.DropTable(
                 "Tags");
+
+            migrationBuilder.DropTable(
+                "Guilds");
+
+            migrationBuilder.DropTable(
+                "Doujins");
         }
     }
 }

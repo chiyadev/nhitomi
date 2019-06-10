@@ -81,9 +81,7 @@ namespace nhitomi.Core.Migrations
                     .IsRequired()
                     .HasMaxLength(16);
 
-                b.Property<string>("TagsDenormalized")
-                    .IsRequired()
-                    .HasMaxLength(2048);
+                b.Property<string>("TagsDenormalized");
 
                 b.Property<DateTime>("UploadTime");
 

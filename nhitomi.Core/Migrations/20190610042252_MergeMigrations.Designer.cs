@@ -9,8 +9,8 @@ using nhitomi.Core;
 namespace nhitomi.Core.Migrations
 {
     [DbContext(typeof(nhitomiDbContext))]
-    [Migration("20190609074543_AddDoujinTagsDenormalized")]
-    partial class AddDoujinTagsDenormalized
+    [Migration("20190610042252_MergeMigrations")]
+    partial class MergeMigrations
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -84,9 +84,7 @@ namespace nhitomi.Core.Migrations
                         .IsRequired()
                         .HasMaxLength(16);
 
-                    b.Property<string>("TagsDenormalized")
-                        .IsRequired()
-                        .HasMaxLength(2048);
+                    b.Property<string>("TagsDenormalized");
 
                     b.Property<DateTime>("UploadTime");
 
@@ -102,6 +100,8 @@ namespace nhitomi.Core.Migrations
                     b.HasIndex("UploadTime");
 
                     b.HasIndex("Source", "SourceId");
+
+                    b.HasIndex("Source", "UploadTime");
 
                     b.ToTable("Doujins");
                 });
