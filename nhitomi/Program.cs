@@ -1,6 +1,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using nhitomi.Core;
@@ -44,9 +45,9 @@ namespace nhitomi
 
             public async Task RunAsync(CancellationToken cancellationToken = default)
             {
-                // create local database for development
+                // migrate database for development
                 if (_environment.IsDevelopment())
-                    await _db.Database.EnsureCreatedAsync(cancellationToken);
+                    await _db.Database.MigrateAsync(cancellationToken);
 
                 // start discord
                 await _discord.ConnectAsync();
