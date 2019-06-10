@@ -4,8 +4,10 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 using nhitomi.Core;
 using nhitomi.Discord;
+using nhitomi.Http;
 
 namespace nhitomi
 {
@@ -21,12 +23,22 @@ namespace nhitomi
                 .ConfigureServices(Startup.ConfigureServices)
                 .Build())
             {
-                // initialization
-                using (var scope = host.Services.CreateScope())
-                    await DependencyUtility<Initialization>.Factory(scope.ServiceProvider).RunAsync();
+                var settings = host.Services.GetRequiredService<IOptions<AppSettings>>().Value;
 
-                // run host
-                await host.RunAsync();
+                if (settings.Http.EnableProxy)
+                {
+                    await host.Services.GetRequiredService<HttpService>().StartAsync(default);
+                    await Task.Delay(-1);
+                }
+                else
+                {
+                    // initialization
+                    using (var scope = host.Services.CreateScope())
+                        await DependencyUtility<Initialization>.Factory(scope.ServiceProvider).RunAsync();
+
+                    // run host
+                    await host.RunAsync();
+                }
             }
         }
 
