@@ -32,5 +32,7 @@ namespace nhitomi.Core
 
             return new AtomicCounterContext(this);
         }
+
+        public override string ToString() => Value.ToString();
     }
 }
