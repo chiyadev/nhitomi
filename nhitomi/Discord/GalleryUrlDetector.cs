@@ -93,10 +93,17 @@ namespace nhitomi.Discord
                             .GetDoujinAsync(source, id, cancellationToken);
                     }
 
-                    await _interactive.SendInteractiveAsync(
-                        new DoujinMessage(doujin),
-                        context,
-                        cancellationToken);
+                    if (doujin == null)
+                    {
+                        await context.ReplyAsync("messages.doujinNotFound");
+                    }
+                    else
+                    {
+                        await _interactive.SendInteractiveAsync(
+                            new DoujinMessage(doujin),
+                            context,
+                            cancellationToken);
+                    }
                 }
 
                 // send as a list
