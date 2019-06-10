@@ -78,6 +78,9 @@ namespace nhitomi.Discord
         Task ReactionRemoved(Cacheable<IUserMessage, ulong> _, IMessageChannel channel, SocketReaction reaction) =>
             HandleReactionAsync(channel, reaction, ReactionEvent.Remove);
 
+        public readonly AtomicCounter HandledReactions = new AtomicCounter();
+        public readonly AtomicCounter ReceivedReactions = new AtomicCounter();
+
         Task HandleReactionAsync(IMessageChannel channel, SocketReaction reaction, ReactionEvent eventType)
         {
             if (reaction.UserId != _discord.CurrentUser.Id)
@@ -85,34 +88,41 @@ namespace nhitomi.Discord
                 // handle on another thread to not block the gateway thread
                 _ = Task.Run(async () =>
                 {
+                    // retrieve message
+                    if (!(await channel.GetMessageAsync(reaction.MessageId) is IUserMessage message))
+                        return;
+
+                    // retrieve user
+                    if (!(await channel.GetUserAsync(reaction.UserId) is IUser user))
+                        return;
+
+                    // create context
+                    var context = new ReactionContext
+                    {
+                        Client = _discord,
+                        Message = message,
+                        User = user,
+                        GuildSettings = _guildSettingsCache[message.Channel],
+                        Reaction = reaction,
+                        Event = eventType
+                    };
+
                     try
                     {
-                        // retrieve message
-                        if (!(await channel.GetMessageAsync(reaction.MessageId) is IUserMessage message))
-                            return;
-
-                        // retrieve user
-                        if (!(await channel.GetUserAsync(reaction.UserId) is IUser user))
-                            return;
-
-                        // create context
-                        var context = new ReactionContext
-                        {
-                            Client = _discord,
-                            Message = message,
-                            User = user,
-                            GuildSettings = _guildSettingsCache[message.Channel],
-                            Reaction = reaction,
-                            Event = eventType
-                        };
-
                         foreach (var handler in _reactionHandlers)
                             if (await handler.TryHandleAsync(context))
-                                return;
+                            {
+                                HandledReactions.Increment();
+                                break;
+                            }
                     }
                     catch (Exception e)
                     {
                         _logger.LogWarning(e, "Unhandled exception while handling message.");
+                    }
+                    finally
+                    {
+                        ReceivedReactions.Increment();
                     }
                 });
             }

@@ -80,6 +80,9 @@ namespace nhitomi.Discord
         Task MessageUpdated(Cacheable<IMessage, ulong> _, SocketMessage message, IMessageChannel channel) =>
             HandleMessageAsync(message, MessageEvent.Edit);
 
+        public readonly AtomicCounter HandledMessages = new AtomicCounter();
+        public readonly AtomicCounter ReceivedMessages = new AtomicCounter();
+
         Task HandleMessageAsync(SocketMessage socketMessage, MessageEvent eventType)
         {
             if (socketMessage is IUserMessage message &&
@@ -101,13 +104,20 @@ namespace nhitomi.Discord
                     {
                         foreach (var handler in _messageHandlers)
                             if (await handler.TryHandleAsync(context))
-                                return;
+                            {
+                                HandledMessages.Increment();
+                                break;
+                            }
                     }
                     catch (Exception e)
                     {
                         _logger.LogWarning(e, "Unhandled exception while handling message.");
 
                         await _interactiveManager.SendInteractiveAsync(new ErrorMessage(e), context);
+                    }
+                    finally
+                    {
+                        ReceivedMessages.Increment();
                     }
                 });
             }
