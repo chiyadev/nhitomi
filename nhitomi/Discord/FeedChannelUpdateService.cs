@@ -143,10 +143,10 @@ namespace nhitomi.Discord
                             // make updates more even
                             await Task.Delay(TimeSpan.FromSeconds(1), cancellationToken);
 
-                            /*await _interactive.SendInteractiveAsync(
+                            await _interactive.SendInteractiveAsync(
                                 new DoujinMessage(doujin),
                                 context,
-                                cancellationToken);*/
+                                cancellationToken);
                         }
 
                         // set last sent doujin
