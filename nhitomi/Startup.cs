@@ -49,17 +49,22 @@ namespace nhitomi
                 .AddSingleton<GuildSettingsCache>()
                 .AddSingleton<MessageHandlerService>()
                 .AddSingleton<ReactionHandlerService>()
+                .AddSingleton<StatusUpdateService>()
+                .AddSingleton<LogHandlerService>()
+                .AddSingleton<GuildSettingsSyncService>()
+                .AddSingleton<FeedChannelUpdateService>()
                 .AddSingleton<IHostedService, MessageHandlerService>(s => s.GetService<MessageHandlerService>())
                 .AddSingleton<IHostedService, ReactionHandlerService>(s => s.GetService<ReactionHandlerService>())
-                .AddHostedService<StatusUpdateService>()
-                .AddHostedService<LogHandlerService>()
-                .AddHostedService<GuildSettingsSyncService>()
-                .AddHostedService<FeedChannelUpdateService>();
+                .AddSingleton<IHostedService, StatusUpdateService>(s => s.GetService<StatusUpdateService>())
+                .AddSingleton<IHostedService, LogHandlerService>(s => s.GetService<LogHandlerService>())
+                .AddSingleton<IHostedService, GuildSettingsSyncService>(s => s.GetService<GuildSettingsSyncService>())
+                .AddSingleton<IHostedService, FeedChannelUpdateService>(s => s.GetService<FeedChannelUpdateService>());
 
             // http server
             services
-                .AddHostedService<HttpService>()
-                .AddSingleton<ProxyHandler>();
+                .AddSingleton<HttpService>()
+                .AddSingleton<ProxyHandler>()
+                .AddSingleton<IHostedService, HttpService>(s => s.GetService<HttpService>());
 
             // other stuff
             services
