@@ -7,6 +7,8 @@ namespace nhitomi.Core
     {
         int _current;
 
+        public int Value => _current;
+
         public int Increment(int count = 1) => Interlocked.Add(ref _current, count);
         public int Decrement(int count = 1) => Increment(-count);
 
