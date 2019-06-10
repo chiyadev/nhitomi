@@ -34,5 +34,7 @@ namespace nhitomi
         {
             public bool EnableProxy { get; set; }
         }
+
+        public bool UseDatabase { get; set; }
     }
 }
