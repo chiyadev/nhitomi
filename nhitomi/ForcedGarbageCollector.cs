@@ -11,7 +11,7 @@ namespace nhitomi
         {
             while (!stoppingToken.IsCancellationRequested)
             {
-                await Task.Delay(TimeSpan.FromMinutes(1), stoppingToken);
+                await Task.Delay(TimeSpan.FromSeconds(10), stoppingToken);
 
                 //todo: this is very very very very very very bad
                 GC.Collect(GC.MaxGeneration, GCCollectionMode.Optimized, true, true);
