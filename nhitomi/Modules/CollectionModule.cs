@@ -23,6 +23,18 @@ namespace nhitomi.Modules
             _interactive = interactive;
         }
 
+        static string FixCollectionName(string name)
+        {
+            switch (name.ToLowerInvariant())
+            {
+                case "favs":
+                    return "favorites";
+
+                default:
+                    return name;
+            }
+        }
+
         [Command("list")]
         public Task ListAsync(CancellationToken cancellationToken = default) =>
             _interactive.SendInteractiveAsync(new CollectionListMessage(_context.User.Id), _context, cancellationToken);
@@ -30,6 +42,8 @@ namespace nhitomi.Modules
         [Command("view", BindName = false), Binding("[name]")]
         public async Task ViewAsync(string name, CancellationToken cancellationToken = default)
         {
+            name = FixCollectionName(name);
+
             // check if collection exists first
             var collection = await _database.GetCollectionAsync(_context.User.Id, name, cancellationToken);
 
@@ -48,6 +62,8 @@ namespace nhitomi.Modules
         [Command("add", BindName = false), Binding("[name] add|a [source] [id]")]
         public async Task AddAsync(string name, string source, string id, CancellationToken cancellationToken = default)
         {
+            name = FixCollectionName(name);
+
             Doujin doujin;
             Collection collection;
 
@@ -95,6 +111,8 @@ namespace nhitomi.Modules
         public async Task RemoveAsync(string name, string source, string id,
             CancellationToken cancellationToken = default)
         {
+            name = FixCollectionName(name);
+
             Doujin doujin;
             Collection collection;
 
@@ -134,6 +152,8 @@ namespace nhitomi.Modules
         [Command("delete", BindName = false), Binding("[name] delete|d")]
         public async Task DeleteAsync(string name, CancellationToken cancellationToken = default)
         {
+            name = FixCollectionName(name);
+
             Collection collection;
 
             do
@@ -156,6 +176,8 @@ namespace nhitomi.Modules
         [Command("sort", BindName = false), Binding("[name] sort|s [sort]")]
         public async Task SortAsync(string name, CollectionSort sort, CancellationToken cancellationToken = default)
         {
+            name = FixCollectionName(name);
+
             Collection collection;
 
             do
