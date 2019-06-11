@@ -332,6 +332,15 @@ namespace nhitomi.Discord.Parsing
                 }
             }
 
+            else if (type == typeof(ulong))
+            {
+                if (ulong.TryParse(str, out var val))
+                {
+                    value = val;
+                    return true;
+                }
+            }
+
             else if (type.IsEnum)
             {
                 if (Enum.TryParse(type, str, true, out var val))
