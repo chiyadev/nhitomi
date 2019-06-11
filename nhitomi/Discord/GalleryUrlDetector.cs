@@ -37,7 +37,7 @@ namespace nhitomi.Discord
             // build gallery regex to match all known formats
             _galleryRegex = new Regex(
                 $"({string.Join(")|(", _nhentai, _hitomi)})",
-                RegexOptions.Compiled);
+                RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.IgnoreCase);
 
             logger.LogDebug($"Gallery match regex: {_galleryRegex}");
         }
