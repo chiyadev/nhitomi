@@ -33,6 +33,7 @@ namespace nhitomi.Interactivity
                 return new EmbedBuilder()
                     .WithTitle(path["title"][l, new {doujin = Message._doujin}])
                     .WithUrl(GetUrl(Message._doujin))
+                    .WithThumbnailUrl($"https://nhitomi.chiya.dev/api/v1/images/{Message._doujin.AccessId}/-1")
                     .WithDescription(path["text"][l, new {doujin = Message._doujin}])
                     .WithColor(Color.LightOrange)
                     .Build();
