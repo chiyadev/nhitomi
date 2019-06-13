@@ -25,10 +25,10 @@ namespace nhitomi.Interactivity.Triggers
                 switch (_destination)
                 {
                     // left arrow
-                    case JumpDestination.Start: return new Emoji("\u25c0");
+                    case JumpDestination.Start: return new Emoji("\u23EA");
 
                     // right arrow
-                    case JumpDestination.End: return new Emoji("\u25b6");
+                    case JumpDestination.End: return new Emoji("\u23E9");
                 }
 
                 throw new ArgumentException(nameof(_destination));
