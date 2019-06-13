@@ -116,7 +116,7 @@ namespace nhitomi.Globalization
                 collections = new
                 {
                     heading = "Collection Management",
-                    list = "Shows all collections you own.",
+                    list = "Shows the collections you own.",
                     view = "Shows the doujins in a collection.",
                     add = "Adds a doujin to a collection",
                     remove = "Removes a doujin from a collection",
