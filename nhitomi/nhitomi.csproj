@@ -6,7 +6,7 @@
         <LangVersion>latest</LangVersion>
         <Title>nhitomi</Title>
         <Authors>chiya.dev</Authors>
-        <Version>2.0</Version>
+        <Version>2.1</Version>
         <InformationalVersion>Krunewing</InformationalVersion>
         <Description>Discord bot for browsing and downloading doujinshi</Description>
         <Copyright>Copyright (c) chiya.dev</Copyright>
