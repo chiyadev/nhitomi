@@ -16,14 +16,6 @@ namespace nhitomi.Discord
     {
         public readonly ConcurrentQueue<ulong> RefreshQueue = new ConcurrentQueue<ulong>();
 
-        public void EnqueueRefresh(IChannel channel)
-        {
-            if (channel is IGuildChannel guildChannel)
-                RefreshQueue.Enqueue(guildChannel.GuildId);
-            else
-                RefreshQueue.Enqueue(channel.Id);
-        }
-
         public Guild this[IChannel channel]
         {
             get
@@ -68,6 +60,9 @@ namespace nhitomi.Discord
 
             _discord.GuildAvailable += RefreshGuildAsync;
             _discord.JoinedGuild += RefreshGuildAsync;
+
+            foreach (var guild in discord.Guilds)
+                cache.RefreshQueue.Enqueue(guild.Id);
         }
 
         static readonly DependencyFactory<RefreshQueueProcessor> _factory =
