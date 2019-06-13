@@ -168,6 +168,8 @@ namespace nhitomi.Discord
                         _logger.LogInformation("Sent feed update of doujin {0} '{1}'.",
                             doujin.Id, doujin.OriginalName);
                     }
+
+                    channel.LastDoujin = doujin;
                 }
 
                 // set last sent doujin to the latest value
