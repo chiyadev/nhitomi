@@ -39,6 +39,7 @@ namespace nhitomi.Globalization
             feedTagRemoved = "**nhitomi**: `#{channel.Name}` is now unsubscribed from `{tag}`.",
             feedTagNotRemoved = "**nhitomi**: `#{channel.Name}` is not subscribed to `{tag}`.",
             feedModeChanged = "**nhitomi**: Changed feed mode of `#{channel.Name}` to `{type}`.",
+
             doujinMessage = new
             {
                 title = "{doujin.OriginalName}",
@@ -57,17 +58,20 @@ namespace nhitomi.Globalization
                     text = "There are no doujins in this list."
                 }
             },
+
             doujinReadMessage = new
             {
                 title = "{doujin.OriginalName}",
                 text = "Page {page} of {doujin.PageCount}",
                 footer = "{doujin.Source}/{doujin.SourceId}"
             },
+
             downloadMessage = new
             {
                 title = "{doujin.OriginalName}",
                 text = "Click the link above to start downloading `{doujin.OriginalName}`."
             },
+
             collectionMessage = new
             {
                 title = "**{context.User.Username}**: {collection.Name}",
@@ -93,6 +97,7 @@ namespace nhitomi.Globalization
                     text = "You have no collections."
                 }
             },
+
             helpMessage = new
             {
                 title = "**nhitomi**: Help",
@@ -145,6 +150,7 @@ namespace nhitomi.Globalization
                     contribution = "Contributions are welcome!\n<{repoUrl}>"
                 }
             },
+
             errorMessage = new
             {
                 title = "**nhitomi**: Error",
