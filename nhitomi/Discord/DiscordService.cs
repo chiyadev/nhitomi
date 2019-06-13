@@ -20,6 +20,52 @@ namespace nhitomi.Discord
         Guild GuildSettings { get; }
     }
 
+    public class DiscordContextWrapper : IDiscordContext
+    {
+        readonly IDiscordContext _context;
+
+        public DiscordContextWrapper(IDiscordContext context)
+        {
+            _context = context;
+        }
+
+        IDiscordClient _client;
+        IUserMessage _message;
+        IMessageChannel _channel;
+        IUser _user;
+        Guild _guild;
+
+        public IDiscordClient Client
+        {
+            get => _client ?? _context.Client;
+            set => _client = value;
+        }
+
+        public IUserMessage Message
+        {
+            get => _message ?? _context.Message;
+            set => _message = value;
+        }
+
+        public IMessageChannel Channel
+        {
+            get => _channel ?? _context.Channel;
+            set => _channel = value;
+        }
+
+        public IUser User
+        {
+            get => _user ?? _context.User;
+            set => _user = value;
+        }
+
+        public Guild GuildSettings
+        {
+            get => _guild ?? _context.GuildSettings;
+            set => _guild = value;
+        }
+    }
+
     public class DiscordService : DiscordSocketClient
     {
         readonly AppSettings _settings;
