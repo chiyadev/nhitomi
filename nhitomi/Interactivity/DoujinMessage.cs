@@ -24,8 +24,9 @@ namespace nhitomi.Interactivity
 
         public DoujinMessage(Doujin doujin, bool isFeed = false)
         {
-            _isFeed = isFeed;
             Doujin = doujin;
+
+            _isFeed = isFeed;
         }
 
         protected override IEnumerable<IReactionTrigger> CreateTriggers()
@@ -41,7 +42,7 @@ namespace nhitomi.Interactivity
             new DoujinMessage Message => (DoujinMessage) base.Message;
 
             protected override Embed CreateEmbed() =>
-                CreateEmbed(Message.Doujin, Context.GetLocalization());
+                CreateEmbed(Message.Doujin, Context.GetLocalization(), Message._isFeed);
 
             public static Embed CreateEmbed(Doujin doujin, Localization l, bool isFeed = false)
             {
