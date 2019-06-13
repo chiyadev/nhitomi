@@ -28,8 +28,7 @@ namespace nhitomi.Globalization
             localizationChanged = "**nhitomi**: Server language is set to `{localization.Culture.NativeName}`!",
             localizationNotFound = "**nhitomi**: Language `{language}` is not supported.",
 
-            qualityFilterChanged = "**nhitomi**: Search quality filter is now `{state:enabled|disabled}` " +
-                                   "by default.",
+            qualityFilterChanged = "**nhitomi**: Search quality filter is now `{state:enabled|disabled}` by default.",
 
             commandInvokeNotInGuild = "**nhitomi**: You can only use this command in a server.",
             notGuildAdmin = "**nhitomi**: You must be a server administrator to use this command.",
