@@ -69,14 +69,24 @@ namespace nhitomi.Discord
                 {
                     try
                     {
+                        var db = scope.ServiceProvider.GetRequiredService<IDatabase>();
+
+                        // get feed channel entity
+                        var channel = await db.GetFeedChannelAsync(guildId, channelId, cancellationToken);
+
+                        if (channel == null)
+                            break;
+
+                        // update channel
                         var updater = _updaterFactory(scope.ServiceProvider);
 
-                        if (await updater.UpdateAsync(guildId, channelId, cancellationToken))
+                        if (channel.Tags != null && channel.Tags.Count != 0 &&
+                            await updater.UpdateAsync(channel, cancellationToken))
                             continue;
 
                         // failed to update channel because feed channel wasn't configured correctly
-                        // this is different from handling an exception
-                        var db = scope.ServiceProvider.GetRequiredService<IDatabase>();
+                        _logger.LogInformation("Feed channel {0} of guild {1} is unavailable.",
+                            channel.GuildId, channel.Id);
 
                         db.Remove(new FeedChannel {Id = channelId});
 
@@ -114,35 +124,15 @@ namespace nhitomi.Discord
             const int _loadChunkSize = 10;
             const int _maxSendCount = 50;
 
-            public async Task<bool> UpdateAsync(ulong guildId, ulong channelId,
-                CancellationToken cancellationToken = default)
+            public async Task<bool> UpdateAsync(FeedChannel channel, CancellationToken cancellationToken = default)
             {
-                // get feed channel entity
-                var channel = await _db.GetFeedChannelAsync(guildId, channelId, cancellationToken);
-
-                if (channel?.Tags == null || channel.Tags.Count == 0)
-                {
-                    _logger.LogInformation("Feed channel {0} of guild {1} was not found in the database.",
-                        channelId, guildId);
-
-                    return false;
-                }
-
                 // get discord channel
                 var context = new FeedUpdateContext
                 {
                     Client = _discord,
-                    Channel = _discord.GetGuild(guildId)?.GetTextChannel(channelId),
+                    Channel = _discord.GetGuild(channel.GuildId)?.GetTextChannel(channel.Id),
                     GuildSettings = channel.Guild
                 };
-
-                if (context.Channel == null)
-                {
-                    _logger.LogInformation("Discord channel {0} of guild {1} is unavailable.",
-                        channelId, guildId);
-
-                    return false;
-                }
 
                 var tagIds = channel.Tags.Select(t => t.TagId).ToArray();
 
