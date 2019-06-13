@@ -118,8 +118,8 @@ namespace nhitomi.Globalization
                     heading = "Collection Management",
                     list = "Shows the collections you own.",
                     view = "Shows the doujins in a collection.",
-                    add = "Adds a doujin to a collection",
-                    remove = "Removes a doujin from a collection",
+                    add = "Adds a doujin to a collection.",
+                    remove = "Removes a doujin from a collection.",
                     sort = "Sorts a collection by a doujin attribute.",
                     delete = "Deletes a collection, removing all doujins in it."
                 },
