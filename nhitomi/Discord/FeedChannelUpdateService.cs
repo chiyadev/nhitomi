@@ -1,9 +1,11 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Discord;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -16,12 +18,17 @@ namespace nhitomi.Discord
     {
         readonly IServiceProvider _services;
         readonly DiscordService _discord;
+        readonly ILogger<FeedChannelUpdateService> _logger;
 
-        public FeedChannelUpdateService(IServiceProvider services, DiscordService discord)
+        public FeedChannelUpdateService(IServiceProvider services, DiscordService discord,
+            ILogger<FeedChannelUpdateService> logger)
         {
             _services = services;
             _discord = discord;
+            _logger = logger;
         }
+
+        public readonly ConcurrentDictionary<ulong, Task> UpdaterTasks = new ConcurrentDictionary<ulong, Task>();
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
@@ -30,21 +37,70 @@ namespace nhitomi.Discord
             while (!stoppingToken.IsCancellationRequested)
             {
                 using (var scope = _services.CreateScope())
-                using (var updater = DependencyUtility<FeedChannelUpdater>.Factory(scope.ServiceProvider))
-                    await updater.RunAsync(stoppingToken);
+                {
+                    // get all feed channels
+                    var db = scope.ServiceProvider.GetRequiredService<IDatabase>();
+                    var feedChannels = await db.GetFeedChannelsAsync(stoppingToken);
+
+                    // start updater tasks for channels that aren't being updated
+                    var tasks = feedChannels
+                        .Where(c => !UpdaterTasks.ContainsKey(c.Id))
+                        .Select(c => UpdaterTasks[c.Id] = RunChannelUpdateAsync(c.GuildId, c.Id, stoppingToken));
+
+                    foreach (var task in tasks)
+                        _ = Task.Run(() => task, stoppingToken);
+                }
 
                 // sleep
-                await Task.Delay(TimeSpan.FromMinutes(1), stoppingToken);
+                await Task.Delay(TimeSpan.FromMinutes(10), stoppingToken);
             }
         }
 
-        sealed class FeedChannelUpdater : IDisposable
+        readonly DependencyFactory<FeedChannelUpdater> _updaterFactory = DependencyUtility<FeedChannelUpdater>.Factory;
+
+        async Task RunChannelUpdateAsync(ulong guildId, ulong channelId, CancellationToken cancellationToken = default)
+        {
+            while (true)
+            {
+                // sleep
+                await Task.Delay(TimeSpan.FromMinutes(10), cancellationToken);
+
+                using (var scope = _services.CreateScope())
+                {
+                    try
+                    {
+                        var updater = _updaterFactory(scope.ServiceProvider);
+
+                        if (await updater.UpdateAsync(guildId, channelId, cancellationToken))
+                            continue;
+
+                        // failed to update channel because feed channel wasn't configured correctly
+                        // this is different from handling an exception
+                        var db = scope.ServiceProvider.GetRequiredService<IDatabase>();
+
+                        db.Remove(new FeedChannel {Id = channelId});
+
+                        await db.SaveAsync(cancellationToken);
+
+                        break;
+                    }
+                    catch (Exception e)
+                    {
+                        _logger.LogWarning(e, "Failed to update feed channel {0}.", channelId);
+                    }
+                }
+            }
+
+            // stop updating this channel
+            UpdaterTasks.TryRemove(channelId, out _);
+        }
+
+        sealed class FeedChannelUpdater
         {
             readonly IDatabase _db;
             readonly DiscordService _discord;
             readonly InteractiveManager _interactive;
             readonly ILogger<FeedChannelUpdater> _logger;
-            readonly SemaphoreSlim _semaphore = new SemaphoreSlim(1);
 
             public FeedChannelUpdater(IDatabase db, DiscordService discord, InteractiveManager interactive,
                 ILogger<FeedChannelUpdater> logger)
@@ -55,99 +111,97 @@ namespace nhitomi.Discord
                 _logger = logger;
             }
 
-            public async Task RunAsync(CancellationToken cancellationToken = default)
+            const int _loadChunkSize = 10;
+            const int _maxSendCount = 50;
+
+            public async Task<bool> UpdateAsync(ulong guildId, ulong channelId,
+                CancellationToken cancellationToken = default)
             {
-                var feedChannels = await _db.GetFeedChannelsAsync(cancellationToken);
+                // get feed channel entity
+                var channel = await _db.GetFeedChannelAsync(guildId, channelId, cancellationToken);
 
-                // send updates to channel concurrently
-                await Task.WhenAll(feedChannels.Select(c => RunChannelAsync(c, cancellationToken)));
-
-                // save last updated doujin
-                await _db.SaveAsync(cancellationToken);
-            }
-
-            const int _chunkLoadSize = 10;
-
-            async Task RunChannelAsync(FeedChannel channel, CancellationToken cancellationToken = default)
-            {
-                try
+                if (channel?.Tags == null || channel.Tags.Count == 0)
                 {
-                    var context = new FeedUpdateContext
+                    _logger.LogInformation("Feed channel {0} of guild {1} was not found in the database.",
+                        channelId, guildId);
+
+                    return false;
+                }
+
+                // get discord channel
+                var context = new FeedUpdateContext
+                {
+                    Client = _discord,
+                    Channel = _discord.GetGuild(guildId)?.GetTextChannel(channelId),
+                    GuildSettings = channel.Guild
+                };
+
+                if (context.Channel == null)
+                {
+                    _logger.LogInformation("Discord channel {0} of guild {1} is unavailable.",
+                        channelId, guildId);
+
+                    return false;
+                }
+
+                var tagIds = channel.Tags.Select(t => t.TagId).ToArray();
+
+                var queue = new Queue<Doujin>();
+
+                for (var i = 0; i < _maxSendCount; i++)
+                {
+                    if (queue.Count == 0)
                     {
-                        Client = _discord,
-                        Channel = _discord.GetGuild(channel.GuildId)?.GetTextChannel(channel.Id),
-                        GuildSettings = channel.Guild
-                    };
+                        var doujins = await _db.GetDoujinsAsync(
+                            q => query(q).Take(_loadChunkSize), // load in chunks
+                            cancellationToken);
 
-                    // no tags or channel not available
-                    if (channel.Tags == null || channel.Tags.Count == 0 ||
-                        context.Channel == null)
-                        return;
+                        foreach (var d in doujins)
+                            queue.Enqueue(d);
+                    }
 
-                    var tagIds = channel.Tags.Select(t => t.TagId).ToArray();
+                    // no more doujin
+                    if (!queue.TryDequeue(out var doujin) || doujin == null)
+                        break;
 
-                    var queue = new Queue<Doujin>();
-
-                    while (true)
+                    // send doujin interactive
+                    using (context.BeginTyping())
                     {
-                        if (queue.Count == 0)
-                        {
-                            // cannot access dbcontext from multiple threads
-                            await _semaphore.WaitAsync(cancellationToken);
-                            try
-                            {
-                                var doujins = await _db.GetDoujinsAsync(q =>
-                                {
-                                    q = q.Where(d => d.ProcessTime > channel.LastDoujin.ProcessTime);
+                        // make updates more even
+                        await Task.Delay(TimeSpan.FromSeconds(1), cancellationToken);
 
-                                    switch (channel.WhitelistType)
-                                    {
-                                        case FeedChannelWhitelistType.Any:
-                                            q = q.Where(d => d.Tags.Any(x => tagIds.Contains(x.TagId)));
-                                            break;
-
-                                        case FeedChannelWhitelistType.All:
-                                            q = q.Where(d => d.Tags.All(x => tagIds.Contains(x.TagId)));
-                                            break;
-                                    }
-
-                                    return q
-                                        .OrderBy(d => d.ProcessTime)
-                                        .Take(_chunkLoadSize);
-                                }, cancellationToken);
-
-                                foreach (var d in doujins)
-                                    queue.Enqueue(d);
-                            }
-                            finally
-                            {
-                                _semaphore.Release();
-                            }
-                        }
-
-                        // no more doujin
-                        if (!queue.TryDequeue(out var doujin) || doujin == null)
-                            break;
-
-                        // send doujin interactive
-                        using (context.BeginTyping())
-                        {
-                            // make updates more even
-                            await Task.Delay(TimeSpan.FromSeconds(1), cancellationToken);
-
-                            await _interactive.SendInteractiveAsync(
-                                new DoujinMessage(doujin),
-                                context,
-                                cancellationToken);
-                        }
-
-                        // set last sent doujin
-                        channel.LastDoujin = doujin;
+                        await _interactive.SendInteractiveAsync(
+                            new DoujinMessage(doujin, true),
+                            context,
+                            cancellationToken);
                     }
                 }
-                catch (Exception e)
+
+                // set last sent doujin to the latest value
+                channel.LastDoujin =
+                    (await _db.GetDoujinsAsync(q => query(q).Take(1), cancellationToken))[0]
+                    ?? channel.LastDoujin;
+
+                return true;
+
+                IQueryable<Doujin> query(IQueryable<Doujin> q)
                 {
-                    _logger.LogWarning(e, "Failed while updating feed channel {0}.", channel.Id);
+                    q = q
+                        .AsNoTracking()
+                        .Where(d => d.ProcessTime > channel.LastDoujin.ProcessTime);
+
+                    switch (channel.WhitelistType)
+                    {
+                        case FeedChannelWhitelistType.Any:
+                            q = q.Where(d => d.Tags.Any(x => tagIds.Contains(x.TagId)));
+                            break;
+
+                        case FeedChannelWhitelistType.All:
+                            q = q.Where(d => d.Tags.All(x => tagIds.Contains(x.TagId)));
+                            break;
+                    }
+
+                    return q.OrderBy(d => d.ProcessTime);
                 }
             }
 
@@ -159,8 +213,6 @@ namespace nhitomi.Discord
                 public IUser User => null;
                 public Guild GuildSettings { get; set; }
             }
-
-            public void Dispose() => _semaphore.Dispose();
         }
     }
 }
