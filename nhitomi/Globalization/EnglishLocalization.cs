@@ -141,7 +141,10 @@ namespace nhitomi.Globalization
                 },
                 examples = new
                 {
-                    heading = "Examples"
+                    heading = "Examples",
+                    doujins = "Finding doujins",
+                    collections = "Managing collections",
+                    language = "Setting the interface language"
                 },
                 sources = new
                 {

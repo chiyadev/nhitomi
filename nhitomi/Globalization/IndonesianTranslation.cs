@@ -145,7 +145,10 @@ namespace nhitomi.Globalization
                 },
                 examples = new
                 {
-                    heading = "Contohnya"
+                    heading = "Contohnya",
+                    doujins = "Menemukan doujinshi",
+                    collections = "Mengelola koleksi",
+                    language = "Mengatur bahasa antarmuka"
                 },
                 sources = new
                 {

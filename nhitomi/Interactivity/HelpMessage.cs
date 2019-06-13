@@ -169,16 +169,19 @@ namespace nhitomi.Interactivity
                 var prefix = _settings.Discord.Prefix;
 
                 embed.AddField($"— {path["heading"][l]} —", $@"
-{prefix}get nhentai 123
-{prefix}dl hitomi 12345
-{prefix}search glasses
+{path["doujins"][l]}:
+`{prefix}get nhentai 123`
+`{prefix}dl hitomi 12345`
+`{prefix}search glasses`
 
-{prefix}c list
-{prefix}c favorites
-{prefix}c favorites add nhentai 123
-{prefix}c favorites remove nhentai 321
+{path["collections"][l]}:
+`{prefix}c list`
+`{prefix}c favorites`
+`{prefix}c favorites add nhentai 123`
+`{prefix}c favorites remove nhentai 321`
 
-{prefix}o language en
+{path["language"][l]}:n
+`{prefix}o language {l.Culture.Name}`
 ".Trim());
             }
 
