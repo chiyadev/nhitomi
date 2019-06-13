@@ -11,7 +11,7 @@ namespace nhitomi.Interactivity.Triggers
         End
     }
 
-    public class ListJumpTrigger : ReactionTrigger<ListTrigger.Action>
+    public class ListJumpTrigger : ReactionTrigger<ListJumpTrigger.Action>
     {
         readonly JumpDestination _destination;
         readonly int _position;
