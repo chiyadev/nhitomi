@@ -39,14 +39,17 @@ namespace nhitomi.Modules
                 readonly MessageHandlerService _messageHandler;
                 readonly ReactionHandlerService _reactionHandler;
                 readonly InteractiveManager _interactive;
+                readonly FeedChannelUpdateService _feedChannelUpdater;
 
                 public View(DiscordService discord, MessageHandlerService messageHandler,
-                    ReactionHandlerService reactionHandler, InteractiveManager interactive)
+                    ReactionHandlerService reactionHandler, InteractiveManager interactive,
+                    FeedChannelUpdateService feedChannelUpdater)
                 {
                     _discord = discord;
                     _messageHandler = messageHandler;
                     _reactionHandler = reactionHandler;
                     _interactive = interactive;
+                    _feedChannelUpdater = feedChannelUpdater;
                 }
 
                 sealed class ProcessMemory
@@ -81,6 +84,7 @@ namespace nhitomi.Modules
                                 .WithValue($@"
 Guilds: {_discord.Guilds.Count} guilds
 Channels: {_discord.Guilds.Sum(g => g.TextChannels.Count) + _discord.PrivateChannels.Count} channels
+Feed channels: {_feedChannelUpdater.UpdaterTasks.Count} updater tasks
 Latency: {_discord.Latency}ms
 Handled messages: {_messageHandler.HandledMessages} messages ({_messageHandler.ReceivedMessages} received)
 Handled reactions: {_reactionHandler.HandledReactions} reactions ({_reactionHandler.ReceivedReactions} received)
