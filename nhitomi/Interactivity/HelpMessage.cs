@@ -66,8 +66,6 @@ namespace nhitomi.Interactivity
                             .InformationalVersion
                     }]);
 
-                var prefix = _settings.Discord.Prefix;
-
                 switch (value)
                 {
                     case HelpMessageSection.DoujinAndCollection:
@@ -75,19 +73,52 @@ namespace nhitomi.Interactivity
                             $"nhitomi — {path["about"][l]}\n\n" +
                             $"{path["invite"][l, new {botInvite = _settings.Discord.BotInvite, guildInvite = _settings.Discord.Guild.GuildInvite}]}";
 
-                        path = path["doujins"];
+                        DoujinsSection(embed, path, l);
+                        CollectionsSection(embed, path, l);
+                        break;
 
-                        embed.AddField($"— {path["heading"][l]} —", $@"
+                    case HelpMessageSection.OptionsAndAliases:
+                        OptionsSection(embed, path, l);
+                        AliasesSection(embed, path, l);
+                        break;
+
+                    case HelpMessageSection.Other:
+                        SourcesSection(embed, path, l);
+                        LanguagesSection(embed, path, l);
+
+                        // only add translators if not English
+                        if (l != Localization.Default)
+                            TranslationsSection(embed, path, l);
+
+                        OpenSourceSection(embed, path, l);
+                        break;
+                }
+
+                return embed.Build();
+            }
+
+            void DoujinsSection(EmbedBuilder embed, LocalizationPath path, Localization l)
+            {
+                path = path["doujins"];
+
+                var prefix = _settings.Discord.Prefix;
+
+                embed.AddField($"— {path["heading"][l]} —", $@"
 - {prefix}get `source` `id` — {path["get"][l]}
 - {prefix}from `source` — {path["from"][l]}
 - {prefix}read `source` `id` — {path["read"][l]}
 - {prefix}download `source` `id` — {path["download"][l]}
 - {prefix}search `query` — {path["search"][l]}
 ".Trim());
+            }
 
-                        path = path.Up["collections"];
+            void CollectionsSection(EmbedBuilder embed, LocalizationPath path, Localization l)
+            {
+                path = path["collections"];
 
-                        embed.AddField($"— {path["heading"][l]} —", $@"
+                var prefix = _settings.Discord.Prefix;
+
+                embed.AddField($"— {path["heading"][l]} —", $@"
 - {prefix}collection list — {path["list"][l]}
 - {prefix}collection `name` — {path["view"][l]}
 - {prefix}collection `name` add `source` `id` — {path["add"][l]}
@@ -95,22 +126,30 @@ namespace nhitomi.Interactivity
 - {prefix}collection `name` sort `attribute` — {path["sort"][l]}
 - {prefix}collection `name` delete — {path["delete"][l]}
 ".Trim());
-                        break;
+            }
 
-                    case HelpMessageSection.OptionsAndAliases:
-                        path = path["options"];
+            void OptionsSection(EmbedBuilder embed, LocalizationPath path, Localization l)
+            {
+                path = path["options"];
 
-                        embed.AddField($"— {path["heading"][l]} —", $@"
+                var prefix = _settings.Discord.Prefix;
+
+                embed.AddField($"— {path["heading"][l]} —", $@"
 - {prefix}option language `name` — {path["language"][l]}
 - {prefix}option filter `on or off` — {path["filter"][l]}
 - {prefix}option feed add `tag` — {path["feed.add"][l]}
 - {prefix}option feed remove `tag` — {path["feed.remove"][l]}
 - {prefix}option feed mode `mode` — {path["feed.mode"][l]}
 ".Trim());
+            }
 
-                        path = path.Up["aliases"];
+            void AliasesSection(EmbedBuilder embed, LocalizationPath path, Localization l)
+            {
+                path = path["aliases"];
 
-                        embed.AddField($"— {path["heading"][l]} —", $@"
+                var prefix = _settings.Discord.Prefix;
+
+                embed.AddField($"— {path["heading"][l]} —", $@"
 {prefix}**h** — help
 {prefix}**g** `source` `id` — get
 {prefix}**f** `source` — from
@@ -128,46 +167,48 @@ namespace nhitomi.Interactivity
 {prefix}**o** **f** **r** `tag` — option feed remove
 {prefix}**o** **f** **m** `mode` — option feed mode
 ".Trim());
-                        break;
+            }
 
-                    case HelpMessageSection.Other:
-                        path = path["sources"];
+            static void SourcesSection(EmbedBuilder embed, LocalizationPath path, Localization l)
+            {
+                path = path["sources"];
 
-                        embed.AddField($"— {path["heading"][l]} —", @"
+                embed.AddField($"— {path["heading"][l]} —", @"
 - nhentai — `https://nhentai.net/`
 - Hitomi — `https://hitomi.la/`
 ".Trim());
+            }
 
-                        path = path["languages"];
+            static void LanguagesSection(EmbedBuilder embed, LocalizationPath path, Localization l)
+            {
+                path = path["languages"];
 
-                        var builder = new StringBuilder();
+                var builder = new StringBuilder();
 
-                        foreach (var localization in Localization.GetAllLocalizations())
-                            builder.AppendLine($"- `{localization.Culture.Name}` " +
-                                               $"— {localization.Culture.EnglishName} | {localization.Culture.DisplayName}");
+                foreach (var localization in Localization.GetAllLocalizations())
+                    builder.AppendLine($"- `{localization.Culture.Name}` " +
+                                       $"— {localization.Culture.EnglishName} | {localization.Culture.DisplayName}");
 
-                        embed.AddField($"— {path["heading"][l]} —", builder.ToString());
+                embed.AddField($"— {path["heading"][l]} —", builder.ToString());
+            }
 
-                        // only add translators if not English
-                        if (l != Localization.Default)
-                        {
-                            path = path.Up["translations"];
+            static void TranslationsSection(EmbedBuilder embed, LocalizationPath path, Localization l)
+            {
+                path = path.Up["translations"];
 
-                            embed.AddField(
-                                $"— {path["heading"][l]} —",
-                                path["text"][l, new {translators = new LocalizationPath()["meta.translators"][l]}]);
-                        }
+                embed.AddField(
+                    $"— {path["heading"][l]} —",
+                    path["text"][l, new {translators = new LocalizationPath()["meta.translators"][l]}]);
+            }
 
-                        path = path.Up["openSource"];
+            static void OpenSourceSection(EmbedBuilder embed, LocalizationPath path, Localization l)
+            {
+                path = path.Up["openSource"];
 
-                        embed.AddField($"— {path["heading"][l]} —", $@"
+                embed.AddField($"— {path["heading"][l]} —", $@"
 {path["license"][l]}
 {path["contribution"][l, new {repoUrl = "https://github.com/chiyadev/nhitomi"}]}
 ".Trim());
-                        break;
-                }
-
-                return embed.Build();
             }
 
             protected override Embed CreateEmptyEmbed() => throw new NotSupportedException();
