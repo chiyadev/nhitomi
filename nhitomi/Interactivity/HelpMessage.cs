@@ -187,7 +187,7 @@ namespace nhitomi.Interactivity
 
                 foreach (var localization in Localization.GetAllLocalizations())
                     builder.AppendLine($"- `{localization.Culture.Name}` " +
-                                       $"— {localization.Culture.EnglishName} | {localization.Culture.DisplayName}");
+                                       $"— {localization.Culture.EnglishName} | {localization.Culture.NativeName}");
 
                 embed.AddField($"— {path["heading"][l]} —", builder.ToString());
             }
