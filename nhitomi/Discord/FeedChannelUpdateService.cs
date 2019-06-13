@@ -82,19 +82,7 @@ namespace nhitomi.Discord
                     // no tags or channel not available
                     if (channel.Tags == null || channel.Tags.Count == 0 ||
                         context.Channel == null)
-                    {
-                        await _semaphore.WaitAsync(cancellationToken);
-                        try
-                        {
-                            _db.Remove(channel);
-
-                            return;
-                        }
-                        finally
-                        {
-                            _semaphore.Release();
-                        }
-                    }
+                        return;
 
                     var tagIds = channel.Tags.Select(t => t.TagId).ToArray();
 
