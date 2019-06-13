@@ -15,6 +15,7 @@ namespace nhitomi.Interactivity
         protected override IEnumerable<IReactionTrigger> CreateTriggers()
         {
             yield return new FavoriteTrigger();
+            yield return new ReadTrigger();
             yield return new DownloadTrigger();
 
             foreach (var trigger in base.CreateTriggers())

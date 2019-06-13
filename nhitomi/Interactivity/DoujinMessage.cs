@@ -28,6 +28,7 @@ namespace nhitomi.Interactivity
         protected override IEnumerable<IReactionTrigger> CreateTriggers()
         {
             yield return new FavoriteTrigger();
+            yield return new ReadTrigger();
             yield return new DownloadTrigger();
             yield return new DeleteTrigger();
         }
@@ -48,7 +49,7 @@ namespace nhitomi.Interactivity
                     .WithDescription(doujin.OriginalName == doujin.PrettyName ? null : doujin.PrettyName)
                     .WithAuthor(a => a
                         .WithName(doujin.GetTag(TagType.Artist)?.Value ?? doujin.Source)
-                        .WithIconUrl(path["sourceIcons"][doujin.Source][l]))
+                        .WithIconUrl(GetSourceIconUrl(doujin)))
                     .WithUrl(GetGalleryUrl(doujin))
                     .WithImageUrl($"https://nhitomi.chiya.dev/api/v1/images/{doujin.AccessId}/-1")
                     .WithColor(Color.Green)
@@ -83,7 +84,7 @@ namespace nhitomi.Interactivity
                 AddField(builder, name, string.Join(", ", array), inline);
             }
 
-            static string GetGalleryUrl(Doujin d)
+            public static string GetGalleryUrl(Doujin d)
             {
                 switch (d.Source.ToLowerInvariant())
                 {
@@ -93,6 +94,20 @@ namespace nhitomi.Interactivity
                     default:
                         return null;
                 }
+            }
+
+            public static string GetSourceIconUrl(Doujin d)
+            {
+                switch (d.Source.ToLowerInvariant())
+                {
+                    case "nhentai":
+                        return "https://cdn.cybrhome.com/media/website/live/icon/icon_nhentai.net_57f740.png";
+
+                    case "hitomi":
+                        return "https://ltn.hitomi.la/favicon-160x160.png";
+                }
+
+                return null;
             }
         }
 

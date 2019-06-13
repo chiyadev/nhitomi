@@ -56,16 +56,17 @@ namespace nhitomi.Globalization
                 tags = "Tags",
                 contents = "Contents",
                 contentsValue = "{doujin.PageCount} pages",
-                sourceIcons = new
-                {
-                    nhentai = "https://cdn.cybrhome.com/media/website/live/icon/icon_nhentai.net_57f740.png",
-                    hitomi = "https://ltn.hitomi.la/favicon-160x160.png"
-                },
                 emptyList = new
                 {
                     title = "**nhitomi**: No doujins",
                     text = "There are no doujins in this list."
                 }
+            },
+            doujinReadMessage = new
+            {
+                title = "{doujin.OriginalName}",
+                text = "You are reading page {page} of {doujin.PageCount}.",
+                footer = "{doujin.Source}/{doujin.SourceId}"
             },
             downloadMessage = new
             {

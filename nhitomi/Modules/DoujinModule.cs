@@ -77,5 +77,19 @@ namespace nhitomi.Modules
 
             await _interactive.SendInteractiveAsync(new DownloadMessage(doujin), _context, cancellationToken);
         }
+
+        [Command("read")]
+        public async Task ReadAsync(string source, string id, CancellationToken cancellationToken = default)
+        {
+            var doujin = await _database.GetDoujinAsync(source, id, cancellationToken);
+
+            if (doujin == null)
+            {
+                await _context.ReplyAsync("messages.doujinNotFound");
+                return;
+            }
+
+            await _interactive.SendInteractiveAsync(new DoujinReadMessage(doujin), _context, cancellationToken);
+        }
     }
 }
