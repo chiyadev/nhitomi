@@ -12,7 +12,10 @@ namespace nhitomi.Core
         Group,
         Scanlator,
         Language,
-        Parody
+        Parody,
+
+        // allow command parser to parse 'id'
+        Id = Identifier
     }
 
     public static class CollectionSortExtensions
