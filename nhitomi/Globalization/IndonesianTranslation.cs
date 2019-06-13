@@ -69,7 +69,7 @@ namespace nhitomi.Globalization
 
             doujinReadMessage = new
             {
-                text = "Halaman {halaman} dari {doujin.PageCount}"
+                text = "Halaman {page} dari {doujin.PageCount}"
             },
 
             downloadMessage = new
