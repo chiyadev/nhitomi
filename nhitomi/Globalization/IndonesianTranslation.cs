@@ -10,6 +10,14 @@ namespace nhitomi.Globalization
 
         protected override object CreateDefinition() => new
         {
+            meta = new
+            {
+                translators = new[]
+                {
+                    "[NekoDays](https://twitter.com/nekodayz)"
+                }
+            },
+
             doujinNotFound = "**nhitomi**: Tidak dapat menemukan doujinshi itu!",
             invalidQuery = "**nhitomi**: `{query}` tidak valid.",
 
@@ -142,6 +150,12 @@ namespace nhitomi.Globalization
                 languages = new
                 {
                     heading = "Bahasa"
+                },
+                translations = new
+                {
+                    heading = "Terjemahan",
+                    text = "Penerjemah: {translators}\n" +
+                           "Beberapa terjemahan bahasa Indonesia berasal dari Google Translate."
                 },
                 openSource = new
                 {
