@@ -10,6 +10,7 @@ namespace nhitomi
         {
             public string Prefix { get; set; }
             public string Token { get; set; }
+            public string BotInvite { get; set; }
 
             public StatusSettings Status { get; set; } = new StatusSettings();
 

@@ -13,7 +13,6 @@ namespace nhitomi.Globalization
             {
                 doujinNotFound = "**nhitomi**: No such doujin!",
                 invalidQuery = "**nhitomi**: `{query}` is not valid.",
-                joinForDownload = "**nhitomi**: Please join our server to enable downloading! <{invite}>",
 
                 listLoading = "**nhitomi**: Loading...",
                 listBeginning = "**nhitomi**: Beginning of the list!",
@@ -104,6 +103,7 @@ namespace nhitomi.Globalization
                 footer = "v{version} {codename} — powered by chiya.dev",
                 about = "a Discord bot for searching and downloading doujinshi",
                 invite = "Official server: <{invite}>",
+                invite_bot = "Bot invite: <{invite}>",
                 doujins = new
                 {
                     heading = "Doujinshi",

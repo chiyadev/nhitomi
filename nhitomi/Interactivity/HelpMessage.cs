@@ -72,7 +72,8 @@ namespace nhitomi.Interactivity
                     case HelpMessageSection.DoujinAndCollection:
                         embed.Description =
                             $"nhitomi — {path["about"][l]}\n\n" +
-                            $"{path["invite"][l, new {invite = _settings.Discord.Guild.GuildInvite}]}";
+                            $"{path["invite"][l, new {invite = _settings.Discord.Guild.GuildInvite}]}\n" +
+                            $"{path["invite_bot"][l, new {invite = _settings.Discord.BotInvite}]}";
 
                         path = path["doujins"];
 
