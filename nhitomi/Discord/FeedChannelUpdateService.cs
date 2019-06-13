@@ -164,6 +164,9 @@ namespace nhitomi.Discord
                             new DoujinMessage(doujin, true),
                             context,
                             cancellationToken);
+
+                        _logger.LogInformation("Sent feed update of doujin {0} '{1}'.",
+                            doujin.Id, doujin.OriginalName);
                     }
                 }
 
@@ -171,6 +174,9 @@ namespace nhitomi.Discord
                 channel.LastDoujin =
                     (await _db.GetDoujinsAsync(q => query(q).Take(1), cancellationToken))[0]
                     ?? channel.LastDoujin;
+
+                _logger.LogInformation("Feed channel {0} is now at doujin {1}.",
+                    channel.Id, channel.LastDoujin.Id);
 
                 return true;
 
