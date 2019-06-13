@@ -88,7 +88,7 @@ namespace nhitomi.Discord
                         _logger.LogInformation("Feed channel {0} of guild {1} is unavailable.",
                             channel.GuildId, channel.Id);
 
-                        db.Remove(new FeedChannel {Id = channelId});
+                        db.Remove(channel);
 
                         await db.SaveAsync(cancellationToken);
 
