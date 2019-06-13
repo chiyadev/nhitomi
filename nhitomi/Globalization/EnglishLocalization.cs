@@ -109,8 +109,9 @@ namespace nhitomi.Globalization
                     heading = "Doujinshi",
                     get = "Displays full doujin information.",
                     from = "Displays all doujins from a source.",
-                    search = "Searches for doujins by their title and tags.",
-                    download = "Sends the download link for a doujin."
+                    read = "Shows the pages in a doujin.",
+                    download = "Sends the download link for a doujin.",
+                    search = "Searches for doujins by their title and tags."
                 },
                 collections = new
                 {

@@ -79,8 +79,9 @@ namespace nhitomi.Interactivity
                         embed.AddField($"— {path["heading"][l]} —", $@"
 - {prefix}get `source` `id` — {path["get"][l]}
 - {prefix}from `source` — {path["from"][l]}
-- {prefix}search `query` — {path["search"][l]}
+- {prefix}read `source` `id` — {path["read"][l]}
 - {prefix}download `source` `id` — {path["download"][l]}
+- {prefix}search `query` — {path["search"][l]}
 ".Trim());
 
                         path = path.Up["collections"];
