@@ -175,6 +175,8 @@ namespace nhitomi.Discord
                     (await _db.GetDoujinsAsync(q => query(q).Take(1), cancellationToken))[0]
                     ?? channel.LastDoujin;
 
+                await _db.SaveAsync(cancellationToken);
+
                 _logger.LogInformation("Feed channel {0} is now at doujin {1}.",
                     channel.Id, channel.LastDoujin.Id);
 
