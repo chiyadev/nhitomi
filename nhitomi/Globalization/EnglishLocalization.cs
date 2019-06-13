@@ -16,7 +16,7 @@ namespace nhitomi.Globalization
             listBeginning = "**nhitomi**: Beginning of the list!",
             listEnd = "**nhitomi**: End of the list!",
 
-            collectionNotFound = "**nhitomi**: No such collection!",
+            collectionNotFound = "**nhitomi**: No collection named `{name}`.",
             collectionDeleted = "**nhitomi**: Deleted collection `{collection.Name}`.",
             collectionSorted = "**nhitomi**: Sorted collection `{collection.Name}` by `{attribute}`.",
 

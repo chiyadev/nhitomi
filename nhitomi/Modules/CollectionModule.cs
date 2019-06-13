@@ -49,7 +49,7 @@ namespace nhitomi.Modules
 
             if (collection == null)
             {
-                await _context.ReplyAsync("collectionNotFound");
+                await _context.ReplyAsync("collectionNotFound", new {name});
                 return;
             }
 
@@ -122,7 +122,7 @@ namespace nhitomi.Modules
 
                 if (collection == null)
                 {
-                    await _context.ReplyAsync("collectionNotFound");
+                    await _context.ReplyAsync("collectionNotFound", new {name});
                     return;
                 }
 
@@ -162,7 +162,7 @@ namespace nhitomi.Modules
 
                 if (collection == null)
                 {
-                    await _context.ReplyAsync("collectionNotFound");
+                    await _context.ReplyAsync("collectionNotFound", new {name});
                     return;
                 }
 
@@ -186,7 +186,7 @@ namespace nhitomi.Modules
 
                 if (collection == null)
                 {
-                    await _context.ReplyAsync("collectionNotFound");
+                    await _context.ReplyAsync("collectionNotFound", new {name});
                     return;
                 }
 
