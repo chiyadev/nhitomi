@@ -25,14 +25,14 @@ namespace nhitomi.Globalization
             alreadyInCollection = "**nhitomi**: `{doujin.OriginalName}` already exists in `{collection.Name}`.",
             notInCollection = "**nhitomi**: `{doujin.OriginalName}` was not found in `{collection.Name}`.",
 
-            localizationChanged = "**nhitomi**: Guild language is set to `{localization.Culture.NativeName}`!",
+            localizationChanged = "**nhitomi**: Server language is set to `{localization.Culture.NativeName}`!",
             localizationNotFound = "**nhitomi**: Language `{language}` is not supported.",
 
             qualityFilterChanged = "**nhitomi**: Search quality filter is now `{state:enabled|disabled}` " +
                                    "by default.",
 
-            commandInvokeNotInGuild = "**nhitomi**: You can only use this command in a guild.",
-            notGuildAdmin = "**nhitomi**: You must be a guild administrator to use this command.",
+            commandInvokeNotInGuild = "**nhitomi**: You can only use this command in a server.",
+            notGuildAdmin = "**nhitomi**: You must be a server administrator to use this command.",
 
             tagNotFound = "**nhitomi**: `{tag}` was not found.",
             feedTagAdded = "**nhitomi**: `#{channel.Name}` is now subscribed to `{tag}`.",
@@ -122,7 +122,7 @@ namespace nhitomi.Globalization
                 options = new
                 {
                     heading = "Options",
-                    language = "Changes the interface language within a guild.",
+                    language = "Changes the interface language within a server.",
                     filter = "Toggles the search quality filter.",
                     feed = new
                     {
