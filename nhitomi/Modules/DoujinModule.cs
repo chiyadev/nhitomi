@@ -32,7 +32,7 @@ namespace nhitomi.Modules
 
             if (doujin == null)
             {
-                await _context.ReplyAsync("messages.doujinNotFound");
+                await _context.ReplyAsync("doujinNotFound");
                 return;
             }
 
@@ -49,7 +49,7 @@ namespace nhitomi.Modules
         {
             if (string.IsNullOrEmpty(query))
             {
-                await _context.ReplyAsync("messages.invalidQuery", new {query});
+                await _context.ReplyAsync("invalidQuery", new {query});
                 return;
             }
 
@@ -71,7 +71,7 @@ namespace nhitomi.Modules
 
             if (doujin == null)
             {
-                await _context.ReplyAsync("messages.doujinNotFound");
+                await _context.ReplyAsync("doujinNotFound");
                 return;
             }
 
@@ -85,7 +85,7 @@ namespace nhitomi.Modules
 
             if (doujin == null)
             {
-                await _context.ReplyAsync("messages.doujinNotFound");
+                await _context.ReplyAsync("doujinNotFound");
                 return;
             }
 

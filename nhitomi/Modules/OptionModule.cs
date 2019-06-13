@@ -28,13 +28,13 @@ namespace nhitomi.Modules
         {
             if (!(context.User is IGuildUser user))
             {
-                await context.ReplyAsync("messages.commandInvokeNotInGuild");
+                await context.ReplyAsync("commandInvokeNotInGuild");
                 return false;
             }
 
             if (!user.GuildPermissions.ManageGuild)
             {
-                await context.ReplyAsync("messages.notGuildAdmin");
+                await context.ReplyAsync("notGuildAdmin");
                 return false;
             }
 
@@ -63,14 +63,14 @@ namespace nhitomi.Modules
                 // update cache
                 _settingsCache[_context.Channel] = guild;
 
-                await _context.ReplyAsync("messages.localizationChanged", new
+                await _context.ReplyAsync("localizationChanged", new
                 {
                     localization = Localization.GetLocalization(language)
                 });
             }
             else
             {
-                await _context.ReplyAsync("messages.localizationNotFound", new {language});
+                await _context.ReplyAsync("localizationNotFound", new {language});
             }
         }
 
@@ -93,7 +93,7 @@ namespace nhitomi.Modules
             // update cache
             _settingsCache[_context.Channel] = guild;
 
-            await _context.ReplyAsync("messages.qualityFilterChanged", new {state = enabled});
+            await _context.ReplyAsync("qualityFilterChanged", new {state = enabled});
         }
 
         [Module("feed")]
@@ -125,7 +125,7 @@ namespace nhitomi.Modules
 
                     if (tags.Length == 0)
                     {
-                        await _context.ReplyAsync("messages.tagNotFound", new {tag});
+                        await _context.ReplyAsync("tagNotFound", new {tag});
                         return;
                     }
 
@@ -146,9 +146,9 @@ namespace nhitomi.Modules
                 while (!await _db.SaveAsync(cancellationToken));
 
                 if (added)
-                    await _context.ReplyAsync("messages.feedTagAdded", new {tag, channel = _context.Channel});
+                    await _context.ReplyAsync("feedTagAdded", new {tag, channel = _context.Channel});
                 else
-                    await _context.ReplyAsync("messages.feedTagAlreadyAdded", new {tag, channel = _context.Channel});
+                    await _context.ReplyAsync("feedTagAlreadyAdded", new {tag, channel = _context.Channel});
             }
 
             [Command("remove"), Binding("[tag+]")]
@@ -178,9 +178,9 @@ namespace nhitomi.Modules
                 while (!await _db.SaveAsync(cancellationToken));
 
                 if (removed)
-                    await _context.ReplyAsync("messages.feedTagRemoved", new {tag, channel = _context.Channel});
+                    await _context.ReplyAsync("feedTagRemoved", new {tag, channel = _context.Channel});
                 else
-                    await _context.ReplyAsync("messages.feedTagNotRemoved", new {tag, channel = _context.Channel});
+                    await _context.ReplyAsync("feedTagNotRemoved", new {tag, channel = _context.Channel});
             }
 
             [Command("mode")]
@@ -198,7 +198,7 @@ namespace nhitomi.Modules
                 }
                 while (!await _db.SaveAsync(cancellationToken));
 
-                await _context.ReplyAsync("messages.feedModeChanged", new {type, channel = _context.Channel});
+                await _context.ReplyAsync("feedModeChanged", new {type, channel = _context.Channel});
             }
         }
     }

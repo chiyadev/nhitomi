@@ -49,7 +49,7 @@ namespace nhitomi.Modules
 
             if (collection == null)
             {
-                await _context.ReplyAsync("messages.collectionNotFound");
+                await _context.ReplyAsync("collectionNotFound");
                 return;
             }
 
@@ -87,13 +87,13 @@ namespace nhitomi.Modules
 
                 if (doujin == null)
                 {
-                    await _context.ReplyAsync("messages.doujinNotFound");
+                    await _context.ReplyAsync("doujinNotFound");
                     return;
                 }
 
                 if (collection.Doujins.Any(x => x.DoujinId == doujin.Id))
                 {
-                    await _context.ReplyAsync("messages.alreadyInCollection", new {doujin, collection});
+                    await _context.ReplyAsync("alreadyInCollection", new {doujin, collection});
                     return;
                 }
 
@@ -104,7 +104,7 @@ namespace nhitomi.Modules
             }
             while (!await _database.SaveAsync(cancellationToken));
 
-            await _context.ReplyAsync("messages.addedToCollection", new {doujin, collection});
+            await _context.ReplyAsync("addedToCollection", new {doujin, collection});
         }
 
         [Command("remove", BindName = false), Binding("[name] remove|r [source] [id]")]
@@ -122,7 +122,7 @@ namespace nhitomi.Modules
 
                 if (collection == null)
                 {
-                    await _context.ReplyAsync("messages.collectionNotFound");
+                    await _context.ReplyAsync("collectionNotFound");
                     return;
                 }
 
@@ -130,7 +130,7 @@ namespace nhitomi.Modules
 
                 if (doujin == null)
                 {
-                    await _context.ReplyAsync("messages.doujinNotFound");
+                    await _context.ReplyAsync("doujinNotFound");
                     return;
                 }
 
@@ -138,7 +138,7 @@ namespace nhitomi.Modules
 
                 if (item == null)
                 {
-                    await _context.ReplyAsync("messages.notInCollection", new {doujin, collection});
+                    await _context.ReplyAsync("notInCollection", new {doujin, collection});
                     return;
                 }
 
@@ -146,7 +146,7 @@ namespace nhitomi.Modules
             }
             while (!await _database.SaveAsync(cancellationToken));
 
-            await _context.ReplyAsync("messages.removedFromCollection", new {doujin, collection});
+            await _context.ReplyAsync("removedFromCollection", new {doujin, collection});
         }
 
         [Command("delete", BindName = false), Binding("[name] delete|d")]
@@ -162,7 +162,7 @@ namespace nhitomi.Modules
 
                 if (collection == null)
                 {
-                    await _context.ReplyAsync("messages.collectionNotFound");
+                    await _context.ReplyAsync("collectionNotFound");
                     return;
                 }
 
@@ -170,7 +170,7 @@ namespace nhitomi.Modules
             }
             while (!await _database.SaveAsync(cancellationToken));
 
-            await _context.ReplyAsync("messages.collectionDeleted", new {collection});
+            await _context.ReplyAsync("collectionDeleted", new {collection});
         }
 
         [Command("sort", BindName = false), Binding("[name] sort|s [sort]")]
@@ -186,7 +186,7 @@ namespace nhitomi.Modules
 
                 if (collection == null)
                 {
-                    await _context.ReplyAsync("messages.collectionNotFound");
+                    await _context.ReplyAsync("collectionNotFound");
                     return;
                 }
 
@@ -194,7 +194,7 @@ namespace nhitomi.Modules
             }
             while (!await _database.SaveAsync(cancellationToken));
 
-            await _context.ReplyAsync("messages.collectionSorted", new {collection, attribute = sort});
+            await _context.ReplyAsync("collectionSorted", new {collection, attribute = sort});
         }
     }
 }

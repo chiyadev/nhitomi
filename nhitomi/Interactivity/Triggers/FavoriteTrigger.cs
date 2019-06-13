@@ -91,9 +91,9 @@ namespace nhitomi.Interactivity.Triggers
 
                 // reply in DM
                 if (added)
-                    await Context.ReplyDmAsync("messages.addedToCollection", new {doujin, collection});
+                    await Context.ReplyDmAsync("addedToCollection", new {doujin, collection});
                 else
-                    await Context.ReplyDmAsync("messages.removedFromCollection", new {doujin, collection});
+                    await Context.ReplyDmAsync("removedFromCollection", new {doujin, collection});
 
                 return true;
             }

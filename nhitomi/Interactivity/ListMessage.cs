@@ -64,7 +64,7 @@ namespace nhitomi.Interactivity
 
                 // show loading indication if we are triggered by a reaction
                 if (Context is IReactionContext)
-                    await SetMessageAsync("messages.listLoading", null, cancellationToken);
+                    await SetMessageAsync("listLoading", null, cancellationToken);
 
                 // get new values
                 var values = await GetValuesAsync(index, cancellationToken);
@@ -112,11 +112,11 @@ namespace nhitomi.Interactivity
                 switch (status)
                 {
                     case Status.Start:
-                        await SetMessageAsync("messages.listBeginning", null, cancellationToken);
+                        await SetMessageAsync("listBeginning", null, cancellationToken);
                         break;
 
                     case Status.End:
-                        await SetMessageAsync("messages.listEnd", null, cancellationToken);
+                        await SetMessageAsync("listEnd", null, cancellationToken);
                         break;
                 }
 

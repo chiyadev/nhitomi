@@ -9,40 +9,37 @@ namespace nhitomi.Globalization
 
         protected override object CreateDefinition() => new
         {
-            messages = new
-            {
-                doujinNotFound = "**nhitomi**: No such doujin!",
-                invalidQuery = "**nhitomi**: `{query}` is not valid.",
+            doujinNotFound = "**nhitomi**: No such doujin!",
+            invalidQuery = "**nhitomi**: `{query}` is not valid.",
 
-                listLoading = "**nhitomi**: Loading...",
-                listBeginning = "**nhitomi**: Beginning of the list!",
-                listEnd = "**nhitomi**: End of the list!",
+            listLoading = "**nhitomi**: Loading...",
+            listBeginning = "**nhitomi**: Beginning of the list!",
+            listEnd = "**nhitomi**: End of the list!",
 
-                collectionNotFound = "**nhitomi**: No such collection!",
-                collectionDeleted = "**nhitomi**: Deleted collection `{collection.Name}`.",
-                collectionSorted = "**nhitomi**: Sorted collection `{collection.Name}` by `{attribute}`.",
+            collectionNotFound = "**nhitomi**: No such collection!",
+            collectionDeleted = "**nhitomi**: Deleted collection `{collection.Name}`.",
+            collectionSorted = "**nhitomi**: Sorted collection `{collection.Name}` by `{attribute}`.",
 
-                addedToCollection = "**nhitomi**: Added `{doujin.OriginalName}` to `{collection.Name}`.",
-                removedFromCollection = "**nhitomi**: Removed `{doujin.OriginalName}` from `{collection.Name}`.",
-                alreadyInCollection = "**nhitomi**: `{doujin.OriginalName}` already exists in `{collection.Name}`.",
-                notInCollection = "**nhitomi**: `{doujin.OriginalName}` was not found in `{collection.Name}`.",
+            addedToCollection = "**nhitomi**: Added `{doujin.OriginalName}` to `{collection.Name}`.",
+            removedFromCollection = "**nhitomi**: Removed `{doujin.OriginalName}` from `{collection.Name}`.",
+            alreadyInCollection = "**nhitomi**: `{doujin.OriginalName}` already exists in `{collection.Name}`.",
+            notInCollection = "**nhitomi**: `{doujin.OriginalName}` was not found in `{collection.Name}`.",
 
-                localizationChanged = "**nhitomi**: Guild language is set to `{localization.Culture.NativeName}`!",
-                localizationNotFound = "**nhitomi**: Language `{language}` is not supported.",
+            localizationChanged = "**nhitomi**: Guild language is set to `{localization.Culture.NativeName}`!",
+            localizationNotFound = "**nhitomi**: Language `{language}` is not supported.",
 
-                qualityFilterChanged = "**nhitomi**: Search quality filter is now `{state:enabled|disabled}` " +
-                                       "by default.",
+            qualityFilterChanged = "**nhitomi**: Search quality filter is now `{state:enabled|disabled}` " +
+                                   "by default.",
 
-                commandInvokeNotInGuild = "**nhitomi**: You can only use this command in a guild.",
-                notGuildAdmin = "**nhitomi**: You must be a guild administrator to use this command.",
+            commandInvokeNotInGuild = "**nhitomi**: You can only use this command in a guild.",
+            notGuildAdmin = "**nhitomi**: You must be a guild administrator to use this command.",
 
-                tagNotFound = "**nhitomi**: `{tag}` was not found.",
-                feedTagAdded = "**nhitomi**: `#{channel.Name}` is now subscribed to `{tag}`.",
-                feedTagAlreadyAdded = "**nhitomi**: `#{channel.Name}` is already subscribed to `{tag}`.",
-                feedTagRemoved = "**nhitomi**: `#{channel.Name}` is now unsubscribed from `{tag}`.",
-                feedTagNotRemoved = "**nhitomi**: `#{channel.Name}` is not subscribed to `{tag}`.",
-                feedModeChanged = "**nhitomi**: Changed feed mode of `#{channel.Name}` to `{type}`."
-            },
+            tagNotFound = "**nhitomi**: `{tag}` was not found.",
+            feedTagAdded = "**nhitomi**: `#{channel.Name}` is now subscribed to `{tag}`.",
+            feedTagAlreadyAdded = "**nhitomi**: `#{channel.Name}` is already subscribed to `{tag}`.",
+            feedTagRemoved = "**nhitomi**: `#{channel.Name}` is now unsubscribed from `{tag}`.",
+            feedTagNotRemoved = "**nhitomi**: `#{channel.Name}` is not subscribed to `{tag}`.",
+            feedModeChanged = "**nhitomi**: Changed feed mode of `#{channel.Name}` to `{type}`.",
             doujinMessage = new
             {
                 title = "{doujin.OriginalName}",

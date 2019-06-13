@@ -95,7 +95,7 @@ namespace nhitomi.Discord
 
                     if (doujin == null)
                     {
-                        await context.ReplyAsync("messages.doujinNotFound");
+                        await context.ReplyAsync("doujinNotFound");
                     }
                     else
                     {
