@@ -22,9 +22,12 @@ namespace nhitomi.Interactivity
 
         protected override IEnumerable<IReactionTrigger> CreateTriggers()
         {
+            yield return new ListJumpTrigger(JumpDestination.Start, 0);
+
             foreach (var trigger in base.CreateTriggers())
                 yield return trigger;
 
+            yield return new ListJumpTrigger(JumpDestination.End, _doujin.PageCount - 1);
             yield return new DeleteTrigger();
         }
 
