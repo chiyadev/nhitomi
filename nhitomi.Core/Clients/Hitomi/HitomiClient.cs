@@ -213,9 +213,13 @@ namespace nhitomi.Core.Clients.Hitomi
 
         struct ImageInfo
         {
+            // 649 means field is never initialized
+            // they ARE initialized during json deserialization
+#pragma warning disable 649
             [JsonProperty("name")] public string Name;
             [JsonProperty("width")] public int Width;
             [JsonProperty("height")] public int Height;
+#pragma warning restore 649
         }
 
         async Task<int[]> ReadNozomiIndicesAsync(CancellationToken cancellationToken = default)
