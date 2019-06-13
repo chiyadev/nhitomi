@@ -102,8 +102,7 @@ namespace nhitomi.Globalization
                 title = "**nhitomi**: Help",
                 footer = "v{version} {codename} — powered by chiya.dev",
                 about = "a Discord bot for searching and downloading doujinshi",
-                invite = "Official server: <{invite}>",
-                invite_bot = "Bot invite: <{invite}>",
+                invite = "[Join]({guildInvite}) the official server or [invite nhitomi]({botInvite}) to your server.",
                 doujins = new
                 {
                     heading = "Doujinshi",
@@ -153,7 +152,8 @@ namespace nhitomi.Globalization
             errorMessage = new
             {
                 title = "**nhitomi**: Error",
-                text = "The error has been reported. For further assistance, please join <{invite}>."
+                text =
+                    "The error has been reported. For further assistance, please join the [official server]({invite})."
             }
         };
     }
