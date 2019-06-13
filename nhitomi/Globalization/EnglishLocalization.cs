@@ -64,7 +64,7 @@ namespace nhitomi.Globalization
             doujinReadMessage = new
             {
                 title = "{doujin.OriginalName}",
-                text = "You are reading page {page} of {doujin.PageCount}.",
+                text = "Page {page} of {doujin.PageCount}",
                 footer = "{doujin.Source}/{doujin.SourceId}"
             },
             downloadMessage = new
