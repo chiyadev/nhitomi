@@ -37,31 +37,31 @@ namespace nhitomi.Discord
 
         public IDiscordClient Client
         {
-            get => _client ?? _context.Client;
+            get => _client ?? _context?.Client;
             set => _client = value;
         }
 
         public IUserMessage Message
         {
-            get => _message ?? _context.Message;
+            get => _message ?? _context?.Message;
             set => _message = value;
         }
 
         public IMessageChannel Channel
         {
-            get => _channel ?? _context.Channel;
+            get => _channel ?? _context?.Channel;
             set => _channel = value;
         }
 
         public IUser User
         {
-            get => _user ?? _context.User;
+            get => _user ?? _context?.User;
             set => _user = value;
         }
 
         public Guild GuildSettings
         {
-            get => _guild ?? _context.GuildSettings;
+            get => _guild ?? _context?.GuildSettings;
             set => _guild = value;
         }
     }
