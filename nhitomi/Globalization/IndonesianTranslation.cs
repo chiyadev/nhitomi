@@ -143,6 +143,10 @@ namespace nhitomi.Globalization
                 {
                     heading = "Alias Komando"
                 },
+                examples = new
+                {
+                    heading = "Contohnya"
+                },
                 sources = new
                 {
                     heading = "Sumber"

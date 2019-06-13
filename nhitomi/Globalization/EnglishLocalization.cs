@@ -139,6 +139,10 @@ namespace nhitomi.Globalization
                 {
                     heading = "Command Aliases"
                 },
+                examples = new
+                {
+                    heading = "Examples"
+                },
                 sources = new
                 {
                     heading = "Sources"

@@ -83,6 +83,7 @@ namespace nhitomi.Interactivity
                         break;
 
                     case HelpMessageSection.Other:
+                        ExamplesSection(embed, path, l);
                         SourcesSection(embed, path, l);
                         LanguagesSection(embed, path, l);
 
@@ -155,17 +156,29 @@ namespace nhitomi.Interactivity
 {prefix}**f** `source` — from
 {prefix}**s** `query` — search
 {prefix}**dl** `source` `id` — download
-{prefix}**c** **l** — collection list
 {prefix}**c** `name` — collection
 {prefix}**c** `name` **a** `source` `id` — collection add
 {prefix}**c** `name` **r** `source` `id` — collection remove
-{prefix}**c** `name` **s** `attribute` — collection sort
-{prefix}**c** `name` **d** — collection delete
-{prefix}**o** **l** `name` — option language
-{prefix}**o** **f** `on or off` — option filter
-{prefix}**o** **f** **a** `tag` — option feed add
-{prefix}**o** **f** **r** `tag` — option feed remove
-{prefix}**o** **f** **m** `mode` — option feed mode
+".Trim());
+            }
+
+            void ExamplesSection(EmbedBuilder embed, LocalizationPath path, Localization l)
+            {
+                path = path["examples"];
+
+                var prefix = _settings.Discord.Prefix;
+
+                embed.AddField($"— {path["heading"][l]} —", $@"
+{prefix}get nhentai 123
+{prefix}dl hitomi 12345
+{prefix}search glasses
+
+{prefix}c list
+{prefix}c favorites
+{prefix}c favorites add nhentai 123
+{prefix}c favorites remove nhentai 321
+
+{prefix}o language en
 ".Trim());
             }
 
