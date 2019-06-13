@@ -143,6 +143,10 @@ namespace nhitomi.Globalization
                 {
                     heading = "Sources"
                 },
+                languages = new
+                {
+                    heading = "Languages"
+                },
                 openSource = new
                 {
                     heading = "Open Source",

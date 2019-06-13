@@ -21,6 +21,8 @@ namespace nhitomi.Globalization
                 ? localization
                 : Default;
 
+        public static IEnumerable<Localization> GetAllLocalizations() => _localizations.Values;
+
         public static bool IsAvailable(string culture) =>
             culture != null && _localizations.ContainsKey(culture);
 

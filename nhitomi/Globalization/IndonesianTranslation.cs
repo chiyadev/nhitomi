@@ -139,6 +139,10 @@ namespace nhitomi.Globalization
                 {
                     heading = "Sumber"
                 },
+                languages = new
+                {
+                    heading = "Bahasa"
+                },
                 openSource = new
                 {
                     heading = "Sumber Terbuka",

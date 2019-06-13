@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Discord;
@@ -137,7 +138,17 @@ namespace nhitomi.Interactivity
 - Hitomi — `https://hitomi.la/`
 ".Trim());
 
-                        // only add translations if not English
+                        path = path["languages"];
+
+                        var builder = new StringBuilder();
+
+                        foreach (var localization in Localization.GetAllLocalizations())
+                            builder.AppendLine($"- `{localization.Culture.Name}` " +
+                                               $"— {localization.Culture.EnglishName} | {localization.Culture.DisplayName}");
+
+                        embed.AddField($"— {path["heading"][l]} —", builder.ToString());
+
+                        // only add translators if not English
                         if (l != Localization.Default)
                         {
                             path = path.Up["translations"];
