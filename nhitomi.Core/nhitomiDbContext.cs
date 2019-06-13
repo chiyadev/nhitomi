@@ -363,6 +363,7 @@ ORDER BY d.`UploadTime` DESC");
         public async Task<Guild[]> GetGuildsAsync(ulong[] guildIds, CancellationToken cancellationToken = default)
         {
             var guilds = await Query<Guild>()
+                .Include(g => g.FeedChannels)
                 .Where(g => guildIds.Contains(g.Id))
                 .ToListAsync(cancellationToken);
 
