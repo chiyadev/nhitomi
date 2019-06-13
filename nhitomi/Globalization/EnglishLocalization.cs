@@ -33,7 +33,7 @@ namespace nhitomi.Globalization
             commandInvokeNotInGuild = "**nhitomi**: You can only use this command in a server.",
             notGuildAdmin = "**nhitomi**: You must be a server administrator to use this command.",
 
-            tagNotFound = "**nhitomi**: `{tag}` was not found.",
+            tagNotFound = "**nhitomi**: Tag `{tag}` was not found.",
             feedTagAdded = "**nhitomi**: `#{channel.Name}` is now subscribed to `{tag}`.",
             feedTagAlreadyAdded = "**nhitomi**: `#{channel.Name}` is already subscribed to `{tag}`.",
             feedTagRemoved = "**nhitomi**: `#{channel.Name}` is now unsubscribed from `{tag}`.",
