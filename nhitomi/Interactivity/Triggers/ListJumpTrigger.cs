@@ -14,7 +14,7 @@ namespace nhitomi.Interactivity.Triggers
     public class ListJumpTrigger : ReactionTrigger<ListJumpTrigger.Action>
     {
         readonly JumpDestination _destination;
-        readonly int _position;
+        readonly int _endPosition;
 
         public override string Name => $"Jump to {_destination}";
 
@@ -35,10 +35,10 @@ namespace nhitomi.Interactivity.Triggers
             }
         }
 
-        public ListJumpTrigger(JumpDestination destination, int position)
+        public ListJumpTrigger(JumpDestination destination, int endPosition = 0)
         {
             _destination = destination;
-            _position = position;
+            _endPosition = endPosition;
         }
 
         public class Action : ActionBase<IListMessage>
@@ -57,7 +57,22 @@ namespace nhitomi.Interactivity.Triggers
                 if (!await base.RunAsync(cancellationToken))
                     return false;
 
-                Interactive.Position = Trigger._position;
+                switch (Trigger._destination)
+                {
+                    case JumpDestination.Start:
+                        if (Interactive.Position == 0)
+                            Interactive.Position = -1;
+                        else
+                            Interactive.Position = 0;
+                        break;
+
+                    case JumpDestination.End:
+                        if (Interactive.Position == Trigger._endPosition)
+                            Interactive.Position = Trigger._endPosition + 1;
+                        else
+                            Interactive.Position = Trigger._endPosition;
+                        break;
+                }
 
                 return await Interactive.UpdateViewAsync(_services, cancellationToken);
             }
