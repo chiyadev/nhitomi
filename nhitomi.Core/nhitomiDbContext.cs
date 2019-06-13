@@ -170,7 +170,6 @@ namespace nhitomi.Core
 
                 default:
                     throw new NotSupportedException($"Unsupported database provider {Database.ProviderName}.");
-                    break;
             }
 
             // populate tags
