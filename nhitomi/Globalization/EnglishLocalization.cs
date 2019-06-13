@@ -154,8 +154,8 @@ namespace nhitomi.Globalization
             errorMessage = new
             {
                 title = "**nhitomi**: Error",
-                text =
-                    "The error has been reported. For further assistance, please join the [official server]({invite})."
+                text = "The error has been reported. " +
+                       "For further assistance, please join the [official server]({invite})."
             }
         };
     }
