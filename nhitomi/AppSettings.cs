@@ -35,5 +35,12 @@ namespace nhitomi
         {
             public bool EnableProxy { get; set; }
         }
+
+        public FeedSettings Feed { get; set; } = new FeedSettings();
+
+        public sealed class FeedSettings
+        {
+            public bool Enabled { get; set; }
+        }
     }
 }

@@ -2,6 +2,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Discord;
+using Microsoft.Extensions.Options;
 using nhitomi.Core;
 using nhitomi.Discord;
 using nhitomi.Discord.Parsing;
@@ -99,19 +100,31 @@ namespace nhitomi.Modules
         [Module("feed")]
         public class FeedModule
         {
+            readonly AppSettings _settings;
             readonly IDiscordContext _context;
             readonly IDatabase _db;
 
-            public FeedModule(IDiscordContext context, IDatabase db)
+            public FeedModule(IOptions<AppSettings> options, IDiscordContext context, IDatabase db)
             {
+                _settings = options.Value;
                 _context = context;
                 _db = db;
+            }
+
+            async Task<bool> EnsureFeedEnabled(CancellationToken cancellationToken = default)
+            {
+                if (_settings.Feed.Enabled)
+                    return true;
+
+                await _context.ReplyAsync("**nhitomi**: Feed channels are currently disabled.");
+                return false;
             }
 
             [Command("add"), Binding("[tag+]")]
             public async Task AddAsync(string tag, CancellationToken cancellationToken = default)
             {
-                if (!await EnsureGuildAdminAsync(_context, cancellationToken))
+                if (!await EnsureFeedEnabled(cancellationToken) ||
+                    !await EnsureGuildAdminAsync(_context, cancellationToken))
                     return;
 
                 var added = false;
@@ -154,7 +167,8 @@ namespace nhitomi.Modules
             [Command("remove"), Binding("[tag+]")]
             public async Task RemoveAsync(string tag, CancellationToken cancellationToken = default)
             {
-                if (!await EnsureGuildAdminAsync(_context, cancellationToken))
+                if (!await EnsureFeedEnabled(cancellationToken) ||
+                    !await EnsureGuildAdminAsync(_context, cancellationToken))
                     return;
 
                 var removed = false;
@@ -186,7 +200,8 @@ namespace nhitomi.Modules
             [Command("mode")]
             public async Task ModeAsync(FeedChannelWhitelistType type, CancellationToken cancellationToken = default)
             {
-                if (!await EnsureGuildAdminAsync(_context, cancellationToken))
+                if (!await EnsureFeedEnabled(cancellationToken) ||
+                    !await EnsureGuildAdminAsync(_context, cancellationToken))
                     return;
 
                 do

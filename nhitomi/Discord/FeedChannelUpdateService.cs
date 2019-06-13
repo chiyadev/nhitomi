@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using nhitomi.Core;
 using nhitomi.Interactivity;
 
@@ -16,13 +17,16 @@ namespace nhitomi.Discord
 {
     public class FeedChannelUpdateService : BackgroundService
     {
+        readonly AppSettings _settings;
         readonly IServiceProvider _services;
         readonly DiscordService _discord;
         readonly ILogger<FeedChannelUpdateService> _logger;
 
-        public FeedChannelUpdateService(IServiceProvider services, DiscordService discord,
+        public FeedChannelUpdateService(IOptions<AppSettings> options, IServiceProvider services,
+            DiscordService discord,
             ILogger<FeedChannelUpdateService> logger)
         {
+            _settings = options.Value;
             _services = services;
             _discord = discord;
             _logger = logger;
@@ -32,6 +36,9 @@ namespace nhitomi.Discord
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
+            if (!_settings.Feed.Enabled)
+                return;
+
             await _discord.WaitForReadyAsync(stoppingToken);
 
             while (!stoppingToken.IsCancellationRequested)
