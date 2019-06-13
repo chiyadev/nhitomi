@@ -30,20 +30,13 @@ namespace nhitomi.Interactivity.Triggers
                 if (!await base.RunAsync(cancellationToken))
                     return false;
 
-                // retrieve doujin
-                var doujin = Interactive?.Doujin;
+                if (!DoujinMessage.TryParseDoujinIdFromMessage(Context.Message, out var id, out var isFeed))
+                    return false;
+
+                var doujin = await _database.GetDoujinAsync(id.source, id.id, cancellationToken);
 
                 if (doujin == null)
-                {
-                    // stateless mode
-                    if (!DoujinMessage.TryParseDoujinIdFromMessage(Context.Message, out var id))
-                        return false;
-
-                    doujin = await _database.GetDoujinAsync(id.source, id.id, cancellationToken);
-
-                    if (doujin == null)
-                        return false;
-                }
+                    return false;
 
                 bool added;
 
@@ -89,11 +82,21 @@ namespace nhitomi.Interactivity.Triggers
                 }
                 while (!await _database.SaveAsync(cancellationToken));
 
-                // reply in DM
+                var context = Context as IDiscordContext;
+
+                if (isFeed)
+                {
+                    // reply in DM if feed message
+                    context = new DiscordContextWrapper(context)
+                    {
+                        Channel = await Context.User.GetOrCreateDMChannelAsync()
+                    };
+                }
+
                 if (added)
-                    await Context.ReplyDmAsync("addedToCollection", new {doujin, collection});
+                    await context.ReplyAsync("addedToCollection", new {doujin, collection});
                 else
-                    await Context.ReplyDmAsync("removedFromCollection", new {doujin, collection});
+                    await context.ReplyAsync("removedFromCollection", new {doujin, collection});
 
                 return true;
             }

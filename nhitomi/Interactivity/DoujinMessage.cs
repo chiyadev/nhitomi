@@ -18,10 +18,13 @@ namespace nhitomi.Interactivity
 
     public class DoujinMessage : InteractiveMessage<DoujinMessage.View>, IDoujinMessage
     {
+        readonly bool _isFeed;
+
         public Doujin Doujin { get; }
 
-        public DoujinMessage(Doujin doujin)
+        public DoujinMessage(Doujin doujin, bool isFeed = false)
         {
+            _isFeed = isFeed;
             Doujin = doujin;
         }
 
@@ -40,7 +43,7 @@ namespace nhitomi.Interactivity
             protected override Embed CreateEmbed() =>
                 CreateEmbed(Message.Doujin, Context.GetLocalization());
 
-            public static Embed CreateEmbed(Doujin doujin, Localization l)
+            public static Embed CreateEmbed(Doujin doujin, Localization l, bool isFeed = false)
             {
                 var path = new LocalizationPath("doujinMessage");
 
@@ -53,7 +56,8 @@ namespace nhitomi.Interactivity
                     .WithUrl(GetGalleryUrl(doujin))
                     .WithImageUrl($"https://nhitomi.chiya.dev/api/v1/images/{doujin.AccessId}/-1")
                     .WithColor(Color.Green)
-                    .WithFooter(path["footer"][l, new {doujin}]);
+                    .WithFooter(path["footer"][l, new {doujin}] +
+                                (isFeed ? " | feed" : null));
 
                 AddField(embed, path["language"][l], doujin.GetTag(TagType.Language)?.Value);
                 AddField(embed, path["group"][l], doujin.GetTag(TagType.Group)?.Value);
@@ -111,20 +115,23 @@ namespace nhitomi.Interactivity
             }
         }
 
-        public static bool TryParseDoujinIdFromMessage(IMessage message, out (string source, string id) id)
+        public static bool TryParseDoujinIdFromMessage(IMessage message, out (string source, string id) id,
+            out bool isFeed)
         {
-            var identifier = message.Embeds.FirstOrDefault(e => e is Embed)?.Footer?.Text;
+            var footer = message.Embeds.FirstOrDefault(e => e is Embed)?.Footer?.Text;
 
-            if (identifier == null)
+            if (footer == null)
             {
                 id = (null, null);
+                isFeed = false;
                 return false;
             }
 
             // source/id
-            var parts = identifier.Split('/', 2);
+            var parts = footer.Split('|')[0].Split('/', 2);
 
-            id = (parts[0], parts[1]);
+            id = (parts[0].Trim(), parts[1].Trim());
+            isFeed = footer.Contains("feed");
             return true;
         }
     }

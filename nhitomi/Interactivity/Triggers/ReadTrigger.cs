@@ -2,6 +2,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Discord;
 using nhitomi.Core;
+using nhitomi.Discord;
 
 namespace nhitomi.Interactivity.Triggers
 {
@@ -27,23 +28,27 @@ namespace nhitomi.Interactivity.Triggers
                 if (!await base.RunAsync(cancellationToken))
                     return false;
 
-                // retrieve doujin
-                var doujin = Interactive?.Doujin;
+                if (!DoujinMessage.TryParseDoujinIdFromMessage(Context.Message, out var id, out var isFeed))
+                    return false;
+
+                var doujin = await _database.GetDoujinAsync(id.source, id.id, cancellationToken);
 
                 if (doujin == null)
+                    return false;
+
+                var context = Context as IDiscordContext;
+
+                if (isFeed)
                 {
-                    // stateless mode
-                    if (!DoujinMessage.TryParseDoujinIdFromMessage(Context.Message, out var id))
-                        return false;
-
-                    doujin = await _database.GetDoujinAsync(id.source, id.id, cancellationToken);
-
-                    if (doujin == null)
-                        return false;
+                    // reply in DM if feed message
+                    context = new DiscordContextWrapper(context)
+                    {
+                        Channel = await Context.User.GetOrCreateDMChannelAsync()
+                    };
                 }
 
                 // send read interactive
-                await _interactive.SendInteractiveAsync(new DoujinReadMessage(doujin), Context, cancellationToken);
+                await _interactive.SendInteractiveAsync(new DoujinReadMessage(doujin), context, cancellationToken);
 
                 return true;
             }
