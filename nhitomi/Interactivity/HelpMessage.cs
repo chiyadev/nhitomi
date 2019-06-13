@@ -194,7 +194,7 @@ namespace nhitomi.Interactivity
 
             static void TranslationsSection(EmbedBuilder embed, LocalizationPath path, Localization l)
             {
-                path = path.Up["translations"];
+                path = path["translations"];
 
                 embed.AddField(
                     $"— {path["heading"][l]} —",
@@ -203,7 +203,7 @@ namespace nhitomi.Interactivity
 
             static void OpenSourceSection(EmbedBuilder embed, LocalizationPath path, Localization l)
             {
-                path = path.Up["openSource"];
+                path = path["openSource"];
 
                 embed.AddField($"— {path["heading"][l]} —", $@"
 {path["license"][l]}
