@@ -26,6 +26,7 @@ namespace nhitomi
             {
                 public ulong GuildId { get; set; }
                 public string GuildInvite { get; set; }
+                public ulong ErrorChannelId { get; set; }
             }
         }
 

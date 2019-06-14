@@ -8,7 +8,6 @@ using Discord.WebSocket;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using nhitomi.Core;
-using nhitomi.Interactivity;
 
 namespace nhitomi.Discord
 {
@@ -34,19 +33,19 @@ namespace nhitomi.Discord
     {
         readonly DiscordService _discord;
         readonly GuildSettingsCache _guildSettingsCache;
-        readonly InteractiveManager _interactiveManager;
+        readonly DiscordErrorReporter _errorReporter;
         readonly ILogger<MessageHandlerService> _logger;
 
         readonly IMessageHandler[] _messageHandlers;
 
         [SuppressMessage("ReSharper", "SuggestBaseTypeForParameter")]
         public MessageHandlerService(DiscordService discord, GuildSettingsCache guildSettingsCache,
-            InteractiveManager interactiveManager, ILogger<MessageHandlerService> logger,
-            CommandExecutor commandExecutor, GalleryUrlDetector galleryUrlDetector)
+            DiscordErrorReporter errorReporter, ILogger<MessageHandlerService> logger, CommandExecutor commandExecutor,
+            GalleryUrlDetector galleryUrlDetector)
         {
             _discord = discord;
             _guildSettingsCache = guildSettingsCache;
-            _interactiveManager = interactiveManager;
+            _errorReporter = errorReporter;
             _logger = logger;
 
             _messageHandlers = new IMessageHandler[]
@@ -113,7 +112,7 @@ namespace nhitomi.Discord
                     {
                         _logger.LogWarning(e, "Unhandled exception while handling message.");
 
-                        await _interactiveManager.SendInteractiveAsync(new ErrorMessage(e), context);
+                        await _errorReporter.ReportAsync(e, context);
                     }
                     finally
                     {

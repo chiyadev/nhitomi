@@ -35,16 +35,19 @@ namespace nhitomi.Discord
     {
         readonly DiscordService _discord;
         readonly GuildSettingsCache _guildSettingsCache;
+        readonly DiscordErrorReporter _errorReporter;
         readonly ILogger<ReactionHandlerService> _logger;
 
         readonly IReactionHandler[] _reactionHandlers;
 
         [SuppressMessage("ReSharper", "SuggestBaseTypeForParameter")]
         public ReactionHandlerService(DiscordService discord, GuildSettingsCache guildSettingsCache,
-            ILogger<ReactionHandlerService> logger, InteractiveManager interactiveManager)
+            DiscordErrorReporter errorReporter, ILogger<ReactionHandlerService> logger,
+            InteractiveManager interactiveManager)
         {
             _discord = discord;
             _guildSettingsCache = guildSettingsCache;
+            _errorReporter = errorReporter;
             _logger = logger;
 
             _reactionHandlers = new IReactionHandler[]
@@ -119,6 +122,8 @@ namespace nhitomi.Discord
                     catch (Exception e)
                     {
                         _logger.LogWarning(e, "Unhandled exception while handling message.");
+
+                        await _errorReporter.ReportAsync(e, context, false);
                     }
                     finally
                     {

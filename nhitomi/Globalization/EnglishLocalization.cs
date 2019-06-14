@@ -165,6 +165,7 @@ namespace nhitomi.Globalization
             errorMessage = new
             {
                 title = "**nhitomi**: Error",
+                titleAuto = "**nhitomi**: Automatic error report",
                 text = "The error has been reported. " +
                        "For further assistance, please join the [official server]({invite})."
             }
