@@ -47,6 +47,7 @@ namespace nhitomi
                 .AddSingleton<GalleryUrlDetector>()
                 .AddSingleton<InteractiveManager>()
                 .AddSingleton<GuildSettingsCache>()
+                .AddSingleton<DiscordErrorReporter>()
                 .AddHostedInjectableService<MessageHandlerService>()
                 .AddHostedInjectableService<ReactionHandlerService>()
                 .AddHostedInjectableService<StatusUpdateService>()
