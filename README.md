@@ -1,6 +1,6 @@
 # nhitomi ![Build status](https://ci.appveyor.com/api/projects/status/vtdjarua2c9i0k5t?svg=true)
 
-![nhitomi](nhitomi.png)
+![nhitomi](https://github.com/chiyadev/nhitomi/raw/master/nhitomi.png)
 
 nhitomi — a Discord bot for searching and downloading doujinshi by [chiya.dev](https://chiya.dev).
 
