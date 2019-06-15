@@ -29,6 +29,11 @@ namespace nhitomi.Interactivity
                 _settings = options.Value;
             }
 
+            /// <summary>
+            /// 1024 character limit on embed fields.
+            /// </summary>
+            const int _embedFieldLimit = 1024;
+
             protected override Embed CreateEmbed()
             {
                 var path = new LocalizationPath("errorMessage");
@@ -46,23 +51,28 @@ namespace nhitomi.Interactivity
                     var message = Context.Message;
 
                     embed.AddField("Context", $@"
-User: {user.Username}#{user.DiscriminatorValue} `{user.Id}`
-Message: by {message.Author.Username}#{message.Author.DiscriminatorValue} `{message.Author.Id}`
+User: {user.Id} `{user.Username}#{user.DiscriminatorValue}`
+Message: {message.Author.Id} `{message.Author.Username}#{message.Author.DiscriminatorValue}`
 ```
 {message.Content}
 ```");
 
                     var exception = Message._exception;
 
-                    for (var level = 0; exception != null; level++)
+                    for (var level = 0; exception != null && level < 5; level++)
                     {
-                        embed.AddField(level == 0 ? "Exception" : $"Inner exception {level}", $@"
-Type: `{exception.GetType().FullName}`
-Exception: `{exception.Message}`
-Stack trace:
-```
-{exception.StackTrace.Replace("```", "`")}
-```");
+                        var content = new StringBuilder()
+                            .AppendLine($"Type: `{exception.GetType().FullName}`")
+                            .AppendLine($"Exception: `{exception.Message}`")
+                            .AppendLine("Trace:")
+                            .AppendLine("```");
+                        content
+                            .AppendLine(exception.StackTrace
+                                // simply cut off anything after the character limit
+                                .Substring(0, _embedFieldLimit - content.Length - 4))
+                            .Append("```");
+
+                        embed.AddField(level == 0 ? "Exception" : $"Inner exception {level}", content.ToString());
 
                         exception = exception.InnerException;
                     }
