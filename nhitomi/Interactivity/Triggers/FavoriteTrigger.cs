@@ -82,10 +82,8 @@ namespace nhitomi.Interactivity.Triggers
                 }
                 while (!await _database.SaveAsync(cancellationToken));
 
-                var context = Context as IDiscordContext;
-
-                // reply in DM 
-                context = new DiscordContextWrapper(context)
+                // reply in DM
+                var context = new DiscordContextWrapper(Context)
                 {
                     Channel = await Context.User.GetOrCreateDMChannelAsync()
                 };
