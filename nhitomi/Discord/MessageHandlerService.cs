@@ -88,7 +88,6 @@ namespace nhitomi.Discord
                 ? HandleMessageAsync(cacheable.Value, MessageEvent.Delete)
                 : Task.CompletedTask;
 
-
         public readonly AtomicCounter HandledMessages = new AtomicCounter();
         public readonly AtomicCounter ReceivedMessages = new AtomicCounter();
 
