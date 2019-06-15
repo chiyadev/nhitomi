@@ -34,7 +34,9 @@ namespace nhitomi.Interactivity
             yield return new FavoriteTrigger();
             yield return new ReadTrigger();
             yield return new DownloadTrigger();
-            yield return new DeleteTrigger();
+
+            if (!_isFeed)
+                yield return new DeleteTrigger();
         }
 
         public class View : EmbedViewBase
