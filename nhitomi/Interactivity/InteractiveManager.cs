@@ -29,7 +29,7 @@ namespace nhitomi.Interactivity
             new ConcurrentDictionary<ulong, IInteractiveMessage>();
 
         public async Task SendInteractiveAsync(IEmbedMessage message, IDiscordContext context,
-            CancellationToken cancellationToken = default)
+            CancellationToken cancellationToken = default, bool forceStateful = true)
         {
             // create dependency scope to initialize the interactive within
             using (var scope = _services.CreateScope())
@@ -46,10 +46,12 @@ namespace nhitomi.Interactivity
 
             var id = message.Message.Id;
 
-            // add to interactive list if we have stateful triggers
-            if (message is IInteractiveMessage interactiveMessage &&
-                interactiveMessage.Triggers.Values.Any(t => !t.CanRunStateless))
-                InteractiveMessages[id] = interactiveMessage;
+            if (message is IInteractiveMessage interactiveMessage)
+            {
+                // add to interactive list if we have stateful triggers
+                if (forceStateful || interactiveMessage.Triggers.Values.Any(t => !t.CanRunStateless))
+                    InteractiveMessages[id] = interactiveMessage;
+            }
 
             // forget interactives in an hour
             _ = Task.Run(async () =>
