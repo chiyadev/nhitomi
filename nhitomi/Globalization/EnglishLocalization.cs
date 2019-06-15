@@ -166,8 +166,11 @@ namespace nhitomi.Globalization
             {
                 title = "**nhitomi**: Error",
                 titleAuto = "**nhitomi**: Automatic error report",
+
                 text = "The error has been reported. " +
-                       "For further assistance, please join the [official server]({invite})."
+                       "For further assistance, please join the [official server]({invite}).",
+
+                missingPerms = "**nhitomi**: No permission to send respond in that channel."
             }
         };
     }

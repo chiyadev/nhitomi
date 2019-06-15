@@ -1,5 +1,7 @@
 using System;
+using System.Threading;
 using System.Threading.Tasks;
+using Discord.Net;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using nhitomi.Interactivity;
@@ -22,12 +24,20 @@ namespace nhitomi.Discord
             _logger = logger;
         }
 
-        public async Task ReportAsync(Exception e, IDiscordContext context, bool channelReply = true)
+        // todo: make cancellable
+        public async Task ReportAsync(Exception e, IDiscordContext context, bool friendlyReply = true)
         {
             try
             {
+                // handle permission exceptions differently
+                if (e is HttpException httpException && httpException.DiscordCode == 50013) // 500013 missing perms
+                {
+                    await ReportMissingPermissionAsync(context);
+                    return;
+                }
+
                 // send error message to the current channel
-                if (channelReply)
+                if (friendlyReply)
                 {
                     await _interactiveManager.SendInteractiveAsync(
                         new ErrorMessage(e),
@@ -49,10 +59,25 @@ namespace nhitomi.Discord
                         });
                 }
             }
-            catch (Exception e2)
+            catch (Exception reportingException)
             {
                 // ignore reporting errors
-                _logger.LogWarning(e2, "Failed to report exception: {0}", e);
+                _logger.LogWarning(reportingException, "Failed to report exception: {0}", e);
+            }
+        }
+
+        static async Task ReportMissingPermissionAsync(IDiscordContext context,
+            CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                // tell the user in DM that we don't have perms
+                await context.ReplyDmAsync("errorMessage.missingPerms");
+            }
+            catch
+            {
+                // the user has DM disabled
+                // we can only hope they figure out the permissions by themselves
             }
         }
     }
