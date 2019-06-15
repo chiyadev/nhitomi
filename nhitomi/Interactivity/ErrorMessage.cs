@@ -61,15 +61,17 @@ Message: {message.Author.Id} `{message.Author.Username}#{message.Author.Discrimi
 
                     for (var level = 0; exception != null && level < 5; level++)
                     {
+                        var trace = exception.StackTrace;
+
                         var content = new StringBuilder()
                             .AppendLine($"Type: `{exception.GetType().FullName}`")
                             .AppendLine($"Exception: `{exception.Message}`")
                             .AppendLine("Trace:")
                             .AppendLine("```");
                         content
-                            .AppendLine(exception.StackTrace
+                            .AppendLine(trace
                                 // simply cut off anything after the character limit
-                                .Substring(0, _embedFieldLimit - content.Length - 4))
+                                .Substring(0, Math.Min(trace.Length, _embedFieldLimit - content.Length - 4)))
                             .Append("```");
 
                         embed.AddField(level == 0 ? "Exception" : $"Inner exception {level}", content.ToString());
