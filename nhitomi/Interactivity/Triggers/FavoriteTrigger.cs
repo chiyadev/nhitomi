@@ -82,16 +82,11 @@ namespace nhitomi.Interactivity.Triggers
                 }
                 while (!await _database.SaveAsync(cancellationToken));
 
-                var context = Context as IDiscordContext;
-
-                if (isFeed)
+                // reply in DM
+                var context = new DiscordContextWrapper(Context)
                 {
-                    // reply in DM if feed message
-                    context = new DiscordContextWrapper(context)
-                    {
-                        Channel = await Context.User.GetOrCreateDMChannelAsync()
-                    };
-                }
+                    Channel = await Context.User.GetOrCreateDMChannelAsync()
+                };
 
                 if (added)
                     await context.ReplyAsync("addedToCollection", new {doujin, collection});
