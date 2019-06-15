@@ -8,6 +8,7 @@ using Discord.WebSocket;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using nhitomi.Core;
+using nhitomi.Interactivity;
 
 namespace nhitomi.Discord
 {
@@ -42,7 +43,7 @@ namespace nhitomi.Discord
         [SuppressMessage("ReSharper", "SuggestBaseTypeForParameter")]
         public MessageHandlerService(DiscordService discord, GuildSettingsCache guildSettingsCache,
             DiscordErrorReporter errorReporter, ILogger<MessageHandlerService> logger, CommandExecutor commandExecutor,
-            GalleryUrlDetector galleryUrlDetector)
+            GalleryUrlDetector galleryUrlDetector, InteractiveManager interactiveManager)
         {
             _discord = discord;
             _guildSettingsCache = guildSettingsCache;
@@ -52,7 +53,8 @@ namespace nhitomi.Discord
             _messageHandlers = new IMessageHandler[]
             {
                 commandExecutor,
-                galleryUrlDetector
+                galleryUrlDetector,
+                interactiveManager
             };
         }
 
