@@ -26,7 +26,8 @@ namespace nhitomi.Discord
     public enum MessageEvent
     {
         Create,
-        Edit
+        Read,
+        Delete
     }
 
     public class MessageHandlerService : IHostedService
@@ -63,6 +64,7 @@ namespace nhitomi.Discord
 
             _discord.MessageReceived += MessageReceived;
             _discord.MessageUpdated += MessageUpdated;
+            _discord.MessageDeleted += MessageDeleted;
         }
 
         public Task StopAsync(CancellationToken cancellationToken)
@@ -77,12 +79,18 @@ namespace nhitomi.Discord
             HandleMessageAsync(message, MessageEvent.Create);
 
         Task MessageUpdated(Cacheable<IMessage, ulong> _, SocketMessage message, IMessageChannel channel) =>
-            HandleMessageAsync(message, MessageEvent.Edit);
+            HandleMessageAsync(message, MessageEvent.Read);
+
+        Task MessageDeleted(Cacheable<IMessage, ulong> cacheable, ISocketMessageChannel channel) =>
+            cacheable.HasValue
+                ? HandleMessageAsync(cacheable.Value, MessageEvent.Delete)
+                : Task.CompletedTask;
+
 
         public readonly AtomicCounter HandledMessages = new AtomicCounter();
         public readonly AtomicCounter ReceivedMessages = new AtomicCounter();
 
-        Task HandleMessageAsync(SocketMessage socketMessage, MessageEvent eventType)
+        Task HandleMessageAsync(IMessage socketMessage, MessageEvent eventType)
         {
             if (socketMessage is IUserMessage message &&
                 socketMessage.Author.Id != _discord.CurrentUser.Id)
