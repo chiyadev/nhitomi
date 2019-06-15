@@ -121,8 +121,6 @@ namespace nhitomi.Discord
                     }
                     catch (Exception e)
                     {
-                        _logger.LogWarning(e, "Unhandled exception while handling message.");
-
                         await _errorReporter.ReportAsync(e, context, false);
                     }
                     finally
