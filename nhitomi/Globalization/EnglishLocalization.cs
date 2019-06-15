@@ -170,7 +170,7 @@ namespace nhitomi.Globalization
                 text = "The error has been reported. " +
                        "For further assistance, please join the [official server]({invite}).",
 
-                missingPerms = "**nhitomi**: No permission to respond in that channel."
+                missingPerms = "**nhitomi**: Could not respond in that channel due to the lack of permissions."
             }
         };
     }
