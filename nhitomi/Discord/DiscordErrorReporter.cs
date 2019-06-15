@@ -24,15 +24,15 @@ namespace nhitomi.Discord
             _logger = logger;
         }
 
-        // todo: make cancellable
-        public async Task ReportAsync(Exception e, IDiscordContext context, bool friendlyReply = true)
+        public async Task ReportAsync(Exception e, IDiscordContext context, bool friendlyReply = true,
+            CancellationToken cancellationToken = default)
         {
             try
             {
                 // handle permission exceptions differently
                 if (e is HttpException httpException && httpException.DiscordCode == 50013) // 500013 missing perms
                 {
-                    await ReportMissingPermissionAsync(context);
+                    await ReportMissingPermissionAsync(context, cancellationToken);
                     return;
                 }
 
@@ -41,7 +41,8 @@ namespace nhitomi.Discord
                 {
                     await _interactiveManager.SendInteractiveAsync(
                         new ErrorMessage(e),
-                        context);
+                        context,
+                        cancellationToken);
                 }
 
                 // send detailed error message to the guild error channel
@@ -56,7 +57,8 @@ namespace nhitomi.Discord
                         new DiscordContextWrapper(context)
                         {
                             Channel = errorChannel
-                        });
+                        },
+                        cancellationToken);
                 }
             }
             catch (Exception reportingException)
