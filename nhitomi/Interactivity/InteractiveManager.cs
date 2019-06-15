@@ -6,7 +6,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Discord;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using nhitomi.Discord;
 using nhitomi.Interactivity.Triggers;
 
@@ -15,14 +14,10 @@ namespace nhitomi.Interactivity
     public class InteractiveManager : IReactionHandler
     {
         readonly IServiceProvider _services;
-        readonly DiscordService _discord;
-        readonly ILogger<InteractiveManager> _logger;
 
-        public InteractiveManager(IServiceProvider services, DiscordService discord, ILogger<InteractiveManager> logger)
+        public InteractiveManager(IServiceProvider services)
         {
             _services = services;
-            _discord = discord;
-            _logger = logger;
         }
 
         public readonly ConcurrentDictionary<ulong, IInteractiveMessage> InteractiveMessages =
