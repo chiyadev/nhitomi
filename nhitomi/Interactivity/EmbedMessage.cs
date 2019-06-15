@@ -10,6 +10,14 @@ namespace nhitomi.Interactivity
 {
     public interface IEmbedMessage
     {
+        /// <summary>
+        /// The user which caused this interactive to be sent i.e. the author of a command.
+        /// </summary>
+        IUser Source { get; }
+
+        /// <summary>
+        /// The message this interactive is operating on.
+        /// </summary>
         IUserMessage Message { get; }
 
         Task<bool> UpdateViewAsync(IServiceProvider services, CancellationToken cancellationToken = default);
@@ -18,6 +26,7 @@ namespace nhitomi.Interactivity
     public abstract class EmbedMessage<TView> : IEmbedMessage
         where TView : EmbedMessage<TView>.ViewBase
     {
+        public IUser Source { get; private set; }
         public IUserMessage Message { get; private set; }
 
         static readonly DependencyFactory<TView> _viewFactory = DependencyUtility<TView>.Factory;
@@ -29,6 +38,8 @@ namespace nhitomi.Interactivity
             var view = _viewFactory(services);
             view.Message = this;
             view.Context = services.GetRequiredService<IDiscordContext>();
+
+            Source = view.Context.User;
 
             // update the view
             return view.UpdateAsync(cancellationToken);

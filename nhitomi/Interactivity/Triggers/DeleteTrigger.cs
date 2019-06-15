@@ -23,6 +23,9 @@ namespace nhitomi.Interactivity.Triggers
             {
                 try
                 {
+                    if (Interactive != null && Interactive.Source?.Id != Context.User.Id)
+                        return false;
+
                     // remove from interactive list
                     _interactive.InteractiveMessages.TryRemove(Context.Message.Id, out _);
 
