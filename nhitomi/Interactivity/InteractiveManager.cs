@@ -11,7 +11,7 @@ using nhitomi.Interactivity.Triggers;
 
 namespace nhitomi.Interactivity
 {
-    public class InteractiveManager : IReactionHandler
+    public class InteractiveManager : IMessageHandler, IReactionHandler
     {
         readonly IServiceProvider _services;
 
@@ -99,7 +99,25 @@ namespace nhitomi.Interactivity
             .Where(x => x().CanRunStateless)
             .ToDictionary(x => x().Emote, x => x);
 
+        Task IMessageHandler.InitializeAsync(CancellationToken cancellationToken) => Task.CompletedTask;
         Task IReactionHandler.InitializeAsync(CancellationToken cancellationToken) => Task.CompletedTask;
+
+        public Task<bool> TryHandleAsync(IMessageContext context, CancellationToken cancellationToken = default)
+        {
+            switch (context.Event)
+            {
+                // remove from interactive list
+                case MessageEvent.Delete when InteractiveMessages.TryRemove(context.Message.Id, out var interactive):
+
+                    // dispose interactive object
+                    interactive.Dispose();
+
+                    return Task.FromResult(true);
+
+                default:
+                    return Task.FromResult(false);
+            }
+        }
 
         public async Task<bool> TryHandleAsync(IReactionContext context, CancellationToken cancellationToken = default)
         {
