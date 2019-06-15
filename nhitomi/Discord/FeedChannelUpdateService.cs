@@ -170,7 +170,8 @@ namespace nhitomi.Discord
                         await _interactive.SendInteractiveAsync(
                             new DoujinMessage(doujin, true),
                             context,
-                            cancellationToken);
+                            cancellationToken,
+                            false);
 
                         _logger.LogInformation("Sent feed update of doujin {0} '{1}'.",
                             doujin.Id, doujin.OriginalName);

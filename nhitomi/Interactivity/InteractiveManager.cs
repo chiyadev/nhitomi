@@ -6,30 +6,25 @@ using System.Threading;
 using System.Threading.Tasks;
 using Discord;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using nhitomi.Discord;
 using nhitomi.Interactivity.Triggers;
 
 namespace nhitomi.Interactivity
 {
-    public class InteractiveManager : IReactionHandler
+    public class InteractiveManager : IMessageHandler, IReactionHandler
     {
         readonly IServiceProvider _services;
-        readonly DiscordService _discord;
-        readonly ILogger<InteractiveManager> _logger;
 
-        public InteractiveManager(IServiceProvider services, DiscordService discord, ILogger<InteractiveManager> logger)
+        public InteractiveManager(IServiceProvider services)
         {
             _services = services;
-            _discord = discord;
-            _logger = logger;
         }
 
         public readonly ConcurrentDictionary<ulong, IInteractiveMessage> InteractiveMessages =
             new ConcurrentDictionary<ulong, IInteractiveMessage>();
 
         public async Task SendInteractiveAsync(IEmbedMessage message, IDiscordContext context,
-            CancellationToken cancellationToken = default)
+            CancellationToken cancellationToken = default, bool forceStateful = true)
         {
             // create dependency scope to initialize the interactive within
             using (var scope = _services.CreateScope())
@@ -46,10 +41,12 @@ namespace nhitomi.Interactivity
 
             var id = message.Message.Id;
 
-            // add to interactive list if we have stateful triggers
-            if (message is IInteractiveMessage interactiveMessage &&
-                interactiveMessage.Triggers.Values.Any(t => !t.CanRunStateless))
-                InteractiveMessages[id] = interactiveMessage;
+            if (message is IInteractiveMessage interactiveMessage)
+            {
+                // add to interactive list if we have stateful triggers
+                if (forceStateful || interactiveMessage.Triggers.Values.Any(t => !t.CanRunStateless))
+                    InteractiveMessages[id] = interactiveMessage;
+            }
 
             // forget interactives in an hour
             _ = Task.Run(async () =>
@@ -102,7 +99,25 @@ namespace nhitomi.Interactivity
             .Where(x => x().CanRunStateless)
             .ToDictionary(x => x().Emote, x => x);
 
+        Task IMessageHandler.InitializeAsync(CancellationToken cancellationToken) => Task.CompletedTask;
         Task IReactionHandler.InitializeAsync(CancellationToken cancellationToken) => Task.CompletedTask;
+
+        public Task<bool> TryHandleAsync(IMessageContext context, CancellationToken cancellationToken = default)
+        {
+            switch (context.Event)
+            {
+                // remove from interactive list
+                case MessageEvent.Delete when InteractiveMessages.TryRemove(context.Message.Id, out var interactive):
+
+                    // dispose interactive object
+                    interactive.Dispose();
+
+                    return Task.FromResult(true);
+
+                default:
+                    return Task.FromResult(false);
+            }
+        }
 
         public async Task<bool> TryHandleAsync(IReactionContext context, CancellationToken cancellationToken = default)
         {

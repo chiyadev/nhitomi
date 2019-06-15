@@ -8,6 +8,7 @@ using Discord.WebSocket;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using nhitomi.Core;
+using nhitomi.Interactivity;
 
 namespace nhitomi.Discord
 {
@@ -26,7 +27,8 @@ namespace nhitomi.Discord
     public enum MessageEvent
     {
         Create,
-        Edit
+        Modify,
+        Delete
     }
 
     public class MessageHandlerService : IHostedService
@@ -41,7 +43,7 @@ namespace nhitomi.Discord
         [SuppressMessage("ReSharper", "SuggestBaseTypeForParameter")]
         public MessageHandlerService(DiscordService discord, GuildSettingsCache guildSettingsCache,
             DiscordErrorReporter errorReporter, ILogger<MessageHandlerService> logger, CommandExecutor commandExecutor,
-            GalleryUrlDetector galleryUrlDetector)
+            GalleryUrlDetector galleryUrlDetector, InteractiveManager interactiveManager)
         {
             _discord = discord;
             _guildSettingsCache = guildSettingsCache;
@@ -51,7 +53,8 @@ namespace nhitomi.Discord
             _messageHandlers = new IMessageHandler[]
             {
                 commandExecutor,
-                galleryUrlDetector
+                galleryUrlDetector,
+                interactiveManager
             };
         }
 
@@ -63,6 +66,7 @@ namespace nhitomi.Discord
 
             _discord.MessageReceived += MessageReceived;
             _discord.MessageUpdated += MessageUpdated;
+            _discord.MessageDeleted += MessageDeleted;
         }
 
         public Task StopAsync(CancellationToken cancellationToken)
@@ -77,12 +81,17 @@ namespace nhitomi.Discord
             HandleMessageAsync(message, MessageEvent.Create);
 
         Task MessageUpdated(Cacheable<IMessage, ulong> _, SocketMessage message, IMessageChannel channel) =>
-            HandleMessageAsync(message, MessageEvent.Edit);
+            HandleMessageAsync(message, MessageEvent.Modify);
+
+        Task MessageDeleted(Cacheable<IMessage, ulong> cacheable, ISocketMessageChannel channel) =>
+            cacheable.HasValue
+                ? HandleMessageAsync(cacheable.Value, MessageEvent.Delete)
+                : Task.CompletedTask;
 
         public readonly AtomicCounter HandledMessages = new AtomicCounter();
         public readonly AtomicCounter ReceivedMessages = new AtomicCounter();
 
-        Task HandleMessageAsync(SocketMessage socketMessage, MessageEvent eventType)
+        Task HandleMessageAsync(IMessage socketMessage, MessageEvent eventType)
         {
             if (socketMessage is IUserMessage message &&
                 socketMessage.Author.Id != _discord.CurrentUser.Id)

@@ -25,10 +25,8 @@ namespace nhitomi.Interactivity.Triggers
 
             public override async Task<bool> RunAsync(CancellationToken cancellationToken = default)
             {
-                if (!await base.RunAsync(cancellationToken))
-                    return false;
-
-                if (!DoujinMessage.TryParseDoujinIdFromMessage(Context.Message, out var id, out var isFeed))
+                if (!await base.RunAsync(cancellationToken) ||
+                    !DoujinMessage.TryParseDoujinIdFromMessage(Context.Message, out var id, out var isFeed))
                     return false;
 
                 var doujin = await _database.GetDoujinAsync(id.source, id.id, cancellationToken);
@@ -38,7 +36,7 @@ namespace nhitomi.Interactivity.Triggers
 
                 var context = Context as IDiscordContext;
 
-                if (isFeed)
+                if (isFeed || Interactive?.Source?.Id != Context.User.Id)
                 {
                     // reply in DM if feed message
                     context = new DiscordContextWrapper(context)

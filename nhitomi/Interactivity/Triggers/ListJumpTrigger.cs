@@ -54,7 +54,7 @@ namespace nhitomi.Interactivity.Triggers
 
             public override async Task<bool> RunAsync(CancellationToken cancellationToken = default)
             {
-                if (!await base.RunAsync(cancellationToken))
+                if (!await base.RunAsync(cancellationToken) || Interactive.Source?.Id != Context.User.Id)
                     return false;
 
                 switch (Trigger._destination)
