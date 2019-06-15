@@ -27,7 +27,7 @@ namespace nhitomi.Discord
     public enum MessageEvent
     {
         Create,
-        Read,
+        Modify,
         Delete
     }
 
@@ -81,7 +81,7 @@ namespace nhitomi.Discord
             HandleMessageAsync(message, MessageEvent.Create);
 
         Task MessageUpdated(Cacheable<IMessage, ulong> _, SocketMessage message, IMessageChannel channel) =>
-            HandleMessageAsync(message, MessageEvent.Read);
+            HandleMessageAsync(message, MessageEvent.Modify);
 
         Task MessageDeleted(Cacheable<IMessage, ulong> cacheable, ISocketMessageChannel channel) =>
             cacheable.HasValue
