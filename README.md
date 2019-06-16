@@ -1,4 +1,4 @@
-# nhitomi ![Build status](https://ci.appveyor.com/api/projects/status/vtdjarua2c9i0k5t?svg=true)
+# nhitomi ![Build status](https://ci.appveyor.com/api/projects/status/vtdjarua2c9i0k5t?svg=true) ![Discord](https://img.shields.io/discord/515395714264858653.svg?label=Discord)
 
 ![nhitomi](https://github.com/chiyadev/nhitomi/raw/master/nhitomi.png)
 
