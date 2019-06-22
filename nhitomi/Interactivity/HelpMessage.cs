@@ -138,9 +138,10 @@ namespace nhitomi.Interactivity
                 embed.AddField($"— {path["heading"][l]} —", $@"
 - {prefix}option language `name` — {path["language"][l]}
 - {prefix}option filter `on or off` — {path["filter"][l]}
-- {prefix}option feed add `tag` — {path["feed.add"][l]}
-- {prefix}option feed remove `tag` — {path["feed.remove"][l]}
-- {prefix}option feed mode `mode` — {path["feed.mode"][l]}
+
+- {prefix}feed add `tag` — {path["feed.add"][l]}
+- {prefix}feed remove `tag` — {path["feed.remove"][l]}
+- {prefix}feed mode `mode` — {path["feed.mode"][l]}
 ".Trim());
             }
 
