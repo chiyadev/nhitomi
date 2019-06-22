@@ -4,7 +4,7 @@ using System.Globalization;
 
 namespace nhitomi.Globalization
 {
-    public class IndonesianTranslation : Localization
+    public class IndonesianLocalization : Localization
     {
         public override CultureInfo Culture { get; } = new CultureInfo("id");
 
