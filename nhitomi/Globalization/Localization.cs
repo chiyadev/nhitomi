@@ -7,17 +7,25 @@ namespace nhitomi.Globalization
 {
     public abstract class Localization
     {
-        static readonly Dictionary<string, Localization> _localizations = typeof(Startup).Assembly
-            .GetTypes()
-            .Where(t => !t.IsAbstract && t.IsClass && t.IsSubclassOf(typeof(Localization)))
-            .Select(t => (Localization) Activator.CreateInstance(t))
-            .ToDictionary(l => l.Culture.Name);
+        static readonly Dictionary<string, Localization> _localizations = new Dictionary<string, Localization>();
+
+        static Localization()
+        {
+            foreach (var localization in typeof(Startup).Assembly
+                .GetTypes()
+                .Where(t => !t.IsAbstract && t.IsClass && t.IsSubclassOf(typeof(Localization)))
+                .Select(t => (Localization) Activator.CreateInstance(t)))
+            {
+                _localizations[localization.Culture.Name.ToLowerInvariant()] = localization;
+                _localizations[localization.Culture.EnglishName.ToLowerInvariant()] = localization;
+            }
+        }
 
         public static Localization Default => GetLocalization("en");
 
         public static Localization GetLocalization(string culture) =>
             // default to English if not found
-            culture != null && _localizations.TryGetValue(culture, out var localization)
+            culture != null && _localizations.TryGetValue(culture.ToLowerInvariant(), out var localization)
                 ? localization
                 : Default;
 
