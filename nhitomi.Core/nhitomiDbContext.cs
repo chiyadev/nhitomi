@@ -202,6 +202,10 @@ namespace nhitomi.Core
             // remove symbols
             args.Query = _commonSymbols.Replace(args.Query, " ");
 
+            // ignore queries less than 3 characters
+            if (args.Query.Length < 3)
+                return new Doujin[0];
+
             // rebuild query for boolean search
             var queryParts = new HashSet<string>(args.Query
                 .Split(new[] {' '}, StringSplitOptions.RemoveEmptyEntries)
@@ -281,8 +285,7 @@ ORDER BY d.`UploadTime` DESC");
                     args.ScanRange *= 4;
                 else if (doujins.Length < 8)
                     args.ScanRange *= 2;
-            }
-            while (doujinList.Count == 0 && args.ScanOffset < maxCount);
+            } while (doujinList.Count == 0 && args.ScanOffset < maxCount);
 
             return doujinList.ToArray();
         }
