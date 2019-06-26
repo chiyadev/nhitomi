@@ -51,8 +51,8 @@ namespace nhitomi.Interactivity
                     var message = Context.Message;
 
                     embed.AddField("Context", $@"
-User: {user.Id} `{user.Username}#{user.DiscriminatorValue}`
-Message: {message.Author.Id} `{message.Author.Username}#{message.Author.DiscriminatorValue}`
+User: {user.Id} `{user.Username}#{user.Discriminator}`
+Message: {message.Author.Id} `{message.Author.Username}#{message.Author.Discriminator}`
 ```
 {message.Content}
 ```");
