@@ -9,36 +9,36 @@ namespace nhitomi.Globalization
 
         protected override object CreateDefinition() => new
         {
-            doujinNotFound = "**nhitomi**: No such doujin!",
-            invalidQuery = "**nhitomi**: `{query}` is not valid.",
+            doujinNotFound = "No such doujin!",
+            invalidQuery = "`{query}` is not valid.",
 
-            listLoading = "**nhitomi**: Loading...",
-            listBeginning = "**nhitomi**: Beginning of the list!",
-            listEnd = "**nhitomi**: End of the list!",
+            listLoading = "Loading...",
+            listBeginning = "Beginning of the list!",
+            listEnd = "End of the list!",
 
-            collectionNotFound = "**nhitomi**: No collection named `{name}`.",
-            collectionDeleted = "**nhitomi**: Deleted collection `{collection.Name}`.",
-            collectionSorted = "**nhitomi**: Sorted collection `{collection.Name}` by `{attribute}`.",
+            collectionNotFound = "No collection named `{name}`.",
+            collectionDeleted = "Deleted collection `{collection.Name}`.",
+            collectionSorted = "Sorted collection `{collection.Name}` by `{attribute}`.",
 
-            addedToCollection = "**nhitomi**: Added `{doujin.OriginalName}` to `{collection.Name}`.",
-            removedFromCollection = "**nhitomi**: Removed `{doujin.OriginalName}` from `{collection.Name}`.",
-            alreadyInCollection = "**nhitomi**: `{doujin.OriginalName}` already exists in `{collection.Name}`.",
-            notInCollection = "**nhitomi**: `{doujin.OriginalName}` was not found in `{collection.Name}`.",
+            addedToCollection = "Added `{doujin.OriginalName}` to `{collection.Name}`.",
+            removedFromCollection = "Removed `{doujin.OriginalName}` from `{collection.Name}`.",
+            alreadyInCollection = "`{doujin.OriginalName}` already exists in `{collection.Name}`.",
+            notInCollection = "`{doujin.OriginalName}` was not found in `{collection.Name}`.",
 
-            localizationChanged = "**nhitomi**: Server language is set to `{localization.Culture.NativeName}`!",
-            localizationNotFound = "**nhitomi**: Language `{language}` is not supported.",
+            localizationChanged = "Server language is set to `{localization.Culture.NativeName}`!",
+            localizationNotFound = "Language `{language}` is not supported.",
 
-            qualityFilterChanged = "**nhitomi**: Search quality filter is now `{state:enabled|disabled}` by default.",
+            qualityFilterChanged = "Search quality filter is now `{state:enabled|disabled}` by default.",
 
-            commandInvokeNotInGuild = "**nhitomi**: You can only use this command in a server.",
-            notGuildAdmin = "**nhitomi**: You must be a server administrator to use this command.",
+            commandInvokeNotInGuild = "You can only use this command in a server.",
+            notGuildAdmin = "You must be a server administrator to use this command.",
 
-            tagNotFound = "**nhitomi**: Tag `{tag}` was not found.",
-            feedTagAdded = "**nhitomi**: `#{channel.Name}` is now subscribed to `{tag}`.",
-            feedTagAlreadyAdded = "**nhitomi**: `#{channel.Name}` is already subscribed to `{tag}`.",
-            feedTagRemoved = "**nhitomi**: `#{channel.Name}` is now unsubscribed from `{tag}`.",
-            feedTagNotRemoved = "**nhitomi**: `#{channel.Name}` is not subscribed to `{tag}`.",
-            feedModeChanged = "**nhitomi**: Changed feed mode of `#{channel.Name}` to `{type}`.",
+            tagNotFound = "Tag `{tag}` was not found.",
+            feedTagAdded = "`#{channel.Name}` is now subscribed to `{tag}`.",
+            feedTagAlreadyAdded = "`#{channel.Name}` is already subscribed to `{tag}`.",
+            feedTagRemoved = "`#{channel.Name}` is now unsubscribed from `{tag}`.",
+            feedTagNotRemoved = "`#{channel.Name}` is not subscribed to `{tag}`.",
+            feedModeChanged = "Changed feed mode of `#{channel.Name}` to `{type}`.",
 
             doujinMessage = new
             {
@@ -54,7 +54,7 @@ namespace nhitomi.Globalization
                 contentsValue = "{doujin.PageCount} pages",
                 emptyList = new
                 {
-                    title = "**nhitomi**: No doujins",
+                    title = "No doujins",
                     text = "There are no doujins in this list."
                 }
             },
@@ -100,7 +100,7 @@ namespace nhitomi.Globalization
 
             helpMessage = new
             {
-                title = "**nhitomi**: Help",
+                title = "Help",
                 footer = "v{version} {codename} — powered by chiya.dev",
                 about = "a Discord bot for searching and downloading doujinshi",
                 invite = "[Join]({guildInvite}) the official server or [invite nhitomi]({botInvite}) to your server.",
@@ -164,13 +164,13 @@ namespace nhitomi.Globalization
 
             errorMessage = new
             {
-                title = "**nhitomi**: Error",
-                titleAuto = "**nhitomi**: Automatic error report",
+                title = "Error",
+                titleAuto = "Automatic error report",
 
                 text = "The error has been reported. " +
                        "For further assistance, please join the [official server]({invite}).",
 
-                missingPerms = "**nhitomi**: Could not respond in that channel due to the lack of permissions."
+                missingPerms = "Could not respond in that channel due to the lack of permissions."
             }
         };
     }
