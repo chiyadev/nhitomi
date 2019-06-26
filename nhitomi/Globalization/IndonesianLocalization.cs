@@ -18,37 +18,37 @@ namespace nhitomi.Globalization
                 }
             },
 
-            doujinNotFound = "**nhitomi**: Tidak dapat menemukan doujinshi itu!",
-            invalidQuery = "**nhitomi**: `{query}` tidak valid.",
+            doujinNotFound = "Tidak dapat menemukan doujinshi itu!",
+            invalidQuery = "`{query}` tidak valid.",
 
-            listLoading = "**nhitomi**: Memuat...",
-            listBeginning = "**nhitomi**: Awal daftar!",
-            listEnd = "**nhitomi**: Akhir daftar!",
+            listLoading = "Memuat...",
+            listBeginning = "Awal daftar!",
+            listEnd = "Akhir daftar!",
 
-            collectionNotFound = "**nhitomi**: Tidak ada koleksi bernama `{name}`.",
-            collectionDeleted = "**nhitomi**: Koleksi `{collection.Name}` telah dihapus.",
-            collectionSorted = "**nhitomi**: Koleksi yang diurutkan `{collection.Name}` oleh `{atribute}`.",
+            collectionNotFound = "Tidak ada koleksi bernama `{name}`.",
+            collectionDeleted = "Koleksi `{collection.Name}` telah dihapus.",
+            collectionSorted = "Koleksi yang diurutkan `{collection.Name}` oleh `{atribute}`.",
 
-            addedToCollection = "**nhitomi**: Menambahkan `{doujin.OriginalName}` ke `{collection.Name}`.",
-            removedFromCollection = "**nhitomi**: `{doujin.OriginalName}` dihapus dari `{collection.Name}`.",
-            alreadyInCollection = "**nhitomi**: `{doujin.OriginalName}` sudah ada di `{collection.Name}`.",
-            notInCollection = "**nhitomi**: `{doujin.OriginalName}` tidak ditemukan di `{collection.Name}`.",
+            addedToCollection = "Menambahkan `{doujin.OriginalName}` ke `{collection.Name}`.",
+            removedFromCollection = "`{doujin.OriginalName}` dihapus dari `{collection.Name}`.",
+            alreadyInCollection = "`{doujin.OriginalName}` sudah ada di `{collection.Name}`.",
+            notInCollection = "`{doujin.OriginalName}` tidak ditemukan di `{collection.Name}`.",
 
-            localizationChanged = "**nhitomi**: Bahasa server diatur ke `{localization.Culture.NativeName}`!",
-            localizationNotFound = "**nhitomi**: Bahasa `{language}` tidak didukung.",
+            localizationChanged = "Bahasa server diatur ke `{localization.Culture.NativeName}`!",
+            localizationNotFound = "Bahasa `{language}` tidak didukung.",
 
-            qualityFilterChanged = "**nhitomi**: Filter kualitas pencarian default ke " +
+            qualityFilterChanged = "Filter kualitas pencarian default ke " +
                                    "`{state:diaktifkan|dinonaktifkan}`.",
 
-            commandInvokeNotInGuild = "**nhitomi**: Anda hanya dapat menggunakan perintah ini di server.",
-            notGuildAdmin = "**nhitomi**: Anda harus menjadi administrator server untuk menggunakan perintah ini.",
+            commandInvokeNotInGuild = "Anda hanya dapat menggunakan perintah ini di server.",
+            notGuildAdmin = "Anda harus menjadi administrator server untuk menggunakan perintah ini.",
 
-            tagNotFound = "**nhitomi**: Tag `{tag}` tidak ditemukan.",
-            feedTagAdded = "**nhitomi**: `#{channel.Name}` sekarang berlangganan `{tag}`.",
-            feedTagAlreadyAdded = "**nhitomi**: `#{channel.Name}` sudah berlangganan `{tag}`.", //todo
-            feedTagRemoved = "**nhitomi**: `#{channel.Name}` sekarang berhenti berlangganan dari `{tag}`.",
-            feedTagNotRemoved = "**nhitomi**: `#{channel.Name}` tidak berlangganan `{tag}`.",
-            feedModeChanged = "**nhitomi**: Mengubah mode umpan dari `#{channel.Name}` ke `{type}`.",
+            tagNotFound = "Tag `{tag}` tidak ditemukan.",
+            feedTagAdded = "`#{channel.Name}` sekarang berlangganan `{tag}`.",
+            feedTagAlreadyAdded = "`#{channel.Name}` sudah berlangganan `{tag}`.",
+            feedTagRemoved = "`#{channel.Name}` sekarang berhenti berlangganan dari `{tag}`.",
+            feedTagNotRemoved = "`#{channel.Name}` tidak berlangganan `{tag}`.",
+            feedModeChanged = "Mengubah mode umpan dari `#{channel.Name}` ke `{type}`.",
 
             doujinMessage = new
             {
@@ -62,7 +62,7 @@ namespace nhitomi.Globalization
                 contentsValue = "{doujin.PageCount} halaman",
                 emptyList = new
                 {
-                    title = "**nhitomi**: Tidak ada doujinshi",
+                    title = "Tidak ada doujinshi",
                     text = "Tidak ada doujinshi dalam daftar ini."
                 }
             },
@@ -103,7 +103,7 @@ namespace nhitomi.Globalization
 
             helpMessage = new
             {
-                title = "**nhitomi**: Bantuan",
+                title = "Bantuan",
                 footer = "v{version} {codename} — didukung oleh chiya.dev",
                 about = "bot Discord untuk mencari dan mengunduh doujinshi",
                 invite = "[Bergabunglah]({guildInvite}) dengan server resmi atau " +
@@ -174,7 +174,7 @@ namespace nhitomi.Globalization
 
             errorMessage = new
             {
-                title = "**nhitomi**: ",
+                title = "",
                 text = "Kesalahan telah dilaporkan. " +
                        "Untuk bantuan lebih lanjut, silahkan bergabung dengan [server resmi]({invite})."
             }
