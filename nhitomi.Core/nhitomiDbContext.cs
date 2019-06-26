@@ -285,7 +285,8 @@ ORDER BY d.`UploadTime` DESC");
                     args.ScanRange *= 4;
                 else if (doujins.Length < 8)
                     args.ScanRange *= 2;
-            } while (doujinList.Count == 0 && args.ScanOffset < maxCount);
+            }
+            while (doujinList.Count == 0 && args.ScanOffset < maxCount);
 
             return doujinList.ToArray();
         }
