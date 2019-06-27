@@ -111,6 +111,16 @@ namespace nhitomi.Modules
             await _context.ReplyAsync("addedToCollection", new { doujin, collection });
         }
 
+        [Command("add", BindName = false), Binding("[name] add|a [url+]")]
+        public Task AddAsync(string name,
+                             string url,
+                             CancellationToken cancellationToken = default)
+        {
+            var (source, id) = GalleryUtility.Parse(url);
+
+            return AddAsync(name, source, id, cancellationToken);
+        }
+
         [Command("remove", BindName = false), Binding("[name] remove|r [source] [id]")]
         public async Task RemoveAsync(string name,
                                       string source,
@@ -153,6 +163,16 @@ namespace nhitomi.Modules
             while (!await _database.SaveAsync(cancellationToken));
 
             await _context.ReplyAsync("removedFromCollection", new { doujin, collection });
+        }
+
+        [Command("remove", BindName = false), Binding("[name] remove|r [url+]")]
+        public Task RemoveAsync(string name,
+                                string url,
+                                CancellationToken cancellationToken = default)
+        {
+            var (source, id) = GalleryUtility.Parse(url);
+
+            return RemoveAsync(name, source, id, cancellationToken);
         }
 
         [Command("delete", BindName = false), Binding("[name] delete|d")]
