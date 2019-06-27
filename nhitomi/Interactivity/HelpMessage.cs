@@ -180,7 +180,7 @@ namespace nhitomi.Interactivity
 `{prefix}c favorites add nhentai 123`
 `{prefix}c favorites remove nhentai 321`
 
-{path["language"][l]}:n
+{path["language"][l]}:
 `{prefix}o language {l.Culture.Name}`
 ".Trim());
             }
