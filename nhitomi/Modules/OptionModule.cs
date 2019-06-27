@@ -77,28 +77,5 @@ namespace nhitomi.Modules
                 await _context.ReplyAsync("localizationNotFound", new { language });
             }
         }
-
-        [Command("filter")]
-        public async Task FilterAsync(bool enabled,
-                                      CancellationToken cancellationToken = default)
-        {
-            if (!await EnsureGuildAdminAsync(_context, cancellationToken))
-                return;
-
-            Guild guild;
-
-            do
-            {
-                guild = await _db.GetGuildAsync(_context.GuildSettings.Id, cancellationToken);
-
-                guild.SearchQualityFilter = enabled;
-            }
-            while (!await _db.SaveAsync(cancellationToken));
-
-            // update cache
-            _settingsCache[_context.Channel] = guild;
-
-            await _context.ReplyAsync("qualityFilterChanged", new { state = enabled });
-        }
     }
 }

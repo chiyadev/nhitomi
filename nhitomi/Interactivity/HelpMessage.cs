@@ -169,7 +169,6 @@ namespace nhitomi.Interactivity
                 embed.AddField($"— {path["heading"][l]} —",
                                $@"
 - {prefix}option language `name` — {path["language"][l]}
-- {prefix}option filter `on or off` — {path["filter"][l]}
 
 - {prefix}feed add `tag` — {path["feed.add"][l]}
 - {prefix}feed remove `tag` — {path["feed.remove"][l]}
