@@ -171,6 +171,19 @@ namespace nhitomi.Globalization
                        "For further assistance, please join the [official Discord server]({invite}).",
 
                 missingPerms = "nhitomi lacks the permissions to send messages in that channel."
+            },
+
+            welcomeMessage = new
+            {
+                text = "**nhitomi** is here!",
+
+                get = "`{prefix}get` to see doujinshi information.",
+                download = "`{prefix}download` to download a doujinshi as a zip.",
+                search = "`{prefix}search` to search for doujinshi in the database.",
+                language = "`{prefix}option language` to change the interface language.",
+
+                referHelp = "Please refer to `{prefix}help` for a comprehensive list of commands and usage examples.",
+                openSource = "nhitomi is open-source. Give <{repoUrl}> a star!"
             }
         };
     }
