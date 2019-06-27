@@ -9,7 +9,7 @@ namespace nhitomi.Globalization
 
         protected override object CreateDefinition() => new
         {
-            doujinNotFound = "Doujin does not exist.",
+            doujinNotFound = "Doujin does not exist!",
             invalidQuery   = "`{query}` is not valid.",
 
             listLoading   = "Loading...",

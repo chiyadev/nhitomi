@@ -125,18 +125,21 @@ namespace nhitomi.Core
             }
         }
 
-        public Task<Doujin> GetDoujinAsync(string source,
-                                           string id,
-                                           CancellationToken cancellationToken = default) => Query<Doujin>()
-                                                                                            .Where(
-                                                                                                 d =>
-                                                                                                     d.Source ==
-                                                                                                     source &&
-                                                                                                     d.SourceId == id)
-                                                                                            .Include(d => d.Tags)
-                                                                                            .ThenInclude(x => x.Tag)
-                                                                                            .FirstOrDefaultAsync(
-                                                                                                 cancellationToken);
+        public async Task<Doujin> GetDoujinAsync(string source,
+                                                 string id,
+                                                 CancellationToken cancellationToken = default)
+        {
+            if (source == null || id == null)
+                return null;
+
+            var query = Query<Doujin>()
+                       .Where(d => d.Source == source && d.SourceId == id)
+                       .Include(d => d.Tags)
+                       .ThenInclude(x => x.Tag);
+
+            return await query
+               .FirstOrDefaultAsync(cancellationToken);
+        }
 
         public Task<Doujin[]> GetDoujinsAsync((string source, string id)[] ids,
                                               CancellationToken cancellationToken = default)
@@ -312,10 +315,14 @@ ORDER BY d.`UploadTime` DESC");
         }
 
         public Task<Tag[]> GetTagsAsync(string value,
-                                        CancellationToken cancellationToken = default) => Query<Tag>()
-                                                                                         .Where(t => t.Value == value)
-                                                                                         .ToArrayAsync(
-                                                                                              cancellationToken);
+                                        CancellationToken cancellationToken = default)
+        {
+            var query = Query<Tag>()
+               .Where(t => t.Value == value);
+
+            return query
+               .ToArrayAsync(cancellationToken);
+        }
 
         // in some queries, do not populate tags using Include.
         // when using Include with fulltext searching, EF Core automatically
@@ -337,17 +344,16 @@ ORDER BY d.`UploadTime` DESC");
 
         public Task<Collection> GetCollectionAsync(ulong userId,
                                                    string name,
-                                                   CancellationToken cancellationToken = default) => Query<Collection>()
-                                                                                                    .Include(
-                                                                                                         c => c
-                                                                                                            .Doujins) // join table
-                                                                                                    .FirstOrDefaultAsync(
-                                                                                                         c =>
-                                                                                                             c.OwnerId ==
-                                                                                                             userId &&
-                                                                                                             c.Name ==
-                                                                                                             name,
-                                                                                                         cancellationToken);
+                                                   CancellationToken cancellationToken = default)
+        {
+            var query = Query<Collection>()
+               .Include(c => c.Doujins); // join table
+
+            return query
+               .FirstOrDefaultAsync(c => c.OwnerId == userId &&
+                                         c.Name == name,
+                                    cancellationToken);
+        }
 
         public Task<Collection[]> GetCollectionsAsync(ulong userId,
                                                       CancellationToken cancellationToken = default) =>
