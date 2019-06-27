@@ -182,7 +182,7 @@ namespace nhitomi.Globalization
                 search = "`{prefix}search` to search for doujinshi in the database. `{prefix}search full color`",
                 language = "`{prefix}option language` to change the interface language. `{prefix}option language en`",
 
-                referHelp = "Please refer to {prefix}help for a comprehensive list of commands and usage examples.",
+                referHelp = "Please refer to `{prefix}help` for a comprehensive list of commands and usage examples.",
                 openSource = "nhitomi is open-source. Give <{repoUrl}> a star!"
             }
         };
