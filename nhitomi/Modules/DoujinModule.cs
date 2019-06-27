@@ -43,6 +43,15 @@ namespace nhitomi.Modules
             await _interactive.SendInteractiveAsync(new DoujinMessage(doujin), _context, cancellationToken);
         }
 
+        [Command("get")]
+        public Task GetAsync(string url,
+                             CancellationToken cancellationToken = default)
+        {
+            var (source, id) = GalleryUtility.Parse(url);
+
+            return GetAsync(source, id, cancellationToken);
+        }
+
         [Command("from")]
         public Task FromAsync(string source,
                               CancellationToken cancellationToken = default) =>

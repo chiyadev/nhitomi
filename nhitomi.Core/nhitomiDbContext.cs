@@ -129,6 +129,9 @@ namespace nhitomi.Core
                                            string id,
                                            CancellationToken cancellationToken = default)
         {
+            if (source == null || id == null)
+                return null;
+
             var query = Query<Doujin>()
                        .Where(d => d.Source == source && d.SourceId == id)
                        .Include(d => d.Tags)
