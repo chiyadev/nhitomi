@@ -103,7 +103,7 @@ namespace nhitomi.Globalization
 
             helpMessage = new
             {
-                title = "Bantuan",
+                title = "**nhitomi**: Bantuan",
                 footer = "v{version} {codename} — didukung oleh chiya.dev",
                 about = "bot Discord untuk mencari dan mengunduh doujinshi",
                 invite = "[Bergabunglah]({guildInvite}) dengan server resmi atau " +
@@ -174,7 +174,7 @@ namespace nhitomi.Globalization
 
             errorMessage = new
             {
-                title = "",
+                title = "**nhitomi**: Kesalahan",
                 text = "Kesalahan telah dilaporkan. " +
                        "Untuk bantuan lebih lanjut, silahkan bergabung dengan [server resmi]({invite})."
             }

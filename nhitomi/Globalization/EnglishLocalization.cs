@@ -100,7 +100,7 @@ namespace nhitomi.Globalization
 
             helpMessage = new
             {
-                title = "Help",
+                title = "**nhitomi**: Help",
                 footer = "v{version} {codename} — powered by chiya.dev",
                 about = "a Discord bot for browsing and downloading doujinshi",
                 invite = "[Join]({guildInvite}) the official server or [invite nhitomi]({botInvite}) to your server.",
@@ -164,7 +164,7 @@ namespace nhitomi.Globalization
 
             errorMessage = new
             {
-                title = "Error",
+                title = "**nhitomi**: Error",
                 titleAuto = "Automatic error report",
 
                 text = "This error has been reported. " +
