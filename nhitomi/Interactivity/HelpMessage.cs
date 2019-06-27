@@ -15,8 +15,10 @@ namespace nhitomi.Interactivity
 {
     public enum HelpMessageSection
     {
-        DoujinAndCollection,
-        OptionsAndAliases,
+        Doujins,
+        Collections,
+        Options,
+        Examples,
         Other
     }
 
@@ -68,23 +70,28 @@ namespace nhitomi.Interactivity
 
                 switch (value)
                 {
-                    case HelpMessageSection.DoujinAndCollection:
+                    case HelpMessageSection.Doujins:
                         embed.Description =
                             $"nhitomi — {path["about"][l]}\n\n" +
                             $"{path["invite"][l, new {botInvite = _settings.Discord.BotInvite, guildInvite = _settings.Discord.Guild.GuildInvite}]}";
 
                         DoujinsSection(embed, path, l);
+                        SourcesSection(embed, path, l);
+                        break;
+
+                    case HelpMessageSection.Collections:
                         CollectionsSection(embed, path, l);
                         break;
 
-                    case HelpMessageSection.OptionsAndAliases:
+                    case HelpMessageSection.Options:
                         OptionsSection(embed, path, l);
-                        AliasesSection(embed, path, l);
+                        break;
+
+                    case HelpMessageSection.Examples:
+                        ExamplesSection(embed, path, l);
                         break;
 
                     case HelpMessageSection.Other:
-                        ExamplesSection(embed, path, l);
-                        SourcesSection(embed, path, l);
                         LanguagesSection(embed, path, l);
 
                         // only add translators if not English
@@ -110,6 +117,16 @@ namespace nhitomi.Interactivity
 - {prefix}read `source` `id` — {path["read"][l]}
 - {prefix}download `source` `id` — {path["download"][l]}
 - {prefix}search `query` — {path["search"][l]}
+".Trim());
+            }
+
+            static void SourcesSection(EmbedBuilder embed, LocalizationPath path, Localization l)
+            {
+                path = path["sources"];
+
+                embed.AddField($"— {path["heading"][l]} —", @"
+- nhentai — `https://nhentai.net/`
+- Hitomi — `https://hitomi.la/`
 ".Trim());
             }
 
@@ -145,24 +162,6 @@ namespace nhitomi.Interactivity
 ".Trim());
             }
 
-            void AliasesSection(EmbedBuilder embed, LocalizationPath path, Localization l)
-            {
-                path = path["aliases"];
-
-                var prefix = _settings.Discord.Prefix;
-
-                embed.AddField($"— {path["heading"][l]} —", $@"
-{prefix}**h** — help
-{prefix}**g** `source` `id` — get
-{prefix}**f** `source` — from
-{prefix}**s** `query` — search
-{prefix}**dl** `source` `id` — download
-{prefix}**c** `name` — collection
-{prefix}**c** `name` **a** `source` `id` — collection add
-{prefix}**c** `name` **r** `source` `id` — collection remove
-".Trim());
-            }
-
             void ExamplesSection(EmbedBuilder embed, LocalizationPath path, Localization l)
             {
                 path = path["examples"];
@@ -183,16 +182,6 @@ namespace nhitomi.Interactivity
 
 {path["language"][l]}:n
 `{prefix}o language {l.Culture.Name}`
-".Trim());
-            }
-
-            static void SourcesSection(EmbedBuilder embed, LocalizationPath path, Localization l)
-            {
-                path = path["sources"];
-
-                embed.AddField($"— {path["heading"][l]} —", @"
-- nhentai — `https://nhentai.net/`
-- Hitomi — `https://hitomi.la/`
 ".Trim());
             }
 
