@@ -53,7 +53,8 @@ namespace nhitomi
                 .AddHostedInjectableService<StatusUpdateService>()
                 .AddHostedInjectableService<LogHandlerService>()
                 .AddHostedInjectableService<GuildSettingsSyncService>()
-                .AddHostedInjectableService<FeedChannelUpdateService>();
+                .AddHostedInjectableService<FeedChannelUpdateService>()
+                .AddHostedInjectableService<GuildWelcomeMessageService>();
 
             // http server
             services
