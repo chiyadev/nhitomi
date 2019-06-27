@@ -9,21 +9,21 @@ namespace nhitomi.Globalization
 
         protected override object CreateDefinition() => new
         {
-            doujinNotFound = "No such doujin!",
+            doujinNotFound = "Doujin does not exist.",
             invalidQuery = "`{query}` is not valid.",
 
             listLoading = "Loading...",
-            listBeginning = "Beginning of the list!",
+            listBeginning = "Start of the list!",
             listEnd = "End of the list!",
 
             collectionNotFound = "No collection named `{name}`.",
             collectionDeleted = "Deleted collection `{collection.Name}`.",
             collectionSorted = "Sorted collection `{collection.Name}` by `{attribute}`.",
 
-            addedToCollection = "Added `{doujin.OriginalName}` to `{collection.Name}`.",
-            removedFromCollection = "Removed `{doujin.OriginalName}` from `{collection.Name}`.",
-            alreadyInCollection = "`{doujin.OriginalName}` already exists in `{collection.Name}`.",
-            notInCollection = "`{doujin.OriginalName}` was not found in `{collection.Name}`.",
+            addedToCollection = "Added `{doujin.OriginalName}` to collection `{collection.Name}`.",
+            removedFromCollection = "Removed `{doujin.OriginalName}` from collection `{collection.Name}`.",
+            alreadyInCollection = "`{doujin.OriginalName}` already exists in collection `{collection.Name}`.",
+            notInCollection = "`{doujin.OriginalName}` was not found in collection `{collection.Name}`.",
 
             localizationChanged = "Server language is set to `{localization.Culture.NativeName}`!",
             localizationNotFound = "Language `{language}` is not supported.",
@@ -31,7 +31,7 @@ namespace nhitomi.Globalization
             qualityFilterChanged = "Search quality filter is now `{state:enabled|disabled}` by default.",
 
             commandInvokeNotInGuild = "You can only use this command in a server.",
-            notGuildAdmin = "You must be a server administrator to use this command.",
+            notGuildAdmin = "You must be an administrator to use this command.",
 
             tagNotFound = "Tag `{tag}` was not found.",
             feedTagAdded = "`#{channel.Name}` is now subscribed to `{tag}`.",
@@ -102,7 +102,7 @@ namespace nhitomi.Globalization
             {
                 title = "Help",
                 footer = "v{version} {codename} — powered by chiya.dev",
-                about = "a Discord bot for searching and downloading doujinshi",
+                about = "a Discord bot for browsing and downloading doujinshi",
                 invite = "[Join]({guildInvite}) the official server or [invite nhitomi]({botInvite}) to your server.",
                 doujins = new
                 {
@@ -167,10 +167,10 @@ namespace nhitomi.Globalization
                 title = "Error",
                 titleAuto = "Automatic error report",
 
-                text = "The error has been reported. " +
-                       "For further assistance, please join the [official server]({invite}).",
+                text = "This error has been reported. " +
+                       "For further assistance, please join the [official Discord server]({invite}).",
 
-                missingPerms = "Could not respond in that channel due to the lack of permissions."
+                missingPerms = "nhitomi lacks the permissions to send messages in that channel."
             }
         };
     }
