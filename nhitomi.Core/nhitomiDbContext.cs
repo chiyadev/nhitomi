@@ -125,9 +125,9 @@ namespace nhitomi.Core
             }
         }
 
-        public Task<Doujin> GetDoujinAsync(string source,
-                                           string id,
-                                           CancellationToken cancellationToken = default)
+        public async Task<Doujin> GetDoujinAsync(string source,
+                                                 string id,
+                                                 CancellationToken cancellationToken = default)
         {
             if (source == null || id == null)
                 return null;
@@ -137,7 +137,7 @@ namespace nhitomi.Core
                        .Include(d => d.Tags)
                        .ThenInclude(x => x.Tag);
 
-            return query
+            return await query
                .FirstOrDefaultAsync(cancellationToken);
         }
 
