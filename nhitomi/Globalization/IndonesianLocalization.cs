@@ -37,9 +37,6 @@ namespace nhitomi.Globalization
             localizationChanged  = "Bahasa server diatur ke `{localization.Culture.NativeName}`!",
             localizationNotFound = "Bahasa `{language}` tidak didukung.",
 
-            qualityFilterChanged = "Filter kualitas pencarian default ke " +
-                                   "`{state:diaktifkan|dinonaktifkan}`.",
-
             commandInvokeNotInGuild = "Anda hanya dapat menggunakan perintah ini di server.",
             notGuildAdmin           = "Anda harus menjadi administrator server untuk menggunakan perintah ini.",
 
@@ -131,7 +128,6 @@ namespace nhitomi.Globalization
                 {
                     heading  = "Pengaturan",
                     language = "Mengubah bahasa antarmuka dalam server.",
-                    filter   = "Mengalihkan filter kualitas pencarian.",
                     feed = new
                     {
                         add    = "Berlangganan saluran ke tag yang diberikan.",

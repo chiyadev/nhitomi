@@ -50,7 +50,6 @@ namespace nhitomi.Modules
 
         [Command("search"), Binding("[query+]")]
         public async Task SearchAsync(string query,
-                                      bool? filter = null,
                                       string source = null,
                                       CancellationToken cancellationToken = default)
         {
@@ -64,7 +63,7 @@ namespace nhitomi.Modules
                 new DoujinListFromQueryMessage(new DoujinSearchArgs
                 {
                     Query         = query,
-                    QualityFilter = filter ?? _context.GuildSettings.SearchQualityFilter ?? false,
+                    QualityFilter = false,
                     Source        = source
                 }),
                 _context,

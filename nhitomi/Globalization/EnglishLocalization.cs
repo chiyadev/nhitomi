@@ -28,8 +28,6 @@ namespace nhitomi.Globalization
             localizationChanged  = "Server language is set to `{localization.Culture.NativeName}`!",
             localizationNotFound = "Language `{language}` is not supported.",
 
-            qualityFilterChanged = "Search quality filter is now `{state:enabled|disabled}` by default.",
-
             commandInvokeNotInGuild = "You can only use this command in a server.",
             notGuildAdmin           = "You must be an administrator to use this command.",
 
@@ -128,7 +126,6 @@ namespace nhitomi.Globalization
                 {
                     heading  = "Options",
                     language = "Changes the interface language within a server.",
-                    filter   = "Toggles the search quality filter.",
                     feed = new
                     {
                         add    = "Subscribes a channel to the given tag.",
