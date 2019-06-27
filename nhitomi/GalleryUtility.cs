@@ -15,7 +15,7 @@ namespace nhitomi
             $"({string.Join(")|(", _nhentai, _hitomi)})",
             RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.IgnoreCase);
 
-        public static (string source, string id)[] Parse(string str)
+        public static (string source, string id)[] ParseMany(string str)
         {
             // find successful groups starting with src_
             var matches = _regex.Matches(str)

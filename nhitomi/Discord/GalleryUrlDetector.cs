@@ -47,7 +47,7 @@ namespace nhitomi.Discord
                 return false;
 
             // match gallery urls
-            var ids = GalleryUtility.Parse(content);
+            var ids = GalleryUtility.ParseMany(content);
 
             if (ids.Length == 0)
                 return false;
