@@ -94,7 +94,8 @@ namespace nhitomi.Discord
         Task HandleMessageAsync(IMessage socketMessage, MessageEvent eventType)
         {
             if (socketMessage is IUserMessage message &&
-                socketMessage.Author.Id != _discord.CurrentUser.Id)
+                !socketMessage.Author.IsBot &&
+                !socketMessage.Author.IsWebhook)
             {
                 // handle on another thread to not block the gateway thread
                 _ = Task.Run(async () =>
