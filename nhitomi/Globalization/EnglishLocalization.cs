@@ -102,7 +102,7 @@ namespace nhitomi.Globalization
             {
                 title = "Help",
                 footer = "v{version} {codename} — powered by chiya.dev",
-                about = "a Discord bot for searching and downloading doujinshi",
+                about = "a Discord bot for browsing and downloading doujinshi",
                 invite = "[Join]({guildInvite}) the official server or [invite nhitomi]({botInvite}) to your server.",
                 doujins = new
                 {
