@@ -11,20 +11,34 @@ namespace nhitomi
         const string _hitomi =
             @"\b((http|https):\/\/)?hitomi(\.la)?\/(galleries\/)?(?<src_Hitomi>[0-9]{1,7})\b";
 
-        static readonly Regex _regex = new Regex(
-            $"({string.Join(")|(", _nhentai, _hitomi)})",
-            RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.IgnoreCase);
+        const RegexOptions _patternOptions = RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.IgnoreCase;
+
+        static readonly string _pattern = $"({string.Join(")|(", _nhentai, _hitomi)})";
+
+        static readonly Regex _regex = new Regex(_pattern,              _patternOptions);
+        static readonly Regex _strictRegex = new Regex($"^{_pattern}$", _patternOptions);
+
+        public static (string source, string id) Parse(string str)
+        {
+            var group = _strictRegex.Match(str)
+                                    .Groups
+                                    .FirstOrDefault(g => g.Success && g.Name != null && g.Name.StartsWith("src_"));
+
+            return group == null
+                ? default
+                : (group.Name.Split('_', 2)[1], group.Value);
+        }
 
         public static (string source, string id)[] ParseMany(string str)
         {
             // find successful groups starting with src_
-            var matches = _regex.Matches(str)
-                                .SelectMany(m => m.Groups)
-                                .Where(g => g.Success && g.Name != null && g.Name.StartsWith("src_"));
+            var groups = _regex.Matches(str)
+                               .SelectMany(m => m.Groups)
+                               .Where(g => g.Success && g.Name != null && g.Name.StartsWith("src_"));
 
             // remove src_ prefixes and return as tuple
-            return matches.Select(g => (g.Name.Split('_', 2)[1], g.Value))
-                          .ToArray();
+            return groups.Select(g => (g.Name.Split('_', 2)[1], g.Value))
+                         .ToArray();
         }
     }
 }
