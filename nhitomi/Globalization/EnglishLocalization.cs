@@ -177,10 +177,10 @@ namespace nhitomi.Globalization
             {
                 text = "**nhitomi** is here!",
 
-                get = "`{prefix}get` to see doujinshi information. `{prefix}get nhentai/12345`",
-                download = "`{prefix}download` to download a doujinshi as a zip. `{prefix}download nhentai/12345`",
-                search = "`{prefix}search` to search for doujinshi in the database. `{prefix}search full color`",
-                language = "`{prefix}option language` to change the interface language. `{prefix}option language en`",
+                get = "`{prefix}get` to see doujinshi information.",
+                download = "`{prefix}download` to download a doujinshi as a zip.",
+                search = "`{prefix}search` to search for doujinshi in the database.",
+                language = "`{prefix}option language` to change the interface language.",
 
                 referHelp = "Please refer to `{prefix}help` for a comprehensive list of commands and usage examples.",
                 openSource = "nhitomi is open-source. Give <{repoUrl}> a star!"
