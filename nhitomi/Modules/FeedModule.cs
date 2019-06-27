@@ -15,11 +15,13 @@ namespace nhitomi.Modules
         readonly IDiscordContext _context;
         readonly IDatabase _db;
 
-        public FeedModule(IOptions<AppSettings> options, IDiscordContext context, IDatabase db)
+        public FeedModule(IOptions<AppSettings> options,
+                          IDiscordContext context,
+                          IDatabase db)
         {
             _settings = options.Value;
-            _context = context;
-            _db = db;
+            _context  = context;
+            _db       = db;
         }
 
         async Task<bool> EnsureFeedEnabled(CancellationToken cancellationToken = default)
@@ -32,7 +34,8 @@ namespace nhitomi.Modules
         }
 
         [Command("add"), Binding("[tag+]")]
-        public async Task AddAsync(string tag, CancellationToken cancellationToken = default)
+        public async Task AddAsync(string tag,
+                                   CancellationToken cancellationToken = default)
         {
             if (!await EnsureFeedEnabled(cancellationToken) ||
                 !await OptionModule.EnsureGuildAdminAsync(_context, cancellationToken))
@@ -42,14 +45,16 @@ namespace nhitomi.Modules
 
             do
             {
-                var channel = await _db.GetFeedChannelAsync(_context.GuildSettings.Id, _context.Channel.Id,
+                var channel = await _db.GetFeedChannelAsync(
+                    _context.GuildSettings.Id,
+                    _context.Channel.Id,
                     cancellationToken);
 
                 var tags = await _db.GetTagsAsync(tag, cancellationToken);
 
                 if (tags.Length == 0)
                 {
-                    await _context.ReplyAsync("tagNotFound", new {tag});
+                    await _context.ReplyAsync("tagNotFound", new { tag });
                     return;
                 }
 
@@ -63,6 +68,7 @@ namespace nhitomi.Modules
                         {
                             Tag = t
                         });
+
                         added = true;
                     }
                 }
@@ -70,13 +76,14 @@ namespace nhitomi.Modules
             while (!await _db.SaveAsync(cancellationToken));
 
             if (added)
-                await _context.ReplyAsync("feedTagAdded", new {tag, channel = _context.Channel});
+                await _context.ReplyAsync("feedTagAdded", new { tag, channel = _context.Channel });
             else
-                await _context.ReplyAsync("feedTagAlreadyAdded", new {tag, channel = _context.Channel});
+                await _context.ReplyAsync("feedTagAlreadyAdded", new { tag, channel = _context.Channel });
         }
 
         [Command("remove"), Binding("[tag+]")]
-        public async Task RemoveAsync(string tag, CancellationToken cancellationToken = default)
+        public async Task RemoveAsync(string tag,
+                                      CancellationToken cancellationToken = default)
         {
             if (!await EnsureFeedEnabled(cancellationToken) ||
                 !await OptionModule.EnsureGuildAdminAsync(_context, cancellationToken))
@@ -86,8 +93,9 @@ namespace nhitomi.Modules
 
             do
             {
-                var channel = await _db.GetFeedChannelAsync(_context.GuildSettings.Id, _context.Channel.Id,
-                    cancellationToken);
+                var channel = await _db.GetFeedChannelAsync(_context.GuildSettings.Id,
+                                                            _context.Channel.Id,
+                                                            cancellationToken);
 
                 foreach (var t in await _db.GetTagsAsync(tag, cancellationToken))
                 {
@@ -103,13 +111,14 @@ namespace nhitomi.Modules
             while (!await _db.SaveAsync(cancellationToken));
 
             if (removed)
-                await _context.ReplyAsync("feedTagRemoved", new {tag, channel = _context.Channel});
+                await _context.ReplyAsync("feedTagRemoved", new { tag, channel = _context.Channel });
             else
-                await _context.ReplyAsync("feedTagNotRemoved", new {tag, channel = _context.Channel});
+                await _context.ReplyAsync("feedTagNotRemoved", new { tag, channel = _context.Channel });
         }
 
         [Command("mode")]
-        public async Task ModeAsync(FeedChannelWhitelistType type, CancellationToken cancellationToken = default)
+        public async Task ModeAsync(FeedChannelWhitelistType type,
+                                    CancellationToken cancellationToken = default)
         {
             if (!await EnsureFeedEnabled(cancellationToken) ||
                 !await OptionModule.EnsureGuildAdminAsync(_context, cancellationToken))
@@ -117,14 +126,15 @@ namespace nhitomi.Modules
 
             do
             {
-                var channel = await _db.GetFeedChannelAsync(_context.GuildSettings.Id, _context.Channel.Id,
-                    cancellationToken);
+                var channel = await _db.GetFeedChannelAsync(_context.GuildSettings.Id,
+                                                            _context.Channel.Id,
+                                                            cancellationToken);
 
                 channel.WhitelistType = type;
             }
             while (!await _db.SaveAsync(cancellationToken));
 
-            await _context.ReplyAsync("feedModeChanged", new {type, channel = _context.Channel});
+            await _context.ReplyAsync("feedModeChanged", new { type, channel = _context.Channel });
         }
     }
 }

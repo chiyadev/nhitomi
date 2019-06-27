@@ -19,7 +19,7 @@ namespace nhitomi.Core
         }
 
         public Task<HttpResponseMessage> SendAsync(HttpRequestMessage request,
-            CancellationToken cancellationToken = default) =>
+                                                   CancellationToken cancellationToken = default) =>
             Http.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
     }
 }

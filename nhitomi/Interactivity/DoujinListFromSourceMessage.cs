@@ -26,7 +26,7 @@ namespace nhitomi.Interactivity
             }
 
             protected override Task<Doujin[]> GetValuesAsync(int offset,
-                CancellationToken cancellationToken = default) =>
+                                                             CancellationToken cancellationToken = default) =>
                 _db.GetDoujinsAsync(x =>
                 {
                     x = x.Where(d => d.Source == Message._source);
@@ -35,8 +35,8 @@ namespace nhitomi.Interactivity
                     x = x.OrderByDescending(d => d.UploadTime);
 
                     return x
-                        .Skip(offset)
-                        .Take(10);
+                          .Skip(offset)
+                          .Take(10);
                 });
         }
     }

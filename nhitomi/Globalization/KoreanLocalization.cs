@@ -17,13 +17,13 @@ namespace nhitomi.Globalization
             },
             doujinMessage = new
             {
-                language = "언어",
-                group = "그룹",
-                parody = "패러디",
+                language   = "언어",
+                group      = "그룹",
+                parody     = "패러디",
                 categories = "분류",
-                character = "캐릭터",
-                tags = "태그",
-                contents = "내용"
+                character  = "캐릭터",
+                tags       = "태그",
+                contents   = "내용"
             },
             downloadMessage = new
             {
@@ -31,8 +31,8 @@ namespace nhitomi.Globalization
             },
             helpMessage = new
             {
-                title = "도움말",
-                about = "디스코드 동인지 로봇",
+                title  = "도움말",
+                about  = "디스코드 동인지 로봇",
                 invite = "공식 서버: <{invite}>",
                 doujins = new
                 {
@@ -49,7 +49,7 @@ namespace nhitomi.Globalization
                 translations = new
                 {
                     heading = "번역",
-                    text = "한국어 번역을 도와주신 분들: {translators}"
+                    text    = "한국어 번역을 도와주신 분들: {translators}"
                 },
                 openSource = new
                 {

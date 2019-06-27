@@ -59,9 +59,9 @@ namespace nhitomi.Discord.Parsing
 
         public CommandInfo(MethodInfo method)
         {
-            _method = method;
-            _parameters = method.GetParameters();
-            _parameterDict = _parameters.ToDictionary(p => p.Name);
+            _method         = method;
+            _parameters     = method.GetParameters();
+            _parameterDict  = _parameters.ToDictionary(p => p.Name);
             _requiredParams = _parameters.Count(p => !p.IsOptional);
 
             _moduleFactory = DependencyUtility.CreateFactory(method.DeclaringType);
@@ -79,7 +79,7 @@ namespace nhitomi.Discord.Parsing
             _nameRegex = new Regex(BuildNamePattern(method, _attribute), _options);
 
             // build parameter regex
-            var bindingExpression = method.GetCustomAttribute<BindingAttribute>()?.Expression;
+            var bindingExpression  = method.GetCustomAttribute<BindingAttribute>()?.Expression;
             var requiredParameters = _parameterDict.Where(x => !x.Value.IsOptional).Select(x => x.Key);
 
             if (bindingExpression == null && _parameters.Any(p => !p.IsOptional))
@@ -91,11 +91,12 @@ namespace nhitomi.Discord.Parsing
             _optionRegex = new Regex(BuildOptionPattern(_parameters.Where(p => p.IsOptional).ToArray()), _options);
         }
 
-        static string BuildNamePattern(MemberInfo member, CommandAttribute commandAttr)
+        static string BuildNamePattern(MemberInfo member,
+                                       CommandAttribute commandAttr)
         {
             // find module prefixes
             var prefixes = new List<string>();
-            var type = member.DeclaringType;
+            var type     = member.DeclaringType;
 
             do
             {
@@ -119,21 +120,18 @@ namespace nhitomi.Discord.Parsing
             foreach (var prefix in prefixes)
             {
                 builder
-                    .Append('(')
-                    .Append(prefix)
-                    .Append(')')
-                    .Append(@"\b\s+");
+                   .Append('(')
+                   .Append(prefix)
+                   .Append(')')
+                   .Append(@"\b\s+");
             }
 
             if (commandAttr.BindName)
-            {
-                // append command name
                 builder
-                    .Append('(')
-                    .Append(string.Join('|', commandAttr.GetNames()))
-                    .Append(')')
-                    .Append(@"($|\s+)");
-            }
+                   .Append('(')
+                   .Append(string.Join('|', commandAttr.GetNames()))
+                   .Append(')')
+                   .Append(@"($|\s+)");
 
             return builder.ToString();
         }
@@ -156,22 +154,22 @@ namespace nhitomi.Discord.Parsing
 
                     if (name.EndsWith('+'))
                         builder
-                            .Append(@"(?<")
-                            .Append(name.Remove(name.Length - 1))
-                            .Append(@">.+)");
+                           .Append(@"(?<")
+                           .Append(name.Remove(name.Length - 1))
+                           .Append(@">.+)");
                     else
                         builder
-                            .Append(@"(?<")
-                            .Append(name)
-                            .Append(@">\S+)");
+                           .Append(@"(?<")
+                           .Append(name)
+                           .Append(@">\S+)");
                 }
                 else
                 {
                     // constant
                     builder
-                        .Append('(')
-                        .Append(part)
-                        .Append(')');
+                       .Append('(')
+                       .Append(part)
+                       .Append(')');
                 }
 
                 if (i != parts.Length - 1)
@@ -193,18 +191,18 @@ namespace nhitomi.Discord.Parsing
             {
                 var parameter = parameters[i];
 
-                var attr = parameter.GetCustomAttribute<OptionAttribute>() ?? new OptionAttribute(parameter.Name);
+                var attr  = parameter.GetCustomAttribute<OptionAttribute>() ?? new OptionAttribute(parameter.Name);
                 var names = attr.GetNames().Where(usedNames.Add).ToArray();
 
                 if (names.Length == 0)
                     throw new ArgumentException($"{parameter} could not be bound.");
 
                 builder
-                    .Append(@"((?<=^|\s)(")
-                    .Append(string.Join('|', names))
-                    .Append(@")\b\s+(?<")
-                    .Append(attr.Name)
-                    .Append(@">[^-]+))");
+                   .Append(@"((?<=^|\s)(")
+                   .Append(string.Join('|', names))
+                   .Append(@")\b\s+(?<")
+                   .Append(attr.Name)
+                   .Append(@">[^-]+))");
 
                 if (i != parameters.Count - 1)
                     builder.Append('|');
@@ -213,12 +211,14 @@ namespace nhitomi.Discord.Parsing
             return builder.ToString();
         }
 
-        public bool TryParse(string str, out Dictionary<string, object> args)
+        public bool TryParse(string str,
+                             out Dictionary<string, object> args)
         {
             args = null;
 
             // match name
             var nameMatch = _nameRegex.Match(str);
+
             if (!nameMatch.Success)
                 return false;
 
@@ -226,16 +226,17 @@ namespace nhitomi.Discord.Parsing
 
             // split required parameters and options
             var hyphenIndex = str.IndexOf("--", StringComparison.Ordinal);
-            var paramStr = hyphenIndex == -1 ? str : str.Substring(0, hyphenIndex);
-            var optionStr = hyphenIndex == -1 ? null : str.Substring(hyphenIndex);
+            var paramStr    = hyphenIndex == -1 ? str : str.Substring(0, hyphenIndex);
+            var optionStr   = hyphenIndex == -1 ? null : str.Substring(hyphenIndex);
 
             var argStrings = new Dictionary<string, string>();
 
             // match parameters
             var paramMatch = _parameterRegex.Match(paramStr);
+
             var paramGroups = paramMatch.Groups
-                .Where(g => g.Success && _parameterDict.ContainsKey(g.Name))
-                .ToArray();
+                                        .Where(g => g.Success && _parameterDict.ContainsKey(g.Name))
+                                        .ToArray();
 
             if (paramGroups.Length != _requiredParams)
                 return false;
@@ -263,10 +264,8 @@ namespace nhitomi.Discord.Parsing
             {
                 // required parameter is missing
                 if (!argStrings.TryGetValue(parameter.Name, out var value))
-                {
                     if (!parameter.IsOptional)
                         return false;
-                }
 
                 // parse value
                 if (TryParse(parameter, value, out var obj))
@@ -280,7 +279,9 @@ namespace nhitomi.Discord.Parsing
             return true;
         }
 
-        static bool TryParse(ParameterInfo parameter, string str, out object value)
+        static bool TryParse(ParameterInfo parameter,
+                             string str,
+                             out object value)
         {
             if (TryParse(parameter.ParameterType, str, out value))
                 return true;
@@ -294,7 +295,9 @@ namespace nhitomi.Discord.Parsing
             return false;
         }
 
-        static bool TryParse(Type type, string str, out object value)
+        static bool TryParse(Type type,
+                             string str,
+                             out object value)
         {
             if (type == typeof(string))
             {
@@ -305,7 +308,6 @@ namespace nhitomi.Discord.Parsing
             if (type == typeof(bool))
             {
                 if (str != null)
-                {
                     switch (str.ToLowerInvariant())
                     {
                         case "1":
@@ -320,7 +322,6 @@ namespace nhitomi.Discord.Parsing
                             value = false;
                             return true;
                     }
-                }
             }
 
             else if (type == typeof(int))
@@ -360,7 +361,7 @@ namespace nhitomi.Discord.Parsing
             {
                 var elementType = type.GetElementType();
 
-                var parts = str.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                var parts  = str.Split(' ', StringSplitOptions.RemoveEmptyEntries);
                 var values = new object[parts.Length];
 
                 for (var i = 0; i < parts.Length; i++)
@@ -386,7 +387,8 @@ namespace nhitomi.Discord.Parsing
             return false;
         }
 
-        public async Task InvokeAsync(IServiceProvider services, Dictionary<string, object> args)
+        public async Task InvokeAsync(IServiceProvider services,
+                                      Dictionary<string, object> args)
         {
             // create module
             var module = _moduleFactory(services);

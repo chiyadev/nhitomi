@@ -10,9 +10,10 @@ namespace nhitomi.Interactivity
         readonly ulong _userId;
         readonly string _collectionName;
 
-        public CollectionDoujinListMessage(ulong userId, string collectionName)
+        public CollectionDoujinListMessage(ulong userId,
+                                           string collectionName)
         {
-            _userId = userId;
+            _userId         = userId;
             _collectionName = collectionName;
         }
 
@@ -28,7 +29,7 @@ namespace nhitomi.Interactivity
             }
 
             protected override Task<Doujin[]> GetValuesAsync(int offset,
-                CancellationToken cancellationToken = default) =>
+                                                             CancellationToken cancellationToken = default) =>
                 _db.GetCollectionAsync(
                     Message._userId,
                     Message._collectionName,

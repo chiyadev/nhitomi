@@ -42,38 +42,41 @@ namespace nhitomi.Interactivity
             }
 
             protected override Task<HelpMessageSection[]> GetValuesAsync(int offset,
-                CancellationToken cancellationToken = default) =>
-                Task.FromResult(
-                    Enum.GetValues(typeof(HelpMessageSection))
-                        .Cast<HelpMessageSection>()
-                        .Skip(offset)
-                        .ToArray());
+                                                                         CancellationToken cancellationToken =
+                                                                             default) => Task.FromResult(
+                Enum.GetValues(typeof(HelpMessageSection))
+                    .Cast<HelpMessageSection>()
+                    .Skip(offset)
+                    .ToArray());
 
             protected override Embed CreateEmbed(HelpMessageSection value)
             {
                 var path = new LocalizationPath("helpMessage");
-                var l = Context.GetLocalization();
+                var l    = Context.GetLocalization();
+
+                var version = new
+                {
+                    version = typeof(Startup).Assembly.GetName()
+                                             .Version.ToString(2),
+
+                    codename = typeof(Startup).Assembly
+                                              .GetCustomAttribute<AssemblyInformationalVersionAttribute>()
+                                              .InformationalVersion
+                };
 
                 var embed = new EmbedBuilder()
-                    .WithTitle(path["title"][l])
-                    .WithColor(Color.Purple)
-                    .WithThumbnailUrl("https://github.com/chiyadev/nhitomi/raw/master/nhitomi.png")
-                    .WithFooter(path["footer"][l, new
-                    {
-                        version = typeof(Startup).Assembly
-                            .GetName().Version
-                            .ToString(2),
-                        codename = typeof(Startup).Assembly
-                            .GetCustomAttribute<AssemblyInformationalVersionAttribute>()
-                            .InformationalVersion
-                    }]);
+                           .WithTitle(path["title"][l])
+                           .WithColor(Color.Purple)
+                           .WithThumbnailUrl("https://github.com/chiyadev/nhitomi/raw/master/nhitomi.png")
+                           .WithFooter(path["footer"][l, version]);
 
                 switch (value)
                 {
                     case HelpMessageSection.Doujins:
+
                         embed.Description =
                             $"nhitomi — {path["about"][l]}\n\n" +
-                            $"{path["invite"][l, new {botInvite = _settings.Discord.BotInvite, guildInvite = _settings.Discord.Guild.GuildInvite}]}";
+                            $"{path["invite"][l, new { botInvite = _settings.Discord.BotInvite, guildInvite = _settings.Discord.Guild.GuildInvite }]}";
 
                         DoujinsSection(embed, path, l);
                         SourcesSection(embed, path, l);
@@ -105,13 +108,16 @@ namespace nhitomi.Interactivity
                 return embed.Build();
             }
 
-            void DoujinsSection(EmbedBuilder embed, LocalizationPath path, Localization l)
+            void DoujinsSection(EmbedBuilder embed,
+                                LocalizationPath path,
+                                Localization l)
             {
                 path = path["doujins"];
 
                 var prefix = _settings.Discord.Prefix;
 
-                embed.AddField($"— {path["heading"][l]} —", $@"
+                embed.AddField($"— {path["heading"][l]} —",
+                               $@"
 - {prefix}get `source` `id` — {path["get"][l]}
 - {prefix}from `source` — {path["from"][l]}
 - {prefix}read `source` `id` — {path["read"][l]}
@@ -120,23 +126,29 @@ namespace nhitomi.Interactivity
 ".Trim());
             }
 
-            static void SourcesSection(EmbedBuilder embed, LocalizationPath path, Localization l)
+            static void SourcesSection(EmbedBuilder embed,
+                                       LocalizationPath path,
+                                       Localization l)
             {
                 path = path["sources"];
 
-                embed.AddField($"— {path["heading"][l]} —", @"
+                embed.AddField($"— {path["heading"][l]} —",
+                               @"
 - nhentai — `https://nhentai.net/`
 - Hitomi — `https://hitomi.la/`
 ".Trim());
             }
 
-            void CollectionsSection(EmbedBuilder embed, LocalizationPath path, Localization l)
+            void CollectionsSection(EmbedBuilder embed,
+                                    LocalizationPath path,
+                                    Localization l)
             {
                 path = path["collections"];
 
                 var prefix = _settings.Discord.Prefix;
 
-                embed.AddField($"— {path["heading"][l]} —", $@"
+                embed.AddField($"— {path["heading"][l]} —",
+                               $@"
 - {prefix}collection list — {path["list"][l]}
 - {prefix}collection `name` — {path["view"][l]}
 - {prefix}collection `name` add `source` `id` — {path["add"][l]}
@@ -146,13 +158,16 @@ namespace nhitomi.Interactivity
 ".Trim());
             }
 
-            void OptionsSection(EmbedBuilder embed, LocalizationPath path, Localization l)
+            void OptionsSection(EmbedBuilder embed,
+                                LocalizationPath path,
+                                Localization l)
             {
                 path = path["options"];
 
                 var prefix = _settings.Discord.Prefix;
 
-                embed.AddField($"— {path["heading"][l]} —", $@"
+                embed.AddField($"— {path["heading"][l]} —",
+                               $@"
 - {prefix}option language `name` — {path["language"][l]}
 - {prefix}option filter `on or off` — {path["filter"][l]}
 
@@ -162,13 +177,16 @@ namespace nhitomi.Interactivity
 ".Trim());
             }
 
-            void ExamplesSection(EmbedBuilder embed, LocalizationPath path, Localization l)
+            void ExamplesSection(EmbedBuilder embed,
+                                 LocalizationPath path,
+                                 Localization l)
             {
                 path = path["examples"];
 
                 var prefix = _settings.Discord.Prefix;
 
-                embed.AddField($"— {path["heading"][l]} —", $@"
+                embed.AddField($"— {path["heading"][l]} —",
+                               $@"
 {path["doujins"][l]}:
 `{prefix}get nhentai 123`
 `{prefix}dl hitomi 12345`
@@ -185,35 +203,44 @@ namespace nhitomi.Interactivity
 ".Trim());
             }
 
-            static void LanguagesSection(EmbedBuilder embed, LocalizationPath path, Localization l)
+            static void LanguagesSection(EmbedBuilder embed,
+                                         LocalizationPath path,
+                                         Localization l)
             {
                 path = path["languages"];
 
                 var builder = new StringBuilder();
 
                 foreach (var localization in Localization.GetAllLocalizations())
+                {
                     builder.AppendLine($"- `{localization.Culture.Name}` " +
                                        $"— {localization.Culture.EnglishName} | {localization.Culture.NativeName}");
+                }
 
                 embed.AddField($"— {path["heading"][l]} —", builder.ToString());
             }
 
-            static void TranslationsSection(EmbedBuilder embed, LocalizationPath path, Localization l)
+            static void TranslationsSection(EmbedBuilder embed,
+                                            LocalizationPath path,
+                                            Localization l)
             {
                 path = path["translations"];
 
                 embed.AddField(
                     $"— {path["heading"][l]} —",
-                    path["text"][l, new {translators = new LocalizationPath()["meta.translators"][l]}]);
+                    path["text"][l, new { translators = new LocalizationPath()["meta.translators"][l] }]);
             }
 
-            static void OpenSourceSection(EmbedBuilder embed, LocalizationPath path, Localization l)
+            static void OpenSourceSection(EmbedBuilder embed,
+                                          LocalizationPath path,
+                                          Localization l)
             {
                 path = path["openSource"];
 
-                embed.AddField($"— {path["heading"][l]} —", $@"
+                embed.AddField($"— {path["heading"][l]} —",
+                               $@"
 {path["license"][l]}
-{path["contribution"][l, new {repoUrl = "https://github.com/chiyadev/nhitomi"}]}
+{path["contribution"][l, new { repoUrl = "https://github.com/chiyadev/nhitomi" }]}
 ".Trim());
             }
 

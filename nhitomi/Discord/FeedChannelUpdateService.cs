@@ -22,14 +22,15 @@ namespace nhitomi.Discord
         readonly DiscordService _discord;
         readonly ILogger<FeedChannelUpdateService> _logger;
 
-        public FeedChannelUpdateService(IOptions<AppSettings> options, IServiceProvider services,
-            DiscordService discord,
-            ILogger<FeedChannelUpdateService> logger)
+        public FeedChannelUpdateService(IOptions<AppSettings> options,
+                                        IServiceProvider services,
+                                        DiscordService discord,
+                                        ILogger<FeedChannelUpdateService> logger)
         {
             _settings = options.Value;
             _services = services;
-            _discord = discord;
-            _logger = logger;
+            _discord  = discord;
+            _logger   = logger;
         }
 
         public readonly ConcurrentDictionary<ulong, Task> UpdaterTasks = new ConcurrentDictionary<ulong, Task>();
@@ -46,13 +47,13 @@ namespace nhitomi.Discord
                 using (var scope = _services.CreateScope())
                 {
                     // get all feed channels
-                    var db = scope.ServiceProvider.GetRequiredService<IDatabase>();
+                    var db           = scope.ServiceProvider.GetRequiredService<IDatabase>();
                     var feedChannels = await db.GetFeedChannelsAsync(stoppingToken);
 
                     // start updater tasks for channels that aren't being updated
                     var tasks = feedChannels
-                        .Where(c => !UpdaterTasks.ContainsKey(c.Id))
-                        .Select(c => UpdaterTasks[c.Id] = RunChannelUpdateAsync(c.GuildId, c.Id, stoppingToken));
+                               .Where(c => !UpdaterTasks.ContainsKey(c.Id))
+                               .Select(c => UpdaterTasks[c.Id] = RunChannelUpdateAsync(c.GuildId, c.Id, stoppingToken));
 
                     foreach (var task in tasks)
                         _ = Task.Run(() => task, stoppingToken);
@@ -65,7 +66,9 @@ namespace nhitomi.Discord
 
         readonly DependencyFactory<FeedChannelUpdater> _updaterFactory = DependencyUtility<FeedChannelUpdater>.Factory;
 
-        async Task RunChannelUpdateAsync(ulong guildId, ulong channelId, CancellationToken cancellationToken = default)
+        async Task RunChannelUpdateAsync(ulong guildId,
+                                         ulong channelId,
+                                         CancellationToken cancellationToken = default)
         {
             while (true)
             {
@@ -93,7 +96,8 @@ namespace nhitomi.Discord
 
                         // failed to update channel because feed channel wasn't configured correctly
                         _logger.LogInformation("Feed channel {0} of guild {1} is unavailable.",
-                            channel.GuildId, channel.Id);
+                                               channel.GuildId,
+                                               channel.Id);
 
                         db.Remove(channel);
 
@@ -119,25 +123,28 @@ namespace nhitomi.Discord
             readonly InteractiveManager _interactive;
             readonly ILogger<FeedChannelUpdater> _logger;
 
-            public FeedChannelUpdater(IDatabase db, DiscordService discord, InteractiveManager interactive,
-                ILogger<FeedChannelUpdater> logger)
+            public FeedChannelUpdater(IDatabase db,
+                                      DiscordService discord,
+                                      InteractiveManager interactive,
+                                      ILogger<FeedChannelUpdater> logger)
             {
-                _db = db;
-                _discord = discord;
+                _db          = db;
+                _discord     = discord;
                 _interactive = interactive;
-                _logger = logger;
+                _logger      = logger;
             }
 
             const int _loadChunkSize = 10;
             const int _maxSendCount = 50;
 
-            public async Task<bool> UpdateAsync(FeedChannel channel, CancellationToken cancellationToken = default)
+            public async Task<bool> UpdateAsync(FeedChannel channel,
+                                                CancellationToken cancellationToken = default)
             {
                 // get discord channel
                 var context = new FeedUpdateContext
                 {
-                    Client = _discord,
-                    Channel = _discord.GetGuild(channel.GuildId)?.GetTextChannel(channel.Id),
+                    Client        = _discord,
+                    Channel       = _discord.GetGuild(channel.GuildId)?.GetTextChannel(channel.Id),
                     GuildSettings = channel.Guild
                 };
 
@@ -174,7 +181,8 @@ namespace nhitomi.Discord
                             false);
 
                         _logger.LogInformation("Sent feed update of doujin {0} '{1}'.",
-                            doujin.Id, doujin.OriginalName);
+                                               doujin.Id,
+                                               doujin.OriginalName);
                     }
 
                     channel.LastDoujin = doujin;
@@ -183,20 +191,21 @@ namespace nhitomi.Discord
                 // set last sent doujin to the latest value
                 channel.LastDoujin =
                     (await _db.GetDoujinsAsync(q => query(q).Take(1), cancellationToken))[0]
-                    ?? channel.LastDoujin;
+                 ?? channel.LastDoujin;
 
                 await _db.SaveAsync(cancellationToken);
 
                 _logger.LogInformation("Feed channel {0} is now at doujin {1}.",
-                    channel.Id, channel.LastDoujin.Id);
+                                       channel.Id,
+                                       channel.LastDoujin.Id);
 
                 return true;
 
                 IQueryable<Doujin> query(IQueryable<Doujin> q)
                 {
                     q = q
-                        .AsNoTracking()
-                        .Where(d => d.ProcessTime > channel.LastDoujin.ProcessTime);
+                       .AsNoTracking()
+                       .Where(d => d.ProcessTime > channel.LastDoujin.ProcessTime);
 
                     switch (channel.WhitelistType)
                     {

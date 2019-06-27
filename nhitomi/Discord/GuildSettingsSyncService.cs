@@ -52,14 +52,16 @@ namespace nhitomi.Discord
         readonly GuildSettingsCache _cache;
         readonly DiscordService _discord;
 
-        public GuildSettingsSyncService(IServiceProvider services, GuildSettingsCache cache, DiscordService discord)
+        public GuildSettingsSyncService(IServiceProvider services,
+                                        GuildSettingsCache cache,
+                                        DiscordService discord)
         {
             _services = services;
-            _cache = cache;
-            _discord = discord;
+            _cache    = cache;
+            _discord  = discord;
 
             _discord.GuildAvailable += RefreshGuildAsync;
-            _discord.JoinedGuild += RefreshGuildAsync;
+            _discord.JoinedGuild    += RefreshGuildAsync;
 
             foreach (var guild in discord.Guilds)
                 cache.RefreshQueue.Enqueue(guild.Id);
@@ -75,11 +77,8 @@ namespace nhitomi.Discord
             while (!stoppingToken.IsCancellationRequested)
             {
                 if (_cache.RefreshQueue.Count != 0)
-                {
-                    // process refresh queue
                     using (var scope = _services.CreateScope())
                         await _factory(scope.ServiceProvider).RunAsync(stoppingToken);
-                }
 
                 await Task.Delay(TimeSpan.FromSeconds(5), stoppingToken);
             }
@@ -97,10 +96,11 @@ namespace nhitomi.Discord
             readonly IDatabase _database;
             readonly GuildSettingsCache _cache;
 
-            public RefreshQueueProcessor(IDatabase database, GuildSettingsCache cache)
+            public RefreshQueueProcessor(IDatabase database,
+                                         GuildSettingsCache cache)
             {
                 _database = database;
-                _cache = cache;
+                _cache    = cache;
             }
 
             public async Task RunAsync(CancellationToken cancellationToken = default)
@@ -124,7 +124,7 @@ namespace nhitomi.Discord
             base.Dispose();
 
             _discord.GuildAvailable -= RefreshGuildAsync;
-            _discord.JoinedGuild -= RefreshGuildAsync;
+            _discord.JoinedGuild    -= RefreshGuildAsync;
         }
     }
 }

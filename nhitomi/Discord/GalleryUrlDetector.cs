@@ -26,13 +26,15 @@ namespace nhitomi.Discord
 
         readonly Regex _galleryRegex;
 
-        public GalleryUrlDetector(IOptions<AppSettings> options, InteractiveManager interactive,
-            IServiceProvider services, ILogger<GalleryUrlDetector> logger)
+        public GalleryUrlDetector(IOptions<AppSettings> options,
+                                  InteractiveManager interactive,
+                                  IServiceProvider services,
+                                  ILogger<GalleryUrlDetector> logger)
         {
-            _settings = options.Value;
+            _settings    = options.Value;
             _interactive = interactive;
-            _services = services;
-            _logger = logger;
+            _services    = services;
+            _logger      = logger;
 
             // build gallery regex to match all known formats
             _galleryRegex = new Regex(
@@ -44,15 +46,14 @@ namespace nhitomi.Discord
 
         Task IMessageHandler.InitializeAsync(CancellationToken cancellationToken) => Task.CompletedTask;
 
-        public async Task<bool> TryHandleAsync(IMessageContext context, CancellationToken cancellationToken = default)
+        public async Task<bool> TryHandleAsync(IMessageContext context,
+                                               CancellationToken cancellationToken = default)
         {
             switch (context.Event)
             {
-                case MessageEvent.Create:
-                    break;
+                case MessageEvent.Create: break;
 
-                default:
-                    return false;
+                default: return false;
             }
 
             var content = context.Message.Content;
@@ -67,11 +68,11 @@ namespace nhitomi.Discord
 
             // match gallery urls
             var ids = _galleryRegex
-                .Matches(content)
-                .SelectMany(m => m.Groups)
-                .Where(g => g.Success && g.Name != null && g.Name.StartsWith("source_"))
-                .Select(g => (g.Name.Split('_', 2)[1], g.Value))
-                .ToArray();
+                     .Matches(content)
+                     .SelectMany(m => m.Groups)
+                     .Where(g => g.Success && g.Name != null && g.Name.StartsWith("source_"))
+                     .Select(g => (g.Name.Split('_', 2)[1], g.Value))
+                     .ToArray();
 
             if (_logger.IsEnabled(LogLevel.Debug))
                 _logger.LogDebug($"Matched galleries: {string.Join(", ", ids.Select((s, i) => $"{s}/{i}"))}");
@@ -89,21 +90,17 @@ namespace nhitomi.Discord
                     using (var scope = _services.CreateScope())
                     {
                         doujin = await scope.ServiceProvider
-                            .GetRequiredService<IDatabase>()
-                            .GetDoujinAsync(source, id, cancellationToken);
+                                            .GetRequiredService<IDatabase>()
+                                            .GetDoujinAsync(source, id, cancellationToken);
                     }
 
                     if (doujin == null)
-                    {
                         await context.ReplyAsync("doujinNotFound");
-                    }
                     else
-                    {
                         await _interactive.SendInteractiveAsync(
                             new DoujinMessage(doujin),
                             context,
                             cancellationToken);
-                    }
                 }
 
                 // send as a list
@@ -140,7 +137,7 @@ namespace nhitomi.Discord
                 }
 
                 protected override Task<Doujin[]> GetValuesAsync(int offset,
-                    CancellationToken cancellationToken = default) =>
+                                                                 CancellationToken cancellationToken = default) =>
                     _db.GetDoujinsAsync(Message._ids.Skip(offset).Take(10).ToArray());
             }
         }

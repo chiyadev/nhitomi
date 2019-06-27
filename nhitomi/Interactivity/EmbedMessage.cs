@@ -20,7 +20,8 @@ namespace nhitomi.Interactivity
         /// </summary>
         IUserMessage Message { get; }
 
-        Task<bool> UpdateViewAsync(IServiceProvider services, CancellationToken cancellationToken = default);
+        Task<bool> UpdateViewAsync(IServiceProvider services,
+                                   CancellationToken cancellationToken = default);
     }
 
     public abstract class EmbedMessage<TView> : IEmbedMessage
@@ -32,7 +33,7 @@ namespace nhitomi.Interactivity
         static readonly DependencyFactory<TView> _viewFactory = DependencyUtility<TView>.Factory;
 
         public virtual Task<bool> UpdateViewAsync(IServiceProvider services,
-            CancellationToken cancellationToken = default)
+                                                  CancellationToken cancellationToken = default)
         {
             // create view object
             var view = _viewFactory(services);
@@ -52,11 +53,12 @@ namespace nhitomi.Interactivity
 
             public abstract Task<bool> UpdateAsync(CancellationToken cancellationToken = default);
 
-            protected async Task SetMessageAsync(string localizationKey, object variables = null,
-                CancellationToken cancellationToken = default)
+            protected async Task SetMessageAsync(string localizationKey,
+                                                 object variables = null,
+                                                 CancellationToken cancellationToken = default)
             {
                 var path = new LocalizationPath(localizationKey);
-                var l = Context.GetLocalization();
+                var l    = Context.GetLocalization();
 
                 if (Message.Message == null)
                     Message.Message = await Context.Channel.SendMessageAsync(path[l, variables]);
@@ -64,14 +66,15 @@ namespace nhitomi.Interactivity
                     await Message.Message.ModifyAsync(m => m.Content = path[l, variables]);
             }
 
-            protected async Task SetEmbedAsync(Embed embed, CancellationToken cancellationToken = default)
+            protected async Task SetEmbedAsync(Embed embed,
+                                               CancellationToken cancellationToken = default)
             {
                 if (Message.Message == null)
                     Message.Message = await Context.Channel.SendMessageAsync(embed: embed);
                 else
                     await Message.Message.ModifyAsync(m =>
                     {
-                        m.Embed = embed;
+                        m.Embed   = embed;
                         m.Content = null;
                     });
             }

@@ -15,16 +15,17 @@ namespace nhitomi
             if (constructor == null)
                 throw new ArgumentException($"{type} does not have an injectable constructor");
 
-            var parameters = constructor
-                .GetParameters()
-                .Select(p => new
-                {
-                    name = p.Name,
-                    optional = p.IsOptional,
-                    defaultValue = p.DefaultValue,
-                    type = p.ParameterType
-                })
-                .ToArray();
+            var parameters =
+                constructor
+                   .GetParameters()
+                   .Select(p => new
+                    {
+                        name         = p.Name,
+                        optional     = p.IsOptional,
+                        defaultValue = p.DefaultValue,
+                        type         = p.ParameterType
+                    })
+                   .ToArray();
 
             return s =>
             {
@@ -33,7 +34,7 @@ namespace nhitomi
                 for (var i = 0; i < arguments.Length; i++)
                 {
                     var parameter = parameters[i];
-                    var argument = s.GetService(parameter.type);
+                    var argument  = s.GetService(parameter.type);
 
                     if (argument == null)
                     {

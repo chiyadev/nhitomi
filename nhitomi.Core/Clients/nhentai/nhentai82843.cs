@@ -9,11 +9,11 @@ namespace nhitomi.Core.Clients.nhentai
 
         public override DoujinInfo KnownValue { get; } = new DoujinInfo
         {
-            PrettyName = "Kami-sama o Chikan",
+            PrettyName   = "Kami-sama o Chikan",
             OriginalName = "神様を痴漢",
-            UploadTime = DateTime.Parse("2014-06-28T23:14:15+00:00").ToUniversalTime(),
-            SourceId = "82843",
-            Parody = "the world god only knows",
+            UploadTime   = DateTime.Parse("2014-06-28T23:14:15+00:00").ToUniversalTime(),
+            SourceId     = "82843",
+            Parody       = "the world god only knows",
             Characters = new[]
             {
                 "keima katsuragi"
@@ -28,9 +28,9 @@ namespace nhitomi.Core.Clients.nhentai
                 "crossdressing",
                 "chikan"
             },
-            Artist = "tomekichi",
-            Group = "tottototomekichi",
-            Language = "japanese",
+            Artist    = "tomekichi",
+            Group     = "tottototomekichi",
+            Language  = "japanese",
             PageCount = 26
         };
     }

@@ -17,12 +17,13 @@ namespace nhitomi.Discord
         readonly AppSettings _settings;
         readonly ILogger<CommandExecutor> _logger;
 
-        public CommandExecutor(IServiceProvider services, IOptions<AppSettings> options,
-            ILogger<CommandExecutor> logger)
+        public CommandExecutor(IServiceProvider services,
+                               IOptions<AppSettings> options,
+                               ILogger<CommandExecutor> logger)
         {
             _services = services;
             _settings = options.Value;
-            _logger = logger;
+            _logger   = logger;
         }
 
         readonly List<CommandInfo> _commands = new List<CommandInfo>();
@@ -30,14 +31,17 @@ namespace nhitomi.Discord
         public Task InitializeAsync(CancellationToken cancellationToken = default)
         {
             // load commands
-            _commands.AddRange(typeof(Startup).Assembly
-                .GetTypes()
-                .Where(t => !t.IsAbstract && t.IsClass)
-                .SelectMany(t => t.GetMethods())
-                .Where(t => t.GetCustomAttribute<CommandAttribute>() != null)
-                .OrderBy(t => t.Name)
-                .ThenByDescending(t => t.GetParameters().Length) // prioritize specific commands
-                .Select(t => new CommandInfo(t)));
+            _commands.AddRange(
+                typeof(Startup)
+                   .Assembly
+                   .GetTypes()
+                   .Where(t => !t.IsAbstract && t.IsClass)
+                   .SelectMany(t => t.GetMethods())
+                   .Where(t => t.GetCustomAttribute<CommandAttribute>() != null)
+                   .OrderBy(t => t.Name)
+                   .ThenByDescending(
+                        t => t.GetParameters().Length) // prioritize specific commands
+                   .Select(t => new CommandInfo(t)));
 
             if (_logger.IsEnabled(LogLevel.Debug))
                 _logger.LogDebug($"Loaded commands: '{string.Join("', '", _commands.Select(c => c.FullName))}'");
@@ -45,29 +49,32 @@ namespace nhitomi.Discord
             return Task.CompletedTask;
         }
 
-        bool TryParseCommand(string str, out CommandInfo command, out Dictionary<string, object> args)
+        bool TryParseCommand(string str,
+                             out CommandInfo command,
+                             out Dictionary<string, object> args)
         {
             foreach (var c in _commands)
+            {
                 if (c.TryParse(str, out args))
                 {
                     command = c;
                     return true;
                 }
+            }
 
             command = null;
-            args = null;
+            args    = null;
             return false;
         }
 
-        public async Task<bool> TryHandleAsync(IMessageContext context, CancellationToken cancellationToken = default)
+        public async Task<bool> TryHandleAsync(IMessageContext context,
+                                               CancellationToken cancellationToken = default)
         {
             switch (context.Event)
             {
-                case MessageEvent.Create:
-                    break;
+                case MessageEvent.Create: break;
 
-                default:
-                    return false;
+                default: return false;
             }
 
             var content = context.Message.Content;
@@ -86,8 +93,8 @@ namespace nhitomi.Discord
             {
                 var services = new ServiceDictionary(scope.ServiceProvider)
                 {
-                    {typeof(IDiscordContext), context},
-                    {typeof(IMessageContext), context}
+                    { typeof(IDiscordContext), context },
+                    { typeof(IMessageContext), context }
                 };
 
                 // invoke command

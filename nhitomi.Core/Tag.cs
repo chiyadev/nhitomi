@@ -19,7 +19,8 @@ namespace nhitomi.Core
 
     public class Tag
     {
-        [Key] public int Id { get; set; }
+        [Key]
+        public int Id { get; set; }
 
         /// <summary>
         /// The identifier by which this tag should be referred.
@@ -28,7 +29,8 @@ namespace nhitomi.Core
 
         public TagType Type { get; set; }
 
-        [Required, MaxLength(128)] public string Value { get; set; }
+        [Required, MaxLength(128)]
+        public string Value { get; set; }
 
         public ICollection<TagRef> Doujins { get; set; }
 
@@ -51,7 +53,7 @@ namespace nhitomi.Core
 
             model.Entity<TagRef>(join =>
             {
-                join.HasKey(x => new {x.DoujinId, x.TagId});
+                join.HasKey(x => new { x.DoujinId, x.TagId });
 
                 join.HasOne(x => x.Doujin)
                     .WithMany(d => d.Tags)
@@ -75,15 +77,14 @@ namespace nhitomi.Core
         public int TagId { get; set; }
         public Tag Tag { get; set; }
 
-        public TagRef()
-        {
-        }
+        public TagRef() { }
 
-        public TagRef(TagType type, string value)
+        public TagRef(TagType type,
+                      string value)
         {
             Tag = new Tag
             {
-                Type = type,
+                Type  = type,
                 Value = value
             };
         }

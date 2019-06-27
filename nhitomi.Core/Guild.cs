@@ -6,7 +6,8 @@ namespace nhitomi.Core
 {
     public class Guild
     {
-        [Key] public ulong Id { get; set; }
+        [Key]
+        public ulong Id { get; set; }
 
         public string Language { get; set; }
 
@@ -14,8 +15,6 @@ namespace nhitomi.Core
 
         public ICollection<FeedChannel> FeedChannels { get; set; }
 
-        public static void Describe(ModelBuilder model)
-        {
-        }
+        public static void Describe(ModelBuilder model) { }
     }
 }

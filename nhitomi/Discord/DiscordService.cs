@@ -114,15 +114,20 @@ namespace nhitomi.Discord
 
         public static IDisposable BeginTyping(this IDiscordContext context) => context.Channel.EnterTypingState();
 
-        public static Task ReplyAsync(this IDiscordContext context, IMessageChannel channel, string localizationKey,
-            object variables = null) =>
-            channel.SendMessageAsync(new LocalizationPath(localizationKey)[context.GetLocalization(), variables]);
+        public static Task ReplyAsync(this IDiscordContext context,
+                                      IMessageChannel channel,
+                                      string localizationKey,
+                                      object variables = null) => channel.SendMessageAsync(
+            new LocalizationPath(localizationKey)[context.GetLocalization(), variables]);
 
-        public static Task ReplyAsync(this IDiscordContext context, string localizationKey, object variables = null) =>
+        public static Task ReplyAsync(this IDiscordContext context,
+                                      string localizationKey,
+                                      object variables = null) =>
             context.ReplyAsync(context.Channel, localizationKey, variables);
 
-        public static async Task ReplyDmAsync(this IDiscordContext context, string localizationKey,
-            object variables = null) =>
+        public static async Task ReplyDmAsync(this IDiscordContext context,
+                                              string localizationKey,
+                                              object variables = null) =>
             await context.ReplyAsync(await context.User.GetOrCreateDMChannelAsync(), localizationKey, variables);
     }
 }

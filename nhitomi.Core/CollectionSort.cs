@@ -20,7 +20,9 @@ namespace nhitomi.Core
 
     public static class CollectionSortExtensions
     {
-        public static IQueryable<Doujin> OrderBy(this IQueryable<Doujin> queryable, CollectionSort sort, bool descend)
+        public static IQueryable<Doujin> OrderBy(this IQueryable<Doujin> queryable,
+                                                 CollectionSort sort,
+                                                 bool descend)
         {
             switch (sort)
             {
@@ -37,24 +39,34 @@ namespace nhitomi.Core
                     queryable = queryable.OrderBy(d => d.PrettyName).ThenBy(d => d.OriginalName);
                     break;
                 case CollectionSort.Artist:
+
                     queryable = queryable
-                        .OrderBy(d => d.Tags.Select(t => t.Tag).First(t => t.Type == TagType.Artist));
+                       .OrderBy(d => d.Tags.Select(t => t.Tag).First(t => t.Type == TagType.Artist));
+
                     break;
                 case CollectionSort.Group:
+
                     queryable = queryable
-                        .OrderBy(d => d.Tags.Select(t => t.Tag).First(t => t.Type == TagType.Group));
+                       .OrderBy(d => d.Tags.Select(t => t.Tag).First(t => t.Type == TagType.Group));
+
                     break;
                 case CollectionSort.Scanlator:
+
                     queryable = queryable
-                        .OrderBy(d => d.Tags.Select(t => t.Tag).First(t => t.Type == TagType.Scanlator));
+                       .OrderBy(d => d.Tags.Select(t => t.Tag).First(t => t.Type == TagType.Scanlator));
+
                     break;
                 case CollectionSort.Language:
+
                     queryable = queryable
-                        .OrderBy(d => d.Tags.Select(t => t.Tag).First(t => t.Type == TagType.Language));
+                       .OrderBy(d => d.Tags.Select(t => t.Tag).First(t => t.Type == TagType.Language));
+
                     break;
                 case CollectionSort.Parody:
+
                     queryable = queryable
-                        .OrderBy(d => d.Tags.Select(t => t.Tag).First(t => t.Type == TagType.Parody));
+                       .OrderBy(d => d.Tags.Select(t => t.Tag).First(t => t.Type == TagType.Parody));
+
                     break;
             }
 
