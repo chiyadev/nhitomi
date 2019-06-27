@@ -19,7 +19,8 @@ namespace nhitomi.Core
 
     public class FeedChannel
     {
-        [Key] public ulong Id { get; set; }
+        [Key]
+        public ulong Id { get; set; }
 
         public Guild Guild { get; set; }
         public ulong GuildId { get; set; }
@@ -35,20 +36,18 @@ namespace nhitomi.Core
         {
             model.Entity<FeedChannel>(channel =>
             {
-                channel
-                    .HasOne(c => c.LastDoujin)
-                    .WithMany(d => d.FeedChannels)
-                    .HasForeignKey(c => c.LastDoujinId);
+                channel.HasOne(c => c.LastDoujin)
+                       .WithMany(d => d.FeedChannels)
+                       .HasForeignKey(c => c.LastDoujinId);
 
-                channel
-                    .HasOne(c => c.Guild)
-                    .WithMany(g => g.FeedChannels)
-                    .HasForeignKey(c => c.GuildId);
+                channel.HasOne(c => c.Guild)
+                       .WithMany(g => g.FeedChannels)
+                       .HasForeignKey(c => c.GuildId);
             });
 
             model.Entity<FeedChannelTag>(join =>
             {
-                join.HasKey(x => new {x.FeedChannelId, x.TagId});
+                join.HasKey(x => new { x.FeedChannelId, x.TagId });
 
                 join.HasOne(x => x.FeedChannel)
                     .WithMany(c => c.Tags)

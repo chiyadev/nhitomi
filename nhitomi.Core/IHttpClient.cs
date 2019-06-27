@@ -8,6 +8,7 @@ namespace nhitomi.Core
     {
         HttpClient Http { get; }
 
-        Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken = default);
+        Task<HttpResponseMessage> SendAsync(HttpRequestMessage request,
+                                            CancellationToken cancellationToken = default);
     }
 }

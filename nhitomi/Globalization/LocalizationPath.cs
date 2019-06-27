@@ -9,13 +9,9 @@ namespace nhitomi.Globalization
     {
         readonly string[] _levels;
 
-        public LocalizationPath(params string[] paths) : this((IEnumerable<string>) paths)
-        {
-        }
+        public LocalizationPath(params string[] paths) : this((IEnumerable<string>) paths) { }
 
-        public LocalizationPath(IEnumerable<string> paths) : this(string.Join('.', paths))
-        {
-        }
+        public LocalizationPath(IEnumerable<string> paths) : this(string.Join('.', paths)) { }
 
         public LocalizationPath(string path)
         {
@@ -28,7 +24,8 @@ namespace nhitomi.Globalization
 
         string FullPath => string.Join('.', _levels);
 
-        public string this[Localization localization, object variables = null]
+        public string this[Localization localization,
+                           object variables = null]
         {
             get
             {

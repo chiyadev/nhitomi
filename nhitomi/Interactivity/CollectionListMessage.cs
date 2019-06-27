@@ -39,7 +39,7 @@ namespace nhitomi.Interactivity
             }
 
             protected override Task<Collection[]> GetValuesAsync(int offset,
-                CancellationToken cancellationToken = default) =>
+                                                                 CancellationToken cancellationToken = default) =>
                 offset == 0
                     ? _db.GetCollectionsAsync(Message._userId, cancellationToken)
                     : Task.FromResult(new Collection[0]);
@@ -47,11 +47,11 @@ namespace nhitomi.Interactivity
             protected override Embed CreateEmbed(Collection collection)
             {
                 var path = new LocalizationPath("collectionMessage");
-                var l = Context.GetLocalization();
+                var l    = Context.GetLocalization();
 
                 var embed = new EmbedBuilder()
-                    .WithTitle(path["title"][l, new {context = Context, collection}])
-                    .WithColor(Color.Teal);
+                           .WithTitle(path["title"][l, new { context = Context, collection }])
+                           .WithColor(Color.Teal);
 
                 if (collection.Doujins.Count == 0)
                 {
@@ -64,8 +64,8 @@ namespace nhitomi.Interactivity
                     embed.ThumbnailUrl = $"https://nhitomi.chiya.dev/api/v1/images/{first}/-1";
                 }
 
-                embed.AddField(path["sort"][l], path["sortValues"][collection.Sort.ToString()][l]);
-                embed.AddField(path["contents"][l], path["contentsValue"][l, new {collection}]);
+                embed.AddField(path["sort"][l],     path["sortValues"][collection.Sort.ToString()][l]);
+                embed.AddField(path["contents"][l], path["contentsValue"][l, new { collection }]);
 
                 return embed.Build();
             }
@@ -73,13 +73,13 @@ namespace nhitomi.Interactivity
             protected override Embed CreateEmptyEmbed()
             {
                 var path = new LocalizationPath("collectionMessage.empty");
-                var l = Context.GetLocalization();
+                var l    = Context.GetLocalization();
 
                 return new EmbedBuilder()
-                    .WithTitle(path["title"][l, new {context = Context}])
-                    .WithColor(Color.Teal)
-                    .WithDescription(path["text"][l, new {context = Context}])
-                    .Build();
+                      .WithTitle(path["title"][l, new { context = Context }])
+                      .WithColor(Color.Teal)
+                      .WithDescription(path["text"][l, new { context = Context }])
+                      .Build();
             }
         }
     }

@@ -17,14 +17,17 @@ namespace nhitomi.Core.Clients.nhentai
         public static string Gallery(int id) => $"https://nhentai.net/api/gallery/{id}";
         public static string All(int index = 0) => $"https://nhentai.net/api/galleries/all?page={index + 1}";
 
-        public static string Search(string query, int index = 0) =>
+        public static string Search(string query,
+                                    int index = 0) =>
             $"https://nhentai.net/api/galleries/search?query={query}&page={index + 1}";
 
-        public static string Image(int mediaId, int index, string ext) =>
-            $"https://i.nhentai.net/galleries/{mediaId}/{index + 1}.{ext}";
+        public static string Image(int mediaId,
+                                   int index,
+                                   string ext) => $"https://i.nhentai.net/galleries/{mediaId}/{index + 1}.{ext}";
 
-        public static string ThumbImage(int mediaId, int index, string ext) =>
-            $"https://t.nhentai.net/galleries/{mediaId}/{index + 1}t.{ext}";
+        public static string ThumbImage(int mediaId,
+                                        int index,
+                                        string ext) => $"https://t.nhentai.net/galleries/{mediaId}/{index + 1}t.{ext}";
 
         public sealed class DoujinData
         {
@@ -80,27 +83,32 @@ namespace nhitomi.Core.Clients.nhentai
         readonly JsonSerializer _serializer;
         readonly ILogger<nhentaiClient> _logger;
 
-        public nhentaiClient(IHttpClient http, JsonSerializer serializer, ILogger<nhentaiClient> logger)
+        public nhentaiClient(IHttpClient http,
+                             JsonSerializer serializer,
+                             ILogger<nhentaiClient> logger)
         {
-            _http = http;
+            _http       = http;
             _serializer = serializer;
-            _logger = logger;
+            _logger     = logger;
         }
 
         public static string GetGalleryUrl(Doujin doujin) => $"https://nhentai.net/g/{doujin.SourceId}/";
 
-        public async Task<DoujinInfo> GetAsync(string id, CancellationToken cancellationToken = default)
+        public async Task<DoujinInfo> GetAsync(string id,
+                                               CancellationToken cancellationToken = default)
         {
             if (!int.TryParse(id, out var intId))
                 return null;
 
             nhentai.DoujinData data;
 
-            using (var response = await _http.SendAsync(new HttpRequestMessage
-            {
-                Method = HttpMethod.Get,
-                RequestUri = new Uri(nhentai.Gallery(intId))
-            }, cancellationToken))
+            using (var response = await _http.SendAsync(
+                new HttpRequestMessage
+                {
+                    Method     = HttpMethod.Get,
+                    RequestUri = new Uri(nhentai.Gallery(intId))
+                },
+                cancellationToken))
             {
                 if (!response.IsSuccessStatusCode)
                     return null;
@@ -112,27 +120,27 @@ namespace nhitomi.Core.Clients.nhentai
 
             return new DoujinInfo
             {
-                PrettyName = FixTitle(data.Title.Pretty),
+                PrettyName   = FixTitle(data.Title.Pretty),
                 OriginalName = FixTitle(data.Title.Japanese),
 
                 UploadTime = DateTimeOffset.FromUnixTimeSeconds(data.UploadDate).UtcDateTime,
 
-                Source = this,
+                Source   = this,
                 SourceId = id,
 
-                Artist = data.Tags?.FirstOrDefault(t => t.Type == "artist").Name,
-                Group = data.Tags?.FirstOrDefault(t => t.Type == "group").Name,
+                Artist    = data.Tags?.FirstOrDefault(t => t.Type == "artist").Name,
+                Group     = data.Tags?.FirstOrDefault(t => t.Type == "group").Name,
                 Scanlator = string.IsNullOrWhiteSpace(data.Scanlator) ? null : data.Scanlator,
-                Language = data.Tags?.FirstOrDefault(t => t.Type == "language" && t.Name != "translated").Name,
-                Parody = data.Tags?.FirstOrDefault(t => t.Type == "parody" && t.Name != "original").Name,
+                Language  = data.Tags?.FirstOrDefault(t => t.Type == "language" && t.Name != "translated").Name,
+                Parody    = data.Tags?.FirstOrDefault(t => t.Type == "parody" && t.Name != "original").Name,
 
                 Characters = data.Tags?.Where(t => t.Type == "character").Select(t => t.Name),
                 Categories = data.Tags?.Where(t => t.Type == "category" && t.Name != "doujinshi").Select(t => t.Name),
-                Tags = data.Tags?.Where(t => t.Type == "tag").Select(t => t.Name),
+                Tags       = data.Tags?.Where(t => t.Type == "tag").Select(t => t.Name),
 
                 Data = _serializer.Serialize(new InternalDoujinData
                 {
-                    MediaId = data.MediaId,
+                    MediaId    = data.MediaId,
                     Extensions = new string(data.Images.Pages.Select(p => p.T).ToArray())
                 }),
                 PageCount = data.Images.Pages.Length
@@ -141,7 +149,7 @@ namespace nhitomi.Core.Clients.nhentai
 
         // regex to match () and [] in titles
         static readonly Regex _bracketsRegex = new Regex(@"\([^)]*\)|\[[^\]]*\]",
-            RegexOptions.Compiled | RegexOptions.Singleline);
+                                                         RegexOptions.Compiled | RegexOptions.Singleline);
 
         static string FixTitle(string japanese)
         {
@@ -161,16 +169,18 @@ namespace nhitomi.Core.Clients.nhentai
         }
 
         public async Task<IEnumerable<string>> EnumerateAsync(string startId = null,
-            CancellationToken cancellationToken = default)
+                                                              CancellationToken cancellationToken = default)
         {
             int latestId;
 
             // get the latest doujin id
-            using (var response = await _http.SendAsync(new HttpRequestMessage
-            {
-                Method = HttpMethod.Get,
-                RequestUri = new Uri(nhentai.All(0))
-            }, cancellationToken))
+            using (var response = await _http.SendAsync(
+                new HttpRequestMessage
+                {
+                    Method     = HttpMethod.Get,
+                    RequestUri = new Uri(nhentai.All(0))
+                },
+                cancellationToken))
             {
                 if (!response.IsSuccessStatusCode)
                     return null;
@@ -178,9 +188,13 @@ namespace nhitomi.Core.Clients.nhentai
                 using (var textReader = new StringReader(await response.Content.ReadAsStringAsync()))
                 using (var jsonReader = new JsonTextReader(textReader))
                 {
-                    latestId = _serializer.Deserialize<nhentai.ListData>(jsonReader).Results
-                        .OrderByDescending(d => d.Id)
-                        .First().Id;
+                    latestId =
+                        _serializer
+                           .Deserialize<nhentai.ListData>(jsonReader)
+                           .Results
+                           .OrderByDescending(d => d.Id)
+                           .First()
+                           .Id;
                 }
             }
 
@@ -189,7 +203,8 @@ namespace nhitomi.Core.Clients.nhentai
             return EnumerateIds(oldestId, latestId);
         }
 
-        static IEnumerable<string> EnumerateIds(int oldest, int latest)
+        static IEnumerable<string> EnumerateIds(int oldest,
+                                                int latest)
         {
             // assume all doujins are available
             for (var i = oldest; i <= latest; i++)
@@ -211,14 +226,11 @@ namespace nhitomi.Core.Clients.nhentai
             }
         }
 
-        public void InitializeImageRequest(Doujin doujin, HttpRequestMessage message)
-        {
-        }
+        public void InitializeImageRequest(Doujin doujin,
+                                           HttpRequestMessage message) { }
 
         static string FixExtension(char ext) => ext == 'p' ? "png" : "jpg";
 
-        public void Dispose()
-        {
-        }
+        public void Dispose() { }
     }
 }

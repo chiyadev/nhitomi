@@ -24,7 +24,7 @@ namespace nhitomi.Interactivity
         protected abstract IEnumerable<IReactionTrigger> CreateTriggers();
 
         public override async Task<bool> UpdateViewAsync(IServiceProvider services,
-            CancellationToken cancellationToken = default)
+                                                         CancellationToken cancellationToken = default)
         {
             try
             {
@@ -33,7 +33,7 @@ namespace nhitomi.Interactivity
             }
             catch (ObjectDisposedException)
             {
-                // message may have been deleted
+                // message was deleted
                 return false;
             }
 
@@ -56,13 +56,17 @@ namespace nhitomi.Interactivity
             }
             finally
             {
-                _semaphore.Release();
+                try
+                {
+                    _semaphore.Release();
+                }
+                catch (ObjectDisposedException)
+                {
+                    // message was deleted
+                }
             }
         }
 
-        public virtual void Dispose()
-        {
-            _semaphore.Dispose();
-        }
+        public virtual void Dispose() => _semaphore.Dispose();
     }
 }

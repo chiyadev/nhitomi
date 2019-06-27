@@ -17,7 +17,9 @@ namespace nhitomi.Http
         readonly ProxyHandler _proxyHandler;
         readonly ILogger<HttpService> _logger;
 
-        public HttpService(IOptions<AppSettings> options, ProxyHandler proxyHandler, ILogger<HttpService> logger)
+        public HttpService(IOptions<AppSettings> options,
+                           ProxyHandler proxyHandler,
+                           ILogger<HttpService> logger)
         {
             // use PORT envvar or 80
             var port = int.TryParse(Environment.GetEnvironmentVariable("PORT"), out var p) ? p : 80;
@@ -26,14 +28,15 @@ namespace nhitomi.Http
             _listener = new HttpListener();
             _listener.Prefixes.Add($"http://*:{port}/");
 
-            _settings = options.Value;
+            _settings     = options.Value;
             _proxyHandler = proxyHandler;
-            _logger = logger;
+            _logger       = logger;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             _listener.Start();
+
             try
             {
                 while (!stoppingToken.IsCancellationRequested)
@@ -57,9 +60,10 @@ namespace nhitomi.Http
             }
         }
 
-        async Task HandleRequestAsync(HttpListenerContext context, CancellationToken cancellationToken = default)
+        async Task HandleRequestAsync(HttpListenerContext context,
+                                      CancellationToken cancellationToken = default)
         {
-            var request = context.Request;
+            var request  = context.Request;
             var response = context.Response;
 
             try
@@ -78,7 +82,7 @@ namespace nhitomi.Http
                 }
 
                 // not found
-                response.StatusCode = 400;
+                response.StatusCode  = 400;
                 response.ContentType = "text/plain";
 
                 using (var writer = new StreamWriter(response.OutputStream))

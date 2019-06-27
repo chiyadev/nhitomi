@@ -16,7 +16,8 @@ namespace nhitomi.Discord
     {
         Task InitializeAsync(CancellationToken cancellationToken = default);
 
-        Task<bool> TryHandleAsync(IReactionContext context, CancellationToken cancellationToken = default);
+        Task<bool> TryHandleAsync(IReactionContext context,
+                                  CancellationToken cancellationToken = default);
     }
 
     public interface IReactionContext : IDiscordContext
@@ -41,14 +42,16 @@ namespace nhitomi.Discord
         readonly IReactionHandler[] _reactionHandlers;
 
         [SuppressMessage("ReSharper", "SuggestBaseTypeForParameter")]
-        public ReactionHandlerService(DiscordService discord, GuildSettingsCache guildSettingsCache,
-            DiscordErrorReporter errorReporter, ILogger<ReactionHandlerService> logger,
-            InteractiveManager interactiveManager)
+        public ReactionHandlerService(DiscordService discord,
+                                      GuildSettingsCache guildSettingsCache,
+                                      DiscordErrorReporter errorReporter,
+                                      ILogger<ReactionHandlerService> logger,
+                                      InteractiveManager interactiveManager)
         {
-            _discord = discord;
+            _discord            = discord;
             _guildSettingsCache = guildSettingsCache;
-            _errorReporter = errorReporter;
-            _logger = logger;
+            _errorReporter      = errorReporter;
+            _logger             = logger;
 
             _reactionHandlers = new IReactionHandler[]
             {
@@ -62,33 +65,34 @@ namespace nhitomi.Discord
 
             await Task.WhenAll(_reactionHandlers.Select(h => h.InitializeAsync(cancellationToken)));
 
-            _discord.ReactionAdded += ReactionAdded;
+            _discord.ReactionAdded   += ReactionAdded;
             _discord.ReactionRemoved += ReactionRemoved;
         }
 
-
         public Task StopAsync(CancellationToken cancellationToken)
         {
-            _discord.ReactionAdded -= ReactionAdded;
+            _discord.ReactionAdded   -= ReactionAdded;
             _discord.ReactionRemoved -= ReactionRemoved;
 
             return Task.CompletedTask;
         }
 
-        Task ReactionAdded(Cacheable<IUserMessage, ulong> _, IMessageChannel channel, SocketReaction reaction) =>
-            HandleReactionAsync(channel, reaction, ReactionEvent.Add);
+        Task ReactionAdded(Cacheable<IUserMessage, ulong> _,
+                           IMessageChannel channel,
+                           SocketReaction reaction) => HandleReactionAsync(channel, reaction, ReactionEvent.Add);
 
-        Task ReactionRemoved(Cacheable<IUserMessage, ulong> _, IMessageChannel channel, SocketReaction reaction) =>
-            HandleReactionAsync(channel, reaction, ReactionEvent.Remove);
+        Task ReactionRemoved(Cacheable<IUserMessage, ulong> _,
+                             IMessageChannel channel,
+                             SocketReaction reaction) => HandleReactionAsync(channel, reaction, ReactionEvent.Remove);
 
         public readonly AtomicCounter HandledReactions = new AtomicCounter();
         public readonly AtomicCounter ReceivedReactions = new AtomicCounter();
 
-        Task HandleReactionAsync(IMessageChannel channel, SocketReaction reaction, ReactionEvent eventType)
+        Task HandleReactionAsync(IMessageChannel channel,
+                                 SocketReaction reaction,
+                                 ReactionEvent eventType)
         {
             if (reaction.UserId != _discord.CurrentUser.Id)
-            {
-                // handle on another thread to not block the gateway thread
                 _ = Task.Run(async () =>
                 {
                     // retrieve message
@@ -102,22 +106,24 @@ namespace nhitomi.Discord
                     // create context
                     var context = new ReactionContext
                     {
-                        Client = _discord,
-                        Message = message,
-                        User = user,
+                        Client        = _discord,
+                        Message       = message,
+                        User          = user,
                         GuildSettings = _guildSettingsCache[message.Channel],
-                        Reaction = reaction,
-                        Event = eventType
+                        Reaction      = reaction,
+                        Event         = eventType
                     };
 
                     try
                     {
                         foreach (var handler in _reactionHandlers)
+                        {
                             if (await handler.TryHandleAsync(context))
                             {
                                 HandledReactions.Increment();
                                 break;
                             }
+                        }
                     }
                     catch (Exception e)
                     {
@@ -128,7 +134,6 @@ namespace nhitomi.Discord
                         ReceivedReactions.Increment();
                     }
                 });
-            }
 
             return Task.CompletedTask;
         }

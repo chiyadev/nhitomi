@@ -12,10 +12,11 @@ namespace nhitomi.Discord
         readonly DiscordService _discord;
         readonly ILogger _logger;
 
-        public LogHandlerService(DiscordService discord, ILoggerFactory loggerFactory)
+        public LogHandlerService(DiscordService discord,
+                                 ILoggerFactory loggerFactory)
         {
             _discord = discord;
-            _logger = loggerFactory.CreateLogger<DiscordSocketClient>();
+            _logger  = loggerFactory.CreateLogger<DiscordSocketClient>();
         }
 
         public Task StartAsync(CancellationToken cancellationToken)
@@ -48,15 +49,14 @@ namespace nhitomi.Discord
         {
             switch (severity)
             {
-                case LogSeverity.Verbose: return LogLevel.Trace;
-                case LogSeverity.Debug: return LogLevel.Debug;
-                case LogSeverity.Info: return LogLevel.Information;
-                case LogSeverity.Warning: return LogLevel.Warning;
-                case LogSeverity.Error: return LogLevel.Error;
+                case LogSeverity.Verbose:  return LogLevel.Trace;
+                case LogSeverity.Debug:    return LogLevel.Debug;
+                case LogSeverity.Info:     return LogLevel.Information;
+                case LogSeverity.Warning:  return LogLevel.Warning;
+                case LogSeverity.Error:    return LogLevel.Error;
                 case LogSeverity.Critical: return LogLevel.Critical;
 
-                default:
-                    return LogLevel.None;
+                default: return LogLevel.None;
             }
         }
     }

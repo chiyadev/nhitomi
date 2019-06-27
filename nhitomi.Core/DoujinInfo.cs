@@ -30,16 +30,16 @@ namespace nhitomi.Core
         public Doujin ToDoujin() => new Doujin
         {
             // ensure both are not null
-            PrettyName = string.IsNullOrWhiteSpace(PrettyName) ? OriginalName : PrettyName,
+            PrettyName   = string.IsNullOrWhiteSpace(PrettyName) ? OriginalName : PrettyName,
             OriginalName = string.IsNullOrWhiteSpace(OriginalName) ? PrettyName : OriginalName,
 
-            UploadTime = UploadTime,
+            UploadTime  = UploadTime,
             ProcessTime = DateTime.UtcNow,
 
-            Source = Source.Name,
+            Source   = Source.Name,
             SourceId = SourceId,
 
-            Data = Data,
+            Data      = Data,
             PageCount = PageCount,
 
             Tags = CreateTagRefs().ToList()

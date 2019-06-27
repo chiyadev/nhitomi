@@ -16,17 +16,21 @@ namespace nhitomi.Modules
         readonly IDatabase _database;
         readonly InteractiveManager _interactive;
 
-        public DoujinModule(IMessageContext context, IOptions<AppSettings> options, IDatabase database,
-            InteractiveManager interactive)
+        public DoujinModule(IMessageContext context,
+                            IOptions<AppSettings> options,
+                            IDatabase database,
+                            InteractiveManager interactive)
         {
-            _context = context;
-            _settings = options.Value;
-            _database = database;
+            _context     = context;
+            _settings    = options.Value;
+            _database    = database;
             _interactive = interactive;
         }
 
         [Command("get")]
-        public async Task GetAsync(string source, string id, CancellationToken cancellationToken = default)
+        public async Task GetAsync(string source,
+                                   string id,
+                                   CancellationToken cancellationToken = default)
         {
             var doujin = await _database.GetDoujinAsync(source, id, cancellationToken);
 
@@ -40,32 +44,37 @@ namespace nhitomi.Modules
         }
 
         [Command("from")]
-        public Task FromAsync(string source, CancellationToken cancellationToken = default) =>
+        public Task FromAsync(string source,
+                              CancellationToken cancellationToken = default) =>
             _interactive.SendInteractiveAsync(new DoujinListFromSourceMessage(source), _context, cancellationToken);
 
         [Command("search"), Binding("[query+]")]
-        public async Task SearchAsync(string query, bool? filter = null, string source = null,
-            CancellationToken cancellationToken = default)
+        public async Task SearchAsync(string query,
+                                      bool? filter = null,
+                                      string source = null,
+                                      CancellationToken cancellationToken = default)
         {
             if (string.IsNullOrEmpty(query))
             {
-                await _context.ReplyAsync("invalidQuery", new {query});
+                await _context.ReplyAsync("invalidQuery", new { query });
                 return;
             }
 
             await _interactive.SendInteractiveAsync(
                 new DoujinListFromQueryMessage(new DoujinSearchArgs
                 {
-                    Query = query,
+                    Query         = query,
                     QualityFilter = filter ?? _context.GuildSettings.SearchQualityFilter ?? false,
-                    Source = source
+                    Source        = source
                 }),
                 _context,
                 cancellationToken);
         }
 
-        [Command("download", Aliases = new[] {"dl"})]
-        public async Task DownloadAsync(string source, string id, CancellationToken cancellationToken = default)
+        [Command("download", Aliases = new[] { "dl" })]
+        public async Task DownloadAsync(string source,
+                                        string id,
+                                        CancellationToken cancellationToken = default)
         {
             var doujin = await _database.GetDoujinAsync(source, id, cancellationToken);
 
@@ -79,7 +88,9 @@ namespace nhitomi.Modules
         }
 
         [Command("read")]
-        public async Task ReadAsync(string source, string id, CancellationToken cancellationToken = default)
+        public async Task ReadAsync(string source,
+                                    string id,
+                                    CancellationToken cancellationToken = default)
         {
             var doujin = await _database.GetDoujinAsync(source, id, cancellationToken);
 

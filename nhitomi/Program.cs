@@ -17,11 +17,12 @@ namespace nhitomi
         {
             // build host
             using (var host = new HostBuilder()
-                .UseContentRoot(Environment.CurrentDirectory)
-                .UseEnvironment(Environment.GetEnvironmentVariable("ENVIRONMENT") ?? EnvironmentName.Development)
-                .ConfigureAppConfiguration(Startup.Configure)
-                .ConfigureServices(Startup.ConfigureServices)
-                .Build())
+                             .UseContentRoot(Environment.CurrentDirectory)
+                             .UseEnvironment(Environment.GetEnvironmentVariable("ENVIRONMENT") ??
+                                             EnvironmentName.Development)
+                             .ConfigureAppConfiguration(Startup.Configure)
+                             .ConfigureServices(Startup.ConfigureServices)
+                             .Build())
             {
                 var settings = host.Services.GetRequiredService<IOptions<AppSettings>>().Value;
 
@@ -48,11 +49,13 @@ namespace nhitomi
             readonly nhitomiDbContext _db;
             readonly DiscordService _discord;
 
-            public Initialization(IHostingEnvironment environment, nhitomiDbContext db, DiscordService discord)
+            public Initialization(IHostingEnvironment environment,
+                                  nhitomiDbContext db,
+                                  DiscordService discord)
             {
                 _environment = environment;
-                _db = db;
-                _discord = discord;
+                _db          = db;
+                _discord     = discord;
             }
 
             public async Task RunAsync(CancellationToken cancellationToken = default)

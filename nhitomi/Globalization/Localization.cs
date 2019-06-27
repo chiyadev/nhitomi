@@ -11,12 +11,16 @@ namespace nhitomi.Globalization
 
         static Localization()
         {
-            foreach (var localization in typeof(Startup).Assembly
-                .GetTypes()
-                .Where(t => !t.IsAbstract && t.IsClass && t.IsSubclassOf(typeof(Localization)))
-                .Select(t => (Localization) Activator.CreateInstance(t)))
+            var types = typeof(Startup)
+                       .Assembly
+                       .GetTypes()
+                       .Where(t => t.IsClass &&
+                                   !t.IsAbstract &&
+                                   t.IsSubclassOf(typeof(Localization)));
+
+            foreach (var localization in types.Select(t => (Localization) Activator.CreateInstance(t)))
             {
-                _localizations[localization.Culture.Name.ToLowerInvariant()] = localization;
+                _localizations[localization.Culture.Name.ToLowerInvariant()]        = localization;
                 _localizations[localization.Culture.EnglishName.ToLowerInvariant()] = localization;
             }
         }
@@ -24,15 +28,15 @@ namespace nhitomi.Globalization
         public static Localization Default => GetLocalization("en");
 
         public static Localization GetLocalization(string culture) =>
-            // default to English if not found
             culture != null && _localizations.TryGetValue(culture.ToLowerInvariant(), out var localization)
                 ? localization
-                : Default;
+                : Default; // default to English if not found
 
-        public static IEnumerable<Localization> GetAllLocalizations() => _localizations.Values;
+        public static IEnumerable<Localization> GetAllLocalizations() => _localizations.Values
+                                                                                       .GroupBy(l => l.Culture)
+                                                                                       .Select(g => g.First());
 
-        public static bool IsAvailable(string culture) =>
-            culture != null && _localizations.ContainsKey(culture);
+        public static bool IsAvailable(string culture) => culture != null && _localizations.ContainsKey(culture);
 
         readonly Lazy<LocalizationDictionary> _dict;
 

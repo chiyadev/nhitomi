@@ -15,17 +15,21 @@ namespace nhitomi.Discord
         readonly InteractiveManager _interactiveManager;
         readonly ILogger<DiscordErrorReporter> _logger;
 
-        public DiscordErrorReporter(IOptions<AppSettings> options, DiscordService discord,
-            InteractiveManager interactiveManager, ILogger<DiscordErrorReporter> logger)
+        public DiscordErrorReporter(IOptions<AppSettings> options,
+                                    DiscordService discord,
+                                    InteractiveManager interactiveManager,
+                                    ILogger<DiscordErrorReporter> logger)
         {
-            _settings = options.Value;
-            _discord = discord;
+            _settings           = options.Value;
+            _discord            = discord;
             _interactiveManager = interactiveManager;
-            _logger = logger;
+            _logger             = logger;
         }
 
-        public async Task ReportAsync(Exception e, IDiscordContext context, bool friendlyReply = true,
-            CancellationToken cancellationToken = default)
+        public async Task ReportAsync(Exception e,
+                                      IDiscordContext context,
+                                      bool friendlyReply = true,
+                                      CancellationToken cancellationToken = default)
         {
             try
             {
@@ -38,20 +42,16 @@ namespace nhitomi.Discord
 
                 // send error message to the current channel
                 if (friendlyReply)
-                {
                     await _interactiveManager.SendInteractiveAsync(
                         new ErrorMessage(e),
                         context,
                         cancellationToken);
-                }
 
                 // send detailed error message to the guild error channel
-                var errorChannel = _discord
-                    .GetGuild(_settings.Discord.Guild.GuildId)?
-                    .GetTextChannel(_settings.Discord.Guild.ErrorChannelId);
+                var errorChannel = _discord.GetGuild(_settings.Discord.Guild.GuildId)
+                                          ?.GetTextChannel(_settings.Discord.Guild.ErrorChannelId);
 
                 if (errorChannel != null)
-                {
                     await _interactiveManager.SendInteractiveAsync(
                         new ErrorMessage(e, true),
                         new DiscordContextWrapper(context)
@@ -59,7 +59,6 @@ namespace nhitomi.Discord
                             Channel = errorChannel
                         },
                         cancellationToken);
-                }
             }
             catch (Exception reportingException)
             {
@@ -69,7 +68,7 @@ namespace nhitomi.Discord
         }
 
         static async Task ReportMissingPermissionAsync(IDiscordContext context,
-            CancellationToken cancellationToken = default)
+                                                       CancellationToken cancellationToken = default)
         {
             try
             {

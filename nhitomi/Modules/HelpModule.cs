@@ -17,9 +17,10 @@ namespace nhitomi.Modules
         readonly IMessageContext _context;
         readonly InteractiveManager _interactive;
 
-        public HelpModule(IMessageContext context, InteractiveManager interactive)
+        public HelpModule(IMessageContext context,
+                          InteractiveManager interactive)
         {
-            _context = context;
+            _context     = context;
             _interactive = interactive;
         }
 
@@ -41,14 +42,16 @@ namespace nhitomi.Modules
                 readonly InteractiveManager _interactive;
                 readonly FeedChannelUpdateService _feedChannelUpdater;
 
-                public View(DiscordService discord, MessageHandlerService messageHandler,
-                    ReactionHandlerService reactionHandler, InteractiveManager interactive,
-                    FeedChannelUpdateService feedChannelUpdater)
+                public View(DiscordService discord,
+                            MessageHandlerService messageHandler,
+                            ReactionHandlerService reactionHandler,
+                            InteractiveManager interactive,
+                            FeedChannelUpdateService feedChannelUpdater)
                 {
-                    _discord = discord;
-                    _messageHandler = messageHandler;
-                    _reactionHandler = reactionHandler;
-                    _interactive = interactive;
+                    _discord            = discord;
+                    _messageHandler     = messageHandler;
+                    _reactionHandler    = reactionHandler;
+                    _interactive        = interactive;
                     _feedChannelUpdater = feedChannelUpdater;
                 }
 
@@ -64,7 +67,7 @@ namespace nhitomi.Modules
                     {
                         using (var process = Process.GetCurrentProcess())
                         {
-                            Virtual = process.VirtualMemorySize64 / _mebibytes;
+                            Virtual    = process.VirtualMemorySize64 / _mebibytes;
                             WorkingSet = process.WorkingSet64 / _mebibytes;
                         }
 
@@ -77,11 +80,11 @@ namespace nhitomi.Modules
                     var memory = new ProcessMemory();
 
                     var embed = new EmbedBuilder()
-                        .WithTitle("**nhitomi**: Debug information")
-                        .WithFields(
-                            new EmbedFieldBuilder()
-                                .WithName("Discord")
-                                .WithValue($@"
+                               .WithTitle("**nhitomi**: Debug information")
+                               .WithFields(
+                                    new EmbedFieldBuilder()
+                                       .WithName("Discord")
+                                       .WithValue($@"
 Guilds: {_discord.Guilds.Count} guilds
 Channels: {_discord.Guilds.Sum(g => g.TextChannels.Count) + _discord.PrivateChannels.Count} channels
 Feed channels: {_feedChannelUpdater.UpdaterTasks.Count} updater tasks
@@ -91,20 +94,20 @@ Handled reactions: {_reactionHandler.HandledReactions} reactions ({_reactionHand
 Interactive messages: {_interactive.InteractiveMessages.Count} messages
 Interactive triggers: {_interactive.InteractiveMessages.Sum(m => m.Value.Triggers.Count)} triggers
 ".Trim()),
-                            new EmbedFieldBuilder()
-                                .WithName("Process")
-                                .WithValue($@"
+                                    new EmbedFieldBuilder()
+                                       .WithName("Process")
+                                       .WithValue($@"
 Virtual memory: {memory.Virtual}MiB
 Working set memory: {memory.WorkingSet}MiB
 Managed memory: {memory.Managed}MiB
 ".Trim()),
-                            new EmbedFieldBuilder()
-                                .WithName("Runtime")
-                                .WithValue($@"
+                                    new EmbedFieldBuilder()
+                                       .WithName("Runtime")
+                                       .WithValue($@"
 {RuntimeInformation.OSDescription} {RuntimeInformation.OSArchitecture}
 {RuntimeInformation.FrameworkDescription}
 ".Trim()))
-                        .Build();
+                               .Build();
 
                     await SetEmbedAsync(embed, cancellationToken);
                     return true;

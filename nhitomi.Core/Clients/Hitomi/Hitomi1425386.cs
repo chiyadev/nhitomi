@@ -9,14 +9,14 @@ namespace nhitomi.Core.Clients.Hitomi
 
         public override DoujinInfo KnownValue { get; } = new DoujinInfo
         {
-            PrettyName = "ALGOLAGNIA",
+            PrettyName   = "ALGOLAGNIA",
             OriginalName = "ALGOLAGNIA",
-            Artist = "ukyo rst",
-            UploadTime = new DateTime(2019, 6, 3, 10, 18, 0, DateTimeKind.Utc),
-            SourceId = "1425386",
-            Group = "u.m.e.project",
-            Language = "chinese",
-            Parody = "touhou project",
+            Artist       = "ukyo rst",
+            UploadTime   = new DateTime(2019, 6, 3, 10, 18, 0, DateTimeKind.Utc),
+            SourceId     = "1425386",
+            Group        = "u.m.e.project",
+            Language     = "chinese",
+            Parody       = "touhou project",
             Characters = new[]
             {
                 "fujiwara no mokou",

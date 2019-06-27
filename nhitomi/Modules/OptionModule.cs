@@ -15,15 +15,17 @@ namespace nhitomi.Modules
         readonly IDatabase _db;
         readonly GuildSettingsCache _settingsCache;
 
-        public OptionModule(IDiscordContext context, IDatabase db, GuildSettingsCache settingsCache)
+        public OptionModule(IDiscordContext context,
+                            IDatabase db,
+                            GuildSettingsCache settingsCache)
         {
-            _context = context;
-            _db = db;
+            _context       = context;
+            _db            = db;
             _settingsCache = settingsCache;
         }
 
         public static async Task<bool> EnsureGuildAdminAsync(IDiscordContext context,
-            CancellationToken cancellationToken = default)
+                                                             CancellationToken cancellationToken = default)
         {
             if (!(context.User is IGuildUser user))
             {
@@ -41,7 +43,8 @@ namespace nhitomi.Modules
         }
 
         [Command("language")]
-        public async Task LanguageAsync(string language, CancellationToken cancellationToken = default)
+        public async Task LanguageAsync(string language,
+                                        CancellationToken cancellationToken = default)
         {
             if (!await EnsureGuildAdminAsync(_context, cancellationToken))
                 return;
@@ -62,19 +65,22 @@ namespace nhitomi.Modules
                 // update cache
                 _settingsCache[_context.Channel] = guild;
 
-                await _context.ReplyAsync("localizationChanged", new
-                {
-                    localization = Localization.GetLocalization(language)
-                });
+                await _context.ReplyAsync(
+                    "localizationChanged",
+                    new
+                    {
+                        localization = Localization.GetLocalization(language)
+                    });
             }
             else
             {
-                await _context.ReplyAsync("localizationNotFound", new {language});
+                await _context.ReplyAsync("localizationNotFound", new { language });
             }
         }
 
         [Command("filter")]
-        public async Task FilterAsync(bool enabled, CancellationToken cancellationToken = default)
+        public async Task FilterAsync(bool enabled,
+                                      CancellationToken cancellationToken = default)
         {
             if (!await EnsureGuildAdminAsync(_context, cancellationToken))
                 return;
@@ -92,7 +98,7 @@ namespace nhitomi.Modules
             // update cache
             _settingsCache[_context.Channel] = guild;
 
-            await _context.ReplyAsync("qualityFilterChanged", new {state = enabled});
+            await _context.ReplyAsync("qualityFilterChanged", new { state = enabled });
         }
     }
 }

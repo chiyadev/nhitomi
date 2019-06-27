@@ -8,7 +8,8 @@ namespace nhitomi.Core
 {
     public class Doujin
     {
-        [Key] public int Id { get; set; }
+        [Key]
+        public int Id { get; set; }
 
         /// <summary>
         /// The identifier by which this doujinshi should be referred.
@@ -81,29 +82,27 @@ namespace nhitomi.Core
         /// </summary>
         public ICollection<FeedChannel> FeedChannels { get; set; }
 
-        public static void Describe(ModelBuilder model)
+        public static void Describe(ModelBuilder model) => model.Entity<Doujin>(doujin =>
         {
-            model.Entity<Doujin>(doujin =>
-            {
-                doujin.HasIndex(d => d.AccessId).IsUnique();
+            doujin.HasIndex(d => d.AccessId).IsUnique();
 
-                doujin.HasIndex(d => new {d.Source, d.SourceId});
-                doujin.HasIndex(d => new {d.Source, d.UploadTime});
+            doujin.HasIndex(d => new { d.Source, d.SourceId });
+            doujin.HasIndex(d => new { d.Source, d.UploadTime });
 
-                doujin.HasIndex(d => d.UploadTime);
-                doujin.HasIndex(d => d.ProcessTime);
+            doujin.HasIndex(d => d.UploadTime);
+            doujin.HasIndex(d => d.ProcessTime);
 
-                doujin.HasIndex(d => d.TagsDenormalized);
-            });
-        }
+            doujin.HasIndex(d => d.TagsDenormalized);
+        });
     }
 
     public static class DoujinExtensions
     {
-        public static Tag GetTag(this Doujin doujin, TagType type) =>
-            doujin.Tags?.Select(x => x.Tag).FirstOrDefault(x => x.Type == type);
+        public static Tag GetTag(this Doujin doujin,
+                                 TagType type) => doujin.Tags?.Select(x => x.Tag).FirstOrDefault(x => x.Type == type);
 
-        public static Tag[] GetTags(this Doujin doujin, TagType type) =>
+        public static Tag[] GetTags(this Doujin doujin,
+                                    TagType type) =>
             doujin.Tags?.Select(x => x.Tag).Where(t => t.Type == type).ToArray();
     }
 }

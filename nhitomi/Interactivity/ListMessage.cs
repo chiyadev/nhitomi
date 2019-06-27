@@ -30,7 +30,8 @@ namespace nhitomi.Interactivity
         {
             new ListMessage<TView, TValue> Message => (ListMessage<TView, TValue>) base.Message;
 
-            protected abstract Task<TValue[]> GetValuesAsync(int offset, CancellationToken cancellationToken = default);
+            protected abstract Task<TValue[]> GetValuesAsync(int offset,
+                                                             CancellationToken cancellationToken = default);
 
             enum Status
             {

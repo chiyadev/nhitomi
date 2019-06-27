@@ -45,14 +45,16 @@ namespace nhitomi.Interactivity.Triggers
                 do
                 {
                     collection = await _database.GetCollectionAsync(
-                        Context.User.Id, _favoritesCollection, cancellationToken);
+                        Context.User.Id,
+                        _favoritesCollection,
+                        cancellationToken);
 
                     if (collection == null)
                     {
                         // create new collection for favorites
                         collection = new Collection
                         {
-                            Name = _favoritesCollection,
+                            Name    = _favoritesCollection,
                             OwnerId = Context.User.Id,
                             Doujins = new List<CollectionRef>()
                         };
@@ -85,18 +87,15 @@ namespace nhitomi.Interactivity.Triggers
                 var context = Context as IDiscordContext;
 
                 if (isFeed || Interactive?.Source?.Id != Context.User.Id)
-                {
-                    // reply in DM if feed message
                     context = new DiscordContextWrapper(Context)
                     {
                         Channel = await Context.User.GetOrCreateDMChannelAsync()
                     };
-                }
 
                 if (added)
-                    await context.ReplyAsync("addedToCollection", new {doujin, collection});
+                    await context.ReplyAsync("addedToCollection", new { doujin, collection });
                 else
-                    await context.ReplyAsync("removedFromCollection", new {doujin, collection});
+                    await context.ReplyAsync("removedFromCollection", new { doujin, collection });
 
                 return true;
             }

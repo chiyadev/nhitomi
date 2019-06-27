@@ -6,7 +6,8 @@ namespace nhitomi.Core
 {
     public class Collection
     {
-        [Key] public int Id { get; set; }
+        [Key]
+        public int Id { get; set; }
 
         /// <summary>
         /// Name of this collection.
@@ -27,15 +28,13 @@ namespace nhitomi.Core
 
             model.Entity<CollectionRef>(join =>
             {
-                join.HasKey(x => new {x.CollectionId, x.DoujinId});
+                join.HasKey(x => new { x.CollectionId, x.DoujinId });
 
-                join
-                    .HasOne(x => x.Doujin)
+                join.HasOne(x => x.Doujin)
                     .WithMany(d => d.Collections)
                     .HasForeignKey(x => x.DoujinId);
 
-                join
-                    .HasOne(x => x.Collection)
+                join.HasOne(x => x.Collection)
                     .WithMany(c => c.Doujins)
                     .HasForeignKey(x => x.CollectionId);
             });

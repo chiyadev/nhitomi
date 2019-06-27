@@ -9,14 +9,14 @@ namespace nhitomi.Core.Clients.Hitomi
 
         public override DoujinInfo KnownValue { get; } = new DoujinInfo
         {
-            PrettyName = "Betsu ni Kimi to Blend Shitai Wake ja Nai kara ne...",
+            PrettyName   = "Betsu ni Kimi to Blend Shitai Wake ja Nai kara ne...",
             OriginalName = "Betsu ni Kimi to Blend Shitai Wake ja Nai kara ne...",
-            Artist = "staryume",
-            UploadTime = new DateTime(2019, 6, 3, 5, 21, 0, DateTimeKind.Utc),
-            SourceId = "1425272",
-            Group = "star-dreamer tei",
-            Language = "portuguese",
-            Parody = "blend s",
+            Artist       = "staryume",
+            UploadTime   = new DateTime(2019, 6, 3, 5, 21, 0, DateTimeKind.Utc),
+            SourceId     = "1425272",
+            Group        = "star-dreamer tei",
+            Language     = "portuguese",
+            Parody       = "blend s",
             Characters = new[]
             {
                 "kaho hinata"

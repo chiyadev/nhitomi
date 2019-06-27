@@ -16,10 +16,12 @@ namespace nhitomi.Modules
         readonly IDatabase _database;
         readonly InteractiveManager _interactive;
 
-        public CollectionModule(IMessageContext context, IDatabase database, InteractiveManager interactive)
+        public CollectionModule(IMessageContext context,
+                                IDatabase database,
+                                InteractiveManager interactive)
         {
-            _context = context;
-            _database = database;
+            _context     = context;
+            _database    = database;
             _interactive = interactive;
         }
 
@@ -27,11 +29,9 @@ namespace nhitomi.Modules
         {
             switch (name.ToLowerInvariant())
             {
-                case "favs":
-                    return "favorites";
+                case "favs": return "favorites";
 
-                default:
-                    return name;
+                default: return name;
             }
         }
 
@@ -40,7 +40,8 @@ namespace nhitomi.Modules
             _interactive.SendInteractiveAsync(new CollectionListMessage(_context.User.Id), _context, cancellationToken);
 
         [Command("view", BindName = false), Binding("[name]")]
-        public async Task ViewAsync(string name, CancellationToken cancellationToken = default)
+        public async Task ViewAsync(string name,
+                                    CancellationToken cancellationToken = default)
         {
             name = FixCollectionName(name);
 
@@ -49,7 +50,7 @@ namespace nhitomi.Modules
 
             if (collection == null)
             {
-                await _context.ReplyAsync("collectionNotFound", new {name});
+                await _context.ReplyAsync("collectionNotFound", new { name });
                 return;
             }
 
@@ -60,11 +61,14 @@ namespace nhitomi.Modules
         }
 
         [Command("add", BindName = false), Binding("[name] add|a [source] [id]")]
-        public async Task AddAsync(string name, string source, string id, CancellationToken cancellationToken = default)
+        public async Task AddAsync(string name,
+                                   string source,
+                                   string id,
+                                   CancellationToken cancellationToken = default)
         {
             name = FixCollectionName(name);
 
-            Doujin doujin;
+            Doujin     doujin;
             Collection collection;
 
             do
@@ -75,7 +79,7 @@ namespace nhitomi.Modules
                 {
                     collection = new Collection
                     {
-                        Name = name,
+                        Name    = name,
                         OwnerId = _context.User.Id,
                         Doujins = new List<CollectionRef>()
                     };
@@ -93,7 +97,7 @@ namespace nhitomi.Modules
 
                 if (collection.Doujins.Any(x => x.DoujinId == doujin.Id))
                 {
-                    await _context.ReplyAsync("alreadyInCollection", new {doujin, collection});
+                    await _context.ReplyAsync("alreadyInCollection", new { doujin, collection });
                     return;
                 }
 
@@ -104,16 +108,18 @@ namespace nhitomi.Modules
             }
             while (!await _database.SaveAsync(cancellationToken));
 
-            await _context.ReplyAsync("addedToCollection", new {doujin, collection});
+            await _context.ReplyAsync("addedToCollection", new { doujin, collection });
         }
 
         [Command("remove", BindName = false), Binding("[name] remove|r [source] [id]")]
-        public async Task RemoveAsync(string name, string source, string id,
-            CancellationToken cancellationToken = default)
+        public async Task RemoveAsync(string name,
+                                      string source,
+                                      string id,
+                                      CancellationToken cancellationToken = default)
         {
             name = FixCollectionName(name);
 
-            Doujin doujin;
+            Doujin     doujin;
             Collection collection;
 
             do
@@ -122,7 +128,7 @@ namespace nhitomi.Modules
 
                 if (collection == null)
                 {
-                    await _context.ReplyAsync("collectionNotFound", new {name});
+                    await _context.ReplyAsync("collectionNotFound", new { name });
                     return;
                 }
 
@@ -138,7 +144,7 @@ namespace nhitomi.Modules
 
                 if (item == null)
                 {
-                    await _context.ReplyAsync("notInCollection", new {doujin, collection});
+                    await _context.ReplyAsync("notInCollection", new { doujin, collection });
                     return;
                 }
 
@@ -146,11 +152,12 @@ namespace nhitomi.Modules
             }
             while (!await _database.SaveAsync(cancellationToken));
 
-            await _context.ReplyAsync("removedFromCollection", new {doujin, collection});
+            await _context.ReplyAsync("removedFromCollection", new { doujin, collection });
         }
 
         [Command("delete", BindName = false), Binding("[name] delete|d")]
-        public async Task DeleteAsync(string name, CancellationToken cancellationToken = default)
+        public async Task DeleteAsync(string name,
+                                      CancellationToken cancellationToken = default)
         {
             name = FixCollectionName(name);
 
@@ -162,7 +169,7 @@ namespace nhitomi.Modules
 
                 if (collection == null)
                 {
-                    await _context.ReplyAsync("collectionNotFound", new {name});
+                    await _context.ReplyAsync("collectionNotFound", new { name });
                     return;
                 }
 
@@ -170,11 +177,13 @@ namespace nhitomi.Modules
             }
             while (!await _database.SaveAsync(cancellationToken));
 
-            await _context.ReplyAsync("collectionDeleted", new {collection});
+            await _context.ReplyAsync("collectionDeleted", new { collection });
         }
 
         [Command("sort", BindName = false), Binding("[name] sort|s [sort]")]
-        public async Task SortAsync(string name, CollectionSort sort, CancellationToken cancellationToken = default)
+        public async Task SortAsync(string name,
+                                    CollectionSort sort,
+                                    CancellationToken cancellationToken = default)
         {
             name = FixCollectionName(name);
 
@@ -186,7 +195,7 @@ namespace nhitomi.Modules
 
                 if (collection == null)
                 {
-                    await _context.ReplyAsync("collectionNotFound", new {name});
+                    await _context.ReplyAsync("collectionNotFound", new { name });
                     return;
                 }
 
@@ -194,7 +203,7 @@ namespace nhitomi.Modules
             }
             while (!await _database.SaveAsync(cancellationToken));
 
-            await _context.ReplyAsync("collectionSorted", new {collection, attribute = sort});
+            await _context.ReplyAsync("collectionSorted", new { collection, attribute = sort });
         }
     }
 }

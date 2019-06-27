@@ -14,17 +14,15 @@ namespace nhitomi.Core.Clients.Hitomi
 {
     public static class Hitomi
     {
-        public static string Gallery(int id) =>
-            $"https://hitomi.la/galleries/{id}.html";
+        public static string Gallery(int id) => $"https://hitomi.la/galleries/{id}.html";
 
-        public static string GalleryInfo(int id, char? server = null) =>
-            $"https://{server}tn.hitomi.la/galleries/{id}.js";
+        public static string GalleryInfo(int id,
+                                         char? server = null) => $"https://{server}tn.hitomi.la/galleries/{id}.js";
 
-        static char GetCdn(int id) =>
-            (char) ('a' + (id % 10 == 1 ? 0 : id) % 2);
+        static char GetCdn(int id) => (char) ('a' + (id % 10 == 1 ? 0 : id) % 2);
 
-        public static string Image(int id, string name) =>
-            $"https://{GetCdn(id)}a.hitomi.la/galleries/{id}/{name}";
+        public static string Image(int id,
+                                   string name) => $"https://{GetCdn(id)}a.hitomi.la/galleries/{id}/{name}";
 
         public static class XPath
         {
@@ -54,24 +52,27 @@ namespace nhitomi.Core.Clients.Hitomi
         readonly JsonSerializer _serializer;
         readonly ILogger<HitomiClient> _logger;
 
-        public HitomiClient(IHttpClient http, JsonSerializer serializer, ILogger<HitomiClient> logger)
+        public HitomiClient(IHttpClient http,
+                            JsonSerializer serializer,
+                            ILogger<HitomiClient> logger)
         {
-            _http = http;
+            _http       = http;
             _serializer = serializer;
-            _logger = logger;
+            _logger     = logger;
         }
 
         // regex to match () and [] in titles
         static readonly Regex _bracketsRegex = new Regex(@"\([^)]*\)|\[[^\]]*\]",
-            RegexOptions.Compiled | RegexOptions.Singleline);
+                                                         RegexOptions.Compiled | RegexOptions.Singleline);
 
         // regex to match index-language-page
         static readonly Regex _languageHrefRegex = new Regex(@"index-(?<language>\w+)-\d+",
-            RegexOptions.Compiled | RegexOptions.Singleline);
+                                                             RegexOptions.Compiled | RegexOptions.Singleline);
 
         public static string GetGalleryUrl(Doujin doujin) => $"https://hitomi.la/galleries/{doujin.SourceId}.html";
 
-        public async Task<DoujinInfo> GetAsync(string id, CancellationToken cancellationToken = default)
+        public async Task<DoujinInfo> GetAsync(string id,
+                                               CancellationToken cancellationToken = default)
         {
             if (!int.TryParse(id, out var intId))
                 return null;
@@ -79,11 +80,13 @@ namespace nhitomi.Core.Clients.Hitomi
             HtmlNode root;
 
             // load html page
-            using (var response = await _http.SendAsync(new HttpRequestMessage
-            {
-                Method = HttpMethod.Get,
-                RequestUri = new Uri(Hitomi.Gallery(intId))
-            }, cancellationToken))
+            using (var response = await _http.SendAsync(
+                new HttpRequestMessage
+                {
+                    Method     = HttpMethod.Get,
+                    RequestUri = new Uri(Hitomi.Gallery(intId))
+                },
+                cancellationToken))
             {
                 if (!response.IsSuccessStatusCode)
                     return null;
@@ -115,42 +118,47 @@ namespace nhitomi.Core.Clients.Hitomi
 
             // parse names with two parts
             var pipeIndex = prettyName.IndexOf('|');
+
             if (pipeIndex != -1)
             {
-                prettyName = prettyName.Substring(0, pipeIndex).Trim();
+                prettyName   = prettyName.Substring(0, pipeIndex).Trim();
                 originalName = originalName.Substring(pipeIndex + 1).Trim();
             }
 
             // parse language
             var languageHref = root.SelectSingleNode(Hitomi.XPath.Language)?.Attributes["href"]?.Value;
+
             var language = languageHref == null
                 ? null
                 : _languageHrefRegex.Match(languageHref).Groups["language"].Value;
 
             var doujin = new DoujinInfo
             {
-                PrettyName = prettyName,
+                PrettyName   = prettyName,
                 OriginalName = originalName,
 
                 UploadTime = DateTime.Parse(Sanitize(root.SelectSingleNode(Hitomi.XPath.Date))).ToUniversalTime(),
 
-                Source = this,
+                Source   = this,
                 SourceId = id,
 
-                Artist = Sanitize(root.SelectSingleNode(Hitomi.XPath.Artists))?.ToLowerInvariant(),
-                Group = Sanitize(root.SelectSingleNode(Hitomi.XPath.Groups))?.ToLowerInvariant(),
-                Language = language?.ToLowerInvariant(),
-                Parody = ConvertSeries(Sanitize(root.SelectSingleNode(Hitomi.XPath.Series)))?.ToLowerInvariant(),
+                Artist     = Sanitize(root.SelectSingleNode(Hitomi.XPath.Artists))?.ToLowerInvariant(),
+                Group      = Sanitize(root.SelectSingleNode(Hitomi.XPath.Groups))?.ToLowerInvariant(),
+                Language   = language?.ToLowerInvariant(),
+                Parody     = ConvertSeries(Sanitize(root.SelectSingleNode(Hitomi.XPath.Series)))?.ToLowerInvariant(),
                 Characters = root.SelectNodes(Hitomi.XPath.Characters)?.Select(n => Sanitize(n)?.ToLowerInvariant()),
-                Tags = root.SelectNodes(Hitomi.XPath.Tags)?.Select(n => ConvertTag(Sanitize(n)?.ToLowerInvariant()))
+                Tags = root.SelectNodes(Hitomi.XPath.Tags)
+                          ?.Select(n => ConvertTag(Sanitize(n)?.ToLowerInvariant()))
             };
 
             // parse images
-            using (var response = await _http.SendAsync(new HttpRequestMessage
-            {
-                Method = HttpMethod.Get,
-                RequestUri = new Uri(Hitomi.GalleryInfo(intId))
-            }, cancellationToken))
+            using (var response = await _http.SendAsync(
+                new HttpRequestMessage
+                {
+                    Method     = HttpMethod.Get,
+                    RequestUri = new Uri(Hitomi.GalleryInfo(intId))
+                },
+                cancellationToken))
             {
                 if (!response.IsSuccessStatusCode)
                     return null;
@@ -164,24 +172,32 @@ namespace nhitomi.Core.Clients.Hitomi
 
                     var images = _serializer.Deserialize<ImageInfo[]>(jsonReader);
 
+                    var extensionsCombined =
+                        new string(images.Select(i =>
+                                          {
+                                              var ext = Path.GetExtension(i.Name);
+
+                                              switch (ext)
+                                              {
+                                                  case "":      return '.';
+                                                  case ".jpg":  return 'j';
+                                                  case ".jpeg": return 'J';
+                                                  case ".png":  return 'p';
+                                                  case ".gif":  return 'g';
+                                                  default:
+
+                                                      throw new NotSupportedException(
+                                                          $"Unknown image format '{ext}'.");
+                                              }
+                                          })
+                                         .ToArray());
+
                     doujin.PageCount = images.Length;
+
                     doujin.Data = _serializer.Serialize(new InternalDoujinData
                     {
                         ImageNames = images.Select(i => Path.GetFileNameWithoutExtension(i.Name)).ToArray(),
-                        Extensions = new string(images.Select(i =>
-                        {
-                            var ext = Path.GetExtension(i.Name);
-                            switch (ext)
-                            {
-                                case "": return '.';
-                                case ".jpg": return 'j';
-                                case ".jpeg": return 'J';
-                                case ".png": return 'p';
-                                case ".gif": return 'g';
-                                default:
-                                    throw new NotSupportedException($"Unknown image format '{ext}'.");
-                            }
-                        }).ToArray())
+                        Extensions = extensionsCombined
                     });
                 }
             }
@@ -216,9 +232,11 @@ namespace nhitomi.Core.Clients.Hitomi
             // 649 means field is never initialized
             // they ARE initialized during json deserialization
 #pragma warning disable 649
+
             [JsonProperty("name")] public string Name;
             [JsonProperty("width")] public int Width;
             [JsonProperty("height")] public int Height;
+
 #pragma warning restore 649
         }
 
@@ -226,11 +244,13 @@ namespace nhitomi.Core.Clients.Hitomi
         {
             using (var memory = new MemoryStream())
             {
-                using (var response = await _http.SendAsync(new HttpRequestMessage
-                {
-                    Method = HttpMethod.Get,
-                    RequestUri = new Uri(Hitomi.NozomiIndex)
-                }, cancellationToken))
+                using (var response = await _http.SendAsync(
+                    new HttpRequestMessage
+                    {
+                        Method     = HttpMethod.Get,
+                        RequestUri = new Uri(Hitomi.NozomiIndex)
+                    },
+                    cancellationToken))
                 {
                     if (!response.IsSuccessStatusCode)
                         return null;
@@ -254,7 +274,7 @@ namespace nhitomi.Core.Clients.Hitomi
         }
 
         public async Task<IEnumerable<string>> EnumerateAsync(string startId = null,
-            CancellationToken cancellationToken = default)
+                                                              CancellationToken cancellationToken = default)
         {
             var indices = await ReadNozomiIndicesAsync(cancellationToken);
 
@@ -269,8 +289,10 @@ namespace nhitomi.Core.Clients.Hitomi
             var startIndex = 0;
 
             for (; startIndex < indices.Length; startIndex++)
+            {
                 if (indices[startIndex] >= intId)
                     break;
+            }
 
             indices = indices.Subarray(startIndex);
 
@@ -289,7 +311,7 @@ namespace nhitomi.Core.Clients.Hitomi
 
             for (var i = 0; i < data.ImageNames.Length; i++)
             {
-                var name = data.ImageNames[i];
+                var    name = data.ImageNames[i];
                 string extension;
 
                 switch (data.Extensions[i])
@@ -315,14 +337,10 @@ namespace nhitomi.Core.Clients.Hitomi
             }
         }
 
-        public void InitializeImageRequest(Doujin doujin, HttpRequestMessage message)
-        {
-            // hitomi seems to require the Referer header to download images
-            message.Headers.Referrer = new Uri($"https://hitomi.la/reader/{doujin.SourceId}.html");
-        }
+        public void InitializeImageRequest(Doujin doujin,
+                                           HttpRequestMessage message) => message.Headers.Referrer =
+            new Uri($"https://hitomi.la/reader/{doujin.SourceId}.html");
 
-        public void Dispose()
-        {
-        }
+        public void Dispose() { }
     }
 }

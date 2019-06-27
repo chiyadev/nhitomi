@@ -21,12 +21,14 @@ namespace nhitomi.Http
             {
                 AllowAutoRedirect = false
             });
+
             _logger = logger;
         }
 
-        public async Task HandleRequestAsync(HttpListenerContext context, CancellationToken cancellationToken = default)
+        public async Task HandleRequestAsync(HttpListenerContext context,
+                                             CancellationToken cancellationToken = default)
         {
-            var request = context.Request;
+            var request  = context.Request;
             var response = context.Response;
 
             try
@@ -36,7 +38,7 @@ namespace nhitomi.Http
 
                 if (!Uri.TryCreate(requestUrl, UriKind.Absolute, out var requestUri))
                 {
-                    response.StatusCode = 400;
+                    response.StatusCode        = 400;
                     response.StatusDescription = "Invalid upstream URL.";
                     return;
                 }
@@ -46,10 +48,10 @@ namespace nhitomi.Http
                 // create forward request
                 using (var forwardRequest = new HttpRequestMessage
                 {
-                    Method = new HttpMethod(request.HttpMethod),
+                    Method     = new HttpMethod(request.HttpMethod),
                     RequestUri = requestUri,
-                    Version = request.ProtocolVersion,
-                    Content = new StreamContent(request.InputStream)
+                    Version    = request.ProtocolVersion,
+                    Content    = new StreamContent(request.InputStream)
                 })
                 {
                     // copy headers
@@ -63,8 +65,7 @@ namespace nhitomi.Http
                         {
                             // ignored
                             case "host":
-                            case "upstream":
-                                continue;
+                            case "upstream": continue;
 
                             // content headers
                             case "content-length":
@@ -86,8 +87,8 @@ namespace nhitomi.Http
                     // send request
                     using (var forwardResponse = await _client.SendAsync(forwardRequest, cancellationToken))
                     {
-                        response.ProtocolVersion = forwardResponse.Version;
-                        response.StatusCode = (int) forwardResponse.StatusCode;
+                        response.ProtocolVersion   = forwardResponse.Version;
+                        response.StatusCode        = (int) forwardResponse.StatusCode;
                         response.StatusDescription = forwardResponse.ReasonPhrase;
 
                         // copy headers
@@ -99,8 +100,7 @@ namespace nhitomi.Http
                             switch (key.ToLowerInvariant())
                             {
                                 // ignore
-                                case "connection":
-                                    continue;
+                                case "connection": continue;
 
                                 // copy
                                 default:
@@ -119,7 +119,7 @@ namespace nhitomi.Http
                                 // content headers
                                 case "content-length":
                                     response.ContentLength64 = long.Parse(value);
-                                    response.SendChunked = false;
+                                    response.SendChunked     = false;
                                     break;
 
                                 // copy

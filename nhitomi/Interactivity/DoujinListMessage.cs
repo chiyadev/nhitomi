@@ -38,13 +38,13 @@ namespace nhitomi.Interactivity
             protected override Embed CreateEmptyEmbed()
             {
                 var path = new LocalizationPath("doujinMessage.emptyList");
-                var l = Context.GetLocalization();
+                var l    = Context.GetLocalization();
 
                 return new EmbedBuilder()
-                    .WithTitle(path["title"][l])
-                    .WithColor(Color.Teal)
-                    .WithDescription(path["text"][l])
-                    .Build();
+                      .WithTitle(path["title"][l])
+                      .WithColor(Color.Teal)
+                      .WithDescription(path["text"][l])
+                      .Build();
             }
         }
     }

@@ -23,15 +23,17 @@ namespace nhitomi.Interactivity
         public readonly ConcurrentDictionary<ulong, IInteractiveMessage> InteractiveMessages =
             new ConcurrentDictionary<ulong, IInteractiveMessage>();
 
-        public async Task SendInteractiveAsync(IEmbedMessage message, IDiscordContext context,
-            CancellationToken cancellationToken = default, bool forceStateful = true)
+        public async Task SendInteractiveAsync(IEmbedMessage message,
+                                               IDiscordContext context,
+                                               CancellationToken cancellationToken = default,
+                                               bool forceStateful = true)
         {
             // create dependency scope to initialize the interactive within
             using (var scope = _services.CreateScope())
             {
                 var services = new ServiceDictionary(scope.ServiceProvider)
                 {
-                    {typeof(IDiscordContext), context}
+                    { typeof(IDiscordContext), context }
                 };
 
                 // initialize interactive
@@ -42,34 +44,30 @@ namespace nhitomi.Interactivity
             var id = message.Message.Id;
 
             if (message is IInteractiveMessage interactiveMessage)
-            {
-                // add to interactive list if we have stateful triggers
                 if (forceStateful || interactiveMessage.Triggers.Values.Any(t => !t.CanRunStateless))
                     InteractiveMessages[id] = interactiveMessage;
-            }
 
             // forget interactives in an hour
             _ = Task.Run(async () =>
-                {
-                    try
-                    {
-                        await Task.Delay(TimeSpan.FromHours(1), cancellationToken);
-                    }
-                    catch (TaskCanceledException)
-                    {
-                    }
-                    finally
-                    {
-                        InteractiveMessages.TryRemove(id, out _);
-                    }
-                },
-                cancellationToken);
+                         {
+                             try
+                             {
+                                 await Task.Delay(TimeSpan.FromHours(1), cancellationToken);
+                             }
+                             catch (TaskCanceledException) { }
+                             finally
+                             {
+                                 InteractiveMessages.TryRemove(id, out _);
+                             }
+                         },
+                         cancellationToken);
         }
 
         readonly ConcurrentQueue<(IUserMessage message, IEmote[] emotes)> _reactionQueue =
             new ConcurrentQueue<(IUserMessage message, IEmote[] emotes)>();
 
-        public void EnqueueReactions(IUserMessage message, IEnumerable<IEmote> emotes)
+        public void EnqueueReactions(IUserMessage message,
+                                     IEnumerable<IEmote> emotes)
         {
             _reactionQueue.Enqueue((message, emotes.ToArray()));
 
@@ -90,19 +88,23 @@ namespace nhitomi.Interactivity
             });
         }
 
-        static readonly Dictionary<IEmote, Func<IReactionTrigger>> _statelessTriggers = typeof(Startup).Assembly
-            .GetTypes()
-            .Where(t => !t.IsAbstract && t.IsClass &&
-                        typeof(IReactionTrigger).IsAssignableFrom(t) &&
-                        t.GetConstructors().Any(c => c.GetParameters().Length == 0))
-            .Select(t => (Func<IReactionTrigger>) (() => Activator.CreateInstance(t) as IReactionTrigger))
-            .Where(x => x().CanRunStateless)
-            .ToDictionary(x => x().Emote, x => x);
+        static readonly Dictionary<IEmote, Func<IReactionTrigger>> _statelessTriggers =
+            typeof(Startup)
+               .Assembly
+               .GetTypes()
+               .Where(t => t.IsClass &&
+                           !t.IsAbstract &&
+                           typeof(IReactionTrigger).IsAssignableFrom(t) &&
+                           t.GetConstructors().Any(c => c.GetParameters().Length == 0))
+               .Select(t => (Func<IReactionTrigger>) (() => Activator.CreateInstance(t) as IReactionTrigger))
+               .Where(x => x().CanRunStateless)
+               .ToDictionary(x => x().Emote, x => x);
 
         Task IMessageHandler.InitializeAsync(CancellationToken cancellationToken) => Task.CompletedTask;
         Task IReactionHandler.InitializeAsync(CancellationToken cancellationToken) => Task.CompletedTask;
 
-        public Task<bool> TryHandleAsync(IMessageContext context, CancellationToken cancellationToken = default)
+        public Task<bool> TryHandleAsync(IMessageContext context,
+                                         CancellationToken cancellationToken = default)
         {
             switch (context.Event)
             {
@@ -114,14 +116,14 @@ namespace nhitomi.Interactivity
 
                     return Task.FromResult(true);
 
-                default:
-                    return Task.FromResult(false);
+                default: return Task.FromResult(false);
             }
         }
 
-        public async Task<bool> TryHandleAsync(IReactionContext context, CancellationToken cancellationToken = default)
+        public async Task<bool> TryHandleAsync(IReactionContext context,
+                                               CancellationToken cancellationToken = default)
         {
-            var message = context.Message;
+            var message  = context.Message;
             var reaction = context.Reaction;
 
             IReactionTrigger trigger;
@@ -151,8 +153,8 @@ namespace nhitomi.Interactivity
             {
                 var services = new ServiceDictionary(scope.ServiceProvider)
                 {
-                    {typeof(IDiscordContext), context},
-                    {typeof(IReactionContext), context}
+                    { typeof(IDiscordContext), context },
+                    { typeof(IReactionContext), context }
                 };
 
                 return await trigger.RunAsync(services, interactive, cancellationToken);

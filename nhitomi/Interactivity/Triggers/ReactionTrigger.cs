@@ -17,8 +17,9 @@ namespace nhitomi.Interactivity.Triggers
         /// </summary>
         bool CanRunStateless { get; }
 
-        Task<bool> RunAsync(IServiceProvider services, IInteractiveMessage interactive,
-            CancellationToken cancellationToken = default);
+        Task<bool> RunAsync(IServiceProvider services,
+                            IInteractiveMessage interactive,
+                            CancellationToken cancellationToken = default);
     }
 
     public abstract class ReactionTrigger<TAction> : IReactionTrigger
@@ -31,17 +32,18 @@ namespace nhitomi.Interactivity.Triggers
 
         static readonly DependencyFactory<TAction> _actionFactory = DependencyUtility<TAction>.Factory;
 
-        public Task<bool> RunAsync(IServiceProvider services, IInteractiveMessage interactive,
-            CancellationToken cancellationToken = default)
+        public Task<bool> RunAsync(IServiceProvider services,
+                                   IInteractiveMessage interactive,
+                                   CancellationToken cancellationToken = default)
         {
             if (interactive == null && !CanRunStateless)
                 throw new InvalidOperationException($"Cannot initialize trigger {GetType()} in stateless mode.");
 
             // create action object
             var action = _actionFactory(services);
-            action.Trigger = this;
+            action.Trigger     = this;
             action.Interactive = interactive;
-            action.Context = services.GetRequiredService<IReactionContext>();
+            action.Context     = services.GetRequiredService<IReactionContext>();
 
             // trigger the action
             return action.RunAsync(cancellationToken);

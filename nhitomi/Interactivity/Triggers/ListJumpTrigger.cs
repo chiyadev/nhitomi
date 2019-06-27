@@ -35,7 +35,8 @@ namespace nhitomi.Interactivity.Triggers
             }
         }
 
-        public ListJumpTrigger(JumpDestination destination, int endPosition = 0)
+        public ListJumpTrigger(JumpDestination destination,
+                               int endPosition = 0)
         {
             _destination = destination;
             _endPosition = endPosition;
@@ -60,17 +61,21 @@ namespace nhitomi.Interactivity.Triggers
                 switch (Trigger._destination)
                 {
                     case JumpDestination.Start:
+
                         if (Interactive.Position == 0)
                             Interactive.Position = -1;
                         else
                             Interactive.Position = 0;
+
                         break;
 
                     case JumpDestination.End:
+
                         if (Interactive.Position == Trigger._endPosition)
                             Interactive.Position = Trigger._endPosition + 1;
                         else
                             Interactive.Position = Trigger._endPosition;
+
                         break;
                 }
 

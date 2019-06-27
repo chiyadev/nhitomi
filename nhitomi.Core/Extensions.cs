@@ -48,7 +48,8 @@ namespace nhitomi.Core
             return clone;
         }
 
-        public static bool OrderlessEquals<T>(this IEnumerable<T> enumerable, IEnumerable<T> other)
+        public static bool OrderlessEquals<T>(this IEnumerable<T> enumerable,
+                                              IEnumerable<T> other)
         {
             var set = new HashSet<T>(enumerable);
 
@@ -60,24 +61,28 @@ namespace nhitomi.Core
             return set.Count == 0;
         }
 
-        public static async Task<T> DeserializeAsync<T>(this JsonSerializer serializer, HttpContent content)
+        public static async Task<T> DeserializeAsync<T>(this JsonSerializer serializer,
+                                                        HttpContent content)
         {
             using (var reader = new StringReader(await content.ReadAsStringAsync()))
             using (var jsonReader = new JsonTextReader(reader))
                 return serializer.Deserialize<T>(jsonReader);
         }
 
-        public static T Deserialize<T>(this JsonSerializer serializer, Stream stream)
+        public static T Deserialize<T>(this JsonSerializer serializer,
+                                       Stream stream)
         {
             using (var reader = new StreamReader(stream))
             using (var jsonReader = new JsonTextReader(reader))
                 return serializer.Deserialize<T>(jsonReader);
         }
 
-        public static T[] Subarray<T>(this T[] array, int index) =>
-            array.Subarray(index, array.Length - index);
+        public static T[] Subarray<T>(this T[] array,
+                                      int index) => array.Subarray(index, array.Length - index);
 
-        public static T[] Subarray<T>(this T[] array, int index, int length)
+        public static T[] Subarray<T>(this T[] array,
+                                      int index,
+                                      int length)
         {
             var subarray = new T[length];
 
@@ -89,15 +94,23 @@ namespace nhitomi.Core
         /// <summary>
         /// https://stackoverflow.com/a/24087164
         /// </summary>
-        public static IEnumerable<IEnumerable<T>> ChunkBy<T>(this IEnumerable<T> source, int chunkSize) => source
-            .Select((x, i) => new {Index = i, Value = x})
-            .GroupBy(x => x.Index / chunkSize)
-            .Select(x => x.Select(v => v.Value));
+        public static IEnumerable<IEnumerable<T>> ChunkBy<T>(this IEnumerable<T> source,
+                                                             int chunkSize) => source
+                                                                              .Select((x,
+                                                                                       i) => new
+                                                                               {
+                                                                                   Index = i, Value = x
+                                                                               })
+                                                                              .GroupBy(x => x.Index / chunkSize)
+                                                                              .Select(x => x.Select(v => v.Value));
 
-        public static IDoujinClient FindByName(this IEnumerable<IDoujinClient> clients, string name) =>
-            clients.FirstOrDefault(c => c.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
+        public static IDoujinClient FindByName(this IEnumerable<IDoujinClient> clients,
+                                               string name) => clients.FirstOrDefault(
+            c => c.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
 
-        public static void Destructure<T>(this T[] items, out T t0, out T t1)
+        public static void Destructure<T>(this T[] items,
+                                          out T t0,
+                                          out T t1)
         {
             t0 = items.Length > 0 ? items[0] : default;
             t1 = items.Length > 1 ? items[1] : default;
@@ -123,14 +136,19 @@ namespace nhitomi.Core
             return BitConverter.ToUInt64(buffer, 0);
         }
 
-        public static string SubstringFromEnd(this string str, int count) => str.Substring(str.Length - count, count);
-        public static string RemoveFromEnd(this string str, int count) => str.Remove(str.Length - count, count);
+        public static string SubstringFromEnd(this string str,
+                                              int count) => str.Substring(str.Length - count, count);
+
+        public static string RemoveFromEnd(this string str,
+                                           int count) => str.Remove(str.Length - count, count);
 
         public static string Format(this double[] elapsed)
         {
             var time = elapsed[0];
+
             if (time < 100)
                 return $"{Math.Round(time, 3)}ms";
+
             if (time < 60000)
                 return $"{Math.Round(time / 1000, 2)}s";
 
@@ -163,7 +181,7 @@ namespace nhitomi.Core
             AsyncEnumerable.CreateEnumerable(() =>
             {
                 var enumerators = source.Select(s => s.GetEnumerator()).ToList();
-                var current = -1;
+                var current     = -1;
 
                 return AsyncEnumerable.CreateEnumerator(
                     async token =>
@@ -220,10 +238,15 @@ namespace nhitomi.Core
         /// <param name="maxDistance">The maximum edit distance of interest.</param>
         /// <returns>int edit distance, >= 0 representing the number of edits required
         /// to transform one string to the other, or -1 if the distance is greater than the specified maxDistance.</returns>
-        public static int DamLev(this string s, string t, int maxDistance = int.MaxValue)
+        public static int DamLev(this string s,
+                                 string t,
+                                 int maxDistance = int.MaxValue)
         {
-            if (string.IsNullOrEmpty(s)) return ((t ?? "").Length <= maxDistance) ? (t ?? "").Length : -1;
-            if (string.IsNullOrEmpty(t)) return (s.Length <= maxDistance) ? s.Length : -1;
+            if (string.IsNullOrEmpty(s))
+                return ((t ?? "").Length <= maxDistance) ? (t ?? "").Length : -1;
+
+            if (string.IsNullOrEmpty(t))
+                return (s.Length <= maxDistance) ? s.Length : -1;
 
             // if strings of different lengths, ensure shorter string is in s. This can result in a little
             // faster speed by spending more time spinning just the inner loop during the main processing.
@@ -245,79 +268,101 @@ namespace nhitomi.Core
             }
 
             var start = 0;
+
             if ((s[0] == t[0]) || (sLen == 0))
             {
                 // if there's a shared prefix, or all s matches t's suffix
                 // prefix common to both strings can be ignored
-                while ((start < sLen) && (s[start] == t[start])) start++;
+                while ((start < sLen) && (s[start] == t[start]))
+                    start++;
+
                 sLen -= start; // length of the part excluding common prefix and suffix
                 tLen -= start;
 
                 // if all of shorter string matches prefix and/or suffix of longer string, then
                 // edit distance is just the delete of additional characters present in longer string
-                if (sLen == 0) return (tLen <= maxDistance) ? tLen : -1;
+                if (sLen == 0)
+                    return (tLen <= maxDistance) ? tLen : -1;
 
                 t = t.Substring(start, tLen); // faster than t[start+j] in inner loop below
             }
 
             var lenDiff = tLen - sLen;
+
             if ((maxDistance < 0) || (maxDistance > tLen))
-            {
                 maxDistance = tLen;
-            }
-            else if (lenDiff > maxDistance) return -1;
+            else if (lenDiff > maxDistance)
+                return -1;
 
             var v0 = new int[tLen];
             var v2 = new int[tLen]; // stores one level further back (offset by +1 position)
             int j;
-            for (j = 0; j < maxDistance; j++) v0[j] = j + 1;
-            for (; j < tLen; j++) v0[j] = maxDistance + 1;
+
+            for (j = 0; j < maxDistance; j++)
+                v0[j] = j + 1;
+
+            for (; j < tLen; j++)
+                v0[j] = maxDistance + 1;
 
             var jStartOffset = maxDistance - (tLen - sLen);
-            var haveMax = maxDistance < tLen;
-            var jStart = 0;
-            var jEnd = maxDistance;
-            var sChar = s[0];
-            var current = 0;
+            var haveMax      = maxDistance < tLen;
+            var jStart       = 0;
+            var jEnd         = maxDistance;
+            var sChar        = s[0];
+            var current      = 0;
+
             for (var i = 0; i < sLen; i++)
             {
                 var prevsChar = sChar;
                 sChar = s[start + i];
                 var tChar = t[0];
-                var left = i;
+                var left  = i;
                 current = left + 1;
                 var nextTransCost = 0;
                 // no need to look beyond window of lower right diagonal - maxDistance cells (lower right diag is i - lenDiff)
                 // and the upper left diagonal + maxDistance cells (upper left is i)
                 jStart += (i > jStartOffset) ? 1 : 0;
-                jEnd += (jEnd < tLen) ? 1 : 0;
+                jEnd   += (jEnd < tLen) ? 1 : 0;
+
                 for (j = jStart; j < jEnd; j++)
                 {
-                    var above = current;
+                    var above         = current;
                     var thisTransCost = nextTransCost;
                     nextTransCost = v2[j];
-                    v2[j] = current = left; // cost of diagonal (substitution)
-                    left = v0[j]; // left now equals current cost (which will be diagonal at next iteration)
+                    v2[j]         = current = left; // cost of diagonal (substitution)
+
+                    left =
+                        v0[j]; // left now equals current cost (which will be diagonal at next iteration)
+
                     var prevtChar = tChar;
                     tChar = t[j];
+
                     if (sChar != tChar)
                     {
-                        if (left < current) current = left; // insertion
-                        if (above < current) current = above; // deletion
+                        if (left < current)
+                            current = left; // insertion
+
+                        if (above < current)
+                            current = above; // deletion
+
                         current++;
+
                         if ((i != 0) && (j != 0)
                                      && (sChar == prevtChar)
                                      && (prevsChar == tChar))
                         {
                             thisTransCost++;
-                            if (thisTransCost < current) current = thisTransCost; // transposition
+
+                            if (thisTransCost < current)
+                                current = thisTransCost; // transposition
                         }
                     }
 
                     v0[j] = current;
                 }
 
-                if (haveMax && (v0[i + lenDiff] > maxDistance)) return -1;
+                if (haveMax && (v0[i + lenDiff] > maxDistance))
+                    return -1;
             }
 
             return (current <= maxDistance) ? current : -1;
@@ -333,34 +378,35 @@ namespace nhitomi.Core
             // Determine the suffix and readable value
             string suffix;
             double readable;
+
             if (absolute_i >= 0x1000000000000000) // Exabyte
             {
-                suffix = "eb";
+                suffix   = "eb";
                 readable = (i >> 50);
             }
             else if (absolute_i >= 0x4000000000000) // Petabyte
             {
-                suffix = "pd";
+                suffix   = "pd";
                 readable = (i >> 40);
             }
             else if (absolute_i >= 0x10000000000) // Terabyte
             {
-                suffix = "tb";
+                suffix   = "tb";
                 readable = (i >> 30);
             }
             else if (absolute_i >= 0x40000000) // Gigabyte
             {
-                suffix = "gb";
+                suffix   = "gb";
                 readable = (i >> 20);
             }
             else if (absolute_i >= 0x100000) // Megabyte
             {
-                suffix = "mb";
+                suffix   = "mb";
                 readable = (i >> 10);
             }
             else if (absolute_i >= 0x400) // Kilobyte
             {
-                suffix = "kb";
+                suffix   = "kb";
                 readable = i;
             }
             else
@@ -380,24 +426,36 @@ namespace nhitomi.Core
         /// https://stackoverflow.com/questions/1010123/named-string-format-is-it-possible
         /// Thanks Pavlo Neyman
         /// </summary>
-        public static string NamedFormat(this string format, IDictionary<string, object> values) =>
-            _namedFormatRegex
-                .Matches(format)
-                .Cast<Match>()
-                .Select(m => m.Groups[1].Value)
-                .Aggregate(format, (current, key) =>
-                {
-                    var colonIndex = key.IndexOf(':');
+        public static string NamedFormat(this string format,
+                                         IDictionary<string, object> values) => _namedFormatRegex
+                                                                               .Matches(format)
+                                                                               .Cast<Match>()
+                                                                               .Select(m => m.Groups[1].Value)
+                                                                               .Aggregate(format,
+                                                                                          (current,
+                                                                                           key) =>
+                                                                                          {
+                                                                                              var colonIndex =
+                                                                                                  key.IndexOf(':');
 
-                    return current.Replace(
-                        $"{{{key}}}",
-                        colonIndex > 0
-                            ? string.Format($"{{0:{key.Substring(colonIndex + 1)}}}",
-                                values[key.Substring(0, colonIndex)] ?? string.Empty)
-                            : values[key]?.ToString() ?? string.Empty);
-                });
+                                                                                              return current.Replace(
+                                                                                                  $"{{{key}}}",
+                                                                                                  colonIndex > 0
+                                                                                                      ? string.Format(
+                                                                                                          $"{{0:{key.Substring(colonIndex + 1)}}}",
+                                                                                                          values[
+                                                                                                              key
+                                                                                                                 .Substring(
+                                                                                                                      0,
+                                                                                                                      colonIndex)] ??
+                                                                                                          string.Empty)
+                                                                                                      : values[key]
+                                                                                                          ?.ToString() ??
+                                                                                                        string.Empty);
+                                                                                          });
 
-        public static string Serialize(this JsonSerializer json, object value)
+        public static string Serialize(this JsonSerializer json,
+                                       object value)
         {
             using (var writer = new StringWriter())
             {
@@ -407,7 +465,8 @@ namespace nhitomi.Core
             }
         }
 
-        public static T Deserialize<T>(this JsonSerializer json, string value)
+        public static T Deserialize<T>(this JsonSerializer json,
+                                       string value)
         {
             using (var reader = new StringReader(value))
             using (var jsonReader = new JsonTextReader(reader))

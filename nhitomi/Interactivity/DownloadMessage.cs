@@ -28,15 +28,15 @@ namespace nhitomi.Interactivity
             protected override Embed CreateEmbed()
             {
                 var path = new LocalizationPath("downloadMessage");
-                var l = Context.GetLocalization();
+                var l    = Context.GetLocalization();
 
                 return new EmbedBuilder()
-                    .WithTitle(path["title"][l, new {doujin = Message._doujin}])
-                    .WithUrl(GetUrl(Message._doujin))
-                    .WithThumbnailUrl($"https://nhitomi.chiya.dev/api/v1/images/{Message._doujin.AccessId}/-1")
-                    .WithDescription(path["text"][l, new {doujin = Message._doujin}])
-                    .WithColor(Color.LightOrange)
-                    .Build();
+                      .WithTitle(path["title"][l, new { doujin = Message._doujin }])
+                      .WithUrl(GetUrl(Message._doujin))
+                      .WithThumbnailUrl($"https://nhitomi.chiya.dev/api/v1/images/{Message._doujin.AccessId}/-1")
+                      .WithDescription(path["text"][l, new { doujin = Message._doujin }])
+                      .WithColor(Color.LightOrange)
+                      .Build();
             }
 
             static string GetUrl(Doujin d) => $"https://chiya.dev/nhitomi-dl/?id={d.AccessId}";

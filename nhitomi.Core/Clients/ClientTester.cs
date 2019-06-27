@@ -15,19 +15,22 @@ namespace nhitomi.Core.Clients
     /// </summary>
     public class ClientTester
     {
-        static readonly Dictionary<Type, ClientTestCase[]> _testCases = typeof(IDoujinClient).Assembly
-            .GetTypes()
-            .Where(t => !t.IsAbstract && t.IsClass && t.IsSubclassOf(typeof(ClientTestCase)) &&
-                        t.GetCustomAttribute<IgnoredAttribute>() == null)
-            .Select(t => (ClientTestCase) Activator.CreateInstance(t))
-            .GroupBy(c => c.ClientType)
-            .ToDictionary(g => g.Key, g => g.ToArray());
+        static readonly Dictionary<Type, ClientTestCase[]> _testCases =
+            typeof(IDoujinClient).Assembly.GetTypes()
+                                 .Where(t => t.IsClass &&
+                                             !t.IsAbstract &&
+                                             t.IsSubclassOf(typeof(ClientTestCase)) &&
+                                             t.GetCustomAttribute<IgnoredAttribute>() == null)
+                                 .Select(t => (ClientTestCase) Activator.CreateInstance(t))
+                                 .GroupBy(c => c.ClientType)
+                                 .ToDictionary(g => g.Key, g => g.ToArray());
 
         public readonly ConcurrentQueue<Exception> Exceptions = new ConcurrentQueue<Exception>();
 
         public bool ConcurrentTest { get; set; }
 
-        public async Task<bool> TestAsync(IDoujinClient client, CancellationToken cancellationToken = default)
+        public async Task<bool> TestAsync(IDoujinClient client,
+                                          CancellationToken cancellationToken = default)
         {
             try
             {
@@ -43,35 +46,32 @@ namespace nhitomi.Core.Clients
 
                     if (x == y)
                         return;
+
                     if (x == null || y == null)
                         throw new ClientTesterException(
                             $"Expected value was {(x == null ? "null" : "not null")}, " +
                             $"but actual value was {(y == null ? "null" : "not null")}.");
 
                     // compare the retrieved doujin with the known value
-                    Compare(x.PrettyName, y.PrettyName, nameof(DoujinInfo.PrettyName));
+                    Compare(x.PrettyName,   y.PrettyName,   nameof(DoujinInfo.PrettyName));
                     Compare(x.OriginalName, y.OriginalName, nameof(DoujinInfo.OriginalName));
-                    Compare(x.UploadTime, y.UploadTime, nameof(DoujinInfo.UploadTime));
-                    Compare(x.SourceId, y.SourceId, nameof(DoujinInfo.SourceId));
-                    Compare(x.Artist, y.Artist, nameof(DoujinInfo.Artist));
-                    Compare(x.Group, y.Group, nameof(DoujinInfo.Group));
-                    Compare(x.Scanlator, y.Scanlator, nameof(DoujinInfo.Scanlator));
-                    Compare(x.Language, y.Language, nameof(DoujinInfo.Language));
-                    Compare(x.Characters, y.Characters, nameof(DoujinInfo.Characters));
-                    Compare(x.Categories, y.Categories, nameof(DoujinInfo.Categories));
-                    Compare(x.Tags, y.Tags, nameof(DoujinInfo.Tags));
-                    Compare(x.PageCount, y.PageCount, nameof(DoujinInfo.PageCount));
+                    Compare(x.UploadTime,   y.UploadTime,   nameof(DoujinInfo.UploadTime));
+                    Compare(x.SourceId,     y.SourceId,     nameof(DoujinInfo.SourceId));
+                    Compare(x.Artist,       y.Artist,       nameof(DoujinInfo.Artist));
+                    Compare(x.Group,        y.Group,        nameof(DoujinInfo.Group));
+                    Compare(x.Scanlator,    y.Scanlator,    nameof(DoujinInfo.Scanlator));
+                    Compare(x.Language,     y.Language,     nameof(DoujinInfo.Language));
+                    Compare(x.Characters,   y.Characters,   nameof(DoujinInfo.Characters));
+                    Compare(x.Categories,   y.Categories,   nameof(DoujinInfo.Categories));
+                    Compare(x.Tags,         y.Tags,         nameof(DoujinInfo.Tags));
+                    Compare(x.PageCount,    y.PageCount,    nameof(DoujinInfo.PageCount));
                 });
 
                 if (ConcurrentTest)
-                {
                     await Task.WhenAll(tasks);
-                }
                 else
-                {
                     foreach (var task in tasks)
                         await task;
-                }
 
                 return true;
             }
@@ -87,7 +87,9 @@ namespace nhitomi.Core.Clients
             }
         }
 
-        static void Compare<T>(T x, T y, string propertyName)
+        static void Compare<T>(T x,
+                               T y,
+                               string propertyName)
         {
             if (Equals(x, y))
                 return;
@@ -97,7 +99,9 @@ namespace nhitomi.Core.Clients
         }
 
         [SuppressMessage("ReSharper", "PossibleMultipleEnumeration")]
-        static void Compare<T>(IEnumerable<T> x, IEnumerable<T> y, string propertyName) where T : IEquatable<T>
+        static void Compare<T>(IEnumerable<T> x,
+                               IEnumerable<T> y,
+                               string propertyName) where T : IEquatable<T>
         {
             if (Equals(x, y))
                 return;
@@ -111,8 +115,8 @@ namespace nhitomi.Core.Clients
                 return;
 
             throw new ClientTesterException($"Property '{propertyName}' did not match. " +
-                                            $"Expected: '{(x == null ? "<null>" : string.Join("', '", x))}', " +
-                                            $"Actual: '{(y == null ? "<null>" : string.Join("', '", y))}'.");
+                                            $"Expected: '{(string.Join("', '", x))}', " +
+                                            $"Actual: '{(string.Join("', '",   y))}'.");
         }
 
         public void ThrowExceptions()
@@ -124,14 +128,11 @@ namespace nhitomi.Core.Clients
 
             switch (exceptions.Count)
             {
-                case 0:
-                    return;
+                case 0: return;
 
-                case 1:
-                    throw new ClientTesterException("Exception during client testing.", exceptions[0]);
+                case 1: throw new ClientTesterException("Exception during client testing.", exceptions[0]);
 
-                default:
-                    throw new AggregateException(exceptions);
+                default: throw new AggregateException(exceptions);
             }
         }
     }
@@ -139,20 +140,14 @@ namespace nhitomi.Core.Clients
     [Serializable]
     public class ClientTesterException : Exception
     {
-        public ClientTesterException()
-        {
-        }
+        public ClientTesterException() { }
 
-        public ClientTesterException(string message) : base(message)
-        {
-        }
+        public ClientTesterException(string message) : base(message) { }
 
-        public ClientTesterException(string message, Exception inner) : base(message, inner)
-        {
-        }
+        public ClientTesterException(string message,
+                                     Exception inner) : base(message, inner) { }
 
-        protected ClientTesterException(SerializationInfo info, StreamingContext context) : base(info, context)
-        {
-        }
+        protected ClientTesterException(SerializationInfo info,
+                                        StreamingContext context) : base(info, context) { }
     }
 }

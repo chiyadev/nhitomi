@@ -17,9 +17,10 @@ namespace nhitomi.Interactivity.Triggers
             readonly IDatabase _database;
             readonly InteractiveManager _interactive;
 
-            public Action(IDatabase database, InteractiveManager interactive)
+            public Action(IDatabase database,
+                          InteractiveManager interactive)
             {
-                _database = database;
+                _database    = database;
                 _interactive = interactive;
             }
 
@@ -37,13 +38,10 @@ namespace nhitomi.Interactivity.Triggers
                 var context = Context as IDiscordContext;
 
                 if (isFeed || Interactive?.Source?.Id != Context.User.Id)
-                {
-                    // reply in DM if feed message
                     context = new DiscordContextWrapper(context)
                     {
                         Channel = await Context.User.GetOrCreateDMChannelAsync()
                     };
-                }
 
                 // send download interactive
                 await _interactive.SendInteractiveAsync(new DownloadMessage(doujin), context, cancellationToken);

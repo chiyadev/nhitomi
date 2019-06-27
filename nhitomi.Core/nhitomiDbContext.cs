@@ -39,27 +39,43 @@ namespace nhitomi.Core
 
         Task<bool> SaveAsync(CancellationToken cancellationToken = default);
 
-        Task<Doujin> GetDoujinAsync(string source, string id, CancellationToken cancellationToken = default);
-        Task<Doujin[]> GetDoujinsAsync((string source, string id)[] ids, CancellationToken cancellationToken = default);
+        Task<Doujin> GetDoujinAsync(string source,
+                                    string id,
+                                    CancellationToken cancellationToken = default);
+
+        Task<Doujin[]> GetDoujinsAsync((string source, string id)[] ids,
+                                       CancellationToken cancellationToken = default);
 
         Task<Doujin[]> GetDoujinsAsync(QueryFilterDelegate<Doujin> query,
-            CancellationToken cancellationToken = default);
+                                       CancellationToken cancellationToken = default);
 
-        Task<Doujin[]> SearchDoujinsAsync(DoujinSearchArgs args, CancellationToken cancellationToken = default);
+        Task<Doujin[]> SearchDoujinsAsync(DoujinSearchArgs args,
+                                          CancellationToken cancellationToken = default);
 
-        Task<Tag[]> GetTagsAsync(string value, CancellationToken cancellationToken = default);
+        Task<Tag[]> GetTagsAsync(string value,
+                                 CancellationToken cancellationToken = default);
 
-        Task<Collection> GetCollectionAsync(ulong userId, string name, CancellationToken cancellationToken = default);
-        Task<Collection[]> GetCollectionsAsync(ulong userId, CancellationToken cancellationToken = default);
+        Task<Collection> GetCollectionAsync(ulong userId,
+                                            string name,
+                                            CancellationToken cancellationToken = default);
 
-        Task<Doujin[]> GetCollectionAsync(ulong userId, string name, QueryFilterDelegate<Doujin> query,
-            CancellationToken cancellationToken = default);
+        Task<Collection[]> GetCollectionsAsync(ulong userId,
+                                               CancellationToken cancellationToken = default);
 
-        Task<Guild> GetGuildAsync(ulong guildId, CancellationToken cancellationToken = default);
-        Task<Guild[]> GetGuildsAsync(ulong[] guildIds, CancellationToken cancellationToken = default);
+        Task<Doujin[]> GetCollectionAsync(ulong userId,
+                                          string name,
+                                          QueryFilterDelegate<Doujin> query,
+                                          CancellationToken cancellationToken = default);
 
-        Task<FeedChannel> GetFeedChannelAsync(ulong guildId, ulong channelId,
-            CancellationToken cancellationToken = default);
+        Task<Guild> GetGuildAsync(ulong guildId,
+                                  CancellationToken cancellationToken = default);
+
+        Task<Guild[]> GetGuildsAsync(ulong[] guildIds,
+                                     CancellationToken cancellationToken = default);
+
+        Task<FeedChannel> GetFeedChannelAsync(ulong guildId,
+                                              ulong channelId,
+                                              CancellationToken cancellationToken = default);
 
         Task<FeedChannel[]> GetFeedChannelsAsync(CancellationToken cancellationToken = default);
     }
@@ -72,9 +88,7 @@ namespace nhitomi.Core
         public DbSet<Guild> Guilds { get; set; }
         public DbSet<FeedChannel> FeedChannels { get; set; }
 
-        public nhitomiDbContext(DbContextOptions<nhitomiDbContext> options) : base(options)
-        {
-        }
+        public nhitomiDbContext(DbContextOptions<nhitomiDbContext> options) : base(options) { }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -111,38 +125,43 @@ namespace nhitomi.Core
             }
         }
 
-        public Task<Doujin> GetDoujinAsync(string source, string id,
-            CancellationToken cancellationToken = default) =>
-            Query<Doujin>()
-                .Where(d => d.Source == source &&
-                            d.SourceId == id)
-                .Include(d => d.Tags).ThenInclude(x => x.Tag)
-                .FirstOrDefaultAsync(cancellationToken);
+        public Task<Doujin> GetDoujinAsync(string source,
+                                           string id,
+                                           CancellationToken cancellationToken = default) => Query<Doujin>()
+                                                                                            .Where(
+                                                                                                 d =>
+                                                                                                     d.Source ==
+                                                                                                     source &&
+                                                                                                     d.SourceId == id)
+                                                                                            .Include(d => d.Tags)
+                                                                                            .ThenInclude(x => x.Tag)
+                                                                                            .FirstOrDefaultAsync(
+                                                                                                 cancellationToken);
 
         public Task<Doujin[]> GetDoujinsAsync((string source, string id)[] ids,
-            CancellationToken cancellationToken = default)
+                                              CancellationToken cancellationToken = default)
         {
             switch (ids.Length)
             {
-                case 0:
-                    return Task.FromResult(new Doujin[0]);
+                case 0: return Task.FromResult(new Doujin[0]);
             }
 
             var source = ids.Select(x => x.source);
-            var id = ids.Select(x => x.id);
+            var id     = ids.Select(x => x.id);
 
             return Query<Doujin>()
-                .Where(d => source.Contains(d.Source) &&
-                            id.Contains(d.SourceId))
-                .Include(d => d.Tags).ThenInclude(x => x.Tag)
-                .ToArrayAsync(cancellationToken);
+                  .Where(d => source.Contains(d.Source) &&
+                              id.Contains(d.SourceId))
+                  .Include(d => d.Tags)
+                  .ThenInclude(x => x.Tag)
+                  .ToArrayAsync(cancellationToken);
         }
 
         public async Task<Doujin[]> GetDoujinsAsync(QueryFilterDelegate<Doujin> query,
-            CancellationToken cancellationToken = default)
+                                                    CancellationToken cancellationToken = default)
         {
             var doujins = await query(Query<Doujin>())
-                .ToArrayAsync(cancellationToken);
+               .ToArrayAsync(cancellationToken);
 
             await PopulateTags(doujins, cancellationToken);
 
@@ -150,7 +169,7 @@ namespace nhitomi.Core
         }
 
         public async Task<Doujin[]> SearchDoujinsAsync(DoujinSearchArgs args,
-            CancellationToken cancellationToken = default)
+                                                       CancellationToken cancellationToken = default)
         {
             if (string.IsNullOrWhiteSpace(args.Query))
                 return new Doujin[0];
@@ -168,8 +187,7 @@ namespace nhitomi.Core
                     doujins = new Doujin[0];
                     break;
 
-                default:
-                    throw new NotSupportedException($"Unsupported database provider {Database.ProviderName}.");
+                default: throw new NotSupportedException($"Unsupported database provider {Database.ProviderName}.");
             }
 
             // populate tags
@@ -179,7 +197,7 @@ namespace nhitomi.Core
         }
 
         static readonly Regex _commonSymbols = new Regex(@"[-!$%^&*#@()_+|~=`{}\[\]:"";'<>?,.\\\/\s]",
-            RegexOptions.Singleline | RegexOptions.Compiled);
+                                                         RegexOptions.Singleline | RegexOptions.Compiled);
 
         static readonly string[] _mySqlStopwords =
         {
@@ -197,7 +215,8 @@ namespace nhitomi.Core
             set.RemoveWhere(s => Array.IndexOf(_mySqlStopwords, s) != -1);
         }
 
-        async Task<Doujin[]> MySqlSearchAsync(DoujinSearchArgs args, CancellationToken cancellationToken = default)
+        async Task<Doujin[]> MySqlSearchAsync(DoujinSearchArgs args,
+                                              CancellationToken cancellationToken = default)
         {
             // remove symbols
             args.Query = _commonSymbols.Replace(args.Query, " ").Trim();
@@ -207,9 +226,10 @@ namespace nhitomi.Core
                 return new Doujin[0];
 
             // rebuild query for boolean search
-            var queryParts = new HashSet<string>(args.Query
-                .Split(new[] {' '}, StringSplitOptions.RemoveEmptyEntries)
-                .Select(s => s.ToLowerInvariant()));
+            var queryParts = new HashSet<string>(
+                args.Query
+                    .Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries)
+                    .Select(s => s.ToLowerInvariant()));
 
             if (args.QualityFilter)
             {
@@ -268,8 +288,8 @@ WHERE MATCH d.`TagsDenormalized` AGAINST ({{0}} IN BOOLEAN MODE)
 ORDER BY d.`UploadTime` DESC");
 
                 var doujins = await Query<Doujin>()
-                    .FromSql(builder.ToString(), args.Query, args.Source)
-                    .ToArrayAsync(cancellationToken);
+                                   .FromSql(builder.ToString(), args.Query, args.Source)
+                                   .ToArrayAsync(cancellationToken);
 
                 doujinList.AddRange(doujins);
 
@@ -291,42 +311,55 @@ ORDER BY d.`UploadTime` DESC");
             return doujinList.ToArray();
         }
 
-        public Task<Tag[]> GetTagsAsync(string value, CancellationToken cancellationToken = default) =>
-            Query<Tag>()
-                .Where(t => t.Value == value)
-                .ToArrayAsync(cancellationToken);
+        public Task<Tag[]> GetTagsAsync(string value,
+                                        CancellationToken cancellationToken = default) => Query<Tag>()
+                                                                                         .Where(t => t.Value == value)
+                                                                                         .ToArrayAsync(
+                                                                                              cancellationToken);
 
         // in some queries, do not populate tags using Include.
         // when using Include with fulltext searching, EF Core automatically
         // orders doujins by their ID at the end and relevancy ordering is ignored.
-        async Task PopulateTags(IEnumerable<Doujin> doujins, CancellationToken cancellationToken = default)
+        async Task PopulateTags(IEnumerable<Doujin> doujins,
+                                CancellationToken cancellationToken = default)
         {
             var dict = doujins.ToDictionary(d => d.Id);
-            var id = dict.Keys;
+            var id   = dict.Keys;
 
             var tags = await Query<TagRef>()
-                .Where(x => id.Contains(x.DoujinId))
-                .Include(x => x.Tag)
-                .ToArrayAsync(cancellationToken);
+                            .Where(x => id.Contains(x.DoujinId))
+                            .Include(x => x.Tag)
+                            .ToArrayAsync(cancellationToken);
 
             foreach (var group in tags.GroupBy(x => x.DoujinId))
                 dict[group.Key].Tags = group.ToList();
         }
 
-        public Task<Collection> GetCollectionAsync(ulong userId, string name,
-            CancellationToken cancellationToken = default) =>
-            Query<Collection>()
-                .Include(c => c.Doujins) // join table
-                .FirstOrDefaultAsync(c => c.OwnerId == userId && c.Name == name, cancellationToken);
+        public Task<Collection> GetCollectionAsync(ulong userId,
+                                                   string name,
+                                                   CancellationToken cancellationToken = default) => Query<Collection>()
+                                                                                                    .Include(
+                                                                                                         c => c
+                                                                                                            .Doujins) // join table
+                                                                                                    .FirstOrDefaultAsync(
+                                                                                                         c =>
+                                                                                                             c.OwnerId ==
+                                                                                                             userId &&
+                                                                                                             c.Name ==
+                                                                                                             name,
+                                                                                                         cancellationToken);
 
-        public Task<Collection[]> GetCollectionsAsync(ulong userId, CancellationToken cancellationToken = default) =>
+        public Task<Collection[]> GetCollectionsAsync(ulong userId,
+                                                      CancellationToken cancellationToken = default) =>
             Query<Collection>()
-                .Include(c => c.Doujins) // join table
-                .Where(c => c.OwnerId == userId)
-                .ToArrayAsync(cancellationToken);
+               .Include(c => c.Doujins) // join table
+               .Where(c => c.OwnerId == userId)
+               .ToArrayAsync(cancellationToken);
 
-        public async Task<Doujin[]> GetCollectionAsync(ulong userId, string name,
-            QueryFilterDelegate<Doujin> query, CancellationToken cancellationToken = default)
+        public async Task<Doujin[]> GetCollectionAsync(ulong userId,
+                                                       string name,
+                                                       QueryFilterDelegate<Doujin> query,
+                                                       CancellationToken cancellationToken = default)
         {
             var collection = await GetCollectionAsync(userId, name, cancellationToken);
 
@@ -336,18 +369,19 @@ ORDER BY d.`UploadTime` DESC");
             var id = collection.Doujins.Select(x => x.DoujinId).ToArray();
 
             var doujins = await query(Query<Doujin>().Where(d => id.Contains(d.Id)))
-                .OrderBy(collection.Sort, collection.SortDescending)
-                .ToArrayAsync(cancellationToken);
+                               .OrderBy(collection.Sort, collection.SortDescending)
+                               .ToArrayAsync(cancellationToken);
 
             await PopulateTags(doujins, cancellationToken);
 
             return doujins;
         }
 
-        public async Task<Guild> GetGuildAsync(ulong guildId, CancellationToken cancellationToken = default)
+        public async Task<Guild> GetGuildAsync(ulong guildId,
+                                               CancellationToken cancellationToken = default)
         {
             var guild = await Query<Guild>()
-                .FirstOrDefaultAsync(g => g.Id == guildId, cancellationToken);
+               .FirstOrDefaultAsync(g => g.Id == guildId, cancellationToken);
 
             if (guild == null)
             {
@@ -363,12 +397,13 @@ ORDER BY d.`UploadTime` DESC");
             return guild;
         }
 
-        public async Task<Guild[]> GetGuildsAsync(ulong[] guildIds, CancellationToken cancellationToken = default)
+        public async Task<Guild[]> GetGuildsAsync(ulong[] guildIds,
+                                                  CancellationToken cancellationToken = default)
         {
             var guilds = await Query<Guild>()
-                .Include(g => g.FeedChannels)
-                .Where(g => guildIds.Contains(g.Id))
-                .ToListAsync(cancellationToken);
+                              .Include(g => g.FeedChannels)
+                              .Where(g => guildIds.Contains(g.Id))
+                              .ToListAsync(cancellationToken);
 
             // create entities for missing guilds
             foreach (var guildId in guildIds.Where(i => guilds.All(g => g.Id != i)))
@@ -386,28 +421,30 @@ ORDER BY d.`UploadTime` DESC");
             return guilds.ToArray();
         }
 
-        public async Task<FeedChannel> GetFeedChannelAsync(ulong guildId, ulong channelId,
-            CancellationToken cancellationToken = default)
+        public async Task<FeedChannel> GetFeedChannelAsync(ulong guildId,
+                                                           ulong channelId,
+                                                           CancellationToken cancellationToken = default)
         {
             var channel = await Query<FeedChannel>()
-                .Include(c => c.Guild)
-                .Include(c => c.LastDoujin)
-                .Include(c => c.Tags).ThenInclude(x => x.Tag)
-                .FirstOrDefaultAsync(c => c.Id == channelId, cancellationToken);
+                               .Include(c => c.Guild)
+                               .Include(c => c.LastDoujin)
+                               .Include(c => c.Tags)
+                               .ThenInclude(x => x.Tag)
+                               .FirstOrDefaultAsync(c => c.Id == channelId, cancellationToken);
 
             if (channel == null)
             {
                 var lastDoujin = await Query<Doujin>()
-                    .OrderByDescending(d => d.ProcessTime)
-                    .FirstOrDefaultAsync(cancellationToken);
+                                      .OrderByDescending(d => d.ProcessTime)
+                                      .FirstOrDefaultAsync(cancellationToken);
 
                 // create entity for this channel
                 channel = new FeedChannel
                 {
-                    Id = channelId,
-                    Guild = await GetGuildAsync(guildId, cancellationToken),
+                    Id         = channelId,
+                    Guild      = await GetGuildAsync(guildId, cancellationToken),
                     LastDoujin = lastDoujin,
-                    Tags = new List<FeedChannelTag>()
+                    Tags       = new List<FeedChannelTag>()
                 };
 
                 Add(channel);
@@ -418,10 +455,11 @@ ORDER BY d.`UploadTime` DESC");
 
         public Task<FeedChannel[]> GetFeedChannelsAsync(CancellationToken cancellationToken = default) =>
             Query<FeedChannel>()
-                .Include(c => c.Guild)
-                .Include(c => c.LastDoujin)
-                .Include(c => c.Tags).ThenInclude(x => x.Tag)
-                .ToArrayAsync(cancellationToken);
+               .Include(c => c.Guild)
+               .Include(c => c.LastDoujin)
+               .Include(c => c.Tags)
+               .ThenInclude(x => x.Tag)
+               .ToArrayAsync(cancellationToken);
     }
 
     public sealed class nhitomiDbContextDesignTimeFactory : IDesignTimeDbContextFactory<nhitomiDbContext>

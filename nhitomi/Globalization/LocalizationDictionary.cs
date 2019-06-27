@@ -19,7 +19,8 @@ namespace nhitomi.Globalization
 
         static string FixKey(string key) => key.ToLowerInvariant();
 
-        public void AddDefinition(object obj, string prefix = null)
+        public void AddDefinition(object obj,
+                                  string prefix = null)
         {
             foreach (var property in obj.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance))
             {
@@ -62,7 +63,8 @@ namespace nhitomi.Globalization
 
         public bool ContainsKey(string key) => _dict.ContainsKey(FixKey(key));
 
-        public bool TryGetValue(string key, out string value)
+        public bool TryGetValue(string key,
+                                out string value)
         {
             if (_dict.TryGetValue(FixKey(key), out value))
                 return true;
@@ -75,8 +77,12 @@ namespace nhitomi.Globalization
         /// <summary>
         /// This will only enumerate definitions within this localization (i.e. no fallback).
         /// </summary>
-        public IEnumerator<KeyValuePair<string, string>> GetEnumerator() =>
-            _dict.Select(x => new KeyValuePair<string, string>(FixKey(x.Key), x.Value)).GetEnumerator();
+        public IEnumerator<KeyValuePair<string, string>> GetEnumerator() => _dict
+                                                                           .Select(
+                                                                                x => new KeyValuePair<string, string>(
+                                                                                    FixKey(x.Key),
+                                                                                    x.Value))
+                                                                           .GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }

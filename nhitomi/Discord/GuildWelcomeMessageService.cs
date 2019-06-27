@@ -17,11 +17,12 @@ namespace nhitomi.Discord
         readonly DiscordService _discord;
         readonly DiscordErrorReporter _errorReporter;
 
-        public GuildWelcomeMessageService(IOptions<AppSettings> options, DiscordService discord,
-            DiscordErrorReporter errorReporter)
+        public GuildWelcomeMessageService(IOptions<AppSettings> options,
+                                          DiscordService discord,
+                                          DiscordErrorReporter errorReporter)
         {
-            _settings = options.Value;
-            _discord = discord;
+            _settings      = options.Value;
+            _discord       = discord;
             _errorReporter = errorReporter;
 
             _discord.JoinedGuild += HandleJoinedGuild;
@@ -32,21 +33,21 @@ namespace nhitomi.Discord
             try
             {
                 // use default localization
-                var l = Localization.Default;
-                var path = new LocalizationPath("welcomeMessage");
+                var l      = Localization.Default;
+                var path   = new LocalizationPath("welcomeMessage");
                 var prefix = _settings.Discord.Prefix;
 
                 var content = $@"
 {path["text"][l]}
 
-**|** {path["get"][l, new {prefix}]}
-**|** {path["download"][l, new {prefix}]}
-**|** {path["search"][l, new {prefix}]}
-**|** {path["language"][l, new {prefix}]}
+**|** {path["get"][l, new { prefix }]}
+**|** {path["download"][l, new { prefix }]}
+**|** {path["search"][l, new { prefix }]}
+**|** {path["language"][l, new { prefix }]}
 
-{path["referHelp"][l, new {prefix}]}
+{path["referHelp"][l, new { prefix }]}
 
-{path["openSource"][l, new {repoUrl = "https://github.com/chiyadev/nhitomi"}]}
+{path["openSource"][l, new { repoUrl = "https://github.com/chiyadev/nhitomi" }]}
 ".Trim();
 
                 foreach (var channel in guild.TextChannels.OrderBy(c => c.Position))
@@ -69,12 +70,15 @@ namespace nhitomi.Discord
             }
             catch (Exception e)
             {
-                await _errorReporter.ReportAsync(e, new GuildJoinedContext
-                {
-                    Client = _discord,
-                    Channel = guild.DefaultChannel,
-                    User = guild.Owner
-                }, false);
+                await _errorReporter.ReportAsync(
+                    e,
+                    new GuildJoinedContext
+                    {
+                        Client  = _discord,
+                        Channel = guild.DefaultChannel,
+                        User    = guild.Owner
+                    },
+                    false);
             }
         }
 

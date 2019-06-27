@@ -11,10 +11,11 @@ namespace nhitomi.Discord
         readonly AppSettings _settings;
         readonly DiscordService _discord;
 
-        public StatusUpdateService(IOptions<AppSettings> options, DiscordService discord)
+        public StatusUpdateService(IOptions<AppSettings> options,
+                                   DiscordService discord)
         {
             _settings = options.Value;
-            _discord = discord;
+            _discord  = discord;
         }
 
         readonly Random _rand = new Random();

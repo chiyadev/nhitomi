@@ -16,8 +16,8 @@ namespace nhitomi.Discord.Parsing
 
         public CommandAttribute(string name)
         {
-            Name = name;
-            Aliases = new[] {name[0].ToString()};
+            Name    = name;
+            Aliases = new[] { name[0].ToString() };
         }
 
         public string[] GetNames()
