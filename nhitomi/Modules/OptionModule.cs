@@ -9,7 +9,7 @@ using nhitomi.Globalization;
 namespace nhitomi.Modules
 {
     [Module("option", Alias = "o")]
-    public class OptionModule
+    public partial class OptionModule
     {
         readonly IDiscordContext _context;
         readonly IDatabase _db;
