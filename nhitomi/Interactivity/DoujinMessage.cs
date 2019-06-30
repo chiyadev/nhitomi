@@ -71,6 +71,7 @@ namespace nhitomi.Interactivity
                     },
 
                     Fields = getFields()
+                            .Where(x => !string.IsNullOrWhiteSpace(x.value))
                             .Select(x => new EmbedFieldBuilder
                              {
                                  Name  = x.name,
