@@ -49,7 +49,7 @@ namespace nhitomi.Interactivity
 
                 var embed = new EmbedBuilder
                 {
-                    Title = l["title", new { context = Context, collection }],
+                    Title = $"**{Context.User.Username}**: {collection.Name}",
                     Color = Color.Teal,
 
                     Fields = new List<EmbedFieldBuilder>

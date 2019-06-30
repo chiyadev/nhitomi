@@ -61,7 +61,7 @@ namespace nhitomi.Interactivity
 
                 var embed = new EmbedBuilder
                 {
-                    Title        = l["title"],
+                    Title        = $"**nhitomi**: {l["title"]}",
                     Color        = Color.Purple,
                     ThumbnailUrl = "https://github.com/chiyadev/nhitomi/raw/master/nhitomi.png",
                     Footer = new EmbedFooterBuilder

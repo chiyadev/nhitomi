@@ -31,7 +31,7 @@ namespace nhitomi.Interactivity
 
                 return new EmbedBuilder
                 {
-                    Title        = l["title", new { doujin }],
+                    Title        = doujin.OriginalName,
                     Url          = GetUrl(doujin),
                     ThumbnailUrl = $"https://nhitomi.chiya.dev/api/v1/images/{doujin.AccessId}/-1",
                     Description  = l["text", new { doujin }],

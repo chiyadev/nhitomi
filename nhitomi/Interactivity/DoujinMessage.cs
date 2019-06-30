@@ -53,7 +53,7 @@ namespace nhitomi.Interactivity
             {
                 return new EmbedBuilder
                 {
-                    Title       = l["title", new { doujin }],
+                    Title       = doujin.OriginalName,
                     Description = doujin.OriginalName == doujin.PrettyName ? null : doujin.PrettyName,
                     Url         = GetGalleryUrl(doujin),
                     ImageUrl    = $"https://nhitomi.chiya.dev/api/v1/images/{doujin.AccessId}/-1",
