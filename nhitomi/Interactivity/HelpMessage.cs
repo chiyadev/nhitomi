@@ -88,11 +88,10 @@ namespace nhitomi.Interactivity
 
                     case HelpMessageSection.Options:
                         OptionsSection(embed, l);
+                        LanguagesSection(embed, l);
                         break;
 
                     case HelpMessageSection.Other:
-                        LanguagesSection(embed, l);
-
                         // only add translators if not English
                         if (l.Localization != Localization.Default)
                             TranslationsSection(embed, l);
