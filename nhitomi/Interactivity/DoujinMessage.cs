@@ -74,8 +74,9 @@ namespace nhitomi.Interactivity
                             .Where(x => !string.IsNullOrWhiteSpace(x.value))
                             .Select(x => new EmbedFieldBuilder
                              {
-                                 Name  = x.name,
-                                 Value = x.value
+                                 Name     = x.name,
+                                 Value    = x.value,
+                                 IsInline = true
                              })
                             .ToList()
                 }.Build();
