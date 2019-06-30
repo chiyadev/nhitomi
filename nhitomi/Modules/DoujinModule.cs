@@ -61,7 +61,6 @@ namespace nhitomi.Modules
                 DescriptionKey = "doujins.get",
                 Examples = new[]
                 {
-                    "nh 1234",
                     "nhentai 1234",
                     "nhentai/1234",
                     "https://nhentai.net/g/1234/"
