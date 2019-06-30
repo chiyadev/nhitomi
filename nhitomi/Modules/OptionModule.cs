@@ -5,23 +5,27 @@ using nhitomi.Core;
 using nhitomi.Discord;
 using nhitomi.Discord.Parsing;
 using nhitomi.Globalization;
+using nhitomi.Interactivity;
 
 namespace nhitomi.Modules
 {
-    [Module("option")]
-    public class OptionModule
+    [Module("option", Alias = "o")]
+    public partial class OptionModule
     {
         readonly IDiscordContext _context;
         readonly IDatabase _db;
         readonly GuildSettingsCache _settingsCache;
+        readonly InteractiveManager _interactive;
 
         public OptionModule(IDiscordContext context,
                             IDatabase db,
-                            GuildSettingsCache settingsCache)
+                            GuildSettingsCache settingsCache,
+                            InteractiveManager interactive)
         {
             _context       = context;
             _db            = db;
             _settingsCache = settingsCache;
+            _interactive   = interactive;
         }
 
         public static async Task<bool> EnsureGuildAdminAsync(IDiscordContext context,
@@ -42,7 +46,7 @@ namespace nhitomi.Modules
             return true;
         }
 
-        [Command("language")]
+        [Command("language", Alias = "l")]
         public async Task LanguageAsync(string language,
                                         CancellationToken cancellationToken = default)
         {
@@ -78,5 +82,21 @@ namespace nhitomi.Modules
                 await _context.ReplyAsync("localizationNotFound", new { language });
             }
         }
+
+        [Command("language")]
+        public Task LanguageAsync(CancellationToken cancellationToken = default) => _interactive.SendInteractiveAsync(
+            new CommandHelpMessage
+            {
+                Command        = "language",
+                Aliases        = new[] { "l" },
+                DescriptionKey = "options.language",
+                Examples = new[]
+                {
+                    "en",
+                    "english"
+                }
+            },
+            _context,
+            cancellationToken);
     }
 }

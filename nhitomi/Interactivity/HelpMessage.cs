@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Text;
 using Discord;
 using Microsoft.Extensions.Options;
@@ -23,9 +22,8 @@ namespace nhitomi.Interactivity
     {
         protected override IEnumerable<IReactionTrigger> CreateTriggers()
         {
-            foreach (var trigger in base.CreateTriggers())
-                yield return trigger;
-
+            yield return new ListTrigger(MoveDirection.Left);
+            yield return new ListTrigger(MoveDirection.Right);
             yield return new DeleteTrigger();
         }
 
@@ -47,13 +45,6 @@ namespace nhitomi.Interactivity
             {
                 var l = Context.GetLocalization()["helpMessage"];
 
-                var version = typeof(Startup).Assembly.GetName()
-                                             .Version.ToString(2);
-
-                var codename = typeof(Startup).Assembly
-                                              .GetCustomAttribute<AssemblyInformationalVersionAttribute>()
-                                              .InformationalVersion;
-
                 var embed = new EmbedBuilder
                 {
                     Title        = $"**nhitomi**: {l["title"]}",
@@ -61,7 +52,7 @@ namespace nhitomi.Interactivity
                     ThumbnailUrl = "https://github.com/chiyadev/nhitomi/raw/master/nhitomi.png",
                     Footer = new EmbedFooterBuilder
                     {
-                        Text = $"v{version} {codename} — {l["footer"]}"
+                        Text = $"v{VersionHelper.Version.ToString(2)} {VersionHelper.Codename} — {l["footer"]}"
                     }
                 };
 
@@ -155,10 +146,9 @@ namespace nhitomi.Interactivity
                 embed.AddField(l["title"],
                                $@"
 - `{prefix}option language` — {l["language"]}
-
-- `{prefix}feed add` — {l["feed.add"]}
-- `{prefix}feed remove` — {l["feed.remove"]}
-- `{prefix}feed mode` — {l["feed.mode"]}
+- `{prefix}option feed add` — {l["feed.add"]}
+- `{prefix}option feed remove` — {l["feed.remove"]}
+- `{prefix}option feed mode` — {l["feed.mode"]}
 ".Trim());
             }
 

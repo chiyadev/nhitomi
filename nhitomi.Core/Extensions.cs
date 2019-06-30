@@ -121,7 +121,7 @@ namespace nhitomi.Core
             var buffer = reader.ReadBytes(sizeof(int));
 
             if (BitConverter.IsLittleEndian)
-                System.Array.Reverse(buffer);
+                Array.Reverse(buffer);
 
             return BitConverter.ToInt32(buffer, 0);
         }
@@ -131,7 +131,7 @@ namespace nhitomi.Core
             var buffer = reader.ReadBytes(sizeof(ulong));
 
             if (BitConverter.IsLittleEndian)
-                System.Array.Reverse(buffer);
+                Array.Reverse(buffer);
 
             return BitConverter.ToUInt64(buffer, 0);
         }

@@ -20,10 +20,8 @@ namespace nhitomi.Interactivity
         protected override IEnumerable<IReactionTrigger> CreateTriggers()
         {
             yield return new ListJumpTrigger(JumpDestination.Start);
-
-            foreach (var trigger in base.CreateTriggers())
-                yield return trigger;
-
+            yield return new ListTrigger(MoveDirection.Left);
+            yield return new ListTrigger(MoveDirection.Right);
             yield return new ListJumpTrigger(JumpDestination.End, _doujin.PageCount - 1);
             yield return new DeleteTrigger();
         }

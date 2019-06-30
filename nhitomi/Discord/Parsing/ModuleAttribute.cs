@@ -7,13 +7,20 @@ namespace nhitomi.Discord.Parsing
     public class ModuleAttribute : Attribute
     {
         public string Name { get; }
+
+        public string Alias
+        {
+            get => Aliases == null || Aliases.Length == 0 ? null : Aliases[0];
+            set => Aliases = new[] { value };
+        }
+
         public string[] Aliases { get; set; }
         public bool IsPrefixed { get; set; } = true;
 
         public ModuleAttribute(string name)
         {
-            Name    = name;
-            Aliases = new[] { name[0].ToString() };
+            Name = name;
+            //Aliases = new[] { name[0].ToString() };
         }
 
         public string[] GetNames()

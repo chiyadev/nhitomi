@@ -93,7 +93,7 @@
       "add": "Adds a doujinshi to a collection.",
       "remove": "Removes a doujinshi from a collection.",
       "sort": "Sorts a collection by a doujinshi attribute.",
-      "delete": "Deletes a collection, removing all doujins in it."
+      "delete": "Deletes a collection, removing all doujinshi in it."
     },
     "options": {
       "title": "Options",
@@ -109,6 +109,8 @@
       "title": "Open Source",
       "license": "This project is licensed under the MIT License."
     },
+    "aliases": "Aliases",
+    "examples": "Examples",
     "listBeginning": "Start of help message.",
     "listEnd": "End of help message."
   },

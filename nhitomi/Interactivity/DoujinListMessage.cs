@@ -16,10 +16,8 @@ namespace nhitomi.Interactivity
             yield return new FavoriteTrigger();
             yield return new ReadTrigger();
             yield return new DownloadTrigger();
-
-            foreach (var trigger in base.CreateTriggers())
-                yield return trigger;
-
+            yield return new ListTrigger(MoveDirection.Left);
+            yield return new ListTrigger(MoveDirection.Right);
             yield return new DeleteTrigger();
         }
 
