@@ -44,7 +44,8 @@ namespace nhitomi.Discord
                    .Select(t => new CommandInfo(t)));
 
             if (_logger.IsEnabled(LogLevel.Debug))
-                _logger.LogDebug($"Loaded commands: '{string.Join("', '", _commands.Select(c => c.FullName))}'");
+                _logger.LogDebug("Loaded commands: " +
+                                 $"'{string.Join("', '", _commands.Select(c => c.FullName).Distinct())}'");
 
             return Task.CompletedTask;
         }
