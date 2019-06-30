@@ -43,6 +43,9 @@ namespace nhitomi
 
         public static string ExpandContraction(string source)
         {
+            if (source == null)
+                return null;
+
             switch (source.Trim().ToLowerInvariant())
             {
                 case "nh": return "nhentai";
