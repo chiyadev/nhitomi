@@ -138,6 +138,24 @@ namespace nhitomi.Modules
             return AddAsync(name, source, id, cancellationToken);
         }
 
+        [Command("add", BindName = false), Binding("[name] add")]
+        public Task AddAsync(string name,
+                             CancellationToken cancellationToken = default) => _interactive.SendInteractiveAsync(
+            new CommandHelpMessage
+            {
+                Command        = $"{name} add",
+                Aliases        = new[] { $"{name} a" },
+                DescriptionKey = "collections.add",
+                Examples = new[]
+                {
+                    "nhentai 1234",
+                    "nhentai/1234",
+                    "https://nhentai.net/g/1234/"
+                }
+            },
+            _context,
+            cancellationToken);
+
         [Command("remove", BindName = false), Binding("[name] remove|r [source] [id]")]
         public async Task RemoveAsync(string name,
                                       string source,
@@ -192,6 +210,24 @@ namespace nhitomi.Modules
             return RemoveAsync(name, source, id, cancellationToken);
         }
 
+        [Command("remove", BindName = false), Binding("[name] remove")]
+        public Task RemoveAsync(string name,
+                                CancellationToken cancellationToken = default) => _interactive.SendInteractiveAsync(
+            new CommandHelpMessage
+            {
+                Command        = $"{name} remove",
+                Aliases        = new[] { $"{name} r" },
+                DescriptionKey = "collections.remove",
+                Examples = new[]
+                {
+                    "nhentai 1234",
+                    "nhentai/1234",
+                    "https://nhentai.net/g/1234/"
+                }
+            },
+            _context,
+            cancellationToken);
+
         [Command("delete", BindName = false), Binding("[name] delete|d")]
         public async Task DeleteAsync(string name,
                                       CancellationToken cancellationToken = default)
@@ -242,5 +278,24 @@ namespace nhitomi.Modules
 
             await _context.ReplyAsync("collectionSorted", new { collection, attribute = sort });
         }
+
+        [Command("sort", BindName = false), Binding("[name] sort")]
+        public Task SortAsync(string name,
+                              CancellationToken cancellationToken = default) => _interactive.SendInteractiveAsync(
+            new CommandHelpMessage
+            {
+                Command        = $"{name} sort",
+                Aliases        = new[] { $"{name} s" },
+                DescriptionKey = "collections.sort",
+                Examples = new[]
+                {
+                    "name",
+                    "artist",
+                    "group",
+                    "language"
+                }
+            },
+            _context,
+            cancellationToken);
     }
 }
