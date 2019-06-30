@@ -156,7 +156,7 @@ namespace nhitomi.Modules
             return DownloadAsync(source, id, cancellationToken);
         }
 
-        [Command("get")]
+        [Command("download")]
         public Task DownloadAsync(CancellationToken cancellationToken = default) => _interactive.SendInteractiveAsync(
             new CommandHelpMessage
             {
@@ -198,7 +198,7 @@ namespace nhitomi.Modules
             return ReadAsync(source, id, cancellationToken);
         }
 
-        [Command("get")]
+        [Command("read")]
         public Task ReadAsync(CancellationToken cancellationToken = default) => _interactive.SendInteractiveAsync(
             new CommandHelpMessage
             {
