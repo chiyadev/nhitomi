@@ -33,7 +33,7 @@ namespace nhitomi.Interactivity
 
                 return new EmbedBuilder
                 {
-                    Title       = "**nhitomi**: " + (Message.Title ?? $"{prefix}{command}"),
+                    Title       = $"**nhitomi**: {prefix}{Message.Title ?? command}",
                     Color       = Color.Purple,
                     Description = l[Message.DescriptionKey],
 
