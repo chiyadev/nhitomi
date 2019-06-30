@@ -56,8 +56,9 @@ namespace nhitomi.Interactivity
 
         public static readonly string[] DoujinCommandExamples =
         {
+            "nh/1234",
             "nhentai 1234",
-            "nhentai/1234",
+            "hitomi/123456",
             "https://nhentai.net/g/1234/"
         };
     }
