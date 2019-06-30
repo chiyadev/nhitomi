@@ -59,7 +59,7 @@ namespace nhitomi.Interactivity
                         new EmbedFieldBuilder
                         {
                             Name  = l["sort"],
-                            Value = l["sortValues"][collection.Sort.ToString()]
+                            Value = l["sortValue"][collection.Sort.ToString()]
                         },
                         new EmbedFieldBuilder
                         {
