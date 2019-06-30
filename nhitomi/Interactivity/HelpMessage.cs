@@ -124,7 +124,7 @@ namespace nhitomi.Interactivity
             static void SourcesSection(EmbedBuilder embed,
                                        LocalizationAccess l)
             {
-                l = l["sources"];
+                l = l["doujins"]["sources"];
 
                 embed.AddField(l["title"],
                                @"
@@ -171,7 +171,7 @@ namespace nhitomi.Interactivity
             static void LanguagesSection(EmbedBuilder embed,
                                          LocalizationAccess l)
             {
-                l = l["languages"];
+                l = l["options"]["languages"];
 
                 var content = new StringBuilder();
 
