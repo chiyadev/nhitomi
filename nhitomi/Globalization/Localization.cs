@@ -87,7 +87,8 @@ namespace nhitomi.Globalization
 
     public class LocalizationEntry
     {
-        readonly Localization _localization;
+        public Localization Localization { get; }
+
         readonly string _key;
         readonly object _args;
 
@@ -95,16 +96,16 @@ namespace nhitomi.Globalization
                                  string key,
                                  object args)
         {
-            _localization = localization;
-            _key          = key;
-            _args         = args;
+            Localization = localization;
+            _key         = key;
+            _args        = args;
         }
 
         public LocalizationEntry this[string key,
                                       object args = null] =>
-            new LocalizationEntry(_localization, $"{_key}.{key}", args ?? _args);
+            new LocalizationEntry(Localization, $"{_key}.{key}", args ?? _args);
 
-        public override string ToString() => Smart.Format(_localization.Dictionary[_key], _args);
+        public override string ToString() => Smart.Format(Localization.Dictionary[_key], _args);
 
         public static implicit operator string(LocalizationEntry entry) => entry.ToString();
     }
