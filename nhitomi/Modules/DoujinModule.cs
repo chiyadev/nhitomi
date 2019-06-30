@@ -52,6 +52,24 @@ namespace nhitomi.Modules
             return GetAsync(source, id, cancellationToken);
         }
 
+        [Command("get")]
+        public Task GetAsync(CancellationToken cancellationToken = default) => _interactive.SendInteractiveAsync(
+            new CommandHelpMessage
+            {
+                Command     = "get",
+                Aliases     = new[] { "g" },
+                Description = "Displays full doujinshi information.",
+                Examples = new[]
+                {
+                    "nh 1234",
+                    "nhentai 1234",
+                    "nhentai/1234",
+                    "https://nhentai.net/g/1234/"
+                }
+            },
+            _context,
+            cancellationToken);
+
         [Command("from")]
         public Task FromAsync(string source,
                               CancellationToken cancellationToken = default) =>
