@@ -1,0 +1,14 @@
+[
+  {
+    "name": "English.json",
+    "culture": "en"
+  },
+  {
+    "name": "Indonesian.json",
+    "culture": "id"
+  },
+  {
+    "name": "Korean.json",
+    "culture": "ko"
+  }
+]
