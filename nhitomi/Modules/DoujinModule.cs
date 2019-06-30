@@ -59,12 +59,7 @@ namespace nhitomi.Modules
                 Command        = "get",
                 Aliases        = new[] { "g" },
                 DescriptionKey = "doujins.get",
-                Examples = new[]
-                {
-                    "nhentai 1234",
-                    "nhentai/1234",
-                    "https://nhentai.net/g/1234/"
-                }
+                Examples       = CommandHelpMessage.DoujinCommandExamples
             },
             _context,
             cancellationToken);
@@ -163,12 +158,7 @@ namespace nhitomi.Modules
                 Command        = "download",
                 Aliases        = new[] { "dl" },
                 DescriptionKey = "doujins.download",
-                Examples = new[]
-                {
-                    "nhentai 1234",
-                    "nhentai/1234",
-                    "https://nhentai.net/g/1234/"
-                }
+                Examples       = CommandHelpMessage.DoujinCommandExamples
             },
             _context,
             cancellationToken);
@@ -205,12 +195,7 @@ namespace nhitomi.Modules
                 Command        = "read",
                 Aliases        = new[] { "r" },
                 DescriptionKey = "doujins.read",
-                Examples = new[]
-                {
-                    "nhentai 1234",
-                    "nhentai/1234",
-                    "https://nhentai.net/g/1234/"
-                }
+                Examples       = CommandHelpMessage.DoujinCommandExamples
             },
             _context,
             cancellationToken);

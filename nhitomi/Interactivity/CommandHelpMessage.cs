@@ -53,5 +53,12 @@ namespace nhitomi.Interactivity
                 }.Build();
             }
         }
+
+        public static readonly string[] DoujinCommandExamples =
+        {
+            "nhentai 1234",
+            "nhentai/1234",
+            "https://nhentai.net/g/1234/"
+        };
     }
 }

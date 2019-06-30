@@ -147,12 +147,7 @@ namespace nhitomi.Modules
                 Command        = $"collection {name} add",
                 Aliases        = new[] { $"c {name} a" },
                 DescriptionKey = "collections.add",
-                Examples = new[]
-                {
-                    "nhentai 1234",
-                    "nhentai/1234",
-                    "https://nhentai.net/g/1234/"
-                }
+                Examples       = CommandHelpMessage.DoujinCommandExamples
             },
             _context,
             cancellationToken);
@@ -220,12 +215,7 @@ namespace nhitomi.Modules
                 Command        = $"collection {name} remove",
                 Aliases        = new[] { $"c {name} r" },
                 DescriptionKey = "collections.remove",
-                Examples = new[]
-                {
-                    "nhentai 1234",
-                    "nhentai/1234",
-                    "https://nhentai.net/g/1234/"
-                }
+                Examples       = CommandHelpMessage.DoujinCommandExamples
             },
             _context,
             cancellationToken);
