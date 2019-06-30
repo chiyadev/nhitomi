@@ -65,12 +65,13 @@ namespace nhitomi.Modules
                 // update cache
                 _settingsCache[_context.Channel] = guild;
 
-                await _context.ReplyAsync(
-                    "localizationChanged",
-                    new
-                    {
-                        localization = Localization.GetLocalization(language)
-                    });
+                // respond in the new language
+                await new DiscordContextWrapper(_context) { GuildSettings = guild }
+                   .ReplyAsync("localizationChanged",
+                               new
+                               {
+                                   localization = Localization.GetLocalization(language)
+                               });
             }
             else
             {
