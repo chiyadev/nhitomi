@@ -89,7 +89,7 @@
       "language": "Changes the interface language within a server.",
       "feedAdd": "Subscribes a channel to the given tag.",
       "feedRemove": "Unsubscribes a channel from the given tag.",
-      "mode": "Changes the tag whitelist mode of a channel between `any` and `all`.",
+      "feedMode": "Changes the tag whitelist mode of a channel between `any` and `all`.",
       "languages": {
         "title": "Languages"
       }
