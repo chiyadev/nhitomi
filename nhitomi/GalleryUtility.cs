@@ -6,10 +6,10 @@ namespace nhitomi
     public static class GalleryUtility
     {
         const string _nhentai =
-            @"\b((http|https):\/\/)?nhentai(\.net)?\/(g\/)?(?<src_nhentai>[0-9]{1,6})\b";
+            @"\b((https?:\/\/)?nhentai(\.net)?\/(g\/)?|nh\/)(?<src_nhentai>[0-9]{1,6})\b";
 
         const string _hitomi =
-            @"\b((http|https):\/\/)?hitomi(\.la)?\/(galleries\/)?(?<src_Hitomi>[0-9]{1,7})\b";
+            @"\b((https?:\/\/)?hitomi(\.la)?\/(galleries\/)?|hi\/)(?<src_Hitomi>[0-9]{1,7})(\.html)?\b";
 
         const RegexOptions _patternOptions = RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.IgnoreCase;
 
