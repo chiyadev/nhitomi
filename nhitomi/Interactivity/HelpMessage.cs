@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Text;
 using Discord;
 using Microsoft.Extensions.Options;
@@ -47,13 +46,6 @@ namespace nhitomi.Interactivity
             {
                 var l = Context.GetLocalization()["helpMessage"];
 
-                var version = typeof(Startup).Assembly.GetName()
-                                             .Version.ToString(2);
-
-                var codename = typeof(Startup).Assembly
-                                              .GetCustomAttribute<AssemblyInformationalVersionAttribute>()
-                                              .InformationalVersion;
-
                 var embed = new EmbedBuilder
                 {
                     Title        = $"**nhitomi**: {l["title"]}",
@@ -61,7 +53,7 @@ namespace nhitomi.Interactivity
                     ThumbnailUrl = "https://github.com/chiyadev/nhitomi/raw/master/nhitomi.png",
                     Footer = new EmbedFooterBuilder
                     {
-                        Text = $"v{version} {codename} — {l["footer"]}"
+                        Text = $"v{VersionHelper.Version.ToString(2)} {VersionHelper.Codename} — {l["footer"]}"
                     }
                 };
 
