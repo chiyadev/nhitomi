@@ -260,7 +260,7 @@ namespace nhitomi.Core
             do
             {
                 // get all matching items within the scanning range
-                var builder = new StringBuilder().AppendLine($@"
+                var builder = new StringBuilder().AppendLine(@"
 SELECT d.*
 
 FROM (
