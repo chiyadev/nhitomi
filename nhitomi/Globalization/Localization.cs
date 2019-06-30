@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using SmartFormat;
 
 namespace nhitomi.Globalization
 {
@@ -32,18 +33,18 @@ namespace nhitomi.Globalization
                 ? localization
                 : Default; // default to English if not found
 
-        public static IEnumerable<Localization> GetAllLocalizations() => _localizations.Values
-                                                                                       .GroupBy(l => l.Culture)
-                                                                                       .Select(g => g.First());
+        public static IEnumerable<Localization> GetAllLocalizations() =>
+            // distinct by culture
+            _localizations.Values
+                          .GroupBy(l => l.Culture)
+                          .Select(g => g.First());
 
         public static bool IsAvailable(string culture) => culture != null && _localizations.ContainsKey(culture);
-
-        readonly Lazy<LocalizationDictionary> _dict;
 
         public abstract CultureInfo Culture { get; }
         protected virtual CultureInfo FallbackCulture => Default.Culture;
 
-        public string this[string key] => _dict.Value[key];
+        public LocalizationEntry this[string key] => new LocalizationEntry(this, key, null);
 
         protected Localization()
         {
@@ -52,8 +53,8 @@ namespace nhitomi.Globalization
 
         LocalizationDictionary LoadDictionary()
         {
-            var fallback = this == Default
-                ? null // no fallback to ourselves
+            var fallback = this == Default // don't fallback to ourselves; stack overflow
+                ? null
                 : GetLocalization(FallbackCulture?.Name);
 
             var dict = new LocalizationDictionary(fallback?._dict.Value);
@@ -64,5 +65,30 @@ namespace nhitomi.Globalization
         }
 
         protected abstract object CreateDefinition();
+
+        public string GetTemplate(string key) => _dict[key];
+    }
+
+    public class LocalizationEntry
+    {
+        readonly Localization _localization;
+        readonly string _key;
+        readonly object _args;
+
+        public LocalizationEntry(Localization localization,
+                                 string key,
+                                 object args)
+        {
+            _localization = localization;
+            _key          = key;
+            _args         = args;
+        }
+
+        public LocalizationEntry this[string key] => new LocalizationEntry(_localization,  $"{_key}.{key}", _args);
+        public LocalizationEntry this[object args] => new LocalizationEntry(_localization, _key,            args);
+
+        public override string ToString() => Smart.Format(_localization.GetTemplate(_key), _args);
+
+        public static implicit operator string(LocalizationEntry entry) => entry.ToString();
     }
 }
