@@ -45,82 +45,74 @@ namespace nhitomi.Interactivity
             new DoujinMessage Message => (DoujinMessage) base.Message;
 
             protected override Embed CreateEmbed() =>
-                CreateEmbed(Message.Doujin, Context.GetLocalization(), Message._isFeed);
+                CreateEmbed(Message.Doujin, Context.GetLocalization()["doujinMessage"], Message._isFeed);
 
             public static Embed CreateEmbed(Doujin doujin,
-                                            Localization l,
+                                            LocalizationAccess l,
                                             bool isFeed = false)
             {
-                var path = new LocalizationPath("doujinMessage");
-
-                var embed = new EmbedBuilder()
-                           .WithTitle(path["title"][l, new { doujin }])
-                           .WithDescription(doujin.OriginalName == doujin.PrettyName ? null : doujin.PrettyName)
-                           .WithAuthor(a => a.WithName(doujin.GetTag(TagType.Artist)?.Value ?? doujin.Source)
-                                             .WithIconUrl(GetSourceIconUrl(doujin)))
-                           .WithUrl(GetGalleryUrl(doujin))
-                           .WithImageUrl($"https://nhitomi.chiya.dev/api/v1/images/{doujin.AccessId}/-1")
-                           .WithColor(Color.Green)
-                           .WithFooter(path["footer"][l, new { doujin }] + (isFeed ? " | feed" : null));
-
-                AddField(embed, path["language"][l],   doujin.GetTag(TagType.Language)?.Value);
-                AddField(embed, path["group"][l],      doujin.GetTag(TagType.Group)?.Value);
-                AddField(embed, path["parody"][l],     doujin.GetTag(TagType.Parody)?.Value);
-                AddField(embed, path["categories"][l], doujin.GetTags(TagType.Category)?.Select(t => t.Value));
-                AddField(embed, path["characters"][l], doujin.GetTags(TagType.Character)?.Select(t => t.Value));
-                AddField(embed, path["tags"][l],       doujin.GetTags(TagType.Tag)?.Select(t => t.Value));
-                AddField(embed, path["contents"][l],   path["contentsValue"][l, new { doujin }]);
-
-                return embed.Build();
-            }
-
-            static void AddField(EmbedBuilder builder,
-                                 string name,
-                                 string value,
-                                 bool inline = false)
-            {
-                if (string.IsNullOrWhiteSpace(value))
-                    return;
-
-                builder.AddField(name.Trim(), value.Trim(), inline);
-            }
-
-            static void AddField(EmbedBuilder builder,
-                                 string name,
-                                 IEnumerable<string> values,
-                                 bool inline = true)
-            {
-                var array = values?.ToArray();
-
-                if (array == null || array.Length == 0)
-                    return;
-
-                AddField(builder, name, string.Join(", ", array), inline);
-            }
-
-            public static string GetGalleryUrl(Doujin d)
-            {
-                switch (d.Source.ToLowerInvariant())
+                return new EmbedBuilder
                 {
-                    case "nhentai": return nhentaiClient.GetGalleryUrl(d);
-                    case "hitomi":  return HitomiClient.GetGalleryUrl(d);
+                    Title       = l["title", new { doujin }],
+                    Description = doujin.OriginalName == doujin.PrettyName ? null : doujin.PrettyName,
+                    Url         = GetGalleryUrl(doujin),
+                    ImageUrl    = $"https://nhitomi.chiya.dev/api/v1/images/{doujin.AccessId}/-1",
+                    Color       = Color.Green,
 
-                    default: return null;
-                }
+                    Author = new EmbedAuthorBuilder
+                    {
+                        Name    = doujin.GetTag(TagType.Artist)?.Value ?? doujin.Source,
+                        IconUrl = GetSourceIconUrl(doujin)
+                    },
+
+                    Footer = new EmbedFooterBuilder
+                    {
+                        Text = $"{doujin.Source}/{doujin.SourceId} {(isFeed ? " | feed" : null)}"
+                    },
+
+                    Fields = getFields()
+                            .Select(x => new EmbedFieldBuilder
+                             {
+                                 Name  = x.name,
+                                 Value = x.value
+                             })
+                            .ToList()
+                }.Build();
+
+                IEnumerable<(string name, string value)> getFields() => new[]
+                    {
+                        TagType.Language,
+                        TagType.Group,
+                        TagType.Parody,
+                        TagType.Category,
+                        TagType.Character,
+                        TagType.Tag
+                    }.Select(type => (l[type.ToString()].ToString(),
+                                      string.Join(", ", doujin.GetTags(type).Select(t => t.Value))))
+                     .Append((l["contents"], l["contentsValue", new { doujin }]));
             }
+        }
 
-            public static string GetSourceIconUrl(Doujin d)
+        public static string GetGalleryUrl(Doujin d) //todo: move this to GalleryUtility.cs
+        {
+            switch (d.Source.ToLowerInvariant())
             {
-                switch (d.Source.ToLowerInvariant())
-                {
-                    case "nhentai":
-                        return "https://cdn.cybrhome.com/media/website/live/icon/icon_nhentai.net_57f740.png";
+                case "nhentai": return nhentaiClient.GetGalleryUrl(d);
+                case "hitomi":  return HitomiClient.GetGalleryUrl(d);
 
-                    case "hitomi": return "https://ltn.hitomi.la/favicon-160x160.png";
-                }
-
-                return null;
+                default: return null;
             }
+        }
+
+        public static string GetSourceIconUrl(Doujin d)
+        {
+            switch (d.Source.ToLowerInvariant())
+            {
+                case "nhentai": return "https://cdn.cybrhome.com/media/website/live/icon/icon_nhentai.net_57f740.png";
+                case "hitomi":  return "https://ltn.hitomi.la/favicon-160x160.png";
+            }
+
+            return null;
         }
 
         public static bool TryParseDoujinIdFromMessage(IMessage message,

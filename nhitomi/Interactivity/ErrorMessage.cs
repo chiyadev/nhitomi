@@ -3,7 +3,6 @@ using System.Text;
 using Discord;
 using Microsoft.Extensions.Options;
 using nhitomi.Discord;
-using nhitomi.Globalization;
 
 namespace nhitomi.Interactivity
 {
@@ -37,16 +36,28 @@ namespace nhitomi.Interactivity
 
             protected override Embed CreateEmbed()
             {
-                var path = new LocalizationPath("errorMessage");
-                var l    = Context.GetLocalization();
+                var l = Context.GetLocalization()["errorMessage"];
 
-                var embed = new EmbedBuilder()
-                           .WithColor(Color.Red)
-                           .WithCurrentTimestamp();
-
-                if (Message._isDetailed)
+                var embed = new EmbedBuilder
                 {
-                    embed.Title = path["titleAuto"][l];
+                    Color = Color.Red
+                };
+
+                embed.WithCurrentTimestamp();
+
+                if (!Message._isDetailed)
+                {
+                    embed.Title = l["title"];
+
+                    embed.Description =
+                        new StringBuilder()
+                           .AppendLine($"`{Message._exception.Message}`")
+                           .AppendLine(l["text", new { invite = _settings.Discord.Guild.GuildInvite }])
+                           .ToString();
+                }
+                else
+                {
+                    embed.Title = l["titleAuto"][l];
 
                     var user    = Context.User;
                     var message = Context.Message;
@@ -57,19 +68,19 @@ User: {user.Id} `{user.Username}#{user.Discriminator}`
 Message: {message.Author.Id} `{message.Author.Username}#{message.Author.Discriminator}`
 ```
 {message.Content}
-```");
+```
+".Trim());
 
                     var exception = Message._exception;
 
                     for (var level = 0; exception != null && level < 5; level++)
                     {
-                        var trace = exception.StackTrace;
-
                         var content = new StringBuilder()
                                      .AppendLine($"Type: `{exception.GetType().FullName}`")
                                      .AppendLine($"Exception: `{exception.Message}`")
-                                     .AppendLine("Trace:")
                                      .AppendLine("```");
+
+                        var trace = exception.StackTrace;
 
                         // simply cut off anything after the character limit
                         trace = trace.Substring(0, Math.Min(trace.Length, _embedFieldLimit - content.Length - 4));
@@ -80,18 +91,9 @@ Message: {message.Author.Id} `{message.Author.Username}#{message.Author.Discrimi
 
                         embed.AddField(level == 0 ? "Exception" : $"Inner exception {level}", content.ToString());
 
+                        // traverse inner exceptions
                         exception = exception.InnerException;
                     }
-                }
-                else
-                {
-                    embed.Title = path["title"][l];
-
-                    embed.Description =
-                        new StringBuilder()
-                           .AppendLine($"`{Message._exception.Message}`")
-                           .AppendLine(path["text"][l, new { invite = _settings.Discord.Guild.GuildInvite }])
-                           .ToString();
                 }
 
                 return embed.Build();

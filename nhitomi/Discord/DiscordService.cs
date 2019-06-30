@@ -117,8 +117,8 @@ namespace nhitomi.Discord
         public static Task ReplyAsync(this IDiscordContext context,
                                       IMessageChannel channel,
                                       string localizationKey,
-                                      object variables = null) => channel.SendMessageAsync(
-            new LocalizationPath(localizationKey)[context.GetLocalization(), variables]);
+                                      object variables = null) =>
+            channel.SendMessageAsync(context.GetLocalization()[localizationKey, variables]);
 
         public static Task ReplyAsync(this IDiscordContext context,
                                       string localizationKey,

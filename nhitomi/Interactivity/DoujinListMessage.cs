@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using Discord;
 using nhitomi.Core;
 using nhitomi.Discord;
-using nhitomi.Globalization;
 using nhitomi.Interactivity.Triggers;
 
 namespace nhitomi.Interactivity
@@ -32,19 +31,19 @@ namespace nhitomi.Interactivity
             {
                 Message.Doujin = value;
 
-                return DoujinMessage.View.CreateEmbed(value, Context.GetLocalization());
+                return DoujinMessage.View.CreateEmbed(value, Context.GetLocalization()["doujinMessage"]);
             }
 
             protected override Embed CreateEmptyEmbed()
             {
-                var path = new LocalizationPath("doujinMessage.emptyList");
-                var l    = Context.GetLocalization();
+                var l = Context.GetLocalization()["doujinMessage"]["emptyList"];
 
-                return new EmbedBuilder()
-                      .WithTitle(path["title"][l])
-                      .WithColor(Color.Teal)
-                      .WithDescription(path["text"][l])
-                      .Build();
+                return new EmbedBuilder
+                {
+                    Title       = l["title"],
+                    Color       = Color.Teal,
+                    Description = l["text"]
+                }.Build();
             }
         }
     }
