@@ -5,13 +5,13 @@
     ]
   },
   "doujinMessage": {
-    "language": "언어",
     "group": "그룹",
+    "language": "언어",
     "parody": "패러디",
-    "categories": "분류",
     "character": "캐릭터",
-    "tags": "태그",
-    "contents": "내용"
+    "category": "분류",
+    "tag": "태그",
+    "content": "내용"
   },
   "downloadMessage": {
     "text": "위의 링크를 클릭해서 `{doujin.OriginalName}`을(를) 다운로드 하실 수 있습니다."

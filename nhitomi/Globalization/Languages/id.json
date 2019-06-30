@@ -25,14 +25,14 @@
   "feedTagNotRemoved": "`#{channel.Name}` tidak berlangganan `{tag}`.",
   "feedModeChanged": "Mengubah mode umpan dari `#{channel.Name}` ke `{type}`.",
   "doujinMessage": {
-    "language": "Bahasa",
     "group": "Kelompok",
+    "language": "Bahasa",
     "parody": "Parodi",
-    "categories": "Kategori",
-    "characters": "Karakter",
-    "tags": "Tag",
-    "contents": "Konten",
-    "contentsValue": "{doujin.PageCount} halaman",
+    "character": "Karakter",
+    "category": "Kategori",
+    "tag": "Tags",
+    "content": "Konten",
+    "contentValue": "{doujin.PageCount} halaman",
     "emptyList": {
       "title": "Tidak ada doujinshi",
       "text": "Tidak ada doujinshi dalam daftar ini."

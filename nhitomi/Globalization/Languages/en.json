@@ -20,14 +20,15 @@
   "feedTagNotRemoved": "`#{channel.Name}` is not subscribed to `{tag}`.",
   "feedModeChanged": "Changed feed mode of `#{channel.Name}` to `{type}`.",
   "doujinMessage": {
-    "language": "Language",
     "group": "Group",
+    "scanlator": "Scanlator",
+    "language": "Language",
     "parody": "Parody",
-    "categories": "Categories",
-    "characters": "Characters",
-    "tags": "Tags",
-    "contents": "Contents",
-    "contentsValue": "{doujin.PageCount} pages",
+    "character": "Characters",
+    "category": "Categories",
+    "tag": "Tags",
+    "content": "Contents",
+    "contentValue": "{doujin.PageCount} pages",
     "emptyList": {
       "title": "No doujinshi",
       "text": "No doujinshi were found."
