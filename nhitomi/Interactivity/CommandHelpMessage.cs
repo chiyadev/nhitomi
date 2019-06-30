@@ -8,6 +8,7 @@ namespace nhitomi.Interactivity
 {
     public class CommandHelpMessage : EmbedMessage<CommandHelpMessage.View>
     {
+        public string Title { get; set; }
         public string Command { get; set; }
         public string[] Aliases { get; set; }
         public string DescriptionKey { get; set; }
@@ -32,7 +33,7 @@ namespace nhitomi.Interactivity
 
                 return new EmbedBuilder
                 {
-                    Title       = $"**nhitomi**: {prefix}{command}",
+                    Title       = $"**nhitomi**: {prefix}{Message.Title ?? command}",
                     Color       = Color.Purple,
                     Description = l[Message.DescriptionKey],
 
@@ -52,5 +53,12 @@ namespace nhitomi.Interactivity
                 }.Build();
             }
         }
+
+        public static readonly string[] DoujinCommandExamples =
+        {
+            "nhentai 1234",
+            "nhentai/1234",
+            "https://nhentai.net/g/1234/"
+        };
     }
 }
