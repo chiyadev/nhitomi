@@ -1,55 +1,61 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
-using System.Reflection;
+using Newtonsoft.Json.Linq;
 
 namespace nhitomi.Globalization
 {
     public class LocalizationDictionary : IReadOnlyDictionary<string, string>
     {
-        readonly LocalizationDictionary _fallback;
-
+        readonly CultureInfo _culture;
+        readonly List<LocalizationDictionary> _fallbacks = new List<LocalizationDictionary>();
         readonly Dictionary<string, string> _dict = new Dictionary<string, string>();
 
-        public LocalizationDictionary(LocalizationDictionary fallback = null)
+        public LocalizationDictionary(CultureInfo culture)
         {
-            _fallback = fallback;
+            _culture = culture;
         }
 
         static string FixKey(string key) => key.ToLowerInvariant();
 
-        public void AddDefinition(object obj,
+        public void AddFallback(LocalizationDictionary dict) => _fallbacks.Add(dict);
+
+        public void AddDefinition(JObject obj,
                                   string prefix = null)
         {
-            foreach (var property in obj.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance))
+            foreach (var property in obj.Properties())
             {
-                var type = property.PropertyType;
+                var key = FixKey($"{prefix}{property.Name}");
 
-                if (type == typeof(string))
+                switch (property.Value)
                 {
-                    // add string property
-                    _dict[FixKey(prefix + property.Name)] = (string) property.GetValue(obj);
-                }
-                else if (typeof(IEnumerable<string>).IsAssignableFrom(type))
-                {
-                    var values = ((Array) property.GetValue(obj)).Cast<string>().ToArray();
+                    case JObject jObject:
+                        // recurse on objects
+                        AddDefinition(jObject, key);
+                        break;
 
-                    // join values as list
-                    _dict[FixKey(prefix + property.Name)] = string.Join(", ", values);
+                    case JArray jArray:
+                        var jValues = jArray.Values<string>().ToArray();
 
-                    // add each item as indices
-                    for (var i = 0; i < values.Length; i++)
-                        _dict[FixKey(prefix + property.Name + "." + i)] = values[i];
-                }
-                else if (type.IsClass)
-                {
-                    // recurse on complex types
-                    AddDefinition(property.GetValue(obj), $"{prefix}{property.Name}.");
-                }
-                else
-                {
-                    throw new ArgumentException($"Could not convert property {type.Name} ({type}) of definition obj.");
+                        // join array values using comma
+                        _dict[key] = string.Join(", ", jValues);
+
+                        // add each item as index
+                        for (var i = 0; i < jValues.Length; i++)
+                            _dict[$"{key}.{i}"] = jValues[i];
+
+                        break;
+
+                    case JValue jValue:
+                        // add as string
+                        _dict[key] = jValue.Value?.ToString() ?? "";
+                        break;
+
+                    default:
+                        throw new NotSupportedException($"Unable to parse key '{key}' of type {property.Value.Type} " +
+                                                        $"in localization '{_culture.Name}'.");
                 }
             }
         }
@@ -61,7 +67,8 @@ namespace nhitomi.Globalization
         public IEnumerable<string> Keys => _dict.Keys.Select(FixKey);
         public IEnumerable<string> Values => _dict.Values;
 
-        public bool ContainsKey(string key) => _dict.ContainsKey(FixKey(key));
+        public bool ContainsKey(string key) => _dict.ContainsKey(FixKey(key)) ||
+                                               _fallbacks.Any(d => d.ContainsKey(key));
 
         public bool TryGetValue(string key,
                                 out string value)
@@ -69,20 +76,32 @@ namespace nhitomi.Globalization
             if (_dict.TryGetValue(FixKey(key), out value))
                 return true;
 
-            // fallback to parent
-            return _fallback != null && _fallback.TryGetValue(key, out value);
+            foreach (var fallback in _fallbacks)
+            {
+                if (fallback.TryGetValue(key, out value))
+                    return true;
+            }
+
+            return false;
         }
 
-        /// <inheritdoc />
-        /// <summary>
-        /// This will only enumerate definitions within this localization (i.e. no fallback).
-        /// </summary>
-        public IEnumerator<KeyValuePair<string, string>> GetEnumerator() => _dict
-                                                                           .Select(
-                                                                                x => new KeyValuePair<string, string>(
-                                                                                    FixKey(x.Key),
-                                                                                    x.Value))
-                                                                           .GetEnumerator();
+        Dictionary<string, string> GetFlattened()
+        {
+            var dict = new Dictionary<string, string>();
+
+            foreach (var (key, value) in _dict)
+                dict[key] = value;
+
+            foreach (var fallback in _fallbacks)
+            {
+                foreach (var (key, value) in fallback.GetFlattened())
+                    dict[key] = value;
+            }
+
+            return dict;
+        }
+
+        public IEnumerator<KeyValuePair<string, string>> GetEnumerator() => GetFlattened().GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
