@@ -32,8 +32,9 @@ namespace nhitomi.Modules
                                    string id,
                                    CancellationToken cancellationToken = default)
         {
-            var doujin =
-                await _database.GetDoujinAsync(GalleryUtility.ExpandContraction(source), id, cancellationToken);
+            var doujin = await _database.GetDoujinAsync(GalleryUtility.ExpandContraction(source),
+                                                        id,
+                                                        cancellationToken);
 
             if (doujin == null)
             {
@@ -132,8 +133,9 @@ namespace nhitomi.Modules
                                         string id,
                                         CancellationToken cancellationToken = default)
         {
-            var doujin =
-                await _database.GetDoujinAsync(GalleryUtility.ExpandContraction(source), id, cancellationToken);
+            var doujin = await _database.GetDoujinAsync(GalleryUtility.ExpandContraction(source),
+                                                        id,
+                                                        cancellationToken);
 
             if (doujin == null)
             {
@@ -170,8 +172,9 @@ namespace nhitomi.Modules
                                     string id,
                                     CancellationToken cancellationToken = default)
         {
-            var doujin =
-                await _database.GetDoujinAsync(GalleryUtility.ExpandContraction(source), id, cancellationToken);
+            var doujin = await _database.GetDoujinAsync(GalleryUtility.ExpandContraction(source),
+                                                        id,
+                                                        cancellationToken);
 
             if (doujin == null)
             {
