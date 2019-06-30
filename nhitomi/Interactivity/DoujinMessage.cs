@@ -90,7 +90,7 @@ namespace nhitomi.Interactivity
                         TagType.Tag
                     }.Select(type => (l[type.ToString()].ToString(),
                                       string.Join(", ", doujin.GetTags(type).Select(t => t.Value))))
-                     .Append((l["contents"], l["contentsValue", new { doujin }]));
+                     .Append((l["content"], l["contentValue", new { doujin }]));
             }
         }
 
