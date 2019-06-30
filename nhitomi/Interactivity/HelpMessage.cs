@@ -142,12 +142,12 @@ namespace nhitomi.Interactivity
 
                 embed.AddField(l["title"],
                                $@"
-- {prefix}collection list — {l["list"]}
-- {prefix}collection — {l["view"]}
-- {prefix}collection add — {l["add"]}
-- {prefix}collection remove — {l["remove"]}
-- {prefix}collection sort — {l["sort"]}
-- {prefix}collection delete — {l["delete"]}
+- `{prefix}collection list` — {l["list"]}
+- `{prefix}collection` — {l["view"]}
+- `{prefix}collection add` — {l["add"]}
+- `{prefix}collection remove` — {l["remove"]}
+- `{prefix}collection sort` — {l["sort"]}
+- `{prefix}collection delete` — {l["delete"]}
 ".Trim());
             }
 
@@ -160,11 +160,11 @@ namespace nhitomi.Interactivity
 
                 embed.AddField(l["title"],
                                $@"
-- {prefix}option language — {l["language"]}
+- `{prefix}option language` — {l["language"]}
 
-- {prefix}feed add — {l["feed.add"]}
-- {prefix}feed remove — {l["feed.remove"]}
-- {prefix}feed mode — {l["feed.mode"]}
+- `{prefix}feed add` — {l["feed.add"]}
+- `{prefix}feed remove` — {l["feed.remove"]}
+- `{prefix}feed mode` — {l["feed.mode"]}
 ".Trim());
             }
 
