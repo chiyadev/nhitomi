@@ -117,6 +117,9 @@ namespace nhitomi.Discord
                 protected override Task<Doujin[]> GetValuesAsync(int offset,
                                                                  CancellationToken cancellationToken = default) =>
                     _db.GetDoujinsAsync(Message._ids.Skip(offset).Take(10).ToArray());
+
+                protected override string ListBeginningMessage => "doujinMessage.listBeginning";
+                protected override string ListEndMessage => "doujinMessage.listEnd";
             }
         }
     }

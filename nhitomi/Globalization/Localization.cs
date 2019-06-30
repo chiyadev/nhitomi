@@ -1,68 +1,112 @@
-using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using SmartFormat;
 
 namespace nhitomi.Globalization
 {
-    public abstract class Localization
+    public sealed class Localization
     {
         static readonly Dictionary<string, Localization> _localizations = new Dictionary<string, Localization>();
 
-        static Localization()
-        {
-            var types = typeof(Startup)
-                       .Assembly
-                       .GetTypes()
-                       .Where(t => t.IsClass &&
-                                   !t.IsAbstract &&
-                                   t.IsSubclassOf(typeof(Localization)));
-
-            foreach (var localization in types.Select(t => (Localization) Activator.CreateInstance(t)))
-            {
-                _localizations[localization.Culture.Name.ToLowerInvariant()]        = localization;
-                _localizations[localization.Culture.EnglishName.ToLowerInvariant()] = localization;
-            }
-        }
-
-        public static Localization Default => GetLocalization("en");
+        public static Localization Default { get; }
 
         public static Localization GetLocalization(string culture) =>
             culture != null && _localizations.TryGetValue(culture.ToLowerInvariant(), out var localization)
                 ? localization
-                : Default; // default to English if not found
+                : Default;
 
-        public static IEnumerable<Localization> GetAllLocalizations() => _localizations.Values
-                                                                                       .GroupBy(l => l.Culture)
-                                                                                       .Select(g => g.First());
+        public static IEnumerable<Localization> GetAllLocalizations() =>
+            // distinct by culture
+            _localizations.Values
+                          .GroupBy(l => l.Culture)
+                          .Select(g => g.First());
+
+        const string _defaultCulture = "en";
+
+        static Localization()
+        {
+            var assembly = typeof(Startup).Assembly;
+
+            var langNamespace = typeof(Localization).Namespace;
+            var langResources = assembly.GetManifestResourceNames()
+                                        .Where(n => n.StartsWith(langNamespace));
+
+            foreach (var langResource in langResources)
+            {
+                // filename without extension
+                var culture = new CultureInfo(Path.GetFileNameWithoutExtension(langResource).Split('.').Last());
+
+                // load json as dictionary
+                var dict = new LocalizationDictionary(culture);
+
+                using (var stream = assembly.GetManifestResourceStream(langResource))
+                using (var reader = new StreamReader(stream))
+                using (var jsonReader = new JsonTextReader(reader))
+                    dict.AddDefinition(JObject.Load(jsonReader));
+
+                var localization = new Localization(culture, dict);
+
+                _localizations[localization.Culture.Name.ToLowerInvariant()]        = localization;
+                _localizations[localization.Culture.EnglishName.ToLowerInvariant()] = localization;
+            }
+
+            // default localization is English
+            if (_localizations.TryGetValue(_defaultCulture, out var en))
+            {
+                Default = en;
+
+                // set other localizations to fall back to English
+                foreach (var localization in _localizations.Values.Where(l => l.Culture.Name != _defaultCulture))
+                    localization.Dictionary.AddFallback(Default.Dictionary);
+            }
+            else
+            {
+                throw new FileNotFoundException($"Default localization culture '{_defaultCulture}' was not found,");
+            }
+        }
 
         public static bool IsAvailable(string culture) => culture != null && _localizations.ContainsKey(culture);
 
-        readonly Lazy<LocalizationDictionary> _dict;
+        public CultureInfo Culture { get; }
+        public LocalizationDictionary Dictionary { get; }
 
-        public abstract CultureInfo Culture { get; }
-        protected virtual CultureInfo FallbackCulture => Default.Culture;
+        public LocalizationAccess this[string key,
+                                       object args = null] => new LocalizationAccess(this, key, args);
 
-        public string this[string key] => _dict.Value[key];
-
-        protected Localization()
+        Localization(CultureInfo culture,
+                     LocalizationDictionary dict)
         {
-            _dict = new Lazy<LocalizationDictionary>(LoadDictionary);
+            Culture    = culture;
+            Dictionary = dict;
+        }
+    }
+
+    public class LocalizationAccess
+    {
+        public Localization Localization { get; }
+
+        readonly string _key;
+        readonly object _args;
+
+        public LocalizationAccess(Localization localization,
+                                  string key,
+                                  object args)
+        {
+            Localization = localization;
+            _key         = key;
+            _args        = args;
         }
 
-        LocalizationDictionary LoadDictionary()
-        {
-            var fallback = this == Default
-                ? null // no fallback to ourselves
-                : GetLocalization(FallbackCulture?.Name);
+        public LocalizationAccess this[string key,
+                                       object args = null] =>
+            new LocalizationAccess(Localization, $"{_key}.{key}", args ?? _args);
 
-            var dict = new LocalizationDictionary(fallback?._dict.Value);
+        public override string ToString() => Smart.Format(Localization.Dictionary[_key] ?? $"`{_key}`", _args);
 
-            dict.AddDefinition(CreateDefinition());
-
-            return dict;
-        }
-
-        protected abstract object CreateDefinition();
+        public static implicit operator string(LocalizationAccess access) => access.ToString();
     }
 }

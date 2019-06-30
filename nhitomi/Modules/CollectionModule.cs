@@ -55,7 +55,7 @@ namespace nhitomi.Modules
             }
 
             await _interactive.SendInteractiveAsync(
-                new CollectionDoujinListMessage(_context.User.Id, name),
+                new CollectionMessage(_context.User.Id, name),
                 _context,
                 cancellationToken);
         }

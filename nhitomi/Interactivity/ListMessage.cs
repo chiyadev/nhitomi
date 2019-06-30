@@ -30,6 +30,8 @@ namespace nhitomi.Interactivity
         {
             new ListMessage<TView, TValue> Message => (ListMessage<TView, TValue>) base.Message;
 
+            protected virtual bool ShowLoadingIndication => true;
+
             protected abstract Task<TValue[]> GetValuesAsync(int offset,
                                                              CancellationToken cancellationToken = default);
 
@@ -64,7 +66,7 @@ namespace nhitomi.Interactivity
                 }
 
                 // show loading indication if we are triggered by a reaction
-                if (Context is IReactionContext)
+                if (ShowLoadingIndication && Context is IReactionContext)
                     await SetMessageAsync("listLoading", null, cancellationToken);
 
                 // get new values
@@ -88,6 +90,9 @@ namespace nhitomi.Interactivity
 
             protected abstract Embed CreateEmbed(TValue value);
             protected abstract Embed CreateEmptyEmbed();
+
+            protected abstract string ListBeginningMessage { get; }
+            protected abstract string ListEndMessage { get; }
 
             public override async Task<bool> UpdateAsync(CancellationToken cancellationToken = default)
             {
@@ -113,16 +118,27 @@ namespace nhitomi.Interactivity
                 switch (status)
                 {
                     case Status.Start:
-                        await SetMessageAsync("listBeginning", null, cancellationToken);
+                        await SetMessageAsync(ListBeginningMessage, null, cancellationToken);
                         break;
 
                     case Status.End:
-                        await SetMessageAsync("listEnd", null, cancellationToken);
+                        await SetMessageAsync(ListEndMessage, null, cancellationToken);
                         break;
                 }
 
                 return false;
             }
+        }
+
+        public abstract class SynchronousListViewBase : ListViewBase
+        {
+            protected sealed override bool ShowLoadingIndication => false;
+
+            protected sealed override Task<TValue[]> GetValuesAsync(int offset,
+                                                                    CancellationToken cancellationToken = default) =>
+                Task.FromResult(GetValues(offset));
+
+            protected abstract TValue[] GetValues(int offset);
         }
     }
 }

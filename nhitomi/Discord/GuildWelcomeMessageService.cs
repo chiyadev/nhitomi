@@ -33,22 +33,19 @@ namespace nhitomi.Discord
             try
             {
                 // use default localization
-                var l      = Localization.Default;
-                var path   = new LocalizationPath("welcomeMessage");
+                var l      = Localization.Default["welcomeMessage"];
                 var prefix = _settings.Discord.Prefix;
 
-                var content = $@"
-{path["text"][l]}
+                var content = $@"{l["text"]}
 
-**|** {path["get"][l, new { prefix }]}
-**|** {path["download"][l, new { prefix }]}
-**|** {path["search"][l, new { prefix }]}
-**|** {path["language"][l, new { prefix }]}
+**|** {l["get", new { prefix }]}
+**|** {l["download", new { prefix }]}
+**|** {l["search", new { prefix }]}
+**|** {l["language", new { prefix }]}
 
-{path["referHelp"][l, new { prefix }]}
+{l["referHelp", new { prefix }]}
 
-{path["openSource"][l, new { repoUrl = "https://github.com/chiyadev/nhitomi" }]}
-".Trim();
+{l["openSource", new { repoUrl = "https://github.com/chiyadev/nhitomi" }]}";
 
                 foreach (var channel in guild.TextChannels.OrderBy(c => c.Position))
                 {
