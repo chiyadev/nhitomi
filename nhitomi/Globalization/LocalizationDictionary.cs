@@ -33,7 +33,7 @@ namespace nhitomi.Globalization
                 {
                     case JObject jObject:
                         // recurse on objects
-                        AddDefinition(jObject, key);
+                        AddDefinition(jObject, key + '.');
                         break;
 
                     case JArray jArray:
