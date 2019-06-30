@@ -74,8 +74,8 @@ namespace nhitomi.Globalization
         public CultureInfo Culture { get; }
         public LocalizationDictionary Dictionary { get; }
 
-        public LocalizationEntry this[string key,
-                                      object args = null] => new LocalizationEntry(this, key, args);
+        public LocalizationAccess this[string key,
+                                       object args = null] => new LocalizationAccess(this, key, args);
 
         Localization(CultureInfo culture,
                      LocalizationDictionary dict)
@@ -85,28 +85,28 @@ namespace nhitomi.Globalization
         }
     }
 
-    public class LocalizationEntry
+    public class LocalizationAccess
     {
         public Localization Localization { get; }
 
         readonly string _key;
         readonly object _args;
 
-        public LocalizationEntry(Localization localization,
-                                 string key,
-                                 object args)
+        public LocalizationAccess(Localization localization,
+                                  string key,
+                                  object args)
         {
             Localization = localization;
             _key         = key;
             _args        = args;
         }
 
-        public LocalizationEntry this[string key,
-                                      object args = null] =>
-            new LocalizationEntry(Localization, $"{_key}.{key}", args ?? _args);
+        public LocalizationAccess this[string key,
+                                       object args = null] =>
+            new LocalizationAccess(Localization, $"{_key}.{key}", args ?? _args);
 
         public override string ToString() => Smart.Format(Localization.Dictionary[_key], _args);
 
-        public static implicit operator string(LocalizationEntry entry) => entry.ToString();
+        public static implicit operator string(LocalizationAccess access) => access.ToString();
     }
 }
