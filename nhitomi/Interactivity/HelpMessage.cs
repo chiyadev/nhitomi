@@ -202,7 +202,7 @@ namespace nhitomi.Interactivity
 
                 embed.AddField(l["title"],
                                $@"
-{l["license"][l]}
+{l["license"]}
 [GitHub](https://github.com/chiyadev/nhitomi)
 ".Trim());
             }
