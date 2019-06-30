@@ -56,9 +56,9 @@ namespace nhitomi.Modules
         public Task GetAsync(CancellationToken cancellationToken = default) => _interactive.SendInteractiveAsync(
             new CommandHelpMessage
             {
-                Command     = "get",
-                Aliases     = new[] { "g" },
-                Description = "Displays full doujinshi information.",
+                Command        = "get",
+                Aliases        = new[] { "g" },
+                DescriptionKey = "doujins.get",
                 Examples = new[]
                 {
                     "nh 1234",

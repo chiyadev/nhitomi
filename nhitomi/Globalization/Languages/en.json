@@ -109,6 +109,8 @@
       "title": "Open Source",
       "license": "This project is licensed under the MIT License."
     },
+    "aliases": "Aliases",
+    "examples": "Examples",
     "listBeginning": "Start of help message.",
     "listEnd": "End of help message."
   },

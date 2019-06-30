@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Discord;
 using Microsoft.Extensions.Options;
+using nhitomi.Discord;
 
 namespace nhitomi.Interactivity
 {
@@ -9,7 +10,7 @@ namespace nhitomi.Interactivity
     {
         public string Command { get; set; }
         public string[] Aliases { get; set; }
-        public string Description { get; set; }
+        public string DescriptionKey { get; set; }
         public string[] Examples { get; set; }
 
         public class View : EmbedViewBase
@@ -25,6 +26,7 @@ namespace nhitomi.Interactivity
 
             protected override Embed CreateEmbed()
             {
+                var l       = Context.GetLocalization()["helpMessage"];
                 var command = Message.Command;
                 var prefix  = _settings.Discord.Prefix;
 
@@ -32,25 +34,25 @@ namespace nhitomi.Interactivity
                 {
                     Title       = $"**nhitomi**: {prefix}{command}",
                     Color       = Color.Purple,
-                    Description = Message.Description,
+                    Description = l[Message.DescriptionKey],
 
                     Fields = new List<EmbedFieldBuilder>
                     {
                         new EmbedFieldBuilder
                         {
-                            Name  = "Aliases",
-                            Value = string.Join(", ", Message.Aliases.Append(command).Select(s => $"`{prefix}{s}`"))
+                            Name  = l["aliases"],
+                            Value = string.Join(", ", Message.Aliases.Prepend(command).Select(s => $"`{prefix}{s}`"))
                         },
                         new EmbedFieldBuilder
                         {
-                            Name  = "Examples",
-                            Value = string.Join(", ", Message.Examples.Select(s => $"`{prefix}{s}`"))
+                            Name  = l["examples"],
+                            Value = string.Join('\n', Message.Examples.Select(s => $"`{prefix}{command} {s}`"))
                         }
                     },
 
                     Footer = new EmbedFooterBuilder
                     {
-                        Text = "v3.2 Heresta - powered by chiya.dev"
+                        Text = $"v{VersionHelper.Version.ToString(2)} {VersionHelper.Codename} — {l["footer"]}"
                     }
                 }.Build();
             }
