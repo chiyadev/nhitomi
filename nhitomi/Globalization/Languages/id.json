@@ -1,0 +1,115 @@
+{
+  "meta": {
+    "translators": [
+      "[NekoDays](https://twitter.com/nekodayz)"
+    ]
+  },
+  "doujinNotFound": "Tidak dapat menemukan doujinshi itu!",
+  "invalidQuery": "`{query}` tidak valid.",
+  "listLoading": "Memuat...",
+  "collectionNotFound": "Tidak ada koleksi bernama `{name}`.",
+  "collectionDeleted": "Koleksi `{collection.Name}` telah dihapus.",
+  "collectionSorted": "Koleksi yang diurutkan `{collection.Name}` oleh `{atribute}`.",
+  "addedToCollection": "Menambahkan `{doujin.OriginalName}` ke `{collection.Name}`.",
+  "removedFromCollection": "`{doujin.OriginalName}` dihapus dari `{collection.Name}`.",
+  "alreadyInCollection": "`{doujin.OriginalName}` sudah ada di `{collection.Name}`.",
+  "notInCollection": "`{doujin.OriginalName}` tidak ditemukan di `{collection.Name}`.",
+  "localizationChanged": "Bahasa server diatur ke `{localization.Culture.NativeName}`!",
+  "localizationNotFound": "Bahasa `{language}` tidak didukung.",
+  "commandInvokeNotInGuild": "Anda hanya dapat menggunakan perintah ini di server.",
+  "notGuildAdmin": "Anda harus menjadi administrator server untuk menggunakan perintah ini.",
+  "tagNotFound": "Tag `{tag}` tidak ditemukan.",
+  "feedTagAdded": "`#{channel.Name}` sekarang berlangganan `{tag}`.",
+  "feedTagAlreadyAdded": "`#{channel.Name}` sudah berlangganan `{tag}`.",
+  "feedTagRemoved": "`#{channel.Name}` sekarang berhenti berlangganan dari `{tag}`.",
+  "feedTagNotRemoved": "`#{channel.Name}` tidak berlangganan `{tag}`.",
+  "feedModeChanged": "Mengubah mode umpan dari `#{channel.Name}` ke `{type}`.",
+  "doujinMessage": {
+    "language": "Bahasa",
+    "group": "Kelompok",
+    "parody": "Parodi",
+    "categories": "Kategori",
+    "characters": "Karakter",
+    "tags": "Tag",
+    "contents": "Konten",
+    "contentsValue": "{doujin.PageCount} halaman",
+    "emptyList": {
+      "title": "Tidak ada doujinshi",
+      "text": "Tidak ada doujinshi dalam daftar ini."
+    }
+  },
+  "doujinReadMessage": {
+    "text": "Halaman {page} dari {doujin.PageCount}"
+  },
+  "downloadMessage": {
+    "text": "Klik tautan di atas untuk mulai mengunduh `{doujin.OriginalName}`."
+  },
+  "collectionMessage": {
+    "sort": "Menyortir",
+    "sortValue": {
+      "uploadTime": "Waktu unggah",
+      "processTime": "Waktu proses",
+      "identifier": "Identifier",
+      "name": "Nama",
+      "artist": "Artis",
+      "group": "Kelompok",
+      "language": "Bahasa",
+      "parody": "Parodi"
+    },
+    "contents": "Konten",
+    "contentsValue": "{collection.Doujins.Count} doujinshi",
+    "emptyList": {
+      "title": "Tidak ada koleksi",
+      "text": "Anda tidak punya koleksi."
+    }
+  },
+  "helpMessage": {
+    "title": "Bantuan",
+    "footer": "didukung oleh chiya.dev",
+    "about": "bot Discord untuk mencari dan mengunduh doujinshi",
+    "invite": "[Bergabunglah]({guildInvite}) dengan server resmi atau [undang nhitomi]({botInvite}) ke server.",
+    "doujins": {
+      "title": "Doujinshi",
+      "get": "Menampilkan informasi doujinshi lengkap.",
+      "from": "Menampilkan semua doujinshi dari sumber.",
+      "read": "Memperlihatkan halaman dalam doujinshi.",
+      "download": "Kirim tautan unduhan dari doujinshi.",
+      "search": "Mencari doujinshi berdasarkan judul dan tag mereka.",
+      "sources": {
+        "title": "Sumber"
+      }
+    },
+    "collections": {
+      "title": "Manajemen Koleksi",
+      "list": "Menampilkan koleksi yang Anda miliki.",
+      "view": "Menampilkan doujinshi dalam koleksi.",
+      "add": "Menambahkan doujinshi ke koleksi.",
+      "remove": "Menghapus doujinshi dari koleksi.",
+      "sort": "Mengurutkan koleksi berdasarkan atribut doujinshi.",
+      "delete": "Bersihkan koleksi dan hapus semua doujinshi dalam koleksi."
+    },
+    "options": {
+      "title": "Pengaturan",
+      "language": "Mengubah bahasa antarmuka dalam server.",
+      "feedAdd": "Berlangganan saluran ke tag yang diberikan.",
+      "feedRemove": "Berhenti berlangganan saluran dari tag yang diberikan.",
+      "feedMode": "Mengubah mode daftar putih tag saluran antara `any` dan` all`.",
+      "languages": {
+        "title": "Bahasa"
+      }
+    },
+    "translations": {
+      "title": "Terjemahan",
+      "text": "Penerjemah: {translators}\nBeberapa terjemahan bahasa Indonesia berasal dari Google Translate."
+    },
+    "openSource": {
+      "title": "Sumber Terbuka",
+      "license": "Proyek ini dilisensikan di bawah Lisensi MIT.\n[GitHub]({repoUrl})"
+    }
+  },
+  "errorMessage": {
+    "title": "Kesalahan",
+    "text": "Kesalahan telah dilaporkan. Untuk bantuan lebih lanjut, silahkan bergabung dengan [server resmi]({invite}).",
+    "missingPerms": "nhitomi tidak memiliki izin untuk mengirim pesan dari saluran itu."
+  }
+}
