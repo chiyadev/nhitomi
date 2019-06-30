@@ -3,7 +3,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Discord;
 using nhitomi.Discord;
-using nhitomi.Interactivity.Triggers;
 
 namespace nhitomi.Interactivity
 {
@@ -19,12 +18,6 @@ namespace nhitomi.Interactivity
         bool _fullyLoaded;
 
         public int Position { get; set; }
-
-        protected override IEnumerable<IReactionTrigger> CreateTriggers()
-        {
-            yield return new ListTrigger(MoveDirection.Left);
-            yield return new ListTrigger(MoveDirection.Right);
-        }
 
         public abstract class ListViewBase : ViewBase
         {
