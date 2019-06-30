@@ -37,6 +37,8 @@ namespace nhitomi.Interactivity
                 _db = db;
             }
 
+            protected override bool ShowLoadingIndication => false;
+
             protected override Task<Collection[]> GetValuesAsync(int offset,
                                                                  CancellationToken cancellationToken = default) =>
                 offset == 0

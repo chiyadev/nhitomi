@@ -1,7 +1,5 @@
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using Discord;
 using nhitomi.Core;
 using nhitomi.Discord;
@@ -30,14 +28,12 @@ namespace nhitomi.Interactivity
             yield return new DeleteTrigger();
         }
 
-        public class View : ListViewBase
+        public class View : SynchronousListViewBase
         {
             new DoujinReadMessage Message => (DoujinReadMessage) base.Message;
 
-            protected override Task<int[]> GetValuesAsync(int offset,
-                                                          CancellationToken cancellationToken = default) => offset == 0
-                ? Task.FromResult(Enumerable.Range(0, Message._doujin.PageCount).ToArray())
-                : Task.FromResult<int[]>(null);
+            protected override int[] GetValues(int offset) =>
+                Enumerable.Range(0, Message._doujin.PageCount).Skip(offset).ToArray();
 
             protected override Embed CreateEmbed(int value)
             {

@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using Discord;
 using Microsoft.Extensions.Options;
 using nhitomi.Discord;
@@ -31,7 +29,7 @@ namespace nhitomi.Interactivity
             yield return new DeleteTrigger();
         }
 
-        public class View : ListViewBase
+        public class View : SynchronousListViewBase
         {
             readonly AppSettings _settings;
 
@@ -40,13 +38,10 @@ namespace nhitomi.Interactivity
                 _settings = options.Value;
             }
 
-            protected override Task<HelpMessageSection[]> GetValuesAsync(int offset,
-                                                                         CancellationToken cancellationToken =
-                                                                             default) => Task.FromResult(
-                Enum.GetValues(typeof(HelpMessageSection))
-                    .Cast<HelpMessageSection>()
-                    .Skip(offset)
-                    .ToArray());
+            protected override HelpMessageSection[] GetValues(int offset) => Enum.GetValues(typeof(HelpMessageSection))
+                                                                                 .Cast<HelpMessageSection>()
+                                                                                 .Skip(offset)
+                                                                                 .ToArray();
 
             protected override Embed CreateEmbed(HelpMessageSection value)
             {
