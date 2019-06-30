@@ -8,7 +8,7 @@ using nhitomi.Globalization;
 
 namespace nhitomi.Modules
 {
-    [Module("option")]
+    [Module("option", Alias = "o")]
     public class OptionModule
     {
         readonly IDiscordContext _context;
@@ -42,7 +42,7 @@ namespace nhitomi.Modules
             return true;
         }
 
-        [Command("language")]
+        [Command("language", Alias = "l")]
         public async Task LanguageAsync(string language,
                                         CancellationToken cancellationToken = default)
         {

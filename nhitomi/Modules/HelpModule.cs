@@ -24,11 +24,11 @@ namespace nhitomi.Modules
             _interactive = interactive;
         }
 
-        [Command("help")]
+        [Command("help", Alias = "h")]
         public Task HelpAsync(CancellationToken cancellationToken = default) =>
             _interactive.SendInteractiveAsync(new HelpMessage(), _context, cancellationToken);
 
-        [Command("debug", Aliases = null)]
+        [Command("debug")]
         public Task DebugAsync(CancellationToken cancellationToken = default) =>
             _interactive.SendInteractiveAsync(new DebugMessage(), _context, cancellationToken);
 
@@ -87,6 +87,7 @@ namespace nhitomi.Modules
                                        .WithValue($@"
 Guilds: {_discord.Guilds.Count} guilds
 Channels: {_discord.Guilds.Sum(g => g.TextChannels.Count) + _discord.PrivateChannels.Count} channels
+Users: {_discord.Guilds.Sum(g => g.MemberCount)} users
 Feed channels: {_feedChannelUpdater.UpdaterTasks.Count} updater tasks
 Latency: {_discord.Latency}ms
 Handled messages: {_messageHandler.HandledMessages} messages ({_messageHandler.ReceivedMessages} received)

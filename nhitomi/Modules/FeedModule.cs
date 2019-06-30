@@ -33,7 +33,7 @@ namespace nhitomi.Modules
             return false;
         }
 
-        [Command("add"), Binding("[tag+]")]
+        [Command("add", Alias = "a"), Binding("[tag+]")]
         public async Task AddAsync(string tag,
                                    CancellationToken cancellationToken = default)
         {
@@ -81,7 +81,7 @@ namespace nhitomi.Modules
                 await _context.ReplyAsync("feedTagAlreadyAdded", new { tag, channel = _context.Channel });
         }
 
-        [Command("remove"), Binding("[tag+]")]
+        [Command("remove", Alias = "r"), Binding("[tag+]")]
         public async Task RemoveAsync(string tag,
                                       CancellationToken cancellationToken = default)
         {
@@ -116,7 +116,7 @@ namespace nhitomi.Modules
                 await _context.ReplyAsync("feedTagNotRemoved", new { tag, channel = _context.Channel });
         }
 
-        [Command("mode")]
+        [Command("mode", Alias = "m")]
         public async Task ModeAsync(FeedChannelWhitelistType type,
                                     CancellationToken cancellationToken = default)
         {

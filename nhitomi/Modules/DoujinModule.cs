@@ -27,7 +27,7 @@ namespace nhitomi.Modules
             _interactive = interactive;
         }
 
-        [Command("get")]
+        [Command("get", Alias = "g")]
         public async Task GetAsync(string source,
                                    string id,
                                    CancellationToken cancellationToken = default)
@@ -43,7 +43,7 @@ namespace nhitomi.Modules
             await _interactive.SendInteractiveAsync(new DoujinMessage(doujin), _context, cancellationToken);
         }
 
-        [Command("get")]
+        [Command("get", Alias = "g")]
         public Task GetAsync(string url,
                              CancellationToken cancellationToken = default)
         {
@@ -69,12 +69,12 @@ namespace nhitomi.Modules
             _context,
             cancellationToken);
 
-        [Command("from")]
+        [Command("from", Alias = "f")]
         public Task FromAsync(string source,
                               CancellationToken cancellationToken = default) =>
             _interactive.SendInteractiveAsync(new DoujinListFromSourceMessage(source), _context, cancellationToken);
 
-        [Command("search"), Binding("[query+]")]
+        [Command("search", Alias = "s"), Binding("[query+]")]
         public async Task SearchAsync(string query,
                                       string source = null,
                                       CancellationToken cancellationToken = default)
@@ -96,7 +96,7 @@ namespace nhitomi.Modules
                 cancellationToken);
         }
 
-        [Command("download", Aliases = new[] { "dl" })]
+        [Command("download", Alias = "dl")]
         public async Task DownloadAsync(string source,
                                         string id,
                                         CancellationToken cancellationToken = default)
@@ -112,7 +112,7 @@ namespace nhitomi.Modules
             await _interactive.SendInteractiveAsync(new DownloadMessage(doujin), _context, cancellationToken);
         }
 
-        [Command("download", Aliases = new[] { "dl" })]
+        [Command("download", Alias = "dl")]
         public Task DownloadAsync(string url,
                                   CancellationToken cancellationToken = default)
         {
@@ -121,7 +121,7 @@ namespace nhitomi.Modules
             return DownloadAsync(source, id, cancellationToken);
         }
 
-        [Command("read")]
+        [Command("read", Alias = "r")]
         public async Task ReadAsync(string source,
                                     string id,
                                     CancellationToken cancellationToken = default)
@@ -137,7 +137,7 @@ namespace nhitomi.Modules
             await _interactive.SendInteractiveAsync(new DoujinReadMessage(doujin), _context, cancellationToken);
         }
 
-        [Command("read")]
+        [Command("read", Alias = "r")]
         public Task ReadAsync(string url,
                               CancellationToken cancellationToken = default)
         {

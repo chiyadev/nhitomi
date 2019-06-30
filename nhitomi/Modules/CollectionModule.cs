@@ -9,7 +9,7 @@ using nhitomi.Interactivity;
 
 namespace nhitomi.Modules
 {
-    [Module("collection")]
+    [Module("collection", Alias = "c")]
     public class CollectionModule
     {
         readonly IMessageContext _context;
@@ -35,7 +35,7 @@ namespace nhitomi.Modules
             }
         }
 
-        [Command("list")]
+        [Command("list", Alias = "l")]
         public Task ListAsync(CancellationToken cancellationToken = default) =>
             _interactive.SendInteractiveAsync(new CollectionListMessage(_context.User.Id), _context, cancellationToken);
 
