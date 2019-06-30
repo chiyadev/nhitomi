@@ -15,7 +15,7 @@ namespace nhitomi.Interactivity
 
         public class View : EmbedViewBase
         {
-            CommandHelpMessage Message => (CommandHelpMessage) base.Message;
+            new CommandHelpMessage Message => (CommandHelpMessage) base.Message;
 
             readonly AppSettings _settings;
 
