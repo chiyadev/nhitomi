@@ -96,7 +96,7 @@
     },
     "openSource": {
       "title": "Open Source",
-      "license": "This project is licensed under the MIT License.\n[GitHub]({repoUrl})"
+      "license": "This project is licensed under the MIT License."
     }
   },
   "errorMessage": {
