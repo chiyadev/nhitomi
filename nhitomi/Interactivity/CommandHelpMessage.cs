@@ -48,11 +48,6 @@ namespace nhitomi.Interactivity
                             Name  = l["examples"],
                             Value = string.Join('\n', Message.Examples.Select(s => $"`{prefix}{command} {s}`"))
                         }
-                    },
-
-                    Footer = new EmbedFooterBuilder
-                    {
-                        Text = $"v{VersionHelper.Version.ToString(2)} {VersionHelper.Codename} — {l["footer"]}"
                     }
                 }.Build();
             }
