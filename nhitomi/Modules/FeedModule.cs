@@ -40,7 +40,7 @@ namespace nhitomi.Modules
                                        CancellationToken cancellationToken = default)
             {
                 if (!await EnsureFeedEnabled(cancellationToken) ||
-                    !await OptionModule.EnsureGuildAdminAsync(_context, cancellationToken))
+                    !await EnsureGuildAdminAsync(_context, cancellationToken))
                     return;
 
                 var added = false;
@@ -88,7 +88,7 @@ namespace nhitomi.Modules
                                           CancellationToken cancellationToken = default)
             {
                 if (!await EnsureFeedEnabled(cancellationToken) ||
-                    !await OptionModule.EnsureGuildAdminAsync(_context, cancellationToken))
+                    !await EnsureGuildAdminAsync(_context, cancellationToken))
                     return;
 
                 var removed = false;
@@ -123,7 +123,7 @@ namespace nhitomi.Modules
                                         CancellationToken cancellationToken = default)
             {
                 if (!await EnsureFeedEnabled(cancellationToken) ||
-                    !await OptionModule.EnsureGuildAdminAsync(_context, cancellationToken))
+                    !await EnsureGuildAdminAsync(_context, cancellationToken))
                     return;
 
                 do
