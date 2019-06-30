@@ -89,6 +89,9 @@ namespace nhitomi.Interactivity
                     Description = l["text", new { context = Context }]
                 }.Build();
             }
+
+            protected override string ListBeginningMessage => "collectionMessage.collectionListBeginning";
+            protected override string ListEndMessage => "collectionMessage.collectionListEnd";
         }
     }
 }

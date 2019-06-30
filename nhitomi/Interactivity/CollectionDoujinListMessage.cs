@@ -35,6 +35,9 @@ namespace nhitomi.Interactivity
                     Message._collectionName,
                     d => d.Skip(offset).Take(10),
                     cancellationToken);
+
+            protected override string ListBeginningMessage => "collectionMessage.listBeginning";
+            protected override string ListEndMessage => "collectionMessage.listEnd";
         }
     }
 }

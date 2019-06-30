@@ -66,6 +66,9 @@ namespace nhitomi.Interactivity
                 Title       = "Doujin has no pages",
                 Description = "You should not be seeing this message. If you do, please report this as a bug."
             }.Build();
+
+            protected override string ListBeginningMessage => "doujinReadMessage.listBeginning";
+            protected override string ListEndMessage => "doujinReadMessage.listEnd";
         }
     }
 }

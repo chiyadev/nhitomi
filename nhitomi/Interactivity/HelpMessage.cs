@@ -202,6 +202,9 @@ namespace nhitomi.Interactivity
             }
 
             protected override Embed CreateEmptyEmbed() => throw new NotSupportedException();
+
+            protected override string ListBeginningMessage => "helpMessage.listBeginning";
+            protected override string ListEndMessage => "helpMessage.listEnd";
         }
     }
 }
