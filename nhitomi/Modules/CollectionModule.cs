@@ -143,6 +143,7 @@ namespace nhitomi.Modules
                              CancellationToken cancellationToken = default) => _interactive.SendInteractiveAsync(
             new CommandHelpMessage
             {
+                Title          = "collection add",
                 Command        = $"collection {name} add",
                 Aliases        = new[] { $"c {name} a" },
                 DescriptionKey = "collections.add",
@@ -215,6 +216,7 @@ namespace nhitomi.Modules
                                 CancellationToken cancellationToken = default) => _interactive.SendInteractiveAsync(
             new CommandHelpMessage
             {
+                Title          = "collection remove",
                 Command        = $"collection {name} remove",
                 Aliases        = new[] { $"c {name} r" },
                 DescriptionKey = "collections.remove",
@@ -284,6 +286,7 @@ namespace nhitomi.Modules
                               CancellationToken cancellationToken = default) => _interactive.SendInteractiveAsync(
             new CommandHelpMessage
             {
+                Title          = "collection sort",
                 Command        = $"collection {name} sort",
                 Aliases        = new[] { $"c {name} s" },
                 DescriptionKey = "collections.sort",
