@@ -127,12 +127,12 @@ namespace nhitomi.Interactivity
 
                 embed.AddField(l["title"],
                                $@"
-- `{prefix}collection list` — {l["list"]}
-- `{prefix}collection` — {l["view"]}
-- `{prefix}collection add` — {l["add"]}
-- `{prefix}collection remove` — {l["remove"]}
-- `{prefix}collection sort` — {l["sort"]}
-- `{prefix}collection delete` — {l["delete"]}
+- `{prefix}collections` — {l["list"]}
+- `{prefix}collection {{name}}` — {l["view"]}
+- `{prefix}collection {{name}} add` — {l["add"]}
+- `{prefix}collection {{name}} remove` — {l["remove"]}
+- `{prefix}collection {{name}} sort` — {l["sort"]}
+- `{prefix}collection {{name}} delete` — {l["delete"]}
 ".Trim());
             }
 

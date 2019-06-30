@@ -9,6 +9,27 @@ using nhitomi.Interactivity;
 
 namespace nhitomi.Modules
 {
+    /// <summary>
+    /// Module that only contains 'n!collections' because it has a different syntax.
+    /// </summary>
+    [Module("collection", IsPrefixed = false)]
+    public class CollectionListModule
+    {
+        readonly IMessageContext _context;
+        readonly InteractiveManager _interactive;
+
+        public CollectionListModule(IMessageContext context,
+                                    InteractiveManager interactive)
+        {
+            _context     = context;
+            _interactive = interactive;
+        }
+
+        [Command("collections", Alias = "c")]
+        public Task ListAsync(CancellationToken cancellationToken = default) =>
+            _interactive.SendInteractiveAsync(new CollectionListMessage(_context.User.Id), _context, cancellationToken);
+    }
+
     [Module("collection", Alias = "c")]
     public class CollectionModule
     {
@@ -34,10 +55,6 @@ namespace nhitomi.Modules
                 default: return name;
             }
         }
-
-        [Command("list", Alias = "l")]
-        public Task ListAsync(CancellationToken cancellationToken = default) =>
-            _interactive.SendInteractiveAsync(new CollectionListMessage(_context.User.Id), _context, cancellationToken);
 
         [Command("view", BindName = false), Binding("[name]")]
         public async Task ViewAsync(string name,
