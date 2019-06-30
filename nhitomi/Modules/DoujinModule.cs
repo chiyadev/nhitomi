@@ -71,8 +71,26 @@ namespace nhitomi.Modules
 
         [Command("from", Alias = "f")]
         public Task FromAsync(string source,
-                              CancellationToken cancellationToken = default) =>
-            _interactive.SendInteractiveAsync(new DoujinListFromSourceMessage(source), _context, cancellationToken);
+                              CancellationToken cancellationToken = default) => _interactive.SendInteractiveAsync(
+            new DoujinListFromSourceMessage(source),
+            _context,
+            cancellationToken);
+
+        [Command("from")]
+        public Task FromAsync(CancellationToken cancellationToken = default) => _interactive.SendInteractiveAsync(
+            new CommandHelpMessage
+            {
+                Command        = "from",
+                Aliases        = new[] { "f" },
+                DescriptionKey = "doujins.from",
+                Examples = new[]
+                {
+                    "nhentai",
+                    "hitomi"
+                }
+            },
+            _context,
+            cancellationToken);
 
         [Command("search", Alias = "s"), Binding("[query+]")]
         public async Task SearchAsync(string query,
@@ -95,6 +113,23 @@ namespace nhitomi.Modules
                 _context,
                 cancellationToken);
         }
+
+        [Command("search")]
+        public Task SearchAsync(CancellationToken cancellationToken = default) => _interactive.SendInteractiveAsync(
+            new CommandHelpMessage
+            {
+                Command        = "search",
+                Aliases        = new[] { "s" },
+                DescriptionKey = "doujins.search",
+                Examples = new[]
+                {
+                    "full color",
+                    "glasses",
+                    "big breasts"
+                }
+            },
+            _context,
+            cancellationToken);
 
         [Command("download", Alias = "dl")]
         public async Task DownloadAsync(string source,
@@ -121,6 +156,23 @@ namespace nhitomi.Modules
             return DownloadAsync(source, id, cancellationToken);
         }
 
+        [Command("get")]
+        public Task DownloadAsync(CancellationToken cancellationToken = default) => _interactive.SendInteractiveAsync(
+            new CommandHelpMessage
+            {
+                Command        = "download",
+                Aliases        = new[] { "dl" },
+                DescriptionKey = "doujins.download",
+                Examples = new[]
+                {
+                    "nhentai 1234",
+                    "nhentai/1234",
+                    "https://nhentai.net/g/1234/"
+                }
+            },
+            _context,
+            cancellationToken);
+
         [Command("read", Alias = "r")]
         public async Task ReadAsync(string source,
                                     string id,
@@ -145,5 +197,22 @@ namespace nhitomi.Modules
 
             return ReadAsync(source, id, cancellationToken);
         }
+
+        [Command("get")]
+        public Task ReadAsync(CancellationToken cancellationToken = default) => _interactive.SendInteractiveAsync(
+            new CommandHelpMessage
+            {
+                Command        = "read",
+                Aliases        = new[] { "r" },
+                DescriptionKey = "doujins.read",
+                Examples = new[]
+                {
+                    "nhentai 1234",
+                    "nhentai/1234",
+                    "https://nhentai.net/g/1234/"
+                }
+            },
+            _context,
+            cancellationToken);
     }
 }
