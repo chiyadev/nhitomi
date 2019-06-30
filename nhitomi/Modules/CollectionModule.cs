@@ -104,7 +104,9 @@ namespace nhitomi.Modules
                     _database.Add(collection);
                 }
 
-                doujin = await _database.GetDoujinAsync(source, id, cancellationToken);
+                doujin = await _database.GetDoujinAsync(GalleryUtility.ExpandContraction(source),
+                                                        id,
+                                                        cancellationToken);
 
                 if (doujin == null)
                 {
@@ -173,7 +175,9 @@ namespace nhitomi.Modules
                     return;
                 }
 
-                doujin = await _database.GetDoujinAsync(source, id, cancellationToken);
+                doujin = await _database.GetDoujinAsync(GalleryUtility.ExpandContraction(source),
+                                                        id,
+                                                        cancellationToken);
 
                 if (doujin == null)
                 {

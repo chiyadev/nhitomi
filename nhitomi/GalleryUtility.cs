@@ -40,5 +40,15 @@ namespace nhitomi
             return groups.Select(g => (g.Name.Split('_', 2)[1], g.Value))
                          .ToArray();
         }
+
+        public static string ExpandContraction(string source)
+        {
+            switch (source.Trim().ToLowerInvariant())
+            {
+                case "nh": return "nhentai";
+                case "hi": return "hitomi";
+                default:   return source;
+            }
+        }
     }
 }
