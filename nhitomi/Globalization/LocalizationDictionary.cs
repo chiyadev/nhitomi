@@ -60,7 +60,7 @@ namespace nhitomi.Globalization
             }
         }
 
-        public string this[string key] => TryGetValue(FixKey(key), out var value) ? value : $"`{key}`";
+        public string this[string key] => TryGetValue(FixKey(key), out var value) ? value : null;
 
         public int Count => _dict.Count;
 

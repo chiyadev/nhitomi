@@ -105,7 +105,7 @@ namespace nhitomi.Globalization
                                        object args = null] =>
             new LocalizationAccess(Localization, $"{_key}.{key}", args ?? _args);
 
-        public override string ToString() => Smart.Format(Localization.Dictionary[_key], _args);
+        public override string ToString() => Smart.Format(Localization.Dictionary[_key] ?? $"`{_key}`", _args);
 
         public static implicit operator string(LocalizationAccess access) => access.ToString();
     }
