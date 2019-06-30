@@ -5,6 +5,7 @@ using nhitomi.Core;
 using nhitomi.Discord;
 using nhitomi.Discord.Parsing;
 using nhitomi.Globalization;
+using nhitomi.Interactivity;
 
 namespace nhitomi.Modules
 {
@@ -14,14 +15,17 @@ namespace nhitomi.Modules
         readonly IDiscordContext _context;
         readonly IDatabase _db;
         readonly GuildSettingsCache _settingsCache;
+        readonly InteractiveManager _interactive;
 
         public OptionModule(IDiscordContext context,
                             IDatabase db,
-                            GuildSettingsCache settingsCache)
+                            GuildSettingsCache settingsCache,
+                            InteractiveManager interactive)
         {
             _context       = context;
             _db            = db;
             _settingsCache = settingsCache;
+            _interactive   = interactive;
         }
 
         public static async Task<bool> EnsureGuildAdminAsync(IDiscordContext context,
@@ -78,5 +82,21 @@ namespace nhitomi.Modules
                 await _context.ReplyAsync("localizationNotFound", new { language });
             }
         }
+
+        [Command("language")]
+        public Task LanguageAsync(CancellationToken cancellationToken = default) => _interactive.SendInteractiveAsync(
+            new CommandHelpMessage
+            {
+                Command        = "language",
+                Aliases        = new[] { "l" },
+                DescriptionKey = "options.language",
+                Examples = new[]
+                {
+                    "en",
+                    "english"
+                }
+            },
+            _context,
+            cancellationToken);
     }
 }
