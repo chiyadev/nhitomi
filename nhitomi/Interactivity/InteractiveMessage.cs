@@ -96,7 +96,7 @@ namespace nhitomi.Interactivity
             var currentTime = DateTime.Now;
             var timeToWait  = _lastUpdateTime + TimeSpan.FromSeconds(1) - currentTime;
 
-            // if updating quickly (more than once per second)
+            // if updating too quickly
             if (timeToWait.Ticks > 0)
                 lock (_pendingStates)
                 {
