@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Concurrent;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading;
@@ -115,8 +114,6 @@ namespace nhitomi.Discord
                         Event         = eventType
                     };
 
-                    await ThrottleReactionUser(context);
-
                     try
                     {
                         foreach (var handler in _reactionHandlers)
@@ -151,35 +148,6 @@ namespace nhitomi.Discord
 
             public IReaction Reaction { get; set; }
             public ReactionEvent Event { get; set; }
-        }
-
-        // stores next reaction time
-        readonly ConcurrentDictionary<ulong, DateTime> _userReactionTimes = new ConcurrentDictionary<ulong, DateTime>();
-
-        // this is a workaround for Discord 5/5 rate limit that makes everything look smoother
-        // by throttling manually rather than sending requests in bursts of 5
-        async Task ThrottleReactionUser(IDiscordContext context)
-        {
-            var time = DateTime.Now;
-
-            // add current time or increment last value by 1 second
-            var nextReactionTime = _userReactionTimes.AddOrUpdate(
-                context.User.Id,
-                time,
-                (_,
-                 t) =>
-                {
-                    t = t.AddSeconds(1);
-
-                    if (t < time)
-                        t = time;
-
-                    return t;
-                });
-
-            // wait until next reaction time
-            if (nextReactionTime > time)
-                await Task.Delay(nextReactionTime - time);
         }
     }
 }
