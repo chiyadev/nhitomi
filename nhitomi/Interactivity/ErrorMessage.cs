@@ -57,7 +57,7 @@ namespace nhitomi.Interactivity
                 }
                 else
                 {
-                    embed.Title = l["titleAuto"][l];
+                    embed.Title = l["titleAuto"];
 
                     var user    = Context.User;
                     var message = Context.Message;
