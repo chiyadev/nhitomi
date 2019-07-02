@@ -52,28 +52,32 @@ namespace nhitomi.Interactivity
 
             public abstract Task<bool> UpdateAsync(CancellationToken cancellationToken = default);
 
-            protected async Task SetMessageAsync(string localizationKey,
-                                                 object args = null,
-                                                 CancellationToken cancellationToken = default)
+            protected Task SetMessageAsync(string localizationKey,
+                                           object args = null,
+                                           CancellationToken cancellationToken = default)
             {
-                string l = Context.GetLocalization()[localizationKey, args];
+                string content = Context.GetLocalization()[localizationKey, args];
 
-                if (Message.Message == null)
-                    Message.Message = await Context.Channel.SendMessageAsync(l);
-                else
-                    await Message.Message.ModifyAsync(m => m.Content = l);
+                return SetViewAsync((Optional<string>) content, Optional<Embed>.Unspecified, cancellationToken);
             }
 
-            protected async Task SetEmbedAsync(Embed embed,
-                                               CancellationToken cancellationToken = default)
+            protected Task SetEmbedAsync(Embed embed,
+                                         CancellationToken cancellationToken = default) =>
+                SetViewAsync(null, embed, cancellationToken);
+
+            protected virtual async Task SetViewAsync(Optional<string> message,
+                                                      Optional<Embed> embed,
+                                                      CancellationToken cancellationToken = default)
             {
                 if (Message.Message == null)
-                    Message.Message = await Context.Channel.SendMessageAsync(embed: embed);
+                    Message.Message = await Context.Channel.SendMessageAsync(message.GetValueOrDefault(),
+                                                                             false,
+                                                                             embed.GetValueOrDefault());
                 else
                     await Message.Message.ModifyAsync(m =>
                     {
+                        m.Content = message;
                         m.Embed   = embed;
-                        m.Content = null;
                     });
             }
         }
