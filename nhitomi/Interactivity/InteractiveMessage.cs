@@ -128,9 +128,6 @@ namespace nhitomi.Interactivity
 
             lock (_pendingStates)
             {
-                if (_pendingStates.Count == 0)
-                    return;
-
                 // merge pending states into one
                 while (_pendingStates.TryDequeue(out var s))
                 {
