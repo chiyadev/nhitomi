@@ -94,36 +94,25 @@ namespace nhitomi.Interactivity
                                                          CancellationToken cancellationToken = default)
         {
             var currentTime = DateTime.Now;
-
-            // always queue state if other states are pending
-            lock (_pendingStates)
-            {
-                if (_pendingStates.Count > 0)
-                {
-                    _pendingStates.Enqueue(new InteractiveViewState(context, message, embed));
-
-                    return;
-                }
-            }
-
-            var timeSinceLastUpdate = currentTime - _lastUpdateTime;
+            var timeToWait  = _lastUpdateTime + TimeSpan.FromSeconds(1) - currentTime;
 
             // if updating quickly (more than once per second)
-            if (timeSinceLastUpdate < TimeSpan.FromSeconds(1))
-            {
-                // queue state to update in the background
+            if (timeToWait.Ticks > 0)
                 lock (_pendingStates)
+                {
+                    // queue current state to update in the background
                     _pendingStates.Enqueue(new InteractiveViewState(context, message, embed));
 
-                // ReSharper disable once RedundantArgumentDefaultValue
-                _ = Task.Run(() => UpdateStateAsync(timeSinceLastUpdate, default), cancellationToken);
-            }
+                    // ReSharper disable once RedundantArgumentDefaultValue
+
+                    // we are the first in queue, so start the background updater
+                    if (_pendingStates.Count == 1)
+                        _ = Task.Run(() => UpdateStateAsync(timeToWait, default), cancellationToken);
+                }
 
             // otherwise update immediately
             else
-            {
                 await base.UpdateMessageAsync(context, message, embed, cancellationToken);
-            }
 
             _lastUpdateTime = currentTime;
         }
