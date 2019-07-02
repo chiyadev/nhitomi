@@ -120,28 +120,35 @@ namespace nhitomi.Interactivity
         async Task UpdateStateAsync(TimeSpan initialDelay,
                                     CancellationToken cancellationToken = default)
         {
-            await Task.Delay(initialDelay, cancellationToken);
-
-            var state = new InteractiveViewState(null,
-                                                 Optional<string>.Unspecified,
-                                                 Optional<Embed>.Unspecified);
-
-            lock (_pendingStates)
+            try
             {
-                // merge pending states into one
-                while (_pendingStates.TryDequeue(out var s))
+                await Task.Delay(initialDelay, cancellationToken);
+
+                var state = new InteractiveViewState(null,
+                                                     Optional<string>.Unspecified,
+                                                     Optional<Embed>.Unspecified);
+
+                lock (_pendingStates)
                 {
-                    state.Context = s.Context;
+                    // merge pending states into one
+                    while (_pendingStates.TryDequeue(out var s))
+                    {
+                        state.Context = s.Context;
 
-                    if (s.Message.IsSpecified)
-                        state.Message = s.Message;
+                        if (s.Message.IsSpecified)
+                            state.Message = s.Message;
 
-                    if (s.Embed.IsSpecified)
-                        state.Embed = s.Embed;
+                        if (s.Embed.IsSpecified)
+                            state.Embed = s.Embed;
+                    }
                 }
-            }
 
-            await base.UpdateMessageAsync(state.Context, state.Message, state.Embed, cancellationToken);
+                await base.UpdateMessageAsync(state.Context, state.Message, state.Embed, cancellationToken);
+            }
+            catch
+            {
+                //todo: somehow log this
+            }
         }
 
         public virtual void Dispose() => _semaphore.Dispose();
