@@ -45,6 +45,23 @@ namespace nhitomi.Interactivity
             return view.UpdateAsync(cancellationToken);
         }
 
+        protected virtual async Task UpdateMessageAsync(IDiscordContext context,
+                                                        Optional<string> content,
+                                                        Optional<Embed> embed,
+                                                        CancellationToken cancellationToken = default)
+        {
+            if (Message == null)
+                Message = await context.Channel.SendMessageAsync(content.GetValueOrDefault(),
+                                                                 false,
+                                                                 embed.GetValueOrDefault());
+            else
+                await Message.ModifyAsync(m =>
+                {
+                    m.Content = content;
+                    m.Embed   = embed;
+                });
+        }
+
         public abstract class ViewBase
         {
             public EmbedMessage<TView> Message { get; set; }
@@ -58,28 +75,12 @@ namespace nhitomi.Interactivity
             {
                 string content = Context.GetLocalization()[localizationKey, args];
 
-                return SetViewAsync((Optional<string>) content, Optional<Embed>.Unspecified, cancellationToken);
+                return Message.UpdateMessageAsync(Context, content, Optional<Embed>.Unspecified, cancellationToken);
             }
 
             protected Task SetEmbedAsync(Embed embed,
                                          CancellationToken cancellationToken = default) =>
-                SetViewAsync(null, embed, cancellationToken);
-
-            protected virtual async Task SetViewAsync(Optional<string> message,
-                                                      Optional<Embed> embed,
-                                                      CancellationToken cancellationToken = default)
-            {
-                if (Message.Message == null)
-                    Message.Message = await Context.Channel.SendMessageAsync(message.GetValueOrDefault(),
-                                                                             false,
-                                                                             embed.GetValueOrDefault());
-                else
-                    await Message.Message.ModifyAsync(m =>
-                    {
-                        m.Content = message;
-                        m.Embed   = embed;
-                    });
-            }
+                Message.UpdateMessageAsync(Context, null, embed, cancellationToken);
         }
 
         public abstract class EmbedViewBase : ViewBase
