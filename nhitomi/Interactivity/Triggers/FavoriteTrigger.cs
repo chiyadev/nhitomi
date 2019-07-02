@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -93,9 +94,13 @@ namespace nhitomi.Interactivity.Triggers
                     };
 
                 if (added)
-                    await context.ReplyAsync("addedToCollection", new { doujin, collection });
+                    await context.ReplyAsync("addedToCollection",
+                                             new { doujin, collection },
+                                             TimeSpan.FromSeconds(5));
                 else
-                    await context.ReplyAsync("removedFromCollection", new { doujin, collection });
+                    await context.ReplyAsync("removedFromCollection",
+                                             new { doujin, collection },
+                                             TimeSpan.FromSeconds(5));
 
                 return true;
             }
