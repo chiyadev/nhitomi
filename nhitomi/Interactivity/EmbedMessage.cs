@@ -53,10 +53,10 @@ namespace nhitomi.Interactivity
             public abstract Task<bool> UpdateAsync(CancellationToken cancellationToken = default);
 
             protected async Task SetMessageAsync(string localizationKey,
-                                                 object variables = null,
+                                                 object args = null,
                                                  CancellationToken cancellationToken = default)
             {
-                string l = Context.GetLocalization()[localizationKey, variables];
+                string l = Context.GetLocalization()[localizationKey, args];
 
                 if (Message.Message == null)
                     Message.Message = await Context.Channel.SendMessageAsync(l);
