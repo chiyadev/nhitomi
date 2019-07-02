@@ -1,5 +1,5 @@
 using System;
-using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading;
@@ -115,8 +115,7 @@ namespace nhitomi.Discord
                         Event         = eventType
                     };
 
-                    if (!await ThrottleReactionUser(context))
-                        return;
+                    await ThrottleReactionUser(context);
 
                     try
                     {
@@ -155,44 +154,32 @@ namespace nhitomi.Discord
         }
 
         // stores next reaction time
-        readonly Dictionary<ulong, DateTime> _userReactionTimes = new Dictionary<ulong, DateTime>();
+        readonly ConcurrentDictionary<ulong, DateTime> _userReactionTimes = new ConcurrentDictionary<ulong, DateTime>();
 
         // this is a workaround for Discord 5/5 rate limit that makes everything look smoother
         // by throttling manually rather than sending requests in bursts of 5
-        async Task<bool> ThrottleReactionUser(IDiscordContext context)
+        async Task ThrottleReactionUser(IDiscordContext context)
         {
-            DateTime currentTime;
-            DateTime nextReactionTime;
+            var time = DateTime.Now;
 
-            lock (_userReactionTimes)
-            {
-                currentTime = DateTime.Now;
-
-                if (_userReactionTimes.TryGetValue(context.User.Id, out nextReactionTime))
+            // add current time or increment last value by 1 second
+            var nextReactionTime = _userReactionTimes.AddOrUpdate(
+                context.User.Id,
+                time,
+                (_,
+                 t) =>
                 {
-                    // increment last value by 1 second
-                    nextReactionTime = nextReactionTime.AddSeconds(1);
+                    t = t.AddSeconds(1);
 
-                    if (nextReactionTime < currentTime)
-                        nextReactionTime = currentTime;
+                    if (t < time)
+                        t = time;
 
-                    // ignore this reaction if reacting too fast
-                    else if (nextReactionTime > currentTime.AddSeconds(2))
-                        return false;
-                }
-                else
-                {
-                    nextReactionTime = currentTime;
-                }
-
-                _userReactionTimes[context.User.Id] = nextReactionTime;
-            }
+                    return t;
+                });
 
             // wait until next reaction time
-            if (nextReactionTime > currentTime)
-                await Task.Delay(nextReactionTime - currentTime);
-
-            return true;
+            if (nextReactionTime > time)
+                await Task.Delay(nextReactionTime - time);
         }
     }
 }
