@@ -16,13 +16,40 @@ namespace nhitomi.Core.Clients.Hitomi
     {
         public static string Gallery(int id) => $"https://hitomi.la/galleries/{id}.html";
 
-        public static string GalleryInfo(int id,
-                                         char? server = null) => $"https://{server}tn.hitomi.la/galleries/{id}.js";
+        public static string GalleryInfo(int id, char? server = null) => $"https://{server}tn.hitomi.la/galleries/{id}.js";
 
-        static char GetCdn(int id) => (char) ('a' + (id % 10 == 1 ? 0 : id) % 2);
+        // ltn.hitomi.la/common.js interpretation 2019/10/24
+        const int _numberOfFrontends = 3;
 
-        public static string Image(int id,
-                                   string name) => $"https://{GetCdn(id)}a.hitomi.la/galleries/{id}/{name}";
+        static char SubdomainFromGalleryId(int id)
+            => (char) ('a' + id % _numberOfFrontends);
+
+        static string FullPathFromHash(string hash)
+            => hash.Length < 3 ? hash : $"{hash.Substring(hash.Length - 1, 1)}/{hash.Substring(hash.Length - 3, 2)}/{hash}";
+
+        public static string UrlFromUrlFromHash(int galleryId, string name, string hash = null, bool oldMethod = false)
+        {
+            var retval = "a";
+
+            if (oldMethod || string.IsNullOrEmpty(hash))
+            {
+                var g = galleryId % 10;
+
+                retval = SubdomainFromGalleryId(g) + retval;
+
+                return $"https://{retval}.hitomi.la/galleries/{galleryId}/{name}";
+            }
+            else
+            {
+                var g = Convert.ToInt32(hash.Substring(hash.Length - 3, 2), 16);
+
+                retval = SubdomainFromGalleryId(g) + retval;
+
+                var ext = Path.GetExtension(name);
+
+                return $"https://{retval}.hitomi.la/images/{FullPathFromHash(hash)}{ext}";
+            }
+        }
 
         public static class XPath
         {
@@ -184,6 +211,7 @@ namespace nhitomi.Core.Clients.Hitomi
                                                   case ".jpeg": return 'J';
                                                   case ".png":  return 'p';
                                                   case ".gif":  return 'g';
+                                                  case ".webp": return 'w';
 
                                                   // what is this?
                                                   case ".octet-stream": return 'o';
@@ -201,7 +229,8 @@ namespace nhitomi.Core.Clients.Hitomi
                     doujin.Data = _serializer.Serialize(new InternalDoujinData
                     {
                         ImageNames = images.Select(i => Path.GetFileNameWithoutExtension(i.Name)).ToArray(),
-                        Extensions = extensionsCombined
+                        Extensions = extensionsCombined,
+                        Hash       = images.Select(i => i.Hash).ToArray()
                     });
                 }
             }
@@ -213,6 +242,7 @@ namespace nhitomi.Core.Clients.Hitomi
         {
             [JsonProperty("n")] public string[] ImageNames;
             [JsonProperty("e")] public string Extensions;
+            [JsonProperty("h")] public string[] Hash;
         }
 
         static string ConvertSeries(string series) =>
@@ -238,6 +268,8 @@ namespace nhitomi.Core.Clients.Hitomi
 #pragma warning disable 649
 
             [JsonProperty("name")] public string Name;
+            [JsonProperty("hash")] public string Hash;
+            [JsonProperty("haswebp")] public bool HasWebP;
             [JsonProperty("width")] public int Width;
             [JsonProperty("height")] public int Height;
 
@@ -315,7 +347,8 @@ namespace nhitomi.Core.Clients.Hitomi
 
             for (var i = 0; i < data.ImageNames.Length; i++)
             {
-                var    name = data.ImageNames[i];
+                var name = data.ImageNames[i];
+
                 string extension;
 
                 switch (data.Extensions[i])
@@ -332,6 +365,9 @@ namespace nhitomi.Core.Clients.Hitomi
                     case 'g':
                         extension = ".gif";
                         break;
+                    case 'w':
+                        extension = ".webp";
+                        break;
                     case 'o':
                         extension = ".octet-stream";
                         break;
@@ -340,7 +376,7 @@ namespace nhitomi.Core.Clients.Hitomi
                         break;
                 }
 
-                yield return Hitomi.Image(intId, name + extension);
+                yield return Hitomi.UrlFromUrlFromHash(intId, name + extension, data.ImageNames[i]);
             }
         }
 
