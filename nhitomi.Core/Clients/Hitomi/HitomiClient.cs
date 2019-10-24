@@ -376,7 +376,12 @@ namespace nhitomi.Core.Clients.Hitomi
                         break;
                 }
 
-                yield return Hitomi.UrlFromUrlFromHash(intId, name + extension, data.Hash[i]);
+                var hash = null as string;
+
+                if (data.Hash != null && i < data.Hash.Length)
+                    hash = data.Hash[i];
+
+                yield return Hitomi.UrlFromUrlFromHash(intId, name + extension, hash);
             }
         }
 
