@@ -230,7 +230,7 @@ namespace nhitomi.Core.Clients.Hitomi
                     {
                         ImageNames = images.Select(i => Path.GetFileNameWithoutExtension(i.Name)).ToArray(),
                         Extensions = extensionsCombined,
-                        Hash       = images.Select(i => i.Hash).ToArray()
+                        Hash       = images.All(i => i.Hash == null) ? null : images.Select(i => i.Hash).ToArray()
                     });
                 }
             }
@@ -376,12 +376,7 @@ namespace nhitomi.Core.Clients.Hitomi
                         break;
                 }
 
-                var hash = null as string;
-
-                if (data.Hash != null && i < data.Hash.Length)
-                    hash = data.Hash[i];
-
-                yield return Hitomi.UrlFromUrlFromHash(intId, name + extension, hash);
+                yield return Hitomi.UrlFromUrlFromHash(intId, name + extension, data.Hash?[i]);
             }
         }
 
