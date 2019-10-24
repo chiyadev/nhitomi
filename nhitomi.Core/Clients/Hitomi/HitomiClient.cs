@@ -184,6 +184,10 @@ namespace nhitomi.Core.Clients.Hitomi
                                                   case ".jpeg": return 'J';
                                                   case ".png":  return 'p';
                                                   case ".gif":  return 'g';
+
+                                                  // what is this?
+                                                  case ".octet-stream": return 'o';
+
                                                   default:
 
                                                       throw new NotSupportedException(
@@ -327,6 +331,9 @@ namespace nhitomi.Core.Clients.Hitomi
                         break;
                     case 'g':
                         extension = ".gif";
+                        break;
+                    case 'o':
+                        extension = ".octet-stream";
                         break;
                     default:
                         extension = ".jpg";
