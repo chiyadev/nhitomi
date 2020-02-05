@@ -6,7 +6,7 @@
         <LangVersion>8</LangVersion>
         <Title>nhitomi</Title>
         <Authors>chiya.dev</Authors>
-        <Version>3.0</Version>
+        <Version>3.4</Version>
         <InformationalVersion>Heresta</InformationalVersion>
         <Description>Discord bot for browsing and downloading doujinshi</Description>
         <Copyright>Copyright (c) chiya.dev</Copyright>
@@ -33,7 +33,11 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\nhitomi.Core\nhitomi.Core.csproj" />
+        <ProjectReference Include="..\nhitomi.Core\nhitomi.Core.csproj"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <EmbeddedResource Include="Globalization\Languages\*.json"/>
     </ItemGroup>
 
 </Project>

@@ -1,0 +1,40 @@
+{
+  "meta": {
+    "translators": [
+      "[phosphene47](https://twitter.com/phosphene47)"
+    ]
+  },
+  "doujinMessage": {
+    "group": "그룹",
+    "language": "언어",
+    "parody": "패러디",
+    "character": "캐릭터",
+    "category": "분류",
+    "tag": "태그",
+    "content": "내용"
+  },
+  "downloadMessage": {
+    "text": "위의 링크를 클릭해서 `{doujin.OriginalName}`을(를) 다운로드 하실 수 있습니다."
+  },
+  "helpMessage": {
+    "title": "도움말",
+    "about": "디스코드 동인지 봇",
+    "invite": "공식 서버: <{guildInvite}>",
+    "doujins": {
+      "title": "동인지",
+      "sources": {
+        "title": "제공"
+      }
+    },
+    "collections": {
+      "title": "콜렉션 관리"
+    },
+    "translations": {
+      "title": "번역",
+      "text": "한국어 번역자: {translators}"
+    },
+    "openSource": {
+      "title": "공개 소프트웨어"
+    }
+  }
+}

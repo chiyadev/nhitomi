@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using Discord;
 using nhitomi.Core;
 using nhitomi.Discord;
-using nhitomi.Globalization;
 using nhitomi.Interactivity.Triggers;
 
 namespace nhitomi.Interactivity
@@ -21,9 +20,8 @@ namespace nhitomi.Interactivity
 
         protected override IEnumerable<IReactionTrigger> CreateTriggers()
         {
-            foreach (var trigger in base.CreateTriggers())
-                yield return trigger;
-
+            yield return new ListTrigger(MoveDirection.Left);
+            yield return new ListTrigger(MoveDirection.Right);
             yield return new DeleteTrigger();
         }
 
@@ -38,6 +36,8 @@ namespace nhitomi.Interactivity
                 _db = db;
             }
 
+            protected override bool ShowLoadingIndication => false;
+
             protected override Task<Collection[]> GetValuesAsync(int offset,
                                                                  CancellationToken cancellationToken = default) =>
                 offset == 0
@@ -46,41 +46,51 @@ namespace nhitomi.Interactivity
 
             protected override Embed CreateEmbed(Collection collection)
             {
-                var path = new LocalizationPath("collectionMessage");
-                var l    = Context.GetLocalization();
+                var l = Context.GetLocalization()["collectionMessage"];
 
-                var embed = new EmbedBuilder()
-                           .WithTitle(path["title"][l, new { context = Context, collection }])
-                           .WithColor(Color.Teal);
+                var embed = new EmbedBuilder
+                {
+                    Title = $"**{Context.User.Username}**: {collection.Name}",
+                    Color = Color.Teal,
+
+                    Fields = new List<EmbedFieldBuilder>
+                    {
+                        new EmbedFieldBuilder
+                        {
+                            Name  = l["sort"],
+                            Value = l["sortValue"][collection.Sort.ToString()]
+                        },
+                        new EmbedFieldBuilder
+                        {
+                            Name  = l["contents"],
+                            Value = l["contentsValue", new { collection }]
+                        }
+                    }
+                };
 
                 if (collection.Doujins.Count == 0)
-                {
-                    embed.Description = path["emptyCollection"][l];
-                }
+                    embed.Description = l["emptyCollection"];
                 else
-                {
-                    var first = collection.Doujins.First().DoujinId;
-
-                    embed.ThumbnailUrl = $"https://nhitomi.chiya.dev/api/v1/images/{first}/-1";
-                }
-
-                embed.AddField(path["sort"][l],     path["sortValues"][collection.Sort.ToString()][l]);
-                embed.AddField(path["contents"][l], path["contentsValue"][l, new { collection }]);
+                    embed.ThumbnailUrl =
+                        $"https://nhitomi.chiya.dev/api/v1/images/{collection.Doujins.First().DoujinId}/-1";
 
                 return embed.Build();
             }
 
             protected override Embed CreateEmptyEmbed()
             {
-                var path = new LocalizationPath("collectionMessage.empty");
-                var l    = Context.GetLocalization();
+                var l = Context.GetLocalization()["collectionMessage"]["emptyList"];
 
-                return new EmbedBuilder()
-                      .WithTitle(path["title"][l, new { context = Context }])
-                      .WithColor(Color.Teal)
-                      .WithDescription(path["text"][l, new { context = Context }])
-                      .Build();
+                return new EmbedBuilder
+                {
+                    Title       = l["title"],
+                    Color       = Color.Teal,
+                    Description = l["text", new { context = Context }]
+                }.Build();
             }
+
+            protected override string ListBeginningMessage => "collectionMessage.collectionListBeginning";
+            protected override string ListEndMessage => "collectionMessage.collectionListEnd";
         }
     }
 }

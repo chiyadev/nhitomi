@@ -9,7 +9,28 @@ using nhitomi.Interactivity;
 
 namespace nhitomi.Modules
 {
-    [Module("collection")]
+    /// <summary>
+    /// Module that only contains 'n!collections' because it has a different syntax.
+    /// </summary>
+    [Module("collection", IsPrefixed = false)]
+    public class CollectionListModule
+    {
+        readonly IMessageContext _context;
+        readonly InteractiveManager _interactive;
+
+        public CollectionListModule(IMessageContext context,
+                                    InteractiveManager interactive)
+        {
+            _context     = context;
+            _interactive = interactive;
+        }
+
+        [Command("collections", Alias = "c")]
+        public Task ListAsync(CancellationToken cancellationToken = default) =>
+            _interactive.SendInteractiveAsync(new CollectionListMessage(_context.User.Id), _context, cancellationToken);
+    }
+
+    [Module("collection", Alias = "c")]
     public class CollectionModule
     {
         readonly IMessageContext _context;
@@ -35,10 +56,6 @@ namespace nhitomi.Modules
             }
         }
 
-        [Command("list")]
-        public Task ListAsync(CancellationToken cancellationToken = default) =>
-            _interactive.SendInteractiveAsync(new CollectionListMessage(_context.User.Id), _context, cancellationToken);
-
         [Command("view", BindName = false), Binding("[name]")]
         public async Task ViewAsync(string name,
                                     CancellationToken cancellationToken = default)
@@ -55,7 +72,7 @@ namespace nhitomi.Modules
             }
 
             await _interactive.SendInteractiveAsync(
-                new CollectionDoujinListMessage(_context.User.Id, name),
+                new CollectionMessage(_context.User.Id, name),
                 _context,
                 cancellationToken);
         }
@@ -87,7 +104,9 @@ namespace nhitomi.Modules
                     _database.Add(collection);
                 }
 
-                doujin = await _database.GetDoujinAsync(source, id, cancellationToken);
+                doujin = await _database.GetDoujinAsync(GalleryUtility.ExpandContraction(source),
+                                                        id,
+                                                        cancellationToken);
 
                 if (doujin == null)
                 {
@@ -111,6 +130,30 @@ namespace nhitomi.Modules
             await _context.ReplyAsync("addedToCollection", new { doujin, collection });
         }
 
+        [Command("add", BindName = false), Binding("[name] add|a [url+]")]
+        public Task AddAsync(string name,
+                             string url,
+                             CancellationToken cancellationToken = default)
+        {
+            var (source, id) = GalleryUtility.Parse(url);
+
+            return AddAsync(name, source, id, cancellationToken);
+        }
+
+        [Command("add", BindName = false), Binding("[name] add")]
+        public Task AddAsync(string name,
+                             CancellationToken cancellationToken = default) => _interactive.SendInteractiveAsync(
+            new CommandHelpMessage
+            {
+                Title          = "collection add",
+                Command        = $"collection {name} add",
+                Aliases        = new[] { $"c {name} a" },
+                DescriptionKey = "collections.add",
+                Examples       = CommandHelpMessage.DoujinCommandExamples
+            },
+            _context,
+            cancellationToken);
+
         [Command("remove", BindName = false), Binding("[name] remove|r [source] [id]")]
         public async Task RemoveAsync(string name,
                                       string source,
@@ -132,7 +175,9 @@ namespace nhitomi.Modules
                     return;
                 }
 
-                doujin = await _database.GetDoujinAsync(source, id, cancellationToken);
+                doujin = await _database.GetDoujinAsync(GalleryUtility.ExpandContraction(source),
+                                                        id,
+                                                        cancellationToken);
 
                 if (doujin == null)
                 {
@@ -154,6 +199,30 @@ namespace nhitomi.Modules
 
             await _context.ReplyAsync("removedFromCollection", new { doujin, collection });
         }
+
+        [Command("remove", BindName = false), Binding("[name] remove|r [url+]")]
+        public Task RemoveAsync(string name,
+                                string url,
+                                CancellationToken cancellationToken = default)
+        {
+            var (source, id) = GalleryUtility.Parse(url);
+
+            return RemoveAsync(name, source, id, cancellationToken);
+        }
+
+        [Command("remove", BindName = false), Binding("[name] remove")]
+        public Task RemoveAsync(string name,
+                                CancellationToken cancellationToken = default) => _interactive.SendInteractiveAsync(
+            new CommandHelpMessage
+            {
+                Title          = "collection remove",
+                Command        = $"collection {name} remove",
+                Aliases        = new[] { $"c {name} r" },
+                DescriptionKey = "collections.remove",
+                Examples       = CommandHelpMessage.DoujinCommandExamples
+            },
+            _context,
+            cancellationToken);
 
         [Command("delete", BindName = false), Binding("[name] delete|d")]
         public async Task DeleteAsync(string name,
@@ -205,5 +274,25 @@ namespace nhitomi.Modules
 
             await _context.ReplyAsync("collectionSorted", new { collection, attribute = sort });
         }
+
+        [Command("sort", BindName = false), Binding("[name] sort")]
+        public Task SortAsync(string name,
+                              CancellationToken cancellationToken = default) => _interactive.SendInteractiveAsync(
+            new CommandHelpMessage
+            {
+                Title          = "collection sort",
+                Command        = $"collection {name} sort",
+                Aliases        = new[] { $"c {name} s" },
+                DescriptionKey = "collections.sort",
+                Examples = new[]
+                {
+                    "name",
+                    "artist",
+                    "group",
+                    "language"
+                }
+            },
+            _context,
+            cancellationToken);
     }
 }

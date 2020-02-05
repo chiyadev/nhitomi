@@ -27,6 +27,9 @@ namespace nhitomi.Interactivity
             protected override Task<Doujin[]> GetValuesAsync(int offset,
                                                              CancellationToken cancellationToken = default) =>
                 _db.SearchDoujinsAsync(Message._args, cancellationToken);
+
+            protected override string ListBeginningMessage => "doujinMessage.searchListBeginning";
+            protected override string ListEndMessage => "doujinMessage.searchListEnd";
         }
     }
 }

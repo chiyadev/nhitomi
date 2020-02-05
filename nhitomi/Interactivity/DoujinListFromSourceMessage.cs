@@ -38,6 +38,9 @@ namespace nhitomi.Interactivity
                           .Skip(offset)
                           .Take(10);
                 });
+
+            protected override string ListBeginningMessage => "doujinMessage.listBeginning";
+            protected override string ListEndMessage => "doujinMessage.listEnd";
         }
     }
 }

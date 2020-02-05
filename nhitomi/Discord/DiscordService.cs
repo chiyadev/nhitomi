@@ -114,20 +114,46 @@ namespace nhitomi.Discord
 
         public static IDisposable BeginTyping(this IDiscordContext context) => context.Channel.EnterTypingState();
 
-        public static Task ReplyAsync(this IDiscordContext context,
-                                      IMessageChannel channel,
-                                      string localizationKey,
-                                      object variables = null) => channel.SendMessageAsync(
-            new LocalizationPath(localizationKey)[context.GetLocalization(), variables]);
+        public static async Task ReplyAsync(this IDiscordContext context,
+                                            IMessageChannel channel,
+                                            string localizationKey,
+                                            object variables = null,
+                                            TimeSpan? expiry = null)
+        {
+            var message = await channel.SendMessageAsync(context.GetLocalization()[localizationKey, variables]);
+
+            // message expiry
+            if (expiry != null)
+                _ = Task.Run(async () =>
+                {
+                    // delay for the duration of expiry
+                    await Task.Delay(expiry.Value);
+
+                    // delete
+                    try
+                    {
+                        await message.DeleteAsync();
+                    }
+                    catch
+                    {
+                        // ignore expiry exceptions
+                    }
+                });
+        }
 
         public static Task ReplyAsync(this IDiscordContext context,
                                       string localizationKey,
-                                      object variables = null) =>
-            context.ReplyAsync(context.Channel, localizationKey, variables);
+                                      object variables = null,
+                                      TimeSpan? expiry = null) =>
+            context.ReplyAsync(context.Channel, localizationKey, variables, expiry);
 
         public static async Task ReplyDmAsync(this IDiscordContext context,
                                               string localizationKey,
-                                              object variables = null) =>
-            await context.ReplyAsync(await context.User.GetOrCreateDMChannelAsync(), localizationKey, variables);
+                                              object variables = null,
+                                              TimeSpan? expiry = null) => await context.ReplyAsync(
+            await context.User.GetOrCreateDMChannelAsync(),
+            localizationKey,
+            variables,
+            expiry);
     }
 }

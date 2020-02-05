@@ -1,0 +1,132 @@
+{
+  "doujinNotFound": "Doujinshi does not exist!",
+  "invalidQuery": "`{query}` is not valid.",
+  "listLoading": "Loading...",
+  "collectionNotFound": "No collection named `{name}`.",
+  "collectionDeleted": "Deleted collection `{collection.Name}`.",
+  "collectionSorted": "Sorted collection `{collection.Name}` by `{attribute}`.",
+  "addedToCollection": "Added `{doujin.OriginalName}` to collection `{collection.Name}`.",
+  "removedFromCollection": "Removed `{doujin.OriginalName}` from collection `{collection.Name}`.",
+  "alreadyInCollection": "`{doujin.OriginalName}` already exists in collection `{collection.Name}`.",
+  "notInCollection": "`{doujin.OriginalName}` was not found in collection `{collection.Name}`.",
+  "localizationChanged": "Server language is set to `{localization.Culture.NativeName}`.",
+  "localizationNotFound": "Language `{language}` is not supported.",
+  "commandInvokeNotInGuild": "You can only use this command in a server.",
+  "notGuildAdmin": "You must be an administrator to use this command.",
+  "tagNotFound": "Tag `{tag}` was not found.",
+  "feedTagAdded": "`#{channel.Name}` is now subscribed to `{tag}`.",
+  "feedTagAlreadyAdded": "`#{channel.Name}` is already subscribed to `{tag}`.",
+  "feedTagRemoved": "`#{channel.Name}` is now unsubscribed from `{tag}`.",
+  "feedTagNotRemoved": "`#{channel.Name}` is not subscribed to `{tag}`.",
+  "feedModeChanged": "Changed feed mode of `#{channel.Name}` to `{type}`.",
+  "doujinMessage": {
+    "group": "Group",
+    "scanlator": "Scanlator",
+    "language": "Language",
+    "parody": "Parody",
+    "character": "Characters",
+    "category": "Categories",
+    "tag": "Tags",
+    "content": "Contents",
+    "contentValue": "{doujin.PageCount} pages",
+    "emptyList": {
+      "title": "No doujinshi",
+      "text": "No doujinshi were found."
+    },
+    "listBeginning": "Start of results.",
+    "listEnd": "End of results.",
+    "searchListBeginning": "Start of search results.",
+    "searchListEnd": "End of search results."
+  },
+  "doujinReadMessage": {
+    "text": "Page {page} of {doujin.PageCount}",
+    "listBeginning": "Start of doujinshi.",
+    "listEnd": "End of doujinshi."
+  },
+  "downloadMessage": {
+    "text": "Click the link above to start downloading `{doujin.OriginalName}`."
+  },
+  "collectionMessage": {
+    "sort": "Sort",
+    "sortValue": {
+      "uploadTime": "Upload time",
+      "processTime": "Process time",
+      "identifier": "Identifier",
+      "name": "Name",
+      "artist": "Artist",
+      "group": "Group",
+      "scanlator": "Scanlator",
+      "language": "Language",
+      "parody": "Parody"
+    },
+    "contents": "Contents",
+    "contentsValue": "{collection.Doujins.Count} doujins",
+    "emptyList": {
+      "title": "No collections",
+      "text": "You have no collections."
+    },
+    "listBeginning": "Start of collection.",
+    "listEnd": "End of collection.",
+    "collectionListBeginning": "Start of collections.",
+    "collectionListEnd": "End of collections."
+  },
+  "helpMessage": {
+    "title": "Help",
+    "footer": "powered by chiya.dev",
+    "about": "a Discord bot for browsing and downloading doujinshi",
+    "invite": "[Join]({guildInvite}) the official server or [invite nhitomi]({botInvite}) to your server.",
+    "doujins": {
+      "title": "Doujinshi",
+      "get": "Displays full doujinshi information.",
+      "from": "Displays all doujinshi from a source.",
+      "read": "Shows the pages in a doujinshi.",
+      "download": "Sends the download link for a doujinshi.",
+      "search": "Searches for doujinshi by their title and tags.",
+      "sources": {
+        "title": "Sources"
+      }
+    },
+    "collections": {
+      "title": "Collection Management",
+      "list": "Shows the collections you own.",
+      "view": "Shows the doujinshi in a collection.",
+      "add": "Adds a doujinshi to a collection.",
+      "remove": "Removes a doujinshi from a collection.",
+      "sort": "Sorts a collection by a doujinshi attribute.",
+      "delete": "Deletes a collection, removing all doujinshi in it."
+    },
+    "options": {
+      "title": "Options",
+      "language": "Changes the interface language within a server.",
+      "feedAdd": "Subscribes a channel to the given tag.",
+      "feedRemove": "Unsubscribes a channel from the given tag.",
+      "feedMode": "Changes the tag whitelist mode of a channel between `any` and `all`.",
+      "languages": {
+        "title": "Languages"
+      }
+    },
+    "openSource": {
+      "title": "Open Source",
+      "license": "This project is licensed under the MIT License."
+    },
+    "aliases": "Aliases",
+    "examples": "Examples",
+    "listBeginning": "Start of help message.",
+    "listEnd": "End of help message."
+  },
+  "errorMessage": {
+    "title": "Error",
+    "titleAuto": "Automatic error report",
+    "text": "This error has been reported. For further assistance, please join the [official Discord server]({invite}).",
+    "missingPerms": "nhitomi lacks the permissions to send messages in that channel."
+  },
+  "welcomeMessage": {
+    "title": "nhitomi is here!",
+    "get": "`{prefix}get` to see doujinshi information.",
+    "download": "`{prefix}download` to download a doujinshi as a zip.",
+    "search": "`{prefix}search` to search for doujinshi in the database.",
+    "language": "`{prefix}option language` to change the interface language.",
+    "help": "Please refer to `{prefix}help` for a comprehensive list of commands.",
+    "openSource": "nhitomi is open-source. Give <{repoUrl}> a star!"
+  }
+}
