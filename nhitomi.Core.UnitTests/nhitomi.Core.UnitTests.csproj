@@ -3,7 +3,7 @@
     <PropertyGroup>
         <TargetFramework>netcoreapp2.2</TargetFramework>
         <IsPackable>false</IsPackable>
-        <LangVersion>latest</LangVersion>
+        <LangVersion>8</LangVersion>
         <Title>nhitomi.Core.UnitTests</Title>
         <Authors>chiya.dev</Authors>
         <Description>Unit tests for nhitomi core components</Description>

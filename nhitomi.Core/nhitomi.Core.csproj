@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <LangVersion>latest</LangVersion>
+    <LangVersion>8</LangVersion>
     <Title>nhitomi.Core</Title>
     <Authors>chiya.dev</Authors>
     <Description>Core components for nhitomi</Description>
@@ -13,16 +13,16 @@
     <RepositoryUrl>https://github.com/chiyadev/nhitomi</RepositoryUrl>
   </PropertyGroup>
 
-  <ItemGroup>
-      <PackageReference Include="HtmlAgilityPack" Version="1.11.7"/>
-      <PackageReference Include="Microsoft.EntityFrameworkCore" Version="2.2.4"/>
-      <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="2.2.4"/>
-    <PackageReference Include="Microsoft.Extensions.Configuration" Version="2.2.0" />
-    <PackageReference Include="Microsoft.Extensions.Http" Version="2.2.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging" Version="2.2.0" />
-      <PackageReference Include="Newtonsoft.Json" Version="12.0.2"/>
-      <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="2.2.0"/>
-    <PackageReference Include="System.Interactive.Async" Version="3.2.0" />
-  </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="HtmlAgilityPack" Version="1.11.7"/>
+        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="2.2.4"/>
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="2.2.4"/>
+        <PackageReference Include="Microsoft.Extensions.Configuration" Version="2.2.0"/>
+        <PackageReference Include="Microsoft.Extensions.Http" Version="2.2.0"/>
+        <PackageReference Include="Microsoft.Extensions.Logging" Version="2.2.0"/>
+        <PackageReference Include="Newtonsoft.Json" Version="12.0.2"/>
+        <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="2.2.0"/>
+        <PackageReference Include="System.Interactive.Async" Version="3.2.0"/>
+    </ItemGroup>
 
 </Project>
