@@ -14,7 +14,7 @@ namespace nhitomi.Core.Clients.Hitomi
 {
     public static class Hitomi
     {
-        public static string Gallery(int id) => $"https://hitomi.la/galleries/{id}.html";
+        public static string Gallery(string id) => $"https://hitomi.la/{id}.html";
 
         public static string GalleryInfo(int id,
                                          char? server = null) => $"https://{server}tn.hitomi.la/galleries/{id}.js";
@@ -63,18 +63,20 @@ namespace nhitomi.Core.Clients.Hitomi
 
         // regex to match () and [] in titles
         static readonly Regex _bracketsRegex = new Regex(@"\([^)]*\)|\[[^\]]*\]",
-                                                         RegexOptions.Compiled | RegexOptions.Singleline);
+            RegexOptions.Compiled | RegexOptions.Singleline);
 
         // regex to match index-language-page
         static readonly Regex _languageHrefRegex = new Regex(@"index-(?<language>\w+)-\d+",
-                                                             RegexOptions.Compiled | RegexOptions.Singleline);
+            RegexOptions.Compiled | RegexOptions.Singleline);
+
+        static readonly Regex _idRegex = new Regex(@"(?<=-)\d+$", RegexOptions.Compiled | RegexOptions.Singleline);
 
         public static string GetGalleryUrl(Doujin doujin) => $"https://hitomi.la/galleries/{doujin.SourceId}.html";
 
         public async Task<DoujinInfo> GetAsync(string id,
                                                CancellationToken cancellationToken = default)
         {
-            if (!int.TryParse(id, out var intId))
+            if (!int.TryParse(_idRegex.Match(id).Value, out var intId))
                 return null;
 
             HtmlNode root;
@@ -84,7 +86,7 @@ namespace nhitomi.Core.Clients.Hitomi
                 new HttpRequestMessage
                 {
                     Method     = HttpMethod.Get,
-                    RequestUri = new Uri(Hitomi.Gallery(intId))
+                    RequestUri = new Uri(Hitomi.Gallery(id))
                 },
                 cancellationToken))
             {
@@ -112,7 +114,7 @@ namespace nhitomi.Core.Clients.Hitomi
             var prettyName = Sanitize(root.SelectSingleNode(Hitomi.XPath.Name));
 
             // replace stuff in brackets with nothing
-            prettyName = _bracketsRegex.Replace(prettyName, "");
+            prettyName = _bracketsRegex.Replace(prettyName ?? "", "");
 
             var originalName = prettyName;
 
@@ -132,12 +134,14 @@ namespace nhitomi.Core.Clients.Hitomi
                 ? null
                 : _languageHrefRegex.Match(languageHref).Groups["language"].Value;
 
+            var uploadTime = Sanitize(root.SelectSingleNode(Hitomi.XPath.Date));
+
             var doujin = new DoujinInfo
             {
                 PrettyName   = prettyName,
                 OriginalName = originalName,
 
-                UploadTime = DateTime.Parse(Sanitize(root.SelectSingleNode(Hitomi.XPath.Date))).ToUniversalTime(),
+                UploadTime = uploadTime == null ? DateTime.Now : DateTime.Parse(uploadTime).ToUniversalTime(),
 
                 Source   = this,
                 SourceId = id,

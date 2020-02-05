@@ -4,7 +4,7 @@ namespace nhitomi.Core.Clients.Hitomi
 {
     public class Hitomi1425386 : ClientTestCase
     {
-        public override string DoujinId => "1425386";
+        public override string DoujinId => "doujinshi/algolagnia-中文-1425386";
         public override Type ClientType => typeof(HitomiClient);
 
         public override DoujinInfo KnownValue { get; } = new DoujinInfo
@@ -13,7 +13,7 @@ namespace nhitomi.Core.Clients.Hitomi
             OriginalName = "ALGOLAGNIA",
             Artist       = "ukyo rst",
             UploadTime   = new DateTime(2019, 6, 3, 10, 18, 0, DateTimeKind.Utc),
-            SourceId     = "1425386",
+            SourceId     = "doujinshi/algolagnia-中文-1425386",
             Group        = "u.m.e.project",
             Language     = "chinese",
             Parody       = "touhou project",
@@ -24,6 +24,7 @@ namespace nhitomi.Core.Clients.Hitomi
             },
             Tags = new[]
             {
+                "bondage",
                 "collar",
                 "females only",
                 "piercing",
