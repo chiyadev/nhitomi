@@ -14,7 +14,9 @@ namespace nhitomi.Core.Clients.Hitomi
 {
     public static class Hitomi
     {
-        public static string Gallery(int id) => $"https://hitomi.la/galleries/{id}.html";
+        public static string Gallery(string id) => $"https://hitomi.la/{id}.html";
+
+        public static string GalleryBlock(int id) => $"https://ltn.hitomi.la/galleryblock/{id}.html";
 
         public static string GalleryInfo(int id, char? server = null) => $"https://{server}tn.hitomi.la/galleries/{id}.js";
 
@@ -90,11 +92,11 @@ namespace nhitomi.Core.Clients.Hitomi
 
         // regex to match () and [] in titles
         static readonly Regex _bracketsRegex = new Regex(@"\([^)]*\)|\[[^\]]*\]",
-                                                         RegexOptions.Compiled | RegexOptions.Singleline);
+            RegexOptions.Compiled | RegexOptions.Singleline);
 
         // regex to match index-language-page
         static readonly Regex _languageHrefRegex = new Regex(@"index-(?<language>\w+)-\d+",
-                                                             RegexOptions.Compiled | RegexOptions.Singleline);
+            RegexOptions.Compiled | RegexOptions.Singleline);
 
         public static string GetGalleryUrl(Doujin doujin) => $"https://hitomi.la/galleries/{doujin.SourceId}.html";
 
@@ -106,12 +108,34 @@ namespace nhitomi.Core.Clients.Hitomi
 
             HtmlNode root;
 
+            // load gallery block to determine full ID
+            using (var response = await _http.SendAsync(new HttpRequestMessage
+            {
+                Method     = HttpMethod.Get,
+                RequestUri = new Uri(Hitomi.GalleryBlock(intId))
+            }, cancellationToken))
+            {
+                if (!response.IsSuccessStatusCode)
+                    return null;
+
+                using var reader = new StringReader(await response.Content.ReadAsStringAsync());
+
+                var doc = new HtmlDocument();
+                doc.Load(reader);
+
+                root = doc.DocumentNode;
+
+                // use heading link to retrieve full ID
+                // full ID has name, tags, language, etc. all concatenated together
+                id = root.SelectSingleNode("//h1/a").GetAttributeValue("href", "").Trim('/').Replace(".html", "");
+            }
+
             // load html page
             using (var response = await _http.SendAsync(
                 new HttpRequestMessage
                 {
                     Method     = HttpMethod.Get,
-                    RequestUri = new Uri(Hitomi.Gallery(intId))
+                    RequestUri = new Uri(Hitomi.Gallery(id))
                 },
                 cancellationToken))
             {
@@ -139,7 +163,7 @@ namespace nhitomi.Core.Clients.Hitomi
             var prettyName = Sanitize(root.SelectSingleNode(Hitomi.XPath.Name));
 
             // replace stuff in brackets with nothing
-            prettyName = _bracketsRegex.Replace(prettyName, "");
+            prettyName = _bracketsRegex.Replace(prettyName ?? "", "");
 
             var originalName = prettyName;
 
@@ -159,15 +183,17 @@ namespace nhitomi.Core.Clients.Hitomi
                 ? null
                 : _languageHrefRegex.Match(languageHref).Groups["language"].Value;
 
+            var uploadTime = Sanitize(root.SelectSingleNode(Hitomi.XPath.Date));
+
             var doujin = new DoujinInfo
             {
                 PrettyName   = prettyName,
                 OriginalName = originalName,
 
-                UploadTime = DateTime.Parse(Sanitize(root.SelectSingleNode(Hitomi.XPath.Date))).ToUniversalTime(),
+                UploadTime = uploadTime == null ? DateTime.Now : DateTime.Parse(uploadTime).ToUniversalTime(),
 
                 Source   = this,
-                SourceId = id,
+                SourceId = intId.ToString(),
 
                 Artist     = Sanitize(root.SelectSingleNode(Hitomi.XPath.Artists))?.ToLowerInvariant(),
                 Group      = Sanitize(root.SelectSingleNode(Hitomi.XPath.Groups))?.ToLowerInvariant(),

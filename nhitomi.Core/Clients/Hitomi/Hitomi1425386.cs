@@ -24,6 +24,7 @@ namespace nhitomi.Core.Clients.Hitomi
             },
             Tags = new[]
             {
+                "bondage",
                 "collar",
                 "females only",
                 "piercing",
