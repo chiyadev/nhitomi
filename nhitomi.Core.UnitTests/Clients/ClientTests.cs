@@ -1,3 +1,6 @@
+using System;
+using System.Linq;
+using System.Net.Http;
 using System.Threading.Tasks;
 using nhitomi.Core.Clients;
 using nhitomi.Core.Clients.Hitomi;
@@ -20,6 +23,17 @@ namespace nhitomi.Core.UnitTests.Clients
         }
 
         [Test]
+        public async Task nhentaiEnumerate()
+        {
+            var client = new nhentaiClient(
+                TestUtils.HttpClient,
+                TestUtils.Serializer,
+                TestUtils.Logger<nhentaiClient>());
+
+            await EnumerateAsync(client);
+        }
+
+        [Test]
         public async Task HitomiClient()
         {
             var client = new HitomiClient(
@@ -30,12 +44,53 @@ namespace nhitomi.Core.UnitTests.Clients
             await RunTestAsync(client);
         }
 
+        [Test]
+        public async Task HitomiEnumerate()
+        {
+            var client = new HitomiClient(
+                TestUtils.HttpClient,
+                TestUtils.Serializer,
+                TestUtils.Logger<HitomiClient>());
+
+            await EnumerateAsync(client);
+        }
+
         static async Task RunTestAsync(IDoujinClient client)
         {
             var tester = new ClientTester();
 
             if (!await tester.TestAsync(client))
                 tester.ThrowExceptions();
+        }
+
+        static async Task EnumerateAsync(IDoujinClient client)
+        {
+            var ids = (await client.EnumerateAsync()).ToArray();
+
+            Assert.That(ids, Is.Not.Zero);
+
+            var d = await client.GetAsync(ids[ids.Length - 1]);
+
+            Assert.That(d, Is.Not.Null);
+
+            var doujin = d.ToDoujin();
+
+            // try downloading one of the pages
+            var page = client.PopulatePages(doujin).ToArray()[0];
+
+            using var http = new HttpClient();
+
+            var request = new HttpRequestMessage
+            {
+                Method     = HttpMethod.Get,
+                RequestUri = new Uri(page)
+            };
+
+            client.InitializeImageRequest(doujin, request);
+
+            using var response = await http.SendAsync(request);
+
+            Assert.That(response.IsSuccessStatusCode, Is.True);
         }
     }
 }
