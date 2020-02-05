@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Threading.Tasks;
 using nhitomi.Core.Clients;
 using nhitomi.Core.Clients.Hitomi;
@@ -20,6 +21,19 @@ namespace nhitomi.Core.UnitTests.Clients
         }
 
         [Test]
+        public async Task nhentaiEnumerate()
+        {
+            var client = new nhentaiClient(
+                TestUtils.HttpClient,
+                TestUtils.Serializer,
+                TestUtils.Logger<nhentaiClient>());
+
+            var ids = (await client.EnumerateAsync()).ToArray();
+
+            Assert.That(ids, Is.Not.Zero);
+        }
+
+        [Test]
         public async Task HitomiClient()
         {
             var client = new HitomiClient(
@@ -28,6 +42,19 @@ namespace nhitomi.Core.UnitTests.Clients
                 TestUtils.Logger<HitomiClient>());
 
             await RunTestAsync(client);
+        }
+
+        [Test]
+        public async Task HitomiEnumerate()
+        {
+            var client = new HitomiClient(
+                TestUtils.HttpClient,
+                TestUtils.Serializer,
+                TestUtils.Logger<HitomiClient>());
+
+            var ids = (await client.EnumerateAsync()).ToArray();
+
+            Assert.That(ids, Is.Not.Zero);
         }
 
         static async Task RunTestAsync(IDoujinClient client)
