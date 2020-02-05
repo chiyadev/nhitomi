@@ -127,8 +127,11 @@ namespace nhitomi.Core.Clients.Hitomi
 
                 // use heading link to retrieve full ID
                 // full ID has name, tags, language, etc. all concatenated together
-                id = root.SelectSingleNode("//h1/a").GetAttributeValue("href", "").Trim('/').Replace(".html", "");
+                id = Uri.EscapeDataString(root.SelectSingleNode("//h1/a").GetAttributeValue("href", "").Trim('/').Replace(".html", ""));
             }
+
+            if (string.IsNullOrEmpty(id))
+                return null;
 
             // load html page
             using (var response = await _http.SendAsync(
