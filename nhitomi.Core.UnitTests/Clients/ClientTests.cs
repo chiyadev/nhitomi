@@ -28,9 +28,7 @@ namespace nhitomi.Core.UnitTests.Clients
                 TestUtils.Serializer,
                 TestUtils.Logger<nhentaiClient>());
 
-            var ids = (await client.EnumerateAsync()).ToArray();
-
-            Assert.That(ids, Is.Not.Zero);
+            await EnumerateAsync(client);
         }
 
         [Test]
@@ -52,9 +50,7 @@ namespace nhitomi.Core.UnitTests.Clients
                 TestUtils.Serializer,
                 TestUtils.Logger<HitomiClient>());
 
-            var ids = (await client.EnumerateAsync()).ToArray();
-
-            Assert.That(ids, Is.Not.Zero);
+            await EnumerateAsync(client);
         }
 
         static async Task RunTestAsync(IDoujinClient client)
@@ -63,6 +59,17 @@ namespace nhitomi.Core.UnitTests.Clients
 
             if (!await tester.TestAsync(client))
                 tester.ThrowExceptions();
+        }
+
+        static async Task EnumerateAsync(IDoujinClient client)
+        {
+            var ids = (await client.EnumerateAsync()).ToArray();
+
+            Assert.That(ids, Is.Not.Zero);
+
+            var d = await client.GetAsync(ids[ids.Length - 1]);
+
+            Assert.That(d, Is.Not.Null);
         }
     }
 }
