@@ -1,10 +1,14 @@
-# nhitomi ![Build status](https://ci.appveyor.com/api/projects/status/vtdjarua2c9i0k5t?svg=true) ![Discord](https://img.shields.io/discord/515395714264858653.svg?label=Discord)
+# nhitomi ![Discord](https://img.shields.io/discord/515395714264858653.svg?label=Discord)
 
 ![nhitomi](https://github.com/chiyadev/nhitomi/raw/master/nhitomi.png)
 
 nhitomi — a Discord bot for browsing and downloading doujinshi
 
 Join our [Discord server](https://discord.gg/JFNga7q) or [invite nhitomi](https://discordapp.com/oauth2/authorize?client_id=515386276543725568&scope=bot&permissions=347200) to your server.
+
+## Status
+
+This project is currently in the progress of a complete rewrite. Please see `old` branch for old code.
 
 ## License
 
