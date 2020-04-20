@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
@@ -8,9 +9,9 @@ namespace nhitomi
     {
         readonly IModelBinderProvider[] _providers;
 
-        public ModelSanitizerModelBinderProvider(IModelBinderProvider[] providers)
+        public ModelSanitizerModelBinderProvider(IEnumerable<IModelBinderProvider> providers)
         {
-            _providers = providers;
+            _providers = providers.ToArray();
         }
 
         public IModelBinder GetBinder(ModelBinderProviderContext context)

@@ -1,5 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using nhitomi.Database;
+using nhitomi.Discord;
+using nhitomi.Storage;
 
 namespace nhitomi.Models
 {
@@ -24,21 +26,6 @@ namespace nhitomi.Models
         public RecaptchaOptions Recaptcha { get; set; }
 
         [Required]
-        public SnapshotServiceOptions Snapshot { get; set; }
-
-        [Required]
-        public UserServiceOptions User { get; set; }
-
-        [Required]
-        public BookServiceOptions Book { get; set; }
-
-        [Required]
-        public VoteServiceOptions Vote { get; set; }
-
-        [Required]
-        public GatewayOptions Gateway { get; set; }
-
-        [Required]
-        public PieceStoreOptions Piece { get; set; }
+        public DiscordOptions Discord { get; set; }
     }
 }
