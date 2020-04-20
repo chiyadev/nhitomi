@@ -41,10 +41,10 @@ namespace nhitomi.Discord
     /// </summary>
     public class InteractiveManager : IInteractiveManager
     {
-        readonly IOptionsMonitor<InteractiveOptions> _options;
+        readonly IOptionsMonitor<DiscordOptions> _options;
         readonly ILogger<InteractiveManager> _logger;
 
-        public InteractiveManager(IOptionsMonitor<InteractiveOptions> options, ILogger<InteractiveManager> logger)
+        public InteractiveManager(IOptionsMonitor<DiscordOptions> options, ILogger<InteractiveManager> logger)
         {
             _options = options;
             _logger  = logger;
@@ -59,7 +59,7 @@ namespace nhitomi.Discord
             }
         }
 
-        public TimeSpan InteractiveExpiry => _options.CurrentValue.Expiry;
+        public TimeSpan InteractiveExpiry => _options.CurrentValue.Interactive.Expiry;
 
         readonly object _lock = new object();
 

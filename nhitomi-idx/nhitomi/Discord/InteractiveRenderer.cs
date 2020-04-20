@@ -14,9 +14,9 @@ namespace nhitomi.Discord
 
         readonly InteractiveMessage _message;
         readonly IReplyRenderer _renderer;
-        readonly IOptionsMonitor<InteractiveOptions> _options;
+        readonly IOptionsMonitor<DiscordOptions> _options;
 
-        public InteractiveRenderer(InteractiveMessage message, IReplyRenderer renderer, IOptionsMonitor<InteractiveOptions> options)
+        public InteractiveRenderer(InteractiveMessage message, IReplyRenderer renderer, IOptionsMonitor<DiscordOptions> options)
         {
             _message  = message;
             _renderer = renderer;
@@ -82,7 +82,7 @@ namespace nhitomi.Discord
                         }
 
                         // sleep interval
-                        await Task.Delay(_options.CurrentValue.RenderInterval, cancellationToken);
+                        await Task.Delay(_options.CurrentValue.Interactive.RenderInterval, cancellationToken);
                     }
                 }
                 finally
