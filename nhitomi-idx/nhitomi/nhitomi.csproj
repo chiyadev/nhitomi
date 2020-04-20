@@ -43,10 +43,6 @@
     </ItemGroup>
 
     <ItemGroup>
-        <Folder Include="Controllers" />
-    </ItemGroup>
-
-    <ItemGroup>
         <EmbeddedResource Include="../../locales/**/*" LinkBase="Localization" />
     </ItemGroup>
 

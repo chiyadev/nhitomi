@@ -29,6 +29,9 @@ namespace nhitomi.Database
         [Key("pe"), Keyword(Name = "pe")]
         public UserPermissions[] Permissions { get; set; }
 
+        [Key("cd"), Object(Name = "cd", Enabled = false)]
+        public DbUserDiscordConnection DiscordConnection { get; set; }
+
         /// <summary>
         /// Returns true if this user has the specified permissions.
         /// This method allows <see cref="UserPermissions.Administrator"/> bypass.
@@ -40,25 +43,44 @@ namespace nhitomi.Database
         {
             base.MapTo(model);
 
-            model.CreatedTime  = CreatedTime;
-            model.UpdatedTime  = UpdatedTime;
-            model.Username     = Username;
-            model.Email        = Email;
-            model.Restrictions = Restrictions?.ToArray(r => r.Convert()) ?? Array.Empty<UserRestriction>();
-            model.Permissions  = Permissions;
+            model.CreatedTime       = CreatedTime;
+            model.UpdatedTime       = UpdatedTime;
+            model.Username          = Username;
+            model.Email             = Email;
+            model.Restrictions      = Restrictions?.ToArray(r => r.Convert()) ?? Array.Empty<UserRestriction>();
+            model.Permissions       = Permissions;
+            model.DiscordConnection = DiscordConnection?.Convert();
         }
 
         public override void MapFrom(User model)
         {
             base.MapFrom(model);
 
-            CreatedTime  = model.CreatedTime;
-            UpdatedTime  = model.UpdatedTime;
-            Username     = model.Username;
-            Email        = model.Email;
-            Restrictions = model.Restrictions?.ToArray(r => new DbUserRestriction().Apply(r));
-            Permissions  = model.Permissions.ToDistinctFlags();
+            CreatedTime       = model.CreatedTime;
+            UpdatedTime       = model.UpdatedTime;
+            Username          = model.Username;
+            Email             = model.Email;
+            Restrictions      = model.Restrictions?.ToArray(r => new DbUserRestriction().Apply(r));
+            Permissions       = model.Permissions.ToDistinctFlags();
+            DiscordConnection = model.DiscordConnection == null ? null : new DbUserDiscordConnection().Apply(model.DiscordConnection);
         }
+
+#region Cached
+
+        /// <summary>
+        /// This is a cached property for querying.
+        /// </summary>
+        [IgnoreMember, Keyword(Name = "cdi")]
+        public ulong? DiscordId { get; set; }
+
+        public override void UpdateCache()
+        {
+            base.UpdateCache();
+
+            DiscordId = DiscordConnection?.Id;
+        }
+
+#endregion
 
         public static implicit operator nhitomiObject(DbUser user) => new nhitomiObject(ObjectType.User, user.Id);
     }

@@ -38,7 +38,7 @@ namespace nhitomi.Database
             set => Hash = WebEncoders.Base64UrlDecode(value);
         }
 
-        [Key("n"), Object(Name = "n", Enabled = false)]
+        [Key("no"), Object(Name = "no", Enabled = false)]
         public DbImageNote[] Notes { get; set; }
 
         [Key("tg"), Text(Name = "tg")]

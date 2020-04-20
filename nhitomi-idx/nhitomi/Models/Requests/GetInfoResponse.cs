@@ -24,9 +24,8 @@ namespace nhitomi.Models.Requests
         public Dictionary<ObjectType, int> Counters { get; set; }
 
         /// <summary>
-        /// Number of users currently connected to.
+        /// Currently authenticated user information, or null if not authenticated.
         /// </summary>
-        [Required]
-        public int ConnectedUsers { get; set; }
+        public User User { get; set; }
     }
 }

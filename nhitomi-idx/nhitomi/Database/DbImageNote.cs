@@ -8,7 +8,7 @@ namespace nhitomi.Database
     /// Represents a note on an image.
     /// Notes can be used to annotate images with text, usually for translation.
     /// </summary>
-    [MessagePackObject, ElasticsearchType(RelationName = nameof(ImageNote))]
+    [MessagePackObject]
     public class DbImageNote : DbObjectBase<ImageNote>, IDbModelConvertible<DbImageNote, ImageNote>
     {
         [Key("x"), Number(Name = "x")]

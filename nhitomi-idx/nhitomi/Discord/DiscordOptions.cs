@@ -31,5 +31,28 @@ namespace nhitomi.Discord
         /// Prefix string of commands.
         /// </summary>
         public string Prefix { get; set; } = "n!";
+
+        /// <summary>
+        /// Options for OAuth2 authentication. This may be null.
+        /// </summary>
+        public OAuthOptions OAuth { get; set; }
+
+        public class OAuthOptions
+        {
+            /// <summary>
+            /// Bot client ID.
+            /// </summary>
+            public ulong ClientId { get; set; }
+
+            /// <summary>
+            /// Bot client secret.
+            /// </summary>
+            public string ClientSecret { get; set; }
+
+            /// <summary>
+            /// Redirect URI configured for OAuth.
+            /// </summary>
+            public string RedirectUri { get; set; }
+        }
     }
 }

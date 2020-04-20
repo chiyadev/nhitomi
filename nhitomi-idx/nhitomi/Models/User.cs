@@ -4,6 +4,14 @@ using nhitomi.Models.Validation;
 
 namespace nhitomi.Models
 {
+    /// <summary>
+    /// Represents a user on nhitomi.
+    /// </summary>
+    /// <remarks>
+    /// The following properties may not be returned depending on the requester's permissions:
+    /// - <see cref="Email"/>
+    /// - <see cref="DiscordConnection"/>
+    /// </remarks>
     public class User : UserBase, IHasId, IHasUpdatedTime
     {
         /// <summary>
@@ -26,16 +34,14 @@ namespace nhitomi.Models
 
         /// <summary>
         /// User username.
+        /// Note that there is no username uniqueness guarantee.
         /// </summary>
-        [Required, MinLength(UsernameMinLength), MaxLength(UsernameMaxLength), RegularExpression(UsernameRegex)]
+        [Required, MinLength(UsernameMinLength), MaxLength(UsernameMaxLength)]
         public string Username { get; set; }
 
         /// <summary>
-        /// User email.
+        /// User email address.
         /// </summary>
-        /// <remarks>
-        /// This value is only specified when the requesting user has view permissions.
-        /// </remarks>
         public string Email { get; set; }
 
         /// <summary>
@@ -49,17 +55,17 @@ namespace nhitomi.Models
         /// </summary>
         [Required]
         public UserPermissions[] Permissions { get; set; }
+
+        /// <summary>
+        /// Discord connection information.
+        /// </summary>
+        public UserDiscordConnection DiscordConnection { get; set; }
     }
 
     public class UserBase
     {
-        public const string UsernameRegex = @"^(?=.{4,20}$)(?![_.])(?!.*[_.]{2})[a-zA-Z0-9._]+(?<![_.])$";
-
         public const int UsernameMinLength = 4;
         public const int UsernameMaxLength = 20;
-
-        public const int PasswordMinLength = 6;
-        public const int PasswordMaxLength = 2048;
     }
 
     [Flags]
