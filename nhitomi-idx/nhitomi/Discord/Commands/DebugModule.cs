@@ -1,8 +1,7 @@
 using System.Threading.Tasks;
-using nhitomi.Discord;
 using Qmmands;
 
-namespace nhitomi.Commands
+namespace nhitomi.Discord.Commands
 {
     /// <summary>
     /// Contains commands useful for debugging purposes.

@@ -3,11 +3,9 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Discord;
-using nhitomi.Discord;
 using nhitomi.Localization;
-using IDiscordClient = nhitomi.Discord.IDiscordClient;
 
-namespace nhitomi.Commands
+namespace nhitomi.Discord.Commands
 {
     public sealed class DebugInfoMessage : ReplyMessage
     {

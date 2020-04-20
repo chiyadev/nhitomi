@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using nhitomi.Database;
 using nhitomi.Models;
+using nhitomi.Storage;
 
 namespace nhitomi
 {
