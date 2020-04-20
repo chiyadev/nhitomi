@@ -3,27 +3,32 @@ using System.Threading;
 using System.Threading.Tasks;
 using Discord;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Qmmands;
 
 namespace nhitomi.Discord
 {
-    public class DiscordMessageHandler : BackgroundService
+    public interface IDiscordMessageHandler
+    {
+        int Total { get; }
+        int Handled { get; }
+
+        Task HandleAsync(IUserMessage message, CancellationToken cancellationToken = default);
+    }
+
+    public class DiscordMessageHandler : IDiscordMessageHandler
     {
         readonly IServiceProvider _services;
-        readonly IDiscordClient _client;
         readonly IUserFilter _filter;
         readonly IOptionsMonitor<DiscordOptions> _options;
         readonly ILogger<DiscordMessageHandler> _logger;
 
         readonly CommandService _command;
 
-        public DiscordMessageHandler(IServiceProvider services, IDiscordClient client, IUserFilter filter, IOptionsMonitor<DiscordOptions> options, ILogger<DiscordMessageHandler> logger)
+        public DiscordMessageHandler(IServiceProvider services, IUserFilter filter, IOptionsMonitor<DiscordOptions> options, ILogger<DiscordMessageHandler> logger)
         {
             _services = services;
-            _client   = client;
             _filter   = filter;
             _options  = options;
             _logger   = logger;
@@ -33,35 +38,23 @@ namespace nhitomi.Discord
             _command.AddModules(GetType().Assembly);
         }
 
-        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
-        {
-            _client.MessageReceived += m =>
-            {
-                Task.Run(() => HandleMessageAsync(m, stoppingToken), stoppingToken);
-                return Task.CompletedTask;
-            };
-
-            await Task.Delay(-1, stoppingToken);
-        }
-
         int _total;
         int _handled;
 
         public int Total => _total;
         public int Handled => _handled;
 
-        async Task HandleMessageAsync(IMessage m, CancellationToken cancellationToken = default)
+        public async Task HandleAsync(IUserMessage message, CancellationToken cancellationToken = default)
         {
             try
             {
-                // must be an user-authored message
-                if (!(m is IUserMessage message) || !_filter.HandleUser(m.Author))
+                if (!_filter.HandleUser(message.Author))
                     return;
 
                 var options = _options.CurrentValue;
 
                 // must have command prefix
-                if (!CommandUtilities.HasPrefix(m.Content, options.Prefix, options.Command.StringComparison, out var command))
+                if (!CommandUtilities.HasPrefix(message.Content, options.Prefix, options.Command.StringComparison, out var command))
                     return;
 
                 IResult result;
@@ -87,7 +80,7 @@ namespace nhitomi.Discord
             catch (OperationCanceledException) { }
             catch (Exception e)
             {
-                _logger.LogWarning(e, $"Exception while handling message {m.Id}.");
+                _logger.LogWarning(e, $"Exception while handling message {message.Id}.");
             }
             finally
             {

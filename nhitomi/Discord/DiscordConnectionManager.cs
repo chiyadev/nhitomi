@@ -27,6 +27,8 @@ namespace nhitomi.Discord
             if (!options.Enabled)
                 return;
 
+            _client.Initialize(stoppingToken);
+
             await _client.LoginAsync(TokenType.Bot, options.Token);
             await _client.StartAsync();
 

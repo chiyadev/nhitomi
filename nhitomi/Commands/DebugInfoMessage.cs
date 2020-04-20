@@ -12,12 +12,12 @@ namespace nhitomi.Commands
     {
         readonly nhitomiCommandContext _context;
         readonly IDiscordClient _discord;
-        readonly DiscordMessageHandler _messageHandler;
-        readonly DiscordReactionHandler _reactionHandler;
+        readonly IDiscordMessageHandler _messageHandler;
+        readonly IDiscordReactionHandler _reactionHandler;
         readonly MemoryInfo _memory;
         readonly IInteractiveManager _interactive;
 
-        public DebugInfoMessage(nhitomiCommandContext context, IDiscordClient discord, DiscordMessageHandler messageHandler, DiscordReactionHandler reactionHandler, MemoryInfo memory, IInteractiveManager interactive)
+        public DebugInfoMessage(nhitomiCommandContext context, IDiscordClient discord, IDiscordMessageHandler messageHandler, IDiscordReactionHandler reactionHandler, MemoryInfo memory, IInteractiveManager interactive)
         {
             _context         = context;
             _discord         = discord;

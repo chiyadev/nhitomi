@@ -2,12 +2,19 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Discord.WebSocket;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 namespace nhitomi.Discord
 {
-    public class DiscordReactionHandler : BackgroundService
+    public interface IDiscordReactionHandler
+    {
+        int Total { get; }
+        int Handled { get; }
+
+        Task HandleAsync(SocketReaction reaction, CancellationToken cancellationToken = default);
+    }
+
+    public class DiscordReactionHandler : IDiscordReactionHandler
     {
         readonly IDiscordClient _client;
         readonly IUserFilter _filter;
@@ -22,31 +29,13 @@ namespace nhitomi.Discord
             _logger      = logger;
         }
 
-        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
-        {
-            // reaction add/remove is the same
-            _client.ReactionAdded += (_, __, r) =>
-            {
-                Task.Run(() => HandleReactionAsync(r, stoppingToken), stoppingToken);
-                return Task.CompletedTask;
-            };
-
-            _client.ReactionRemoved += (_, __, r) =>
-            {
-                Task.Run(() => HandleReactionAsync(r, stoppingToken), stoppingToken);
-                return Task.CompletedTask;
-            };
-
-            await Task.Delay(-1, stoppingToken);
-        }
-
         int _total;
         int _handled;
 
         public int Total => _total;
         public int Handled => _handled;
 
-        async Task HandleReactionAsync(SocketReaction reaction, CancellationToken cancellationToken = default)
+        public async Task HandleAsync(SocketReaction reaction, CancellationToken cancellationToken = default)
         {
             try
             {

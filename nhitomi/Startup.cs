@@ -22,13 +22,13 @@ namespace nhitomi
 
             // discord
             services.AddSingleton<IDiscordClient, DiscordClient>()
+                    .AddSingleton<IDiscordMessageHandler, DiscordMessageHandler>()
+                    .AddSingleton<IDiscordReactionHandler, DiscordReactionHandler>()
                     .AddSingleton<IUserFilter, DefaultUserFilter>()
-                    .AddHostedService<DiscordMessageHandler>()
-                    .AddHostedService<DiscordReactionHandler>()
                     .AddHostedService<DiscordConnectionManager>();
 
             services.AddSingleton<IInteractiveManager, InteractiveManager>()
-                    .AddSingleton<IReplyRenderer,ReplyRenderer>();
+                    .AddSingleton<IReplyRenderer, ReplyRenderer>();
 
             // mvc
             services.AddMvcCore()

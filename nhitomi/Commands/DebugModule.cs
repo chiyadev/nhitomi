@@ -11,6 +11,7 @@ namespace nhitomi.Commands
     public class DebugModule : ModuleBase<nhitomiCommandContext>
     {
         [Command]
+        [Name("info")]
         [Description("commands.debug.info.desc")]
         public Task InfoAsync() => Context.SendAsync<DebugInfoMessage>();
     }
