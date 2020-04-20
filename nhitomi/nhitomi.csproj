@@ -5,11 +5,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <_ContentIncludedByDefault Remove="Properties\launchSettings.json" />
-    </ItemGroup>
-
-    <ItemGroup>
       <PackageReference Include="Discord.Net" Version="2.2.0" />
+      <PackageReference Include="MessageFormat" Version="3.0.1" />
       <PackageReference Include="NEST" Version="7.6.1" />
       <PackageReference Include="Qmmands" Version="3.1.1" />
     </ItemGroup>
@@ -18,5 +15,8 @@
       <Folder Include="Controllers" />
     </ItemGroup>
 
+    <ItemGroup>
+      <EmbeddedResource Include="../locales/**/*" LinkBase="Localization" />
+    </ItemGroup>
 
 </Project>

@@ -24,6 +24,7 @@ namespace nhitomi
             services.AddSingleton<IDiscordClient, DiscordClient>()
                     .AddSingleton<IDiscordMessageHandler, DiscordMessageHandler>()
                     .AddSingleton<IDiscordReactionHandler, DiscordReactionHandler>()
+                    .AddSingleton<IDiscordLocaleProvider, DiscordLocaleProvider>()
                     .AddSingleton<IUserFilter, DefaultUserFilter>()
                     .AddHostedService<DiscordConnectionManager>();
 

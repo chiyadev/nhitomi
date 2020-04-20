@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Discord;
 using Microsoft.Extensions.DependencyInjection;
+using nhitomi.Localization;
 using Qmmands;
 
 namespace nhitomi.Discord
@@ -39,6 +40,11 @@ namespace nhitomi.Discord
         /// Cancellation token.
         /// </summary>
         public CancellationToken CancellationToken { get; }
+
+        /// <summary>
+        /// Locale object used to localize this command output.
+        /// </summary>
+        public ILocale Locale { get; set; } = Locales.Null;
 
         public nhitomiCommandContext(RefCountedServiceScope scope, IUserMessage message, CancellationToken cancellationToken = default) : base(scope.ServiceProvider)
         {

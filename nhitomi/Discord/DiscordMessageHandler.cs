@@ -20,15 +20,17 @@ namespace nhitomi.Discord
     public class DiscordMessageHandler : IDiscordMessageHandler
     {
         readonly IServiceProvider _services;
+        readonly IDiscordLocaleProvider _locale;
         readonly IUserFilter _filter;
         readonly IOptionsMonitor<DiscordOptions> _options;
         readonly ILogger<DiscordMessageHandler> _logger;
 
         readonly CommandService _command;
 
-        public DiscordMessageHandler(IServiceProvider services, IUserFilter filter, IOptionsMonitor<DiscordOptions> options, ILogger<DiscordMessageHandler> logger)
+        public DiscordMessageHandler(IServiceProvider services, IDiscordLocaleProvider locale, IUserFilter filter, IOptionsMonitor<DiscordOptions> options, ILogger<DiscordMessageHandler> logger)
         {
             _services = services;
+            _locale   = locale;
             _filter   = filter;
             _options  = options;
             _logger   = logger;
@@ -59,10 +61,17 @@ namespace nhitomi.Discord
 
                 IResult result;
 
-                // execute command
-                // (ref-counted service scope is used to keep services alive for interactive messages that spans multiple commands/reactions)
+                // ref-counted service scope is used to keep services alive for interactive messages that spans multiple commands/reactions
                 using (var serviceScope = new RefCountedServiceScope(_services.CreateScope()))
-                    result = await _command.ExecuteAsync(command, new nhitomiCommandContext(serviceScope, message, cancellationToken));
+                {
+                    var context = new nhitomiCommandContext(serviceScope, message, cancellationToken);
+
+                    // set locale
+                    await _locale.SetAsync(context, cancellationToken);
+
+                    // execute command
+                    result = await _command.ExecuteAsync(command, context);
+                }
 
                 switch (result)
                 {

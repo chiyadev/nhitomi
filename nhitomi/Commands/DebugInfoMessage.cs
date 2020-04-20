@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Discord;
 using nhitomi.Discord;
+using nhitomi.Localization;
 using IDiscordClient = nhitomi.Discord.IDiscordClient;
 
 namespace nhitomi.Commands
@@ -25,7 +26,11 @@ namespace nhitomi.Commands
             _reactionHandler = reactionHandler;
             _memory          = memory;
             _interactive     = interactive;
+
+            _l = context.Locale.Sections["debug"];
         }
+
+        readonly ILocale _l;
 
         const long _mebibytes = 1024 * 1024;
 
@@ -33,7 +38,7 @@ namespace nhitomi.Commands
         {
             Embed = new EmbedBuilder
             {
-                Title = "Debug info",
+                Title = $"nhitomi: {_l["title"]}",
                 Fields =
                 {
                     new EmbedFieldBuilder
