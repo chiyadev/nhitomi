@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using Microsoft.Extensions.Logging;
+using SkiaSharp;
 
 namespace nhitomi
 {
@@ -47,7 +48,7 @@ namespace nhitomi
             ImageFormat.Jpeg => "image/jpeg",
             ImageFormat.Png  => "image/png",
 
-            _ => null,
+            _ => null
         };
 
         static readonly byte[] _webPPrefix1 = { 0x52, 0x49, 0x46, 0x46 };
