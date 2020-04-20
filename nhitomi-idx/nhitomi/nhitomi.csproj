@@ -16,7 +16,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <EmbeddedResource Include="../locales/**/*" LinkBase="Localization" />
+      <EmbeddedResource Include="../../locales/**/*" LinkBase="Localization" />
     </ItemGroup>
 
 </Project>
