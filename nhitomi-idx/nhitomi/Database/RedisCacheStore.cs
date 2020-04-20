@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using StackExchange.Redis;
@@ -34,29 +33,10 @@ namespace nhitomi.Database
 
         public async Task<T> SetAsync<T>(string key, T value, CancellationToken cancellationToken = default) where T : class
         {
-            //todo: make this atomic using GETSET?
-            var actualValue = value ?? await GetAsync<T>(key, null, cancellationToken);
+            await _client.SetObjectAsync(_transform(key), value, _expiry, default, cancellationToken);
 
-            if (await _client.SetObjectAsync(_transform(key), value, _expiry, default, cancellationToken))
-                foreach (var func in _setEvents)
-                    await func(key, value, actualValue, cancellationToken);
-
-            return actualValue;
+            return value;
         }
-
-        readonly List<Func<string, object, object, CancellationToken, Task>> _setEvents = new List<Func<string, object, object, CancellationToken, Task>>();
-
-        public void OnSet<T>(CacheSetAsyncCallback<T> callback) where T : class => _setEvents.Add(async (key, value, actualValue, cancellationToken) =>
-        {
-            if (value != null && actualValue is T obj)
-                await callback(obj, cancellationToken);
-        });
-
-        public void OnDelete<T>(CacheDeleteAsyncCallback<T> callback) where T : class => _setEvents.Add(async (key, value, actualValue, cancellationToken) =>
-        {
-            if (value == null && actualValue is T obj)
-                await callback(obj, cancellationToken);
-        });
     }
 
     public class RedisCacheStore<T> : RedisCacheStore, ICacheStore<T> where T : class

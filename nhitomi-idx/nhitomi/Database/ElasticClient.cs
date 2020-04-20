@@ -224,8 +224,6 @@ namespace nhitomi.Database
 
     public interface IElasticClient : IDisposable
     {
-        ICacheStoreEvents Cache { get; }
-
         Task InitializeAsync(CancellationToken cancellationToken = default);
 
         /// <summary>
@@ -288,8 +286,6 @@ namespace nhitomi.Database
         readonly ILogger<Nest.ElasticClient> _logger;
         readonly ICacheStore _cache;
         readonly ICacheManager _cacheManager;
-
-        ICacheStoreEvents IElasticClient.Cache => new EntryInfoCacheStoreEvents(_cache);
 
         public ElasticClient(IOptionsMonitor<ElasticOptions> options, IResourceLocker locker, ILogger<Nest.ElasticClient> logger, ICacheManager cacheManager)
         {
@@ -457,8 +453,9 @@ namespace nhitomi.Database
 
         public IDbEntry<T> Entry<T>(string id) where T : class, IDbObject => new EntryWrapper<T>(this, id);
 
-        // ReSharper disable once ClassNeverInstantiated.Local
-        // ReSharper disable once MemberCanBePrivate.Global
+        /// <summary>
+        /// Serializable entry object for storing in cache.
+        /// </summary>
         [MessagePackObject]
         public sealed class EntryInfo<T>
         {
@@ -472,6 +469,9 @@ namespace nhitomi.Database
             public long? PrimaryTerm { get; set; }
         }
 
+        /// <summary>
+        /// Wrapper object for consumer convenience.
+        /// </summary>
         sealed class EntryWrapper<T> : IDbEntry<T> where T : class, IDbObject
         {
             readonly ElasticClient _client;
@@ -792,28 +792,6 @@ namespace nhitomi.Database
         {
             // we use Total property
             public SearchDescriptor<T> Process(SearchDescriptor<T> descriptor) => descriptor.Take(0);
-        }
-
-#endregion
-
-#region Cache store events
-
-        // unwrap EntryInfo<T>
-
-        sealed class EntryInfoCacheStoreEvents : ICacheStoreEvents
-        {
-            readonly ICacheStore _store;
-
-            public EntryInfoCacheStoreEvents(ICacheStore store)
-            {
-                _store = store;
-            }
-
-            public void OnSet<T>(CacheSetAsyncCallback<T> callback) where T : class
-                => _store.OnSet<EntryInfo<T>>((x, c) => callback(x.Value, c));
-
-            public void OnDelete<T>(CacheDeleteAsyncCallback<T> callback) where T : class
-                => _store.OnDelete<EntryInfo<T>>((x, c) => callback(x.Value, c));
         }
 
 #endregion
