@@ -1,3 +1,6 @@
+# nhitomi specific
+nhitomi/version.txt
+
 # User-specific files
 *.rsuser
 *.suo
