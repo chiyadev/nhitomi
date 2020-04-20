@@ -9,7 +9,7 @@ namespace nhitomi
     {
         public static IMvcCoreBuilder AddTestControllers(this IMvcCoreBuilder builder)
         {
-            var path = Path.Combine(AppContext.BaseDirectory, "Nanoka.Tests.dll");
+            var path = Path.Combine(AppContext.BaseDirectory, "nhitomi.Tests.dll");
 
             if (File.Exists(path))
                 builder = builder.AddApplicationPart(Assembly.LoadFrom(path));

@@ -1,6 +1,6 @@
 using System;
 
-namespace nhitomi
+namespace nhitomi.Models
 {
     public interface IHasUpdatedTime : IHasCreatedTime
     {

@@ -7,12 +7,12 @@ namespace nhitomi.Models
     /// <summary>
     /// Represents a snapshot of an object in the database after an event.
     /// </summary>
-    public class Snapshot : INanokaObject, IHasCreatedTime
+    public class Snapshot : IHasId, IHasCreatedTime
     {
         /// <summary>
         /// Snapshot ID.
         /// </summary>
-        [Required, NanokaId]
+        [Required, nhitomiId]
         public string Id { get; set; }
 
         /// <summary>
@@ -37,21 +37,21 @@ namespace nhitomi.Models
         /// If the snapshot type is rollback, the ID of the snapshot that was reverted to.
         /// Otherwise, this field should be null.
         /// </summary>
-        [NanokaId]
+        [nhitomiId]
         public string RollbackId { get; set; }
 
         /// <summary>
         /// ID of the user who created this snapshot.
-        /// This field can be null if the <see cref="Source"/> of this snapshot is the system.
+        /// This field can be null if <see cref="Source"/> of this snapshot is the system.
         /// </summary>
-        [NanokaId]
+        [nhitomiId]
         public string CommitterId { get; set; }
 
         /// <summary>
         /// Type of the target object of this snapshot.
         /// </summary>
         [Required]
-        public SnapshotTarget Target { get; set; }
+        public ObjectType Target { get; set; }
 
         /// <summary>
         /// ID of the target object of this snapshot.
@@ -59,7 +59,7 @@ namespace nhitomi.Models
         /// <remarks>
         /// It is possible for the target object to not exist if it was deleted after this snapshot was created.
         /// </remarks>
-        [Required, NanokaId]
+        [Required, nhitomiId]
         public string TargetId { get; set; }
 
         /// <summary>
@@ -68,5 +68,46 @@ namespace nhitomi.Models
         public string Reason { get; set; }
 
         public override string ToString() => $"{Target} {TargetId} [{Source}]: \"{Reason ?? "<unknown reason>"}\" #{Id}";
+    }
+
+    public enum SnapshotType
+    {
+        /// <summary>
+        /// Snapshot was created when the object was created.
+        /// </summary>
+        Creation = 0,
+
+        /// <summary>
+        /// Snapshot was created when the object was modified.
+        /// </summary>
+        Modification = 1,
+
+        /// <summary>
+        /// Snapshot was created when the object was deleted.
+        /// </summary>
+        Deletion = 2,
+
+        /// <summary>
+        /// Snapshot was created when the object was rolled back to a previous snapshot.
+        /// </summary>
+        Rollback = 3
+    }
+
+    public enum SnapshotSource
+    {
+        /// <summary>
+        /// Snapshot was created by a process of the system.
+        /// </summary>
+        System = 0,
+
+        /// <summary>
+        /// Snapshot was created by a normal user.
+        /// </summary>
+        User = 1,
+
+        /// <summary>
+        /// Snapshot was created by a moderator user.
+        /// </summary>
+        Moderator = 2
     }
 }

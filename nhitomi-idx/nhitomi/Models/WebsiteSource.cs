@@ -23,15 +23,9 @@ namespace nhitomi.Models
                                                    Website == other.Website &&
                                                    Identifier == other.Identifier;
 
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                // ReSharper disable NonReadonlyMemberInGetHashCode
-                return ((Website != null ? Website.GetHashCode() : 0) * 397) ^ (Identifier != null ? Identifier.GetHashCode() : 0);
-                // ReSharper restore NonReadonlyMemberInGetHashCode
-            }
-        }
+        // ReSharper disable NonReadonlyMemberInGetHashCode
+        public override int GetHashCode() => HashCode.Combine(Website, Identifier);
+        // ReSharper enable NonReadonlyMemberInGetHashCode
 
         /// <summary>
         /// Parses the format "{website}/{identifier]".

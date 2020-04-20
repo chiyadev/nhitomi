@@ -8,16 +8,54 @@ namespace nhitomi.Models
     {
         public RangeQuery<DateTime> CreatedTime { get; set; }
         public RangeQuery<DateTime> UpdatedTime { get; set; }
+        public RangeQuery<int> PageCount { get; set; }
+        public RangeQuery<int> NoteCount { get; set; }
         public TextQuery PrimaryName { get; set; }
         public TextQuery EnglishName { get; set; }
         public Dictionary<BookTag, TextQuery> Tags { get; set; }
+        public RangeQuery<int> TagCount { get; set; }
         public FilterQuery<BookCategory> Category { get; set; }
-        public FilterQuery<MaterialRating> Rating { get; set; }
-        public RangeQuery<int> PageCount { get; set; }
         public FilterQuery<LanguageType> Language { get; set; }
+        public FilterQuery<MaterialRating> Rating { get; set; }
         public FilterQuery<WebsiteSource> Sources { get; set; }
-        public RangeQuery<int> Size { get; set; }
-        public RangeQuery<double> Availability { get; set; }
-        public RangeQuery<double> TotalAvailability { get; set; }
+        public RangeQuery<int> SourceCount { get; set; }
+    }
+
+    public enum BookSort
+    {
+        /// <summary>
+        /// Sort by relevance.
+        /// </summary>
+        Relevance = 0,
+
+        /// <summary>
+        /// Sort by created time.
+        /// </summary>
+        CreatedTime = 1,
+
+        /// <summary>
+        /// Sort by updated time.
+        /// </summary>
+        UpdatedTime = 2,
+
+        /// <summary>
+        /// Sort by page count.
+        /// </summary>
+        PageCount = 3,
+
+        /// <summary>
+        /// Sort by note count.
+        /// </summary>
+        NoteCount = 4,
+
+        /// <summary>
+        /// Sort by tag count.
+        /// </summary>
+        TagCount = 5,
+
+        /// <summary>
+        /// Sort by source count.
+        /// </summary>
+        SourceCount = 6
     }
 }

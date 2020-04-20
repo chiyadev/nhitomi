@@ -36,7 +36,7 @@ namespace nhitomi.Database
 
         public TimeSpan ProviderRefreshInterval => _options.CurrentValue.InactiveProviderExpirationTime / 2; // refresh every half of expiration time
 
-        IAvailabilityService GetAvailabilityService(NanokaObject obj) => obj.Type switch
+        IAvailabilityService GetAvailabilityService(nhitomiObject obj) => obj.Type switch
         {
             SnapshotTarget.Book => _services.GetService<IBookService>(),
 
@@ -52,7 +52,7 @@ namespace nhitomi.Database
 
         /// <summary>
         /// Sorted set containing objects that are pending refresh.
-        /// Serialized object reference (<see cref="NanokaObject.Serialize"/>) is the value and next scheduled refresh time + rescheduling information is the score.
+        /// Serialized object reference (<see cref="nhitomiObject.Serialize"/>) is the value and next scheduled refresh time + rescheduling information is the score.
         /// </summary>
         IRedisSortedSetHandler ScheduledObjects => _client.SortedSet("pi:scheduled");
 
@@ -93,7 +93,7 @@ namespace nhitomi.Database
         /// Set containing all pieces of an object.
         /// Piece hash is the value.
         /// </summary>
-        IRedisSetHandler ObjectPieces(NanokaObject obj) => _client.Set(_objectPiecesPrefix.Append(obj.Serialize()));
+        IRedisSetHandler ObjectPieces(nhitomiObject obj) => _client.Set(_objectPiecesPrefix.Append(obj.Serialize()));
 
         public async Task<bool> ProviderExists(long clientId, CancellationToken cancellationToken = default)
             => await RefreshedProviders.ContainsAsync((RedisValue) clientId, cancellationToken);
@@ -101,7 +101,7 @@ namespace nhitomi.Database
         public async Task<int> CountProvidersAsync(CancellationToken cancellationToken = default)
             => (int) await RefreshedProviders.CountAsync(cancellationToken);
 
-        public async Task AddProviderAsync(long clientId, NanokaObject obj, byte[][] hashes, CancellationToken cancellationToken = default)
+        public async Task AddProviderAsync(long clientId, nhitomiObject obj, byte[][] hashes, CancellationToken cancellationToken = default)
         {
             await using (await GetProviderObjectsLockAsync(clientId, cancellationToken))
             {
@@ -157,7 +157,7 @@ namespace nhitomi.Database
             return RefreshedProviders.AddOrUpdateAsync(clientId, time, cancellationToken);
         }
 
-        public async Task RemoveProviderAsync(long clientId, NanokaObject obj, CancellationToken cancellationToken = default)
+        public async Task RemoveProviderAsync(long clientId, nhitomiObject obj, CancellationToken cancellationToken = default)
         {
             await using (await GetProviderObjectsLockAsync(clientId, cancellationToken))
                 await RemoveProviderAsyncInternal(clientId, obj, cancellationToken);
@@ -178,7 +178,7 @@ namespace nhitomi.Database
             }
         }
 
-        async Task RemoveProviderAsyncInternal(long clientId, NanokaObject obj, CancellationToken cancellationToken = default)
+        async Task RemoveProviderAsyncInternal(long clientId, nhitomiObject obj, CancellationToken cancellationToken = default)
         {
             // get all pieces of the object
             var pieces = await GetObjectPiecesAsync(obj, cancellationToken);
@@ -223,15 +223,15 @@ namespace nhitomi.Database
             }
         }
 
-        public async Task<NanokaObject[]> GetObjectsAsync(long clientId, CancellationToken cancellationToken = default)
+        public async Task<nhitomiObject[]> GetObjectsAsync(long clientId, CancellationToken cancellationToken = default)
         {
             // no lock needed for read
             var values = await ProviderObjects(clientId).GetAsync(cancellationToken);
 
-            return values.ToArray(v => NanokaObject.Deserialize(v));
+            return values.ToArray(v => nhitomiObject.Deserialize(v));
         }
 
-        public async Task RefreshObjectAsync(NanokaObject obj, CancellationToken cancellationToken = default)
+        public async Task RefreshObjectAsync(nhitomiObject obj, CancellationToken cancellationToken = default)
         {
             var options = _options.CurrentValue;
 
@@ -264,7 +264,7 @@ namespace nhitomi.Database
             await ScheduledObjects.AddOrUpdateAsync(objSerialized, SerializeScheduledObjectScore(next, 0), cancellationToken);
         }
 
-        public async Task<byte[][]> GetObjectPiecesAsync(NanokaObject obj, CancellationToken cancellationToken = default)
+        public async Task<byte[][]> GetObjectPiecesAsync(nhitomiObject obj, CancellationToken cancellationToken = default)
         {
             var set = ObjectPieces(obj);
 
@@ -276,7 +276,7 @@ namespace nhitomi.Database
             return await LoadObjectPiecesAsync(set, obj, cancellationToken);
         }
 
-        public async Task<bool> ObjectContainsPiecesAsync(NanokaObject obj, byte[][] hashes, CancellationToken cancellationToken = default)
+        public async Task<bool> ObjectContainsPiecesAsync(nhitomiObject obj, byte[][] hashes, CancellationToken cancellationToken = default)
         {
             var set = ObjectPieces(obj);
 
@@ -295,7 +295,7 @@ namespace nhitomi.Database
             return true;
         }
 
-        async Task<byte[][]> LoadObjectPiecesAsync(IRedisSetHandler set, NanokaObject obj, CancellationToken cancellationToken = default)
+        async Task<byte[][]> LoadObjectPiecesAsync(IRedisSetHandler set, nhitomiObject obj, CancellationToken cancellationToken = default)
         {
             var hashes = (await GetAvailabilityService(obj).EnumeratePiecesAsync(obj.Id, cancellationToken)).ToArray(p => p.Hash);
 
@@ -328,7 +328,7 @@ namespace nhitomi.Database
             return (new DateTime(ticks), reschedules);
         }
 
-        async Task RefreshObjectAsyncInternal(NanokaObject obj, int reschedules, CancellationToken cancellationToken = default)
+        async Task RefreshObjectAsyncInternal(nhitomiObject obj, int reschedules, CancellationToken cancellationToken = default)
         {
             var options = _options.CurrentValue;
 
@@ -382,7 +382,7 @@ namespace nhitomi.Database
 
                             await Task.WhenAll(entries.Select(x =>
                             {
-                                var obj = NanokaObject.Deserialize(x.Element);
+                                var obj = nhitomiObject.Deserialize(x.Element);
 
                                 var (_, reschedules) = DeserializeScheduledObjectScore(x.Score);
 

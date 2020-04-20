@@ -1,6 +1,6 @@
-namespace nhitomi
+namespace nhitomi.Models
 {
-    public interface INanokaObject
+    public interface IHasId
     {
         /// <summary>
         /// Object ID.

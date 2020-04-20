@@ -16,7 +16,7 @@ namespace nhitomi.Models.Gateway
         /// <summary>
         /// ID of the object that contains the pieces.
         /// </summary>
-        [MP.Key("targetId"), Required, NanokaId]
+        [MP.Key("targetId"), Required, nhitomiId]
         public string TargetId { get; set; }
     }
 }

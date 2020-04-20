@@ -1,9 +1,10 @@
 using MessagePack;
 using Nest;
+using nhitomi.Models;
 
 namespace nhitomi.Database
 {
-    public interface IDbObject : INanokaObject
+    public interface IDbObject : IHasId
     {
         /// <summary>
         /// Updates cached properties used for querying.
@@ -11,9 +12,9 @@ namespace nhitomi.Database
         void UpdateCache();
     }
 
-    public interface IDbObject<in T> : IDbObject, IDbModel<T> where T : INanokaObject { }
+    public interface IDbObject<in T> : IDbObject, IDbModel<T> where T : IHasId { }
 
-    public abstract class DbObjectBase<T> : DbModelBase<T>, IDbObject<T> where T : INanokaObject
+    public abstract class DbObjectBase<T> : DbModelBase<T>, IDbObject<T> where T : IHasId
     {
         /// <summary>
         /// Cannot query against this property.

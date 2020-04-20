@@ -12,6 +12,7 @@ using MessagePack;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Nest;
+using nhitomi.Models;
 using nhitomi.Models.Queries;
 using LogLevel = Microsoft.Extensions.Logging.LogLevel;
 
@@ -27,7 +28,7 @@ namespace nhitomi.Database
         /// <summary>
         /// Prefix to use when creating indexes.
         /// </summary>
-        public string IndexPrefix { get; set; } = "nanoka-";
+        public string IndexPrefix { get; set; } = "nhitomi-";
 
         /// <summary>
         /// Number of shards to configure when creating a new index.
@@ -234,7 +235,7 @@ namespace nhitomi.Database
 
         /// <summary>
         /// Wraps the given object in <see cref="IDbEntry{T}"/>.
-        /// <see cref="INanokaObject.Id"/> will be generated automatically if null.
+        /// <see cref="IHasId.Id"/> will be generated automatically if null.
         /// </summary>
         /// <remarks>
         /// This method is useful when creating a new object in the database.
@@ -347,7 +348,7 @@ namespace nhitomi.Database
 
 #region Index management
 
-        struct IndexInfo
+        readonly struct IndexInfo
         {
             public readonly string Name;
             public readonly string IndexName;

@@ -6,7 +6,7 @@ using nhitomi.Models;
 namespace nhitomi.Database
 {
     /// <summary>
-    /// Represents a Nanoka user.
+    /// Represents a nhitomi user.
     /// </summary>
     [MessagePackObject, ElasticsearchType(RelationName = nameof(User))]
     public class DbUser : DbObjectBase<User>, IDbModelConvertible<DbUser, User, UserBase>, IHasUpdatedTime, IDbSupportsSnapshot
@@ -69,6 +69,6 @@ namespace nhitomi.Database
         [IgnoreMember, Ignore]
         public SnapshotTarget SnapshotTarget => SnapshotTarget.User;
 
-        public static implicit operator NanokaObject(DbUser user) => new NanokaObject(user.SnapshotTarget, user.Id);
+        public static implicit operator nhitomiObject(DbUser user) => new nhitomiObject(user.SnapshotTarget, user.Id);
     }
 }

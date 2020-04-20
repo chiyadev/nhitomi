@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
 using nhitomi.Models.Validation;
 
 namespace nhitomi.Models
@@ -9,12 +8,12 @@ namespace nhitomi.Models
     /// <summary>
     /// Represents a generic book.
     /// </summary>
-    public class Book : BookBase, INanokaObject, IHasUpdatedTime
+    public class Book : BookBase, IHasId, IHasUpdatedTime
     {
         /// <summary>
         /// Book ID.
         /// </summary>
-        [Required, NanokaId]
+        [Required, nhitomiId]
         public string Id { get; set; }
 
         /// <summary>
@@ -29,19 +28,10 @@ namespace nhitomi.Models
         [Required]
         public DateTime UpdatedTime { get; set; }
 
-        /// <inheritdoc cref="BookContent.Availability"/>
-        [Required]
-        public double Availability => Contents.Average(c => c.Availability);
-
-        /// <inheritdoc cref="BookContent.TotalAvailability"/>
-        [Required]
-        public double TotalAvailability => Contents.Average(c => c.TotalAvailability);
-
         /// <summary>
-        /// Contents in this book.
+        /// Pages in this book.
         /// </summary>
-        [Required]
-        public BookContent[] Contents { get; set; }
+        public BookImage[] Pages { get; set; }
     }
 
     public class BookBase
@@ -71,9 +61,97 @@ namespace nhitomi.Models
         public BookCategory Category { get; set; }
 
         /// <summary>
+        /// Book language.
+        /// </summary>
+        [Required]
+        public LanguageType Language { get; set; }
+
+        /// <summary>
         /// Material rating.
         /// </summary>
         [Required]
         public MaterialRating Rating { get; set; }
+
+        /// <summary>
+        /// Sources from where this book was downloaded.
+        /// </summary>
+        public WebsiteSource[] Sources { get; set; }
+    }
+
+    public enum BookTag
+    {
+        /// <summary>
+        /// Tag is generic.
+        /// </summary>
+        Tag = 0,
+
+        /// <summary>
+        /// Tag is an artist.
+        /// </summary>
+        Artist = 1,
+
+        /// <summary>
+        /// Tag is a parody.
+        /// </summary>
+        /// <remarks>
+        /// Not to be confused with series.
+        /// </remarks>
+        Parody = 2,
+
+        /// <summary>
+        /// Tag is a character.
+        /// </summary>
+        Character = 3,
+
+        /// <summary>
+        /// Tag is a convention.
+        /// </summary>
+        Convention = 4,
+
+        /// <summary>
+        /// Tag is a series.
+        /// </summary>
+        /// <remarks>
+        /// Not to be confused with parody.
+        /// </remarks>
+        Series = 5,
+
+        /// <summary>
+        /// Tag is a circle.
+        /// </summary>
+        Circle = 6,
+
+        /// <summary>
+        /// Tag is metadata.
+        /// </summary>
+        Metadata = 7
+    }
+
+    public enum BookCategory
+    {
+        /// <summary>
+        /// Book is a doujinshi.
+        /// </summary>
+        Doujinshi = 0,
+
+        /// <summary>
+        /// Book is a manga.
+        /// </summary>
+        Manga = 1,
+
+        /// <summary>
+        /// Book is a set of artist CG.
+        /// </summary>
+        ArtistCg = 2,
+
+        /// <summary>
+        /// Book is a set of game CG.
+        /// </summary>
+        GameCg = 3,
+
+        /// <summary>
+        /// Book is a light novel scan.
+        /// </summary>
+        LightNovel = 5
     }
 }

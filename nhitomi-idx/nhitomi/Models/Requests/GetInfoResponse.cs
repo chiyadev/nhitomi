@@ -12,13 +12,6 @@ namespace nhitomi.Models.Requests
         public GitCommit Version { get; set; }
 
         /// <summary>
-        /// Whether registrations are open or not.
-        /// If false, users can only register through invites.
-        /// </summary>
-        [Required]
-        public bool OpenRegistration { get; set; }
-
-        /// <summary>
         /// reCAPTCHA site key to use to obtain tokens for authorizing certain endpoints.
         /// If null, recaptcha is not required for those endpoints.
         /// </summary>

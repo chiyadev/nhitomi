@@ -20,7 +20,7 @@ namespace nhitomi.Models
         /// <summary>
         /// ID of the user that made this restriction, or null if it was automated by the system.
         /// </summary>
-        [NanokaId]
+        [nhitomiId]
         public string ModeratorId { get; set; }
 
         /// <summary>

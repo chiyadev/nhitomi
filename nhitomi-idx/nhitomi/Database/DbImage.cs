@@ -122,6 +122,6 @@ namespace nhitomi.Database
         [IgnoreMember, Ignore]
         public SnapshotTarget SnapshotTarget => SnapshotTarget.Image;
 
-        public static implicit operator NanokaObject(DbImage image) => new NanokaObject(image.SnapshotTarget, image.Id);
+        public static implicit operator nhitomiObject(DbImage image) => new nhitomiObject(image.SnapshotTarget, image.Id);
     }
 }

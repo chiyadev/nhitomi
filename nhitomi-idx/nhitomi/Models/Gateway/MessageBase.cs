@@ -63,7 +63,7 @@ namespace nhitomi.Models.Gateway
     /// <remarks>
     /// <para>
     /// The gateway is a server that is responsible for facilitating peer-to-peer connections and pushing real-time events to the client.
-    /// It operates over a WebSocket connection using subprotocol "Nanoka" and communicates using messages that are serialized
+    /// It operates over a WebSocket connection using subprotocol "nhitomi" and communicates using messages that are serialized
     /// using MessagePack and transferred across one or more contiguous frames.
     /// </para>
     /// <para>

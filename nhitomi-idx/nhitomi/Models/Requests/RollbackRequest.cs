@@ -8,7 +8,7 @@ namespace nhitomi.Models.Requests
         /// <summary>
         /// ID of the snapshot to rollback the target object to.
         /// </summary>
-        [Required, NanokaId]
+        [Required, nhitomiId]
         public string SnapshotId { get; set; }
     }
 }

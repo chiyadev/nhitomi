@@ -1,26 +1,16 @@
 using System.ComponentModel.DataAnnotations;
-using nhitomi.Models.Validation;
 
 namespace nhitomi.Models
 {
+    /// <summary>
+    /// Represents the image of a page in a book.
+    /// </summary>
     public class BookImage
     {
         /// <summary>
-        /// Image width in pixels.
+        /// Notes on this image.
         /// </summary>
-        [Required, Range(Image.ImageMinSize, Image.ImageMaxSize)]
-        public int Width { get; set; }
-
-        /// <summary>
-        /// Image height in pixels.
-        /// </summary>
-        [Required, Range(Image.ImageMinSize, Image.ImageMaxSize)]
-        public int Height { get; set; }
-
-        /// <summary>
-        /// Pieces that comprise this image.
-        /// </summary>
-        [Required, PieceList]
-        public Piece[] Pieces { get; set; }
+        [Required]
+        public ImageNote[] Notes { get; set; }
     }
 }

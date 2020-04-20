@@ -6,17 +6,14 @@ using nhitomi.Models.Validation;
 namespace nhitomi.Models
 {
     /// <summary>
-    /// Represents an image in an imageboard/booru (synonymous to "post").
+    /// Represents an image "post" in an imageboard/booru.
     /// </summary>
-    public class Image : ImageBase, INanokaObject, IHasUpdatedTime
+    public class Image : ImageBase, IHasId, IHasUpdatedTime
     {
-        public const int ImageMinSize = 100;
-        public const int ImageMaxSize = 4096;
-
         /// <summary>
         /// Image ID.
         /// </summary>
-        [Required, NanokaId]
+        [Required, nhitomiId]
         public string Id { get; set; }
 
         /// <summary>
@@ -30,36 +27,6 @@ namespace nhitomi.Models
         /// </summary>
         [Required]
         public DateTime UpdatedTime { get; set; }
-
-        /// <summary>
-        /// Image width in pixels.
-        /// </summary>
-        [Required, Range(ImageMinSize, ImageMaxSize)]
-        public int Width { get; set; }
-
-        /// <summary>
-        /// Image height in pixels.
-        /// </summary>
-        [Required, Range(ImageMinSize, ImageMaxSize)]
-        public int Height { get; set; }
-
-        /// <summary>
-        /// Availability score between [0, 1] which indicates how many pieces are available in the network relative to the number of pieces.
-        /// </summary>
-        [Required]
-        public double Availability { get; set; }
-
-        /// <summary>
-        /// Total availability score which indicates how many replicas of pieces are available in the network relative to the number of pieces.
-        /// </summary>
-        [Required]
-        public double TotalAvailability { get; set; }
-
-        /// <summary>
-        /// Pieces that comprise this image.
-        /// </summary>
-        [Required, PieceList]
-        public Piece[] Pieces { get; set; }
     }
 
     public class ImageBase
@@ -71,14 +38,52 @@ namespace nhitomi.Models
         public Dictionary<ImageTag, string[]> Tags { get; set; } = new Dictionary<ImageTag, string[]>();
 
         /// <summary>
+        /// Material rating.
+        /// </summary>
+        [Required]
+        public MaterialRating Rating { get; set; }
+
+        /// <summary>
         /// Sources from where this image was downloaded.
         /// </summary>
         public WebsiteSource[] Sources { get; set; }
 
         /// <summary>
-        /// Material rating.
+        /// Notes on this image.
         /// </summary>
-        [Required]
-        public MaterialRating Rating { get; set; }
+        public ImageNote[] Notes { get; set; }
+    }
+
+    public enum ImageTag
+    {
+        /// <summary>
+        /// Tag has no specific type.
+        /// </summary>
+        Tag = 0,
+
+        /// <summary>
+        /// Tag is an artist.
+        /// </summary>
+        Artist = 1,
+
+        /// <summary>
+        /// Tag is a character.
+        /// </summary>
+        Character = 2,
+
+        /// <summary>
+        /// Tag is a copyright.
+        /// </summary>
+        Copyright = 3,
+
+        /// <summary>
+        /// Tag is metadata.
+        /// </summary>
+        Metadata = 4,
+
+        /// <summary>
+        /// Tag references a pool name.
+        /// </summary>
+        Pool = 5
     }
 }

@@ -10,7 +10,7 @@ namespace nhitomi.Models.Gateway
         /// <summary>
         /// ID of the user that the client authenticated as.
         /// </summary>
-        [MP.Key("userId"), Required, NanokaId]
+        [MP.Key("userId"), Required, nhitomiId]
         public string UserId { get; set; }
 
         /// <summary>
