@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using MessagePack;
+using Microsoft.AspNetCore.WebUtilities;
 using Nest;
 using nhitomi.Models;
 
@@ -11,7 +11,7 @@ namespace nhitomi.Database
     /// Represents an image in an imageboard/booru (synonymous to "post").
     /// </summary>
     [MessagePackObject, ElasticsearchType(RelationName = nameof(Image))]
-    public class DbImage : DbObjectBase<Image>, IDbModelConvertible<DbImage, Image, ImageBase>, IHasUpdatedTime, IDbSupportsSnapshot, IDbSupportsPieces
+    public class DbImage : DbObjectBase<Image>, IDbModelConvertible<DbImage, Image, ImageBase>, IHasUpdatedTime, IDbSupportsAutocomplete
     {
         [Key("Tc"), Date(Name = "Tc")]
         public DateTime CreatedTime { get; set; }
@@ -19,14 +19,27 @@ namespace nhitomi.Database
         [Key("Tu"), Date(Name = "Tu")]
         public DateTime UpdatedTime { get; set; }
 
-        [Key("sw"), Number(Name = "sw")]
-        public int Width { get; set; }
+        [Key("s"), Number(Name = "s")]
+        public int? Size { get; set; }
 
-        [Key("sh"), Number(Name = "sh")]
-        public int Height { get; set; }
+        /// <summary>
+        /// Cannot query against this property.
+        /// </summary>
+        [Key("h"), Ignore] // for msgpack
+        public byte[] Hash { get; set; }
 
-        [Key("pi"), Object(Name = "pi", Enabled = false)]
-        public DbPiece[] Pieces { get; set; }
+        /// <summary>
+        /// Cannot query against this property.
+        /// </summary>
+        [IgnoreMember, Keyword(Name = "h", Index = false)] // for elasticsearch
+        public string HashString
+        {
+            get => WebEncoders.Base64UrlEncode(Hash);
+            set => Hash = WebEncoders.Base64UrlDecode(value);
+        }
+
+        [Key("n"), Object(Name = "n", Enabled = false)]
+        public DbImageNote[] Notes { get; set; }
 
         [Key("tg"), Text(Name = "tg")]
         public string[] TagsGeneral { get; set; }
@@ -58,10 +71,11 @@ namespace nhitomi.Database
 
             model.CreatedTime = CreatedTime;
             model.UpdatedTime = UpdatedTime;
-            model.Width       = Width;
-            model.Height      = Height;
 
-            model.Pieces = Pieces?.ToArray(p => p.Convert());
+            model.Size = Size;
+            model.Hash = Hash;
+
+            model.Notes = Notes?.ToArray(n => n.Convert());
 
             model.Tags = new Dictionary<ImageTag, string[]>
             {
@@ -83,10 +97,11 @@ namespace nhitomi.Database
 
             CreatedTime = model.CreatedTime;
             UpdatedTime = model.UpdatedTime;
-            Width       = model.Width;
-            Height      = model.Height;
 
-            Pieces = model.Pieces?.ToArray(p => new DbPiece().Apply(p));
+            Size = model.Size;
+            Hash = model.Hash;
+
+            Notes = model.Notes?.ToArray(p => new DbImageNote().Apply(p));
 
             if (model.Tags != null)
             {
@@ -104,24 +119,43 @@ namespace nhitomi.Database
 
 #region Cached
 
+        public enum SuggestionType
+        {
+            Tags = ImageTag.Tag,
+            TagsArtist = ImageTag.Artist,
+            TagsCharacter = ImageTag.Character,
+            TagsCopyright = ImageTag.Copyright,
+            TagsMetadata = ImageTag.Metadata,
+            TagsPool = ImageTag.Pool
+        }
+
         /// <summary>
         /// This is a cached property for querying.
         /// </summary>
-        [IgnoreMember, Number(Name = "sz")]
-        public int Size { get; set; }
+        [IgnoreMember, Completion(Name = IDbSupportsAutocomplete.SuggestField, PreserveSeparators = false, PreservePositionIncrements = false)]
+        public CompletionField Suggest { get; set; }
 
         public override void UpdateCache()
         {
             base.UpdateCache();
 
-            Size = Pieces?.Sum(p => p.Size) ?? 0;
+            Suggest = new CompletionField
+            {
+                Input = SuggestionFormatter.Format(
+                    (SuggestionType.Tags, TagsGeneral),
+                    (SuggestionType.TagsArtist, TagsArtist),
+                    (SuggestionType.TagsCharacter, TagsCharacter),
+                    (SuggestionType.TagsCopyright, TagsCopyright),
+                    (SuggestionType.TagsMetadata, TagsMetadata),
+                    (SuggestionType.TagsPool, TagsPool))
+
+                //todo: score
+                //Weight = (int) TotalAvailability.Average()
+            };
         }
 
 #endregion
 
-        [IgnoreMember, Ignore]
-        public SnapshotTarget SnapshotTarget => SnapshotTarget.Image;
-
-        public static implicit operator nhitomiObject(DbImage image) => new nhitomiObject(image.SnapshotTarget, image.Id);
+        public static implicit operator nhitomiObject(DbImage image) => new nhitomiObject(ObjectType.Image, image.Id);
     }
 }

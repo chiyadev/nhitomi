@@ -33,7 +33,7 @@ namespace nhitomi.Database
             => (TThis) obj.Chain(x => x.MapFrom(model));
 
         /// <summary>
-        /// Calls <see cref="IDbModel{T}.MapFrom"/> and returns itself.
+        /// Applies the specified base model on this db model by mapping to an intermediate full model and returns itself.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static TThis ApplyBase<TThis, TModel, TBase>(this IDbModelConvertible<TThis, TModel, TBase> obj, TBase other)
@@ -48,13 +48,11 @@ namespace nhitomi.Database
             other.DeepCloneTo(model);
 
             // apply common model to db model
-            obj.Apply(model);
-
-            return (TThis) obj;
+            return obj.Apply(model);
         }
 
         /// <summary>
-        /// Applies the specified base model on this DB model by mapping to an intermediate full model, and returns whether there were changes or not.
+        /// Applies the specified base model on this db model by mapping to an intermediate full model, and returns whether there were changes or not.
         /// </summary>
         public static bool TryApplyBase<TThis, TModel, TBase>(this IDbModelConvertible<TThis, TModel, TBase> obj, TBase other)
             where TThis : IDbModelConvertible<TThis, TModel, TBase>

@@ -1,4 +1,3 @@
-using System;
 using MessagePack;
 using Nest;
 using nhitomi.Models;
@@ -10,20 +9,8 @@ namespace nhitomi.Database
     /// Notes can be used to annotate images with text, usually for translation.
     /// </summary>
     [MessagePackObject, ElasticsearchType(RelationName = nameof(ImageNote))]
-    public class DbImageNote : DbObjectBase<ImageNote>, IDbModelConvertible<DbImageNote, ImageNote, ImageNoteBase>, IHasUpdatedTime
+    public class DbImageNote : DbObjectBase<ImageNote>, IDbModelConvertible<DbImageNote, ImageNote>
     {
-        [Key("Tc"), Date(Name = "Tc")]
-        public DateTime CreatedTime { get; set; }
-
-        [Key("Tu"), Date(Name = "Tu")]
-        public DateTime UpdatedTime { get; set; }
-
-        /// <summary>
-        /// Hash of combined piece list which can be found using <see cref="IDbSupportsPieces.GetCombinedPieceHash"/>.
-        /// </summary>
-        [Key("ha"), Keyword(Name = "ha")]
-        public string TargetHash { get; set; }
-
         [Key("x"), Number(Name = "x")]
         public int X { get; set; }
 

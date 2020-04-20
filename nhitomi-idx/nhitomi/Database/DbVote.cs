@@ -31,7 +31,7 @@ namespace nhitomi.Database
         /// Cannot query against this property.
         /// </summary>
         [Key("x"), Keyword(Name = "x", Index = false)]
-        public SnapshotTarget Target { get; set; }
+        public ObjectType Target { get; set; }
 
         [Key("z"), Keyword(Name = "e")]
         public string TargetId

@@ -7,14 +7,17 @@ namespace nhitomi.Models
     /// Represents a note on an image.
     /// Notes can be used to annotate images with text, usually for translation.
     /// </summary>
-    public class ImageNote
+    public class ImageNote : ImageNoteBase, IHasId
     {
         /// <summary>
         /// Note ID.
         /// </summary>
         [Required, nhitomiId]
-        public string Discriminator { get; set; }
+        public string Id { get; set; }
+    }
 
+    public class ImageNoteBase
+    {
         /// <summary>
         /// X position in pixels from the top-left.
         /// </summary>

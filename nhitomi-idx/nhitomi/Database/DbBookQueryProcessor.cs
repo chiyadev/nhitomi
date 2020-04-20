@@ -15,13 +15,16 @@ namespace nhitomi.Database
                     {
                         q = q.Range(Query.CreatedTime, b => b.CreatedTime)
                              .Range(Query.UpdatedTime, b => b.UpdatedTime)
+                             .Range(Query.PageCount, b => b.PageCount)
+                             .Range(Query.NoteCount, b => b.NoteCount)
+                             .Range(Query.TagCount, b => b.TagCount)
                              .Text(Query.PrimaryName, b => b.PrimaryName)
                              .Text(Query.EnglishName, b => b.EnglishName);
 
                         if (Query.Tags != null)
                             foreach (var (k, v) in Query.Tags)
                             {
-                                q = q.Text(v, k switch
+                                q = q.Text(v, (Expression<Func<DbBook, object>>) (k switch
                                 {
                                     BookTag.Tag        => b => b.TagsGeneral,
                                     BookTag.Artist     => b => b.TagsArtist,
@@ -32,8 +35,8 @@ namespace nhitomi.Database
                                     BookTag.Circle     => b => b.TagsCircle,
                                     BookTag.Metadata   => b => b.TagsMetadata,
 
-                                    _ => (Expression<Func<DbBook, object>>) null
-                                });
+                                    _ => null
+                                }));
                             }
 
                         q = q.Filter(Query.Category, b => b.Category)
@@ -41,22 +44,20 @@ namespace nhitomi.Database
                              .Range(Query.PageCount, b => b.PageCount)
                              .Filter(Query.Language, b => b.Language)
                              .Filter(Query.Sources?.Project(s => s.ToString()), b => b.Sources)
-                             .Range(Query.Size, b => b.Size)
-                             .Range(Query.Availability, b => b.Availability)
-                             .Range(Query.TotalAvailability, b => b.TotalAvailability);
+                             .Range(Query.SourceCount, b => b.SourceCount);
 
                         return q;
                     })
-                   .MultiSort(Query.Sorting, sort => sort switch
+                   .MultiSort(Query.Sorting, sort => (Expression<Func<DbBook, object>>) (sort switch
                     {
-                        BookSort.CreatedTime       => b => b.CreatedTime,
-                        BookSort.UpdatedTime       => b => b.UpdatedTime,
-                        BookSort.PageCount         => b => b.PageCount,
-                        BookSort.Size              => b => b.Size,
-                        BookSort.Availability      => b => b.Availability,
-                        BookSort.TotalAvailability => b => b.TotalAvailability,
+                        BookSort.CreatedTime => b => b.CreatedTime,
+                        BookSort.UpdatedTime => b => b.UpdatedTime,
+                        BookSort.PageCount   => b => b.PageCount,
+                        BookSort.NoteCount   => b => b.NoteCount,
+                        BookSort.TagCount    => b => b.TagCount,
+                        BookSort.SourceCount => b => b.SourceCount,
 
-                        _ => (Expression<Func<DbBook, object>>) null
-                    });
+                        _ => null
+                    }));
     }
 }

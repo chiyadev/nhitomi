@@ -11,7 +11,7 @@ namespace nhitomi.Database
     /// Represents a book.
     /// </summary>
     [MessagePackObject, ElasticsearchType(RelationName = nameof(Book))]
-    public class DbBook : DbObjectBase<Book>, IDbModelConvertible<DbBook, Book, BookBase>, IHasUpdatedTime, IDbSupportsSnapshot, IDbSupportsAutocomplete
+    public class DbBook : DbObjectBase<Book>, IDbModelConvertible<DbBook, Book, BookBase>, IHasUpdatedTime, IDbSupportsAutocomplete
     {
         [Key("Tc"), Date(Name = "Tc")]
         public DateTime CreatedTime { get; set; }
@@ -52,11 +52,17 @@ namespace nhitomi.Database
         [Key("ca"), Keyword(Name = "ca")]
         public BookCategory Category { get; set; }
 
+        [Key("la"), Keyword(Name = "la")]
+        public LanguageType Language { get; set; }
+
         [Key("ra"), Keyword(Name = "ra")]
         public MaterialRating Rating { get; set; }
 
-        [Key("co"), Object(Name = "co", Enabled = false)]
-        public DbBookContent[] Contents { get; set; }
+        [Key("sr"), Keyword(Name = "sr")]
+        public string[] Sources { get; set; }
+
+        [Key("pg"), Object(Name = "pg", Enabled = false)]
+        public DbBookImage[] Pages { get; set; }
 
         public override void MapTo(Book model)
         {
@@ -80,9 +86,11 @@ namespace nhitomi.Database
             };
 
             model.Category = Category;
+            model.Language = Language;
             model.Rating   = Rating;
+            model.Sources  = Sources?.ToArray(WebsiteSource.Parse);
 
-            model.Contents = Contents?.ToArray(c => c.Convert());
+            model.Pages = Pages?.ToArray(p => p.Convert());
         }
 
         public override void MapFrom(Book model)
@@ -107,9 +115,11 @@ namespace nhitomi.Database
             }
 
             Category = model.Category;
+            Language = model.Language;
             Rating   = model.Rating;
+            Sources  = model.Sources?.ToArray(s => s.ToString());
 
-            Contents = model.Contents?.ToArray(c => new DbBookContent().Apply(c));
+            Pages = model.Pages?.ToArray(p => new DbBookImage().Apply(p));
         }
 
 #region Cached
@@ -118,37 +128,25 @@ namespace nhitomi.Database
         /// This is a cached property for querying.
         /// </summary>
         [IgnoreMember, Number(Name = "pc")]
-        public int[] PageCount { get; set; }
+        public int PageCount { get; set; }
 
         /// <summary>
         /// This is a cached property for querying.
         /// </summary>
-        [IgnoreMember, Keyword(Name = "ln")]
-        public LanguageType[] Language { get; set; }
+        [IgnoreMember, Number(Name = "nc")]
+        public int NoteCount { get; set; }
 
         /// <summary>
         /// This is a cached property for querying.
         /// </summary>
-        [IgnoreMember, Keyword(Name = "sr")]
-        public string[] Sources { get; set; }
+        [IgnoreMember, Number(Name = "tgc")]
+        public int TagCount { get; set; }
 
         /// <summary>
         /// This is a cached property for querying.
         /// </summary>
-        [IgnoreMember, Number(Name = "sz")]
-        public int[] Size { get; set; }
-
-        /// <summary>
-        /// This is a cached property for querying.
-        /// </summary>
-        [IgnoreMember, Number(Name = "av")]
-        public double[] Availability { get; set; }
-
-        /// <summary>
-        /// This is a cached property for querying.
-        /// </summary>
-        [IgnoreMember, Number(Name = "Av")]
-        public double[] TotalAvailability { get; set; }
+        [IgnoreMember, Number(Name = "sc")]
+        public int SourceCount { get; set; }
 
         public enum SuggestionType
         {
@@ -174,15 +172,23 @@ namespace nhitomi.Database
         {
             base.UpdateCache();
 
-            if (Contents != null)
-            {
-                PageCount         = Contents.ToArray(c => c.Pages?.Length ?? 0);
-                Language          = Contents.ToArray(c => c.Language);
-                Sources           = Contents.ToArrayMany(c => c.Sources ?? Array.Empty<string>());
-                Size              = Contents.ToArray(c => c.Pages?.Sum(p => p.Pieces?.Sum(x => x.Size)) ?? 0);
-                Availability      = Contents.ToArray(c => c.Availability);
-                TotalAvailability = Contents.ToArray(c => c.TotalAvailability);
-            }
+            PageCount = Pages?.Length ?? 0;
+            NoteCount = Pages?.Sum(p => p.Notes?.Length ?? 0) ?? 0;
+
+            TagCount = new[]
+                {
+                    TagsGeneral,
+                    TagsArtist,
+                    TagsParody,
+                    TagsCharacter,
+                    TagsConvention,
+                    TagsSeries,
+                    TagsCircle,
+                    TagsMetadata
+                }.SelectMany(x => x)
+                 .Count();
+
+            SourceCount = Sources?.Length ?? 0;
 
             Suggest = new CompletionField
             {
@@ -196,17 +202,15 @@ namespace nhitomi.Database
                     (SuggestionType.TagsConvention, TagsConvention),
                     (SuggestionType.TagsSeries, TagsSeries),
                     (SuggestionType.TagsCircle, TagsCircle),
-                    (SuggestionType.TagsMetadata, TagsMetadata)),
+                    (SuggestionType.TagsMetadata, TagsMetadata))
 
-                Weight = (int) TotalAvailability.Average()
+                //todo: score
+                //Weight = (int) TotalAvailability.Average()
             };
         }
 
 #endregion
 
-        [IgnoreMember, Ignore]
-        public SnapshotTarget SnapshotTarget => SnapshotTarget.Book;
-
-        public static implicit operator nhitomiObject(DbBook book) => new nhitomiObject(book.SnapshotTarget, book.Id);
+        public static implicit operator nhitomiObject(DbBook book) => new nhitomiObject(ObjectType.Book, book.Id);
     }
 }

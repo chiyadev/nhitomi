@@ -27,6 +27,24 @@ namespace nhitomi.Models
         /// </summary>
         [Required]
         public DateTime UpdatedTime { get; set; }
+
+        /// <summary>
+        /// Image file size in bytes.
+        /// This may be null if this image is unavailable.
+        /// </summary>
+        public int? Size { get; set; }
+
+        /// <summary>
+        /// SHA256 hash of the piece data, truncated to the first 16 bytes.
+        /// This may be null if this image is unavailable.
+        /// </summary>
+        [MinLength(16), MaxLength(16)]
+        public byte[] Hash { get; set; }
+
+        /// <summary>
+        /// Notes on this image.
+        /// </summary>
+        public ImageNote[] Notes { get; set; }
     }
 
     public class ImageBase
@@ -47,11 +65,6 @@ namespace nhitomi.Models
         /// Sources from where this image was downloaded.
         /// </summary>
         public WebsiteSource[] Sources { get; set; }
-
-        /// <summary>
-        /// Notes on this image.
-        /// </summary>
-        public ImageNote[] Notes { get; set; }
     }
 
     public enum ImageTag

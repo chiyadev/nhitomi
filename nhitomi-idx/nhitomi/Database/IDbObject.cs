@@ -4,7 +4,7 @@ using nhitomi.Models;
 
 namespace nhitomi.Database
 {
-    public interface IDbObject : IHasId
+    public interface IDbObject : IHasId, IDbModel
     {
         /// <summary>
         /// Updates cached properties used for querying.

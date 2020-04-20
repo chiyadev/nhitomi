@@ -8,16 +8,17 @@ namespace nhitomi.Database
 {
     public class DbSnapshotQueryProcessor : QueryProcessorBase<DbSnapshot, SnapshotQuery>
     {
-        readonly SnapshotTarget _target;
+        // target moved out because it doesn't exist in query object
+        readonly ObjectType _target;
 
-        public DbSnapshotQueryProcessor(SnapshotTarget target, SnapshotQuery query) : base(query)
+        public DbSnapshotQueryProcessor(ObjectType target, SnapshotQuery query) : base(query)
         {
             _target = target;
         }
 
         public override SearchDescriptor<DbSnapshot> Process(SearchDescriptor<DbSnapshot> descriptor)
             => base.Process(descriptor)
-                   .MultiQuery(q => q.Filter((FilterQuery<SnapshotTarget>) _target, s => s.Target)
+                   .MultiQuery(q => q.Filter((FilterQuery<ObjectType>) _target, s => s.Target)
                                      .Range(Query.CreatedTime, s => s.CreatedTime)
                                      .Filter(Query.Type, s => s.Type)
                                      .Filter(Query.Source, s => s.Source)

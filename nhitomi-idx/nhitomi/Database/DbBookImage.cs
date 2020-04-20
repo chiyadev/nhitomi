@@ -1,4 +1,5 @@
 using MessagePack;
+using Microsoft.AspNetCore.WebUtilities;
 using Nest;
 using nhitomi.Models;
 
@@ -6,38 +7,50 @@ namespace nhitomi.Database
 {
     /// <summary>
     /// Represents an image in a book content.
-    /// Position of an image is determined by its index in <see cref="BookContent.Pages"/>.
     /// </summary>
     [MessagePackObject]
-    public class DbBookImage : DbModelBase<BookImage>, IDbModelConvertible<DbBookImage, BookImage>, IDbSupportsPieces
+    public class DbBookImage : DbModelBase<BookImage>, IDbModelConvertible<DbBookImage, BookImage>
     {
-        [Key("w"), Number(Name = "w")]
-        public int Width { get; set; }
+        [Key("s"), Number(Name = "s")]
+        public int? Size { get; set; }
 
-        [Key("h"), Number(Name = "h")]
-        public int Height { get; set; }
+        /// <summary>
+        /// Cannot query against this property.
+        /// </summary>
+        [Key("h"), Ignore] // for msgpack
+        public byte[] Hash { get; set; }
 
-        [Key("p"), Object(Name = "p", Enabled = false)]
-        public DbPiece[] Pieces { get; set; }
+        /// <summary>
+        /// Cannot query against this property.
+        /// </summary>
+        [IgnoreMember, Keyword(Name = "h", Index = false)] // for elasticsearch
+        public string HashString
+        {
+            get => WebEncoders.Base64UrlEncode(Hash);
+            set => Hash = WebEncoders.Base64UrlDecode(value);
+        }
+
+        [Key("n"), Object(Name = "n", Enabled = false)]
+        public DbImageNote[] Notes { get; set; }
 
         public override void MapTo(BookImage model)
         {
             base.MapTo(model);
 
-            model.Width  = Width;
-            model.Height = Height;
+            model.Size = Size;
+            model.Hash = Hash;
 
-            model.Pieces = Pieces?.ToArray(p => p.Convert());
+            model.Notes = Notes?.ToArray(n => n.Convert());
         }
 
         public override void MapFrom(BookImage model)
         {
             base.MapFrom(model);
 
-            Width  = model.Width;
-            Height = model.Height;
+            Size = model.Size;
+            Hash = model.Hash;
 
-            Pieces = model.Pieces?.ToArray(p => new DbPiece().Apply(p));
+            Notes = model.Notes?.ToArray(p => new DbImageNote().Apply(p));
         }
     }
 }

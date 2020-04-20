@@ -21,7 +21,7 @@ namespace nhitomi.Models.Requests
         /// Number of objects in the database.
         /// </summary>
         [Required]
-        public Dictionary<SnapshotTarget, int> Counters { get; set; }
+        public Dictionary<ObjectType, int> Counters { get; set; }
 
         /// <summary>
         /// Number of users currently connected to.

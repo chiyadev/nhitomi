@@ -9,7 +9,7 @@ namespace nhitomi.Database
     /// Represents a nhitomi user.
     /// </summary>
     [MessagePackObject, ElasticsearchType(RelationName = nameof(User))]
-    public class DbUser : DbObjectBase<User>, IDbModelConvertible<DbUser, User, UserBase>, IHasUpdatedTime, IDbSupportsSnapshot
+    public class DbUser : DbObjectBase<User>, IDbModelConvertible<DbUser, User, UserBase>, IHasUpdatedTime
     {
         [Key("Tc"), Date(Name = "Tc")]
         public DateTime CreatedTime { get; set; }
@@ -19,12 +19,6 @@ namespace nhitomi.Database
 
         [Key("un"), Keyword(Name = "un")]
         public string Username { get; set; }
-
-        /// <summary>
-        /// Cannot query against this property.
-        /// </summary>
-        [Key("pw"), Keyword(Name = "pw", Index = false)]
-        public string Password { get; set; }
 
         [Key("em"), Keyword(Name = "em")]
         public string Email { get; set; }
@@ -66,9 +60,6 @@ namespace nhitomi.Database
             Permissions  = model.Permissions.ToDistinctFlags();
         }
 
-        [IgnoreMember, Ignore]
-        public SnapshotTarget SnapshotTarget => SnapshotTarget.User;
-
-        public static implicit operator nhitomiObject(DbUser user) => new nhitomiObject(user.SnapshotTarget, user.Id);
+        public static implicit operator nhitomiObject(DbUser user) => new nhitomiObject(ObjectType.User, user.Id);
     }
 }

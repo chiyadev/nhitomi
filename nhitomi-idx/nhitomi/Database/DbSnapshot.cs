@@ -6,7 +6,7 @@ using nhitomi.Models;
 namespace nhitomi.Database
 {
     /// <summary>
-    /// Represents a snapshot of an object that implements <see cref="IDbSupportsSnapshot"/>.
+    /// Represents a snapshot of an object.
     /// This class contains queryable snapshot metadata while the actual object is serialized in a binary format and persisted on an external storage.
     /// </summary>
     [MessagePackObject, ElasticsearchType(RelationName = nameof(Models.Snapshot))]
@@ -28,7 +28,7 @@ namespace nhitomi.Database
         public string CommitterId { get; set; }
 
         [Key("x"), Keyword(Name = "x")]
-        public SnapshotTarget Target { get; set; }
+        public ObjectType Target { get; set; }
 
         [Key("z"), Keyword(Name = "z")]
         public string TargetId { get; set; }
