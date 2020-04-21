@@ -52,7 +52,7 @@ namespace nhitomi.Database
             public async Task AcquireAsync(CancellationToken cancellationToken = default)
             {
                 while (!await _client.SetAsync(_key, _id, _expire, When.NotExists, cancellationToken))
-                    await Task.Delay(TimeSpan.FromMilliseconds(100), cancellationToken);
+                    await Task.Delay(TimeSpan.FromMilliseconds(20), cancellationToken);
 
                 Interlocked.Exchange(ref _acquired, 1);
 
