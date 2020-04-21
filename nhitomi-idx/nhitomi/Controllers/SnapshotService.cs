@@ -49,7 +49,12 @@ namespace nhitomi.Controllers
 
     public interface ISnapshotService
     {
-        Task<OneOf<DbSnapshot, NotFound>> GetAsync(ObjectType type, string id, CancellationToken cancellationToken = default); // not using nhitomiObject for semantic correctness
+        /// <summary>
+        /// Retrieves a snapshot object.
+        /// Note that <paramref name="id"/> refers to the ID of the snapshot itself, whereas <paramref name="type"/> is the type of the snapshot's value.
+        /// </summary>
+        Task<OneOf<DbSnapshot, NotFound>> GetAsync(string id, ObjectType type, CancellationToken cancellationToken = default); // not using nhitomiObject for semantic correctness
+
         Task<OneOf<T, NotFound>> GetValueAsync<T>(DbSnapshot snapshot, CancellationToken cancellationToken = default) where T : class, IDbObject, IDbHasType;
 
         Task<SearchResult<DbSnapshot>> SearchAsync(ObjectType target, SnapshotQuery query, CancellationToken cancellationToken = default);
@@ -76,7 +81,7 @@ namespace nhitomi.Controllers
             _options = options;
         }
 
-        public async Task<OneOf<DbSnapshot, NotFound>> GetAsync(ObjectType type, string id, CancellationToken cancellationToken = default)
+        public async Task<OneOf<DbSnapshot, NotFound>> GetAsync(string id, ObjectType type, CancellationToken cancellationToken = default)
         {
             var snapshot = await _client.GetAsync<DbSnapshot>(id, cancellationToken);
 
@@ -113,7 +118,7 @@ namespace nhitomi.Controllers
             // if rollback is specified, get value of rollback
             if (snapshot.RollbackId != null)
             {
-                var rollback = await GetAsync(snapshot.Target, snapshot.RollbackId, cancellationToken);
+                var rollback = await GetAsync(snapshot.RollbackId, snapshot.Target, cancellationToken);
 
                 if (rollback.IsT0)
                 {

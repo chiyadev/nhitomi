@@ -9,6 +9,7 @@ using Nest;
 using Newtonsoft.Json;
 using nhitomi.Database;
 using nhitomi.Discord;
+using nhitomi.Models;
 using nhitomi.Models.Queries;
 using IElasticClient = nhitomi.Database.IElasticClient;
 
@@ -20,17 +21,19 @@ namespace nhitomi.Controllers
     {
         readonly IUserService _users;
         readonly IElasticClient _client;
+        readonly ISnapshotService _snapshots;
         readonly HttpClient _http;
         readonly IOptionsMonitor<DiscordOptions> _options;
         readonly IResourceLocker _locker;
 
-        public DiscordOAuthHandler(IUserService users, IElasticClient client, IHttpClientFactory http, IOptionsMonitor<DiscordOptions> options, IResourceLocker locker)
+        public DiscordOAuthHandler(IUserService users, IElasticClient client, IHttpClientFactory http, ISnapshotService snapshots, IOptionsMonitor<DiscordOptions> options, IResourceLocker locker)
         {
-            _users   = users;
-            _client  = client;
-            _http    = http.CreateClient(nameof(DiscordOAuthHandler));
-            _options = options;
-            _locker  = locker;
+            _users     = users;
+            _client    = client;
+            _snapshots = snapshots;
+            _http      = http.CreateClient(nameof(DiscordOAuthHandler));
+            _options   = options;
+            _locker    = locker;
         }
 
         sealed class UserInfo
@@ -139,6 +142,14 @@ namespace nhitomi.Controllers
                     info.ApplyOn(user = _users.MakeUserObject());
 
                     await _client.Entry(user).CreateAsync(cancellationToken);
+
+                    await _snapshots.CreateAsync(user, new SnapshotArgs
+                    {
+                        Source    = SnapshotSource.User,
+                        Committer = user,
+                        Event     = SnapshotEvent.AfterCreation,
+                        Reason    = $"Registered via Discord OAuth2 '{info.Username}'."
+                    }, cancellationToken);
                 }
 
                 else
