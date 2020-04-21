@@ -1,25 +1,35 @@
 using System.Net;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
+using nhitomi.Controllers;
 using nhitomi.Database;
 using nhitomi.Models;
-using nhitomi.Models.Requests;
 using NUnit.Framework;
 
 namespace nhitomi
 {
     [ApiController, Route(nameof(AuthHandlerTestController))]
-    public sealed class AuthHandlerTestController : ControllerBase
+    public sealed class AuthHandlerTestController : nhitomiControllerBase
     {
-        [HttpGet("path/{str}")]
-        public void Path(string str)
-            => Assert.That(str, Is.EqualTo("path string"));
+        [HttpGet("anon"), AllowAnonymous]
+        public string Anon() => "hello";
+
+        [HttpGet("auth"), RequireUser]
+        public string Auth() => User?.Username;
+
+        [HttpGet("perm"), RequireUser(Permissions = UserPermissions.ManageUsers)]
+        public string Permission() => "pass";
+
+        [HttpGet("users/{id}"), RequireUser(Permissions = UserPermissions.ManageUsers, AllowSelf = "id")]
+        public string PermissionsWithAllowSelf(string id) => id;
     }
 
     /// <summary>
     /// <see cref="AuthHandler"/>
+    /// <see cref="RequireUserAttribute"/>
     /// </summary>
     public class AuthHandlerTest : TestBaseHttpClient<AuthHandlerTestController>
     {
@@ -35,71 +45,77 @@ namespace nhitomi
         }
 
         [Test]
-        public async Task NoAuth()
-        {
-            var info = await GetAsync<GetInfoResponse>("info");
-
-            Assert.That(info, Is.Not.Null);
-            Assert.That(info.Version.Hash, Is.EqualTo(VersionInfo.Commit.Hash));
-        }
+        public async Task NoAuth() => Assert.That(await GetAsync<string>("anon"), Is.EqualTo("hello"));
 
         [Test]
         public async Task Auth()
         {
-            var user = await MakeAndAuthUserAsync();
-            var info = await GetAsync<GetInfoAuthenticatedResponse>("info/current");
+            var user = await MakeAndAuthUserAsync("my user");
 
-            Assert.That(info, Is.Not.Null);
-            Assert.That(info.Version.Hash, Is.EqualTo(VersionInfo.Commit.Hash));
-            Assert.That(info.User.Id, Is.EqualTo(user.Id));
-            Assert.That(info.User.Username, Is.EqualTo(user.Username));
+            Assert.That(await GetAsync<string>("auth"), Is.EqualTo(user.Username));
         }
+
+        [Test]
+        public Task AuthRequired() => ThrowsStatusAsync(HttpStatusCode.Unauthorized, () => GetAsync<string>("auth"));
 
         [Test]
         public async Task MalformedToken()
         {
             Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", "malformed.token");
 
-            await ThrowsStatusAsync(HttpStatusCode.Unauthorized, () => GetAsync<GetInfoAuthenticatedResponse>("info/current"));
+            await ThrowsStatusAsync(HttpStatusCode.Unauthorized, () => GetAsync<string>("auth"));
         }
 
         [Test]
         public async Task Permissions()
         {
-            var user = await MakeAndAuthUserAsync();
+            await MakeAndAuthUserAsync(null, UserPermissions.ManageUsers);
 
-            // try to use restriction endpoint which should not be allowed for a normal user
-            await ThrowsStatusAsync(HttpStatusCode.Forbidden, () => PostAsync<User>($"users/{user.Id}/restrictions", new RestrictUserRequest()));
+            Assert.That(await GetAsync<string>("perm"), Is.EqualTo("pass"));
         }
 
         [Test]
-        public async Task AllowSelf()
+        public async Task PermissionsRequired()
         {
-            var user = await MakeAndAuthUserAsync();
+            await MakeAndAuthUserAsync();
 
-            // user update endpoint is allowed for moderators OR the authenticated user themselves
-            var updatedUserInfo = await PutAsync<User>($"users/{user.Id}", new UserBase());
+            await ThrowsStatusAsync(HttpStatusCode.Forbidden, () => GetAsync<string>("perm"));
+        }
 
-            Assert.That(user.Id, Is.EqualTo(updatedUserInfo.Id));
-            Assert.That(user.Username, Is.EqualTo(updatedUserInfo.Username));
-            Assert.That(user.CreatedTime, Is.EqualTo(updatedUserInfo.CreatedTime));
+        [Test]
+        public async Task PermissionsAdminOverride()
+        {
+            await MakeAndAuthUserAsync(null, UserPermissions.Administrator);
+
+            Assert.That(await GetAsync<string>("perm"), Is.EqualTo("pass"));
+        }
+
+        [Test]
+        public async Task AllowSelfUsingSelf()
+        {
+            var user = await MakeAndAuthUserAsync("self user", UserPermissions.ManageUsers);
+
+            Assert.That(await GetAsync<string>($"users/{user.Id}"), Is.EqualTo(user.Id));
+        }
+
+        [Test]
+        public async Task AllowSelfUsingPerm()
+        {
+            var user = await MakeUserAsync("other user");
+
+            await MakeAndAuthUserAsync(null, UserPermissions.ManageUsers);
+
+            Assert.That(await GetAsync<string>($"users/{user.Id}"), Is.EqualTo(user.Id));
+        }
+
+        [Test]
+        public async Task AllowSelfRequired()
+        {
+            var user = await MakeUserAsync("other user");
 
             await MakeAndAuthUserAsync();
 
-            // normal user should not be able to update other users
-            await ThrowsStatusAsync(HttpStatusCode.Forbidden, () => PutAsync<User>($"users/{user.Id}", new UserBase()));
-        }
-
-        [Test]
-        public async Task PermissionsMod()
-        {
-            var user = await MakeAndAuthUserAsync();
-
-            await MakeAndAuthUserAsync(default, UserPermissions.ManageUsers);
-
-            var updatedUserInfo = await PutAsync<User>($"users/{user.Id}", new UserBase());
-
-            Assert.That(user.Id, Is.EqualTo(updatedUserInfo.Id));
+            await ThrowsStatusAsync(HttpStatusCode.Forbidden, () => GetAsync<string>($"users/{user.Id}"));
         }
     }
 }
