@@ -2,7 +2,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using NUnit.Framework;
 using SkiaSharp;
 
-namespace nhitomi.Tests
+namespace nhitomi
 {
     public class ImageProcessorTest
     {

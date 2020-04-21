@@ -14,7 +14,7 @@ using nhitomi.Models;
 using nhitomi.Storage;
 using NUnit.Framework;
 
-namespace nhitomi.Tests
+namespace nhitomi
 {
     [Parallelizable(ParallelScope.Self)]
     public abstract class TestBaseServices

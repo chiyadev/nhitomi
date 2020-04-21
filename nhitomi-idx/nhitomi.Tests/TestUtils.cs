@@ -7,7 +7,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using SkiaSharp;
 
-namespace nhitomi.Tests
+namespace nhitomi
 {
     public static class TestUtils
     {

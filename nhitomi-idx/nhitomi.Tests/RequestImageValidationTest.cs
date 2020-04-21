@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using nhitomi.Models.Validation;
 using NUnit.Framework;
 
-namespace nhitomi.Tests
+namespace nhitomi
 {
     [ApiController, Route(nameof(RequestImageValidationTestController))]
     public class RequestImageValidationTestController : ControllerBase

@@ -1,10 +1,9 @@
 using System.Collections.Generic;
 using Force.DeepCloner;
-using nhitomi.Database;
 using nhitomi.Models;
 using NUnit.Framework;
 
-namespace nhitomi.Tests
+namespace nhitomi.Database
 {
     [Parallelizable(ParallelScope.All)]
     public class DbModelApplicableTest

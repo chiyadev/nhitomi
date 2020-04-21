@@ -2,7 +2,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using NUnit.Framework;
 
-namespace nhitomi.Tests
+namespace nhitomi.Documentation
 {
     public class ApiDocumentationTest : TestBaseHttpClient
     {

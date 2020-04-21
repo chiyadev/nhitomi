@@ -4,10 +4,9 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using nhitomi.Models;
-using nhitomi.Models.Requests;
 using NUnit.Framework;
 
-namespace nhitomi.Tests
+namespace nhitomi.Controllers
 {
     public class UserControllerTest : TestBaseServices
     {

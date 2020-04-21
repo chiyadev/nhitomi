@@ -1,7 +1,7 @@
 using System.Threading;
 using NUnit.Framework;
 
-namespace nhitomi.Tests
+namespace nhitomi
 {
     [Parallelizable(ParallelScope.All)]
     public class AwaitableQueueTest

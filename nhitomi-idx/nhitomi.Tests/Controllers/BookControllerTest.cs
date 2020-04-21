@@ -7,7 +7,7 @@ using nhitomi.Models.Queries;
 using nhitomi.Models.Requests;
 using NUnit.Framework;
 
-namespace nhitomi.Tests
+namespace nhitomi.Controllers
 {
     public class BookControllerTest : TestBaseServices
     {

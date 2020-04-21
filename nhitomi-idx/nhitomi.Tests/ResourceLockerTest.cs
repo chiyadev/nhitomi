@@ -4,7 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using nhitomi.Database;
 using NUnit.Framework;
 
-namespace nhitomi.Tests
+namespace nhitomi
 {
     [TestFixture(typeof(SemaphoreResourceLocker))]
     [TestFixture(typeof(RedisResourceLocker))]

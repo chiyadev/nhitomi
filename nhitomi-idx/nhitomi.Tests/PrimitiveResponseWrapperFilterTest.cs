@@ -5,7 +5,7 @@ using Newtonsoft.Json;
 using nhitomi.Models;
 using NUnit.Framework;
 
-namespace nhitomi.Tests
+namespace nhitomi
 {
     [ApiController, Route(nameof(PrimitiveResponseWrapperFilterTestController))]
     public sealed class PrimitiveResponseWrapperFilterTestController : ControllerBase

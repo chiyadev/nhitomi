@@ -1,7 +1,7 @@
 using System;
 using NUnit.Framework;
 
-namespace nhitomi.Tests
+namespace nhitomi
 {
     public class VersionInfoTest
     {

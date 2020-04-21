@@ -5,7 +5,7 @@ using System.Collections.ObjectModel;
 using nhitomi.Models;
 using NUnit.Framework;
 
-namespace nhitomi.Tests
+namespace nhitomi
 {
     public class ModelSanitizerTest
     {

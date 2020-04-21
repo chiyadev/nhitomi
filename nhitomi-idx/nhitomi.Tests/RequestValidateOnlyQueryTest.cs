@@ -4,7 +4,7 @@ using Newtonsoft.Json;
 using nhitomi.Models;
 using NUnit.Framework;
 
-namespace nhitomi.Tests
+namespace nhitomi
 {
     public class RequestValidateOnlyQueryTest : TestBaseHttpClient
     {

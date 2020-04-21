@@ -3,7 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using nhitomi.Models;
 using NUnit.Framework;
 
-namespace nhitomi.Tests
+namespace nhitomi
 {
     public class StartupInitializerTest : TestBaseServices
     {

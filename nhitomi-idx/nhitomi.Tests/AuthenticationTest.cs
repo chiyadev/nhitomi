@@ -7,7 +7,7 @@ using nhitomi.Models;
 using nhitomi.Models.Requests;
 using NUnit.Framework;
 
-namespace nhitomi.Tests
+namespace nhitomi
 {
     public class AuthenticationTest : TestBaseHttpClient
     {
