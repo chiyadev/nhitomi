@@ -20,15 +20,15 @@ namespace nhitomi.Database
             => base.Process(descriptor)
                    .MultiQuery(q => q.Filter((FilterQuery<ObjectType>) _target, s => s.Target)
                                      .Range(Query.CreatedTime, s => s.CreatedTime)
-                                     .Filter(Query.Type, s => s.Type)
                                      .Filter(Query.Source, s => s.Source)
+                                     .Filter(Query.Event, s => s.Event)
                                      .Filter(Query.RollbackId, s => s.RollbackId)
                                      .Filter(Query.CommitterId, s => s.CommitterId)
                                      .Filter(Query.TargetId, s => s.TargetId)
                                      .Text(Query.Reason, s => s.Reason))
                    .MultiSort(Query.Sorting, sort => sort switch
                     {
-                        SnapshotSort.CreatedTime => s => s.CreatedTime,
+                        SnapshotSort.CreatedTime => (DbSnapshot s) => s.CreatedTime,
 
                         _ => (Expression<Func<DbSnapshot, object>>) null
                     });
