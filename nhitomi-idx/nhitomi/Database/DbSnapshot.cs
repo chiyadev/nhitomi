@@ -7,7 +7,8 @@ namespace nhitomi.Database
 {
     /// <summary>
     /// Represents a snapshot of an object.
-    /// This class contains queryable snapshot metadata while the actual object is serialized in a binary format and persisted on an external storage.
+    /// The actual object can be serialized and stored in <see cref="Data"/> or persisted on an external storage depending on its size.
+    /// Snapshot data may not always be available.
     /// </summary>
     [MessagePackObject, ElasticsearchType(RelationName = nameof(Models.Snapshot))]
     public class DbSnapshot : DbObjectBase<Models.Snapshot>, IDbModelConvertible<DbSnapshot, Models.Snapshot>, IHasCreatedTime
@@ -15,11 +16,11 @@ namespace nhitomi.Database
         [Key("T"), Date(Name = "T")]
         public DateTime CreatedTime { get; set; }
 
-        [Key("t"), Keyword(Name = "t")]
-        public SnapshotType Type { get; set; }
-
         [Key("s"), Keyword(Name = "s")]
         public SnapshotSource Source { get; set; }
+
+        [Key("e"), Keyword(Name = "e")]
+        public SnapshotEvent Event { get; set; }
 
         [Key("b"), Keyword(Name = "b")]
         public string RollbackId { get; set; }
@@ -42,16 +43,13 @@ namespace nhitomi.Database
         [Key("d"), Keyword(Name = "d", Index = false)]
         public string Data { get; set; }
 
-        [Key("D"), Keyword(Name = "D")]
-        public bool DataAvailable { get; set; }
-
         public override void MapTo(Models.Snapshot model)
         {
             base.MapTo(model);
 
             model.CreatedTime = CreatedTime;
-            model.Type        = Type;
             model.Source      = Source;
+            model.Event       = Event;
             model.RollbackId  = RollbackId;
             model.CommitterId = CommitterId;
             model.Target      = Target;
@@ -64,8 +62,8 @@ namespace nhitomi.Database
             base.MapFrom(model);
 
             CreatedTime = model.CreatedTime;
-            Type        = model.Type;
             Source      = model.Source;
+            Event       = model.Event;
             RollbackId  = model.RollbackId;
             CommitterId = model.CommitterId;
             Target      = model.Target;

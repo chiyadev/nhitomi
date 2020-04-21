@@ -3,6 +3,7 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using MessagePack;
+using Microsoft.Extensions.Options;
 using nhitomi.Database;
 using nhitomi.Models;
 using nhitomi.Models.Queries;
@@ -12,21 +13,49 @@ using OneOf.Types;
 
 namespace nhitomi.Controllers
 {
-    public class SnapshotServiceOptions { }
+    public class SnapshotServiceOptions
+    {
+        /// <summary>
+        /// Maximum number of characters for serialized data embedded in snapshots.
+        /// If this is exceeded, data is stored in storage instead.
+        /// </summary>
+        public int MaxEmbeddedDataChars { get; set; } = 1024;
+    }
+
+    public class SnapshotArgs
+    {
+        /// <summary>
+        /// Creation time of the snapshot.
+        /// If null, the update or creation time of the snapshot value will be used.
+        /// If default, database added time will be used.
+        /// </summary>
+        public DateTime? Time { get; set; }
+
+        public SnapshotSource Source { get; set; }
+        public SnapshotEvent Event { get; set; }
+        public OneOf<DbUser, string>? Committer { get; set; }
+        public DbSnapshot Rollback { get; set; }
+        public string Reason { get; set; }
+
+        public void Validate()
+        {
+            if (Source == SnapshotSource.System && Committer != null)
+                throw new ArgumentException("Committer must be null when snapshot source is the system.");
+
+            if (Source != SnapshotSource.System && Committer == null)
+                throw new ArgumentException("Snapshot source must not be the system when the committer is specified.");
+        }
+    }
 
     public interface ISnapshotService
     {
         Task<OneOf<DbSnapshot, NotFound>> GetAsync(ObjectType type, string id, CancellationToken cancellationToken = default); // not using nhitomiObject for semantic correctness
-        Task<OneOf<T, NotFound>> GetValueAsync<T>(DbSnapshot snapshot, CancellationToken cancellationToken = default) where T : class, IDbObject;
+        Task<OneOf<T, NotFound>> GetValueAsync<T>(DbSnapshot snapshot, CancellationToken cancellationToken = default) where T : class, IDbObject, IDbHasType;
 
         Task<SearchResult<DbSnapshot>> SearchAsync(ObjectType target, SnapshotQuery query, CancellationToken cancellationToken = default);
 
-        Task<OneOf<T>> RollbackAsync<T>(DbSnapshot snapshot, CancellationToken cancellationToken = default) where T : class, IDbObject;
-
-        Task<DbSnapshot> OnCreatedAsync<T>(T obj, SnapshotSource source, string committerId, string reason, CancellationToken cancellationToken = default) where T : class, IDbObject;
-        Task<DbSnapshot> OnModifiedAsync<T>(T obj, SnapshotSource source, string committerId, string reason, CancellationToken cancellationToken = default) where T : class, IDbObject;
-        Task<DbSnapshot> OnDeletedAsync(nhitomiObject obj, SnapshotSource source, string committerId, string reason, CancellationToken cancellationToken = default);
-        Task<DbSnapshot> OnRolledBackAsync(DbSnapshot previous, SnapshotSource source, string committerId, string reason, CancellationToken cancellationToken = default);
+        Task<OneOf<T, NotFound>> RollbackAsync<T>(DbSnapshot snapshot, CancellationToken cancellationToken = default) where T : class, IDbObject, IDbHasType;
+        Task<OneOf<DbSnapshot>> CreateAsync<T>(T obj, SnapshotArgs args, CancellationToken cancellationToken = default) where T : class, IDbObject, IDbHasType;
     }
 
     public class SnapshotService : ISnapshotService
@@ -38,11 +67,13 @@ namespace nhitomi.Controllers
 
         readonly IElasticClient _client;
         readonly IStorage _storage;
+        readonly IOptionsMonitor<SnapshotServiceOptions> _options;
 
-        public SnapshotService(IElasticClient client, IStorage storage)
+        public SnapshotService(IElasticClient client, IStorage storage, IOptionsMonitor<SnapshotServiceOptions> options)
         {
             _client  = client;
             _storage = storage;
+            _options = options;
         }
 
         public async Task<OneOf<DbSnapshot, NotFound>> GetAsync(ObjectType type, string id, CancellationToken cancellationToken = default)
@@ -52,180 +83,128 @@ namespace nhitomi.Controllers
             return snapshot?.Target == type ? snapshot : null;
         }
 
-        public async Task<OneOf<T, NotFound>> GetValueAsync<T>(DbSnapshot snapshot, CancellationToken cancellationToken = default) where T : class, IDbObject
+        public async Task<OneOf<T, NotFound>> GetValueAsync<T>(DbSnapshot snapshot, CancellationToken cancellationToken = default) where T : class, IDbObject, IDbHasType
         {
-            switch (snapshot.Type)
+            // data embedded in snapshot
+            if (snapshot.Data != null)
             {
-                // creation and modification snapshots
-                case SnapshotType.Creation:
-                case SnapshotType.Modification:
+                var value = MessagePackSerializer.Deserialize<T>(MessagePackSerializer.ConvertFromJson(snapshot.Data, _serializerOptions), _serializerOptions);
 
-                    // read serialized snapshot value
-                    using (var file = await _storage.ReadAsync($"snapshots/{snapshot.Id}", cancellationToken))
-                    {
-                        if (file != null)
-                        {
-                            var value = MessagePackSerializer.Deserialize<T>(await file.Stream.ToArrayAsync(cancellationToken), _serializerOptions);
+                if (value != null && value.Type == snapshot.Target && value.Id == snapshot.TargetId)
+                    return value;
 
-                            if (value != null)
-                            {
-                                // ensure value matches information in snapshot
-                                if (value.Id != snapshot.TargetId || value.SnapshotTarget != snapshot.Target)
-                                    throw new SnapshotMismatchException($"Snapshot {snapshot.Id} of {snapshot.Target} {snapshot.TargetId} does not match with value {value.SnapshotTarget}:{value.Id}");
-
-                                return value;
-                            }
-                        }
-
-                        throw new SnapshotMismatchException($"Serialized value of snapshot {snapshot.Id} could not be loaded.");
-                    }
-
-                // deletion snapshots
-                case SnapshotType.Deletion:
-
-                    // value is not recorded at deletion
-                    return default;
-
-                // rollback snapshots
-                case SnapshotType.Rollback:
-
-                    // value is not recorded at rollback, but rollback snapshot will contain reference to the target snapshot
-                    var rollback = snapshot.RollbackId == null ? null : await GetAsync(snapshot.Target, snapshot.RollbackId, cancellationToken);
-
-                    if (rollback == null || rollback.TargetId != snapshot.TargetId)
-                        throw new SnapshotMismatchException($"Rollback snapshot {snapshot.Id} references invalid target snapshot: {rollback?.Id ?? "<null>"}");
-
-                    // ReSharper disable once TailRecursiveCall
-                    return await GetValueAsync<T>(rollback, cancellationToken);
-
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(snapshot.Type), snapshot.Type, $"Unknown snapshot type: {snapshot.Type}");
+                //throw new SnapshotMismatchException($"Snapshot {snapshot.Id} of {snapshot.Target} {snapshot.TargetId} does not match with actual value {value.SnapshotTarget} {value.Id}");
             }
+
+            // read serialized snapshot value
+            using (var file = await _storage.ReadAsync($"snapshots/{snapshot.Id}", cancellationToken))
+            {
+                if (file != null)
+                {
+                    var value = MessagePackSerializer.Deserialize<T>(await file.Stream.ToArrayAsync(cancellationToken), _serializerOptions);
+
+                    if (value != null && value.Type == snapshot.Target && value.Id == snapshot.TargetId)
+                        return value;
+
+                    //throw new SnapshotMismatchException($"Snapshot {snapshot.Id} of {snapshot.Target} {snapshot.TargetId} does not match with actual value {value.SnapshotTarget} {value.Id}");
+                }
+            }
+
+            // if rollback is specified, get value of rollback
+            if (snapshot.RollbackId != null)
+            {
+                var rollback = await GetAsync(snapshot.Target, snapshot.RollbackId, cancellationToken);
+
+                if (rollback.IsT0)
+                {
+                    var value = await GetValueAsync<T>(rollback.AsT0, cancellationToken);
+
+                    if (value.IsT0)
+                        return value.AsT0;
+                }
+
+                //throw new SnapshotMismatchException($"Rollback snapshot {snapshot.Id} references invalid target snapshot: {rollback?.Id ?? "<null>"}");
+            }
+
+            return new NotFound();
         }
 
         public Task<SearchResult<DbSnapshot>> SearchAsync(ObjectType target, SnapshotQuery query, CancellationToken cancellationToken = default)
             => _client.SearchAsync(new DbSnapshotQueryProcessor(target, query), cancellationToken);
 
-        public async Task<OneOf<T>> RollbackAsync<T>(DbSnapshot snapshot, CancellationToken cancellationToken = default) where T : class, IDbObject
+        public async Task<OneOf<T, NotFound>> RollbackAsync<T>(DbSnapshot snapshot, CancellationToken cancellationToken = default) where T : class, IDbObject, IDbHasType
         {
             // get snapshot value
-            var value = await GetValueAsync<T>(snapshot, cancellationToken);
+            var result = await GetValueAsync<T>(snapshot, cancellationToken);
 
-            // get entry
+            if (!result.IsT0)
+                return result;
+
+            var value = result.AsT0;
+
+            // update entry
             var entry = await _client.GetEntryAsync<T>(snapshot.TargetId, cancellationToken);
 
             do
             {
-                if (entry.Value == null)
-                {
-                    // rolling deleted entry to deletion snapshot
-                    if (value == null)
-                        return (false, null);
-
-                    entry.Value = value;
-
-                    // restoring deleted entry
-                    if (await entry.TryCreateAsync(cancellationToken))
-                        return (true, value);
-                }
-
-                else if (value == null)
-                {
-                    // rolling entry to deletion snapshot
-                    if (await entry.TryDeleteAsync(cancellationToken))
-                        return (true, null);
-                }
-
-                else
-                {
-                    // avoid updating if nothing changes
-                    if (entry.Value.DeepEqualTo(value))
-                        return (false, value);
-
-                    entry.Value = value;
-
-                    // rolling entry to creation or modification snapshot
-                    if (await entry.TryUpdateAsync(cancellationToken))
-                        return (true, value);
-                }
+                entry.Value = value;
             }
-            while (true);
+            while (!await entry.TryUpdateAsync(cancellationToken)); // this will upsert
+
+            return value;
         }
 
-        public Task<DbSnapshot> OnCreatedAsync<T>(T obj, SnapshotSource source, string committerId, string reason, CancellationToken cancellationToken = default) where T : class, IDbObject
-            => AddAsync(obj, () => new DbSnapshot
-            {
-                Type        = SnapshotType.Creation,
-                Source      = source,
-                CommitterId = committerId,
-                Target      = obj.SnapshotTarget,
-                TargetId    = obj.Id,
-                Reason      = reason
-            }, cancellationToken);
+        public async Task<OneOf<DbSnapshot>> CreateAsync<T>(T obj, SnapshotArgs args, CancellationToken cancellationToken = default) where T : class, IDbObject, IDbHasType
+        {
+            args.Validate();
 
-        public Task<DbSnapshot> OnModifiedAsync<T>(T obj, SnapshotSource source, string committerId, string reason, CancellationToken cancellationToken = default) where T : class, IDbObject
-            => AddAsync(obj, () => new DbSnapshot
-            {
-                Type        = SnapshotType.Modification,
-                Source      = source,
-                CommitterId = committerId,
-                Target      = obj.SnapshotTarget,
-                TargetId    = obj.Id,
-                Reason      = reason
-            }, cancellationToken);
+            if (obj.Id == null)
+                throw new ArgumentException($"Cannot create snapshot of {typeof(T).Name} with uninitialized ID: {obj}");
 
-        public Task<DbSnapshot> OnDeletedAsync(nhitomiObject obj, SnapshotSource source, string committerId, string reason, CancellationToken cancellationToken = default)
-            => AddAsync(() => new DbSnapshot
+            var options = _options.CurrentValue;
+
+            var entry = _client.Entry(new DbSnapshot
             {
-                Type        = SnapshotType.Deletion,
-                Source      = source,
-                CommitterId = committerId,
+                // ensure snapshot time is in sync with object time
+                CreatedTime = args.Time
+                           ?? (obj is IHasUpdatedTime updated
+                                  ? updated.UpdatedTime
+                                  : obj is IHasCreatedTime created
+                                      ? created.CreatedTime
+                                      : default),
+
+                Source      = args.Source,
+                Event       = args.Event,
+                RollbackId  = args.Rollback?.Id,
+                CommitterId = args.Committer?.Match(u => u.Id, s => s),
                 Target      = obj.Type,
                 TargetId    = obj.Id,
-                Reason      = reason
-            }, cancellationToken);
+                Reason      = args.Reason
+            });
 
-        public Task<DbSnapshot> OnRolledBackAsync(DbSnapshot previous, SnapshotSource source, string committerId, string reason, CancellationToken cancellationToken = default)
-            => AddAsync(() => new DbSnapshot
+            var data = MessagePackSerializer.Serialize(obj, _serializerOptions);
+
+            // try embedding serialized data in string form into snapshot
+            var dataStr = MessagePackSerializer.ConvertToJson(data, _serializerOptions);
+
+            if (dataStr.Length <= options.MaxEmbeddedDataChars)
             {
-                Type        = SnapshotType.Rollback,
-                Source      = source,
-                RollbackId  = previous.Id,
-                CommitterId = committerId,
-                Target      = previous.Target,
-                TargetId    = previous.TargetId,
-                Reason      = reason
-            }, cancellationToken);
-
-        async Task<DbSnapshot> AddAsync<T>(T target, Func<DbSnapshot> create, CancellationToken cancellationToken = default) where T : class, IDbObject, IDbSupportsSnapshot
-        {
-            if (target.Id == null)
-                throw new ArgumentException($"Cannot create snapshot of {typeof(T).Name} with uninitialized ID: {target}");
-
-            var snapshot = await AddAsync(create, cancellationToken);
-
-            // ReSharper disable once SwitchStatementMissingSomeEnumCasesNoDefault
-            switch (snapshot.Type)
-            {
-                case SnapshotType.Creation:
-                case SnapshotType.Modification:
-
-                    // upload serialized value
-                    var file = new StorageFile
-                    {
-                        Name   = $"snapshots/{snapshot.Id}",
-                        Stream = new MemoryStream(MessagePackSerializer.Serialize(target, _serializerOptions))
-                    };
-
-                    await _storage.WriteAsync(file, cancellationToken);
-                    break;
+                entry.Value.Data = dataStr;
             }
 
-            return snapshot;
-        }
+            // otherwise use storage
+            else
+            {
+                using var file = new StorageFile
+                {
+                    Name   = $"snapshots/{entry.Id}",
+                    Stream = new MemoryStream(data)
+                };
 
-        Task<DbSnapshot> AddAsync(Func<DbSnapshot> create, CancellationToken cancellationToken = default)
-            => _client.Entry(create())
-                      .CreateAsync(cancellationToken);
+                await _storage.WriteAsync(file, cancellationToken);
+            }
+
+            return await entry.CreateAsync(cancellationToken);
+        }
     }
 }

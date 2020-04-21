@@ -22,27 +22,25 @@ namespace nhitomi.Models
         public DateTime CreatedTime { get; set; }
 
         /// <summary>
-        /// Snapshot type.
-        /// </summary>
-        [Required]
-        public SnapshotType Type { get; set; }
-
-        /// <summary>
-        /// What caused this snapshot to be created.
+        /// What entity caused this snapshot to be created.
         /// </summary>
         [Required]
         public SnapshotSource Source { get; set; }
 
         /// <summary>
-        /// If the snapshot type is rollback, the ID of the snapshot that was reverted to.
-        /// Otherwise, this field should be null.
+        /// What event caused this snapshot to be created.
+        /// </summary>
+        [Required]
+        public SnapshotEvent Event { get; set; }
+
+        /// <summary>
+        /// ID of the snapshot that the object was reverted to, or null if this is not a revert snapshot.
         /// </summary>
         [nhitomiId]
         public string RollbackId { get; set; }
 
         /// <summary>
-        /// ID of the user who created this snapshot.
-        /// This field can be null if <see cref="Source"/> of this snapshot is the system.
+        /// ID of the user who created this snapshot, or null if the source of this snapshot is the system.
         /// </summary>
         [nhitomiId]
         public string CommitterId { get; set; }
@@ -55,10 +53,8 @@ namespace nhitomi.Models
 
         /// <summary>
         /// ID of the target object of this snapshot.
+        /// Note that it is possible for the target object to not exist if it was deleted after this snapshot was created.
         /// </summary>
-        /// <remarks>
-        /// It is possible for the target object to not exist if it was deleted after this snapshot was created.
-        /// </remarks>
         [Required, nhitomiId]
         public string TargetId { get; set; }
 
@@ -67,30 +63,7 @@ namespace nhitomi.Models
         /// </summary>
         public string Reason { get; set; }
 
-        public override string ToString() => $"{Target} {TargetId} [{Source}]: \"{Reason ?? "<unknown reason>"}\" #{Id}";
-    }
-
-    public enum SnapshotType
-    {
-        /// <summary>
-        /// Snapshot was created when the object was created.
-        /// </summary>
-        Creation = 0,
-
-        /// <summary>
-        /// Snapshot was created when the object was modified.
-        /// </summary>
-        Modification = 1,
-
-        /// <summary>
-        /// Snapshot was created when the object was deleted.
-        /// </summary>
-        Deletion = 2,
-
-        /// <summary>
-        /// Snapshot was created when the object was rolled back to a previous snapshot.
-        /// </summary>
-        Rollback = 3
+        public override string ToString() => $"{Target} {TargetId} \"{Reason ?? "<no reason>"}\" @{Source} #{Id}";
     }
 
     public enum SnapshotSource
@@ -109,5 +82,33 @@ namespace nhitomi.Models
         /// Snapshot was created by a moderator user.
         /// </summary>
         Moderator = 2
+    }
+
+    public enum SnapshotEvent
+    {
+        /// <summary>
+        /// Snapshot was created for an unknown reason.
+        /// </summary>
+        Unknown = 0,
+
+        /// <summary>
+        /// Snapshot was created with the creation of an object.
+        /// </summary>
+        AfterCreation = 1,
+
+        /// <summary>
+        /// Snapshot was created before the modification of an object.
+        /// </summary>
+        BeforeModification = 2,
+
+        /// <summary>
+        /// Snapshot was created after the modification of an object.
+        /// </summary>
+        AfterModification = 3,
+
+        /// <summary>
+        /// Snapshot was created before an object was deleted.
+        /// </summary>
+        BeforeDeletion = 4
     }
 }

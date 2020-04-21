@@ -14,6 +14,11 @@ namespace nhitomi.Database
 
     public interface IDbObject<in T> : IDbObject, IDbModel<T> where T : IHasId { }
 
+    public interface IDbHasType
+    {
+        ObjectType Type { get; }
+    }
+
     public abstract class DbObjectBase<T> : DbModelBase<T>, IDbObject<T> where T : IHasId
     {
         /// <summary>

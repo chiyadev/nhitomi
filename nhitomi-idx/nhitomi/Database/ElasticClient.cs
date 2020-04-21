@@ -219,19 +219,6 @@ namespace nhitomi.Database
         /// Refreshes cached value, useful when <see cref="ConcurrencyException"/> occurs.
         /// </summary>
         Task<T> RefreshAsync(CancellationToken cancellationToken = default);
-
-        /// <summary>
-        /// Serializes <see cref="Value"/> to string.
-        /// </summary>
-        string Serialize()
-        {
-            var value = Value;
-
-            if (value == null)
-                return null;
-
-            return LowLevelRequestResponseSerializer.Instance.SerializeToString(value);
-        }
     }
 
     public interface IElasticClient : IDisposable
@@ -567,7 +554,7 @@ namespace nhitomi.Database
                 var response = await _client.Request(c => c.IndexAsync(_value, selector, cancellationToken));
 
                 if (_logger.IsEnabled(LogLevel.Debug))
-                    _logger.LogDebug($"{(type == OpType.Index ? "Indexed" : "Created")} {index} {Id} in {measure}: {(this as IDbEntry<T>).Serialize()}");
+                    _logger.LogDebug($"{(type == OpType.Index ? "Indexed" : "Created")} {index} {Id} in {measure}: {SerializeValue(Value)}");
 
                 // update info
                 var info = new EntryInfo<T>
@@ -609,7 +596,7 @@ namespace nhitomi.Database
                 var response = await _client.Request(c => c.DeleteAsync<T>(Id, selector, cancellationToken));
 
                 if (_logger.IsEnabled(LogLevel.Debug))
-                    _logger.LogDebug($"Deleted {index} {Id} in {measure}: {(this as IDbEntry<T>).Serialize()}");
+                    _logger.LogDebug($"Deleted {index} {Id} in {measure}: {SerializeValue(Value)}");
 
                 // update info
                 var info = new EntryInfo<T>
@@ -807,6 +794,8 @@ namespace nhitomi.Database
         }
 
 #endregion
+
+        static string SerializeValue<T>(T value) => LowLevelRequestResponseSerializer.Instance.SerializeToString(value);
 
         void IDisposable.Dispose() { }
     }
