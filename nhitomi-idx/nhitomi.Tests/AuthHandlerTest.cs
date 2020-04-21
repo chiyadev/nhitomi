@@ -12,7 +12,7 @@ using NUnit.Framework;
 namespace nhitomi
 {
     [ApiController, Route(nameof(AuthHandlerTestController))]
-    public sealed class AuthHandlerTestController : nhitomiControllerBase
+    public  class AuthHandlerTestController : nhitomiControllerBase
     {
         [HttpGet("anon"), AllowAnonymous]
         public string Anon() => "hello";

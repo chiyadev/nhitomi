@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace nhitomi.Models.Queries
 {
-    public sealed class SuggestItem
+    public class SuggestItem
     {
         /// <summary>
         /// ID of the object related to this suggestion.

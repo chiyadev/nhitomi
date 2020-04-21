@@ -9,7 +9,7 @@ using NUnit.Framework;
 namespace nhitomi
 {
     [ApiController, Route(nameof(RequestValidationTestController))]
-    public sealed class RequestValidationTestController : ControllerBase
+    public  class RequestValidationTestController : ControllerBase
     {
         [HttpGet("path/{str}")]
         public void Path(string str)

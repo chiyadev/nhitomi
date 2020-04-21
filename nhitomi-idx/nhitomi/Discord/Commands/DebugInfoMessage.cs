@@ -7,7 +7,7 @@ using nhitomi.Localization;
 
 namespace nhitomi.Discord.Commands
 {
-    public sealed class DebugInfoMessage : ReplyMessage
+    public class DebugInfoMessage : ReplyMessage
     {
         readonly nhitomiCommandContext _context;
         readonly IDiscordClient _discord;
