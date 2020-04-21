@@ -85,7 +85,10 @@ namespace nhitomi.Controllers
         {
             var snapshot = await _client.GetAsync<DbSnapshot>(id, cancellationToken);
 
-            return snapshot?.Target == type ? snapshot : null;
+            if (snapshot?.Target != type)
+                return new NotFound();
+
+            return snapshot;
         }
 
         public async Task<OneOf<T, NotFound>> GetValueAsync<T>(DbSnapshot snapshot, CancellationToken cancellationToken = default) where T : class, IDbObject, IDbHasType
