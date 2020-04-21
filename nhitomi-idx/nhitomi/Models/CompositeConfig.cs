@@ -27,9 +27,12 @@ namespace nhitomi.Models
         public RecaptchaOptions Recaptcha { get; set; }
 
         [Required]
-        public DiscordOptions Discord { get; set; }
+        public UserServiceOptions User { get; set; }
 
         [Required]
-        public UserServiceOptions User { get; set; }
+        public SnapshotServiceOptions Snapshot { get; set; }
+
+        [Required]
+        public DiscordOptions Discord { get; set; }
     }
 }

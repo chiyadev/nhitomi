@@ -36,6 +36,15 @@ namespace nhitomi.Database
         [Key("r"), Text(Name = "r")]
         public string Reason { get; set; }
 
+        /// <summary>
+        /// Cannot query against this property.
+        /// </summary>
+        [Key("d"), Keyword(Name = "d", Index = false)]
+        public string Data { get; set; }
+
+        [Key("D"), Keyword(Name = "D")]
+        public bool DataAvailable { get; set; }
+
         public override void MapTo(Models.Snapshot model)
         {
             base.MapTo(model);

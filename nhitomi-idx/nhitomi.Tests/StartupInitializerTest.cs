@@ -33,7 +33,7 @@ namespace nhitomi
 
             var snapshots = Services.GetService<ISnapshotService>();
 
-            var snapshot = (await snapshots.SearchAsync(SnapshotTarget.User, new SnapshotQuery
+            var snapshot = (await snapshots.SearchAsync(ObjectType.User, new SnapshotQuery
             {
                 TargetId = user.Id,
                 Limit    = 1

@@ -53,8 +53,9 @@ namespace nhitomi
                     .Configure<ElasticOptions>(_configuration.GetSection(nameof(CompositeConfig.Elastic)))
                     .Configure<RedisOptions>(_configuration.GetSection(nameof(CompositeConfig.Redis)))
                     .Configure<RecaptchaOptions>(_configuration.GetSection(nameof(CompositeConfig.Recaptcha)))
-                    .Configure<DiscordOptions>(_configuration.GetSection(nameof(CompositeConfig.Discord)))
-                    .Configure<UserServiceOptions>(_configuration.GetSection(nameof(CompositeConfig.User)));
+                    .Configure<UserServiceOptions>(_configuration.GetSection(nameof(CompositeConfig.User)))
+                    .Configure<SnapshotServiceOptions>(_configuration.GetSection(nameof(CompositeConfig.Snapshot)))
+                    .Configure<DiscordOptions>(_configuration.GetSection(nameof(CompositeConfig.Discord)));
 
             services.AddHostedService<ConfigurationReloader>();
 
@@ -201,7 +202,8 @@ namespace nhitomi
 
             // database
             services.AddSingleton<IElasticClient, ElasticClient>()
-                    .AddSingleton<IUserService, UserService>();
+                    .AddSingleton<IUserService, UserService>()
+                    .AddSingleton<ISnapshotService, SnapshotService>();
 
             services.AddSingleton<IRedisClient, RedisClient>()
                     .AddSingleton<ICacheManager, RedisCacheManager>()
