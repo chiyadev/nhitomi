@@ -26,8 +26,8 @@ namespace nhitomi.Database
         [IgnoreMember, Keyword(Name = "h", Index = false)] // for elasticsearch
         public string HashString
         {
-            get => WebEncoders.Base64UrlEncode(Hash);
-            set => Hash = WebEncoders.Base64UrlDecode(value);
+            get => Hash == null ? null : WebEncoders.Base64UrlEncode(Hash);
+            set => Hash = value == null ? null : WebEncoders.Base64UrlDecode(value);
         }
 
         [Key("n"), Object(Name = "n", Enabled = false)]

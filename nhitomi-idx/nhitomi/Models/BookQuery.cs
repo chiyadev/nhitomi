@@ -18,7 +18,6 @@ namespace nhitomi.Models
         public FilterQuery<LanguageType> Language { get; set; }
         public FilterQuery<MaterialRating> Rating { get; set; }
         public FilterQuery<WebsiteSource> Sources { get; set; }
-        public RangeQuery<int> SourceCount { get; set; }
     }
 
     public enum BookSort
@@ -51,11 +50,6 @@ namespace nhitomi.Models
         /// <summary>
         /// Sort by tag count.
         /// </summary>
-        TagCount = 5,
-
-        /// <summary>
-        /// Sort by source count.
-        /// </summary>
-        SourceCount = 6
+        TagCount = 5
     }
 }

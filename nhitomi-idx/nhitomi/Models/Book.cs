@@ -29,9 +29,10 @@ namespace nhitomi.Models
         public DateTime UpdatedTime { get; set; }
 
         /// <summary>
-        /// Pages in this book.
+        /// Contents in this book.
         /// </summary>
-        public BookImage[] Pages { get; set; }
+        [Required]
+        public BookContent[] Contents { get; set; }
     }
 
     public class BookBase
@@ -61,21 +62,10 @@ namespace nhitomi.Models
         public BookCategory Category { get; set; }
 
         /// <summary>
-        /// Book language.
-        /// </summary>
-        [Required]
-        public LanguageType Language { get; set; }
-
-        /// <summary>
         /// Material rating.
         /// </summary>
         [Required]
         public MaterialRating Rating { get; set; }
-
-        /// <summary>
-        /// Sources from where this book was downloaded.
-        /// </summary>
-        public WebsiteSource[] Sources { get; set; }
     }
 
     public enum BookTag

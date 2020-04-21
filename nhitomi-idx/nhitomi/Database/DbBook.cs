@@ -52,17 +52,11 @@ namespace nhitomi.Database
         [Key("ca"), Keyword(Name = "ca")]
         public BookCategory Category { get; set; }
 
-        [Key("la"), Keyword(Name = "la")]
-        public LanguageType Language { get; set; }
-
         [Key("ra"), Keyword(Name = "ra")]
         public MaterialRating Rating { get; set; }
 
-        [Key("sr"), Keyword(Name = "sr")]
-        public string[] Sources { get; set; }
-
-        [Key("pg"), Object(Name = "pg", Enabled = false)]
-        public DbBookImage[] Pages { get; set; }
+        [Key("co"), Object(Name = "co", Enabled = false)]
+        public DbBookContent[] Contents { get; set; }
 
         public override void MapTo(Book model)
         {
@@ -86,11 +80,9 @@ namespace nhitomi.Database
             };
 
             model.Category = Category;
-            model.Language = Language;
             model.Rating   = Rating;
-            model.Sources  = Sources?.ToArray(WebsiteSource.Parse);
 
-            model.Pages = Pages?.ToArray(p => p.Convert());
+            model.Contents = Contents?.ToArray(c => c.Convert());
         }
 
         public override void MapFrom(Book model)
@@ -115,11 +107,9 @@ namespace nhitomi.Database
             }
 
             Category = model.Category;
-            Language = model.Language;
             Rating   = model.Rating;
-            Sources  = model.Sources?.ToArray(s => s.ToString());
 
-            Pages = model.Pages?.ToArray(p => new DbBookImage().Apply(p));
+            Contents = model.Contents?.ToArray(c => new DbBookContent().Apply(c));
         }
 
 #region Cached
@@ -128,25 +118,31 @@ namespace nhitomi.Database
         /// This is a cached property for querying.
         /// </summary>
         [IgnoreMember, Number(Name = "pc")]
-        public int PageCount { get; set; }
+        public int[] PageCount { get; set; }
 
         /// <summary>
         /// This is a cached property for querying.
         /// </summary>
         [IgnoreMember, Number(Name = "nc")]
-        public int NoteCount { get; set; }
+        public int[] NoteCount { get; set; }
 
         /// <summary>
         /// This is a cached property for querying.
         /// </summary>
-        [IgnoreMember, Number(Name = "tgc")]
-        public int TagCount { get; set; }
+        [IgnoreMember, Number(Name = "tC")]
+        public int[] TagCount { get; set; }
 
         /// <summary>
         /// This is a cached property for querying.
         /// </summary>
-        [IgnoreMember, Number(Name = "sc")]
-        public int SourceCount { get; set; }
+        [IgnoreMember, Keyword(Name = "ln")]
+        public LanguageType[] Language { get; set; }
+
+        /// <summary>
+        /// This is a cached property for querying.
+        /// </summary>
+        [IgnoreMember, Keyword(Name = "sr")]
+        public string[] Sources { get; set; }
 
         public enum SuggestionType
         {
@@ -172,23 +168,13 @@ namespace nhitomi.Database
         {
             base.UpdateCache();
 
-            PageCount = Pages?.Length ?? 0;
-            NoteCount = Pages?.Sum(p => p.Notes?.Length ?? 0) ?? 0;
-
-            TagCount = new[]
-                {
-                    TagsGeneral,
-                    TagsArtist,
-                    TagsParody,
-                    TagsCharacter,
-                    TagsConvention,
-                    TagsSeries,
-                    TagsCircle,
-                    TagsMetadata
-                }.SelectMany(x => x)
-                 .Count();
-
-            SourceCount = Sources?.Length ?? 0;
+            if (Contents != null)
+            {
+                PageCount = Contents.ToArray(c => c.Pages?.Length ?? 0);
+                NoteCount = Contents.ToArray(c => c.Pages?.Sum(p => p.Notes?.Length ?? 0) ?? 0);
+                Language  = Contents.ToArray(c => c.Language);
+                Sources   = Contents.ToArrayMany(c => c.Sources ?? Array.Empty<string>());
+            }
 
             Suggest = new CompletionField
             {
