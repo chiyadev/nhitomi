@@ -11,8 +11,11 @@ namespace nhitomi.Database
     /// Snapshot data may not always be available.
     /// </summary>
     [MessagePackObject, ElasticsearchType(RelationName = nameof(Models.Snapshot))]
-    public class DbSnapshot : DbObjectBase<Models.Snapshot>, IDbModelConvertible<DbSnapshot, Models.Snapshot>, IHasCreatedTime
+    public class DbSnapshot : DbObjectBase<Models.Snapshot>, IDbHasType, IDbModelConvertible<DbSnapshot, Models.Snapshot>, IHasCreatedTime
     {
+        [IgnoreMember, Ignore]
+        ObjectType IDbHasType.Type => ObjectType.Snapshot;
+
         [Key("T"), Date(Name = "T")]
         public DateTime CreatedTime { get; set; }
 

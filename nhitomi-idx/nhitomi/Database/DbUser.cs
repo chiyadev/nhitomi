@@ -9,8 +9,11 @@ namespace nhitomi.Database
     /// Represents a nhitomi user.
     /// </summary>
     [MessagePackObject, ElasticsearchType(RelationName = nameof(User))]
-    public class DbUser : DbObjectBase<User>, IDbModelConvertible<DbUser, User, UserBase>, IHasUpdatedTime
+    public class DbUser : DbObjectBase<User>, IDbHasType, IDbModelConvertible<DbUser, User, UserBase>, IHasUpdatedTime
     {
+        [IgnoreMember, Ignore]
+        ObjectType IDbHasType.Type => ObjectType.User;
+
         [Key("Tc"), Date(Name = "Tc")]
         public DateTime CreatedTime { get; set; }
 

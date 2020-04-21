@@ -18,7 +18,12 @@ namespace nhitomi.Models
         /// <summary>
         /// <see cref="Image"/>
         /// </summary>
-        Image = 2
+        Image = 2,
+
+        /// <summary>
+        /// <see cref="Snapshot"/>
+        /// </summary>
+        Snapshot = 3
     }
 
     /// <summary>

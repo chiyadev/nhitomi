@@ -11,8 +11,11 @@ namespace nhitomi.Database
     /// Represents a book.
     /// </summary>
     [MessagePackObject, ElasticsearchType(RelationName = nameof(Book))]
-    public class DbBook : DbObjectBase<Book>, IDbModelConvertible<DbBook, Book, BookBase>, IHasUpdatedTime, IDbSupportsAutocomplete
+    public class DbBook : DbObjectBase<Book>, IDbHasType, IDbModelConvertible<DbBook, Book, BookBase>, IHasUpdatedTime, IDbSupportsAutocomplete
     {
+        [IgnoreMember, Ignore]
+        ObjectType IDbHasType.Type => ObjectType.Book;
+
         [Key("Tc"), Date(Name = "Tc")]
         public DateTime CreatedTime { get; set; }
 

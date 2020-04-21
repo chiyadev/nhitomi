@@ -11,8 +11,11 @@ namespace nhitomi.Database
     /// Represents an image in an imageboard/booru (synonymous to "post").
     /// </summary>
     [MessagePackObject, ElasticsearchType(RelationName = nameof(Image))]
-    public class DbImage : DbObjectBase<Image>, IDbModelConvertible<DbImage, Image, ImageBase>, IHasUpdatedTime, IDbSupportsAutocomplete
+    public class DbImage : DbObjectBase<Image>, IDbHasType, IDbModelConvertible<DbImage, Image, ImageBase>, IHasUpdatedTime, IDbSupportsAutocomplete
     {
+        [IgnoreMember, Ignore]
+        ObjectType IDbHasType.Type => ObjectType.Image;
+
         [Key("Tc"), Date(Name = "Tc")]
         public DateTime CreatedTime { get; set; }
 
