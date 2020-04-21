@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using nhitomi.Controllers;
 using nhitomi.Database;
 using nhitomi.Discord;
 using nhitomi.Storage;
@@ -27,5 +28,8 @@ namespace nhitomi.Models
 
         [Required]
         public DiscordOptions Discord { get; set; }
+
+        [Required]
+        public UserServiceOptions User { get; set; }
     }
 }

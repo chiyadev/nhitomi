@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using MessagePack;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Options;
+using nhitomi.Controllers;
 using nhitomi.Database;
 using StackExchange.Redis;
 

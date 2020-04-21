@@ -1,5 +1,7 @@
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
+using nhitomi.Controllers;
 using nhitomi.Models;
 using NUnit.Framework;
 
@@ -7,11 +9,16 @@ namespace nhitomi
 {
     public class StartupInitializerTest : TestBaseServices
     {
+        protected override void ConfigureServices(IServiceCollection services)
+        {
+            base.ConfigureServices(services);
+
+            services.PostConfigure<UserServiceOptions>(o => o.FirstUserAdmin = true);
+        }
+
         [Test]
         public async Task Run()
         {
-            GetOptions<UserServiceOptions>().InitializeFirstUser = true;
-
             var init = ActivatorUtilities.CreateInstance<StartupInitializer>(Services);
 
             await init.RunAsync();

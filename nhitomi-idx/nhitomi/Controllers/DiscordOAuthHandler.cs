@@ -18,13 +18,15 @@ namespace nhitomi.Controllers
 
     public class DiscordOAuthHandler : IDiscordOAuthHandler
     {
+        readonly IUserService _users;
         readonly IElasticClient _client;
         readonly HttpClient _http;
         readonly IOptionsMonitor<DiscordOptions> _options;
         readonly IResourceLocker _locker;
 
-        public DiscordOAuthHandler(IElasticClient client, IHttpClientFactory http, IOptionsMonitor<DiscordOptions> options, IResourceLocker locker)
+        public DiscordOAuthHandler(IUserService users, IElasticClient client, IHttpClientFactory http, IOptionsMonitor<DiscordOptions> options, IResourceLocker locker)
         {
+            _users   = users;
             _client  = client;
             _http    = http.CreateClient(nameof(DiscordOAuthHandler));
             _options = options;
@@ -41,7 +43,7 @@ namespace nhitomi.Controllers
             [JsonProperty("verified")] public bool Verified;
             [JsonProperty("email")] public string Email;
 
-            public void CopyTo(DbUser user)
+            public void ApplyOn(DbUser user)
             {
                 user.Username = Username;
                 user.Email    = Email;
@@ -134,7 +136,7 @@ namespace nhitomi.Controllers
 
                 if (search.Items.Length == 0)
                 {
-                    info.CopyTo(user = new DbUser());
+                    info.ApplyOn(user = _users.MakeUserObject());
 
                     await _client.Entry(user).CreateAsync(cancellationToken);
                 }
@@ -145,7 +147,7 @@ namespace nhitomi.Controllers
 
                     do
                     {
-                        info.CopyTo(entry.Value);
+                        info.ApplyOn(entry.Value);
                     }
                     while (!await entry.TryUpdateAsync(cancellationToken));
 

@@ -22,7 +22,7 @@ namespace nhitomi
 
         async Task<DbUser> MakeAndAuthUserAsync(string name = null, UserPermissions permissions = UserPermissions.None)
         {
-            var user = await MakeUserAsync(name, permissions);
+            var user = await MakeUserAsync(name, u => u.Permissions = permissions.ToFlags());
 
             var token = await Services.GetService<IAuthService>().GenerateTokenAsync(user);
 

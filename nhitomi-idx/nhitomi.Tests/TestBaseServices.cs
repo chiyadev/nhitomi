@@ -9,8 +9,8 @@ using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using nhitomi.Controllers;
 using nhitomi.Database;
-using nhitomi.Models;
 using nhitomi.Storage;
 using NUnit.Framework;
 
@@ -22,8 +22,6 @@ namespace nhitomi
         IServiceScope _serviceScope;
 
         protected IServiceProvider Services => _serviceScope.ServiceProvider;
-
-        protected TOptions GetOptions<TOptions>() where TOptions : class, new() => Services.GetService<IOptionsMonitor<TOptions>>().CurrentValue;
 
         [SetUp]
         public virtual async Task SetUpAsync()
@@ -85,8 +83,8 @@ namespace nhitomi
             // use in-memory storage
             services.PostConfigure<StorageOptions>(o => o.Type = StorageType.Memory);
 
-            // don't bother initializing the first user
-            services.PostConfigure<UserServiceOptions>(o => o.InitializeFirstUser = false);
+            // don't bother first admin user
+            services.PostConfigure<UserServiceOptions>(o => o.FirstUserAdmin = false);
 
             services.PostConfigure<ElasticOptions>(o =>
             {
@@ -111,8 +109,18 @@ namespace nhitomi
             public string WebRootPath { get; set; } = Environment.CurrentDirectory;
         }
 
-        protected Task<DbUser> MakeUserAsync(string name = null, UserPermissions permissions = UserPermissions.None)
-            => Services.GetService<IUserService>()
-                       .CreateAsync(Snowflake.New, name ?? "user", "password", u => u.Permissions = permissions.ToFlags());
+        protected Task<DbUser> MakeUserAsync(string name = null, Action<DbUser> configure = null)
+        {
+            var client = Services.GetService<IElasticClient>();
+
+            var entry = client.Entry(new DbUser
+            {
+                Username = name ?? "user"
+            });
+
+            configure?.Invoke(entry.Value);
+
+            return entry.CreateAsync();
+        }
     }
 }

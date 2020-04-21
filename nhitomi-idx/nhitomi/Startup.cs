@@ -15,6 +15,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
+using nhitomi.Controllers;
 using nhitomi.Database;
 using nhitomi.Discord;
 using nhitomi.Documentation;
@@ -52,7 +53,8 @@ namespace nhitomi
                     .Configure<ElasticOptions>(_configuration.GetSection(nameof(CompositeConfig.Elastic)))
                     .Configure<RedisOptions>(_configuration.GetSection(nameof(CompositeConfig.Redis)))
                     .Configure<RecaptchaOptions>(_configuration.GetSection(nameof(CompositeConfig.Recaptcha)))
-                    .Configure<DiscordOptions>(_configuration.GetSection(nameof(CompositeConfig.Discord)));
+                    .Configure<DiscordOptions>(_configuration.GetSection(nameof(CompositeConfig.Discord)))
+                    .Configure<UserServiceOptions>(_configuration.GetSection(nameof(CompositeConfig.User)));
 
             services.AddHostedService<ConfigurationReloader>();
 
@@ -198,7 +200,8 @@ namespace nhitomi
             services.AddSingleton<IStorage, DefaultStorage>();
 
             // database
-            services.AddSingleton<IElasticClient, ElasticClient>();
+            services.AddSingleton<IElasticClient, ElasticClient>()
+                    .AddSingleton<IUserService, UserService>();
 
             services.AddSingleton<IRedisClient, RedisClient>()
                     .AddSingleton<ICacheManager, RedisCacheManager>()

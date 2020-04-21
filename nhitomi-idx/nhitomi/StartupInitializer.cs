@@ -1,11 +1,14 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using nhitomi.Controllers;
 using nhitomi.Database;
+using nhitomi.Models;
+using nhitomi.Models.Queries;
 using nhitomi.Storage;
 
 namespace nhitomi
@@ -41,8 +44,37 @@ namespace nhitomi
             // initialize storage
             await _storage.InitializeAsync(cancellationToken);
 
-            if (_options.CurrentValue.InitializeFirstUser)
-                await ActivatorUtilities.CreateInstance<UserInitializer>(_services).RunAsync(cancellationToken);
+            await ConfigureUsersAsync(cancellationToken);
+        }
+
+        async Task ConfigureUsersAsync(CancellationToken cancellationToken = default)
+        {
+            // make admin user
+            if (_options.CurrentValue.FirstUserAdmin)
+            {
+                var result = await _elastic.SearchEntriesAsync(new DbUserQueryProcessor(new UserQuery
+                {
+                    Limit = 1,
+                    Sorting = new List<SortField<UserSort>>
+                    {
+                        (UserSort.CreatedTime, SortDirection.Ascending)
+                    }
+                }), cancellationToken);
+
+                if (result.Items.Length != 0)
+                {
+                    var entry = result.Items[0];
+
+                    do
+                    {
+                        if (entry.Value.HasPermissions(UserPermissions.Administrator))
+                            break;
+
+                        entry.Value.Permissions = new[] { UserPermissions.Administrator };
+                    }
+                    while (!await entry.TryUpdateAsync(cancellationToken));
+                }
+            }
         }
     }
 }
