@@ -224,7 +224,7 @@ namespace nhitomi
             services.AddHttpClient()
                     .AddHttpContextAccessor()
                     .AddSingleton<IRecaptchaValidator, RecaptchaValidator>()
-                    .AddSingleton<IImageProcessor, ImageProcessor>()
+                    .AddSingleton<IImageProcessor, SkiaImageProcessor>()
                     .AddTransient<MemoryInfo>()
                     .AddSingleton<StartupInitializer>();
         }

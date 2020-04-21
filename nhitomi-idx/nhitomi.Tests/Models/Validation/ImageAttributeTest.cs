@@ -2,28 +2,28 @@ using System.ComponentModel.DataAnnotations;
 using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using nhitomi.Models.Validation;
 using NUnit.Framework;
 
-namespace nhitomi
+namespace nhitomi.Models.Validation
 {
-    [ApiController, Route(nameof(RequestImageValidationTestController))]
-    public class RequestImageValidationTestController : ControllerBase
+    [ApiController, Route(nameof(ImageAttributeTestController))]
+    public class ImageAttributeTestController : ControllerBase
     {
         [HttpPost("valid")]
-        public void Valid(RequestImageValidationTest.Model model) => Ok();
+        public void Valid(ImageAttributeTest.Model _) => Ok();
 
         [HttpPost("corrupted")]
-        public void Corrupted(RequestImageValidationTest.Model model) => Assert.Fail("corrupt not detected");
+        public void Corrupted(ImageAttributeTest.Model _) => Assert.Fail("corrupt not detected");
 
         [HttpPost("dimension")]
-        public void Dimension(RequestImageValidationTest.ModelWithDimensionLimit model) => Assert.Fail("corrupt not detected");
+        public void Dimension(ImageAttributeTest.ModelWithDimensionLimit _) => Assert.Fail("dimension not validated");
     }
 
-    public class RequestImageValidationTest : TestBaseHttpClient
+    /// <summary>
+    /// <see cref="ImageAttribute"/>
+    /// </summary>
+    public class ImageAttributeTest : TestBaseHttpClient<ImageAttributeTestController>
     {
-        protected override string RequestPathPrefix => base.RequestPathPrefix + nameof(RequestImageValidationTestController);
-
         public class Model
         {
             [Required, Image]
@@ -31,11 +31,10 @@ namespace nhitomi
         }
 
         [Test]
-        public Task Valid()
-            => PostAsync<object>("valid", new Model
-            {
-                Image = TestUtils.DummyImage()
-            });
+        public Task Valid() => PostAsync<object>("valid", new Model
+        {
+            Image = TestUtils.DummyImage()
+        });
 
         [Test]
         public async Task Corrupted()
@@ -74,7 +73,7 @@ namespace nhitomi
                 for (var i = 10; i < buffer.Length; i++)
                     buffer[i] = unchecked((byte) i);
 
-                await PostAsync<object>("dimension", new Model
+                await PostAsync<object>("dimension", new ModelWithDimensionLimit
                 {
                     Image = buffer
                 });

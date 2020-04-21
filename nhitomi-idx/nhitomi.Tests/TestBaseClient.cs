@@ -48,6 +48,11 @@ namespace nhitomi
         }
     }
 
+    public abstract class TestBaseHttpClient<TController> : TestBaseHttpClient
+    {
+        protected override string RequestPathPrefix => $"{base.RequestPathPrefix}{typeof(TController).Name}/";
+    }
+
     public abstract class TestBaseHttpClient : TestBaseClient
     {
         protected HttpClient Client { get; private set; }

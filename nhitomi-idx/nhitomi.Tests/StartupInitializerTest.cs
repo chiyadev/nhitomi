@@ -7,6 +7,9 @@ using NUnit.Framework;
 
 namespace nhitomi
 {
+    /// <summary>
+    /// <see cref="StartupInitializer"/>
+    /// </summary>
     public class StartupInitializerTest : TestBaseServices
     {
         protected override void ConfigureServices(IServiceCollection services)
@@ -30,17 +33,6 @@ namespace nhitomi
             var user = (await users.SearchAsync(new UserQuery { Limit = 1 })).Items.FirstOrDefault();
 
             Assert.That(user, Is.Not.Null);
-
-            var snapshots = Services.GetService<ISnapshotService>();
-
-            var snapshot = (await snapshots.SearchAsync(ObjectType.User, new SnapshotQuery
-            {
-                TargetId = user.Id,
-                Limit    = 1
-            })).Items?.FirstOrDefault();
-
-            Assert.That(snapshot, Is.Not.Null);
-            Assert.That(snapshot.Type, Is.EqualTo(SnapshotType.Creation));
         }
     }
 }

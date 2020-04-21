@@ -3,6 +3,10 @@ using NUnit.Framework;
 
 namespace nhitomi
 {
+    /// <summary>
+    /// <see cref="VersionInfo"/>
+    /// </summary>
+    [Parallelizable(ParallelScope.All)]
     public class VersionInfoTest
     {
         [Test]

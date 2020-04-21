@@ -6,6 +6,9 @@ using NUnit.Framework;
 
 namespace nhitomi
 {
+    /// <summary>
+    /// <see cref="RedisCacheManager"/>
+    /// </summary>
     [TestFixture(typeof(RedisCacheManager))]
     public class CacheStoreTest<T> : TestBaseServices where T : ICacheManager
     {

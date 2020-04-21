@@ -3,6 +3,9 @@ using NUnit.Framework;
 
 namespace nhitomi
 {
+    /// <summary>
+    /// <see cref="AwaitableQueue{T}"/>
+    /// </summary>
     [Parallelizable(ParallelScope.All)]
     public class AwaitableQueueTest
     {

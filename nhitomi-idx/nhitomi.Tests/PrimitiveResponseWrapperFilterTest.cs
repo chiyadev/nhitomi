@@ -20,10 +20,11 @@ namespace nhitomi
         public ActionResult Status() => new StatusCodeResult(404);
     }
 
-    public class PrimitiveResponseWrapperFilterTest : TestBaseHttpClient
+    /// <summary>
+    /// <see cref="PrimitiveResponseWrapperFilter"/>
+    /// </summary>
+    public class PrimitiveResponseWrapperFilterTest : TestBaseHttpClient<PrimitiveResponseWrapperFilterTestController>
     {
-        protected override string RequestPathPrefix => base.RequestPathPrefix + nameof(PrimitiveResponseWrapperFilterTestController);
-
         [Test]
         public async Task PlainString()
         {

@@ -33,11 +33,11 @@ namespace nhitomi
         Stream GenerateThumbnail(byte[] buffer, ThumbnailConfig config);
     }
 
-    public class ImageProcessor : IImageProcessor
+    public class SkiaImageProcessor : IImageProcessor
     {
-        readonly ILogger<ImageProcessor> _logger;
+        readonly ILogger<SkiaImageProcessor> _logger;
 
-        public ImageProcessor(ILogger<ImageProcessor> logger)
+        public SkiaImageProcessor(ILogger<SkiaImageProcessor> logger)
         {
             _logger = logger;
         }

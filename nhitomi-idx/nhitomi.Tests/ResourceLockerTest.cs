@@ -6,6 +6,11 @@ using NUnit.Framework;
 
 namespace nhitomi
 {
+    /// <summary>
+    /// <see cref="SemaphoreResourceLocker"/>
+    /// <see cref="RedisResourceLocker"/>
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     [TestFixture(typeof(SemaphoreResourceLocker))]
     [TestFixture(typeof(RedisResourceLocker))]
     public class ResourceLockerTest<T> : TestBaseServices where T : IResourceLocker

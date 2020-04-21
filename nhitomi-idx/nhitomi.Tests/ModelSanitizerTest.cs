@@ -7,6 +7,10 @@ using NUnit.Framework;
 
 namespace nhitomi
 {
+    /// <summary>
+    /// <see cref="ModelSanitizer"/>
+    /// </summary>
+    [Parallelizable(ParallelScope.All)]
     public class ModelSanitizerTest
     {
         [Test]
@@ -305,14 +309,20 @@ namespace nhitomi
                     [(BookTag) (-10)]   = new[] { "test" },
                     [BookTag.Character] = new string[0]
                 },
-                Language = LanguageType.French,
-                Pages = new[]
+                Contents = new[]
                 {
-                    new BookImage
+                    new BookContent
                     {
-                        Hash = new byte[] { 0, 1, 2, 3 }
-                    },
-                    new BookImage()
+                        Language = LanguageType.French,
+                        Pages = new[]
+                        {
+                            new BookImage
+                            {
+                                Hash = new byte[] { 0, 1, 2, 3 }
+                            },
+                            new BookImage()
+                        }
+                    }
                 }
             };
 

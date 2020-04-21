@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using nhitomi.Database;
 using nhitomi.Models;
@@ -9,17 +10,19 @@ using NUnit.Framework;
 
 namespace nhitomi
 {
-    public class AuthenticationTest : TestBaseHttpClient
+    [ApiController, Route(nameof(AuthHandlerTestController))]
+    public sealed class AuthHandlerTestController : ControllerBase
     {
-        [Test]
-        public async Task NoAuth()
-        {
-            var info = await GetAsync<GetInfoResponse>("info");
+        [HttpGet("path/{str}")]
+        public void Path(string str)
+            => Assert.That(str, Is.EqualTo("path string"));
+    }
 
-            Assert.That(info, Is.Not.Null);
-            Assert.That(info.Version.Hash, Is.EqualTo(VersionInfo.Commit.Hash));
-        }
-
+    /// <summary>
+    /// <see cref="AuthHandler"/>
+    /// </summary>
+    public class AuthHandlerTest : TestBaseHttpClient<AuthHandlerTestController>
+    {
         async Task<DbUser> MakeAndAuthUserAsync(string name = null, UserPermissions permissions = UserPermissions.None)
         {
             var user = await MakeUserAsync(name, u => u.Permissions = permissions.ToFlags());
@@ -29,6 +32,15 @@ namespace nhitomi
             Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
             return user;
+        }
+
+        [Test]
+        public async Task NoAuth()
+        {
+            var info = await GetAsync<GetInfoResponse>("info");
+
+            Assert.That(info, Is.Not.Null);
+            Assert.That(info.Version.Hash, Is.EqualTo(VersionInfo.Commit.Hash));
         }
 
         [Test]

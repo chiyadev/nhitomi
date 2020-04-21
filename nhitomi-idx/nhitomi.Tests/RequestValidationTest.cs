@@ -50,33 +50,27 @@ namespace nhitomi
         }
 
         [HttpPost("required")]
-        public void Required(RequestValidationTest.RequiredObj obj)
-            => Assert.Fail("Validation not triggered.");
+        public void Required(RequestValidationTest.RequiredObj _) =>
+            Assert.Fail("Validation not triggered.");
     }
 
-    public class RequestValidationTest : TestBaseHttpClient
+    public class RequestValidationTest : TestBaseHttpClient<RequestValidationTestController>
     {
-        protected override string RequestPathPrefix => base.RequestPathPrefix + nameof(RequestValidationTestController);
+        [Test]
+        public Task Path() => GetAsync<object>("path/    path    string   ");
 
         [Test]
-        public Task Path()
-            => GetAsync<object>("path/    path    string   ");
+        public Task Query() => GetAsync<object>("query?q=   query   string   ");
 
         [Test]
-        public Task Query()
-            => GetAsync<object>("query?q=   query   string   ");
+        public Task Form() => RequestAsync(HttpMethod.Post, "form", new FormUrlEncodedContent(new Dictionary<string, string>
+        {
+            ["field"]        = "   field  string",
+            ["anotherField"] = " another  field   "
+        }));
 
         [Test]
-        public Task Form()
-            => RequestAsync(HttpMethod.Post, "form", new FormUrlEncodedContent(new Dictionary<string, string>
-            {
-                ["field"]        = "   field  string",
-                ["anotherField"] = " another  field   "
-            }));
-
-        [Test]
-        public Task Header()
-            => RequestAsync(HttpMethod.Get, "header", null, r => r.Headers.TryAddWithoutValidation("x-My-String", "   header  string  "));
+        public Task Header() => RequestAsync(HttpMethod.Get, "header", null, r => r.Headers.TryAddWithoutValidation("x-My-String", "   header  string  "));
 
         public class ComplexObject
         {
@@ -89,27 +83,26 @@ namespace nhitomi
         }
 
         [Test]
-        public Task Complex()
-            => PostAsync<object>("complex", new ComplexObject
+        public Task Complex() => PostAsync<object>("complex", new ComplexObject
+        {
+            Good = "good",
+            Bad  = "   bad   ",
+            Nested = new ComplexObject
             {
-                Good = "good",
-                Bad  = "   bad   ",
-                Nested = new ComplexObject
+                Good = "good2",
+                Bad  = null
+            },
+            NestedList = new List<ComplexObject>
+            {
+                null,
+                new ComplexObject
                 {
-                    Good = "good2",
-                    Bad  = null
+                    Good = "good3"
                 },
-                NestedList = new List<ComplexObject>
-                {
-                    null,
-                    new ComplexObject
-                    {
-                        Good = "good3"
-                    },
-                    null
-                },
-                EmptyList = new List<string>()
-            });
+                null
+            },
+            EmptyList = new List<string>()
+        });
 
         public class RequiredObj
         {
@@ -131,7 +124,7 @@ namespace nhitomi
         }
 
         [Test]
-        public async Task RequiredAfterSanitization()
+        public async Task RequiredWithSanitization()
         {
             try
             {

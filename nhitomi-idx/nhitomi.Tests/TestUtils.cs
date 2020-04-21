@@ -21,7 +21,7 @@ namespace nhitomi
         public static byte[] DummyImage(int width = 1000, int height = 1000, ImageFormat format = ImageFormat.Jpeg)
         {
             using var image = SKImage.Create(new SKImageInfo(width, height));
-            using var data  = image.Encode(ImageProcessor.ConvertFormat(format), 1);
+            using var data  = image.Encode(SkiaImageProcessor.ConvertFormat(format), 1);
 
             return data.ToArray();
         }
