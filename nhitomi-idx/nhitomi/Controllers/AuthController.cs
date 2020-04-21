@@ -1,3 +1,4 @@
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -6,6 +7,11 @@ using nhitomi.Models.Requests;
 
 namespace nhitomi.Controllers
 {
+    public interface IOAuthHandler
+    {
+        Task<DbUser> GetOrCreateUserAsync(string code, CancellationToken cancellationToken = default);
+    }
+
     [Route("users/auth")]
     public class AuthController : nhitomiControllerBase
     {

@@ -2,13 +2,10 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using ChiyaFlake;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using nhitomi.Database;
-using nhitomi.Models;
 using nhitomi.Storage;
 
 namespace nhitomi
@@ -46,37 +43,6 @@ namespace nhitomi
 
             if (_options.CurrentValue.InitializeFirstUser)
                 await ActivatorUtilities.CreateInstance<UserInitializer>(_services).RunAsync(cancellationToken);
-        }
-
-        // ReSharper disable once ClassNeverInstantiated.Local
-        sealed class UserInitializer
-        {
-            readonly IUserService _users;
-            readonly ISnapshotService _snapshots;
-            readonly ILogger<UserInitializer> _logger;
-
-            public UserInitializer(IUserService users, ISnapshotService snapshots, ILogger<UserInitializer> logger)
-            {
-                _users     = users;
-                _snapshots = snapshots;
-                _logger    = logger;
-            }
-
-            public async Task RunAsync(CancellationToken cancellationToken = default)
-            {
-                // check if users exist
-                if (await _users.CountAsync(cancellationToken) != 0)
-                    return;
-
-                static void configure(DbUser u) => u.Permissions = new[] { UserPermissions.Administrator };
-
-                // create admin user
-                var user = await _users.CreateAsync(Snowflake.New, "admin", "admin", configure, cancellationToken);
-
-                await _snapshots.OnCreatedAsync(user, SnapshotSource.System, user.Id, null, cancellationToken);
-
-                _logger.LogCritical($"Admin user {user.Id} created: '{user.Username}' password: 'admin'");
-            }
         }
     }
 }

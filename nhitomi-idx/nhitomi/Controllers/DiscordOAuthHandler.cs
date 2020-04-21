@@ -14,10 +14,7 @@ using IElasticClient = nhitomi.Database.IElasticClient;
 
 namespace nhitomi.Controllers
 {
-    public interface IDiscordOAuthHandler
-    {
-        Task<DbUser> GetOrCreateUserAsync(string code, CancellationToken cancellationToken = default);
-    }
+    public interface IDiscordOAuthHandler : IOAuthHandler { }
 
     public class DiscordOAuthHandler : IDiscordOAuthHandler
     {
