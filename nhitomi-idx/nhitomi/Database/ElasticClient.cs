@@ -3,7 +3,6 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using ChiyaFlake;
@@ -131,7 +130,7 @@ namespace nhitomi.Database
     /// Represents an entry in the database.
     /// Entry objects can be used to implement optimistic concurrency.
     /// </summary>
-    public interface IDbEntry<T> where T : IDbObject
+    public interface IDbEntry<T> where T : class, IDbObject
     {
         /// <summary>
         /// Entry ID.
@@ -220,6 +219,19 @@ namespace nhitomi.Database
         /// Refreshes cached value, useful when <see cref="ConcurrencyException"/> occurs.
         /// </summary>
         Task<T> RefreshAsync(CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// Serializes <see cref="Value"/> to string.
+        /// </summary>
+        string Serialize()
+        {
+            var value = Value;
+
+            if (value == null)
+                return null;
+
+            return LowLevelRequestResponseSerializer.Instance.SerializeToString(value);
+        }
     }
 
     public interface IElasticClient : IDisposable
@@ -555,7 +567,7 @@ namespace nhitomi.Database
                 var response = await _client.Request(c => c.IndexAsync(_value, selector, cancellationToken));
 
                 if (_logger.IsEnabled(LogLevel.Debug))
-                    _logger.LogDebug($"{(type == OpType.Index ? "Indexed" : "Created")} {index} {Id} in {measure}: {JsonSerializer.Serialize(_value)}");
+                    _logger.LogDebug($"{(type == OpType.Index ? "Indexed" : "Created")} {index} {Id} in {measure}: {(this as IDbEntry<T>).Serialize()}");
 
                 // update info
                 var info = new EntryInfo<T>
@@ -597,7 +609,7 @@ namespace nhitomi.Database
                 var response = await _client.Request(c => c.DeleteAsync<T>(Id, selector, cancellationToken));
 
                 if (_logger.IsEnabled(LogLevel.Debug))
-                    _logger.LogDebug($"Deleted {index} {Id} in {measure}: {JsonSerializer.Serialize(_value)}");
+                    _logger.LogDebug($"Deleted {index} {Id} in {measure}: {(this as IDbEntry<T>).Serialize()}");
 
                 // update info
                 var info = new EntryInfo<T>
