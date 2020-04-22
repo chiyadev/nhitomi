@@ -234,7 +234,7 @@ namespace nhitomi.Controllers
             // delete content
             var deleteResult = await books.DeleteContentAsync(book.Id, book.Contents[0].Id); // delete first content
 
-            Assert.That(deleteResult.IsT1, Is.True);
+            Assert.That(deleteResult.AsT0.Id, Is.EqualTo(book.Id));
 
             // book should not be deleted if there is still content remaining
             var getResult = await books.GetAsync(book.Id);
