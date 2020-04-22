@@ -128,7 +128,7 @@ namespace nhitomi.Controllers
             // create another content
             var contentResult = await CreateContentAsync(book.Id, new BookContentBase
             {
-                Language = LanguageType.ChineseSimplified
+                Language = LanguageType.Chinese
             }, new[]
             {
                 new BookImage
@@ -149,7 +149,7 @@ namespace nhitomi.Controllers
 
             var secondContent = contentResult.AsT0.Item2.Convert();
 
-            Assert.That(secondContent.Language, Is.EqualTo(LanguageType.ChineseSimplified));
+            Assert.That(secondContent.Language, Is.EqualTo(LanguageType.Chinese));
             Assert.That(secondContent.Pages, Has.Exactly(1).Items);
             Assert.That(secondContent.Pages[0].Size, Is.EqualTo(300));
 

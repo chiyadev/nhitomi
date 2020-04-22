@@ -3,13 +3,22 @@ using System.Runtime.Serialization;
 namespace nhitomi.Models
 {
     /// <summary>
-    /// Minimal list of common languages. Use ISO 639-1.
+    /// Minimal list of common languages. Uses ISO 639-1.
     /// </summary>
     public enum LanguageType
     {
         [EnumMember(Value = "ja")] Japanese = 0,
         [EnumMember(Value = "en")] English = 1,
-        [EnumMember(Value = "zh_hans")] ChineseSimplified = 2,
+
+        /// <summary>
+        /// Assume Mandarin, but expect any dialect of Chinese.
+        /// This is the catch-all Chinese language used when the specific dialect cannot be distinguished.
+        /// </summary>
+        [EnumMember(Value = "zh")] Chinese = 2,
+
+        /// <summary>
+        /// Assume Cantonese.
+        /// </summary>
         [EnumMember(Value = "zh_hant")] ChineseTraditional = 3,
         [EnumMember(Value = "ko")] Korean = 4,
         [EnumMember(Value = "it")] Italian = 5,
