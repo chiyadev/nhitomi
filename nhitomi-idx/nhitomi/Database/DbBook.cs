@@ -29,34 +29,34 @@ namespace nhitomi.Database
         [Key("ne"), Text(Name = "ne")]
         public string EnglishName { get; set; }
 
-        [Key("tg"), Text(Name = "tg")]
+        [Key("tg"), Keyword(Name = "tg", DocValues = false)]
         public string[] TagsGeneral { get; set; }
 
-        [Key("ta"), Text(Name = "ta")]
+        [Key("ta"), Keyword(Name = "ta", DocValues = false)]
         public string[] TagsArtist { get; set; }
 
-        [Key("tp"), Text(Name = "tp")]
+        [Key("tp"), Keyword(Name = "tp", DocValues = false)]
         public string[] TagsParody { get; set; }
 
-        [Key("tc"), Text(Name = "tc")]
+        [Key("tc"), Keyword(Name = "tc", DocValues = false)]
         public string[] TagsCharacter { get; set; }
 
-        [Key("tco"), Text(Name = "tco")]
+        [Key("tco"), Keyword(Name = "tco", DocValues = false)]
         public string[] TagsConvention { get; set; }
 
-        [Key("ts"), Text(Name = "ts")]
+        [Key("ts"), Keyword(Name = "ts", DocValues = false)]
         public string[] TagsSeries { get; set; }
 
-        [Key("tci"), Text(Name = "tci")]
+        [Key("tci"), Keyword(Name = "tci", DocValues = false)]
         public string[] TagsCircle { get; set; }
 
-        [Key("tm"), Text(Name = "tm")]
+        [Key("tm"), Keyword(Name = "tm", DocValues = false)]
         public string[] TagsMetadata { get; set; }
 
-        [Key("ca"), Keyword(Name = "ca")]
+        [Key("ca"), Keyword(Name = "ca", DocValues = false)]
         public BookCategory Category { get; set; }
 
-        [Key("ra"), Keyword(Name = "ra")]
+        [Key("ra"), Keyword(Name = "ra", DocValues = false)]
         public MaterialRating Rating { get; set; }
 
         [Key("co"), Object(Name = "co", Enabled = false)]
@@ -113,6 +113,20 @@ namespace nhitomi.Database
             Contents = model.Contents?.ToArray(c => new DbBookContent().Apply(c));
         }
 
+        public void MergeFrom(DbBook other)
+        {
+            TagsGeneral    = TagsGeneral.DistinctMergeSafe(other.TagsGeneral);
+            TagsArtist     = TagsArtist.DistinctMergeSafe(other.TagsArtist);
+            TagsParody     = TagsParody.DistinctMergeSafe(other.TagsParody);
+            TagsCharacter  = TagsCharacter.DistinctMergeSafe(other.TagsCharacter);
+            TagsConvention = TagsConvention.DistinctMergeSafe(other.TagsConvention);
+            TagsSeries     = TagsSeries.DistinctMergeSafe(other.TagsSeries);
+            TagsCircle     = TagsCircle.DistinctMergeSafe(other.TagsCircle);
+            TagsMetadata   = TagsMetadata.DistinctMergeSafe(other.TagsMetadata);
+
+            Contents = Contents.DistinctMergeSafe(other.Contents);
+        }
+
 #region Cached
 
         /// <summary>
@@ -136,13 +150,13 @@ namespace nhitomi.Database
         /// <summary>
         /// This is a cached property for querying.
         /// </summary>
-        [IgnoreMember, Keyword(Name = "ln")]
+        [IgnoreMember, Keyword(Name = "ln", DocValues = false)]
         public LanguageType[] Language { get; set; }
 
         /// <summary>
         /// This is a cached property for querying.
         /// </summary>
-        [IgnoreMember, Keyword(Name = "sr")]
+        [IgnoreMember, Keyword(Name = "sr", DocValues = false)]
         public ScraperType[] Sources { get; set; }
 
         public enum SuggestionType

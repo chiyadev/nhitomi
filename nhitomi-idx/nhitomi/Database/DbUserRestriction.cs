@@ -18,7 +18,7 @@ namespace nhitomi.Database
         [Key("e"), Date(Name = "e")]
         public DateTime? EndTime { get; set; }
 
-        [Key("m"), Keyword(Name = "m")]
+        [Key("m"), Keyword(Name = "m", DocValues = false)]
         public string ModeratorId { get; set; }
 
         [Key("r"), Text(Name = "r")]

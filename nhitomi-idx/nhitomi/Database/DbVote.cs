@@ -10,13 +10,10 @@ namespace nhitomi.Database
     [MessagePackObject, ElasticsearchType(RelationName = nameof(Vote))]
     public class DbVote : DbObjectBase<Vote>, IDbModelConvertible<DbVote, Vote>
     {
-        /// <summary>
-        /// Cannot query against this property.
-        /// </summary>
-        [Key("t"), Keyword(Name = "y", Index = false)]
+        [Key("t"), Keyword(Name = "y", DocValues = false)]
         public VoteType Type { get; set; }
 
-        [Key("u"), Keyword(Name = "u")]
+        [Key("u"), Keyword(Name = "u", DocValues = false)]
         public string UserId
         {
             get
@@ -27,13 +24,10 @@ namespace nhitomi.Database
             set => Id = MakeId(value, TargetId);
         }
 
-        /// <summary>
-        /// Cannot query against this property.
-        /// </summary>
-        [Key("x"), Keyword(Name = "x", Index = false)]
+        [Key("x"), Keyword(Name = "x", DocValues = false)]
         public ObjectType Target { get; set; }
 
-        [Key("z"), Keyword(Name = "e")]
+        [Key("z"), Keyword(Name = "e", DocValues = false)]
         public string TargetId
         {
             get

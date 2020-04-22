@@ -334,6 +334,21 @@ namespace nhitomi
         public static List<T2> ToListMany<T1, T2>(this IEnumerable<T1> enumerable, Func<T1, IEnumerable<T2>> selector)
             => enumerable.SelectMany(selector).ToList();
 
+        /// <summary>
+        /// Merges this collection with another collection, ignoring duplicate elements.
+        /// This will not throw with null arguments.
+        /// </summary>
+        public static T[] DistinctMergeSafe<T>(this IEnumerable<T> enumerable, IEnumerable<T> other)
+        {
+            if (enumerable == null)
+                return other?.ToArray();
+
+            if (other == null)
+                return enumerable.ToArray();
+
+            return enumerable.Concat(other).ToHashSet().ToArray();
+        }
+
         // FROM: https://stackoverflow.com/a/48599119
         /// <summary>
         /// Compares this byte array to the specified byte array using <see cref="Span{T}"/>.

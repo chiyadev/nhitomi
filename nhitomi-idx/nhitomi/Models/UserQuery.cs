@@ -7,6 +7,8 @@ namespace nhitomi.Models
     {
         public RangeQuery<DateTime> CreatedTime { get; set; }
         public RangeQuery<DateTime> UpdatedTime { get; set; }
+        public FilterQuery<string> Username { get; set; }
+        public FilterQuery<string> Email { get; set; }
         public FilterQuery<UserPermissions> Permissions { get; set; }
     }
 
@@ -20,6 +22,16 @@ namespace nhitomi.Models
         /// <summary>
         /// Sort by updated time.
         /// </summary>
-        UpdatedTime = 1
+        UpdatedTime = 1,
+
+        /// <summary>
+        /// Sort by username.
+        /// </summary>
+        Username = 2,
+
+        /// <summary>
+        /// Sort by email.
+        /// </summary>
+        Email = 3
     }
 }

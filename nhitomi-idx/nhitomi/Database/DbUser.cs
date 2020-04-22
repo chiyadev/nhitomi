@@ -29,7 +29,7 @@ namespace nhitomi.Database
         [Key("re"), Object(Name = "re", Enabled = false)]
         public DbUserRestriction[] Restrictions { get; set; }
 
-        [Key("pe"), Keyword(Name = "pe")]
+        [Key("pe"), Keyword(Name = "pe", DocValues = false)]
         public UserPermissions[] Permissions { get; set; }
 
         [Key("cd"), Object(Name = "cd", Enabled = false)]
@@ -73,7 +73,7 @@ namespace nhitomi.Database
         /// <summary>
         /// This is a cached property for querying.
         /// </summary>
-        [IgnoreMember, Keyword(Name = "cdi")]
+        [IgnoreMember, Keyword(Name = "cdi", DocValues = false)]
         public ulong? DiscordId { get; set; }
 
         public override void UpdateCache()

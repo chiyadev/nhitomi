@@ -13,6 +13,8 @@ namespace nhitomi.Database
             => base.Process(descriptor)
                    .MultiQuery(q => q.Range(Query.CreatedTime, u => u.CreatedTime)
                                      .Range(Query.UpdatedTime, u => u.UpdatedTime)
+                                     .Filter(Query.Username, u => u.Username)
+                                     .Filter(Query.Email, u => u.Email)
                                      .Filter(Query.Permissions, u => u.Permissions))
                    .MultiSort(
                         Query.Sorting,
@@ -20,6 +22,8 @@ namespace nhitomi.Database
                         {
                             UserSort.CreatedTime => u => u.CreatedTime,
                             UserSort.UpdatedTime => u => u.UpdatedTime,
+                            UserSort.Username    => u => u.Username,
+                            UserSort.Email       => u => u.Email,
 
                             _ => null
                         }));

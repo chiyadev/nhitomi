@@ -24,7 +24,7 @@ namespace nhitomi.Database
         /// <summary>
         /// Cannot query against this property.
         /// </summary>
-        [Key("id"), Keyword(Name = "id", Index = false)]
+        [Key("id"), Keyword(Name = "id", DocValues = false, Index = false)]
         public string Id { get; set; }
 
         public override void MapTo(T model)

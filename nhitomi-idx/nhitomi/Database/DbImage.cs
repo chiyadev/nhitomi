@@ -35,7 +35,7 @@ namespace nhitomi.Database
         /// <summary>
         /// Cannot query against this property.
         /// </summary>
-        [IgnoreMember, Keyword(Name = "h", Index = false)] // for elasticsearch
+        [IgnoreMember, Keyword(Name = "h", DocValues = false, Index = false)] // for elasticsearch
         public string HashString
         {
             get => WebEncoders.Base64UrlEncode(Hash);
@@ -45,31 +45,31 @@ namespace nhitomi.Database
         [Key("no"), Object(Name = "no", Enabled = false)]
         public DbImageNote[] Notes { get; set; }
 
-        [Key("tg"), Text(Name = "tg")]
+        [Key("tg"), Keyword(Name = "tg", DocValues = false)]
         public string[] TagsGeneral { get; set; }
 
-        [Key("ta"), Text(Name = "ta")]
+        [Key("ta"), Keyword(Name = "ta", DocValues = false)]
         public string[] TagsArtist { get; set; }
 
-        [Key("tc"), Text(Name = "tc")]
+        [Key("tc"), Keyword(Name = "tc", DocValues = false)]
         public string[] TagsCharacter { get; set; }
 
-        [Key("tcp"), Text(Name = "tcp")]
+        [Key("tcp"), Keyword(Name = "tcp", DocValues = false)]
         public string[] TagsCopyright { get; set; }
 
-        [Key("tm"), Text(Name = "tm")]
+        [Key("tm"), Keyword(Name = "tm", DocValues = false)]
         public string[] TagsMetadata { get; set; }
 
-        [Key("tp"), Text(Name = "tp")]
+        [Key("tp"), Keyword(Name = "tp", DocValues = false)]
         public string[] TagsPool { get; set; }
 
-        [Key("ra"), Keyword(Name = "ra")]
+        [Key("ra"), Keyword(Name = "ra", DocValues = false)]
         public MaterialRating Rating { get; set; }
 
-        [Key("sr"), Keyword(Name = "sr")]
+        [Key("sr"), Keyword(Name = "sr", DocValues = false)]
         public ScraperType Source { get; set; }
 
-        [Key("da"), Keyword(Name = "da", Index = false)]
+        [Key("da"), Keyword(Name = "da", DocValues = false, Index = false)]
         public string Data { get; set; }
 
         public override void MapTo(Image model)
@@ -135,7 +135,7 @@ namespace nhitomi.Database
         /// <summary>
         /// This is a cached property for querying.
         /// </summary>
-        [IgnoreMember, Completion(Name = IDbSupportsAutocomplete.SuggestField, PreserveSeparators = false, PreservePositionIncrements = false)]
+        [IgnoreMember, Completion(Name = IDbSupportsAutocomplete.SuggestField, PreserveSeparators = false, PreservePositionIncrements = false, DocValues = false)]
         public CompletionField Suggest { get; set; }
 
         public override void UpdateCache()

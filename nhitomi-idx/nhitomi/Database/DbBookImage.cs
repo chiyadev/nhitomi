@@ -23,7 +23,7 @@ namespace nhitomi.Database
         /// <summary>
         /// Cannot query against this property.
         /// </summary>
-        [IgnoreMember, Keyword(Name = "h", Index = false)] // for elasticsearch
+        [IgnoreMember, Keyword(Name = "h", DocValues = false, Index = false)] // for elasticsearch
         public string HashString
         {
             get => Hash == null ? null : WebEncoders.Base64UrlEncode(Hash);

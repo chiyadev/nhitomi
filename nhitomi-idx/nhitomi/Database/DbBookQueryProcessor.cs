@@ -24,7 +24,7 @@ namespace nhitomi.Database
                         if (Query.Tags != null)
                             foreach (var (k, v) in Query.Tags)
                             {
-                                q = q.Text(v, (Expression<Func<DbBook, object>>) (k switch
+                                q = q.Filter(v, (Expression<Func<DbBook, object>>) (k switch
                                 {
                                     BookTag.Tag        => b => b.TagsGeneral,
                                     BookTag.Artist     => b => b.TagsArtist,

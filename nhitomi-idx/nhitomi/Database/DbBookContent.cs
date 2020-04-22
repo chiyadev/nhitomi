@@ -12,16 +12,16 @@ namespace nhitomi.Database
     [MessagePackObject]
     public class DbBookContent : DbObjectBase<BookContent>, IDbModelConvertible<DbBookContent, BookContent, BookContentBase>
     {
-        [Key("la"), Keyword(Name = "la")]
+        [Key("la"), Keyword(Name = "la", DocValues = false)]
         public LanguageType Language { get; set; }
 
         [Key("pg"), Object(Name = "pg", Enabled = false)]
         public DbBookImage[] Pages { get; set; }
 
-        [Key("sr"), Keyword(Name = "sr")]
+        [Key("sr"), Keyword(Name = "sr", DocValues = false)]
         public ScraperType Source { get; set; }
 
-        [Key("da"), Keyword(Name = "da", Index = false)]
+        [Key("da"), Keyword(Name = "da", DocValues = false, Index = false)]
         public string Data { get; set; }
 
         public override void MapTo(BookContent model)

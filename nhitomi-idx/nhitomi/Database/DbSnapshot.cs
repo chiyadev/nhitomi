@@ -19,22 +19,22 @@ namespace nhitomi.Database
         [Key("T"), Date(Name = "T")]
         public DateTime CreatedTime { get; set; }
 
-        [Key("s"), Keyword(Name = "s")]
+        [Key("s"), Keyword(Name = "s", DocValues = false)]
         public SnapshotSource Source { get; set; }
 
-        [Key("e"), Keyword(Name = "e")]
+        [Key("e"), Keyword(Name = "e", DocValues = false)]
         public SnapshotEvent Event { get; set; }
 
-        [Key("b"), Keyword(Name = "b")]
+        [Key("b"), Keyword(Name = "b", DocValues = false)]
         public string RollbackId { get; set; }
 
-        [Key("c"), Keyword(Name = "c")]
+        [Key("c"), Keyword(Name = "c", DocValues = false)]
         public string CommitterId { get; set; }
 
-        [Key("x"), Keyword(Name = "x")]
+        [Key("x"), Keyword(Name = "x", DocValues = false)]
         public ObjectType Target { get; set; }
 
-        [Key("z"), Keyword(Name = "z")]
+        [Key("z"), Keyword(Name = "z", DocValues = false)]
         public string TargetId { get; set; }
 
         [Key("r"), Text(Name = "r")]
@@ -43,7 +43,7 @@ namespace nhitomi.Database
         /// <summary>
         /// Cannot query against this property.
         /// </summary>
-        [Key("d"), Keyword(Name = "d", Index = false)]
+        [Key("d"), Keyword(Name = "d", DocValues = false, Index = false)]
         public string Data { get; set; }
 
         public override void MapTo(Models.Snapshot model)
