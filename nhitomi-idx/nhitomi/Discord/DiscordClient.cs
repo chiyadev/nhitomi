@@ -10,7 +10,7 @@ using Microsoft.Extensions.Options;
 
 namespace nhitomi.Discord
 {
-    public interface IDiscordClient
+    public interface IDiscordClient : IDisposable
     {
         int Latency { get; }
         IReadOnlyCollection<DiscordSocketClient> Shards { get; }
@@ -88,6 +88,19 @@ namespace nhitomi.Discord
             _logger.Log(level, message.Exception, message.Message);
 
             return Task.CompletedTask;
+        }
+
+        public new void Dispose()
+        {
+            try
+            {
+                base.Dispose();
+            }
+            catch (NullReferenceException)
+            {
+                // workaround until we upgrade Discord.Net
+                // https://github.com/discord-net/Discord.Net/issues/1492
+            }
         }
     }
 }
