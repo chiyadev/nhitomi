@@ -59,6 +59,9 @@ namespace nhitomi.Discord
                 if (!CommandUtilities.HasPrefix(message.Content, options.Prefix, options.Command.StringComparison, out var command))
                     return;
 
+                if (_logger.IsEnabled(LogLevel.Debug))
+                    _logger.LogDebug($"Command received '{command}' in #{message.Channel} by {message.Author}.");
+
                 IResult result;
 
                 // ref-counted service scope is used to keep services alive for interactive messages that spans multiple commands/reactions

@@ -24,7 +24,7 @@ namespace nhitomi.Discord
         {
             var options = _options.CurrentValue;
 
-            if (!options.Enabled)
+            if (options.Token == null)
                 return;
 
             _client.Initialize(stoppingToken);

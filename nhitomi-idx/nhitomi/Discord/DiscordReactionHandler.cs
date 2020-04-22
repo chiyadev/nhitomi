@@ -51,6 +51,9 @@ namespace nhitomi.Discord
                 if (trigger == null)
                     return;
 
+                if (_logger.IsEnabled(LogLevel.Debug))
+                    _logger.LogDebug($"Reaction received {reaction.Emote} in #{reaction.Channel} by {user} on message {trigger.Message}.");
+
                 if (await trigger.InvokeAsync(cancellationToken))
                     Interlocked.Increment(ref _handled);
             }

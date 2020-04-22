@@ -122,6 +122,8 @@ namespace nhitomi.Discord
             return Renderer.RenderAsync(cancellationToken);
         }
 
+        public override string ToString() => $"{GetType().Name} {Reply?.Id.ToString() ?? "<not initialized>"}";
+
         public void Dispose() => Manager?.Unregister(this); // manager calls internal dispose
 
         internal void DisposeInternal()

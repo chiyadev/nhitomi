@@ -99,7 +99,7 @@ namespace nhitomi.Discord
             }
             catch (Exception e)
             {
-                _logger.LogInformation(e, $"Could not add reaction triggers to message {message.Reply.Id}.");
+                _logger.LogDebug(e, $"Could not add reaction triggers to message {message}.");
             }
 
             return true;
@@ -123,7 +123,11 @@ namespace nhitomi.Discord
                 }
 
                 if (result)
+                {
                     message.DisposeInternal();
+
+                    _logger.LogDebug($"Destroyed interactive message {message}");
+                }
             }
         }
 

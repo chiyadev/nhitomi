@@ -2,6 +2,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Discord;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace nhitomi.Discord
@@ -14,12 +15,14 @@ namespace nhitomi.Discord
 
         readonly InteractiveMessage _message;
         readonly IReplyRenderer _renderer;
+        readonly ILogger<InteractiveRenderer> _logger;
         readonly IOptionsMonitor<DiscordOptions> _options;
 
-        public InteractiveRenderer(InteractiveMessage message, IReplyRenderer renderer, IOptionsMonitor<DiscordOptions> options)
+        public InteractiveRenderer(InteractiveMessage message, IReplyRenderer renderer, ILogger<InteractiveRenderer> logger, IOptionsMonitor<DiscordOptions> options)
         {
             _message  = message;
             _renderer = renderer;
+            _logger   = logger;
             _options  = options;
         }
 
@@ -51,17 +54,19 @@ namespace nhitomi.Discord
 
             Task.Run(async () =>
             {
+                _logger.LogDebug($"Entering interactive rendering loop for message {_message}.");
+
                 try
                 {
                     while (_enqueued)
                     {
                         _enqueued = false;
 
-                        // rerender interactive
                         using (await _message.Semaphore.EnterAsync(cancellationToken))
                         {
                             try
                             {
+                                // rerender interactive
                                 var result = await _renderer.ModifyAsync(_message.Reply, _message, cancellationToken);
 
                                 // if false, expire interactive
@@ -87,6 +92,8 @@ namespace nhitomi.Discord
                 }
                 finally
                 {
+                    _logger.LogDebug($"Exiting interactive rendering loop for message {_message}.");
+
                     _semaphore.ReleaseSafe();
                 }
             }, cancellationToken);

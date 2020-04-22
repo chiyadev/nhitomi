@@ -17,6 +17,11 @@ namespace nhitomi.Discord
 
         InteractiveMessage _message;
 
+        /// <summary>
+        /// Interactive that this trigger is attached to.
+        /// </summary>
+        public InteractiveMessage Message => _message;
+
         internal void Initialize(InteractiveMessage message)
         {
             if (Interlocked.CompareExchange(ref _message, message, null) != null)

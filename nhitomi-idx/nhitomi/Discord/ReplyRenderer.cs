@@ -42,7 +42,12 @@ namespace nhitomi.Discord
             try
             {
                 // try sending in the same channel as the command
-                return await SendChannelAsync(command.Channel, content);
+                var message = await SendChannelAsync(command.Channel, content);
+
+                if (_logger.IsEnabled(LogLevel.Debug))
+                    _logger.LogDebug($"Rendered message {reply.GetType().Name} {message.Id} in channel #{message.Channel}.");
+
+                return message;
             }
             catch (Exception e)
             {
@@ -51,10 +56,17 @@ namespace nhitomi.Discord
                     // if command channel fails, try sending via dm
                     var channel = await command.Author.GetOrCreateDMChannelAsync();
 
-                    return await SendChannelAsync(channel, content);
+                    var message = await SendChannelAsync(channel, content);
+
+                    if (_logger.IsEnabled(LogLevel.Debug))
+                        _logger.LogDebug($"Rendered message {reply.GetType().Name} {message.Id} in channel #{message.Channel}.");
+
+                    return message;
                 }
                 catch
                 {
+                    _logger.LogDebug(e, $"Could not render message {reply.GetType().Name}.");
+
                     // throw original exception
                     ExceptionDispatchInfo.Throw(e);
 
@@ -78,6 +90,9 @@ namespace nhitomi.Discord
                 m.Content = content.Message;
                 m.Embed   = content.Embed?.Build();
             });
+
+            if (_logger.IsEnabled(LogLevel.Debug))
+                _logger.LogDebug($"Rendered message {reply.GetType().Name} {message.Id} in channel #{message.Channel}.");
 
             return true;
         }

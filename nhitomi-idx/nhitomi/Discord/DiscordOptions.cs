@@ -1,4 +1,5 @@
 using System;
+using Discord;
 using Discord.WebSocket;
 using Qmmands;
 
@@ -6,10 +7,11 @@ namespace nhitomi.Discord
 {
     public class DiscordOptions : DiscordSocketConfig
     {
-        /// <summary>
-        /// True to enable the Discord subsystem.
-        /// </summary>
-        public bool Enabled { get; set; } = true;
+        public DiscordOptions()
+        {
+            // verbose by default; log messages will get filtered again by asp.net core loggers
+            LogLevel = LogSeverity.Verbose;
+        }
 
         /// <summary>
         /// Discord bot token.
