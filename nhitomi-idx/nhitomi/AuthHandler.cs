@@ -47,23 +47,23 @@ namespace nhitomi
                 if (!AuthenticationHeaderValue.TryParse(Request.Headers["Authorization"], out var authorization) || authorization.Scheme != Scheme.Name)
                     return AuthenticateResult.NoResult();
 
-                var (payload, message) = await _auth.ValidateTokenAsync(authorization.Parameter);
+                var result = await _auth.ValidateTokenAsync(authorization.Parameter);
 
-                if (payload == null)
-                    return AuthenticateResult.Fail(message);
+                if (!result.TryPickT0(out var payload, out var error))
+                    return AuthenticateResult.Fail(error.ToString());
 
                 // pass payload down the pipeline
                 Context.Items[PayloadItemKey] = payload;
 
-                return AuthenticateResult.Success(_readOnlyTicket);
+                return AuthenticateResult.Success(_successTicket);
             }
             catch (Exception e)
             {
-                return AuthenticateResult.Fail($"Authentication failed: {e.Message}");
+                return AuthenticateResult.Fail($"Authentication failed. {e.Message}");
             }
         }
 
         // we don't use identities
-        static readonly AuthenticationTicket _readOnlyTicket = new AuthenticationTicket(new ClaimsPrincipal(new ClaimsIdentity(null, SchemeName)), SchemeName);
+        static readonly AuthenticationTicket _successTicket = new AuthenticationTicket(new ClaimsPrincipal(new ClaimsIdentity(null, SchemeName)), SchemeName);
     }
 }

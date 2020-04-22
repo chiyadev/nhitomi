@@ -8,16 +8,25 @@ using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Options;
 using nhitomi.Controllers;
 using nhitomi.Database;
+using OneOf;
 using StackExchange.Redis;
 
 namespace nhitomi
 {
+    public enum TokenValidationError
+    {
+        Missing,
+        VerificationFailed,
+        Expired,
+        Invalidated
+    }
+
     public interface IAuthService
     {
         Task<string> GenerateTokenAsync(DbUser user, CancellationToken cancellationToken = default);
         Task<byte[]> GetPayloadHashAsync(byte[] buffer, CancellationToken cancellationToken = default);
 
-        Task<(AuthTokenPayload, string)> ValidateTokenAsync(string token);
+        Task<OneOf<AuthTokenPayload, TokenValidationError>> ValidateTokenAsync(string token);
 
         Task<long> GetSessionIdAsync(string userId, CancellationToken cancellationToken = default);
         Task<long> InvalidateSessionAsync(string userId, CancellationToken cancellationToken = default);
@@ -72,12 +81,12 @@ namespace nhitomi
             }
         }
 
-        public async Task<(AuthTokenPayload, string)> ValidateTokenAsync(string token)
+        public async Task<OneOf<AuthTokenPayload, TokenValidationError>> ValidateTokenAsync(string token)
         {
             var parts = token?.Split('.', 2);
 
             if (parts == null || string.IsNullOrEmpty(parts[0]) || string.IsNullOrEmpty(parts[1]))
-                return (null, "Invalid bearer token format.");
+                return TokenValidationError.Missing;
 
             var buffer = WebEncoders.Base64UrlDecode(parts[0]);
 
@@ -86,19 +95,19 @@ namespace nhitomi
             var hash2 = await GetPayloadHashAsync(buffer);
 
             if (!hash1.BufferEquals(hash2))
-                return (null, $"Bearer token hash mismatch: {parts[1]} != {WebEncoders.Base64UrlEncode(hash2)}");
+                return TokenValidationError.VerificationFailed;
 
             // deserialize payload
             var payload = MessagePackSerializer.Deserialize<AuthTokenPayload>(buffer, _serializerOptions);
 
             // validation
             if (payload.Expiry <= DateTime.UtcNow)
-                return (null, $"Bearer token expired on {payload.Expiry:G}.");
+                return TokenValidationError.Expired;
 
             if (payload.SessionId != await GetSessionIdAsync(payload.UserId))
-                return (null, "Bearer token was invalidated.");
+                return TokenValidationError.Invalidated;
 
-            return (payload, null);
+            return payload;
         }
 
         async ValueTask<byte[]> GetSigningKeyAsync(CancellationToken cancellationToken = default)
