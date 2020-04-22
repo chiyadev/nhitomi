@@ -63,11 +63,14 @@ namespace nhitomi.Database
         [Key("tp"), Text(Name = "tp")]
         public string[] TagsPool { get; set; }
 
-        [Key("sr"), Keyword(Name = "sr")]
-        public ScraperType[] Sources { get; set; }
-
         [Key("ra"), Keyword(Name = "ra")]
         public MaterialRating Rating { get; set; }
+
+        [Key("sr"), Keyword(Name = "sr")]
+        public ScraperType Source { get; set; }
+
+        [Key("da"), Keyword(Name = "da", Index = false)]
+        public string Data { get; set; }
 
         public override void MapTo(Image model)
         {
@@ -91,8 +94,8 @@ namespace nhitomi.Database
                 [ImageTag.Pool]      = TagsPool
             };
 
-            model.Sources = Sources;
-            model.Rating  = Rating;
+            model.Rating = Rating;
+            model.Source = Source;
         }
 
         public override void MapFrom(Image model)
@@ -107,18 +110,14 @@ namespace nhitomi.Database
 
             Notes = model.Notes?.ToArray(p => new DbImageNote().Apply(p));
 
-            if (model.Tags != null)
-            {
-                TagsGeneral   = model.Tags.GetValueOrDefault(ImageTag.Tag);
-                TagsArtist    = model.Tags.GetValueOrDefault(ImageTag.Artist);
-                TagsCharacter = model.Tags.GetValueOrDefault(ImageTag.Character);
-                TagsCopyright = model.Tags.GetValueOrDefault(ImageTag.Copyright);
-                TagsMetadata  = model.Tags.GetValueOrDefault(ImageTag.Metadata);
-                TagsPool      = model.Tags.GetValueOrDefault(ImageTag.Pool);
-            }
+            TagsGeneral   = model.Tags?.GetValueOrDefault(ImageTag.Tag);
+            TagsArtist    = model.Tags?.GetValueOrDefault(ImageTag.Artist);
+            TagsCharacter = model.Tags?.GetValueOrDefault(ImageTag.Character);
+            TagsCopyright = model.Tags?.GetValueOrDefault(ImageTag.Copyright);
+            TagsMetadata  = model.Tags?.GetValueOrDefault(ImageTag.Metadata);
+            TagsPool      = model.Tags?.GetValueOrDefault(ImageTag.Pool);
 
-            Sources = model.Sources;
-            Rating  = model.Rating;
+            Rating = model.Rating;
         }
 
 #region Cached

@@ -20,6 +20,11 @@ namespace nhitomi.Models
         /// </summary>
         [Required, MaxLength(512)]
         public BookImage[] Pages { get; set; }
+
+        /// <summary>
+        /// Source from where this content was downloaded.
+        /// </summary>
+        public ScraperType Source { get; set; }
     }
 
     public class BookContentBase
@@ -29,10 +34,5 @@ namespace nhitomi.Models
         /// </summary>
         [Required]
         public LanguageType Language { get; set; }
-
-        /// <summary>
-        /// Sources from where this content was downloaded.
-        /// </summary>
-        public ScraperType[] Sources { get; set; }
     }
 }

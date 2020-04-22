@@ -32,11 +32,7 @@ namespace nhitomi.Controllers
                 }
             }, new BookContentBase
             {
-                Language = LanguageType.English,
-                Sources = new[]
-                {
-                    ScraperType.nhentai
-                }
+                Language = LanguageType.English
             }, new[]
             {
                 new BookImage
@@ -65,8 +61,7 @@ namespace nhitomi.Controllers
             Assert.That(book.Tags[BookTag.Artist], Has.Exactly(2).Items);
             Assert.That(book.Tags[BookTag.Artist][1], Is.EqualTo("artist 2"));
             Assert.That(book.Contents, Has.One.Items);
-            Assert.That(book.Contents[0].Sources, Has.Exactly(1).Items);
-            Assert.That(book.Contents[0].Sources[0], Is.EqualTo(ScraperType.nhentai));
+            Assert.That(book.Contents[0].Source, Is.EqualTo(ScraperType.Unknown));
             Assert.That(book.Contents[0].Language, Is.EqualTo(LanguageType.English));
             Assert.That(book.Contents[0].Pages, Has.Exactly(2).Items);
             Assert.That(book.Contents[0].Pages[0].Size, Is.EqualTo(100));

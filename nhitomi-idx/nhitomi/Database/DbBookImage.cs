@@ -37,9 +37,8 @@ namespace nhitomi.Database
         {
             base.MapTo(model);
 
-            model.Size = Size;
-            model.Hash = Hash;
-
+            model.Size  = Size;
+            model.Hash  = Hash;
             model.Notes = Notes?.ToArray(n => n.Convert());
         }
 
@@ -47,9 +46,8 @@ namespace nhitomi.Database
         {
             base.MapFrom(model);
 
-            Size = model.Size;
-            Hash = model.Hash;
-
+            Size  = model.Size;
+            Hash  = model.Hash;
             Notes = model.Notes?.ToArray(p => new DbImageNote().Apply(p));
         }
     }

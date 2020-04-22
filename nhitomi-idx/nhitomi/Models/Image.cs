@@ -63,9 +63,9 @@ namespace nhitomi.Models
         public MaterialRating Rating { get; set; }
 
         /// <summary>
-        /// Sources from where this image was downloaded.
+        /// Source from where this image was downloaded.
         /// </summary>
-        public ScraperType[] Sources { get; set; }
+        public ScraperType Source { get; set; }
     }
 
     public enum ImageTag

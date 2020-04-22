@@ -22,6 +22,7 @@ using nhitomi.Database;
 using nhitomi.Discord;
 using nhitomi.Documentation;
 using nhitomi.Models;
+using nhitomi.Scrapers;
 using nhitomi.Storage;
 using Swashbuckle.AspNetCore.ReDoc;
 
@@ -50,56 +51,45 @@ namespace nhitomi
         public void ConfigureServices(IServiceCollection services)
         {
             // configuration
-            services.AddSingleton(_configuration)
-                    .Configure<ServerOptions>(_configuration.GetSection("Server"))
-                    .Configure<StorageOptions>(_configuration.GetSection("Storage"))
-                    .Configure<ElasticOptions>(_configuration.GetSection("Elastic"))
-                    .Configure<RedisOptions>(_configuration.GetSection("Redis"))
-                    .Configure<RecaptchaOptions>(_configuration.GetSection("Recaptcha"))
-                    .Configure<UserServiceOptions>(_configuration.GetSection("User"))
-                    .Configure<BookServiceOptions>(_configuration.GetSection("Book"))
-                    .Configure<SnapshotServiceOptions>(_configuration.GetSection("Snapshot"))
-                    .Configure<DiscordOptions>(_configuration.GetSection("Discord"));
-
-            services.AddHostedService<ConfigurationReloader>();
+            services.AddSingleton(_configuration) // root
+                    .AddHostedService<ConfigurationReloader>();
 
             // kestrel
-            services.Configure<KestrelServerOptions>(o =>
-            {
-                var server = o.ApplicationServices.GetService<IOptionsMonitor<ServerOptions>>().CurrentValue;
+            services.Configure<ServerOptions>(_configuration.GetSection("Server"))
+                    .Configure<KestrelServerOptions>(o =>
+                     {
+                         var server = o.ApplicationServices.GetService<IOptionsMonitor<ServerOptions>>().CurrentValue;
 
-                if (_environment.IsDevelopment())
-                {
-                    o.ListenLocalhost(server.HttpPortDev);
-                }
-                else
-                {
-                    o.ListenAnyIP(server.HttpPort);
+                         if (_environment.IsDevelopment())
+                         {
+                             o.ListenLocalhost(server.HttpPortDev);
+                         }
+                         else
+                         {
+                             o.ListenAnyIP(server.HttpPort);
 
-                    if (server.CertificatePath != null)
-                        o.ListenAnyIP(server.HttpsPort, l => l.UseHttps(server.CertificatePath, server.CertificatePassword));
-                }
+                             if (server.CertificatePath != null)
+                                 o.ListenAnyIP(server.HttpsPort, l => l.UseHttps(server.CertificatePath, server.CertificatePassword));
+                         }
 
-                o.Limits.MaxRequestBufferSize       = 1024 * 64;  // 16 KiB
-                o.Limits.MaxRequestLineSize         = 1024 * 8;   // 8 KiB
-                o.Limits.MaxRequestHeadersTotalSize = 1024 * 8;   // 8 KiB
-                o.Limits.MaxRequestBodySize         = 1024 * 256; // 16 KiB
-            });
+                         o.Limits.MaxRequestBufferSize       = 1024 * 64;  // 16 KiB
+                         o.Limits.MaxRequestLineSize         = 1024 * 8;   // 8 KiB
+                         o.Limits.MaxRequestHeadersTotalSize = 1024 * 8;   // 8 KiB
+                         o.Limits.MaxRequestBodySize         = 1024 * 256; // 16 KiB
+                     })
+                    .AddResponseCompression(o =>
+                     {
+                         o.Providers.Add<GzipCompressionProvider>();
+                         o.Providers.Add<BrotliCompressionProvider>();
+                     })
+                    .AddResponseCaching(o =>
+                     {
+                         o.UseCaseSensitivePaths = false;
 
-            services.AddResponseCompression(o =>
-            {
-                o.Providers.Add<GzipCompressionProvider>();
-                o.Providers.Add<BrotliCompressionProvider>();
-            });
-
-            services.AddResponseCaching(o =>
-            {
-                o.UseCaseSensitivePaths = false;
-
-                // this is for static files
-                o.SizeLimit       = long.MaxValue;
-                o.MaximumBodySize = long.MaxValue;
-            });
+                         // this is for static files
+                         o.SizeLimit       = long.MaxValue;
+                         o.MaximumBodySize = long.MaxValue;
+                     });
 
             // mvc
             services.AddMvcCore(m =>
@@ -136,10 +126,6 @@ namespace nhitomi
                     .AddTestControllers()
                     .AddControllersAsServices();
 
-            services.AddSingleton<IAuthService, AuthService>()
-                    .AddAuthentication(AuthHandler.SchemeName)
-                    .AddScheme<AuthOptions, AuthHandler>(AuthHandler.SchemeName, null);
-
             services.Configure<ApiBehaviorOptions>(o =>
             {
                 o.SuppressMapClientErrors = true;
@@ -165,6 +151,10 @@ namespace nhitomi
                     return ResultUtilities.UnprocessableEntity(problems);
                 };
             });
+
+            services.AddSingleton<IAuthService, AuthService>()
+                    .AddAuthentication(AuthHandler.SchemeName)
+                    .AddScheme<AuthOptions, AuthHandler>(AuthHandler.SchemeName, null);
 
             // swagger docs
             services.AddSwaggerGen(s =>
@@ -204,36 +194,52 @@ namespace nhitomi
             services.AddSwaggerGenNewtonsoftSupport();
 
             // storage
-            services.AddSingleton<IStorage, DefaultStorage>();
+            services.Configure<StorageOptions>(_configuration.GetSection("Storage"))
+                    .AddSingleton<IStorage, DefaultStorage>();
 
             // database
+            services.Configure<ElasticOptions>(_configuration.GetSection("Elastic"))
+                    .Configure<UserServiceOptions>(_configuration.GetSection("User"))
+                    .Configure<BookServiceOptions>(_configuration.GetSection("Book"))
+                    .Configure<SnapshotServiceOptions>(_configuration.GetSection("Snapshot"));
+
             services.AddSingleton<IElasticClient, ElasticClient>()
                     .AddSingleton<IUserService, UserService>()
                     .AddSingleton<IBookService, BookService>()
                     .AddSingleton<ISnapshotService, SnapshotService>();
 
-            services.AddSingleton<IRedisClient, RedisClient>()
+            // redis
+            services.Configure<RedisOptions>(_configuration.GetSection("Redis"))
+                    .AddSingleton<IRedisClient, RedisClient>()
                     .AddSingleton<ICacheManager, RedisCacheManager>()
                     .AddSingleton<IResourceLocker, RedisResourceLocker>();
 
+            // scrapers
+            services.Configure<nhentaiScraperOptions>(_configuration.GetSection("Scrapers:nhentai"));
+
+            services.AddScraper<nhentaiScraper>();
+
             // discord
-            services.AddSingleton<IDiscordClient, DiscordClient>()
+            services.Configure<DiscordOptions>(_configuration.GetSection("Discord"))
+                    .AddSingleton<IDiscordClient, DiscordClient>()
                     .AddSingleton<IDiscordMessageHandler, DiscordMessageHandler>()
                     .AddSingleton<IDiscordReactionHandler, DiscordReactionHandler>()
                     .AddSingleton<IDiscordLocaleProvider, DiscordLocaleProvider>()
-                    .AddSingleton<IUserFilter, DefaultUserFilter>()
                     .AddHostedService<DiscordConnectionManager>();
 
-            services.AddSingleton<IInteractiveManager, InteractiveManager>()
+            services.AddSingleton<IUserFilter, DefaultUserFilter>()
+                    .AddSingleton<IInteractiveManager, InteractiveManager>()
                     .AddSingleton<IReplyRenderer, ReplyRenderer>();
 
             // other
             services.AddHttpClient()
                     .AddHttpContextAccessor()
-                    .AddSingleton<IRecaptchaValidator, RecaptchaValidator>()
-                    .AddSingleton<IImageProcessor, SkiaImageProcessor>()
+                    .AddSingleton<StartupInitializer>()
                     .AddTransient<MemoryInfo>()
-                    .AddSingleton<StartupInitializer>();
+                    .AddSingleton<IImageProcessor, SkiaImageProcessor>();
+
+            services.Configure<RecaptchaOptions>(_configuration.GetSection("Recaptcha"))
+                    .AddSingleton<IRecaptchaValidator, RecaptchaValidator>();
         }
 
         /// <summary>

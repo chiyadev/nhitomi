@@ -98,17 +98,14 @@ namespace nhitomi.Database
             PrimaryName = model.PrimaryName;
             EnglishName = model.EnglishName;
 
-            if (model.Tags != null)
-            {
-                TagsGeneral    = model.Tags.GetValueOrDefault(BookTag.Tag);
-                TagsArtist     = model.Tags.GetValueOrDefault(BookTag.Artist);
-                TagsParody     = model.Tags.GetValueOrDefault(BookTag.Parody);
-                TagsCharacter  = model.Tags.GetValueOrDefault(BookTag.Character);
-                TagsConvention = model.Tags.GetValueOrDefault(BookTag.Convention);
-                TagsSeries     = model.Tags.GetValueOrDefault(BookTag.Series);
-                TagsCircle     = model.Tags.GetValueOrDefault(BookTag.Circle);
-                TagsMetadata   = model.Tags.GetValueOrDefault(BookTag.Metadata);
-            }
+            TagsGeneral    = model.Tags?.GetValueOrDefault(BookTag.Tag);
+            TagsArtist     = model.Tags?.GetValueOrDefault(BookTag.Artist);
+            TagsParody     = model.Tags?.GetValueOrDefault(BookTag.Parody);
+            TagsCharacter  = model.Tags?.GetValueOrDefault(BookTag.Character);
+            TagsConvention = model.Tags?.GetValueOrDefault(BookTag.Convention);
+            TagsSeries     = model.Tags?.GetValueOrDefault(BookTag.Series);
+            TagsCircle     = model.Tags?.GetValueOrDefault(BookTag.Circle);
+            TagsMetadata   = model.Tags?.GetValueOrDefault(BookTag.Metadata);
 
             Category = model.Category;
             Rating   = model.Rating;
@@ -172,13 +169,10 @@ namespace nhitomi.Database
         {
             base.UpdateCache();
 
-            if (Contents != null)
-            {
-                PageCount = Contents.ToArray(c => c.Pages?.Length ?? 0);
-                NoteCount = Contents.ToArray(c => c.Pages?.Sum(p => p.Notes?.Length ?? 0) ?? 0);
-                Language  = Contents.ToArray(c => c.Language);
-                Sources   = Contents.ToArrayMany(c => c.Sources ?? Array.Empty<ScraperType>());
-            }
+            PageCount = Contents?.ToArray(c => c.Pages?.Length ?? 0);
+            NoteCount = Contents?.ToArray(c => c.Pages?.Sum(p => p.Notes?.Length ?? 0) ?? 0);
+            Language  = Contents?.ToArray(c => c.Language);
+            Sources   = Contents?.ToArray(c => c.Source);
 
             Suggest = new CompletionField
             {
