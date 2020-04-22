@@ -24,12 +24,12 @@ namespace nhitomi
     /// <summary>
     /// <see cref="RequestValidateQueryFilter"/>
     /// </summary>
-    public class RequestValidateQueryFilterTest : TestBaseHttpClient
+    public class RequestValidateQueryFilterTest : TestBaseHttpClient<RequestValidateQueryFilterTestController>
     {
         [Test]
         public async Task Valid()
         {
-            var exception = await ThrowsStatusAsync(HttpStatusCode.UnprocessableEntity, () => PostAsync<string>("data", new RequestValidateQueryFilterTestController.Model
+            var exception = await ThrowsStatusAsync(HttpStatusCode.UnprocessableEntity, () => PostAsync<string>("data?validate=true", new RequestValidateQueryFilterTestController.Model
             {
                 Data = "  test  "
             }));
@@ -42,7 +42,7 @@ namespace nhitomi
         [Test]
         public async Task Invalid()
         {
-            var exception = await ThrowsStatusAsync(HttpStatusCode.UnprocessableEntity, () => PostAsync<string>("data", new RequestValidateQueryFilterTestController.Model
+            var exception = await ThrowsStatusAsync(HttpStatusCode.UnprocessableEntity, () => PostAsync<string>("data?validate=true", new RequestValidateQueryFilterTestController.Model
             {
                 Data = "    "
             }));
