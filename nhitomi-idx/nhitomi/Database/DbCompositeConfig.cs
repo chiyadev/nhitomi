@@ -1,14 +1,14 @@
+using System.Collections.Generic;
 using MessagePack;
 using Nest;
-using nhitomi.Models;
 
 namespace nhitomi.Database
 {
     /// <summary>
-    /// Represents server configuration.
+    /// Contains server configuration.
     /// </summary>
-    [MessagePackObject(true), ElasticsearchType(RelationName = nameof(CompositeConfig))]
-    public class DbCompositeConfig : CompositeConfig, IDbObject
+    [MessagePackObject(true), ElasticsearchType(RelationName = nameof(Config))]
+    public class DbCompositeConfig : IDbObject
     {
         public const string DefaultId = "config";
 
@@ -17,6 +17,9 @@ namespace nhitomi.Database
             get => DefaultId;
             set { }
         }
+
+        [Key("c"), Object(Name = "c", Enabled = false)]
+        public Dictionary<string, string> Config { get; set; }
 
         public void UpdateCache() { }
     }

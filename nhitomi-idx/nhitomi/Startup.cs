@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
@@ -49,22 +50,22 @@ namespace nhitomi
         {
             // configuration
             services.AddSingleton(_configuration)
-                    .Configure<ServerOptions>(_configuration.GetSection(nameof(CompositeConfig.Server)))
-                    .Configure<StorageOptions>(_configuration.GetSection(nameof(CompositeConfig.Storage)))
-                    .Configure<ElasticOptions>(_configuration.GetSection(nameof(CompositeConfig.Elastic)))
-                    .Configure<RedisOptions>(_configuration.GetSection(nameof(CompositeConfig.Redis)))
-                    .Configure<RecaptchaOptions>(_configuration.GetSection(nameof(CompositeConfig.Recaptcha)))
-                    .Configure<UserServiceOptions>(_configuration.GetSection(nameof(CompositeConfig.User)))
-                    .Configure<BookServiceOptions>(_configuration.GetSection(nameof(CompositeConfig.Book)))
-                    .Configure<SnapshotServiceOptions>(_configuration.GetSection(nameof(CompositeConfig.Snapshot)))
-                    .Configure<DiscordOptions>(_configuration.GetSection(nameof(CompositeConfig.Discord)));
+                    .Configure<ServerOptions>(_configuration.GetSection("Server"))
+                    .Configure<StorageOptions>(_configuration.GetSection("Storage"))
+                    .Configure<ElasticOptions>(_configuration.GetSection("Elastic"))
+                    .Configure<RedisOptions>(_configuration.GetSection("Redis"))
+                    .Configure<RecaptchaOptions>(_configuration.GetSection("Recaptcha"))
+                    .Configure<UserServiceOptions>(_configuration.GetSection("User"))
+                    .Configure<BookServiceOptions>(_configuration.GetSection("Book"))
+                    .Configure<SnapshotServiceOptions>(_configuration.GetSection("Snapshot"))
+                    .Configure<DiscordOptions>(_configuration.GetSection("Discord"));
 
             services.AddHostedService<ConfigurationReloader>();
 
             // kestrel
             services.Configure<KestrelServerOptions>(o =>
             {
-                var server = _configuration.GetSection(nameof(CompositeConfig.Server)).Get<ServerOptions>();
+                var server = _configuration.GetSection("Server").Get<ServerOptions>();
 
                 if (_environment.IsDevelopment())
                 {
@@ -239,9 +240,7 @@ namespace nhitomi
 
         public void Configure(IApplicationBuilder app)
         {
-            var server = _configuration.GetSection(nameof(CompositeConfig.Server)).Get<ServerOptions>();
-
-            if (server.ResponseCompression)
+            if (app.ApplicationServices.GetService<IOptions<ServerOptions>>().Value.ResponseCompression)
                 app.UseResponseCompression();
 
             // backend
@@ -253,7 +252,7 @@ namespace nhitomi
 
         void ConfigureFrontend(IApplicationBuilder app)
         {
-            var server = _configuration.GetSection(nameof(CompositeConfig.Server)).Get<ServerOptions>();
+            var serverOpts = app.ApplicationServices.GetService<IOptionsMonitor<ServerOptions>>();
 
             // route rewrite
             app.Use((c, n) =>
@@ -263,11 +262,11 @@ namespace nhitomi
                     case "HEAD":
                     case "GET":
                         if (c.Request.Path.Value == "/")
-                            c.Request.Path = server.DefaultFile;
+                            c.Request.Path = serverOpts.CurrentValue.DefaultFile;
 
                         // frontend is an SPA; if route doesn't exist, rewrite to return the default file
                         else if (!_environment.WebRootFileProvider.GetFileInfo(c.Request.Path.Value).Exists)
-                            c.Request.Path = server.DefaultFile;
+                            c.Request.Path = serverOpts.CurrentValue.DefaultFile;
 
                         return n();
 
