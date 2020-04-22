@@ -1,7 +1,6 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using ChiyaFlake;
 using nhitomi.Database;
 using nhitomi.Models;
 using nhitomi.Models.Queries;
@@ -16,9 +15,6 @@ namespace nhitomi.Controllers
     {
         Task<OneOf<DbBook, NotFound>> GetAsync(string id, CancellationToken cancellationToken = default);
         Task<OneOf<(DbBook, DbBookContent), NotFound>> GetContentAsync(string id, string contentId, CancellationToken cancellationToken = default);
-
-        Task<DbBook> CreateAsync(BookBase book, BookContentBase content, BookImage[] pages, CancellationToken cancellationToken = default);
-        Task<OneOf<(DbBook, DbBookContent), NotFound>> CreateContentAsync(string id, BookContentBase content, BookImage[] pages, CancellationToken cancellationToken = default);
 
         Task<SearchResult<DbBook>> SearchAsync(BookQuery query, CancellationToken cancellationToken = default);
         Task<BookSuggestResult> SuggestAsync(SuggestQuery query, CancellationToken cancellationToken = default);
@@ -64,46 +60,6 @@ namespace nhitomi.Controllers
                 return new NotFound();
 
             return (book, content);
-        }
-
-        public async Task<DbBook> CreateAsync(BookBase book, BookContentBase content, BookImage[] pages, CancellationToken cancellationToken = default)
-        {
-            var entry = _client.Entry(new DbBook
-            {
-                Id = Snowflake.New, // manually specify for timing correctness
-                Contents = new[]
-                {
-                    new DbBookContent
-                    {
-                        Id    = Snowflake.New,
-                        Pages = pages.ToArray(p => new DbBookImage().Apply(p))
-                    }.ApplyBase(content)
-                }
-            }.ApplyBase(book));
-
-            return await entry.CreateAsync(cancellationToken);
-        }
-
-        public async Task<OneOf<(DbBook, DbBookContent), NotFound>> CreateContentAsync(string id, BookContentBase content, BookImage[] pages, CancellationToken cancellationToken = default)
-        {
-            var cont = new DbBookContent
-            {
-                Id    = Snowflake.New,
-                Pages = pages.ToArray(p => new DbBookImage().Apply(p))
-            }.ApplyBase(content);
-
-            var entry = await _client.GetEntryAsync<DbBook>(id, cancellationToken);
-
-            do
-            {
-                if (entry.Value == null)
-                    return new NotFound();
-
-                entry.Value.Contents = entry.Value.Contents.Append(cont).ToArray();
-            }
-            while (!await entry.TryUpdateAsync(cancellationToken));
-
-            return (entry.Value, cont);
         }
 
         public Task<SearchResult<DbBook>> SearchAsync(BookQuery query, CancellationToken cancellationToken = default)

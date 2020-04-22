@@ -1,12 +1,15 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using ChiyaFlake;
 using Microsoft.Extensions.DependencyInjection;
 using nhitomi.Database;
 using nhitomi.Models;
 using nhitomi.Models.Queries;
 using nhitomi.Scrapers;
 using NUnit.Framework;
+using OneOf;
+using OneOf.Types;
 
 namespace nhitomi.Controllers
 {
@@ -15,13 +18,57 @@ namespace nhitomi.Controllers
     /// </summary>
     public class BookServiceTest : TestBaseServices
     {
+        public async Task<DbBook> CreateAsync(BookBase book, BookContentBase content, BookImage[] pages)
+        {
+            var client = Services.GetService<IElasticClient>();
+
+            var entry = client.Entry(new DbBook
+            {
+                Id = Snowflake.New, // manually specify for timing correctness
+                Contents = new[]
+                {
+                    new DbBookContent
+                    {
+                        Id    = Snowflake.New,
+                        Pages = pages.ToArray(p => new DbBookImage().Apply(p))
+                    }.ApplyBase(content)
+                }
+            }.ApplyBase(book));
+
+            return await entry.CreateAsync();
+        }
+
+        public async Task<OneOf<(DbBook, DbBookContent), NotFound>> CreateContentAsync(string id, BookContentBase content, BookImage[] pages)
+        {
+            var client = Services.GetService<IElasticClient>();
+
+            var cont = new DbBookContent
+            {
+                Id    = Snowflake.New,
+                Pages = pages.ToArray(p => new DbBookImage().Apply(p))
+            }.ApplyBase(content);
+
+            var entry = await client.GetEntryAsync<DbBook>(id);
+
+            do
+            {
+                if (entry.Value == null)
+                    return new NotFound();
+
+                entry.Value.Contents = entry.Value.Contents.Append(cont).ToArray();
+            }
+            while (!await entry.TryUpdateAsync());
+
+            return (entry.Value, cont);
+        }
+
         [Test]
         public async Task CreateAsync()
         {
             var books = Services.GetService<IBookService>();
 
             // create book
-            var createBookResult = await books.CreateAsync(new BookBase
+            var createBookResult = await CreateAsync(new BookBase
             {
                 PrimaryName = "my book",
                 EnglishName = "name 2",
@@ -81,7 +128,7 @@ namespace nhitomi.Controllers
             Assert.That(getContentResult.AsT0.Item2.Id, Is.EqualTo(book.Contents[0].Id));
 
             // create another content
-            var contentResult = await books.CreateContentAsync(book.Id, new BookContentBase
+            var contentResult = await CreateContentAsync(book.Id, new BookContentBase
             {
                 Language = LanguageType.ChineseSimplified
             }, new[]
@@ -239,13 +286,13 @@ namespace nhitomi.Controllers
         {
             var books = Services.GetService<IBookService>();
 
-            await books.CreateAsync(new BookBase
+            await CreateAsync(new BookBase
             {
                 PrimaryName = "test primary name",
                 EnglishName = "test english name"
             }, new BookContentBase(), new BookImage[0]);
 
-            await books.CreateAsync(new BookBase
+            await CreateAsync(new BookBase
             {
                 PrimaryName = "test primary 2",
                 EnglishName = "another english name"
@@ -293,7 +340,7 @@ namespace nhitomi.Controllers
         {
             var books = Services.GetService<IBookService>();
 
-            await books.CreateAsync(new BookBase
+            await CreateAsync(new BookBase
             {
                 Tags = new Dictionary<BookTag, string[]>
                 {
@@ -302,7 +349,7 @@ namespace nhitomi.Controllers
                 }
             }, new BookContentBase(), new BookImage[0]);
 
-            await books.CreateAsync(new BookBase
+            await CreateAsync(new BookBase
             {
                 Tags = new Dictionary<BookTag, string[]>
                 {
@@ -312,7 +359,7 @@ namespace nhitomi.Controllers
                 }
             }, new BookContentBase(), new BookImage[0]);
 
-            await books.CreateAsync(new BookBase
+            await CreateAsync(new BookBase
             {
                 Tags = new Dictionary<BookTag, string[]>
                 {
@@ -356,12 +403,12 @@ namespace nhitomi.Controllers
         {
             var books = Services.GetService<IBookService>();
 
-            await books.CreateAsync(new BookBase
+            await CreateAsync(new BookBase
             {
                 PrimaryName = "test"
             }, new BookContentBase(), new BookImage[0]);
 
-            await books.CreateAsync(new BookBase
+            await CreateAsync(new BookBase
             {
                 PrimaryName = "test"
             }, new BookContentBase(), new BookImage[0]);
