@@ -5,6 +5,8 @@ using System.Threading.Tasks;
 using MessagePack;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using OneOf;
+using OneOf.Types;
 
 namespace nhitomi.Storage
 {
@@ -45,7 +47,7 @@ namespace nhitomi.Storage
 
         Task IStorage.InitializeAsync(CancellationToken cancellationToken) => Task.CompletedTask;
 
-        public async Task<StorageFile> ReadAsync(string name, CancellationToken cancellationToken = default)
+        public async Task<OneOf<StorageFile, NotFound, Exception>> ReadAsync(string name, CancellationToken cancellationToken = default)
         {
             var path = GetPath(name);
 
@@ -71,16 +73,16 @@ namespace nhitomi.Storage
             }
             catch (IOException)
             {
-                return null;
+                return new NotFound();
             }
             catch (Exception e)
             {
                 _logger.LogWarning(e, $"Failed to read file '{name}'.");
-                return null;
+                return e;
             }
         }
 
-        public async Task<bool> WriteAsync(StorageFile file, CancellationToken cancellationToken = default)
+        public async Task<OneOf<Success, Exception>> WriteAsync(StorageFile file, CancellationToken cancellationToken = default)
         {
             var path = GetPath(file.Name);
 
@@ -107,12 +109,13 @@ namespace nhitomi.Storage
                 }
 
                 _logger.LogInformation($"Wrote file '{file.Name}'.");
-                return true;
+
+                return new Success();
             }
             catch (Exception e)
             {
                 _logger.LogWarning(e, $"Failed to write file '{file.Name}'.");
-                return false;
+                return e;
             }
         }
 

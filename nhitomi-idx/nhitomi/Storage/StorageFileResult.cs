@@ -28,34 +28,34 @@ namespace nhitomi.Storage
             var cancellationToken = context.HttpContext.RequestAborted;
             var storage           = context.HttpContext.RequestServices.GetService<IStorage>();
 
-            using var file = await storage.ReadAsync(_name, cancellationToken);
+            var readResult = await storage.ReadAsync(_name, cancellationToken);
 
-            if (file == null)
+            if (!readResult.TryPickT0(out var file, out _))
             {
-                // if file did not exist, returned value is null and and nothing would be written to the response stream
-                // execute "not found" result
                 await ResultUtilities.NotFound<StorageFile>(_name).ExecuteResultAsync(context);
-
                 return;
             }
 
-            var headers = context.HttpContext.Response.GetTypedHeaders();
+            using (file)
+            {
+                var headers = context.HttpContext.Response.GetTypedHeaders();
 
-            // content-type
-            headers.ContentType = new MediaTypeHeaderValue(file.MediaType);
+                // content-type
+                headers.ContentType = new MediaTypeHeaderValue(file.MediaType);
 
-            // cache-control
-            if (CacheControl != null)
-                headers.CacheControl = new CacheControlHeaderValue { MaxAge = CacheControl };
+                // cache-control
+                if (CacheControl != null)
+                    headers.CacheControl = new CacheControlHeaderValue { MaxAge = CacheControl };
 
-            await using var stream = await ProcessStreamAsync(context, file.Stream, cancellationToken);
+                await using var stream = await ProcessStreamAsync(context, file.Stream, cancellationToken);
 
-            // content-length
-            if (stream.CanSeek)
-                headers.ContentLength = stream.Length;
+                // content-length
+                if (stream.CanSeek)
+                    headers.ContentLength = stream.Length;
 
-            // write to response
-            await stream.CopyToAsync(context.HttpContext.Response.Body, cancellationToken);
+                // write to response
+                await stream.CopyToAsync(context.HttpContext.Response.Body, cancellationToken);
+            }
         }
 
         protected virtual Task<Stream> ProcessStreamAsync(ActionContext context, Stream stream, CancellationToken cancellationToken = default) => Task.FromResult(stream);

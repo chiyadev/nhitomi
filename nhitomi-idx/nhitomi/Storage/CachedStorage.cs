@@ -1,10 +1,12 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using MessagePack;
+using Microsoft.Extensions.Logging;
+using OneOf;
+using OneOf.Types;
 
 namespace nhitomi.Storage
 {
@@ -40,53 +42,67 @@ namespace nhitomi.Storage
 
         readonly DefaultStorage _impl;
         readonly ICacheStore<Cache> _cache;
+        readonly ILogger<CachedStorage> _logger;
 
-        public CachedStorage(IServiceProvider services, ICacheManager cache, CachedStorageOptions options)
+        public CachedStorage(IServiceProvider services, ICacheManager cache, CachedStorageOptions options, ILogger<CachedStorage> logger)
         {
-            _impl  = new DefaultStorage(services, options.Inner);
-            _cache = cache.CreateStore<Cache>(k => options.Prefix + k, options.Expiry);
+            _logger = logger;
+            _impl   = new DefaultStorage(services, options.Inner);
+            _cache  = cache.CreateStore<Cache>(k => options.Prefix + k, options.Expiry);
         }
 
         public Task InitializeAsync(CancellationToken cancellationToken = default) => _impl.InitializeAsync(cancellationToken);
 
-        public async Task<StorageFile> ReadAsync(string name, CancellationToken cancellationToken = default)
+        public async Task<OneOf<StorageFile, NotFound, Exception>> ReadAsync(string name, CancellationToken cancellationToken = default)
         {
-            var cache = await _cache.GetAsync(name, async () =>
+            try
             {
-                var file = await _impl.ReadAsync(name, cancellationToken);
-
-                if (file == null)
-                    return null;
-
-                return new Cache
+                var cache = await _cache.GetAsync(name, async () =>
                 {
-                    Data      = await file.Stream.ToArrayAsync(cancellationToken),
-                    MediaType = file.MediaType
+                    var result = await _impl.ReadAsync(name, cancellationToken);
+
+                    if (!result.IsT0)
+                        return null;
+
+                    var file = result.AsT0;
+
+                    return new Cache
+                    {
+                        Data      = await file.Stream.ToArrayAsync(cancellationToken),
+                        MediaType = file.MediaType
+                    };
+                }, cancellationToken);
+
+                if (cache == null)
+                    return new NotFound();
+
+                return new StorageFile
+                {
+                    Name      = name,
+                    MediaType = cache.MediaType,
+                    Stream    = new MemoryStream(cache.Data)
                 };
-            }, cancellationToken);
-
-            if (cache == null)
-                return null;
-
-            return new StorageFile
+            }
+            catch (Exception e)
             {
-                Name      = name,
-                MediaType = cache.MediaType,
-                Stream    = new MemoryStream(cache.Data)
-            };
+                _logger.LogWarning(e, $"Failed to read file '{name}'.");
+                return e;
+            }
         }
 
-        public async Task<bool> WriteAsync(StorageFile file, CancellationToken cancellationToken = default)
+        public async Task<OneOf<Success, Exception>> WriteAsync(StorageFile file, CancellationToken cancellationToken = default)
         {
             var data = await file.Stream.ToArrayAsync(cancellationToken);
 
             file.Stream.Dispose();
             file.Stream = new MemoryStream(data);
 
-            if (!await _impl.WriteAsync(file, cancellationToken))
-                return false;
+            var result = await _impl.WriteAsync(file, cancellationToken);
 
-            cancellationToken = default; // don't cancel to write cache
+            if (!result.IsT0)
+                return result;
+
+            cancellationToken = default; // don't cancel cache write
 
             await _cache.SetAsync(file.Name, new Cache
             {
@@ -94,16 +110,16 @@ namespace nhitomi.Storage
                 MediaType = file.MediaType
             }, cancellationToken);
 
-            return true;
+            return new Success();
         }
 
         public async Task DeleteAsync(string[] names, CancellationToken cancellationToken = default)
         {
             await _impl.DeleteAsync(names, cancellationToken);
 
-            cancellationToken = default; // don't cancel to write cache
+            cancellationToken = default; // don't cancel cache delete
 
-            await Task.WhenAll((IEnumerable<Task>) names.Select(n => _cache.DeleteAsync(n, cancellationToken)));
+            await Task.WhenAll(names.Select(n => _cache.DeleteAsync(n, cancellationToken)));
         }
 
         public void Dispose() => _impl.Dispose();

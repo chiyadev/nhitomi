@@ -106,9 +106,10 @@ namespace nhitomi.Controllers
             }
 
             // read serialized snapshot value
-            using (var file = await _storage.ReadAsync($"snapshots/{snapshot.Id}", cancellationToken))
-            {
-                if (file != null)
+            var readResult = await _storage.ReadAsync($"snapshots/{snapshot.Id}", cancellationToken);
+
+            if (readResult.TryPickT0(out var file, out _))
+                using (file)
                 {
                     var value = MessagePackSerializer.Deserialize<T>(await file.Stream.ToArrayAsync(cancellationToken), _serializerOptions);
 
@@ -117,7 +118,6 @@ namespace nhitomi.Controllers
 
                     //throw new SnapshotMismatchException($"Snapshot {snapshot.Id} of {snapshot.Target} {snapshot.TargetId} does not match with actual value {value.SnapshotTarget} {value.Id}");
                 }
-            }
 
             // if rollback is specified, get value of rollback
             if (snapshot.RollbackId != null)

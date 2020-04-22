@@ -4,6 +4,8 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using OneOf;
+using OneOf.Types;
 
 namespace nhitomi.Storage
 {
@@ -111,8 +113,8 @@ namespace nhitomi.Storage
         }
 
         public Task InitializeAsync(CancellationToken cancellationToken = default) => _impl.InitializeAsync(cancellationToken);
-        public Task<StorageFile> ReadAsync(string name, CancellationToken cancellationToken = default) => _impl.ReadAsync(name, cancellationToken);
-        public Task<bool> WriteAsync(StorageFile file, CancellationToken cancellationToken = default) => _impl.WriteAsync(file, cancellationToken);
+        public Task<OneOf<StorageFile, NotFound, Exception>> ReadAsync(string name, CancellationToken cancellationToken = default) => _impl.ReadAsync(name, cancellationToken);
+        public Task<OneOf<Success, Exception>> WriteAsync(StorageFile file, CancellationToken cancellationToken = default) => _impl.WriteAsync(file, cancellationToken);
         public Task DeleteAsync(string[] names, CancellationToken cancellationToken = default) => _impl.DeleteAsync(names, cancellationToken);
 
         public void Dispose() => _impl.Dispose();

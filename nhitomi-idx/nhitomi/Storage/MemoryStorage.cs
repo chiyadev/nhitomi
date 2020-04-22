@@ -1,7 +1,10 @@
+using System;
 using System.Collections.Concurrent;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using OneOf;
+using OneOf.Types;
 
 namespace nhitomi.Storage
 {
@@ -21,20 +24,22 @@ namespace nhitomi.Storage
 
         Task IStorage.InitializeAsync(CancellationToken cancellationToken) => Task.CompletedTask;
 
-        public Task<StorageFile> ReadAsync(string name, CancellationToken cancellationToken = default)
+        public async Task<OneOf<StorageFile, NotFound, Exception>> ReadAsync(string name, CancellationToken cancellationToken = default)
         {
-            if (!_files.TryGetValue(name, out var file))
-                return Task.FromResult<StorageFile>(null);
+            await Task.Yield();
 
-            return Task.FromResult(new StorageFile
+            if (!_files.TryGetValue(name, out var file))
+                return new NotFound();
+
+            return new StorageFile
             {
                 Name      = name,
                 Stream    = new MemoryStream(file.Buffer),
                 MediaType = file.MediaType
-            });
+            };
         }
 
-        public async Task<bool> WriteAsync(StorageFile file, CancellationToken cancellationToken = default)
+        public async Task<OneOf<Success, Exception>> WriteAsync(StorageFile file, CancellationToken cancellationToken = default)
         {
             _files[file.Name] = new File
             {
@@ -42,7 +47,7 @@ namespace nhitomi.Storage
                 MediaType = file.MediaType
             };
 
-            return true;
+            return new Success();
         }
 
         public Task DeleteAsync(string[] names, CancellationToken cancellationToken = default)

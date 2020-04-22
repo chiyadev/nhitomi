@@ -1,6 +1,8 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using OneOf;
+using OneOf.Types;
 
 namespace nhitomi.Storage
 {
@@ -14,13 +16,13 @@ namespace nhitomi.Storage
         /// <summary>
         /// Reads a file of the given name from this storage.
         /// </summary>
-        Task<StorageFile> ReadAsync(string name, CancellationToken cancellationToken = default);
+        Task<OneOf<StorageFile, NotFound, Exception>> ReadAsync(string name, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Writes the given file to this storage.
         /// </summary>
         /// <returns>True if the write succeeded; otherwise false.</returns>
-        Task<bool> WriteAsync(StorageFile file, CancellationToken cancellationToken = default);
+        Task<OneOf<Success, Exception>> WriteAsync(StorageFile file, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Deletes a single file from this storage.
