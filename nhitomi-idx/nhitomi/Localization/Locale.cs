@@ -1,6 +1,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using nhitomi.Models;
 
 namespace nhitomi.Localization
 {
@@ -12,9 +13,9 @@ namespace nhitomi.Localization
         static readonly object _emptyArgs = new object();
 
         /// <summary>
-        /// Culture name of this locale.
+        /// Type of this locale.
         /// </summary>
-        string Name { get; }
+        LanguageType Type { get; }
 
         /// <summary>
         /// Gets the localized string associated with the specified key.
@@ -42,7 +43,7 @@ namespace nhitomi.Localization
                 _prefix = prefix;
             }
 
-            public string Name => _locale.Name;
+            public LanguageType Type => _locale.Type;
             public string this[string key, object args] => _locale[$"{_prefix}.{key}", args];
         }
 
@@ -89,7 +90,7 @@ namespace nhitomi.Localization
             _locales = locales.Where(l => l != null).ToArray();
         }
 
-        public string Name => _locales.Length == 0 ? null : _locales[0].Name;
+        public LanguageType Type => _locales.Length == 0 ? Locales.DefaultType : _locales[0].Type;
 
         public string this[string key, object args]
         {
@@ -111,7 +112,7 @@ namespace nhitomi.Localization
 
     public class NullLocale : ILocale
     {
-        public string Name => null;
+        public LanguageType Type => Locales.DefaultType;
         public string this[string key, object args] => null;
     }
 
@@ -120,7 +121,7 @@ namespace nhitomi.Localization
     /// </summary>
     public static class Locales
     {
-        static readonly ConcurrentDictionary<string, ILocale> _cache = new ConcurrentDictionary<string, ILocale>();
+        static readonly ConcurrentDictionary<LanguageType, ILocale> _cache = new ConcurrentDictionary<LanguageType, ILocale>();
 
         /// <summary>
         /// An empty locale that always returns null.
@@ -128,30 +129,30 @@ namespace nhitomi.Localization
         public static ILocale Null { get; } = new NullLocale();
 
         /// <summary>
-        /// Name of the default locale which is always "en-US".
+        /// Type of the default locale which is always English.
         /// </summary>
-        public static string DefaultName { get; } = "en-US";
+        public static LanguageType DefaultType => LanguageType.English;
 
         /// <summary>
-        /// Default locale determined by <see cref="DefaultName"/>.
+        /// Default locale determined by <see cref="DefaultType"/>.
         /// </summary>
-        public static ILocale Default => Get(DefaultName);
+        public static ILocale Default => Get(DefaultType);
 
         /// <summary>
-        /// Retrieves a locale by its culture name.
+        /// Retrieves a locale by type.
         /// </summary>
-        public static ILocale Get(string name)
+        public static ILocale Get(LanguageType lang)
         {
-            if (_cache.TryGetValue(name, out var locale))
+            if (_cache.TryGetValue(lang, out var locale))
                 return locale;
 
-            locale = new MessageFormatterLocale(name);
+            locale = new MessageFormatterLocale(lang);
 
             // layer locales over the default locale
-            if (locale.Name != DefaultName)
+            if (locale.Type != DefaultType)
                 locale = new LayeredLocale(locale, Default);
 
-            return _cache[name] = locale;
+            return _cache[lang] = locale;
         }
     }
 }

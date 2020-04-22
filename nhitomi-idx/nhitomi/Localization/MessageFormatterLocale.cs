@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using Jeffijoe.MessageFormat;
 using Newtonsoft.Json.Linq;
+using nhitomi.Models;
 
 namespace nhitomi.Localization
 {
@@ -11,7 +12,7 @@ namespace nhitomi.Localization
         readonly MessageFormatter _formatter;
         readonly IReadOnlyDictionary<string, string> _dict;
 
-        public string Name => _formatter.Locale;
+        public LanguageType Type { get; }
 
         public string this[string key, object args]
         {
@@ -26,12 +27,14 @@ namespace nhitomi.Localization
             }
         }
 
-        public MessageFormatterLocale(string name)
+        public MessageFormatterLocale(LanguageType type)
         {
-            _formatter = new MessageFormatter(true, name);
+            Type = type;
+
+            _formatter = new MessageFormatter(true, type.GetEnumName());
 
             // locales are in the same folder as this type
-            using var stream = GetType().Assembly.GetManifestResourceStream($"{GetType().Namespace}.{name}.json");
+            using var stream = GetType().Assembly.GetManifestResourceStream($"{GetType().Namespace}.{_formatter.Locale}.json");
 
             if (stream == null)
             {

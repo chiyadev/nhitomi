@@ -5,7 +5,9 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Net;
 using System.Net.Sockets;
+using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -324,21 +326,6 @@ namespace nhitomi
         public static List<T2> ToListMany<T1, T2>(this IEnumerable<T1> enumerable, Func<T1, IEnumerable<T2>> selector)
             => enumerable.SelectMany(selector).ToList();
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IDisposable WrapInDisposable(this Action action) => new DelegatingDisposable(action);
-
-        sealed class DelegatingDisposable : IDisposable
-        {
-            readonly Action _action;
-
-            public DelegatingDisposable(Action action)
-            {
-                _action = action;
-            }
-
-            public void Dispose() => _action?.Invoke();
-        }
-
         // FROM: https://stackoverflow.com/a/48599119
         /// <summary>
         /// Compares this byte array to the specified byte array using <see cref="Span{T}"/>.
@@ -380,18 +367,14 @@ namespace nhitomi
         }
 
         /// <summary>
-        /// A list that will dispose all <see cref="IDisposable"/> elements when it is being disposed.
+        /// Returns the name of this enum specified by <see cref="EnumMemberAttribute"/>.
+        /// This does not handle bitwise enums.
         /// </summary>
-        public class DisposableList<T> : List<T>, IDisposable
-        {
-            public void Dispose()
-            {
-                foreach (var item in this)
-                {
-                    if (item is IDisposable disposable)
-                        disposable.Dispose();
-                }
-            }
-        }
+        public static string GetEnumName<T>(this T value) where T : struct, Enum
+            => value.GetType()
+                    .GetMember(value.ToString())[0]
+                    .GetCustomAttribute<EnumMemberAttribute>()
+                   ?.Value
+            ?? value.ToString();
     }
 }
