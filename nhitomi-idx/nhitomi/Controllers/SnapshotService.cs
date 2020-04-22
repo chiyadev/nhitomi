@@ -178,12 +178,13 @@ namespace nhitomi.Controllers
             var entry = _client.Entry(new DbSnapshot
             {
                 // ensure snapshot time is in sync with object time
-                CreatedTime = args.Time
-                           ?? (obj is IHasUpdatedTime updated
-                                  ? updated.UpdatedTime
-                                  : obj is IHasCreatedTime created
-                                      ? created.CreatedTime
-                                      : default),
+                CreatedTime = args.Time ?? obj switch
+                {
+                    IHasUpdatedTime u => u.UpdatedTime,
+                    IHasCreatedTime c => c.CreatedTime,
+
+                    _ => default
+                },
 
                 Source      = args.Source,
                 Event       = args.Event,
