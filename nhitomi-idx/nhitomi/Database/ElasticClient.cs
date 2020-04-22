@@ -394,7 +394,8 @@ namespace nhitomi.Database
                     IPutMappingRequest map(PutMappingDescriptor<T> m)
                         => m.Index(index.IndexName)
                             .AutoMap()
-                            .SourceField(s => s.Excludes(SourceExcludeFields));
+                            .SourceField(s => s.Excludes(SourceExcludeFields))
+                            .Dynamic(false);
 
                     IPromise<IDynamicIndexSettings> settings(DynamicIndexSettingsDescriptor s)
                         => s.NumberOfReplicas(options.ReplicaCount)
@@ -412,7 +413,8 @@ namespace nhitomi.Database
                     ICreateIndexRequest map(CreateIndexDescriptor i)
                         => i.Settings(settings)
                             .Map(m => m.AutoMap<T>()
-                                       .SourceField(s => s.Excludes(SourceExcludeFields)));
+                                       .SourceField(s => s.Excludes(SourceExcludeFields))
+                                       .Dynamic(false));
 
                     IPromise<IIndexSettings> settings(IndexSettingsDescriptor s)
                         => s.NumberOfShards(options.ShardCount)
