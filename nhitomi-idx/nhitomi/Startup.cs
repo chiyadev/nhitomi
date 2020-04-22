@@ -27,12 +27,12 @@ namespace nhitomi
 {
     public class Startup
     {
-        readonly IConfiguration _configuration;
+        readonly IConfigurationRoot _configuration;
         readonly IWebHostEnvironment _environment;
 
         public Startup(IConfiguration configuration, IWebHostEnvironment environment)
         {
-            _configuration = configuration;
+            _configuration = (IConfigurationRoot) configuration;
             _environment   = environment;
         }
 
@@ -48,7 +48,8 @@ namespace nhitomi
         public void ConfigureServices(IServiceCollection services)
         {
             // configuration
-            services.Configure<ServerOptions>(_configuration.GetSection(nameof(CompositeConfig.Server)))
+            services.AddSingleton(_configuration)
+                    .Configure<ServerOptions>(_configuration.GetSection(nameof(CompositeConfig.Server)))
                     .Configure<StorageOptions>(_configuration.GetSection(nameof(CompositeConfig.Storage)))
                     .Configure<ElasticOptions>(_configuration.GetSection(nameof(CompositeConfig.Elastic)))
                     .Configure<RedisOptions>(_configuration.GetSection(nameof(CompositeConfig.Redis)))

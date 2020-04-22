@@ -153,17 +153,21 @@ namespace nhitomi
         /// <summary>
         /// Makes request and checks for request exceptions with the specified status.
         /// </summary>
-        protected static async Task ThrowsStatusAsync(HttpStatusCode status, Func<Task> request)
+        protected static async Task<RequestException> ThrowsStatusAsync(HttpStatusCode status, Func<Task> request)
         {
             try
             {
                 await request();
 
-                Assert.Fail("Request succeeded.");
+                Assert.Fail("Request was expected to fail, but succeeded.");
+
+                return null;
             }
             catch (RequestException e)
             {
                 Assert.That(e.Response.StatusCode, Is.EqualTo(status), e.Message);
+
+                return e;
             }
         }
     }
