@@ -51,8 +51,8 @@ namespace nhitomi.Database
 
             public async Task AcquireAsync(CancellationToken cancellationToken = default)
             {
-                while (!await _client.SetAsync(_key, _id, _expire, When.NotExists, cancellationToken))
-                    await Task.Delay(TimeSpan.FromMilliseconds(20), cancellationToken);
+                for (var i = 1; !await _client.SetAsync(_key, _id, _expire, When.NotExists, cancellationToken); i++)
+                    await Task.Delay(TimeSpan.FromMilliseconds(10 * Math.Clamp(i, 1, 10)), cancellationToken);
 
                 Interlocked.Exchange(ref _acquired, 1);
 
