@@ -1,6 +1,7 @@
 using MessagePack;
 using Nest;
 using nhitomi.Models;
+using nhitomi.Scrapers;
 
 namespace nhitomi.Database
 {
@@ -15,7 +16,7 @@ namespace nhitomi.Database
         public LanguageType Language { get; set; }
 
         [Key("sr"), Keyword(Name = "sr")]
-        public string[] Sources { get; set; }
+        public ScraperType[] Sources { get; set; }
 
         [Key("pg"), Object(Name = "pg", Enabled = false)]
         public DbBookImage[] Pages { get; set; }
@@ -25,7 +26,7 @@ namespace nhitomi.Database
             base.MapTo(model);
 
             model.Language = Language;
-            model.Sources  = Sources?.ToArray(WebsiteSource.Parse);
+            model.Sources  = Sources;
 
             model.Pages = Pages?.ToArray(p => p.Convert());
         }
@@ -35,7 +36,7 @@ namespace nhitomi.Database
             base.MapFrom(model);
 
             Language = model.Language;
-            Sources  = model.Sources?.ToArray(s => s.ToString());
+            Sources  = model.Sources;
 
             Pages = model.Pages?.ToArray(p => new DbBookImage().Apply(p));
         }

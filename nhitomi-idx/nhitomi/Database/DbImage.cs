@@ -4,6 +4,7 @@ using MessagePack;
 using Microsoft.AspNetCore.WebUtilities;
 using Nest;
 using nhitomi.Models;
+using nhitomi.Scrapers;
 
 namespace nhitomi.Database
 {
@@ -63,7 +64,7 @@ namespace nhitomi.Database
         public string[] TagsPool { get; set; }
 
         [Key("sr"), Keyword(Name = "sr")]
-        public string[] Sources { get; set; }
+        public ScraperType[] Sources { get; set; }
 
         [Key("ra"), Keyword(Name = "ra")]
         public MaterialRating Rating { get; set; }
@@ -90,7 +91,7 @@ namespace nhitomi.Database
                 [ImageTag.Pool]      = TagsPool
             };
 
-            model.Sources = Sources?.ToArray(WebsiteSource.Parse);
+            model.Sources = Sources;
             model.Rating  = Rating;
         }
 
@@ -116,7 +117,7 @@ namespace nhitomi.Database
                 TagsPool      = model.Tags.GetValueOrDefault(ImageTag.Pool);
             }
 
-            Sources = model.Sources?.ToArray(s => s.ToString());
+            Sources = model.Sources;
             Rating  = model.Rating;
         }
 

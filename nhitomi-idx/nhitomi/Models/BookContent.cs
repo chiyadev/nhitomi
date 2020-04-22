@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using nhitomi.Models.Validation;
+using nhitomi.Scrapers;
 
 namespace nhitomi.Models
 {
@@ -32,6 +33,6 @@ namespace nhitomi.Models
         /// <summary>
         /// Sources from where this content was downloaded.
         /// </summary>
-        public WebsiteSource[] Sources { get; set; }
+        public ScraperType[] Sources { get; set; }
     }
 }

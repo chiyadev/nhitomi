@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using nhitomi.Models.Queries;
+using nhitomi.Scrapers;
 
 namespace nhitomi.Models
 {
@@ -11,7 +12,7 @@ namespace nhitomi.Models
         public Dictionary<ImageTag, TextQuery> Tags { get; set; }
         public RangeQuery<int> TagCount { get; set; }
         public FilterQuery<MaterialRating> Rating { get; set; }
-        public FilterQuery<WebsiteSource> Source { get; set; }
+        public FilterQuery<ScraperType> Source { get; set; }
         public RangeQuery<int> SourceCount { get; set; }
         public RangeQuery<int> NoteCount { get; set; }
     }

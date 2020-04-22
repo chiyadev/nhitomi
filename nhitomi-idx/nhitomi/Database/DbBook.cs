@@ -4,6 +4,7 @@ using System.Linq;
 using MessagePack;
 using Nest;
 using nhitomi.Models;
+using nhitomi.Scrapers;
 
 namespace nhitomi.Database
 {
@@ -145,7 +146,7 @@ namespace nhitomi.Database
         /// This is a cached property for querying.
         /// </summary>
         [IgnoreMember, Keyword(Name = "sr")]
-        public string[] Sources { get; set; }
+        public ScraperType[] Sources { get; set; }
 
         public enum SuggestionType
         {
@@ -176,7 +177,7 @@ namespace nhitomi.Database
                 PageCount = Contents.ToArray(c => c.Pages?.Length ?? 0);
                 NoteCount = Contents.ToArray(c => c.Pages?.Sum(p => p.Notes?.Length ?? 0) ?? 0);
                 Language  = Contents.ToArray(c => c.Language);
-                Sources   = Contents.ToArrayMany(c => c.Sources ?? Array.Empty<string>());
+                Sources   = Contents.ToArrayMany(c => c.Sources ?? Array.Empty<ScraperType>());
             }
 
             Suggest = new CompletionField
