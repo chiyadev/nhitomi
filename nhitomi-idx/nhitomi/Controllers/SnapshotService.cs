@@ -58,6 +58,7 @@ namespace nhitomi.Controllers
         Task<OneOf<T, NotFound>> GetValueAsync<T>(DbSnapshot snapshot, CancellationToken cancellationToken = default) where T : class, IDbObject, IDbHasType;
 
         Task<SearchResult<DbSnapshot>> SearchAsync(ObjectType target, SnapshotQuery query, CancellationToken cancellationToken = default);
+        Task<int> CountAsync(CancellationToken cancellationToken = default);
 
         Task<OneOf<T, NotFound>> RollbackAsync<T>(DbSnapshot snapshot, CancellationToken cancellationToken = default) where T : class, IDbObject, IDbHasType;
         Task<OneOf<DbSnapshot>> CreateAsync<T>(T obj, SnapshotArgs args, CancellationToken cancellationToken = default) where T : class, IDbObject, IDbHasType;
@@ -139,6 +140,9 @@ namespace nhitomi.Controllers
 
         public Task<SearchResult<DbSnapshot>> SearchAsync(ObjectType target, SnapshotQuery query, CancellationToken cancellationToken = default)
             => _client.SearchAsync(new DbSnapshotQueryProcessor(target, query), cancellationToken);
+
+        public Task<int> CountAsync(CancellationToken cancellationToken = default)
+            => _client.CountAsync<DbSnapshot>(cancellationToken);
 
         public async Task<OneOf<T, NotFound>> RollbackAsync<T>(DbSnapshot snapshot, CancellationToken cancellationToken = default) where T : class, IDbObject, IDbHasType
         {

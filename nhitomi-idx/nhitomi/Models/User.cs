@@ -95,6 +95,6 @@ namespace nhitomi.Models
         /// <summary>
         /// Can manage internal server configuration, maintenance mode, restart, etc.
         /// </summary>
-        ManageConfig = 1 << 3
+        ManageServer = 1 << 3
     }
 }
