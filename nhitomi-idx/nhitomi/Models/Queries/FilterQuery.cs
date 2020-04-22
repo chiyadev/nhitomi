@@ -6,7 +6,7 @@ using Newtonsoft.Json;
 
 namespace nhitomi.Models.Queries
 {
-    public class FilterQuery<T> : IQueryComponent
+    public class FilterQuery<T>
     {
         /// <summary>
         /// Values to match.

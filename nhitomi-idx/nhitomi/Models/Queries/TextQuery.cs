@@ -5,7 +5,7 @@ using Newtonsoft.Json;
 
 namespace nhitomi.Models.Queries
 {
-    public class TextQuery : IQueryComponent
+    public class TextQuery
     {
         /// <summary>
         /// Values to match.

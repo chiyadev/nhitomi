@@ -6,7 +6,7 @@ namespace nhitomi.Models.Queries
     /// <remarks>
     /// Ranges are inclusive by default.
     /// </remarks>
-    public class RangeQuery<T> : IQueryComponent where T : struct
+    public class RangeQuery<T> where T : struct
     {
         /// <summary>
         /// Minimum value to match.

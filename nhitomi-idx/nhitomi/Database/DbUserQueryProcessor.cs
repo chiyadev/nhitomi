@@ -14,12 +14,14 @@ namespace nhitomi.Database
                    .MultiQuery(q => q.Range(Query.CreatedTime, u => u.CreatedTime)
                                      .Range(Query.UpdatedTime, u => u.UpdatedTime)
                                      .Filter(Query.Permissions, u => u.Permissions))
-                   .MultiSort(Query.Sorting, sort => sort switch
-                    {
-                        UserSort.CreatedTime => u => u.CreatedTime,
-                        UserSort.UpdatedTime => u => u.UpdatedTime,
+                   .MultiSort(
+                        Query.Sorting,
+                        sort => (Expression<Func<DbUser, object>>) (sort switch
+                        {
+                            UserSort.CreatedTime => u => u.CreatedTime,
+                            UserSort.UpdatedTime => u => u.UpdatedTime,
 
-                        _ => (Expression<Func<DbUser, object>>) null
-                    });
+                            _ => null
+                        }));
     }
 }
