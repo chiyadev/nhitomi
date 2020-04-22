@@ -38,6 +38,7 @@ namespace nhitomi.Controllers
 
         sealed class UserInfo
         {
+#pragma warning disable 0649
             [JsonProperty("id")] public string Id;
             [JsonProperty("username")] public string Username;
             [JsonProperty("discriminator")] public string Discriminator;
@@ -45,6 +46,7 @@ namespace nhitomi.Controllers
             [JsonProperty("locale")] public string Locale;
             [JsonProperty("verified")] public bool Verified;
             [JsonProperty("email")] public string Email;
+#pragma warning restore 0649
 
             public void ApplyOn(DbUser user)
             {
