@@ -1,4 +1,3 @@
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using nhitomi.Controllers;
@@ -20,19 +19,27 @@ namespace nhitomi
         }
 
         [Test]
-        public async Task Run()
+        public async Task ConfigureUsersAsync()
         {
+            var firstUser  = await MakeUserAsync("first");
+            var secondUser = await MakeUserAsync("second");
+            var thirdUser  = await MakeUserAsync("third");
+
             var init = ActivatorUtilities.CreateInstance<StartupInitializer>(Services);
 
-            await init.RunAsync();
+            await init.ConfigureUsersAsync();
 
             var users = Services.GetService<IUserService>();
 
-            Assert.That(await users.CountAsync(), Is.EqualTo(1));
+            Assert.That(await users.CountAsync(), Is.EqualTo(3));
 
-            var user = (await users.SearchAsync(new UserQuery { Limit = 1 })).Items.FirstOrDefault();
+            firstUser  = (await users.GetAsync(firstUser.Id)).AsT0;
+            secondUser = (await users.GetAsync(secondUser.Id)).AsT0;
+            thirdUser  = (await users.GetAsync(thirdUser.Id)).AsT0;
 
-            Assert.That(user, Is.Not.Null);
+            Assert.That(firstUser.HasPermissions(UserPermissions.Administrator), Is.True);
+            Assert.That(secondUser.HasPermissions(UserPermissions.Administrator), Is.False);
+            Assert.That(thirdUser.HasPermissions(UserPermissions.Administrator), Is.False);
         }
     }
 }

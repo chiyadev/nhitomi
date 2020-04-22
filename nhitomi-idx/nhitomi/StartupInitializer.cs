@@ -47,7 +47,7 @@ namespace nhitomi
             await ConfigureUsersAsync(cancellationToken);
         }
 
-        async Task ConfigureUsersAsync(CancellationToken cancellationToken = default)
+        public async Task ConfigureUsersAsync(CancellationToken cancellationToken = default)
         {
             // make admin user
             if (_options.CurrentValue.FirstUserAdmin)
