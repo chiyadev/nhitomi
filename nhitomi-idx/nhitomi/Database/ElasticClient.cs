@@ -65,6 +65,11 @@ namespace nhitomi.Database
         /// Time to wait when Elasticsearch is being overloaded.
         /// </summary>
         public TimeSpan RateLimitWait { get; set; } = TimeSpan.FromSeconds(3);
+
+        /// <summary>
+        /// True to enable dynamic server configuration stored in Elasticsearch.
+        /// </summary>
+        public bool EnableDynamicConfig { get; set; } = true;
     }
 
     public interface IQueryProcessor<T> where T : class, IDbObject

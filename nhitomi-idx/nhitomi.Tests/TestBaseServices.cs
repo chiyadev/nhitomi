@@ -90,8 +90,11 @@ namespace nhitomi
                 // use a random elasticsearch index prefix to avoid clashing between parallel tests
                 o.IndexPrefix = $"nhitomi-test-{prefix}-";
 
-                // make elasticsearch refresh immediately (to make tests run faster)
+                // make elasticsearch refresh immediately to make tests run faster
                 o.RequestRefreshOption = Refresh.True;
+
+                // disable dynamic config to make tests faster
+                o.EnableDynamicConfig = false;
             });
 
             // use a random redis key prefix
