@@ -3,7 +3,7 @@ using System.Net;
 
 namespace nhitomi.Models
 {
-    public class Result<T> where T : class
+    public class Result<T>
     {
         /// <summary>
         /// Whether this result represents an error.
