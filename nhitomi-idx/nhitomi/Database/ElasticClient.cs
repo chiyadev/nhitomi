@@ -670,6 +670,9 @@ namespace nhitomi.Database
 
         public async Task<IDbEntry<T>> GetEntryAsync<T>(string id, CancellationToken cancellationToken = default) where T : class, IDbObject
         {
+            if (string.IsNullOrEmpty(id))
+                return Entry<T>(null);
+
             var index = await GetIndexAsync<T>(cancellationToken);
 
             // get from cache or fresh value
