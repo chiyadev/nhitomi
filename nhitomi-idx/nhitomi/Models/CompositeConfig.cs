@@ -30,6 +30,9 @@ namespace nhitomi.Models
         public UserServiceOptions User { get; set; }
 
         [Required]
+        public BookServiceOptions Book { get; set; }
+
+        [Required]
         public SnapshotServiceOptions Snapshot { get; set; }
 
         [Required]

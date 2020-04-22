@@ -54,6 +54,7 @@ namespace nhitomi
                     .Configure<RedisOptions>(_configuration.GetSection(nameof(CompositeConfig.Redis)))
                     .Configure<RecaptchaOptions>(_configuration.GetSection(nameof(CompositeConfig.Recaptcha)))
                     .Configure<UserServiceOptions>(_configuration.GetSection(nameof(CompositeConfig.User)))
+                    .Configure<BookServiceOptions>(_configuration.GetSection(nameof(CompositeConfig.Book)))
                     .Configure<SnapshotServiceOptions>(_configuration.GetSection(nameof(CompositeConfig.Snapshot)))
                     .Configure<DiscordOptions>(_configuration.GetSection(nameof(CompositeConfig.Discord)));
 
@@ -203,6 +204,7 @@ namespace nhitomi
             // database
             services.AddSingleton<IElasticClient, ElasticClient>()
                     .AddSingleton<IUserService, UserService>()
+                    .AddSingleton<IBookService, BookService>()
                     .AddSingleton<ISnapshotService, SnapshotService>();
 
             services.AddSingleton<IRedisClient, RedisClient>()
