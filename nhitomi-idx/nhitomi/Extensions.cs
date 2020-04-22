@@ -311,6 +311,14 @@ namespace nhitomi
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static T[] ToArray<T>(this ISet<T> set)
+        {
+            var array = new T[set.Count];
+            set.CopyTo(array, 0);
+            return array;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static T2[] ToArray<T1, T2>(this IEnumerable<T1> enumerable, Func<T1, T2> selector)
             => enumerable.Select(selector).ToArray();
 
