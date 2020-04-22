@@ -243,7 +243,7 @@ namespace nhitomi
 
         public void Configure(IApplicationBuilder app)
         {
-            if (app.ApplicationServices.GetService<IOptions<ServerOptions>>().Value.ResponseCompression)
+            if (app.ApplicationServices.GetService<IOptionsMonitor<ServerOptions>>().CurrentValue.ResponseCompression)
                 app.UseResponseCompression();
 
             // backend

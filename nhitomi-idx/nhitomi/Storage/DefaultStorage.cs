@@ -92,7 +92,7 @@ namespace nhitomi.Storage
     {
         readonly IStorage _impl;
 
-        public DefaultStorage(IServiceProvider services, IOptions<StorageOptions> options) : this(services, options.Value) { }
+        public DefaultStorage(IServiceProvider services, IOptionsMonitor<StorageOptions> options) : this(services, options.CurrentValue) { }
 
         public DefaultStorage(IServiceProvider services, StorageOptions options)
         {

@@ -37,7 +37,7 @@ namespace nhitomi.Discord
         readonly IServiceProvider _services;
         readonly ILogger<DiscordClient> _logger;
 
-        public DiscordClient(IServiceProvider services, ILogger<DiscordClient> logger, IOptions<DiscordOptions> options) : base(options.Value)
+        public DiscordClient(IServiceProvider services, ILogger<DiscordClient> logger, IOptionsMonitor<DiscordOptions> options) : base(options.CurrentValue)
         {
             _services = services;
             _logger   = logger;
