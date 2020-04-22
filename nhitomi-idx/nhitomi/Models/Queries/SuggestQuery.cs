@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace nhitomi.Models.Queries
 {
-    public  class SuggestQuery
+    public class SuggestQuery
     {
         /// <summary>
         /// String to match as the prefix of suggestions.

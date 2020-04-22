@@ -3,7 +3,7 @@ using System.Diagnostics;
 
 namespace nhitomi
 {
-    public  class MeasureContext : IDisposable
+    public class MeasureContext : IDisposable
     {
         public readonly Stopwatch Watch = Stopwatch.StartNew();
 

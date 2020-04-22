@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace nhitomi.Models.Queries
 {
-    public  class SearchResult<T>
+    public class SearchResult<T>
     {
         /// <summary>
         /// How long it took for the search to be completed.
