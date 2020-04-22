@@ -35,7 +35,7 @@ namespace nhitomi.Database
         /// <summary>
         /// Cannot query against this property.
         /// </summary>
-        [IgnoreMember, Keyword(Name = "h", DocValues = false, Index = false)] // for elasticsearch
+        [IgnoreMember, Keyword(Name = "h", Index = false)] // for elasticsearch
         public string HashString
         {
             get => WebEncoders.Base64UrlEncode(Hash);
@@ -69,7 +69,10 @@ namespace nhitomi.Database
         [Key("sr"), Keyword(Name = "sr", DocValues = false)]
         public ScraperType Source { get; set; }
 
-        [Key("da"), Keyword(Name = "da", DocValues = false, Index = false)]
+        /// <summary>
+        /// Cannot query against this property.
+        /// </summary>
+        [Key("da"), Keyword(Name = "da", Index = false)]
         public string Data { get; set; }
 
         public override void MapTo(Image model)

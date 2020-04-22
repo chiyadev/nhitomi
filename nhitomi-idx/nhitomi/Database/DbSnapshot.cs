@@ -43,7 +43,7 @@ namespace nhitomi.Database
         /// <summary>
         /// Cannot query against this property.
         /// </summary>
-        [Key("d"), Keyword(Name = "d", DocValues = false, Index = false)]
+        [Key("d"), Keyword(Name = "d", Index = false)]
         public string Data { get; set; }
 
         public override void MapTo(Models.Snapshot model)
