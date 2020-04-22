@@ -45,6 +45,7 @@ namespace nhitomi.Models
 
         /// <summary>
         /// Name of this book translated to English.
+        /// This should be in plain comprehensible English, not a direct romanization of primary name.
         /// </summary>
         [MinLength(3)]
         public string EnglishName { get; set; }
