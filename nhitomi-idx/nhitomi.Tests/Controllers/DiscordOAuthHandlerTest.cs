@@ -2,6 +2,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using nhitomi.Database;
+using nhitomi.Discord;
 using nhitomi.Models;
 using NUnit.Framework;
 using RichardSzalay.MockHttp;
@@ -32,6 +33,18 @@ namespace nhitomi.Controllers
                        verified      = true,
                        email         = "phosphene47@chiya.dev"
                    }));
+
+        protected override void ConfigureServices(IServiceCollection services)
+        {
+            base.ConfigureServices(services);
+
+            services.PostConfigure<DiscordOptions>(o => o.OAuth = new DiscordOptions.OAuthOptions
+            {
+                ClientId     = 1234,
+                ClientSecret = "secret",
+                RedirectUri  = "https://chiya.dev"
+            });
+        }
 
         [Test]
         public async Task RegisterAsync()
