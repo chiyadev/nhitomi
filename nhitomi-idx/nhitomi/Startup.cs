@@ -66,7 +66,7 @@ namespace nhitomi
             // kestrel
             services.Configure<KestrelServerOptions>(o =>
             {
-                var server = _configuration.GetSection("Server").Get<ServerOptions>();
+                var server = o.ApplicationServices.GetService<IOptionsMonitor<ServerOptions>>().CurrentValue;
 
                 if (_environment.IsDevelopment())
                 {
