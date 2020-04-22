@@ -21,9 +21,9 @@ namespace nhitomi
     }
 
     /// <summary>
-    /// <see cref="PrimitiveResponseWrapperFilter"/>
+    /// <see cref="StatusCodeResultWrapperFilter"/>
     /// </summary>
-    public class PrimitiveResponseWrapperFilterTest : TestBaseHttpClient<PrimitiveResponseWrapperFilterTestController>
+    public class StatusCodeResultWrapperFilterTest : TestBaseHttpClient<PrimitiveResponseWrapperFilterTestController>
     {
         [Test]
         public async Task PlainString()

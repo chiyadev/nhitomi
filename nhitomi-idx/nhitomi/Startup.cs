@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.Configuration;
@@ -103,8 +104,10 @@ namespace nhitomi
             // mvc
             services.AddMvcCore(m =>
                      {
-                         m.Filters.Add<PrimitiveResponseWrapperFilter>();
+                         m.Filters.Add<StatusCodeResultWrapperFilter>();
                          m.Filters.Add<RequestValidateQueryFilter>();
+
+                         m.OutputFormatters.RemoveType<StringOutputFormatter>();
 
                          // model sanitizing binder
                          var modelBinder = new ModelSanitizerModelBinderProvider(m.ModelBinderProviders);
