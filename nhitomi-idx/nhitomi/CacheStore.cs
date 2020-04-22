@@ -20,7 +20,7 @@ namespace nhitomi
         /// Deletes a cached object by the specified key and returns the cached value.
         /// Internally, this will set the cache to null instead of deleting the entry to prevent cache penetration.
         /// </summary>
-        Task<T> DeleteAsync<T>(string key, CancellationToken cancellationToken = default) where T : class
+        Task DeleteAsync<T>(string key, CancellationToken cancellationToken = default) where T : class
             => SetAsync<T>(key, null, cancellationToken);
     }
 
@@ -33,7 +33,7 @@ namespace nhitomi
         Task<T> SetAsync(string key, T value, CancellationToken cancellationToken = default) => SetAsync<T>(key, value, cancellationToken);
 
         /// <inheritdoc cref="ICacheStore.DeleteAsync{T}"/>
-        Task<T> DeleteAsync(string key, CancellationToken cancellationToken = default) => DeleteAsync<T>(key, cancellationToken);
+        Task DeleteAsync(string key, CancellationToken cancellationToken = default) => DeleteAsync<T>(key, cancellationToken);
     }
 
     public interface ICacheCounter

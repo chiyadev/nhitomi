@@ -84,9 +84,7 @@ namespace nhitomi
 
             Assert.That(value, Is.EqualTo("value"));
 
-            value = await store.DeleteAsync("key");
-
-            Assert.That(value, Is.EqualTo("value"));
+            await store.DeleteAsync("key");
 
             value = await store.GetAsync("key", () => Task.FromResult("value"));
 
