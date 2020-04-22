@@ -104,7 +104,7 @@ namespace nhitomi
             // mvc
             services.AddMvcCore(m =>
                      {
-                         m.Filters.Add<StatusCodeResultWrapperFilter>();
+                         m.Filters.Add<PrimitiveResponseWrapperFilter>();
                          m.Filters.Add<RequestValidateQueryFilter>();
 
                          m.OutputFormatters.RemoveType<StringOutputFormatter>();

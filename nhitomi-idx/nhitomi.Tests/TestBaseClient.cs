@@ -76,7 +76,7 @@ namespace nhitomi
             }
         }
 
-        protected async Task<HttpContent> RequestAsync(HttpMethod method, string path, HttpContent content, Action<HttpRequestMessage> configure = null)
+        protected async Task<HttpResponseMessage> RequestAsync(HttpMethod method, string path, HttpContent content, Action<HttpRequestMessage> configure = null)
         {
             var request = new HttpRequestMessage(method, $"{RequestPathPrefix.Trim('/')}/{path}")
             {
@@ -109,7 +109,20 @@ namespace nhitomi
                 throw new RequestException(response, readContent);
             }
 
-            return response.Content;
+            return response;
+        }
+
+        protected async Task<T> RequestAsync<T>(HttpMethod method, string path, HttpContent content, Action<HttpRequestMessage> configure = null)
+        {
+            using var response = await RequestAsync(method, path, content, configure);
+
+            var data = await response.Content.ReadAsStringAsync();
+
+            // if expecting string, use message
+            if (typeof(T) == typeof(string))
+                return (T) (object) JsonConvert.DeserializeObject<Result<T>>(data).Message;
+
+            return JsonConvert.DeserializeObject<T>(data);
         }
 
         [Serializable]
@@ -126,29 +139,17 @@ namespace nhitomi
             protected RequestException(SerializationInfo info, StreamingContext context) : base(info, context) { }
         }
 
-        protected async Task<T> GetAsync<T>(string path)
-        {
-            using var response = await RequestAsync(HttpMethod.Get, path, null);
-            return JsonConvert.DeserializeObject<T>(await response.ReadAsStringAsync());
-        }
+        protected Task<T> GetAsync<T>(string path)
+            => RequestAsync<T>(HttpMethod.Get, path, null);
 
-        protected async Task<T> PostAsync<T>(string path, object value)
-        {
-            using var response = await RequestAsync(HttpMethod.Post, path, new StringContent(JsonConvert.SerializeObject(value), Encoding.Default, "application/json"));
-            return JsonConvert.DeserializeObject<T>(await response.ReadAsStringAsync());
-        }
+        protected Task<T> PostAsync<T>(string path, object value)
+            => RequestAsync<T>(HttpMethod.Post, path, new StringContent(JsonConvert.SerializeObject(value), Encoding.Default, "application/json"));
 
-        protected async Task<T> PutAsync<T>(string path, object value)
-        {
-            using var response = await RequestAsync(HttpMethod.Put, path, new StringContent(JsonConvert.SerializeObject(value), Encoding.Default, "application/json"));
-            return JsonConvert.DeserializeObject<T>(await response.ReadAsStringAsync());
-        }
+        protected Task<T> PutAsync<T>(string path, object value)
+            => RequestAsync<T>(HttpMethod.Put, path, new StringContent(JsonConvert.SerializeObject(value), Encoding.Default, "application/json"));
 
-        protected async Task<T> DeleteAsync<T>(string path)
-        {
-            using var response = await RequestAsync(HttpMethod.Delete, path, null);
-            return JsonConvert.DeserializeObject<T>(await response.ReadAsStringAsync());
-        }
+        protected Task<T> DeleteAsync<T>(string path)
+            => RequestAsync<T>(HttpMethod.Delete, path, null);
 
         /// <summary>
         /// Makes request and checks for request exceptions with the specified status.
