@@ -45,10 +45,10 @@ namespace nhitomi
             }
         }
 
-        public RecaptchaValidator(IOptionsMonitor<RecaptchaOptions> options, IHttpClientFactory httpClientFactory, ILogger<RecaptchaValidator> logger)
+        public RecaptchaValidator(IOptionsMonitor<RecaptchaOptions> options, IHttpClientFactory http, ILogger<RecaptchaValidator> logger)
         {
             _options = options;
-            _http    = httpClientFactory.CreateClient(nameof(RecaptchaValidator));
+            _http    = http.CreateClient(nameof(RecaptchaValidator));
             _logger  = logger;
         }
 
