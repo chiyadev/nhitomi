@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using nhitomi.Database;
 using nhitomi.Models;
 using nhitomi.Models.Queries;
+using nhitomi.Scrapers;
 using NUnit.Framework;
 
 namespace nhitomi.Controllers
@@ -34,11 +35,7 @@ namespace nhitomi.Controllers
                 Language = LanguageType.English,
                 Sources = new[]
                 {
-                    new WebsiteSource
-                    {
-                        Website    = "google.com",
-                        Identifier = "book"
-                    }
+                    ScraperType.nhentai
                 }
             }, new[]
             {
@@ -69,8 +66,7 @@ namespace nhitomi.Controllers
             Assert.That(book.Tags[BookTag.Artist][1], Is.EqualTo("artist 2"));
             Assert.That(book.Contents, Has.One.Items);
             Assert.That(book.Contents[0].Sources, Has.Exactly(1).Items);
-            Assert.That(book.Contents[0].Sources[0].Website, Is.EqualTo("google.com"));
-            Assert.That(book.Contents[0].Sources[0].Identifier, Is.EqualTo("book"));
+            Assert.That(book.Contents[0].Sources[0], Is.EqualTo(ScraperType.nhentai));
             Assert.That(book.Contents[0].Language, Is.EqualTo(LanguageType.English));
             Assert.That(book.Contents[0].Pages, Has.Exactly(2).Items);
             Assert.That(book.Contents[0].Pages[0].Size, Is.EqualTo(100));
