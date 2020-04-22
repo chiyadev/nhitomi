@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using ChiyaFlake;
 using MessagePack;
 using Nest;
 using nhitomi.Models;
@@ -182,6 +183,11 @@ namespace nhitomi.Database
         public override void UpdateCache()
         {
             base.UpdateCache();
+
+            // auto-set content ids
+            if (Contents != null)
+                foreach (var content in Contents)
+                    content.Id ??= Snowflake.New;
 
             PageCount = Contents?.ToArray(c => c.Pages?.Length ?? 0);
             NoteCount = Contents?.ToArray(c => c.Pages?.Sum(p => p.Notes?.Length ?? 0) ?? 0);

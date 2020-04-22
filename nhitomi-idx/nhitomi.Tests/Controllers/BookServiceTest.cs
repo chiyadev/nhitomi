@@ -24,12 +24,10 @@ namespace nhitomi.Controllers
 
             var entry = client.Entry(new DbBook
             {
-                Id = Snowflake.New, // manually specify for timing correctness
                 Contents = new[]
                 {
                     new DbBookContent
                     {
-                        Id    = Snowflake.New,
                         Pages = pages.ToArray(p => new DbBookImage().Apply(p))
                     }.ApplyBase(content)
                 }
