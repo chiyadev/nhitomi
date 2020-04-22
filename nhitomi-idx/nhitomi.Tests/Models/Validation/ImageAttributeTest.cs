@@ -6,8 +6,8 @@ using NUnit.Framework;
 
 namespace nhitomi.Models.Validation
 {
-    [ApiController, Route(nameof(ImageAttributeTestController))]
-    public class ImageAttributeTestController : ControllerBase
+    [Route(nameof(ImageAttributeTestController))]
+    public class ImageAttributeTestController : TestControllerBase
     {
         [HttpPost("valid")]
         public void Valid(ImageAttributeTest.Model _) => Ok();

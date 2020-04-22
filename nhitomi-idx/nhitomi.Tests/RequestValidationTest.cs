@@ -8,8 +8,8 @@ using NUnit.Framework;
 
 namespace nhitomi
 {
-    [ApiController, Route(nameof(RequestValidationTestController))]
-    public  class RequestValidationTestController : ControllerBase
+    [Route(nameof(RequestValidationTestController))]
+    public class RequestValidationTestController : TestControllerBase
     {
         [HttpGet("path/{str}")]
         public void Path(string str)

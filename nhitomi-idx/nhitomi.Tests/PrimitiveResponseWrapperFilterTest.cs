@@ -7,8 +7,8 @@ using NUnit.Framework;
 
 namespace nhitomi
 {
-    [ApiController, Route(nameof(PrimitiveResponseWrapperFilterTestController))]
-    public  class PrimitiveResponseWrapperFilterTestController : ControllerBase
+    [Route(nameof(PrimitiveResponseWrapperFilterTestController))]
+    public class PrimitiveResponseWrapperFilterTestController : TestControllerBase
     {
         [HttpGet("string")]
         public string PlainString() => "plain string test";

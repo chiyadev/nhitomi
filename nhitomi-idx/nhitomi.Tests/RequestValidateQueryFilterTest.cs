@@ -8,8 +8,8 @@ using NUnit.Framework;
 
 namespace nhitomi
 {
-    [ApiController, Route(nameof(RequestValidateQueryFilterTestController))]
-    public class RequestValidateQueryFilterTestController : ControllerBase
+    [Route(nameof(RequestValidateQueryFilterTestController))]
+    public class RequestValidateQueryFilterTestController : TestControllerBase
     {
         public class Model
         {

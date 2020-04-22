@@ -4,15 +4,14 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
-using nhitomi.Controllers;
 using nhitomi.Database;
 using nhitomi.Models;
 using NUnit.Framework;
 
 namespace nhitomi
 {
-    [ApiController, Route(nameof(AuthHandlerTestController))]
-    public  class AuthHandlerTestController : nhitomiControllerBase
+    [Authorize, Route(nameof(AuthHandlerTestController))]
+    public class AuthHandlerTestController : TestControllerBase
     {
         [HttpGet("anon"), AllowAnonymous]
         public string Anon() => "hello";
