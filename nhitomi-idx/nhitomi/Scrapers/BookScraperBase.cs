@@ -62,6 +62,8 @@ namespace nhitomi.Scrapers
 
         protected async Task IndexAsync(DbBook book, CancellationToken cancellationToken = default)
         {
+            book = ModelSanitizer.Sanitize(book);
+
             // the database is structured so that "books" are containers of "contents" which are containers of "pages"
             // we consider two books to be the same if they have:
             // - matching primary or english name
