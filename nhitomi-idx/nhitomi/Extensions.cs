@@ -346,7 +346,7 @@ namespace nhitomi
             if (other == null)
                 return enumerable.ToArray();
 
-            return enumerable.Concat(other).ToHashSet().ToArray();
+            return enumerable.Concat(other).Distinct().ToArray();
         }
 
         // FROM: https://stackoverflow.com/a/48599119
