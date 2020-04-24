@@ -146,7 +146,7 @@ namespace nhitomi.Database
         /// This is a cached property for querying.
         /// </summary>
         [IgnoreMember, Number(Name = "tC")]
-        public int[] TagCount { get; set; }
+        public int TagCount { get; set; }
 
         /// <summary>
         /// This is a cached property for querying.
@@ -191,8 +191,22 @@ namespace nhitomi.Database
 
             PageCount = Contents?.ToArray(c => c.Pages?.Length ?? 0);
             NoteCount = Contents?.ToArray(c => c.Pages?.Sum(p => p.Notes?.Length ?? 0) ?? 0);
-            Language  = Contents?.ToArray(c => c.Language);
-            Sources   = Contents?.ToArray(c => c.Source);
+
+            TagCount = new[]
+                {
+                    TagsGeneral,
+                    TagsArtist,
+                    TagsParody,
+                    TagsCharacter,
+                    TagsConvention,
+                    TagsSeries,
+                    TagsCircle,
+                    TagsMetadata,
+                }.SelectMany(x => x)
+                 .Count();
+
+            Language = Contents?.ToArray(c => c.Language);
+            Sources  = Contents?.ToArray(c => c.Source);
 
             Suggest = new CompletionField
             {
