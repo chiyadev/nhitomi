@@ -147,7 +147,7 @@ namespace nhitomi.Scrapers
                     continue;
 
                 var entry   = result.Items[0];
-                var content = entry.Value.Contents?.FirstOrDefault(c => c.SourceId == id);
+                var content = entry.Value.Contents?.FirstOrDefault(c => c.Source == Type && c.SourceId == id);
 
                 if (content == null)
                     continue;
