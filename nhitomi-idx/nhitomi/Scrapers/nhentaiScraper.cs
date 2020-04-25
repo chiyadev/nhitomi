@@ -6,12 +6,14 @@ using System.Net.Http;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Web;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using nhitomi.Database;
 using nhitomi.Models;
+using nhitomi.Scrapers.Tests;
 using nhitomi.Storage;
 
 namespace nhitomi.Scrapers
@@ -135,6 +137,7 @@ namespace nhitomi.Scrapers
 
         public override ScraperType Type => ScraperType.nhentai;
         protected override ScraperUrlRegex UrlRegex { get; } = new ScraperUrlRegex(@"(nh(entai)?(\/|\s+)|(https?:\/\/)?nhentai\.net\/g\/)(?<id>\d{1,6})\/?");
+        protected override IScraperTestManager TestManager { get; }
 
         public nhentaiScraper(IServiceProvider services, IOptionsMonitor<nhentaiScraperOptions> options, ILogger<nhentaiScraper> logger, IHttpClientFactory http, IStorage storage) : base(services, options, logger)
         {
@@ -142,6 +145,8 @@ namespace nhitomi.Scrapers
             _logger  = logger;
             _http    = http.CreateClient(nameof(nhentaiScraper));
             _storage = storage;
+
+            TestManager = new ScraperTestCollection<nhentaiBook>(this);
         }
 
         sealed class State
@@ -212,9 +217,25 @@ namespace nhitomi.Scrapers
             => DateTimeOffset.FromUnixTimeSeconds(book.UploadDate).UtcDateTime >= _options.CurrentValue.MinimumUploadTime;
 
         /// <summary>
-        /// Enumerates all books reverse-chronologically (descending id).
+        /// Retrieves a book by ID.
         /// </summary>
-        async IAsyncEnumerable<nhentaiBook> EnumerateAsync(int? start, [EnumeratorCancellation] CancellationToken cancellationToken = default)
+        public async Task<nhentaiBook> GetAsync(int id, CancellationToken cancellationToken = default)
+        {
+            using var response = await _http.GetAsync($"https://nhentai.net/api/gallery/{id}", cancellationToken);
+
+            // some books may be missing
+            if (response.StatusCode == HttpStatusCode.NotFound)
+                return null;
+
+            response.EnsureSuccessStatusCode();
+
+            return JsonConvert.DeserializeObject<nhentaiBook>(await response.Content.ReadAsStringAsync());
+        }
+
+        /// <summary>
+        /// Enumerates all books reverse-chronologically (descending ID).
+        /// </summary>
+        public async IAsyncEnumerable<nhentaiBook> EnumerateAsync(int? start, [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             var encountered = new HashSet<int>();
 
@@ -242,15 +263,11 @@ namespace nhitomi.Scrapers
             else
                 for (var id = start.Value;; id--)
                 {
-                    using var response = await _http.GetAsync($"https://nhentai.net/api/gallery/{id}", cancellationToken);
+                    var book = await GetAsync(id, cancellationToken);
 
                     // some books may be missing
-                    if (response.StatusCode == HttpStatusCode.NotFound)
+                    if (book == null)
                         continue;
-
-                    response.EnsureSuccessStatusCode();
-
-                    var book = JsonConvert.DeserializeObject<nhentaiBook>(await response.Content.ReadAsStringAsync());
 
                     if (encountered.Add(book.Id))
                         yield return book;
