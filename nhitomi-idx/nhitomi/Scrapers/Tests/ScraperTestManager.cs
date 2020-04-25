@@ -67,13 +67,8 @@ namespace nhitomi.Scrapers.Tests
                 }
             }
 
-            // ReSharper disable AccessToDisposedClosure
-            using var semaphore = new SemaphoreSlim(Parallel ? total : 1);
-
-            await Task.WhenAll(picked.Select(async test =>
+            async Task run(ScraperTest<T> test)
             {
-                await semaphore.WaitAsync(cancellationToken);
-
                 try
                 {
                     await test.RunAsync(cancellationToken);
@@ -85,12 +80,13 @@ namespace nhitomi.Scrapers.Tests
 
                     throw;
                 }
-                finally
-                {
-                    semaphore.ReleaseSafe();
-                }
-            }));
-            // ReSharper enable AccessToDisposedClosure
+            }
+
+            if (Parallel)
+                await Task.WhenAll(picked.Select(run));
+            else
+                foreach (var test in picked)
+                    await run(test);
         }
     }
 }
