@@ -60,11 +60,8 @@ namespace nhitomi.Scrapers.Tests
             // add other tests
             lock (_rand)
             {
-                foreach (var test in Tests.OrderBy(x => _rand.Next()))
-                {
-                    if (picked.Count < total)
-                        picked.Add(test);
-                }
+                foreach (var test in Tests.OrderBy(x => _rand.Next()).TakeWhile(x => picked.Count < total))
+                    picked.Add(test);
             }
 
             async Task run(ScraperTest<T> test)
