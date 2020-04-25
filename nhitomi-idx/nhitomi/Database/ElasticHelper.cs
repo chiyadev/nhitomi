@@ -205,6 +205,44 @@ namespace nhitomi.Database
             });
         }
 
+        public delegate (SortDirection, Expression<Func<T, object>>) SortingFieldPathDelegate<T>();
+
+        /// <summary>
+        /// Adds sorting to query using the specified paths.
+        /// </summary>
+        /// <param name="searchDesc">Search descriptor.</param>
+        /// <param name="paths">Sorting paths and directions. Returning null implies sorting by "relevance".</param>
+        public static SearchDescriptor<T> MultiSort<T>(this SearchDescriptor<T> searchDesc, params SortingFieldPathDelegate<T>[] paths) where T : class
+        {
+            if (paths == null || paths.Length == 0)
+                return searchDesc;
+
+            return searchDesc.Sort(s =>
+            {
+                foreach (var path in paths)
+                {
+                    var (direction, expr) = path();
+
+                    s.Field(f =>
+                    {
+                        // null implies relevance sorting
+                        f = expr == null
+                            ? f.Field("_score")
+                            : f.Field(expr);
+
+                        // ordering
+                        f = direction == SortDirection.Ascending
+                            ? f.Ascending()
+                            : f.Descending();
+
+                        return f;
+                    });
+                }
+
+                return s;
+            });
+        }
+
         public delegate Expression<Func<T, object>> SortingFieldPathDelegate<T, in TSort>(TSort attribute);
 
         /// <summary>
