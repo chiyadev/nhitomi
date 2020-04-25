@@ -119,9 +119,14 @@ namespace nhitomi.Scrapers
                              .MultiSort(() => (SortDirection.Descending, b => null));
         }
 
+        protected virtual ScraperUrlRegex UrlRegex => null;
+
         public async IAsyncEnumerable<(IDbEntry<DbBook>, DbBookContent)> FindBookByUrlAsync(string url, bool strict, [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
-            foreach (var id in ParseIdsInUrl(url, strict))
+            if (UrlRegex == null)
+                yield break;
+
+            foreach (var id in UrlRegex.MatchIds(url, strict))
             {
                 var result = await _client.SearchEntriesAsync(new SourceQuery(Type, id), cancellationToken);
 
@@ -135,22 +140,6 @@ namespace nhitomi.Scrapers
                     continue;
 
                 yield return (entry, content);
-            }
-        }
-
-        protected virtual ScraperUrlRegex UrlRegex => null;
-
-        protected virtual IEnumerable<string> ParseIdsInUrl(string url, bool strict)
-        {
-            if (UrlRegex == null)
-                yield break;
-
-            foreach (var match in UrlRegex.Match(url, strict))
-            {
-                var group = match.Groups["id"];
-
-                if (group.Success)
-                    yield return group.Value;
             }
         }
     }

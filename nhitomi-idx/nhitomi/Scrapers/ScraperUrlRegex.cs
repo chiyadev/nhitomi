@@ -18,14 +18,18 @@ namespace nhitomi.Scrapers
             Lax    = new Regex($@"\b{pattern}\b", RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.IgnoreCase);
         }
 
-        public IEnumerable<Match> Match(string input, bool strict)
+        public string Group { get; set; } = "id";
+
+        public IEnumerable<string> MatchIds(string input, bool strict)
         {
             var regex = strict ? Strict : Lax;
 
             foreach (Match match in regex.Matches(input))
             {
-                if (match.Success)
-                    yield return match;
+                var group = match.Groups[Group];
+
+                if (group.Success)
+                    yield return group.Value;
             }
         }
     }
