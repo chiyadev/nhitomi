@@ -14,7 +14,7 @@ namespace nhitomi.Controllers
         /// <summary>
         /// Retrieves a vote by a specific user on an object.
         /// </summary>
-        Task<DbVote> GetAsync(string userId, nhitomiObject obj, CancellationToken cancellationToken = default);
+        Task<OneOf<DbVote, NotFound>> GetAsync(string userId, nhitomiObject obj, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Casts a vote by a specific user on an object.
@@ -36,11 +36,14 @@ namespace nhitomi.Controllers
             _client = client;
         }
 
-        public async Task<DbVote> GetAsync(string userId, nhitomiObject obj, CancellationToken cancellationToken = default)
+        public async Task<OneOf<DbVote, NotFound>> GetAsync(string userId, nhitomiObject obj, CancellationToken cancellationToken = default)
         {
             var vote = await _client.GetAsync<DbVote>(DbVote.MakeId(userId, obj.Id), cancellationToken);
 
-            return vote?.Target == obj.Type ? vote : null;
+            if (vote?.Target != obj.Type)
+                return new NotFound();
+
+            return vote;
         }
 
         public async Task<DbVote> SetAsync(string userId, nhitomiObject obj, VoteType type, CancellationToken cancellationToken = default)

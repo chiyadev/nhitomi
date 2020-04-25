@@ -201,12 +201,14 @@ namespace nhitomi
             services.Configure<ElasticOptions>(_configuration.GetSection("Elastic"))
                     .Configure<UserServiceOptions>(_configuration.GetSection("User"))
                     .Configure<BookServiceOptions>(_configuration.GetSection("Book"))
-                    .Configure<SnapshotServiceOptions>(_configuration.GetSection("Snapshot"));
+                    .Configure<SnapshotServiceOptions>(_configuration.GetSection("Snapshot"))
+                    .Configure<VoteServiceOptions>(_configuration.GetSection("Vote"));
 
             services.AddSingleton<IElasticClient, ElasticClient>()
                     .AddSingleton<IUserService, UserService>()
                     .AddSingleton<IBookService, BookService>()
-                    .AddSingleton<ISnapshotService, SnapshotService>();
+                    .AddSingleton<ISnapshotService, SnapshotService>()
+                    .AddSingleton<IVoteService, VoteService>();
 
             // redis
             services.Configure<RedisOptions>(_configuration.GetSection("Redis"))
