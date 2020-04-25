@@ -217,7 +217,8 @@ namespace nhitomi
             // scrapers
             services.Configure<nhentaiScraperOptions>(_configuration.GetSection("Scrapers:nhentai"));
 
-            services.AddScraper<nhentaiScraper>();
+            services.AddSingleton<IScraperService, ScraperService>()
+                    .AddScraper<nhentaiScraper>();
 
             // discord
             services.Configure<DiscordOptions>(_configuration.GetSection("Discord"))
