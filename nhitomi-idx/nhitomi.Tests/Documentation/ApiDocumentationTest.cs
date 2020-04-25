@@ -8,9 +8,9 @@ namespace nhitomi.Documentation
     public class ApiDocumentationTest : TestBaseHttpClient
     {
         [Test]
-        public Task Specs() => GetAsync<JObject>("docs/v1.json");
+        public Task Specs() => GetAsync<JObject>("docs.json");
 
         [Test]
-        public async Task Docs() => (await RequestAsync(HttpMethod.Get, "docs/index.html", null)).Dispose();
+        public async Task Docs() => (await RequestAsync(HttpMethod.Get, "index.html", null)).Dispose();
     }
 }
