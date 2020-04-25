@@ -88,6 +88,7 @@ namespace nhitomi.Models
 
         /// <summary>
         /// Snapshot was created with the creation of an object.
+        /// This can be applied to nested objects.
         /// </summary>
         AfterCreation = 1,
 
@@ -103,7 +104,13 @@ namespace nhitomi.Models
 
         /// <summary>
         /// Snapshot was created before an object was deleted.
+        /// This can be applied to nested objects, so the complete object may not actually be deleted from the database.
         /// </summary>
-        BeforeDeletion = 4
+        BeforeDeletion = 4,
+
+        /// <summary>
+        /// Snapshot was created after the rollback of an object.
+        /// </summary>
+        AfterRollback = 5
     }
 }
