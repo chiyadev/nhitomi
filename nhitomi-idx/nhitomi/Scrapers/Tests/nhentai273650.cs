@@ -25,7 +25,7 @@ namespace nhitomi.Scrapers.Tests
             Match("title.japanese", "[ASTRONOMY (SeN)] いもうとはお兄ちゃんと将来的にフラグをたてたい (Fate/kaleid liner プリズマ☆イリヤ) [DL版]", other.Title.Japanese);
 
             Match("pages", 33, other.Images.Pages.Length);
-            Match("pages.ext", Enumerable.Repeat("j", 33), other.Images.Pages.Select(p => p.Type.ToString()));
+            Match("pages.ext", new string('j', 33), string.Concat(other.Images.Pages.Select(p => p.Type)));
 
             Match("tags", new[]
             {

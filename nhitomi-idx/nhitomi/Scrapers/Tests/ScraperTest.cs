@@ -66,7 +66,7 @@ namespace nhitomi.Scrapers.Tests
 
             var set = a.ToHashSet();
 
-            var missing = b.Distinct().Select(x => !set.Remove(x)).ToArray();
+            var missing = b.Distinct().Where(x => !set.Remove(x)).ToArray();
 
             if (missing.Length > maxDifferences)
                 throw new TestCaseException(this, $"{name}: missing from collection a '{string.Join("', '", missing)}'.");

@@ -25,7 +25,7 @@ namespace nhitomi.Scrapers.Tests
             Match("title.japanese", "(C91) [プリン海ヨーグルト (ちり)] CxMxK Note IX", other.Title.Japanese);
 
             Match("pages", 16, other.Images.Pages.Length);
-            Match("pages.ext", Enumerable.Repeat("p", 16), other.Images.Pages.Select(p => p.Type.ToString()));
+            Match("pages.ext", new string('p', 16), string.Concat(other.Images.Pages.Select(p => p.Type)));
 
             Match("tags", new[]
             {
