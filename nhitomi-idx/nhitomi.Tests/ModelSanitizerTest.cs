@@ -451,5 +451,36 @@ namespace nhitomi
             Assert.That(obj.BeforeSanitized, Is.True);
             Assert.That(obj.AfterSanitized, Is.True);
         }
+
+        [SanitizerIgnore]
+        sealed class TestIgnoredClass
+        {
+            public string Ignore { get; set; } = "  ";
+        }
+
+        [Test]
+        public void IgnoreClass()
+        {
+            var obj = ModelSanitizer.Sanitize(new TestIgnoredClass());
+
+            Assert.That(obj.Ignore, Is.EqualTo("  "));
+        }
+
+        sealed class TestIgnoredProperty
+        {
+            [SanitizerIgnore]
+            public string Ignore { get; set; } = "  ";
+
+            public string NonIgnore { get; set; } = "  ";
+        }
+
+        [Test]
+        public void IgnoreProperty()
+        {
+            var obj = ModelSanitizer.Sanitize(new TestIgnoredProperty());
+
+            Assert.That(obj.Ignore, Is.EqualTo("  "));
+            Assert.That(obj.NonIgnore, Is.Null);
+        }
     }
 }

@@ -88,13 +88,24 @@ namespace nhitomi
 
         static Type GetSanitizerType(Type type)
         {
+            // ignored
+            if (type.IsDefined(typeof(SanitizerIgnoreAttribute), true))
+                return typeof(EmptySanitizer<>).MakeGenericType(type);
+
             // string
             if (type == typeof(string))
                 return typeof(StringSanitizer);
 
             // array
             if (type.IsArray)
-                return typeof(ArraySanitizer<>).MakeGenericType(type.GetElementType());
+            {
+                var element = type.GetElementType();
+
+                if (element != null && element.IsValueType) // ignore struct arrays
+                    return typeof(EmptySanitizer<>).MakeGenericType(type);
+
+                return typeof(ArraySanitizer<>).MakeGenericType(element);
+            }
 
             // enum
             if (type.IsEnum)
@@ -123,11 +134,10 @@ namespace nhitomi
                         // dictionary that looks like a list of kvp
                         if (typeArgs[0].IsConstructedGenericType && typeArgs[0].GetGenericTypeDefinition() == typeof(KeyValuePair<,>))
                         {
-                            var pairTypeArgs = typeArgs[0].GetGenericArguments();
-                            var dict         = typeof(ICollection<>).MakeGenericType(typeof(KeyValuePair<,>).MakeGenericType(pairTypeArgs));
+                            var dict = typeof(ICollection<>).MakeGenericType(typeArgs[0]);
 
                             if (dict.IsAssignableFrom(type))
-                                return typeof(DictionarySanitizer<,>).MakeGenericType(pairTypeArgs);
+                                return typeof(DictionarySanitizer<,>).MakeGenericType(typeArgs[0].GetGenericArguments());
                         }
 
                         // list
@@ -180,7 +190,9 @@ namespace nhitomi
         public virtual object SanitizeNonGeneric(object value) => value is T v ? Sanitize(v) : value;
     }
 
-    public class EmptySanitizer<T> : SanitizerBase<T>
+    public interface IEmptySanitizer : IModelSanitizer { }
+
+    public class EmptySanitizer<T> : SanitizerBase<T>, IEmptySanitizer
     {
         public override T Sanitize(T value) => value;
         public override object SanitizeNonGeneric(object value) => value;
@@ -378,6 +390,12 @@ namespace nhitomi
         void AfterSanitize();
     }
 
+    /// <summary>
+    /// Marks a class or property as ignored by <see cref="ModelSanitizer"/>.
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Property)]
+    public sealed class SanitizerIgnoreAttribute : Attribute { }
+
     public class ComplexTypeSanitizer<T> : SanitizerBase<T> where T : class
     {
         readonly Func<T, T> _sanitize;
@@ -389,16 +407,25 @@ namespace nhitomi
 
             var body = type.GetProperties()
                            .Where(p => p.CanRead && p.CanWrite)
-                           .ToList(p =>
+                           .Select(p =>
                             {
-                                var property = Expression.Property(param, p);
+                                if (p.IsDefined(typeof(SanitizerIgnoreAttribute), true))
+                                    return null;
 
-                                var sanitizer       = ModelSanitizer.GetSanitizer(p.PropertyType);
+                                var sanitizer = ModelSanitizer.GetSanitizer(p.PropertyType);
+
+                                if (sanitizer is IEmptySanitizer)
+                                    return null;
+
                                 var sanitizerMethod = sanitizer.GetType().GetMethod(nameof(Sanitize));
+
+                                var property = Expression.Property(param, p);
 
                                 // ReSharper disable once AssignNullToNotNullAttribute
                                 return Expression.Assign(property, Expression.Call(Expression.Constant(sanitizer), sanitizerMethod, property)) as Expression;
-                            });
+                            })
+                           .Where(x => x != null)
+                           .ToList();
 
             // sanitize callback
             if (typeof(ISanitizableObject).IsAssignableFrom(type))
