@@ -69,6 +69,9 @@ namespace nhitomi.Database
         [Key("sr"), Keyword(Name = "sr", DocValues = false)]
         public ScraperType Source { get; set; }
 
+        [Key("si"), Keyword(Name = "si", DocValues = false)]
+        public string SourceId { get; set; }
+
         /// <summary>
         /// Cannot query against this property.
         /// </summary>
@@ -121,6 +124,8 @@ namespace nhitomi.Database
             TagsPool      = model.Tags?.GetValueOrDefault(ImageTag.Pool);
 
             Rating = model.Rating;
+
+            // do not map source because Data is valid only for the scraper that initialized it
         }
 
 #region Cached

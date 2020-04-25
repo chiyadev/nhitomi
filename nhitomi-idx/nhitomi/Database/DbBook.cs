@@ -160,6 +160,12 @@ namespace nhitomi.Database
         [IgnoreMember, Keyword(Name = "sr", DocValues = false)]
         public ScraperType[] Sources { get; set; }
 
+        /// <summary>
+        /// This is a cached property for querying.
+        /// </summary>
+        [IgnoreMember, Keyword(Name = "si", DocValues = false)]
+        public string[] SourceIds { get; set; }
+
         public enum SuggestionType
         {
             PrimaryName = -1,
@@ -201,12 +207,13 @@ namespace nhitomi.Database
                     TagsConvention,
                     TagsSeries,
                     TagsCircle,
-                    TagsMetadata,
+                    TagsMetadata
                 }.SelectMany(x => x)
                  .Count();
 
-            Language = Contents?.ToArray(c => c.Language);
-            Sources  = Contents?.ToArray(c => c.Source);
+            Language  = Contents?.ToArray(c => c.Language);
+            Sources   = Contents?.ToArray(c => c.Source);
+            SourceIds = Contents?.ToArray(c => c.SourceId);
 
             Suggest = new CompletionField
             {

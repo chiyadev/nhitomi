@@ -21,6 +21,9 @@ namespace nhitomi.Database
         [Key("sr"), Keyword(Name = "sr", DocValues = false)]
         public ScraperType Source { get; set; }
 
+        [Key("si"), Keyword(Name = "si", DocValues = false)]
+        public string SourceId { get; set; }
+
         /// <summary>
         /// Cannot query against this property.
         /// </summary>
