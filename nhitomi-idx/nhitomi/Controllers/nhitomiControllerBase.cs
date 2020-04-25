@@ -43,13 +43,15 @@ namespace nhitomi.Controllers
         /// </summary>
         protected User ProcessUser(User user)
         {
-            // self-only
+            // allow self to view all fields
             if (user.Id != UserId)
+            {
                 user.DiscordConnection = null;
 
-            // manage users
-            if (!HasPermissions(UserPermissions.ManageUsers))
-                user.Email = null;
+                // manage users
+                if (!HasPermissions(UserPermissions.ManageUsers))
+                    user.Email = null;
+            }
 
             return user;
         }
