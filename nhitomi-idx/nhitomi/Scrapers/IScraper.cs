@@ -44,6 +44,9 @@ namespace nhitomi.Scrapers
         /// Type of this scraper.
         /// </summary>
         ScraperType Type { get; }
+
+        IScraperTestManager TestManager { get; }
+        ScraperUrlRegex UrlRegex { get; }
     }
 
     public abstract class ScraperBase : BackgroundService, IScraper
@@ -55,6 +58,8 @@ namespace nhitomi.Scrapers
 
         public IServiceProvider Services { get; }
         public abstract ScraperType Type { get; }
+        public virtual IScraperTestManager TestManager => null;
+        public virtual ScraperUrlRegex UrlRegex => null;
 
         protected ScraperBase(IServiceProvider services, IOptionsMonitor<ScraperOptions> options, ILogger<ScraperBase> logger)
         {
@@ -78,7 +83,10 @@ namespace nhitomi.Scrapers
                 {
                     if (options.Enabled)
                         await using (await _locker.EnterAsync($"scrape:{Type}", stoppingToken))
-                            await RunAsyncInternal(stoppingToken);
+                        {
+                            await TestAsync(stoppingToken);
+                            await RunAsync(stoppingToken);
+                        }
                 }
                 catch (Exception e)
                 {
@@ -86,14 +94,6 @@ namespace nhitomi.Scrapers
                 }
             }
         }
-
-        internal async Task RunAsyncInternal(CancellationToken cancellationToken = default)
-        {
-            await TestAsync(cancellationToken);
-            await RunAsync(cancellationToken);
-        }
-
-        protected virtual IScraperTestManager TestManager => null;
 
         /// <summary>
         /// Tests this scraper and throws an exception if this scraper is broken.
@@ -110,9 +110,11 @@ namespace nhitomi.Scrapers
 
         /// <summary>
         /// Scrapes and indexes data into the database.
-        /// This method is guaranteed to be synchronized.
         /// </summary>
         protected abstract Task RunAsync(CancellationToken cancellationToken = default);
+
+        // for unit testing
+        internal Task RunAsyncInternal(CancellationToken cancellationToken = default) => RunAsync(cancellationToken);
 
         /// <summary>
         /// Retrieves the last saved state of this scraper.

@@ -136,8 +136,8 @@ namespace nhitomi.Scrapers
         readonly IStorage _storage;
 
         public override ScraperType Type => ScraperType.nhentai;
-        protected override ScraperUrlRegex UrlRegex { get; } = new ScraperUrlRegex(@"(nh(entai)?(\/|\s+)|(https?:\/\/)?nhentai\.net\/g\/)(?<id>\d{1,6})\/?");
-        protected override IScraperTestManager TestManager { get; }
+        public override ScraperUrlRegex UrlRegex { get; } = new ScraperUrlRegex(@"(nh(entai)?(\/|\s+)|(https?:\/\/)?nhentai\.net\/g\/)(?<id>\d{1,6})\/?");
+        public override IScraperTestManager TestManager { get; }
 
         public nhentaiScraper(IServiceProvider services, IOptionsMonitor<nhentaiScraperOptions> options, ILogger<nhentaiScraper> logger, IHttpClientFactory http, IStorage storage) : base(services, options, logger)
         {
@@ -146,7 +146,7 @@ namespace nhitomi.Scrapers
             _http    = http.CreateClient(nameof(nhentaiScraper));
             _storage = storage;
 
-            TestManager = new ScraperTestCollection<nhentaiBook>(this);
+            TestManager = new ScraperTestManager<nhentaiBook>(this);
         }
 
         sealed class State
