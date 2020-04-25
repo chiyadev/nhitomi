@@ -42,8 +42,8 @@ namespace nhitomi.Scrapers.Tests
 
         protected int Match(string name, string a, string b, bool ignoreCase = true, int? maxDifferences = null)
         {
-            NotNull(name, a);
-            NotNull(name, b);
+            NotNull($"{name}.a", a);
+            NotNull($"{name}.b", b);
 
             maxDifferences ??= StringMatchMaxDifferences;
 
@@ -65,8 +65,8 @@ namespace nhitomi.Scrapers.Tests
 
         protected int Match(string name, IEnumerable<string> a, IEnumerable<string> b, bool ignoreCase = true, int? maxDifferences = null)
         {
-            NotNull(name, a);
-            NotNull(name, b);
+            NotNull($"{name}.a", a);
+            NotNull($"{name}.b", b);
 
             maxDifferences ??= StringCollectionMatchMaxDifferences;
 
