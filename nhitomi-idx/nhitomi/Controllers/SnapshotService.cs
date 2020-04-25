@@ -55,12 +55,29 @@ namespace nhitomi.Controllers
         /// </summary>
         Task<OneOf<DbSnapshot, NotFound>> GetAsync(ObjectType type, string id, CancellationToken cancellationToken = default); // not using nhitomiObject for semantic correctness
 
+        /// <summary>
+        /// Retrieves the serialized value of a snapshot.
+        /// </summary>
         Task<OneOf<T, NotFound>> GetValueAsync<T>(DbSnapshot snapshot, CancellationToken cancellationToken = default) where T : class, IDbObject, IDbHasType;
 
+        /// <summary>
+        /// Searches for snapshots given a query.
+        /// </summary>
         Task<SearchResult<DbSnapshot>> SearchAsync(ObjectType type, SnapshotQuery query, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// Counts all snapshots in the database.
+        /// </summary>
         Task<int> CountAsync(CancellationToken cancellationToken = default);
 
-        Task<OneOf<T, NotFound>> RollbackAsync<T>(DbSnapshot snapshot, CancellationToken cancellationToken = default) where T : class, IDbObject, IDbHasType;
+        /// <summary>
+        /// Reverts an object to the given snapshot's value. Snapshot representing the rollback is created after indexing.
+        /// </summary>
+        Task<OneOf<T, NotFound>> RollbackAsync<T>(DbSnapshot snapshot, SnapshotArgs snapshotRepresentingRollback, CancellationToken cancellationToken = default) where T : class, IDbObject, IDbHasType;
+
+        /// <summary>
+        /// Creates a snapshot of an object.
+        /// </summary>
         Task<OneOf<DbSnapshot>> CreateAsync<T>(T obj, SnapshotArgs args, CancellationToken cancellationToken = default) where T : class, IDbObject, IDbHasType;
     }
 
@@ -144,7 +161,7 @@ namespace nhitomi.Controllers
         public Task<int> CountAsync(CancellationToken cancellationToken = default)
             => _client.CountAsync<DbSnapshot>(cancellationToken);
 
-        public async Task<OneOf<T, NotFound>> RollbackAsync<T>(DbSnapshot snapshot, CancellationToken cancellationToken = default) where T : class, IDbObject, IDbHasType
+        public async Task<OneOf<T, NotFound>> RollbackAsync<T>(DbSnapshot snapshot, SnapshotArgs snapshotRepresentingRollback, CancellationToken cancellationToken = default) where T : class, IDbObject, IDbHasType
         {
             // get snapshot value
             var result = await GetValueAsync<T>(snapshot, cancellationToken);
@@ -162,6 +179,10 @@ namespace nhitomi.Controllers
                 entry.Value = value;
             }
             while (!await entry.TryUpdateAsync(cancellationToken)); // this will upsert
+
+            // create snapshot representing rollback
+            if (snapshotRepresentingRollback != null)
+                await CreateAsync(entry.Value, snapshotRepresentingRollback, cancellationToken);
 
             return value;
         }
