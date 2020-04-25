@@ -95,6 +95,8 @@ namespace nhitomi.Scrapers
                 TagsCircle     = Tags?.Where(t => t.Type == "group").ToArrayMany(ProcessTag),
 
                 Category = Enum.TryParse<BookCategory>(Tags?.FirstOrDefault(t => t.Type == "category")?.Name, true, out var cat) ? cat : BookCategory.Doujinshi,
+                Rating   = MaterialRating.Explicit, // explicit by default
+
                 Contents = new[]
                 {
                     new DbBookContent
@@ -175,12 +177,12 @@ namespace nhitomi.Scrapers
                 // return new books since upper
                 await foreach (var book in EnumerateAsync(null, cancellationToken))
                 {
-                    if (!FilterBook(book))
+                    latest ??= book;
+
+                    if (book.Id <= state.LastUpper || !FilterBook(book))
                         break;
 
                     yield return book.Convert();
-
-                    latest ??= book;
                 }
 
                 // set upper as latest book
