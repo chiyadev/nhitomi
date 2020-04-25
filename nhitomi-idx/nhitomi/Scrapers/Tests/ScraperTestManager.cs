@@ -13,12 +13,17 @@ namespace nhitomi.Scrapers.Tests
         /// <summary>
         /// Number of tests to pick per run, or null to use all tests.
         /// </summary>
-        int? RunTestCount { get; set; }
+        int? PickCount { get; set; }
 
         /// <summary>
-        /// If true, always retry failed tests before other tests.
+        /// True to run picked tests in parallel.
         /// </summary>
-        bool RetryFailed { get; set; }
+        bool Parallel { get; set; }
+
+        /// <summary>
+        /// True to always retry failed tests before other tests.
+        /// </summary>
+        bool PrioritizeFailed { get; set; }
 
         Task RunAsync(CancellationToken cancellationToken = default);
     }
@@ -39,41 +44,53 @@ namespace nhitomi.Scrapers.Tests
         readonly Random _rand = new Random();
         readonly ConcurrentQueue<ScraperTest<T>> _failed = new ConcurrentQueue<ScraperTest<T>>();
 
-        public int? RunTestCount { get; set; } = 1;
-        public bool RetryFailed { get; set; } = true;
+        public int? PickCount { get; set; } = 1;
+        public bool Parallel { get; set; } = true;
+        public bool PrioritizeFailed { get; set; } = true;
 
         public async Task RunAsync(CancellationToken cancellationToken = default)
         {
-            var tests = new HashSet<ScraperTest<T>>(RunTestCount ?? Tests.Count);
+            var total  = PickCount ?? Tests.Count;
+            var picked = new HashSet<ScraperTest<T>>(total);
 
             // add previously failed tests first
-            while (tests.Count < RunTestCount && _failed.TryDequeue(out var test))
-                tests.Add(test);
+            while (picked.Count < total && _failed.TryDequeue(out var test))
+                picked.Add(test);
 
             // add other tests
             lock (_rand)
             {
                 foreach (var test in Tests.OrderBy(x => _rand.Next()))
                 {
-                    if (tests.Count < RunTestCount)
-                        tests.Add(test);
+                    if (picked.Count < total)
+                        picked.Add(test);
                 }
             }
 
-            await Task.WhenAll(tests.Select(async test =>
+            // ReSharper disable AccessToDisposedClosure
+            using var semaphore = new SemaphoreSlim(Parallel ? total : 1);
+
+            await Task.WhenAll(picked.Select(async test =>
             {
+                await semaphore.WaitAsync(cancellationToken);
+
                 try
                 {
                     await test.RunAsync(cancellationToken);
                 }
                 catch
                 {
-                    if (RetryFailed && !_failed.Contains(test))
+                    if (PrioritizeFailed && !_failed.Contains(test))
                         _failed.Enqueue(test);
 
                     throw;
                 }
+                finally
+                {
+                    semaphore.ReleaseSafe();
+                }
             }));
+            // ReSharper enable AccessToDisposedClosure
         }
     }
 }
