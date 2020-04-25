@@ -11,6 +11,7 @@ using Nest;
 using nhitomi.Database;
 using nhitomi.Models.Queries;
 using IElasticClient = nhitomi.Database.IElasticClient;
+using LogLevel = Microsoft.Extensions.Logging.LogLevel;
 
 namespace nhitomi.Scrapers
 {
@@ -22,10 +23,12 @@ namespace nhitomi.Scrapers
     public abstract class BookScraperBase : ScraperBase, IBookScraper
     {
         readonly IElasticClient _client;
+        readonly ILogger<BookScraperBase> _logger;
 
         protected BookScraperBase(IServiceProvider services, IOptionsMonitor<ScraperOptions> options, ILogger<BookScraperBase> logger) : base(services, options, logger)
         {
             _client = services.GetService<IElasticClient>();
+            _logger = logger;
         }
 
         /// <summary>
@@ -74,18 +77,25 @@ namespace nhitomi.Scrapers
             // - matching primary or english name
             // - matching artist or circle
             // - at least one matching character
-
             var result = await _client.SearchEntriesAsync(new SimilarQuery(book), cancellationToken);
 
             if (result.Items.Length == 0)
             {
                 // no similar books, so create a new one
-                await _client.Entry(book).CreateAsync(cancellationToken);
+                var entry = _client.Entry(book);
+
+                if (_logger.IsEnabled(LogLevel.Debug))
+                    _logger.LogDebug($"Creating unique {Type} book {book.Id} '{book.PrimaryName}'.");
+
+                await entry.CreateAsync(cancellationToken);
             }
             else
             {
                 // otherwise merge with similar
                 var entry = result.Items[0];
+
+                if (_logger.IsEnabled(LogLevel.Debug))
+                    _logger.LogDebug($"Merging {Type} book into similar book {entry.Id} '{book.PrimaryName}'.");
 
                 do
                 {

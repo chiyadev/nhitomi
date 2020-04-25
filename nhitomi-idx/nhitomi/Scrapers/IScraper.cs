@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
 using nhitomi.Scrapers.Tests;
 using nhitomi.Storage;
 
@@ -84,13 +85,17 @@ namespace nhitomi.Scrapers
                     if (options.Enabled)
                         await using (await _locker.EnterAsync($"scrape:{Type}", stoppingToken))
                         {
+                            _logger.LogDebug($"Beginning scraping {Type}.");
+
                             await TestAsync(stoppingToken);
                             await RunAsync(stoppingToken);
+
+                            _logger.LogDebug($"End scraping {Type}.");
                         }
                 }
                 catch (Exception e)
                 {
-                    _logger.LogInformation(e, $"Exception while scraping {Type}.");
+                    _logger.LogWarning(e, $"Exception while scraping {Type}.");
                 }
             }
         }
@@ -125,7 +130,12 @@ namespace nhitomi.Scrapers
         /// <summary>
         /// Updates the saved state of this scraper.
         /// </summary>
-        protected Task SetStateAsync<T>(T value, CancellationToken cancellationToken = default)
-            => _storage.WriteObjectAsync($"scrapers/{Type}/state", value, cancellationToken);
+        protected async Task SetStateAsync<T>(T value, CancellationToken cancellationToken = default)
+        {
+            if (_logger.IsEnabled(LogLevel.Debug))
+                _logger.LogDebug($"Saving scraper state {Type}: {JsonConvert.SerializeObject(value)}");
+
+            await _storage.WriteObjectAsync($"scrapers/{Type}/state", value, cancellationToken);
+        }
     }
 }
