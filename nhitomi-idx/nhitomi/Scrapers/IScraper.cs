@@ -78,25 +78,25 @@ namespace nhitomi.Scrapers
             {
                 var options = _options.CurrentValue;
 
-                await Task.Delay(options.Interval, stoppingToken);
-
                 try
                 {
                     if (options.Enabled)
                         await using (await _locker.EnterAsync($"scrape:{Type}", stoppingToken))
                         {
-                            _logger.LogDebug($"Beginning scraping {Type}.");
+                            _logger.LogDebug($"Begin {Type} scrape.");
 
                             await TestAsync(stoppingToken);
                             await RunAsync(stoppingToken);
 
-                            _logger.LogDebug($"End scraping {Type}.");
+                            _logger.LogDebug($"End {Type} scrape.");
                         }
                 }
                 catch (Exception e)
                 {
                     _logger.LogWarning(e, $"Exception while scraping {Type}.");
                 }
+
+                await Task.Delay(options.Interval, stoppingToken);
             }
         }
 
