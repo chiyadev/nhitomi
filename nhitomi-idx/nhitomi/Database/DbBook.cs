@@ -208,7 +208,7 @@ namespace nhitomi.Database
                     TagsSeries,
                     TagsCircle,
                     TagsMetadata
-                }.SelectMany(x => x)
+                }.SelectMany(x => x ?? Array.Empty<string>())
                  .Count();
 
             Language  = Contents?.ToArray(c => c.Language);
