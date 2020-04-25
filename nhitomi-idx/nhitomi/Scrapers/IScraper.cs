@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using nhitomi.Scrapers.Tests;
 using nhitomi.Storage;
 
 namespace nhitomi.Scrapers
@@ -37,6 +38,8 @@ namespace nhitomi.Scrapers
     /// </summary>
     public interface IScraper : IHostedService, IDisposable
     {
+        IServiceProvider Services { get; }
+
         /// <summary>
         /// Type of this scraper.
         /// </summary>
@@ -50,17 +53,20 @@ namespace nhitomi.Scrapers
         readonly IOptionsMonitor<ScraperOptions> _options;
         readonly ILogger<ScraperBase> _logger;
 
+        public IServiceProvider Services { get; }
+        public abstract ScraperType Type { get; }
+
         protected ScraperBase(IServiceProvider services, IOptionsMonitor<ScraperOptions> options, ILogger<ScraperBase> logger)
         {
+            Services = services;
+
             _locker  = services.GetService<IResourceLocker>();
             _storage = services.GetService<IStorage>();
             _options = options;
             _logger  = logger;
         }
 
-        public abstract ScraperType Type { get; }
-
-        protected sealed override async Task ExecuteAsync(CancellationToken stoppingToken)
+        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             while (!stoppingToken.IsCancellationRequested)
             {
@@ -72,7 +78,7 @@ namespace nhitomi.Scrapers
                 {
                     if (options.Enabled)
                         await using (await _locker.EnterAsync($"scrape:{Type}", stoppingToken))
-                            await RunAsync(stoppingToken);
+                            await RunAsyncInternal(stoppingToken);
                 }
                 catch (Exception e)
                 {
@@ -81,14 +87,32 @@ namespace nhitomi.Scrapers
             }
         }
 
+        internal async Task RunAsyncInternal(CancellationToken cancellationToken = default)
+        {
+            await TestAsync(cancellationToken);
+            await RunAsync(cancellationToken);
+        }
+
+        protected virtual IScraperTestManager TestManager => null;
+
+        /// <summary>
+        /// Tests this scraper and throws an exception if this scraper is broken.
+        /// This is called before <see cref="RunAsync"/> to ensure invalid data does not get indexed
+        /// when this scraper breaks due to the reasons such as the website's layout changing.
+        /// </summary>
+        protected virtual async Task TestAsync(CancellationToken cancellationToken = default)
+        {
+            var manager = TestManager;
+
+            if (manager != null)
+                await manager.RunAsync(cancellationToken);
+        }
+
         /// <summary>
         /// Scrapes and indexes data into the database.
         /// This method is guaranteed to be synchronized.
         /// </summary>
         protected abstract Task RunAsync(CancellationToken cancellationToken = default);
-
-        // for unit testing
-        internal Task RunAsyncInternal(CancellationToken cancellationToken = default) => RunAsync(cancellationToken);
 
         /// <summary>
         /// Retrieves the last saved state of this scraper.
