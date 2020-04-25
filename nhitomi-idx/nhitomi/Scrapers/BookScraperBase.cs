@@ -68,11 +68,9 @@ namespace nhitomi.Scrapers
                              .MultiSort(() => (SortDirection.Descending, null));
         }
 
-        protected virtual DbBook Sanitize(DbBook book) => book.Apply(ModelSanitizer.Sanitize(book.Convert()));
-
         protected async Task IndexAsync(DbBook book, CancellationToken cancellationToken = default)
         {
-            book = Sanitize(book);
+            book = ModelSanitizer.Sanitize(book);
 
             // the database is structured so that "books" are containers of "contents" which are containers of "pages"
             // we consider two books to be the same if they have:
@@ -91,7 +89,7 @@ namespace nhitomi.Scrapers
                     entry = result.Items[0];
 
                     if (_logger.IsEnabled(LogLevel.Debug))
-                        _logger.LogDebug($"Merging {Type} book '{book.PrimaryName}' into similar book {entry.Id} '{entry.Value.PrimaryName}'.");
+                        _logger.LogInformation($"Merging {Type} book '{book.PrimaryName}' into similar book {entry.Id} '{entry.Value.PrimaryName}'.");
 
                     do
                     {
@@ -113,7 +111,7 @@ namespace nhitomi.Scrapers
             entry = _client.Entry(book);
 
             if (_logger.IsEnabled(LogLevel.Debug))
-                _logger.LogDebug($"Creating unique {Type} book {book.Id} '{book.PrimaryName}'.");
+                _logger.LogInformation($"Creating unique {Type} book {book.Id} '{book.PrimaryName}'.");
 
             await entry.CreateAsync(cancellationToken);
         }
