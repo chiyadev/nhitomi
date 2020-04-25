@@ -206,17 +206,13 @@ namespace nhitomi.Scrapers
             // find additional books on top of new books
             if (state.LastLower != null)
             {
-                var count = options.AdditionalScrapeItems;
+                var start = state.LastLower.Value - options.AdditionalScrapeItems;
 
                 // individually retrieve books in parallel
-                var books = await Task.WhenAll(Enumerable.Range(state.LastLower.Value - count - 1, count).Select(id => GetAsync(id, cancellationToken)));
-
-                var oldest = null as nhentaiBook;
+                var books = await Task.WhenAll(Enumerable.Range(start, options.AdditionalScrapeItems).Select(id => GetAsync(id, cancellationToken)));
 
                 foreach (var book in books)
                 {
-                    oldest ??= book;
-
                     if (!FilterBook(book))
                         break;
 
@@ -224,8 +220,7 @@ namespace nhitomi.Scrapers
                 }
 
                 // set lower as oldest book
-                if (oldest != null)
-                    state.LastLower = oldest.Id;
+                state.LastLower = start;
             }
 
             await SetStateAsync(state, cancellationToken);
