@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
@@ -13,7 +14,10 @@ using IElasticClient = nhitomi.Database.IElasticClient;
 
 namespace nhitomi.Scrapers
 {
-    public interface IBookScraper : IScraper { }
+    public interface IBookScraper : IScraper
+    {
+        IAsyncEnumerable<(IDbEntry<DbBook>, DbBookContent)> FindBookByUrlAsync(string url, bool strict, CancellationToken cancellationToken = default);
+    }
 
     public abstract class BookScraperBase : ScraperBase, IBookScraper
     {
@@ -39,11 +43,11 @@ namespace nhitomi.Scrapers
                 await IndexAsync(book, cancellationToken);
         }
 
-        sealed class SimilarBookQuery : IQueryProcessor<DbBook>
+        sealed class SimilarQuery : IQueryProcessor<DbBook>
         {
             readonly DbBook _book;
 
-            public SimilarBookQuery(DbBook book)
+            public SimilarQuery(DbBook book)
             {
                 _book = book;
             }
@@ -57,7 +61,8 @@ namespace nhitomi.Scrapers
                                                .Nested(qq => qq.SetMode(QueryMatchMode.Any)
                                                                .Filter(new FilterQuery<string> { Values = _book.TagsArtist, Mode = QueryMatchMode.Any }, b => b.TagsArtist)
                                                                .Filter(new FilterQuery<string> { Values = _book.TagsCircle, Mode = QueryMatchMode.Any }, b => b.TagsCircle))
-                                               .Filter(new FilterQuery<string> { Values = _book.TagsCharacter, Mode = QueryMatchMode.Any }, b => b.TagsCharacter));
+                                               .Filter(new FilterQuery<string> { Values = _book.TagsCharacter, Mode = QueryMatchMode.Any }, b => b.TagsCharacter))
+                             .MultiSort(() => (SortDirection.Descending, b => null));
         }
 
         protected async Task IndexAsync(DbBook book, CancellationToken cancellationToken = default)
@@ -70,7 +75,7 @@ namespace nhitomi.Scrapers
             // - matching artist or circle
             // - at least one matching character
 
-            var result = await _client.SearchEntriesAsync(new SimilarBookQuery(book), cancellationToken);
+            var result = await _client.SearchEntriesAsync(new SimilarQuery(book), cancellationToken);
 
             if (result.Items.Length == 0)
             {
@@ -93,6 +98,59 @@ namespace nhitomi.Scrapers
                     entry.Value.MergeFrom(book);
                 }
                 while (!await entry.TryUpdateAsync(cancellationToken));
+            }
+        }
+
+        sealed class SourceQuery : IQueryProcessor<DbBook>
+        {
+            readonly ScraperType _type;
+            readonly string _id;
+
+            public SourceQuery(ScraperType type, string id)
+            {
+                _type = type;
+                _id   = id;
+            }
+
+            public SearchDescriptor<DbBook> Process(SearchDescriptor<DbBook> descriptor)
+                => descriptor.Take(1)
+                             .MultiQuery(q => q.Filter((FilterQuery<ScraperType>) _type, b => b.Sources)
+                                               .Filter((FilterQuery<string>) _id, b => b.SourceIds))
+                             .MultiSort(() => (SortDirection.Descending, b => null));
+        }
+
+        public async IAsyncEnumerable<(IDbEntry<DbBook>, DbBookContent)> FindBookByUrlAsync(string url, bool strict, [EnumeratorCancellation] CancellationToken cancellationToken = default)
+        {
+            foreach (var id in ParseIdsInUrl(url, strict))
+            {
+                var result = await _client.SearchEntriesAsync(new SourceQuery(Type, id), cancellationToken);
+
+                if (result.Items.Length == 0)
+                    continue;
+
+                var entry   = result.Items[0];
+                var content = entry.Value.Contents?.FirstOrDefault(c => c.SourceId == id);
+
+                if (content == null)
+                    continue;
+
+                yield return (entry, content);
+            }
+        }
+
+        protected virtual ScraperUrlRegex UrlRegex => null;
+
+        protected virtual IEnumerable<string> ParseIdsInUrl(string url, bool strict)
+        {
+            if (UrlRegex == null)
+                yield break;
+
+            foreach (var match in UrlRegex.Match(url, strict))
+            {
+                var group = match.Groups["id"];
+
+                if (group.Success)
+                    yield return group.Value;
             }
         }
     }

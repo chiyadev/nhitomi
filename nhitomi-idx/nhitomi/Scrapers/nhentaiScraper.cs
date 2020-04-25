@@ -97,6 +97,7 @@ namespace nhitomi.Scrapers
                         Language = Enum.TryParse<LanguageType>(Tags?.FirstOrDefault(t => t.Type == "language" && t.Name != "translated")?.Name, true, out var lang) ? lang : LanguageType.Japanese,
                         Pages    = Images.Pages.ToArray(p => new DbBookImage()),
                         Source   = ScraperType.nhentai,
+                        SourceId = Id.ToString(),
                         Data     = ""
                     }
                 }
@@ -133,6 +134,7 @@ namespace nhitomi.Scrapers
         readonly IStorage _storage;
 
         public override ScraperType Type => ScraperType.nhentai;
+        protected override ScraperUrlRegex UrlRegex { get; } = new ScraperUrlRegex(@"(nh(entai)?(\/|\s+)|(https?:\/\/)?nhentai\.net\/g\/)(?<id>\d{1,6})\/?");
 
         public nhentaiScraper(IServiceProvider services, IOptionsMonitor<nhentaiScraperOptions> options, ILogger<nhentaiScraper> logger, IHttpClientFactory http, IStorage storage) : base(services, options, logger)
         {
