@@ -59,13 +59,16 @@ namespace nhitomi.Scrapers
                 => descriptor.Take(1)
                              .MultiQuery(q => q.SetMode(QueryMatchMode.All)
                                                .Nested(qq => qq.SetMode(QueryMatchMode.Any)
-                                                               .Text(_book.PrimaryName, b => b.PrimaryName)
-                                                               .Text(_book.EnglishName, b => b.EnglishName))
+                                                               .Text($"\"{_book.PrimaryName}\"", b => b.PrimaryName) // phrase query
+                                                               .Text($"\"{_book.EnglishName}\"", b => b.EnglishName))
                                                .Nested(qq => qq.SetMode(QueryMatchMode.Any)
                                                                .Filter(new FilterQuery<string> { Values = _book.TagsArtist, Mode = QueryMatchMode.Any }, b => b.TagsArtist)
                                                                .Filter(new FilterQuery<string> { Values = _book.TagsCircle, Mode = QueryMatchMode.Any }, b => b.TagsCircle))
+                                               .Nested(qq => qq.SetMode(QueryMatchMode.Any)
+                                                               .Filter(new FilterQuery<string> { Values = _book.TagsSeries, Mode     = QueryMatchMode.Any }, b => b.TagsSeries)
+                                                               .Filter(new FilterQuery<string> { Values = _book.TagsConvention, Mode = QueryMatchMode.Any }, b => b.TagsConvention))
                                                .Filter(new FilterQuery<string> { Values = _book.TagsCharacter, Mode = QueryMatchMode.Any }, b => b.TagsCharacter))
-                             .MultiSort(() => (SortDirection.Descending, b => null));
+                             .MultiSort(() => (SortDirection.Descending, null));
         }
 
         protected async Task IndexAsync(DbBook book, CancellationToken cancellationToken = default)
@@ -74,39 +77,47 @@ namespace nhitomi.Scrapers
             // we consider two books to be the same if they have:
             // - matching primary or english name
             // - matching artist or circle
+            // - matching series or convention
             // - at least one matching character
-            var result = await _client.SearchEntriesAsync(new SimilarQuery(book), cancellationToken);
+            IDbEntry<DbBook> entry;
 
-            if (result.Items.Length == 0)
+            if ((book.TagsArtist?.Length > 0 || book.TagsCircle?.Length > 0) &&
+                (book.TagsSeries?.Length > 0 || book.TagsConvention?.Length > 0) &&
+                book.TagsCharacter?.Length > 0)
             {
-                // no similar books, so create a new one
-                var entry = _client.Entry(book);
+                var result = await _client.SearchEntriesAsync(new SimilarQuery(book), cancellationToken);
 
-                if (_logger.IsEnabled(LogLevel.Debug))
-                    _logger.LogDebug($"Creating unique {Type} book {book.Id} '{book.PrimaryName}'.");
-
-                await entry.CreateAsync(cancellationToken);
-            }
-            else
-            {
-                // otherwise merge with similar
-                var entry = result.Items[0];
-
-                if (_logger.IsEnabled(LogLevel.Debug))
-                    _logger.LogDebug($"Merging {Type} book into similar book {entry.Id} '{book.PrimaryName}'.");
-
-                do
+                if (result.Items.Length != 0)
                 {
-                    if (entry.Value == null)
-                    {
-                        await IndexAsync(book, cancellationToken);
-                        return;
-                    }
+                    // merge with similar
+                    entry = result.Items[0];
 
-                    entry.Value.MergeFrom(book);
+                    if (_logger.IsEnabled(LogLevel.Debug))
+                        _logger.LogDebug($"Merging {Type} book '{book.PrimaryName}' into similar book {entry.Id} '{entry.Value.PrimaryName}'.");
+
+                    do
+                    {
+                        if (entry.Value == null)
+                        {
+                            await IndexAsync(book, cancellationToken);
+                            return;
+                        }
+
+                        entry.Value.MergeFrom(book);
+                    }
+                    while (!await entry.TryUpdateAsync(cancellationToken));
+
+                    return;
                 }
-                while (!await entry.TryUpdateAsync(cancellationToken));
             }
+
+            // no similar books, so create a new one
+            entry = _client.Entry(book);
+
+            if (_logger.IsEnabled(LogLevel.Debug))
+                _logger.LogDebug($"Creating unique {Type} book {book.Id} '{book.PrimaryName}'.");
+
+            await entry.CreateAsync(cancellationToken);
         }
 
         sealed class SourceQuery : IQueryProcessor<DbBook>
@@ -124,7 +135,7 @@ namespace nhitomi.Scrapers
                 => descriptor.Take(1)
                              .MultiQuery(q => q.Filter((FilterQuery<ScraperType>) _type, b => b.Sources)
                                                .Filter((FilterQuery<string>) _id, b => b.SourceIds))
-                             .MultiSort(() => (SortDirection.Descending, b => null));
+                             .MultiSort(() => (SortDirection.Descending, null));
         }
 
         public async IAsyncEnumerable<(IDbEntry<DbBook>, DbBookContent)> FindBookByUrlAsync(string url, bool strict, [EnumeratorCancellation] CancellationToken cancellationToken = default)

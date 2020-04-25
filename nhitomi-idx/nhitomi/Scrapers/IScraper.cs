@@ -118,9 +118,6 @@ namespace nhitomi.Scrapers
         /// </summary>
         protected abstract Task RunAsync(CancellationToken cancellationToken = default);
 
-        // for unit testing
-        internal Task RunAsyncInternal(CancellationToken cancellationToken = default) => RunAsync(cancellationToken);
-
         /// <summary>
         /// Retrieves the last saved state of this scraper.
         /// </summary>
@@ -137,5 +134,10 @@ namespace nhitomi.Scrapers
 
             await _storage.WriteObjectAsync($"scrapers/{Type}/state", value, cancellationToken);
         }
+
+        /// <summary>
+        /// Forcefully calls <see cref="RunAsync"/> immediately. This is for unit testing only.
+        /// </summary>
+        public Task ForceRunAsync(CancellationToken cancellationToken = default) => RunAsync(cancellationToken);
     }
 }
