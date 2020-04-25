@@ -159,11 +159,16 @@ namespace nhitomi
             // swagger docs
             services.AddSwaggerGen(s =>
             {
-                s.SwaggerDoc("v1", new OpenApiInfo
+                s.SwaggerDoc("docs", new OpenApiInfo
                 {
-                    Title       = "nhitomi API",
-                    Version     = VersionInfo.Version.ToString(),
-                    Description = "nhitomi HTTP API Documentation"
+                    Title   = "☆.｡.:*　nhitomi API　.｡.:*☆",
+                    Version = VersionInfo.Version.ToString(),
+                    License = new OpenApiLicense
+                    {
+                        Name = "MIT License",
+                        Url  = new Uri("https://github.com/chiyadev/nhitomi/blob/master/LICENSE")
+                    },
+                    Description = $"Commit: [{VersionInfo.Commit.Hash}](https://github.com/chiyadev/nhitomi/commit/{VersionInfo.Commit.Hash})".Trim()
                 });
 
                 // https://github.com/domaindrivendev/Swashbuckle.AspNetCore/issues/1171#issuecomment-501342088
@@ -314,8 +319,7 @@ namespace nhitomi
             // swagger docs
             app.UseSwagger(s =>
             {
-                s.RouteTemplate = "/docs/{documentName}.json";
-
+                s.RouteTemplate = "{documentName}.json";
                 s.PreSerializeFilters.Add((document, request) =>
                 {
                     var scheme = request.Scheme;
@@ -335,10 +339,8 @@ namespace nhitomi
 
             app.UseReDoc(r =>
             {
-                r.RoutePrefix   = "docs";
-                r.DocumentTitle = "nhitomi API";
-
-                r.SpecUrl      = "v1.json";
+                r.RoutePrefix  = "";
+                r.SpecUrl      = "docs.json";
                 r.ConfigObject = new ConfigObject { RequiredPropsFirst = true };
             });
 
