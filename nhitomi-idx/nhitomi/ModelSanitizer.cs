@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text.RegularExpressions;
@@ -361,26 +362,56 @@ namespace nhitomi
         public override T Sanitize(T value) => value.ToFlags().ToBitwise(); // this will remove all undefined flags
     }
 
+    /// <summary>
+    /// Similar to <see cref="IValidatableObject"/> but for sanitization.
+    /// </summary>
+    public interface ISanitizableObject
+    {
+        /// <summary>
+        /// Called immediately before this object is sanitized.
+        /// </summary>
+        void BeforeSanitize();
+
+        /// <summary>
+        /// Called immediately after this object is sanitized.
+        /// </summary>
+        void AfterSanitize();
+    }
+
     public class ComplexTypeSanitizer<T> : SanitizerBase<T> where T : class
     {
         readonly Func<T, T> _sanitize;
 
         public ComplexTypeSanitizer()
         {
-            var param = Expression.Parameter(typeof(T), "value");
+            var type  = typeof(T);
+            var param = Expression.Parameter(type, "value");
 
-            var body = typeof(T).GetProperties()
-                                .Where(p => p.CanRead && p.CanWrite)
-                                .ToList(p =>
-                                 {
-                                     var property = Expression.Property(param, p);
+            var body = type.GetProperties()
+                           .Where(p => p.CanRead && p.CanWrite)
+                           .ToList(p =>
+                            {
+                                var property = Expression.Property(param, p);
 
-                                     var sanitizer       = ModelSanitizer.GetSanitizer(p.PropertyType);
-                                     var sanitizerMethod = sanitizer.GetType().GetMethod(nameof(Sanitize));
+                                var sanitizer       = ModelSanitizer.GetSanitizer(p.PropertyType);
+                                var sanitizerMethod = sanitizer.GetType().GetMethod(nameof(Sanitize));
 
-                                     // ReSharper disable once AssignNullToNotNullAttribute
-                                     return Expression.Assign(property, Expression.Call(Expression.Constant(sanitizer), sanitizerMethod, property)) as Expression;
-                                 });
+                                // ReSharper disable once AssignNullToNotNullAttribute
+                                return Expression.Assign(property, Expression.Call(Expression.Constant(sanitizer), sanitizerMethod, property)) as Expression;
+                            });
+
+            // sanitize callback
+            if (typeof(ISanitizableObject).IsAssignableFrom(type))
+            {
+                var before = type.GetMethod(nameof(ISanitizableObject.BeforeSanitize));
+                var after  = type.GetMethod(nameof(ISanitizableObject.AfterSanitize));
+
+                if (before != null)
+                    body.Insert(0, Expression.Call(param, before));
+
+                if (after != null)
+                    body.Add(Expression.Call(param, after));
+            }
 
             // return value
             body.Add(param);

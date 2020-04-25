@@ -420,5 +420,36 @@ namespace nhitomi
             Assert.That(dict, Contains.Key("valid"));
             Assert.That(dict["valid"], Is.EqualTo(new[] { "valid", "valid 2" }));
         }
+
+        class TestCallback : ISanitizableObject
+        {
+            public bool BeforeSanitized { get; set; }
+            public bool AfterSanitized { get; set; }
+
+            public void BeforeSanitize()
+            {
+                Assert.That(BeforeSanitized, Is.False);
+                Assert.That(AfterSanitized, Is.False);
+
+                BeforeSanitized = true;
+            }
+
+            public void AfterSanitize()
+            {
+                Assert.That(BeforeSanitized, Is.True);
+                Assert.That(AfterSanitized, Is.False);
+
+                AfterSanitized = true;
+            }
+        }
+
+        [Test]
+        public void Callback()
+        {
+            var obj = ModelSanitizer.Sanitize(new TestCallback());
+
+            Assert.That(obj.BeforeSanitized, Is.True);
+            Assert.That(obj.AfterSanitized, Is.True);
+        }
     }
 }
