@@ -37,11 +37,5 @@ namespace nhitomi
 
             return Value(HttpStatusCode.UnprocessableEntity, problems, message);
         }
-
-        public static ActionResult<T> NotFound<T>(params object[] ids) => NotFound(ids);
-        public static ActionResult<T> Forbidden<T>(string message) => Forbidden(message);
-        public static ActionResult<T> BadRequest<T>(string message) => BadRequest(message);
-        public static ActionResult<T> Unauthorized<T>(string message) => Unauthorized(message);
-        public static ActionResult<T> UnprocessableEntity<T>(params ValidationProblem[] problems) => UnprocessableEntity(problems);
     }
 }
