@@ -105,7 +105,7 @@ namespace nhitomi.Storage
 
                     // move temp file to storage
                     await using (await _locker.EnterAsync($"storage:{path}", cancellationToken))
-                        File.Move(temp.Path, path);
+                        File.Move(temp.Path, path, true);
                 }
 
                 _logger.LogInformation($"Wrote file '{file.Name}'.");
