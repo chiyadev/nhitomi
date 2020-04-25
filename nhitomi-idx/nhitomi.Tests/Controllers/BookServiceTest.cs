@@ -193,7 +193,11 @@ namespace nhitomi.Controllers
             var books = Services.GetService<IBookService>();
 
             // delete book
-            var deleteResult = await books.DeleteAsync(book.Id);
+            var deleteResult = await books.DeleteAsync(book.Id, new SnapshotArgs
+            {
+                Event  = SnapshotEvent.BeforeDeletion,
+                Reason = "this book sucks"
+            });
 
             Assert.That(deleteResult.IsT0, Is.True);
 
@@ -201,6 +205,24 @@ namespace nhitomi.Controllers
             var getResult = await books.GetAsync(book.Id);
 
             Assert.That(getResult.IsT0, Is.False);
+
+            // ensure snapshot
+            var snapshots = Services.GetService<ISnapshotService>();
+
+            var snapshotResult = await snapshots.SearchAsync(ObjectType.Book, new SnapshotQuery
+            {
+                TargetId = book.Id,
+                Limit    = 1
+            });
+
+            Assert.That(snapshotResult.Total, Is.EqualTo(1));
+            Assert.That(snapshotResult.Items[0].Event, Is.EqualTo(SnapshotEvent.BeforeDeletion));
+            Assert.That(snapshotResult.Items[0].Reason, Is.EqualTo("this book sucks"));
+
+            // delete nonexistent
+            deleteResult = await books.DeleteAsync(book.Id, new SnapshotArgs());
+
+            Assert.That(deleteResult.IsT0, Is.False);
         }
 
         [Test]
@@ -227,9 +249,26 @@ namespace nhitomi.Controllers
             var books = Services.GetService<IBookService>();
 
             // delete content
-            var deleteResult = await books.DeleteContentAsync(book.Id, book.Contents[0].Id);
+            var deleteResult = await books.DeleteContentAsync(book.Id, book.Contents[0].Id, new SnapshotArgs
+            {
+                Event  = SnapshotEvent.BeforeDeletion,
+                Reason = "this content sucks"
+            });
 
             Assert.That(deleteResult.IsT1, Is.True);
+
+            // ensure snapshot
+            var snapshots = Services.GetService<ISnapshotService>();
+
+            var snapshotResult = await snapshots.SearchAsync(ObjectType.Book, new SnapshotQuery
+            {
+                TargetId = book.Id,
+                Limit    = 1
+            });
+
+            Assert.That(snapshotResult.Total, Is.EqualTo(1));
+            Assert.That(snapshotResult.Items[0].Event, Is.EqualTo(SnapshotEvent.BeforeDeletion));
+            Assert.That(snapshotResult.Items[0].Reason, Is.EqualTo("this content sucks"));
 
             // deleting the only content in the book should delete the entire book
             var getResult = await books.GetAsync(book.Id);
@@ -267,10 +306,27 @@ namespace nhitomi.Controllers
 
             var books = Services.GetService<IBookService>();
 
-            // delete content
-            var deleteResult = await books.DeleteContentAsync(book.Id, book.Contents[0].Id); // delete first content
+            // delete first content
+            var deleteResult = await books.DeleteContentAsync(book.Id, book.Contents[0].Id, new SnapshotArgs
+            {
+                Event  = SnapshotEvent.BeforeDeletion,
+                Reason = "this content sucks"
+            });
 
             Assert.That(deleteResult.AsT0.Id, Is.EqualTo(book.Id));
+
+            // ensure snapshot
+            var snapshots = Services.GetService<ISnapshotService>();
+
+            var snapshotResult = await snapshots.SearchAsync(ObjectType.Book, new SnapshotQuery
+            {
+                TargetId = book.Id,
+                Limit    = 1
+            });
+
+            Assert.That(snapshotResult.Total, Is.EqualTo(1));
+            Assert.That(snapshotResult.Items[0].Event, Is.EqualTo(SnapshotEvent.BeforeDeletion));
+            Assert.That(snapshotResult.Items[0].Reason, Is.EqualTo("this content sucks"));
 
             // book should not be deleted if there is still content remaining
             var getResult = await books.GetAsync(book.Id);
