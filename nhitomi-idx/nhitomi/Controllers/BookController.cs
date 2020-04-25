@@ -127,8 +127,10 @@ namespace nhitomi.Controllers
 
         /// <summary>
         /// Deletes a content of a book.
-        /// If the content being deleted is the only content left in the book, the entire book will be deleted.
         /// </summary>
+        /// <remarks>
+        /// If the content being deleted is the only content left in the book, the entire book will be deleted.
+        /// </remarks>
         /// <param name="id">Book ID.</param>
         /// <param name="contentId">Content ID.</param>
         /// <param name="reason">Reason for this action.</param>
@@ -150,7 +152,7 @@ namespace nhitomi.Controllers
         }
 
         /// <summary>
-        /// Searches for books matching the specified query.
+        /// Searches for books matching the given query.
         /// </summary>
         /// <param name="query">Book information query.</param>
         [HttpPost("search", Name = "searchBooks")]
@@ -158,7 +160,7 @@ namespace nhitomi.Controllers
             => (await _books.SearchAsync(query)).Project(b => b.Convert());
 
         /// <summary>
-        /// Finds autocomplete suggestions for books matching the specified query.
+        /// Finds autocomplete suggestions for books matching the given query.
         /// </summary>
         /// <param name="query">Book suggestion query.</param>
         [HttpPost("suggest", Name = "suggestBooks")]
@@ -255,7 +257,7 @@ namespace nhitomi.Controllers
         }
 
         /// <summary>
-        /// Sets a vote on a book, overwriting one if already set.
+        /// Sets the vote on a book, overwriting one if already set.
         /// </summary>
         /// <param name="id">Book ID.</param>
         /// <param name="model">Vote information.</param>
@@ -273,7 +275,7 @@ namespace nhitomi.Controllers
         }
 
         /// <summary>
-        /// Removes vote from a book.
+        /// Removes the vote from a book.
         /// </summary>
         /// <param name="id">Book ID.</param>
         [HttpDelete("{id}/vote", Name = "unsetBookVote")]
