@@ -52,10 +52,10 @@ namespace nhitomi.Scrapers
         // regex to match any () and [] in titles
         static readonly Regex _bracketsRegex = new Regex(@"\([^)]*\)|\[[^\]]*\]", RegexOptions.Compiled | RegexOptions.Singleline);
 
-        // regex to match the convention in title
+        // regex to match the convention in title (first parentheses)
         static readonly Regex _conventionRegex = new Regex(@"^\((?<convention>.*?)\)", RegexOptions.Compiled | RegexOptions.Singleline);
 
-        static string FixTitle(string s)
+        public static string FixTitle(string s)
         {
             if (string.IsNullOrEmpty(s))
                 return null;
@@ -66,13 +66,16 @@ namespace nhitomi.Scrapers
             return string.IsNullOrEmpty(s) ? null : HttpUtility.HtmlDecode(s);
         }
 
-        static string FindConvention(string s)
+        public static string FindConvention(string s)
         {
             if (string.IsNullOrEmpty(s))
                 return null;
 
             return _conventionRegex.Match(s.TrimStart()).Groups["convention"].Value;
         }
+
+        // some books are incorrectly tagged with a pipe separator
+        public static IEnumerable<string> ProcessTag(TagData tag) => tag.Name.Split('|', StringSplitOptions.RemoveEmptyEntries);
 
         public DbBook Convert()
         {
@@ -84,12 +87,12 @@ namespace nhitomi.Scrapers
                 PrimaryName = japanese ?? english,
                 EnglishName = english ?? japanese,
 
-                TagsGeneral    = Tags?.Where(t => t.Type == "tag").ToArray(t => t.Name),
-                TagsArtist     = Tags?.Where(t => t.Type == "artist").ToArray(t => t.Name),
-                TagsParody     = Tags?.Where(t => t.Type == "parody" && t.Name != "original").ToArray(t => t.Name),
-                TagsCharacter  = Tags?.Where(t => t.Type == "character").ToArray(t => t.Name),
+                TagsGeneral    = Tags?.Where(t => t.Type == "tag").ToArrayMany(ProcessTag),
+                TagsArtist     = Tags?.Where(t => t.Type == "artist").ToArrayMany(ProcessTag),
+                TagsParody     = Tags?.Where(t => t.Type == "parody" && t.Name != "original").ToArrayMany(ProcessTag),
+                TagsCharacter  = Tags?.Where(t => t.Type == "character").ToArrayMany(ProcessTag),
                 TagsConvention = new[] { FindConvention(english ?? japanese) },
-                TagsCircle     = Tags?.Where(t => t.Type == "group").ToArray(t => t.Name),
+                TagsCircle     = Tags?.Where(t => t.Type == "group").ToArrayMany(ProcessTag),
 
                 Category = Enum.TryParse<BookCategory>(Tags?.FirstOrDefault(t => t.Type == "category")?.Name, true, out var cat) ? cat : BookCategory.Doujinshi,
                 Contents = new[]
