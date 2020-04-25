@@ -105,7 +105,11 @@ namespace nhitomi.Scrapers
                         Pages    = Images.Pages.ToArray(p => new DbBookImage()),
                         Source   = ScraperType.nhentai,
                         SourceId = Id.ToString(),
-                        Data     = ""
+                        Data = JsonConvert.SerializeObject(new nhentaiScraper.DataContainer
+                        {
+                            MediaId    = MediaId,
+                            Extensions = string.Concat(Images.Pages.Select(p => p.Type))
+                        })
                     }
                 }
             };
@@ -150,22 +154,29 @@ namespace nhitomi.Scrapers
             TestManager = new ScraperTestManager<nhentaiBook>(this);
         }
 
-        sealed class State
+        public sealed class ScraperState
         {
-            public int? LastUpper { get; set; }
-            public int? LastLower { get; set; }
+            /// <summary>
+            /// We iterate from the latest book to "last upper" to find new books since the last scrape.
+            /// </summary>
+            [JsonProperty("last_upper")] public int? LastUpper;
+
+            /// <summary>
+            /// We iterate from "last lower" a configured amount to find old books that we haven't scraped yet.
+            /// </summary>
+            [JsonProperty("last_lower")] public int? LastLower;
         }
 
         protected override async IAsyncEnumerable<DbBook> ScrapeAsync([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             var options = _options.CurrentValue;
 
-            var state = await GetStateAsync<State>(cancellationToken) ?? new State();
+            var state = await GetStateAsync<ScraperState>(cancellationToken) ?? new ScraperState();
 
             if (state.LastUpper == null)
             {
                 // use upper as latest book
-                state.LastUpper = (await EnumerateAsync(null, cancellationToken).FirstOrDefaultAsync(cancellationToken))?.Id;
+                state.LastUpper = (await EnumerateAsync(cancellationToken).FirstOrDefaultAsync(cancellationToken))?.Id;
 
                 if (state.LastUpper == null)
                     yield break;
@@ -175,7 +186,7 @@ namespace nhitomi.Scrapers
                 var latest = null as nhentaiBook;
 
                 // return new books since upper
-                await foreach (var book in EnumerateAsync(null, cancellationToken))
+                await foreach (var book in EnumerateAsync(cancellationToken))
                 {
                     latest ??= book;
 
@@ -195,27 +206,33 @@ namespace nhitomi.Scrapers
             // find additional books on top of new books
             if (state.LastLower != null)
             {
-                var count = 0;
+                var count = options.AdditionalScrapeItems;
 
-                await foreach (var book in EnumerateAsync(state.LastLower + 1, cancellationToken))
+                // individually retrieve books in parallel
+                var books = await Task.WhenAll(Enumerable.Range(state.LastLower.Value - count - 1, count).Select(id => GetAsync(id, cancellationToken)));
+
+                var oldest = null as nhentaiBook;
+
+                foreach (var book in books)
                 {
+                    oldest ??= book;
+
                     if (!FilterBook(book))
                         break;
 
                     yield return book.Convert();
-
-                    state.LastLower = book.Id;
-
-                    if (++count >= options.AdditionalScrapeItems)
-                        break;
                 }
+
+                // set lower as oldest book
+                if (oldest != null)
+                    state.LastLower = oldest.Id;
             }
 
             await SetStateAsync(state, cancellationToken);
         }
 
         bool FilterBook(nhentaiBook book)
-            => DateTimeOffset.FromUnixTimeSeconds(book.UploadDate).UtcDateTime >= _options.CurrentValue.MinimumUploadTime;
+            => book != null && DateTimeOffset.FromUnixTimeSeconds(book.UploadDate).UtcDateTime >= _options.CurrentValue.MinimumUploadTime;
 
         /// <summary>
         /// Retrieves a book by ID.
@@ -236,43 +253,33 @@ namespace nhitomi.Scrapers
         /// <summary>
         /// Enumerates all books reverse-chronologically (descending ID).
         /// </summary>
-        public async IAsyncEnumerable<nhentaiBook> EnumerateAsync(int? start, [EnumeratorCancellation] CancellationToken cancellationToken = default)
+        public async IAsyncEnumerable<nhentaiBook> EnumerateAsync([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             var encountered = new HashSet<int>();
 
-            // if no start is specified, we can use all listing with pagination
-            if (start == null)
-                for (var page = 1;; page++)
+            for (var page = 1;; page++)
+            {
+                using var response = await _http.GetAsync($"https://nhentai.net/api/galleries/all?page={page}", cancellationToken);
+
+                response.EnsureSuccessStatusCode();
+
+                var list = ModelSanitizer.Sanitize(JsonConvert.DeserializeObject<nhentaiList>(await response.Content.ReadAsStringAsync()));
+
+                if (list.Results.Length == 0)
+                    break;
+
+                foreach (var book in list.Results)
                 {
-                    using var response = await _http.GetAsync($"https://nhentai.net/api/galleries/all?page={page}", cancellationToken);
-
-                    response.EnsureSuccessStatusCode();
-
-                    var list = ModelSanitizer.Sanitize(JsonConvert.DeserializeObject<nhentaiList>(await response.Content.ReadAsStringAsync()));
-
-                    if (list.Results.Length == 0)
-                        break;
-
-                    foreach (var book in list.Results)
-                    {
-                        if (encountered.Add(book.Id))
-                            yield return book;
-                    }
-                }
-
-            // otherwise fetch each item individually
-            else
-                for (var id = start.Value;; id--)
-                {
-                    var book = await GetAsync(id, cancellationToken);
-
-                    // some books may be missing
-                    if (book == null)
-                        continue;
-
                     if (encountered.Add(book.Id))
                         yield return book;
                 }
+            }
+        }
+
+        public sealed class DataContainer
+        {
+            [JsonProperty("media_id")] public int MediaId;
+            [JsonProperty("ext")] public string Extensions;
         }
     }
 }
