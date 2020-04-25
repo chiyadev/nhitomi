@@ -45,23 +45,49 @@ namespace nhitomi.Database
         [Key("no"), Object(Name = "no", Enabled = false)]
         public DbImageNote[] Notes { get; set; }
 
+        Dictionary<ImageTag, string[]> _tags = new Dictionary<ImageTag, string[]>();
+
         [Key("tg"), Keyword(Name = "tg", DocValues = false)]
-        public string[] TagsGeneral { get; set; }
+        public string[] TagsGeneral
+        {
+            get => _tags.GetValueOrDefault(ImageTag.Tag);
+            set => _tags[ImageTag.Tag] = value;
+        }
 
         [Key("ta"), Keyword(Name = "ta", DocValues = false)]
-        public string[] TagsArtist { get; set; }
+        public string[] TagsArtist
+        {
+            get => _tags.GetValueOrDefault(ImageTag.Artist);
+            set => _tags[ImageTag.Artist] = value;
+        }
 
         [Key("tc"), Keyword(Name = "tc", DocValues = false)]
-        public string[] TagsCharacter { get; set; }
+        public string[] TagsCharacter
+        {
+            get => _tags.GetValueOrDefault(ImageTag.Character);
+            set => _tags[ImageTag.Character] = value;
+        }
 
         [Key("tcp"), Keyword(Name = "tcp", DocValues = false)]
-        public string[] TagsCopyright { get; set; }
+        public string[] TagsCopyright
+        {
+            get => _tags.GetValueOrDefault(ImageTag.Copyright);
+            set => _tags[ImageTag.Copyright] = value;
+        }
 
         [Key("tm"), Keyword(Name = "tm", DocValues = false)]
-        public string[] TagsMetadata { get; set; }
+        public string[] TagsMetadata
+        {
+            get => _tags.GetValueOrDefault(ImageTag.Metadata);
+            set => _tags[ImageTag.Metadata] = value;
+        }
 
         [Key("tp"), Keyword(Name = "tp", DocValues = false)]
-        public string[] TagsPool { get; set; }
+        public string[] TagsPool
+        {
+            get => _tags.GetValueOrDefault(ImageTag.Pool);
+            set => _tags[ImageTag.Pool] = value;
+        }
 
         [Key("ra"), Keyword(Name = "ra", DocValues = false)]
         public MaterialRating Rating { get; set; }
@@ -84,24 +110,12 @@ namespace nhitomi.Database
 
             model.CreatedTime = CreatedTime;
             model.UpdatedTime = UpdatedTime;
-
-            model.Size = Size;
-            model.Hash = Hash;
-
-            model.Notes = Notes?.ToArray(n => n.Convert());
-
-            model.Tags = new Dictionary<ImageTag, string[]>
-            {
-                [ImageTag.Tag]       = TagsGeneral,
-                [ImageTag.Artist]    = TagsArtist,
-                [ImageTag.Character] = TagsCharacter,
-                [ImageTag.Copyright] = TagsCopyright,
-                [ImageTag.Metadata]  = TagsMetadata,
-                [ImageTag.Pool]      = TagsPool
-            };
-
-            model.Rating = Rating;
-            model.Source = Source;
+            model.Size        = Size;
+            model.Hash        = Hash;
+            model.Notes       = Notes?.ToArray(n => n.Convert());
+            model.Tags        = _tags.DictClone();
+            model.Rating      = Rating;
+            model.Source      = Source;
         }
 
         public override void MapFrom(Image model)
@@ -110,40 +124,21 @@ namespace nhitomi.Database
 
             CreatedTime = model.CreatedTime;
             UpdatedTime = model.UpdatedTime;
-
-            Size = model.Size;
-            Hash = model.Hash;
-
-            Notes = model.Notes?.ToArray(p => new DbImageNote().Apply(p));
-
-            TagsGeneral   = model.Tags?.GetValueOrDefault(ImageTag.Tag);
-            TagsArtist    = model.Tags?.GetValueOrDefault(ImageTag.Artist);
-            TagsCharacter = model.Tags?.GetValueOrDefault(ImageTag.Character);
-            TagsCopyright = model.Tags?.GetValueOrDefault(ImageTag.Copyright);
-            TagsMetadata  = model.Tags?.GetValueOrDefault(ImageTag.Metadata);
-            TagsPool      = model.Tags?.GetValueOrDefault(ImageTag.Pool);
-
-            Rating = model.Rating;
+            Size        = model.Size;
+            Hash        = model.Hash;
+            Notes       = model.Notes?.ToArray(p => new DbImageNote().Apply(p));
+            _tags       = model.Tags?.DictClone() ?? new Dictionary<ImageTag, string[]>();
+            Rating      = model.Rating;
 
             // do not map source because Data is valid only for the scraper that initialized it
         }
 
 #region Cached
 
-        public enum SuggestionType
-        {
-            Tags = ImageTag.Tag,
-            TagsArtist = ImageTag.Artist,
-            TagsCharacter = ImageTag.Character,
-            TagsCopyright = ImageTag.Copyright,
-            TagsMetadata = ImageTag.Metadata,
-            TagsPool = ImageTag.Pool
-        }
-
         /// <summary>
         /// This is a cached property for querying.
         /// </summary>
-        [IgnoreMember, Completion(Name = IDbSupportsAutocomplete.SuggestField, PreserveSeparators = false, PreservePositionIncrements = false, DocValues = false)]
+        [IgnoreMember, Completion(Name = IDbSupportsAutocomplete.SuggestField, PreserveSeparators = false, PreservePositionIncrements = false, DocValues = false), SanitizerIgnore]
         public CompletionField Suggest { get; set; }
 
         public override void UpdateCache()
@@ -152,13 +147,13 @@ namespace nhitomi.Database
 
             Suggest = new CompletionField
             {
-                Input = SuggestionFormatter.Format(
-                    (SuggestionType.Tags, TagsGeneral),
-                    (SuggestionType.TagsArtist, TagsArtist),
-                    (SuggestionType.TagsCharacter, TagsCharacter),
-                    (SuggestionType.TagsCopyright, TagsCopyright),
-                    (SuggestionType.TagsMetadata, TagsMetadata),
-                    (SuggestionType.TagsPool, TagsPool))
+                Input = SuggestionFormatter.Format(new Dictionary<int, string[]>().Compose(d =>
+                {
+                    foreach (var (key, value) in _tags)
+                        d[(int) key] = value;
+
+                    return d;
+                }))
 
                 //todo: score
                 //Weight = (int) TotalAvailability.Average()

@@ -13,7 +13,7 @@ namespace nhitomi.Database
     /// Represents a book.
     /// </summary>
     [MessagePackObject, ElasticsearchType(RelationName = nameof(Book))]
-    public class DbBook : DbObjectBase<Book>, IDbHasType, IDbModelConvertible<DbBook, Book, BookBase>, IHasUpdatedTime, IDbSupportsAutocomplete
+    public class DbBook : DbObjectBase<Book>, IDbHasType, IDbModelConvertible<DbBook, Book, BookBase>, IHasUpdatedTime, IDbSupportsAutocomplete, ISanitizableObject
     {
         [IgnoreMember, Ignore]
         ObjectType IDbHasType.Type => ObjectType.Book;
@@ -30,29 +30,63 @@ namespace nhitomi.Database
         [Key("ne"), Text(Name = "ne")]
         public string EnglishName { get; set; }
 
+        Dictionary<BookTag, string[]> _tags = new Dictionary<BookTag, string[]>();
+
         [Key("tg"), Keyword(Name = "tg", DocValues = false)]
-        public string[] TagsGeneral { get; set; }
+        public string[] TagsGeneral
+        {
+            get => _tags.GetValueOrDefault(BookTag.Tag);
+            set => _tags[BookTag.Tag] = value;
+        }
 
         [Key("ta"), Keyword(Name = "ta", DocValues = false)]
-        public string[] TagsArtist { get; set; }
+        public string[] TagsArtist
+        {
+            get => _tags.GetValueOrDefault(BookTag.Artist);
+            set => _tags[BookTag.Artist] = value;
+        }
 
         [Key("tp"), Keyword(Name = "tp", DocValues = false)]
-        public string[] TagsParody { get; set; }
+        public string[] TagsParody
+        {
+            get => _tags.GetValueOrDefault(BookTag.Parody);
+            set => _tags[BookTag.Parody] = value;
+        }
 
         [Key("tc"), Keyword(Name = "tc", DocValues = false)]
-        public string[] TagsCharacter { get; set; }
+        public string[] TagsCharacter
+        {
+            get => _tags.GetValueOrDefault(BookTag.Character);
+            set => _tags[BookTag.Character] = value;
+        }
 
         [Key("tco"), Keyword(Name = "tco", DocValues = false)]
-        public string[] TagsConvention { get; set; }
+        public string[] TagsConvention
+        {
+            get => _tags.GetValueOrDefault(BookTag.Convention);
+            set => _tags[BookTag.Convention] = value;
+        }
 
         [Key("ts"), Keyword(Name = "ts", DocValues = false)]
-        public string[] TagsSeries { get; set; }
+        public string[] TagsSeries
+        {
+            get => _tags.GetValueOrDefault(BookTag.Series);
+            set => _tags[BookTag.Series] = value;
+        }
 
         [Key("tci"), Keyword(Name = "tci", DocValues = false)]
-        public string[] TagsCircle { get; set; }
+        public string[] TagsCircle
+        {
+            get => _tags.GetValueOrDefault(BookTag.Circle);
+            set => _tags[BookTag.Circle] = value;
+        }
 
         [Key("tm"), Keyword(Name = "tm", DocValues = false)]
-        public string[] TagsMetadata { get; set; }
+        public string[] TagsMetadata
+        {
+            get => _tags.GetValueOrDefault(BookTag.Metadata);
+            set => _tags[BookTag.Metadata] = value;
+        }
 
         [Key("ca"), Keyword(Name = "ca", DocValues = false)]
         public BookCategory Category { get; set; }
@@ -71,23 +105,10 @@ namespace nhitomi.Database
             model.UpdatedTime = UpdatedTime;
             model.PrimaryName = PrimaryName;
             model.EnglishName = EnglishName;
-
-            model.Tags = new Dictionary<BookTag, string[]>
-            {
-                [BookTag.Tag]        = TagsGeneral,
-                [BookTag.Artist]     = TagsArtist,
-                [BookTag.Parody]     = TagsParody,
-                [BookTag.Character]  = TagsCharacter,
-                [BookTag.Convention] = TagsConvention,
-                [BookTag.Series]     = TagsSeries,
-                [BookTag.Circle]     = TagsCircle,
-                [BookTag.Metadata]   = TagsMetadata
-            };
-
-            model.Category = Category;
-            model.Rating   = Rating;
-
-            model.Contents = Contents?.ToArray(c => c.Convert());
+            model.Tags        = _tags.DictClone();
+            model.Category    = Category;
+            model.Rating      = Rating;
+            model.Contents    = Contents?.ToArray(c => c.Convert());
         }
 
         public override void MapFrom(Book model)
@@ -98,33 +119,15 @@ namespace nhitomi.Database
             UpdatedTime = model.UpdatedTime;
             PrimaryName = model.PrimaryName;
             EnglishName = model.EnglishName;
-
-            TagsGeneral    = model.Tags?.GetValueOrDefault(BookTag.Tag);
-            TagsArtist     = model.Tags?.GetValueOrDefault(BookTag.Artist);
-            TagsParody     = model.Tags?.GetValueOrDefault(BookTag.Parody);
-            TagsCharacter  = model.Tags?.GetValueOrDefault(BookTag.Character);
-            TagsConvention = model.Tags?.GetValueOrDefault(BookTag.Convention);
-            TagsSeries     = model.Tags?.GetValueOrDefault(BookTag.Series);
-            TagsCircle     = model.Tags?.GetValueOrDefault(BookTag.Circle);
-            TagsMetadata   = model.Tags?.GetValueOrDefault(BookTag.Metadata);
-
-            Category = model.Category;
-            Rating   = model.Rating;
-
-            Contents = model.Contents?.ToArray(c => new DbBookContent().Apply(c));
+            _tags       = model.Tags?.DictClone() ?? new Dictionary<BookTag, string[]>();
+            Category    = model.Category;
+            Rating      = model.Rating;
+            Contents    = model.Contents?.ToArray(c => new DbBookContent().Apply(c));
         }
 
         public void MergeFrom(DbBook other)
         {
-            TagsGeneral    = TagsGeneral.DistinctMergeSafe(other.TagsGeneral);
-            TagsArtist     = TagsArtist.DistinctMergeSafe(other.TagsArtist);
-            TagsParody     = TagsParody.DistinctMergeSafe(other.TagsParody);
-            TagsCharacter  = TagsCharacter.DistinctMergeSafe(other.TagsCharacter);
-            TagsConvention = TagsConvention.DistinctMergeSafe(other.TagsConvention);
-            TagsSeries     = TagsSeries.DistinctMergeSafe(other.TagsSeries);
-            TagsCircle     = TagsCircle.DistinctMergeSafe(other.TagsCircle);
-            TagsMetadata   = TagsMetadata.DistinctMergeSafe(other.TagsMetadata);
-
+            _tags    = _tags.DistinctMergeSafe(other._tags);
             Contents = Contents.DistinctMergeSafe(other.Contents);
         }
 
@@ -166,24 +169,10 @@ namespace nhitomi.Database
         [IgnoreMember, Keyword(Name = "si", DocValues = false)]
         public string[] SourceIds { get; set; }
 
-        public enum SuggestionType
-        {
-            PrimaryName = -1,
-            EnglishName = -2,
-            Tags = BookTag.Tag,
-            TagsArtist = BookTag.Artist,
-            TagsParody = BookTag.Parody,
-            TagsCharacter = BookTag.Character,
-            TagsConvention = BookTag.Convention,
-            TagsSeries = BookTag.Series,
-            TagsCircle = BookTag.Circle,
-            TagsMetadata = BookTag.Metadata
-        }
-
         /// <summary>
         /// This is a cached property for querying.
         /// </summary>
-        [IgnoreMember, Completion(Name = IDbSupportsAutocomplete.SuggestField, PreserveSeparators = false, PreservePositionIncrements = false)]
+        [IgnoreMember, Completion(Name = IDbSupportsAutocomplete.SuggestField, PreserveSeparators = false, PreservePositionIncrements = false), SanitizerIgnore]
         public CompletionField Suggest { get; set; }
 
         public override void UpdateCache()
@@ -197,37 +186,24 @@ namespace nhitomi.Database
 
             PageCount = Contents?.ToArray(c => c.Pages?.Length ?? 0);
             NoteCount = Contents?.ToArray(c => c.Pages?.Sum(p => p.Notes?.Length ?? 0) ?? 0);
-
-            TagCount = new[]
-                {
-                    TagsGeneral,
-                    TagsArtist,
-                    TagsParody,
-                    TagsCharacter,
-                    TagsConvention,
-                    TagsSeries,
-                    TagsCircle,
-                    TagsMetadata
-                }.SelectMany(x => x ?? Array.Empty<string>())
-                 .Count();
-
+            TagCount  = _tags.Values.Sum(x => x?.Length ?? 0);
             Language  = Contents?.ToArray(c => c.Language);
             Sources   = Contents?.ToArray(c => c.Source);
             SourceIds = Contents?.ToArray(c => c.SourceId);
 
             Suggest = new CompletionField
             {
-                Input = SuggestionFormatter.Format(
-                    (SuggestionType.PrimaryName, new[] { PrimaryName }),
-                    (SuggestionType.EnglishName, new[] { EnglishName }),
-                    (SuggestionType.Tags, TagsGeneral),
-                    (SuggestionType.TagsArtist, TagsArtist),
-                    (SuggestionType.TagsParody, TagsParody),
-                    (SuggestionType.TagsCharacter, TagsCharacter),
-                    (SuggestionType.TagsConvention, TagsConvention),
-                    (SuggestionType.TagsSeries, TagsSeries),
-                    (SuggestionType.TagsCircle, TagsCircle),
-                    (SuggestionType.TagsMetadata, TagsMetadata))
+                Input = SuggestionFormatter.Format(new Dictionary<int, string[]>
+                {
+                    [-1] = new[] { PrimaryName },
+                    [-2] = new[] { EnglishName }
+                }.Compose(d =>
+                {
+                    foreach (var (key, value) in _tags)
+                        d[(int) key] = value;
+
+                    return d;
+                }))
 
                 //todo: score
                 //Weight = (int) TotalAvailability.Average()
@@ -237,5 +213,13 @@ namespace nhitomi.Database
 #endregion
 
         public static implicit operator nhitomiObject(DbBook book) => new nhitomiObject(ObjectType.Book, book.Id);
+
+        public void BeforeSanitize()
+        {
+            foreach (var (key, value) in _tags.DictClone())
+                _tags[key] = TagFormatter.Format(value);
+        }
+
+        void ISanitizableObject.AfterSanitize() { }
     }
 }

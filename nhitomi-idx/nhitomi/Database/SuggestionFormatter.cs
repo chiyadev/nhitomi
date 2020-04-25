@@ -9,10 +9,9 @@ namespace nhitomi.Database
     /// </summary>
     public static class SuggestionFormatter
     {
-        public static string Format<T>(T type, string value) where T : struct, Enum
-            => $"{value}:{CastTo<int>.Cast(type)}";
+        public static string Format(int type, string value) => $"{value}:{type}";
 
-        public static IEnumerable<string> Format<T>(params (T type, string[] values)[] items) where T : struct, Enum
+        public static IEnumerable<string> Format(Dictionary<int, string[]> items)
         {
             foreach (var (type, values) in items)
             {
@@ -29,17 +28,17 @@ namespace nhitomi.Database
             }
         }
 
-        public static (T, string) Parse<T>(string str) where T : struct, Enum
+        public static (int?, string) Parse(string str)
         {
             var delimiter = str.LastIndexOf(':');
 
             if (delimiter == -1)
-                return (default, str);
+                return (null, str);
 
             var type  = str.Substring(delimiter + 1);
             var value = str.Substring(0, delimiter);
 
-            return (CastTo<T>.Cast(int.Parse(type)), value);
+            return (int.Parse(type), value);
         }
     }
 }

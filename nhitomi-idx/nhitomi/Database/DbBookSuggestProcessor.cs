@@ -20,7 +20,7 @@ namespace nhitomi.Database
 
             foreach (var option in options)
             {
-                var (type, value) = SuggestionFormatter.Parse<DbBook.SuggestionType>(option.Text);
+                var (type, value) = SuggestionFormatter.Parse(option.Text);
 
                 var item = new SuggestItem
                 {
@@ -31,11 +31,14 @@ namespace nhitomi.Database
 
                 switch (type)
                 {
-                    case DbBook.SuggestionType.PrimaryName:
+                    case null:
+                        break;
+
+                    case -1:
                         result.PrimaryName.Add(item);
                         break;
 
-                    case DbBook.SuggestionType.EnglishName:
+                    case -2:
                         result.EnglishName.Add(item);
                         break;
 

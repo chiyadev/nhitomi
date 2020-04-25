@@ -349,6 +349,43 @@ namespace nhitomi
             return enumerable.Concat(other).Distinct().ToArray();
         }
 
+        /// <summary>
+        /// Merges this dictionary with another dictionary, ignoring duplicate elements.
+        /// This will not throw with null arguments.
+        /// Left-hand dictionary will be modified in-place.
+        /// </summary>
+        public static Dictionary<TKey, TValue[]> DistinctMergeSafe<TKey, TValue>(this Dictionary<TKey, TValue[]> dict, Dictionary<TKey, TValue[]> other)
+        {
+            if (dict == null)
+                return other;
+
+            if (other == null)
+                return dict;
+
+            foreach (var (key, values) in other)
+            {
+                if (dict.TryGetValue(key, out var existing))
+                    dict[key] = existing.DistinctMergeSafe(values);
+                else
+                    dict[key] = values;
+            }
+
+            return dict;
+        }
+
+        /// <summary>
+        /// Performs a semi-shallow clone of this dictionary by cloning the array but not its elements.
+        /// </summary>
+        public static Dictionary<TKey, TValue[]> DictClone<TKey, TValue>(this Dictionary<TKey, TValue[]> dict)
+        {
+            var other = new Dictionary<TKey, TValue[]>(dict.Count);
+
+            foreach (var (key, values) in dict)
+                other[key] = values?.ToArray();
+
+            return other;
+        }
+
         // FROM: https://stackoverflow.com/a/48599119
         /// <summary>
         /// Compares this byte array to the specified byte array using <see cref="Span{T}"/>.
