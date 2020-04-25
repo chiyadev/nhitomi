@@ -32,7 +32,7 @@ namespace nhitomi.Storage
 
             if (!readResult.TryPickT0(out var file, out _))
             {
-                await ResultUtilities.NotFound<StorageFile>(_name).ExecuteResultAsync(context);
+                await ResultUtilities.NotFound(_name).ExecuteResultAsync(context);
                 return;
             }
 
