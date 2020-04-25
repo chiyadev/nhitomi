@@ -76,12 +76,7 @@ namespace nhitomi.Models
         /// <summary>
         /// Snapshot was created by a normal user.
         /// </summary>
-        User = 1,
-
-        /// <summary>
-        /// Snapshot was created by a moderator user.
-        /// </summary>
-        Moderator = 2
+        User = 1
     }
 
     public enum SnapshotEvent
