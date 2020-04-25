@@ -59,14 +59,11 @@ namespace nhitomi.Scrapers
                 => descriptor.Take(1)
                              .MultiQuery(q => q.SetMode(QueryMatchMode.All)
                                                .Nested(qq => qq.SetMode(QueryMatchMode.Any)
-                                                               .Text($"\"{_book.PrimaryName}\"", b => b.PrimaryName) // phrase query
+                                                               .Text($"\"{_book.PrimaryName}\"", b => b.PrimaryName) // quote for phrase query
                                                                .Text($"\"{_book.EnglishName}\"", b => b.EnglishName))
                                                .Nested(qq => qq.SetMode(QueryMatchMode.Any)
                                                                .Filter(new FilterQuery<string> { Values = _book.TagsArtist, Mode = QueryMatchMode.Any }, b => b.TagsArtist)
                                                                .Filter(new FilterQuery<string> { Values = _book.TagsCircle, Mode = QueryMatchMode.Any }, b => b.TagsCircle))
-                                               .Nested(qq => qq.SetMode(QueryMatchMode.Any)
-                                                               .Filter(new FilterQuery<string> { Values = _book.TagsSeries, Mode     = QueryMatchMode.Any }, b => b.TagsSeries)
-                                                               .Filter(new FilterQuery<string> { Values = _book.TagsConvention, Mode = QueryMatchMode.Any }, b => b.TagsConvention))
                                                .Filter(new FilterQuery<string> { Values = _book.TagsCharacter, Mode = QueryMatchMode.Any }, b => b.TagsCharacter))
                              .MultiSort(() => (SortDirection.Descending, null));
         }
@@ -77,13 +74,10 @@ namespace nhitomi.Scrapers
             // we consider two books to be the same if they have:
             // - matching primary or english name
             // - matching artist or circle
-            // - matching series or convention
             // - at least one matching character
             IDbEntry<DbBook> entry;
 
-            if ((book.TagsArtist?.Length > 0 || book.TagsCircle?.Length > 0) &&
-                (book.TagsSeries?.Length > 0 || book.TagsConvention?.Length > 0) &&
-                book.TagsCharacter?.Length > 0)
+            if ((book.TagsArtist?.Length > 0 || book.TagsCircle?.Length > 0) && book.TagsCharacter?.Length > 0)
             {
                 var result = await _client.SearchEntriesAsync(new SimilarQuery(book), cancellationToken);
 

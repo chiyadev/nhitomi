@@ -150,7 +150,7 @@ namespace nhitomi.Scrapers
         }
 
         [Test]
-        public async Task Merge()
+        public async Task Merging()
         {
             var scraper = ActivatorUtilities.CreateInstance<Scraper>(Services);
 
