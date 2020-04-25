@@ -199,6 +199,7 @@ namespace nhitomi.Database
 
         /// <summary>
         /// Deletes an entry in the database, throwing <see cref="ConcurrencyException"/> if it was updated by another process after this entry was retrieved.
+        /// Value will become null after successful deletion.
         /// </summary>
         Task DeleteAsync(CancellationToken cancellationToken = default);
 
