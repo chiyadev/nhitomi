@@ -19,7 +19,12 @@ namespace nhitomi
         static readonly ConcurrentDictionary<Type, IModelSanitizer> _cache = new ConcurrentDictionary<Type, IModelSanitizer>
         {
             [typeof(object)]   = new EmptySanitizer<object>(),
-            [typeof(object[])] = new EmptySanitizer<object[]>()
+            [typeof(object[])] = new EmptySanitizer<object[]>(),
+            [typeof(string)]   = new StringSanitizer(),
+            [typeof(string[])] = new ArraySanitizer<string>(),
+            [typeof(bool)]     = new EmptySanitizer<bool>(),
+            [typeof(int)]      = new EmptySanitizer<int>(),
+            [typeof(byte[])]   = new EmptySanitizer<byte[]>()
         };
 
         public static T Sanitize<T>(T value) => GetSanitizer<T>().Sanitize(value);
@@ -92,20 +97,9 @@ namespace nhitomi
             if (type.IsDefined(typeof(SanitizerIgnoreAttribute), true))
                 return typeof(EmptySanitizer<>).MakeGenericType(type);
 
-            // string
-            if (type == typeof(string))
-                return typeof(StringSanitizer);
-
             // array
             if (type.IsArray)
-            {
-                var element = type.GetElementType();
-
-                if (element != null && element.IsValueType) // ignore struct arrays
-                    return typeof(EmptySanitizer<>).MakeGenericType(type);
-
-                return typeof(ArraySanitizer<>).MakeGenericType(element);
-            }
+                return typeof(ArraySanitizer<>).MakeGenericType(type.GetElementType());
 
             // enum
             if (type.IsEnum)
