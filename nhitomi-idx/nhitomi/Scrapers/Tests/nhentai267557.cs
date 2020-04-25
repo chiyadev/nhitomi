@@ -1,6 +1,7 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
 namespace nhitomi.Scrapers.Tests
 {
@@ -8,7 +9,7 @@ namespace nhitomi.Scrapers.Tests
     {
         readonly nhentaiScraper _scraper;
 
-        public nhentai267557(nhentaiScraper scraper)
+        public nhentai267557(nhentaiScraper scraper, ILogger<nhentai267557> logger) : base(logger)
         {
             _scraper = scraper;
         }

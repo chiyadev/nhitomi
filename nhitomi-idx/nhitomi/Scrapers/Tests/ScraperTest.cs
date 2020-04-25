@@ -4,11 +4,19 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Fastenshtein;
+using Microsoft.Extensions.Logging;
 
 namespace nhitomi.Scrapers.Tests
 {
     public abstract class ScraperTest<T>
     {
+        readonly ILogger<ScraperTest<T>> _logger; // logger may be null
+
+        protected ScraperTest(ILogger<ScraperTest<T>> logger)
+        {
+            _logger = logger.IsEnabled(LogLevel.Debug) ? logger : null;
+        }
+
         public async Task RunAsync(CancellationToken cancellationToken = default)
         {
             var other = await GetAsync(cancellationToken);
@@ -24,6 +32,8 @@ namespace nhitomi.Scrapers.Tests
         {
             if (value is null)
                 throw new TestCaseException(this, $"{name}: expected not null but was null.");
+
+            _logger?.LogDebug($"{name}: not null");
         }
 
         protected virtual int StringMatchMaxDifferences => 0;
@@ -43,12 +53,14 @@ namespace nhitomi.Scrapers.Tests
                 b = b.ToLowerInvariant();
             }
 
-            var dist = Levenshtein.Distance(a, b);
+            var diff = Levenshtein.Distance(a, b);
 
-            if (dist > maxDifferences)
-                throw new TestCaseException(this, $"{name}: mismatching '{a}' and '{b}'.");
+            if (diff > maxDifferences)
+                throw new TestCaseException(this, $"{name}: expected '{a}' but was '{b}'.");
 
-            return dist;
+            _logger?.LogDebug($"{name}: ~{diff} '{a}' == '{b}'");
+
+            return diff;
         }
 
         protected int Match(string name, IEnumerable<string> a, IEnumerable<string> b, bool ignoreCase = true, int? maxDifferences = null)
@@ -64,19 +76,24 @@ namespace nhitomi.Scrapers.Tests
                 b = b.Select(x => x?.ToLowerInvariant());
             }
 
-            var set = a.ToHashSet();
+            var xa = a.ToArray();
+            var xb = b.ToArray();
 
-            var missing = b.Distinct().Where(x => !set.Remove(x)).ToArray();
+            var set = xa.ToHashSet();
+
+            var missing = xb.Distinct().Where(x => !set.Remove(x)).ToArray();
 
             if (missing.Length > maxDifferences)
-                throw new TestCaseException(this, $"{name}: missing from collection a '{string.Join("', '", missing)}'.");
+                throw new TestCaseException(this, $"{name}: expected items '{string.Join("', '", missing)}' but was missing.");
 
             maxDifferences -= missing.Length;
 
             if (set.Count > maxDifferences)
-                throw new TestCaseException(this, $"{name}: missing from collection b '{string.Join("', '", set)}'.");
+                throw new TestCaseException(this, $"{name}: did not expect excess items '{string.Join("', '", set)}'.");
 
             maxDifferences -= set.Count;
+
+            _logger?.LogDebug($"{name}: ~{maxDifferences} '{string.Join("', '", xa)}' == '{string.Join("', '", xb)}'");
 
             return maxDifferences.Value;
         }
@@ -85,12 +102,14 @@ namespace nhitomi.Scrapers.Tests
         {
             precision ??= NumberMatchPrecision;
 
-            var dist = Math.Abs(a - b);
+            var diff = Math.Abs(a - b);
 
-            if (dist > precision)
-                throw new TestCaseException(this, $"{name}: mismatching {a} and {b}.");
+            if (diff > precision)
+                throw new TestCaseException(this, $"{name}: expected {a} but was {b}.");
 
-            return dist;
+            _logger?.LogDebug($"{name}: ~{diff} {a} == {b}");
+
+            return diff;
         }
     }
 
