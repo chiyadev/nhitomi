@@ -32,5 +32,7 @@ namespace nhitomi.Scrapers
                     yield return group.Value;
             }
         }
+
+        public bool IsMatch(string input) => Strict.IsMatch(input);
     }
 }
