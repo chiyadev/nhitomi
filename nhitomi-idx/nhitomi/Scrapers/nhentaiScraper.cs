@@ -229,7 +229,7 @@ namespace nhitomi.Scrapers
 
             response.EnsureSuccessStatusCode();
 
-            return JsonConvert.DeserializeObject<nhentaiBook>(await response.Content.ReadAsStringAsync());
+            return ModelSanitizer.Sanitize(JsonConvert.DeserializeObject<nhentaiBook>(await response.Content.ReadAsStringAsync()));
         }
 
         /// <summary>
@@ -247,7 +247,7 @@ namespace nhitomi.Scrapers
 
                     response.EnsureSuccessStatusCode();
 
-                    var list = JsonConvert.DeserializeObject<nhentaiList>(await response.Content.ReadAsStringAsync());
+                    var list = ModelSanitizer.Sanitize(JsonConvert.DeserializeObject<nhentaiList>(await response.Content.ReadAsStringAsync()));
 
                     if (list.Results.Length == 0)
                         break;
