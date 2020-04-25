@@ -68,8 +68,12 @@ namespace nhitomi.Scrapers
                              .MultiSort(() => (SortDirection.Descending, null));
         }
 
+        protected virtual DbBook Sanitize(DbBook book) => book.Apply(ModelSanitizer.Sanitize(book.Convert()));
+
         protected async Task IndexAsync(DbBook book, CancellationToken cancellationToken = default)
         {
+            book = Sanitize(book);
+
             // the database is structured so that "books" are containers of "contents" which are containers of "pages"
             // we consider two books to be the same if they have:
             // - matching primary or english name
