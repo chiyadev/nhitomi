@@ -120,7 +120,7 @@ namespace nhitomi.Scrapers
         /// Books are indexed reverse-chronologically.
         /// Specifies the number of additional books to index after indexing all newer books since the last indexed book.
         /// </summary>
-        public int AdditionalScrapeItems { get; set; } = 20;
+        public int AdditionalScrapeItems { get; set; } = 5;
 
         /// <summary>
         /// Minimum upload time of books to be indexed, which is year 2016 by default (approx. ID 153000).
@@ -132,8 +132,6 @@ namespace nhitomi.Scrapers
     {
         readonly HttpClient _http;
         readonly IOptionsMonitor<nhentaiScraperOptions> _options;
-        readonly ILogger<nhentaiScraper> _logger;
-        readonly IStorage _storage;
 
         public override ScraperType Type => ScraperType.nhentai;
         public override ScraperUrlRegex UrlRegex { get; } = new ScraperUrlRegex(@"(nh(entai)?(\/|\s+)|(https?:\/\/)?nhentai\.net\/g\/)(?<id>\d{1,6})\/?");
@@ -142,9 +140,7 @@ namespace nhitomi.Scrapers
         public nhentaiScraper(IServiceProvider services, IOptionsMonitor<nhentaiScraperOptions> options, ILogger<nhentaiScraper> logger, IHttpClientFactory http, IStorage storage) : base(services, options, logger)
         {
             _options = options;
-            _logger  = logger;
             _http    = http.CreateClient(nameof(nhentaiScraper));
-            _storage = storage;
 
             TestManager = new ScraperTestManager<nhentaiBook>(this);
         }
