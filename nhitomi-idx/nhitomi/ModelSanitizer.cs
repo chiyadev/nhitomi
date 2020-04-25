@@ -21,7 +21,6 @@ namespace nhitomi
             [typeof(object)]   = new EmptySanitizer<object>(),
             [typeof(object[])] = new EmptySanitizer<object[]>(),
             [typeof(string)]   = new StringSanitizer(),
-            [typeof(string[])] = new ArraySanitizer<string>(),
             [typeof(bool)]     = new EmptySanitizer<bool>(),
             [typeof(int)]      = new EmptySanitizer<int>(),
             [typeof(byte[])]   = new EmptySanitizer<byte[]>()
