@@ -60,14 +60,7 @@ namespace nhitomi.Controllers
         /// </summary>
         Task<OneOf<T, NotFound>> GetValueAsync<T>(DbSnapshot snapshot, CancellationToken cancellationToken = default) where T : class, IDbObject, IDbHasType;
 
-        /// <summary>
-        /// Searches for snapshots given a query.
-        /// </summary>
         Task<SearchResult<DbSnapshot>> SearchAsync(ObjectType type, SnapshotQuery query, CancellationToken cancellationToken = default);
-
-        /// <summary>
-        /// Counts all snapshots in the database.
-        /// </summary>
         Task<int> CountAsync(CancellationToken cancellationToken = default);
 
         /// <summary>

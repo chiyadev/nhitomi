@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -22,49 +23,17 @@ namespace nhitomi.Controllers
 
     public interface IBookService
     {
-        /// <summary>
-        /// Retrieves a book by its ID.
-        /// </summary>
         Task<OneOf<DbBook, NotFound>> GetAsync(string id, CancellationToken cancellationToken = default);
-
-        /// <summary>
-        /// Retrieves a book and one of its contents by their IDs.
-        /// </summary>
         Task<OneOf<(DbBook, DbBookContent), NotFound>> GetContentAsync(string id, string contentId, CancellationToken cancellationToken = default);
 
-        /// <summary>
-        /// Searches for books given a query.
-        /// </summary>
         Task<SearchResult<DbBook>> SearchAsync(BookQuery query, CancellationToken cancellationToken = default);
-
-        /// <summary>
-        /// Suggests autocompletions for a book.
-        /// </summary>
         Task<BookSuggestResult> SuggestAsync(SuggestQuery query, CancellationToken cancellationToken = default);
-
-        /// <summary>
-        /// Counts all books in the database.
-        /// </summary>
         Task<int> CountAsync(CancellationToken cancellationToken = default);
 
-        /// <summary>
-        /// Updates book information. Snapshot is created after modification.
-        /// </summary>
         Task<OneOf<DbBook, NotFound>> UpdateAsync(string id, BookBase book, SnapshotArgs snapshot, CancellationToken cancellationToken = default);
-
-        /// <summary>
-        /// Updates book content information. Snapshot is created after modification.
-        /// </summary>
         Task<OneOf<(DbBook, DbBookContent), NotFound>> UpdateContentAsync(string id, string contentId, BookContentBase content, SnapshotArgs snapshot, CancellationToken cancellationToken = default);
 
-        /// <summary>
-        /// Deletes a book. Snapshot is created before deletion.
-        /// </summary>
         Task<OneOf<Success, NotFound>> DeleteAsync(string id, SnapshotArgs snapshot, CancellationToken cancellationToken = default);
-
-        /// <summary>
-        /// Deletes a book content. Snapshot is created before deletion.
-        /// </summary>
         Task<OneOf<DbBook, Success, NotFound>> DeleteContentAsync(string id, string contentId, SnapshotArgs snapshot, CancellationToken cancellationToken = default);
     }
 
