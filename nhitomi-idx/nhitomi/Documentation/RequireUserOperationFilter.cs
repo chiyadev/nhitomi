@@ -25,9 +25,6 @@ namespace nhitomi.Documentation
 
             if (attr.Unrestricted)
                 operation.Extensions["x-unrestricted"] = new OpenApiBoolean(attr.Unrestricted);
-
-            if (attr.Reputation > 0)
-                operation.Extensions["x-reputation-min"] = new OpenApiInteger(attr.Reputation);
         }
     }
 }

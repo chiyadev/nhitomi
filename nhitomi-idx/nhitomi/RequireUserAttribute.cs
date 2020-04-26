@@ -16,7 +16,6 @@ namespace nhitomi
 
         public UserPermissions Permissions { get; set; }
         public bool Unrestricted { get; set; }
-        public int Reputation { get; set; }
 
         /// <summary>
         /// If not null, the authenticated user must have all specified <see cref="Permissions"/> OR their ID must match route parameter specified by this property.

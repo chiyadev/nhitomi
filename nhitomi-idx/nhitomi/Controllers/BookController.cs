@@ -108,7 +108,7 @@ namespace nhitomi.Controllers
         /// </summary>
         /// <param name="id">Book ID.</param>
         /// <param name="reason">Reason for this action.</param>
-        [HttpDelete("{id}", Name = "deleteBook"), RequireHuman, RequireUser(Unrestricted = true, Reputation = 100), RequireReason]
+        [HttpDelete("{id}", Name = "deleteBook"), RequireHuman, RequireUser(Unrestricted = true), RequireReason]
         public async Task<ActionResult> DeleteAsync(string id, [FromQuery] string reason = null)
         {
             var result = await _books.DeleteAsync(id, new SnapshotArgs
@@ -134,7 +134,7 @@ namespace nhitomi.Controllers
         /// <param name="id">Book ID.</param>
         /// <param name="contentId">Content ID.</param>
         /// <param name="reason">Reason for this action.</param>
-        [HttpDelete("{id}/contents/{contentId}", Name = "deleteBookContent"), RequireHuman, RequireUser(Unrestricted = true, Reputation = 100), RequireReason]
+        [HttpDelete("{id}/contents/{contentId}", Name = "deleteBookContent"), RequireHuman, RequireUser(Unrestricted = true), RequireReason]
         public async Task<ActionResult> DeleteContentAsync(string id, string contentId, [FromQuery] string reason = null)
         {
             var result = await _books.DeleteContentAsync(id, contentId, new SnapshotArgs
