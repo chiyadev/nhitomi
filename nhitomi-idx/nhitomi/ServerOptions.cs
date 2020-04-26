@@ -6,6 +6,11 @@ namespace nhitomi
     public class ServerOptions
     {
         /// <summary>
+        /// Public facing server URL.
+        /// </summary>
+        public string PublicUrl { get; set; }
+
+        /// <summary>
         /// HTTP port to be used in non-development environment.
         /// </summary>
         public int HttpPort { get; set; } = 80;

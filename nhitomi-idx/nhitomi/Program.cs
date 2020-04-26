@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Writers;
 using nhitomi.Database;
 using Swashbuckle.AspNetCore.Swagger;
@@ -33,9 +34,10 @@ namespace nhitomi
                 {
                     // generates API specification
                     case "--generate-spec":
-                        var doc = host.Services.GetService<ISwaggerProvider>().GetSwagger("v1", null, Startup.ApiBasePath);
+                        var options = host.Services.GetService<IOptionsMonitor<ServerOptions>>().CurrentValue;
+                        var swagger = host.Services.GetService<ISwaggerProvider>();
 
-                        doc.SerializeAsV3(new OpenApiJsonWriter(Console.Out));
+                        swagger.GetSwagger("docs", options.PublicUrl, Startup.ApiBasePath).SerializeAsV3(new OpenApiJsonWriter(Console.Out));
                         return true;
                 }
             }

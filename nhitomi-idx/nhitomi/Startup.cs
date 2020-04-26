@@ -257,7 +257,9 @@ namespace nhitomi
 
         public void Configure(IApplicationBuilder app)
         {
-            if (app.ApplicationServices.GetService<IOptionsMonitor<ServerOptions>>().CurrentValue.ResponseCompression)
+            var serverOptions = app.ApplicationServices.GetService<IOptionsMonitor<ServerOptions>>().CurrentValue;
+
+            if (serverOptions.ResponseCompression)
                 app.UseResponseCompression();
 
             // backend
@@ -269,7 +271,7 @@ namespace nhitomi
 
         void ConfigureFrontend(IApplicationBuilder app)
         {
-            var serverOpts = app.ApplicationServices.GetService<IOptionsMonitor<ServerOptions>>();
+            var serverOptions = app.ApplicationServices.GetService<IOptionsMonitor<ServerOptions>>();
 
             // route rewrite
             app.Use((c, n) =>
@@ -279,11 +281,11 @@ namespace nhitomi
                     case "HEAD":
                     case "GET":
                         if (c.Request.Path.Value == "/")
-                            c.Request.Path = serverOpts.CurrentValue.DefaultFile;
+                            c.Request.Path = serverOptions.CurrentValue.DefaultFile;
 
                         // frontend is an SPA; if route doesn't exist, rewrite to return the default file
                         else if (!_environment.WebRootFileProvider.GetFileInfo(c.Request.Path.Value).Exists)
-                            c.Request.Path = serverOpts.CurrentValue.DefaultFile;
+                            c.Request.Path = serverOptions.CurrentValue.DefaultFile;
 
                         return n();
 
@@ -304,6 +306,8 @@ namespace nhitomi
 
         void ConfigureBackend(IApplicationBuilder app)
         {
+            var serverOptions = app.ApplicationServices.GetService<IOptionsMonitor<ServerOptions>>();
+
             // cors
             app.UseCors(o => o.AllowAnyHeader()
                               .AllowAnyMethod()
@@ -320,20 +324,12 @@ namespace nhitomi
             app.UseSwagger(s =>
             {
                 s.RouteTemplate = "{documentName}.json";
-                s.PreSerializeFilters.Add((document, request) =>
+                s.PreSerializeFilters.Add((document, request) => document.Servers = new List<OpenApiServer>
                 {
-                    var scheme = request.Scheme;
-
-                    if (request.Host.Host != "localhost")
-                        scheme = "https"; // hack for cloudflare
-
-                    document.Servers = new List<OpenApiServer>
+                    new OpenApiServer
                     {
-                        new OpenApiServer
-                        {
-                            Url = $"{scheme}://{request.Host}{ApiBasePath}"
-                        }
-                    };
+                        Url = serverOptions.CurrentValue.PublicUrl + ApiBasePath
+                    }
                 });
             });
 
