@@ -50,42 +50,42 @@ namespace nhitomi.Database
         public string[] GetTags(ImageTag tag) => _tags.GetValueOrDefault(tag);
         public void SetTags(ImageTag tag, string[] value) => _tags[tag] = value;
 
-        [Key("tg"), Keyword(Name = "tg", DocValues = false)]
+        [Key("tg"), Text(Name = "tg")]
         public string[] TagsGeneral
         {
             get => GetTags(ImageTag.Tag);
             set => SetTags(ImageTag.Tag, value);
         }
 
-        [Key("ta"), Keyword(Name = "ta", DocValues = false)]
+        [Key("ta"), Text(Name = "ta")]
         public string[] TagsArtist
         {
             get => GetTags(ImageTag.Artist);
             set => SetTags(ImageTag.Artist, value);
         }
 
-        [Key("tc"), Keyword(Name = "tc", DocValues = false)]
+        [Key("tc"), Text(Name = "tc")]
         public string[] TagsCharacter
         {
             get => GetTags(ImageTag.Character);
             set => SetTags(ImageTag.Character, value);
         }
 
-        [Key("tcp"), Keyword(Name = "tcp", DocValues = false)]
+        [Key("tcp"), Text(Name = "tcp")]
         public string[] TagsCopyright
         {
             get => GetTags(ImageTag.Copyright);
             set => SetTags(ImageTag.Copyright, value);
         }
 
-        [Key("tm"), Keyword(Name = "tm", DocValues = false)]
+        [Key("tm"), Text(Name = "tm")]
         public string[] TagsMetadata
         {
             get => GetTags(ImageTag.Metadata);
             set => SetTags(ImageTag.Metadata, value);
         }
 
-        [Key("tp"), Keyword(Name = "tp", DocValues = false)]
+        [Key("tp"), Text(Name = "tp")]
         public string[] TagsPool
         {
             get => GetTags(ImageTag.Pool);

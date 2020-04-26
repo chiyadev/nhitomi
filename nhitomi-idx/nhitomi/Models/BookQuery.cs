@@ -13,7 +13,7 @@ namespace nhitomi.Models
         public RangeQuery<int> NoteCount { get; set; }
         public TextQuery PrimaryName { get; set; }
         public TextQuery EnglishName { get; set; }
-        public Dictionary<BookTag, FilterQuery<string>> Tags { get; set; }
+        public Dictionary<BookTag, TextQuery> Tags { get; set; }
         public RangeQuery<int> TagCount { get; set; }
         public FilterQuery<BookCategory> Category { get; set; }
         public FilterQuery<LanguageType> Language { get; set; }

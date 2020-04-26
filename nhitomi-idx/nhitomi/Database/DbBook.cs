@@ -35,56 +35,56 @@ namespace nhitomi.Database
         public string[] GetTags(BookTag tag) => _tags.GetValueOrDefault(tag);
         public void SetTags(BookTag tag, string[] value) => _tags[tag] = value;
 
-        [Key("tg"), Keyword(Name = "tg", DocValues = false)]
+        [Key("tg"), Text(Name = "tg")]
         public string[] TagsGeneral
         {
             get => GetTags(BookTag.Tag);
             set => SetTags(BookTag.Tag, value);
         }
 
-        [Key("ta"), Keyword(Name = "ta", DocValues = false)]
+        [Key("ta"), Text(Name = "ta")]
         public string[] TagsArtist
         {
             get => GetTags(BookTag.Artist);
             set => SetTags(BookTag.Artist, value);
         }
 
-        [Key("tp"), Keyword(Name = "tp", DocValues = false)]
+        [Key("tp"), Text(Name = "tp")]
         public string[] TagsParody
         {
             get => GetTags(BookTag.Parody);
             set => SetTags(BookTag.Parody, value);
         }
 
-        [Key("tc"), Keyword(Name = "tc", DocValues = false)]
+        [Key("tc"), Text(Name = "tc")]
         public string[] TagsCharacter
         {
             get => GetTags(BookTag.Character);
             set => SetTags(BookTag.Character, value);
         }
 
-        [Key("tco"), Keyword(Name = "tco", DocValues = false)]
+        [Key("tco"), Text(Name = "tco")]
         public string[] TagsConvention
         {
             get => GetTags(BookTag.Convention);
             set => SetTags(BookTag.Convention, value);
         }
 
-        [Key("ts"), Keyword(Name = "ts", DocValues = false)]
+        [Key("ts"), Text(Name = "ts")]
         public string[] TagsSeries
         {
             get => GetTags(BookTag.Series);
             set => SetTags(BookTag.Series, value);
         }
 
-        [Key("tci"), Keyword(Name = "tci", DocValues = false)]
+        [Key("tci"), Text(Name = "tci")]
         public string[] TagsCircle
         {
             get => GetTags(BookTag.Circle);
             set => SetTags(BookTag.Circle, value);
         }
 
-        [Key("tm"), Keyword(Name = "tm", DocValues = false)]
+        [Key("tm"), Text(Name = "tm")]
         public string[] TagsMetadata
         {
             get => GetTags(BookTag.Metadata);

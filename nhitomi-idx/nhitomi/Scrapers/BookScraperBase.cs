@@ -59,11 +59,11 @@ namespace nhitomi.Scrapers
                 => descriptor.Take(1)
                              .MultiQuery(q => q.SetMode(QueryMatchMode.All)
                                                .Nested(qq => qq.SetMode(QueryMatchMode.Any)
-                                                               .Text($"\"{_book.PrimaryName}\"", b => b.PrimaryName) // quote for phrase query
+                                                               .Text($"\"{_book.PrimaryName}\"", b => b.PrimaryName) // quotes for phrase query
                                                                .Text($"\"{_book.EnglishName}\"", b => b.EnglishName))
                                                .Nested(qq => qq.SetMode(QueryMatchMode.Any)
-                                                               .Filter(new FilterQuery<string> { Values = _book.TagsArtist, Mode = QueryMatchMode.Any }, b => b.TagsArtist)
-                                                               .Filter(new FilterQuery<string> { Values = _book.TagsCircle, Mode = QueryMatchMode.Any }, b => b.TagsCircle))
+                                                               .Text(new TextQuery { Values = _book.TagsArtist?.ToArray(s => $"\"{s}\""), Mode = QueryMatchMode.Any }, b => b.TagsArtist)
+                                                               .Text(new TextQuery { Values = _book.TagsCircle?.ToArray(s => $"\"{s}\""), Mode = QueryMatchMode.Any }, b => b.TagsCircle))
                                                .Filter(new FilterQuery<string> { Values = _book.TagsCharacter, Mode = QueryMatchMode.Any }, b => b.TagsCharacter))
                              .MultiSort(() => (SortDirection.Descending, null));
         }
