@@ -31,6 +31,37 @@
         "title": "Open Source",
         "license": "nhitomi is licensed under the MIT License."
       }
+    },
+    "get": {
+      "book": {
+        "tags": {
+          "artist": "Artist",
+          "parody": "Parody",
+          "character": "Character",
+          "convention": "Convention",
+          "series": "Series",
+          "circle": "Circle",
+          "metadata": "Metadata",
+          "tag": "Tag"
+        },
+        "categories": {
+          "doujinshi": "Doujinshi",
+          "manga": "Manga",
+          "artistCg": "Artist CG",
+          "gameCg": "Game CG",
+          "ligntNovel": "Light Novel"
+        }
+      },
+      "notFound": {
+        "message": "Could not find item `{input}`.",
+        "usageLink": "Try pasting a link, like `{ex}`.",
+        "usageSource": "Explicitly specify source and ID, like `{ex}`."
+      }
+    },
+    "from": {
+      "badSource": {
+        "message": "`{input}` is not a valid source."
+      }
     }
   }
 }
