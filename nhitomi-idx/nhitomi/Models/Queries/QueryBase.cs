@@ -17,6 +17,11 @@ namespace nhitomi.Models.Queries
         /// </summary>
         [Required, Range(0, int.MaxValue)]
         public int Limit { get; set; }
+
+        /// <summary>
+        /// Match mode fot the root query. This is <see cref="QueryMatchMode.All"/> by default.
+        /// </summary>
+        public QueryMatchMode Mode { get; set; } = QueryMatchMode.All;
     }
 
     public abstract class QueryBase<TSort> : QueryBase where TSort : Enum

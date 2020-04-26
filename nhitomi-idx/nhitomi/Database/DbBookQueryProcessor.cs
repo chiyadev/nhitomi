@@ -13,7 +13,8 @@ namespace nhitomi.Database
             => base.Process(descriptor)
                    .MultiQuery(q =>
                     {
-                        q = q.Range(Query.CreatedTime, b => b.CreatedTime)
+                        q = q.SetMode(Query.Mode)
+                             .Range(Query.CreatedTime, b => b.CreatedTime)
                              .Range(Query.UpdatedTime, b => b.UpdatedTime)
                              .Range(Query.PageCount, b => b.PageCount)
                              .Range(Query.NoteCount, b => b.NoteCount)

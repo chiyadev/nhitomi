@@ -18,7 +18,8 @@ namespace nhitomi.Database
 
         public override SearchDescriptor<DbSnapshot> Process(SearchDescriptor<DbSnapshot> descriptor)
             => base.Process(descriptor)
-                   .MultiQuery(q => q.Filter((FilterQuery<ObjectType>) _target, s => s.Target)
+                   .MultiQuery(q => q.SetMode(Query.Mode)
+                                     .Filter((FilterQuery<ObjectType>) _target, s => s.Target)
                                      .Range(Query.CreatedTime, s => s.CreatedTime)
                                      .Filter(Query.Source, s => s.Source)
                                      .Filter(Query.Event, s => s.Event)
