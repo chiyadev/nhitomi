@@ -72,14 +72,9 @@ namespace nhitomi.Models
     public enum BookTag
     {
         /// <summary>
-        /// Tag is generic.
-        /// </summary>
-        Tag = 0,
-
-        /// <summary>
         /// Tag is an artist.
         /// </summary>
-        Artist = 1,
+        Artist = 0,
 
         /// <summary>
         /// Tag is a parody.
@@ -87,17 +82,17 @@ namespace nhitomi.Models
         /// <remarks>
         /// Not to be confused with series.
         /// </remarks>
-        Parody = 2,
+        Parody = 1,
 
         /// <summary>
         /// Tag is a character.
         /// </summary>
-        Character = 3,
+        Character = 2,
 
         /// <summary>
         /// Tag is a convention.
         /// </summary>
-        Convention = 4,
+        Convention = 3,
 
         /// <summary>
         /// Tag is a series.
@@ -105,17 +100,22 @@ namespace nhitomi.Models
         /// <remarks>
         /// Not to be confused with parody.
         /// </remarks>
-        Series = 5,
+        Series = 4,
 
         /// <summary>
         /// Tag is a circle.
         /// </summary>
-        Circle = 6,
+        Circle = 5,
 
         /// <summary>
         /// Tag is metadata.
         /// </summary>
-        Metadata = 7
+        Metadata = 6,
+
+        /// <summary>
+        /// Tag is generic.
+        /// </summary>
+        Tag = 7
     }
 
     public enum BookCategory

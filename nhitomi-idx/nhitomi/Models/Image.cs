@@ -71,33 +71,33 @@ namespace nhitomi.Models
     public enum ImageTag
     {
         /// <summary>
-        /// Tag has no specific type.
-        /// </summary>
-        Tag = 0,
-
-        /// <summary>
         /// Tag is an artist.
         /// </summary>
-        Artist = 1,
+        Artist = 0,
 
         /// <summary>
         /// Tag is a character.
         /// </summary>
-        Character = 2,
+        Character = 1,
 
         /// <summary>
         /// Tag is a copyright.
         /// </summary>
-        Copyright = 3,
+        Copyright = 2,
 
         /// <summary>
         /// Tag is metadata.
         /// </summary>
-        Metadata = 4,
+        Metadata = 3,
 
         /// <summary>
         /// Tag references a pool name.
         /// </summary>
-        Pool = 5
+        Pool = 4,
+
+        /// <summary>
+        /// Tag is generic.
+        /// </summary>
+        Tag = 5
     }
 }
