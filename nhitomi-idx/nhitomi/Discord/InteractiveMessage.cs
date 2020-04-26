@@ -13,7 +13,7 @@ namespace nhitomi.Discord
     /// An interactive message is not necessarily stateful.
     /// However when it is, consumers MUST lock this object using <see cref="Semaphore"/> before altering any state.
     /// </summary>
-    public abstract class InteractiveMessage : ReplyMessage, IDisposable
+    public abstract class InteractiveMessage : ReplyMessage, IAsyncDisposable
     {
         /// <summary>
         /// Semaphore used to lock this message during all operations (except init and dispose).
@@ -94,7 +94,7 @@ namespace nhitomi.Discord
                 // schedule timeout disposal
                 Timeout = new Timeout(manager.InteractiveExpiry) { CompleteOnDisposal = true };
 
-                var _ = Timeout.Task.ContinueWith(t => Dispose(), TaskContinuationOptions.None);
+                var _ = Timeout.Task.ContinueWith(t => DisposeAsync(), TaskContinuationOptions.None);
 
                 // initialize before initial render
                 await OnInitialize(cancellationToken);
@@ -107,7 +107,7 @@ namespace nhitomi.Discord
             finally
             {
                 if (Reply == null)
-                    DisposeInternal();
+                    await DisposeAsyncInternal();
             }
         }
 
@@ -124,9 +124,13 @@ namespace nhitomi.Discord
 
         public override string ToString() => $"{GetType().Name} {Reply?.Id.ToString() ?? "<not initialized>"}";
 
-        public void Dispose() => Manager?.Unregister(this); // manager calls internal dispose
+        public async ValueTask DisposeAsync()
+        {
+            if (Manager != null)
+                await Manager.UnregisterAsync(this); // manager calls internal dispose
+        }
 
-        internal void DisposeInternal()
+        internal ValueTask DisposeAsyncInternal()
         {
             Semaphore.Dispose();
 
@@ -146,7 +150,7 @@ namespace nhitomi.Discord
             Triggers     = null;
             Timeout      = null;
 
-            OnDispose();
+            return OnDisposeAsync();
         }
 
         /// <summary>
@@ -157,8 +161,8 @@ namespace nhitomi.Discord
 
         /// <summary>
         /// Called when this interactive is being disposed.
-        /// This object is not locked during dispose.
+        /// Message is not locked during dispose.
         /// </summary>
-        protected virtual void OnDispose() { }
+        protected virtual ValueTask OnDisposeAsync() => new ValueTask();
     }
 }

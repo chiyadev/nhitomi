@@ -23,7 +23,7 @@ namespace nhitomi.Discord
         /// <summary>
         /// Removes a registered interactive message.
         /// </summary>
-        void Unregister(InteractiveMessage message);
+        Task UnregisterAsync(InteractiveMessage message, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Finds currently active interactive messages in a channel by a specific executor.
@@ -105,12 +105,12 @@ namespace nhitomi.Discord
             return true;
         }
 
-        public void Unregister(InteractiveMessage message)
+        public async Task UnregisterAsync(InteractiveMessage message, CancellationToken cancellationToken = default)
         {
+            var result = false;
+
             lock (_lock)
             {
-                var result = false;
-
                 result |= _commandMap.Remove(message.Command.Id);
                 result |= _replyMap.Remove(message.Reply.Id);
 
@@ -121,13 +121,13 @@ namespace nhitomi.Discord
                     if (list.Count == 0)
                         _channelMap.Remove(message.Channel.Id);
                 }
+            }
 
-                if (result)
-                {
-                    message.DisposeInternal();
+            if (result)
+            {
+                await message.DisposeAsyncInternal();
 
-                    _logger.LogDebug($"Destroyed interactive message {message}");
-                }
+                _logger.LogDebug($"Destroyed interactive message {message}");
             }
         }
 
