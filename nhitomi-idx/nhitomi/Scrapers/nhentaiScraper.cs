@@ -50,7 +50,7 @@ namespace nhitomi.Scrapers
         }
 
         // regex to match any () and [] in titles
-        static readonly Regex _bracketsRegex = new Regex(@"\([^)]*\)|\[[^\]]*\]", RegexOptions.Compiled | RegexOptions.Singleline);
+        static readonly Regex _bracketsRegex = new Regex(@"\([^)]*\)|\[[^\]]*\]|（[^）]*）", RegexOptions.Compiled | RegexOptions.Singleline);
 
         // regex to match the convention in title (first parentheses)
         static readonly Regex _conventionRegex = new Regex(@"^\((?<convention>.*?)\)", RegexOptions.Compiled | RegexOptions.Singleline);
