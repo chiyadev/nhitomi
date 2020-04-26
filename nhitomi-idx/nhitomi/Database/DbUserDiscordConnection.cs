@@ -16,9 +16,6 @@ namespace nhitomi.Database
         [Key("d"), Keyword(Name = "d", DocValues = false)]
         public int Discriminator { get; set; }
 
-        [Key("v"), Keyword(Name = "v", DocValues = false)]
-        public bool Verified { get; set; }
-
         [Key("e"), Keyword(Name = "e", DocValues = false)]
         public string Email { get; set; }
 
@@ -29,7 +26,6 @@ namespace nhitomi.Database
             model.Id            = Id;
             model.Username      = Username;
             model.Discriminator = Discriminator;
-            model.Verified      = Verified;
             model.Email         = Email;
         }
 
@@ -40,7 +36,6 @@ namespace nhitomi.Database
             Id            = model.Id;
             Username      = model.Username;
             Discriminator = model.Discriminator;
-            Verified      = model.Verified;
             Email         = model.Email;
         }
     }

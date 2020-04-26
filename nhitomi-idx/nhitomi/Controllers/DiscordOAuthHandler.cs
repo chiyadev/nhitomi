@@ -58,7 +58,6 @@ namespace nhitomi.Controllers
                     Id            = ulong.Parse(Id),
                     Username      = Username,
                     Discriminator = int.Parse(Discriminator),
-                    Verified      = Verified,
                     Email         = Email
                 };
             }

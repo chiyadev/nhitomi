@@ -59,7 +59,6 @@ namespace nhitomi.Controllers
             Assert.That(user.DiscordConnection.Id, Is.EqualTo(12345));
             Assert.That(user.DiscordConnection.Discriminator, Is.EqualTo(1234));
             Assert.That(user.DiscordConnection.Email, Is.EqualTo("phosphene47@chiya.dev"));
-            Assert.That(user.DiscordConnection.Verified, Is.EqualTo(true));
 
             // ensure creation snapshot
             var snapshots = Services.GetService<ISnapshotService>();
@@ -90,8 +89,7 @@ namespace nhitomi.Controllers
                 {
                     Id            = 12345,
                     Discriminator = 4321,
-                    Email         = "old@gmail.com",
-                    Verified      = false
+                    Email         = "old@gmail.com"
                 };
             });
 
@@ -108,7 +106,6 @@ namespace nhitomi.Controllers
             Assert.That(user.DiscordConnection.Id, Is.EqualTo(12345));
             Assert.That(user.DiscordConnection.Discriminator, Is.EqualTo(1234));
             Assert.That(user.DiscordConnection.Email, Is.EqualTo("phosphene47@chiya.dev"));
-            Assert.That(user.DiscordConnection.Verified, Is.EqualTo(true));
 
             // should not create snapshot
             var snapshots = Services.GetService<ISnapshotService>();
