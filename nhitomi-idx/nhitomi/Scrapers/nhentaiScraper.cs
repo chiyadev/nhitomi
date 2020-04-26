@@ -101,7 +101,7 @@ namespace nhitomi.Scrapers
                 {
                     new DbBookContent
                     {
-                        Language = Enum.TryParse<LanguageType>(Tags?.FirstOrDefault(t => t.Type == "language" && t.Name != "translated")?.Name, true, out var lang) ? lang : LanguageType.Japanese,
+                        Language = Tags?.FirstOrDefault(t => t.Type == "language" && t.Name != "translated")?.Name.ParseAsLanguage() ?? LanguageType.Japanese,
                         Pages    = Images.Pages.ToArray(p => new DbBookImage()),
                         Source   = ScraperType.nhentai,
                         SourceId = Id.ToString(),

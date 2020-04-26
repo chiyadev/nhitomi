@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Globalization;
 using System.Runtime.Serialization;
 
 namespace nhitomi.Models
@@ -8,50 +10,68 @@ namespace nhitomi.Models
     /// </summary>
     public enum LanguageType
     {
-        [EnumMember(Value = "ja")] Japanese = 0,
-        [EnumMember(Value = "en")] English = 1,
+        [EnumMember(Value = "ja-JP")] Japanese = 0,
+        [EnumMember(Value = "en-US")] English = 1,
 
         /// <summary>
         /// Assume Mandarin, but expect any dialect of Chinese.
-        /// This is the catch-all Chinese language used when the specific dialect cannot be determined.
         /// </summary>
-        [EnumMember(Value = "zh")] Chinese = 2,
-
-        /// <summary>
-        /// Assume Cantonese.
-        /// </summary>
-        [EnumMember(Value = "zh_hant")] ChineseTraditional = 3,
-        [EnumMember(Value = "ko")] Korean = 4,
-        [EnumMember(Value = "it")] Italian = 5,
-        [EnumMember(Value = "es")] Spanish = 6,
-        [EnumMember(Value = "hi")] Hindi = 7,
-        [EnumMember(Value = "de")] German = 8,
-        [EnumMember(Value = "fr")] French = 9,
-        [EnumMember(Value = "tr")] Turkish = 10,
-        [EnumMember(Value = "nl")] Dutch = 11,
-        [EnumMember(Value = "ru")] Russian = 12,
-        [EnumMember(Value = "id")] Indonesian = 13,
-        [EnumMember(Value = "vi")] Vietnamese = 14
+        [EnumMember(Value = "zh-CN")] Chinese = 2,
+        [EnumMember(Value = "ko-KR")] Korean = 3,
+        [EnumMember(Value = "it-IT")] Italian = 4,
+        [EnumMember(Value = "es-ES")] Spanish = 5,
+        [EnumMember(Value = "de-DE")] German = 6,
+        [EnumMember(Value = "fr-FR")] French = 7,
+        [EnumMember(Value = "tr-TR")] Turkish = 8,
+        [EnumMember(Value = "nl-nl")] Dutch = 9,
+        [EnumMember(Value = "ru-RU")] Russian = 10,
+        [EnumMember(Value = "id-ID")] Indonesian = 11,
+        [EnumMember(Value = "vi-VN")] Vietnamese = 12
     }
 
     public static class LanguageTypeExtensions
     {
-        /// <summary>
-        /// Attempts to parse this string as <see cref="LanguageType"/>.
-        /// </summary>
-        public static bool TryParseLocaleAsLanguage(this string s, out LanguageType lang)
-        {
-            foreach (LanguageType x in Enum.GetValues(typeof(LanguageType)))
-            {
-                if (s.StartsWith(x.GetEnumName()))
-                {
-                    lang = x;
-                    return true;
-                }
-            }
+        static readonly Dictionary<string, LanguageType> _map = new Dictionary<string, LanguageType>(StringComparer.OrdinalIgnoreCase);
 
-            lang = default;
-            return false;
+        static LanguageTypeExtensions()
+        {
+            foreach (LanguageType lang in Enum.GetValues(typeof(LanguageType)))
+            {
+                var culture = CultureInfo.GetCultureInfo(lang.GetEnumName());
+
+                do
+                {
+                    _map[culture.Name]                       = lang;
+                    _map[culture.TwoLetterISOLanguageName]   = lang;
+                    _map[culture.ThreeLetterISOLanguageName] = lang;
+                    _map[culture.NativeName]                 = lang;
+                    _map[culture.EnglishName]                = lang;
+                    _map[culture.DisplayName]                = lang;
+
+                    try
+                    {
+                        var region = new RegionInfo(culture.Name);
+
+                        _map[region.Name]                     = lang;
+                        _map[region.TwoLetterISORegionName]   = lang;
+                        _map[region.ThreeLetterISORegionName] = lang;
+                        _map[region.NativeName]               = lang;
+                        _map[region.EnglishName]              = lang;
+
+                        if (region.DisplayName != null)
+                            _map[region.DisplayName] = lang;
+                    }
+                    catch (ArgumentException) { }
+
+                    culture = culture.Parent;
+                }
+                while (!Equals(culture, CultureInfo.InvariantCulture));
+            }
         }
+
+        /// <summary>
+        /// Attempts to parse this string as <see cref="LanguageType"/>. Returns English on failure.
+        /// </summary>
+        public static LanguageType ParseAsLanguage(this string s) => _map.TryGetValue(s, out var lang) ? lang : LanguageType.English;
     }
 }
