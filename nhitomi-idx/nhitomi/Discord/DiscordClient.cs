@@ -13,6 +13,7 @@ namespace nhitomi.Discord
     public interface IDiscordClient : IDisposable
     {
         int Latency { get; }
+        ISelfUser CurrentUser { get; }
         IReadOnlyCollection<DiscordSocketClient> Shards { get; }
         IReadOnlyCollection<SocketGuild> Guilds { get; }
         IReadOnlyCollection<ISocketPrivateChannel> PrivateChannels { get; }
