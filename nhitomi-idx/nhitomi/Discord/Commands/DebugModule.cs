@@ -1,6 +1,5 @@
 using System.Linq;
 using System.Runtime.InteropServices;
-using System.Threading;
 using System.Threading.Tasks;
 using Discord;
 using nhitomi.Localization;
@@ -39,7 +38,7 @@ namespace nhitomi.Discord.Commands
 
         const long _mebibytes = 1024 * 1024;
 
-        protected override Task<ReplyContent> RenderAsync(CancellationToken cancellationToken = default) => Task.FromResult(new ReplyContent
+        protected override ReplyContent Render() => new ReplyContent
         {
             Embed = new EmbedBuilder
             {
@@ -79,6 +78,6 @@ Managed memory: {_memory.Managed / _mebibytes}MiB
                     }
                 }
             }
-        });
+        };
     }
 }

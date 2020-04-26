@@ -10,10 +10,16 @@ namespace nhitomi.Discord
     public abstract class ReplyMessage
     {
         /// <summary>
-        /// Renders the contents of this message.
-        /// Returning null will invalidate this message, causing it to not send for static replies, or to expire for interactive replies.
+        /// Synchronous equivalent of <see cref="RenderAsync"/>.
         /// </summary>
-        protected abstract Task<ReplyContent> RenderAsync(CancellationToken cancellationToken = default);
+        /// <returns></returns>
+        protected virtual ReplyContent Render() => null;
+
+        /// <summary>
+        /// Renders the contents of this message.
+        /// Returning null will invalidate this message, causing it to not send for static replies, or to expire and be deleted for interactive replies.
+        /// </summary>
+        protected virtual Task<ReplyContent> RenderAsync(CancellationToken cancellationToken = default) => Task.FromResult(Render());
 
         internal Task<ReplyContent> RenderInternalAsync(CancellationToken cancellationToken = default) => RenderAsync(cancellationToken);
     }
