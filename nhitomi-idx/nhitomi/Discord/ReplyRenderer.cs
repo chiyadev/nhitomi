@@ -83,7 +83,10 @@ namespace nhitomi.Discord
             var content = await reply.RenderInternalAsync(cancellationToken);
 
             if (content == null || !content.IsValid)
+            {
+                await message.DeleteAsync();
                 return false;
+            }
 
             await message.ModifyAsync(m =>
             {
