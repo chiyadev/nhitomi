@@ -75,6 +75,11 @@ namespace nhitomi.Discord
                                     _message.Dispose();
                                     return;
                                 }
+                                else
+                                {
+                                    // restart expiry timeout
+                                    _message.Timeout.Restart();
+                                }
 
                                 // signal success
                                 _signaller.TrySetResult(null);
