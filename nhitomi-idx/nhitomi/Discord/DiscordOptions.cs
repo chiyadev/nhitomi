@@ -83,7 +83,7 @@ namespace nhitomi.Discord
             /// <summary>
             /// Interval of interactive rerenders.
             /// </summary>
-            public TimeSpan RenderInterval { get; set; } = TimeSpan.FromMilliseconds(500);
+            public TimeSpan RenderInterval { get; set; } = TimeSpan.FromSeconds(1);
         }
 
         /// <summary>
