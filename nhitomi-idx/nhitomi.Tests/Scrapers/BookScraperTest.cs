@@ -20,6 +20,7 @@ namespace nhitomi.Scrapers
         sealed class Scraper : BookScraperBase
         {
             public override ScraperType Type => ScraperType.Unknown;
+            public override string Url => null;
 
             public Scraper(IServiceProvider services, IOptionsMonitor<Options> options, ILogger<Scraper> logger) : base(services, options, logger) { }
 
