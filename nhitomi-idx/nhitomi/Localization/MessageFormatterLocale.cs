@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -47,7 +48,7 @@ namespace nhitomi.Localization
                 _dict = JObject.Parse(reader.ReadToEnd())
                                .Descendants()
                                .Where(p => !p.Any())
-                               .Aggregate(new Dictionary<string, string>(), (dict, token) =>
+                               .Aggregate(new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase), (dict, token) =>
                                 {
                                     dict.Add(token.Path, token.ToString());
                                     return dict;
