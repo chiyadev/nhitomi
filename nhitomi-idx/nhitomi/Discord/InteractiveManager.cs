@@ -10,7 +10,7 @@ using Microsoft.Extensions.Options;
 
 namespace nhitomi.Discord
 {
-    public interface IInteractiveManager : IDisposable
+    public interface IInteractiveManager : IAsyncDisposable
     {
         int Count { get; }
         TimeSpan InteractiveExpiry { get; }
@@ -156,13 +156,10 @@ namespace nhitomi.Discord
             }
         }
 
-        public void Dispose()
+        public async ValueTask DisposeAsync()
         {
-            lock (_lock)
-            {
-                foreach (var message in _commandMap.Values.ToArray())
-                    Unregister(message);
-            }
+            foreach (var message in _commandMap.Values.ToArray())
+                await UnregisterAsync(message);
         }
     }
 }

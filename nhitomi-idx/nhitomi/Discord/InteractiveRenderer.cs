@@ -72,7 +72,7 @@ namespace nhitomi.Discord
                                 // if false, expire interactive
                                 if (!result)
                                 {
-                                    _message.Dispose();
+                                    await _message.DisposeAsync();
                                     return;
                                 }
                                 else

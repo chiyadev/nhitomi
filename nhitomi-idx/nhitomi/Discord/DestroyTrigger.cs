@@ -23,8 +23,7 @@ namespace nhitomi.Discord
             try
             {
                 await _message.Reply.DeleteAsync();
-
-                _message.Dispose();
+                await _message.DisposeAsync();
 
                 return true;
             }
