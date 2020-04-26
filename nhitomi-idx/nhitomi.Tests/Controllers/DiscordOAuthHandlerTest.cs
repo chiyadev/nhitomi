@@ -56,6 +56,7 @@ namespace nhitomi.Controllers
 
             Assert.That(user.Username, Is.EqualTo("phosphene47"));
             Assert.That(user.Email, Is.EqualTo("phosphene47@chiya.dev"));
+            Assert.That(user.Language, Is.EqualTo(LanguageType.Japanese));
             Assert.That(user.DiscordConnection.Id, Is.EqualTo(12345));
             Assert.That(user.DiscordConnection.Discriminator, Is.EqualTo(1234));
             Assert.That(user.DiscordConnection.Email, Is.EqualTo("phosphene47@chiya.dev"));
@@ -84,7 +85,8 @@ namespace nhitomi.Controllers
             // already registered user with outdated info
             var oldUser = await MakeUserAsync("old username", u =>
             {
-                u.Email = "old@gmail.com";
+                u.Email    = "old@gmail.com";
+                u.Language = LanguageType.Chinese;
                 u.DiscordConnection = new DbUserDiscordConnection
                 {
                     Id            = 12345,
@@ -103,6 +105,7 @@ namespace nhitomi.Controllers
             // should update user with new info
             Assert.That(user.Username, Is.EqualTo("phosphene47"));
             Assert.That(user.Email, Is.EqualTo("phosphene47@chiya.dev"));
+            Assert.That(user.Language, Is.EqualTo(LanguageType.Japanese));
             Assert.That(user.DiscordConnection.Id, Is.EqualTo(12345));
             Assert.That(user.DiscordConnection.Discriminator, Is.EqualTo(1234));
             Assert.That(user.DiscordConnection.Email, Is.EqualTo("phosphene47@chiya.dev"));

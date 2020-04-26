@@ -15,7 +15,34 @@ using IElasticClient = nhitomi.Database.IElasticClient;
 
 namespace nhitomi.Controllers
 {
-    public interface IDiscordOAuthHandler : IOAuthHandler { }
+    public sealed class DiscordOAuthUser
+    {
+        [JsonProperty("id")] public ulong Id;
+        [JsonProperty("username")] public string Username;
+        [JsonProperty("discriminator")] public int Discriminator;
+        [JsonProperty("locale")] public string Locale;
+        [JsonProperty("email")] public string Email;
+
+        public void ApplyOn(DbUser user)
+        {
+            user.Username = Username;
+            user.Email    = Email;
+            user.Language = Locale?.ParseAsLanguage() ?? LanguageType.English;
+
+            user.DiscordConnection = new DbUserDiscordConnection
+            {
+                Id            = Id,
+                Username      = Username,
+                Discriminator = Discriminator,
+                Email         = Email
+            };
+        }
+    }
+
+    public interface IDiscordOAuthHandler : IOAuthHandler
+    {
+        Task<DbUser> GetOrCreateUserAsync(DiscordOAuthUser user, CancellationToken cancellationToken = default);
+    }
 
     public class DiscordOAuthHandler : IDiscordOAuthHandler
     {
@@ -36,35 +63,7 @@ namespace nhitomi.Controllers
             _locker    = locker;
         }
 
-        sealed class UserInfo
-        {
-#pragma warning disable 0649
-            [JsonProperty("id")] public string Id;
-            [JsonProperty("username")] public string Username;
-            [JsonProperty("discriminator")] public string Discriminator;
-            [JsonProperty("avatar")] public string Avatar;
-            [JsonProperty("locale")] public string Locale;
-            [JsonProperty("verified")] public bool Verified;
-            [JsonProperty("email")] public string Email;
-#pragma warning restore 0649
-
-            public void ApplyOn(DbUser user)
-            {
-                user.Username = Username;
-                user.Email    = Email;
-                user.Language = Locale.TryParseLocaleAsLanguage(out var l) ? l : LanguageType.English;
-
-                user.DiscordConnection = new DbUserDiscordConnection
-                {
-                    Id            = ulong.Parse(Id),
-                    Username      = Username,
-                    Discriminator = int.Parse(Discriminator),
-                    Email         = Email
-                };
-            }
-        }
-
-        async Task<UserInfo> LoadUserAsync(string code, CancellationToken cancellationToken = default)
+        async Task<DiscordOAuthUser> ExchangeCodeAsync(string code, CancellationToken cancellationToken = default)
         {
             var options = _options.CurrentValue.OAuth;
 
@@ -108,7 +107,7 @@ namespace nhitomi.Controllers
             {
                 response.EnsureSuccessStatusCode();
 
-                return JsonConvert.DeserializeObject<UserInfo>(await response.Content.ReadAsStringAsync());
+                return JsonConvert.DeserializeObject<DiscordOAuthUser>(await response.Content.ReadAsStringAsync());
             }
         }
 
@@ -126,48 +125,55 @@ namespace nhitomi.Controllers
                              .MultiQuery(q => q.Filter((FilterQuery<ulong>) _id, u => u.DiscordId));
         }
 
+        async Task<IDbEntry<DbUser>> GetByIdAsync(ulong id, CancellationToken cancellationToken = default)
+        {
+            var result = await _client.SearchEntriesAsync(new UserQuery(id), cancellationToken);
+
+            return result.Items.Length == 0 ? null : result.Items[0];
+        }
+
         public async Task<DbUser> GetOrCreateUserAsync(string code, CancellationToken cancellationToken = default)
         {
-            var info = await LoadUserAsync(code, cancellationToken);
+            var user = await ExchangeCodeAsync(code, cancellationToken);
 
-            var id = ulong.Parse(info.Id);
+            return await GetOrCreateUserAsync(user, cancellationToken);
+        }
 
-            await using (await _locker.EnterAsync($"oauth:discord:{id}", cancellationToken))
+        public async Task<DbUser> GetOrCreateUserAsync(DiscordOAuthUser user, CancellationToken cancellationToken = default)
+        {
+            await using (await _locker.EnterAsync($"oauth:discord:{user.Id}", cancellationToken))
             {
-                // check if user already exists
-                var search = await _client.SearchEntriesAsync(new UserQuery(id), cancellationToken);
+                var entry = await GetByIdAsync(user.Id, cancellationToken);
 
-                DbUser user;
-
-                if (search.Items.Length == 0)
+                // if user already exists, update their info
+                if (entry != null)
                 {
-                    info.ApplyOn(user = _users.MakeUserObject());
+                    do
+                    {
+                        user.ApplyOn(entry.Value);
+                    }
+                    while (!await entry.TryUpdateAsync(cancellationToken));
+                }
 
-                    await _client.Entry(user).CreateAsync(cancellationToken);
+                // otherwise create new user
+                else
+                {
+                    entry = _client.Entry(_users.MakeUserObject());
 
-                    await _snapshots.CreateAsync(user, new SnapshotArgs
+                    user.ApplyOn(entry.Value);
+
+                    await entry.CreateAsync(cancellationToken);
+
+                    await _snapshots.CreateAsync(entry.Value, new SnapshotArgs
                     {
                         Source    = SnapshotSource.User,
-                        Committer = user,
+                        Committer = entry.Value,
                         Event     = SnapshotEvent.AfterCreation,
-                        Reason    = $"Registered via Discord OAuth2 '{info.Username}'."
+                        Reason    = $"Registered via Discord OAuth2 '{user.Username}'."
                     }, cancellationToken);
                 }
 
-                else
-                {
-                    var entry = search.Items[0];
-
-                    do
-                    {
-                        info.ApplyOn(entry.Value);
-                    }
-                    while (!await entry.TryUpdateAsync(cancellationToken));
-
-                    user = entry.Value;
-                }
-
-                return user;
+                return entry.Value;
             }
         }
     }

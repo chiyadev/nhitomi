@@ -4,12 +4,13 @@ using System.Threading;
 using System.Threading.Tasks;
 using Discord;
 using Microsoft.Extensions.DependencyInjection;
+using nhitomi.Database;
 using nhitomi.Localization;
 using Qmmands;
 
 namespace nhitomi.Discord
 {
-    public class nhitomiCommandContext : CommandContext
+    public class nhitomiCommandContext : CommandContext, IDisposable
     {
         /// <summary>
         /// Gets the ref-counted scope of <see cref="CommandContext.ServiceProvider"/>.
@@ -40,6 +41,11 @@ namespace nhitomi.Discord
         /// Cancellation token.
         /// </summary>
         public CancellationToken CancellationToken { get; }
+
+        /// <summary>
+        /// User information of <see cref="Executor"/>.
+        /// </summary>
+        public DbUser User { get; set; }
 
         /// <summary>
         /// Locale object used to localize this command output.
@@ -90,5 +96,7 @@ namespace nhitomi.Discord
             // else send statically
             else await ReplyRenderer.SendAsync(Message, reply, cancellationToken);
         }
+
+        public void Dispose() => ServiceScope.Dispose();
     }
 }

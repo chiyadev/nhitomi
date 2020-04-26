@@ -21,7 +21,7 @@ namespace nhitomi.Discord
     public class DiscordMessageHandler : IDiscordMessageHandler
     {
         readonly IServiceProvider _services;
-        readonly IDiscordLocaleProvider _locale;
+        readonly IDiscordUserHandler _user;
         readonly IUserFilter _filter;
         readonly IInteractiveManager _interactive;
         readonly IOptionsMonitor<DiscordOptions> _options;
@@ -29,10 +29,10 @@ namespace nhitomi.Discord
 
         readonly CommandService _command;
 
-        public DiscordMessageHandler(IServiceProvider services, IDiscordLocaleProvider locale, IUserFilter filter, IInteractiveManager interactive, IOptionsMonitor<DiscordOptions> options, ILogger<DiscordMessageHandler> logger)
+        public DiscordMessageHandler(IServiceProvider services, IDiscordUserHandler user, IUserFilter filter, IInteractiveManager interactive, IOptionsMonitor<DiscordOptions> options, ILogger<DiscordMessageHandler> logger)
         {
             _services    = services;
-            _locale      = locale;
+            _user        = user;
             _filter      = filter;
             _interactive = interactive;
             _options     = options;
@@ -68,12 +68,10 @@ namespace nhitomi.Discord
                 IResult result;
 
                 // ref-counted service scope is used to keep services alive for interactive messages that spans multiple commands/reactions
-                using (var serviceScope = new RefCountedServiceScope(_services.CreateScope()))
+                using (var context = new nhitomiCommandContext(new RefCountedServiceScope(_services.CreateScope()), message, cancellationToken))
                 {
-                    var context = new nhitomiCommandContext(serviceScope, message, cancellationToken);
-
-                    // set locale
-                    await _locale.SetAsync(context, cancellationToken);
+                    // set user
+                    await _user.SetAsync(context, cancellationToken);
 
                     // execute command
                     result = await _command.ExecuteAsync(command, context);
