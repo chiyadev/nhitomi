@@ -57,6 +57,12 @@ namespace nhitomi.Models
         public UserPermissions[] Permissions { get; set; }
 
         /// <summary>
+        /// User configured language.
+        /// </summary>
+        [Required]
+        public LanguageType Language { get; set; }
+
+        /// <summary>
         /// Discord connection information.
         /// </summary>
         public UserDiscordConnection DiscordConnection { get; set; }

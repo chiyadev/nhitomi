@@ -52,6 +52,7 @@ namespace nhitomi.Controllers
             {
                 user.Username = Username;
                 user.Email    = Email;
+                user.Language = Locale.TryParseLocaleAsLanguage(out var l) ? l : LanguageType.English;
 
                 user.DiscordConnection = new DbUserDiscordConnection
                 {

@@ -32,6 +32,9 @@ namespace nhitomi.Database
         [Key("pe"), Keyword(Name = "pe", DocValues = false)]
         public UserPermissions[] Permissions { get; set; }
 
+        [Key("ln"), Keyword(Name = "ln", DocValues = false)]
+        public LanguageType Language { get; set; }
+
         [Key("cd"), Object(Name = "cd", Enabled = false)]
         public DbUserDiscordConnection DiscordConnection { get; set; }
 
@@ -52,6 +55,7 @@ namespace nhitomi.Database
             model.Email             = Email;
             model.Restrictions      = Restrictions?.ToArray(r => r.Convert()) ?? Array.Empty<UserRestriction>();
             model.Permissions       = Permissions;
+            model.Language          = Language;
             model.DiscordConnection = DiscordConnection?.Convert();
         }
 
@@ -65,6 +69,7 @@ namespace nhitomi.Database
             Email             = model.Email;
             Restrictions      = model.Restrictions?.ToArray(r => new DbUserRestriction().Apply(r));
             Permissions       = model.Permissions.ToDistinctFlags();
+            Language          = model.Language;
             DiscordConnection = model.DiscordConnection == null ? null : new DbUserDiscordConnection().Apply(model.DiscordConnection);
         }
 

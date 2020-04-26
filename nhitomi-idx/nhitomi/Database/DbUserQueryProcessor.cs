@@ -16,7 +16,8 @@ namespace nhitomi.Database
                                      .Range(Query.UpdatedTime, u => u.UpdatedTime)
                                      .Filter(Query.Username, u => u.Username)
                                      .Filter(Query.Email, u => u.Email)
-                                     .Filter(Query.Permissions, u => u.Permissions))
+                                     .Filter(Query.Permissions, u => u.Permissions)
+                                     .Filter(Query.Language, u => u.Language))
                    .MultiSort(Query.Sorting, sort => (Expression<Func<DbUser, object>>) (sort switch
                     {
                         UserSort.CreatedTime => u => u.CreatedTime,

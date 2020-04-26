@@ -10,6 +10,7 @@ namespace nhitomi.Models
         public FilterQuery<string> Username { get; set; }
         public FilterQuery<string> Email { get; set; }
         public FilterQuery<UserPermissions> Permissions { get; set; }
+        public FilterQuery<LanguageType> Language { get; set; }
     }
 
     public enum UserSort

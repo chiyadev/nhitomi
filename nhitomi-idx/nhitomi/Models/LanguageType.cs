@@ -1,3 +1,4 @@
+using System;
 using System.Runtime.Serialization;
 
 namespace nhitomi.Models
@@ -12,7 +13,7 @@ namespace nhitomi.Models
 
         /// <summary>
         /// Assume Mandarin, but expect any dialect of Chinese.
-        /// This is the catch-all Chinese language used when the specific dialect cannot be distinguished.
+        /// This is the catch-all Chinese language used when the specific dialect cannot be determined.
         /// </summary>
         [EnumMember(Value = "zh")] Chinese = 2,
 
@@ -31,5 +32,26 @@ namespace nhitomi.Models
         [EnumMember(Value = "ru")] Russian = 12,
         [EnumMember(Value = "id")] Indonesian = 13,
         [EnumMember(Value = "vi")] Vietnamese = 14
+    }
+
+    public static class LanguageTypeExtensions
+    {
+        /// <summary>
+        /// Attempts to parse this string as <see cref="LanguageType"/>.
+        /// </summary>
+        public static bool TryParseLocaleAsLanguage(this string s, out LanguageType lang)
+        {
+            foreach (LanguageType x in Enum.GetValues(typeof(LanguageType)))
+            {
+                if (s.StartsWith(x.GetEnumName()))
+                {
+                    lang = x;
+                    return true;
+                }
+            }
+
+            lang = default;
+            return false;
+        }
     }
 }
