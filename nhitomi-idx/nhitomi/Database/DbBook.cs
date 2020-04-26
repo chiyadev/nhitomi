@@ -200,12 +200,10 @@ namespace nhitomi.Database
                 {
                     [-1] = new[] { PrimaryName },
                     [-2] = new[] { EnglishName }
-                }.Compose(d =>
+                }.Chain(d =>
                 {
                     foreach (var (key, value) in _tags)
                         d[(int) key] = value;
-
-                    return d;
                 }))
 
                 //todo: score

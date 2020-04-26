@@ -150,12 +150,10 @@ namespace nhitomi.Database
 
             Suggest = new CompletionField
             {
-                Input = SuggestionFormatter.Format(new Dictionary<int, string[]>().Compose(d =>
+                Input = SuggestionFormatter.Format(new Dictionary<int, string[]>().Chain(d =>
                 {
                     foreach (var (key, value) in _tags)
                         d[(int) key] = value;
-
-                    return d;
                 }))
 
                 //todo: score
