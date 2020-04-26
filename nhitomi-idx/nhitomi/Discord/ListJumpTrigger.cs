@@ -41,10 +41,10 @@ namespace nhitomi.Discord
             switch (_destination)
             {
                 case ListJumpTriggerDestination.Start:
-                    return await _target.SetPosition(_target.Start, cancellationToken);
+                    return await _target.SetPositionAsync(_target.Start, cancellationToken);
 
                 case ListJumpTriggerDestination.End:
-                    return await _target.SetPosition(_target.End, cancellationToken);
+                    return await _target.SetPositionAsync(_target.End, cancellationToken);
 
                 default:
                     return false;

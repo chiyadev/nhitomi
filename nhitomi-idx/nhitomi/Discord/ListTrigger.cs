@@ -14,7 +14,7 @@ namespace nhitomi.Discord
     {
         int Position { get; }
 
-        Task<bool> SetPosition(int position, CancellationToken cancellationToken = default);
+        Task<bool> SetPositionAsync(int position, CancellationToken cancellationToken = default);
     }
 
     public class ListTrigger : ReactionTrigger
@@ -44,10 +44,10 @@ namespace nhitomi.Discord
                     if (_target.Position == 0)
                         return false;
 
-                    return await _target.SetPosition(_target.Position - 1, cancellationToken);
+                    return await _target.SetPositionAsync(_target.Position - 1, cancellationToken);
 
                 case ListTriggerDirection.Right:
-                    return await _target.SetPosition(_target.Position + 1, cancellationToken);
+                    return await _target.SetPositionAsync(_target.Position + 1, cancellationToken);
 
                 default:
                     return false;
