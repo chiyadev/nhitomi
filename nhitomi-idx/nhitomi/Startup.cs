@@ -233,6 +233,7 @@ namespace nhitomi
                     .AddSingleton<IDiscordMessageHandler, DiscordMessageHandler>()
                     .AddSingleton<IDiscordReactionHandler, DiscordReactionHandler>()
                     .AddSingleton<IDiscordLocaleProvider, DiscordLocaleProvider>()
+                    .AddSingleton<IDiscordOAuthHandler, DiscordOAuthHandler>()
                     .AddHostedService<DiscordConnectionManager>();
 
             services.AddSingleton<IUserFilter, DefaultUserFilter>()
