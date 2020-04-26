@@ -64,8 +64,9 @@ namespace nhitomi.Discord.Commands
                              .Where(t => book.GetTags(t)?.Length >= 0)
                              .ToList(t => new EmbedFieldBuilder
                               {
-                                  Name  = l.Sections["tags"][t.ToString()],
-                                  Value = string.Join(", ", book.GetTags(t))
+                                  Name     = l.Sections["tags"][t.ToString()],
+                                  Value    = string.Join(", ", book.GetTags(t)),
+                                  IsInline = true
                               })
             }
         };
