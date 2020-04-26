@@ -1,0 +1,15 @@
+{
+  "discord": {
+    "debug": {
+      "title": "Debug information"
+    },
+    "help": {
+      "debug": {
+        "info": {
+          "name": "Debug",
+          "description": "Displays information for debugging purposes."
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "nhitomi", "nhitomi\nhitomi.csproj", "{37DF1D51-CA19-414A-9759-B4BE2A67F749}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "nhitomi.Tests", "nhitomi.Tests\nhitomi.Tests.csproj", "{BC4614B7-F10D-4616-9EFA-10F659D7C9D7}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{37DF1D51-CA19-414A-9759-B4BE2A67F749}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{37DF1D51-CA19-414A-9759-B4BE2A67F749}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{37DF1D51-CA19-414A-9759-B4BE2A67F749}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{37DF1D51-CA19-414A-9759-B4BE2A67F749}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BC4614B7-F10D-4616-9EFA-10F659D7C9D7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BC4614B7-F10D-4616-9EFA-10F659D7C9D7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BC4614B7-F10D-4616-9EFA-10F659D7C9D7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BC4614B7-F10D-4616-9EFA-10F659D7C9D7}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
