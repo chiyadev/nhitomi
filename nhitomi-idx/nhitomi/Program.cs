@@ -34,10 +34,10 @@ namespace nhitomi
                 {
                     // generates API specification
                     case "--generate-spec":
-                        var options = host.Services.GetService<IOptionsMonitor<ServerOptions>>().CurrentValue;
+                        var link    = host.Services.GetService<ILinkGenerator>();
                         var swagger = host.Services.GetService<ISwaggerProvider>();
 
-                        swagger.GetSwagger("docs", options.PublicUrl, Startup.ApiBasePath).SerializeAsV3(new OpenApiJsonWriter(Console.Out));
+                        swagger.GetSwagger("docs", link.GetApiLink("/")).SerializeAsV3(new OpenApiJsonWriter(Console.Out));
                         return true;
                 }
             }

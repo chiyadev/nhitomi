@@ -244,6 +244,7 @@ namespace nhitomi
                     .AddHttpContextAccessor()
                     .AddSingleton<StartupInitializer>()
                     .AddTransient<MemoryInfo>()
+                    .AddSingleton<ILinkGenerator, LinkGenerator>()
                     .AddSingleton<IImageProcessor, SkiaImageProcessor>();
 
             services.Configure<RecaptchaOptions>(_configuration.GetSection("Recaptcha"))
@@ -306,8 +307,6 @@ namespace nhitomi
 
         void ConfigureBackend(IApplicationBuilder app)
         {
-            var serverOptions = app.ApplicationServices.GetService<IOptionsMonitor<ServerOptions>>();
-
             // cors
             app.UseCors(o => o.AllowAnyHeader()
                               .AllowAnyMethod()
@@ -328,7 +327,7 @@ namespace nhitomi
                 {
                     new OpenApiServer
                     {
-                        Url = serverOptions.CurrentValue.PublicUrl + ApiBasePath
+                        Url = app.ApplicationServices.GetService<ILinkGenerator>().GetApiLink("/")
                     }
                 });
             });

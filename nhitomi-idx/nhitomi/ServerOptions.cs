@@ -6,7 +6,7 @@ namespace nhitomi
     public class ServerOptions
     {
         /// <summary>
-        /// Public facing server URL.
+        /// Public facing server URL, without trailing slash.
         /// </summary>
         public string PublicUrl { get; set; }
 
