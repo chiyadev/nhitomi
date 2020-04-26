@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using ChiyaFlake;
@@ -70,6 +71,11 @@ namespace nhitomi.Database
         /// True to enable dynamic server configuration stored in Elasticsearch.
         /// </summary>
         public bool EnableDynamicConfig { get; set; } = true;
+
+        /// <summary>
+        /// Number of items to search per chunk when searching as a stream.
+        /// </summary>
+        public int StreamSearchChunkSize { get; set; } = 20;
     }
 
     public interface IQueryProcessor<T> where T : class, IDbObject
@@ -265,9 +271,20 @@ namespace nhitomi.Database
         async Task<SearchResult<T>> SearchAsync<T>(IQueryProcessor<T> processor, CancellationToken cancellationToken = default) where T : class, IDbObject => (await SearchEntriesAsync(processor, cancellationToken)).Project(x => x.Value);
 
         /// <summary>
+        /// Searches for objects from the database as an asynchronous stream.
+        /// This is equivalent to calling <see cref="SearchEntriesStreamAsync{T}"/> and reading <see cref="IDbEntry{T}.Value"/>s.
+        /// </summary>
+        IAsyncEnumerable<T> SearchStreamAsync<T>(IQueryProcessor<T> processor, CancellationToken cancellationToken = default) where T : class, IDbObject => SearchEntriesStreamAsync(processor, cancellationToken).Select(x => x.Value);
+
+        /// <summary>
         /// Searches for objects from the database and wraps them in <see cref="IDbEntry{T}"/>.
         /// </summary>
         Task<SearchResult<IDbEntry<T>>> SearchEntriesAsync<T>(IQueryProcessor<T> processor, CancellationToken cancellationToken = default) where T : class, IDbObject;
+
+        /// <summary>
+        /// Searches for objects from the database as an asynchronous stream, wrapped in <see cref="IDbEntry{T}"/>.
+        /// </summary>
+        IAsyncEnumerable<IDbEntry<T>> SearchEntriesStreamAsync<T>(IQueryProcessor<T> processor, CancellationToken cancellationToken = default) where T : class, IDbObject;
 
         Task<TResult> SuggestAsync<T, TResult>(ISuggestProcessor<T, TResult> processor, CancellationToken cancellationToken = default) where T : class, IDbObject, IDbSupportsAutocomplete where TResult : SuggestResult;
 
@@ -688,43 +705,21 @@ namespace nhitomi.Database
 
 #region Search
 
-        public async Task<SearchResult<T>> SearchAsync<T>(IQueryProcessor<T> processor, CancellationToken cancellationToken = default) where T : class, IDbObject
-        {
-            var measure = new MeasureContext();
-
-            var (entries, total) = await SearchAsyncInternal(processor, cancellationToken);
-
-            return new SearchResult<T>
-            {
-                Took  = measure.Elapsed,
-                Total = total,
-                Items = entries.ToArray(x => x.Value)
-            };
-        }
-
         public async Task<SearchResult<IDbEntry<T>>> SearchEntriesAsync<T>(IQueryProcessor<T> processor, CancellationToken cancellationToken = default) where T : class, IDbObject
         {
-            var measure = new MeasureContext();
-
-            var (entries, total) = await SearchAsyncInternal(processor, cancellationToken);
-
-            return new SearchResult<IDbEntry<T>>
-            {
-                Took  = measure.Elapsed,
-                Total = total,
-                Items = entries.ToArray(x => new EntryWrapper<T>(this, x.Value.Id, x) as IDbEntry<T>)
-            };
-        }
-
-        /// <returns>(entries, total)</returns>
-        async Task<(EntryInfo<T>[], int)> SearchAsyncInternal<T>(IQueryProcessor<T> processor, CancellationToken cancellationToken = default) where T : class, IDbObject
-        {
             if (!processor.Valid)
-                return (new EntryInfo<T>[0], 0);
+                return new SearchResult<IDbEntry<T>>
+                {
+                    Took  = TimeSpan.Zero,
+                    Total = 0,
+                    Items = Array.Empty<IDbEntry<T>>()
+                };
+
+            var measure = new MeasureContext();
 
             var index = await GetIndexAsync<T>(cancellationToken);
 
-            // search bypasses caching
+            // searching bypasses cache
             var response = await Request(c => c.SearchAsync<T>(q => q.Index(index.IndexName)
                                                                      .SequenceNumberPrimaryTerm()
                                                                      .Compose(processor.Process), cancellationToken));
@@ -740,7 +735,51 @@ namespace nhitomi.Database
             foreach (var info in infos)
                 await _cache.SetAsync(index.CachePrefix + info.Value.Id, info, cancellationToken);
 
-            return (infos, (int) response.Total);
+            return new SearchResult<IDbEntry<T>>
+            {
+                Took  = measure.Elapsed,
+                Total = (int) response.Total,
+                Items = infos.ToArray(x => new EntryWrapper<T>(this, x.Value.Id, x) as IDbEntry<T>)
+            };
+        }
+
+        sealed class StreamSearchQueryProcessor<T> : IQueryProcessor<T> where T : class, IDbObject
+        {
+            readonly IQueryProcessor<T> _processor;
+            readonly int _offset;
+            readonly int _limit;
+
+            public bool Valid => _processor.Valid;
+
+            public StreamSearchQueryProcessor(IQueryProcessor<T> processor, int offset, int limit)
+            {
+                _processor = processor;
+                _offset    = offset;
+                _limit     = limit;
+            }
+
+            public SearchDescriptor<T> Process(SearchDescriptor<T> descriptor) =>
+                _processor.Process(descriptor)
+                          .Skip(_offset) // overwrite skip and take for streams
+                          .Take(_limit);
+        }
+
+        public async IAsyncEnumerable<IDbEntry<T>> SearchEntriesStreamAsync<T>(IQueryProcessor<T> processor, [EnumeratorCancellation] CancellationToken cancellationToken = default) where T : class, IDbObject
+        {
+            for (var i = 0;;)
+            {
+                var options = _options.CurrentValue;
+
+                var result = await SearchEntriesAsync(new StreamSearchQueryProcessor<T>(processor, i, options.StreamSearchChunkSize), cancellationToken);
+
+                if (result.Items.Length == 0)
+                    break;
+
+                foreach (var item in result.Items)
+                    yield return item;
+
+                i += result.Items.Length;
+            }
         }
 
 #endregion
@@ -792,9 +831,9 @@ namespace nhitomi.Database
 
             return (int) await counter.GetAsync(async () =>
             {
-                var (_, total) = await SearchAsyncInternal(new CountQueryProcessor<T>(), cancellationToken);
+                var result = await SearchEntriesAsync(new CountQueryProcessor<T>(), cancellationToken);
 
-                return total;
+                return result.Total;
             }, cancellationToken);
         }
 
