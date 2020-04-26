@@ -47,46 +47,49 @@ namespace nhitomi.Database
 
         Dictionary<ImageTag, string[]> _tags = new Dictionary<ImageTag, string[]>();
 
+        public string[] GetTags(ImageTag tag) => _tags.GetValueOrDefault(tag);
+        public void SetTags(ImageTag tag, string[] value) => _tags[tag] = value;
+
         [Key("tg"), Keyword(Name = "tg", DocValues = false)]
         public string[] TagsGeneral
         {
-            get => _tags.GetValueOrDefault(ImageTag.Tag);
-            set => _tags[ImageTag.Tag] = value;
+            get => GetTags(ImageTag.Tag);
+            set => SetTags(ImageTag.Tag, value);
         }
 
         [Key("ta"), Keyword(Name = "ta", DocValues = false)]
         public string[] TagsArtist
         {
-            get => _tags.GetValueOrDefault(ImageTag.Artist);
-            set => _tags[ImageTag.Artist] = value;
+            get => GetTags(ImageTag.Artist);
+            set => SetTags(ImageTag.Artist, value);
         }
 
         [Key("tc"), Keyword(Name = "tc", DocValues = false)]
         public string[] TagsCharacter
         {
-            get => _tags.GetValueOrDefault(ImageTag.Character);
-            set => _tags[ImageTag.Character] = value;
+            get => GetTags(ImageTag.Character);
+            set => SetTags(ImageTag.Character, value);
         }
 
         [Key("tcp"), Keyword(Name = "tcp", DocValues = false)]
         public string[] TagsCopyright
         {
-            get => _tags.GetValueOrDefault(ImageTag.Copyright);
-            set => _tags[ImageTag.Copyright] = value;
+            get => GetTags(ImageTag.Copyright);
+            set => SetTags(ImageTag.Copyright, value);
         }
 
         [Key("tm"), Keyword(Name = "tm", DocValues = false)]
         public string[] TagsMetadata
         {
-            get => _tags.GetValueOrDefault(ImageTag.Metadata);
-            set => _tags[ImageTag.Metadata] = value;
+            get => GetTags(ImageTag.Metadata);
+            set => SetTags(ImageTag.Metadata, value);
         }
 
         [Key("tp"), Keyword(Name = "tp", DocValues = false)]
         public string[] TagsPool
         {
-            get => _tags.GetValueOrDefault(ImageTag.Pool);
-            set => _tags[ImageTag.Pool] = value;
+            get => GetTags(ImageTag.Pool);
+            set => SetTags(ImageTag.Pool, value);
         }
 
         [Key("ra"), Keyword(Name = "ra", DocValues = false)]

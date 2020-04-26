@@ -32,60 +32,63 @@ namespace nhitomi.Database
 
         Dictionary<BookTag, string[]> _tags = new Dictionary<BookTag, string[]>();
 
+        public string[] GetTags(BookTag tag) => _tags.GetValueOrDefault(tag);
+        public void SetTags(BookTag tag, string[] value) => _tags[tag] = value;
+
         [Key("tg"), Keyword(Name = "tg", DocValues = false)]
         public string[] TagsGeneral
         {
-            get => _tags.GetValueOrDefault(BookTag.Tag);
-            set => _tags[BookTag.Tag] = value;
+            get => GetTags(BookTag.Tag);
+            set => SetTags(BookTag.Tag, value);
         }
 
         [Key("ta"), Keyword(Name = "ta", DocValues = false)]
         public string[] TagsArtist
         {
-            get => _tags.GetValueOrDefault(BookTag.Artist);
-            set => _tags[BookTag.Artist] = value;
+            get => GetTags(BookTag.Artist);
+            set => SetTags(BookTag.Artist, value);
         }
 
         [Key("tp"), Keyword(Name = "tp", DocValues = false)]
         public string[] TagsParody
         {
-            get => _tags.GetValueOrDefault(BookTag.Parody);
-            set => _tags[BookTag.Parody] = value;
+            get => GetTags(BookTag.Parody);
+            set => SetTags(BookTag.Parody, value);
         }
 
         [Key("tc"), Keyword(Name = "tc", DocValues = false)]
         public string[] TagsCharacter
         {
-            get => _tags.GetValueOrDefault(BookTag.Character);
-            set => _tags[BookTag.Character] = value;
+            get => GetTags(BookTag.Character);
+            set => SetTags(BookTag.Character, value);
         }
 
         [Key("tco"), Keyword(Name = "tco", DocValues = false)]
         public string[] TagsConvention
         {
-            get => _tags.GetValueOrDefault(BookTag.Convention);
-            set => _tags[BookTag.Convention] = value;
+            get => GetTags(BookTag.Convention);
+            set => SetTags(BookTag.Convention, value);
         }
 
         [Key("ts"), Keyword(Name = "ts", DocValues = false)]
         public string[] TagsSeries
         {
-            get => _tags.GetValueOrDefault(BookTag.Series);
-            set => _tags[BookTag.Series] = value;
+            get => GetTags(BookTag.Series);
+            set => SetTags(BookTag.Series, value);
         }
 
         [Key("tci"), Keyword(Name = "tci", DocValues = false)]
         public string[] TagsCircle
         {
-            get => _tags.GetValueOrDefault(BookTag.Circle);
-            set => _tags[BookTag.Circle] = value;
+            get => GetTags(BookTag.Circle);
+            set => SetTags(BookTag.Circle, value);
         }
 
         [Key("tm"), Keyword(Name = "tm", DocValues = false)]
         public string[] TagsMetadata
         {
-            get => _tags.GetValueOrDefault(BookTag.Metadata);
-            set => _tags[BookTag.Metadata] = value;
+            get => GetTags(BookTag.Metadata);
+            set => SetTags(BookTag.Metadata, value);
         }
 
         [Key("ca"), Keyword(Name = "ca", DocValues = false)]
