@@ -43,7 +43,7 @@ namespace nhitomi.Database
                         q = q.Filter(Query.Category, b => b.Category)
                              .Filter(Query.Rating, b => b.Rating)
                              .Filter(Query.Language, b => b.Language)
-                             .Filter(Query.Source?.Project(s => s.ToString()), b => b.Sources);
+                             .Filter(Query.Source, b => b.Sources);
 
                         return q;
                     })
