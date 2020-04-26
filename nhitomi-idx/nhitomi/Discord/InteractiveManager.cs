@@ -31,6 +31,11 @@ namespace nhitomi.Discord
         IEnumerable<TMessage> Find<TMessage>(ulong channelId, ulong executorId) where TMessage : InteractiveMessage;
 
         /// <summary>
+        /// Gets an interactive message by message ID.
+        /// </summary>
+        InteractiveMessage GetMessage(ulong messageId);
+
+        /// <summary>
         /// Gets the trigger responsible for handling the given reaction emote on a message.
         /// </summary>
         ReactionTrigger GetTrigger(ulong messageId, IEmote emote);
@@ -125,9 +130,9 @@ namespace nhitomi.Discord
 
             if (result)
             {
-                await message.DisposeAsyncInternal();
+                _logger.LogDebug($"Destroying interactive message {message}");
 
-                _logger.LogDebug($"Destroyed interactive message {message}");
+                await message.DisposeAsyncInternal();
             }
         }
 
@@ -143,6 +148,16 @@ namespace nhitomi.Discord
                     if (message is TMessage m && message.Command.Author.Id == executorId)
                         yield return m;
                 }
+            }
+        }
+
+        public InteractiveMessage GetMessage(ulong messageId)
+        {
+            lock (_lock)
+            {
+                return _replyMap.TryGetValue(messageId, out var message)
+                    ? message
+                    : null;
             }
         }
 

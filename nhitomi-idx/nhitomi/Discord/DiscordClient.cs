@@ -59,6 +59,13 @@ namespace nhitomi.Discord
                 return Task.CompletedTask;
             };
 
+            MessageDeleted += (m, _) =>
+            {
+                Task.Run(() => message.OnDeletedAsync(m.Id, cancellationToken), cancellationToken);
+
+                return Task.CompletedTask;
+            };
+
             ReactionAdded += (_, __, r) =>
             {
                 Task.Run(() => reaction.HandleAsync(r, cancellationToken), cancellationToken);

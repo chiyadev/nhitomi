@@ -15,6 +15,7 @@ namespace nhitomi.Discord
         int Handled { get; }
 
         Task HandleAsync(IUserMessage message, CancellationToken cancellationToken = default);
+        Task OnDeletedAsync(ulong messageId, CancellationToken cancellationToken = default);
     }
 
     public class DiscordMessageHandler : IDiscordMessageHandler
@@ -22,18 +23,20 @@ namespace nhitomi.Discord
         readonly IServiceProvider _services;
         readonly IDiscordLocaleProvider _locale;
         readonly IUserFilter _filter;
+        readonly IInteractiveManager _interactive;
         readonly IOptionsMonitor<DiscordOptions> _options;
         readonly ILogger<DiscordMessageHandler> _logger;
 
         readonly CommandService _command;
 
-        public DiscordMessageHandler(IServiceProvider services, IDiscordLocaleProvider locale, IUserFilter filter, IOptionsMonitor<DiscordOptions> options, ILogger<DiscordMessageHandler> logger)
+        public DiscordMessageHandler(IServiceProvider services, IDiscordLocaleProvider locale, IUserFilter filter, IInteractiveManager interactive, IOptionsMonitor<DiscordOptions> options, ILogger<DiscordMessageHandler> logger)
         {
-            _services = services;
-            _locale   = locale;
-            _filter   = filter;
-            _options  = options;
-            _logger   = logger;
+            _services    = services;
+            _locale      = locale;
+            _filter      = filter;
+            _interactive = interactive;
+            _options     = options;
+            _logger      = logger;
 
             // add modules
             _command = new CommandService(options.CurrentValue.Command);
@@ -97,6 +100,22 @@ namespace nhitomi.Discord
             finally
             {
                 Interlocked.Increment(ref _total);
+            }
+        }
+
+        public async Task OnDeletedAsync(ulong messageId, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                // auto dispose interactives when deleted
+                var message = _interactive.GetMessage(messageId);
+
+                if (message != null)
+                    await message.DisposeAsync();
+            }
+            catch (Exception e)
+            {
+                _logger.LogInformation(e, $"Exception while disposing interactive message {messageId}.");
             }
         }
     }
