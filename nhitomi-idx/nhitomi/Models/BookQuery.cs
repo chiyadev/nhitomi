@@ -18,7 +18,7 @@ namespace nhitomi.Models
         public FilterQuery<BookCategory> Category { get; set; }
         public FilterQuery<LanguageType> Language { get; set; }
         public FilterQuery<MaterialRating> Rating { get; set; }
-        public FilterQuery<ScraperType> Sources { get; set; }
+        public FilterQuery<ScraperType> Source { get; set; }
     }
 
     public enum BookSort
