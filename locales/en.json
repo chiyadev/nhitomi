@@ -1,0 +1,36 @@
+{
+  "discord": {
+    "debug": {
+      "title": "Debug information"
+    },
+    "help": {
+      "title": "Help",
+      "tagline": "the doujinshi aggregator.",
+      "invite": "[Join]({serverInvite}) the official server or [invite nhitomi]({botInvite}) to your server.",
+      "owner": "made by chiya.dev",
+      "doujinshi": {
+        "title": "Doujinshi",
+        "get": "Displays doujinshi information.",
+        "from": "Lists all doujinshi from a source.",
+        "search": "Searches for doujinshi by tags.",
+        "read": "Shows the pages of a doujinshi.",
+        "download": "Sends the download link for a doujinshi.",
+        "sources": {
+          "title": "Sources"
+        }
+      },
+      "collections": {
+        "title": "Collection Management",
+        "list": "Shows all collections you own.",
+        "show": "Lists all items in a collection.",
+        "add": "Adds an item to a collection.",
+        "remove": "Removes an item from a collection.",
+        "delete": "Deletes a collection, removing all items in it."
+      },
+      "oss": {
+        "title": "Open Source",
+        "license": "nhitomi is licensed under the MIT License."
+      }
+    }
+  }
+}

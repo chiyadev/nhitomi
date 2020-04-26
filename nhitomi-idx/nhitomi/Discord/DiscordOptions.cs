@@ -83,7 +83,17 @@ namespace nhitomi.Discord
             /// <summary>
             /// Interval of interactive rerenders.
             /// </summary>
-            public TimeSpan RenderInterval { get; set; } = TimeSpan.FromSeconds(1);
+            public TimeSpan RenderInterval { get; set; } = TimeSpan.FromMilliseconds(500);
         }
+
+        /// <summary>
+        /// Server invite link.
+        /// </summary>
+        public string ServerInvite { get; set; } = "https://discord.gg/JFNga7q";
+
+        /// <summary>
+        /// Required permissions when inviting nhitomi to a server.
+        /// </summary>
+        public int BotInvitePerms { get; set; } = 347200;
     }
 }
