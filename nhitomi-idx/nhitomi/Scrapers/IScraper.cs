@@ -47,6 +47,7 @@ namespace nhitomi.Scrapers
         ScraperType Type { get; }
 
         IScraperTestManager TestManager { get; }
+        string Url { get; }
         ScraperUrlRegex UrlRegex { get; }
     }
 
@@ -60,6 +61,7 @@ namespace nhitomi.Scrapers
         public IServiceProvider Services { get; }
         public abstract ScraperType Type { get; }
         public virtual IScraperTestManager TestManager => null;
+        public abstract string Url { get; }
         public virtual ScraperUrlRegex UrlRegex => null;
 
         protected ScraperBase(IServiceProvider services, IOptionsMonitor<ScraperOptions> options, ILogger<ScraperBase> logger)

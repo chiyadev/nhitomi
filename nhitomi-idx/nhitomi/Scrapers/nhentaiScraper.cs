@@ -143,6 +143,7 @@ namespace nhitomi.Scrapers
         readonly IOptionsMonitor<nhentaiScraperOptions> _options;
 
         public override ScraperType Type => ScraperType.nhentai;
+        public override string Url => "https://nhentai.net";
         public override ScraperUrlRegex UrlRegex { get; } = new ScraperUrlRegex(@"(nh(entai)?(\/|\s+)|(https?:\/\/)?nhentai\.net\/g\/)(?<id>\d{1,6})\/?");
         public override IScraperTestManager TestManager { get; }
 
