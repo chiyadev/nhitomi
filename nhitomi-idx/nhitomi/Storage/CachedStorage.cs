@@ -64,7 +64,7 @@ namespace nhitomi.Storage
                     if (!result.IsT0)
                         return null;
 
-                    var file = result.AsT0;
+                    using var file = result.AsT0;
 
                     return new Cache
                     {
