@@ -3,18 +3,18 @@ namespace nhitomi
     public enum ImageFormat
     {
         /// <summary>
-        /// image/webp
-        /// </summary>
-        WebP = 0,
-
-        /// <summary>
         /// image/jpeg
         /// </summary>
-        Jpeg = 1,
+        Jpeg = 0,
 
         /// <summary>
         /// image/png
         /// </summary>
-        Png = 2
+        Png = 1,
+
+        /// <summary>
+        /// image/webp
+        /// </summary>
+        WebP = 2
     }
 }
