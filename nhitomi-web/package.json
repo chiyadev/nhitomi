@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "@ant-design/colors": "^4.0.0",
+    "@ant-design/dark-theme": "^2.0.1",
     "@ant-design/icons": "^4.1.0",
     "@openapitools/openapi-generator-cli": "^1.0.12-4.3.0",
     "@seznam/compose-react-refs": "^1.0.4",
