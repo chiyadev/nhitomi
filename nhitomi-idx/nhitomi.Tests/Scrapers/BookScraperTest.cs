@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -141,6 +142,8 @@ namespace nhitomi.Scrapers
 
                 return books.ToAsyncEnumerable();
             }
+
+            public override Task<Stream> GetImageAsync(DbBook book, DbBookContent content, int index, CancellationToken cancellationToken = default) => Task.FromResult<Stream>(null);
         }
 
         protected override void ConfigureServices(IServiceCollection services)

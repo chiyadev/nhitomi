@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -17,7 +19,16 @@ namespace nhitomi.Scrapers
 {
     public interface IBookScraper : IScraper
     {
+        /// <summary>
+        /// Finds a book in the database given a book URL recognized by this scraper.
+        /// Setting strict to false will allow multiple matches in the string; otherwise, the entire string will be attempted as one match.
+        /// </summary>
         IAsyncEnumerable<(IDbEntry<DbBook>, DbBookContent)> FindBookByUrlAsync(string url, bool strict, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// Retrieves the image of a page of the given book content as a stream.
+        /// </summary>
+        Task<Stream> GetImageAsync(DbBook book, DbBookContent content, int index, CancellationToken cancellationToken = default);
     }
 
     public abstract class BookScraperBase : ScraperBase, IBookScraper
@@ -154,6 +165,34 @@ namespace nhitomi.Scrapers
 
                 yield return (entry, content);
             }
+        }
+
+        public abstract Task<Stream> GetImageAsync(DbBook book, DbBookContent content, int index, CancellationToken cancellationToken = default);
+    }
+
+    public class BookScraperImageResult : ScraperImageResult
+    {
+        readonly DbBook _book;
+        readonly DbBookContent _content;
+        readonly int _index;
+
+        protected override string FileName => $"books/{_book.Id}/contents/{_content.Id}/pages/{_index}";
+
+        public BookScraperImageResult(DbBook book, DbBookContent content, int index)
+        {
+            _book    = book;
+            _content = content;
+            _index   = index;
+        }
+
+        protected override Task<Stream> GetImageAsync(ActionContext context)
+        {
+            var scrapers = context.HttpContext.RequestServices.GetService<IScraperService>();
+
+            if (!scrapers.GetBook(_content.Source, out var scraper))
+                throw new NotSupportedException($"Scraper {scraper} is not supported.");
+
+            return scraper.GetImageAsync(_book, _content, _index, context.HttpContext.RequestAborted);
         }
     }
 }

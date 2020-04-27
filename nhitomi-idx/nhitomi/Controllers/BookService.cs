@@ -18,6 +18,11 @@ namespace nhitomi.Controllers
         /// This allows all history of a book to be preserved, because a snapshot is not created when a book is first indexed.
         /// </summary>
         public bool SnapshotBeforeInitialModification { get; set; } = true;
+
+        /// <summary>
+        /// Cover image thumbnail options.
+        /// </summary>
+        public ThumbnailOptions CoverThumbnail { get; set; } = new ThumbnailOptions();
     }
 
     public interface IBookService

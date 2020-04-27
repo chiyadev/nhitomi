@@ -1,9 +1,12 @@
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using nhitomi.Database;
+using nhitomi.Documentation;
 using nhitomi.Models;
 using nhitomi.Models.Queries;
 using nhitomi.Models.Requests;
+using nhitomi.Scrapers;
 
 namespace nhitomi.Controllers
 {
@@ -13,12 +16,14 @@ namespace nhitomi.Controllers
         readonly IBookService _books;
         readonly ISnapshotService _snapshots;
         readonly IVoteService _votes;
+        readonly BookServiceOptions _options;
 
-        public BookController(IBookService books, ISnapshotService snapshots, IVoteService votes)
+        public BookController(IBookService books, ISnapshotService snapshots, IVoteService votes, IOptionsSnapshot<BookServiceOptions> options)
         {
             _books     = books;
             _snapshots = snapshots;
             _votes     = votes;
+            _options   = options.Value;
         }
 
         /// <summary>
@@ -149,6 +154,46 @@ namespace nhitomi.Controllers
                 return ResultUtilities.NotFound(id, contentId);
 
             return Ok();
+        }
+
+        /// <summary>
+        /// Retrieves book page image.
+        /// </summary>
+        /// <param name="id">Book ID.</param>
+        /// <param name="contentId">Content ID.</param>
+        /// <param name="index">Zero-based page index.</param>
+        [HttpGet("{id}/contents/{contentId}/pages/{index}", Name = "getBookImage"), RequireUser, ProducesFile]
+        public async Task<ActionResult> GetImageAsync(string id, string contentId, int index)
+        {
+            var result = await _books.GetContentAsync(id, contentId);
+
+            if (!result.TryPickT0(out var value, out _))
+                return ResultUtilities.NotFound(id);
+
+            var (book, content) = value;
+
+            return new BookScraperImageResult(book, content, index);
+        }
+
+        /// <summary>
+        /// Retrieves book thumbnail image.
+        /// </summary>
+        /// <param name="id">Book ID.</param>
+        /// <param name="contentId">Content ID.</param>
+        [HttpGet("{id}/contents/{contentId}/thumb", Name = "getBookThumbnail"), RequireUser, ProducesFile]
+        public async Task<ActionResult> GetThumbnailAsync(string id, string contentId)
+        {
+            var result = await _books.GetContentAsync(id, contentId);
+
+            if (!result.TryPickT0(out var value, out _))
+                return ResultUtilities.NotFound(id);
+
+            var (book, content) = value;
+
+            return new BookScraperImageResult(book, content, 0)
+            {
+                Thumbnail = _options.CoverThumbnail
+            };
         }
 
         /// <summary>
