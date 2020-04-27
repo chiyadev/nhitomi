@@ -22,6 +22,7 @@
     "cross-var": "^1.1.0",
     "customize-cra": "^0.9.1",
     "jszip": "^3.4.0",
+    "keycode": "^2.2.0",
     "less": "^3.11.1",
     "less-loader": "^5.0.0",
     "markdown-to-jsx": "^6.11.1",

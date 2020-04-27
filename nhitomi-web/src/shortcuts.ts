@@ -2,6 +2,7 @@ import { useContext, useEffect, useRef } from 'react'
 import { useKey, useKeyPress, useRafLoop } from 'react-use'
 import { ShortcutConfig, ConfigStore, useConfig } from './client/config'
 import { LayoutContext } from './LayoutContext'
+import keycode from 'keycode'
 
 export type ModifierKey = 'alt' | 'ctrl' | 'meta' | 'shift'
 export type ModifierKeyEvent = { altKey: boolean, ctrlKey: boolean, metaKey: boolean, shiftKey: boolean }
@@ -90,4 +91,11 @@ export function useScrollShortcut() {
     else
       startScroll()
   }, [scrollUp, scrollDown]) // eslint-disable-line
+}
+
+/** Returns the key name of a shortcut key. */
+export function useShortcutKeyName(key: ShortcutConfigKey) {
+  const [config] = useConfig(key)
+
+  return keycode(config.keys[0])
 }

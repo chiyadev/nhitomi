@@ -1,10 +1,11 @@
-import { Divider, Layout, Menu, PageHeader } from 'antd'
+import { Divider, Layout, Menu, PageHeader, Tooltip } from 'antd'
 import React, { useContext, useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
-import { useShortcut } from './shortcuts'
+import { useShortcut, useShortcutKeyName } from './shortcuts'
 import { NotificationContext } from './NotificationContext'
 import { ClientContext } from './ClientContext'
 import { LayoutContext } from './LayoutContext'
+import { BarsOutlined } from '@ant-design/icons'
 
 export const SideBarWidth = 200
 
@@ -28,6 +29,8 @@ export const SideBar = () => {
       alert.info('Sidebar opened.')
   })
 
+  const sidebarKey = useShortcutKeyName('sidebarKey')
+
   return <Layout.Sider
     breakpoint='md'
     onBreakpoint={v => setSidebar(!v)}
@@ -36,6 +39,7 @@ export const SideBar = () => {
     collapsed={!sidebar}
     collapsedWidth={0}
     onCollapse={v => setSidebar(!v)}
+    trigger={null}
     style={{
       position: 'fixed',
       height: '100vh',
@@ -44,6 +48,21 @@ export const SideBar = () => {
       left: 0,
       boxShadow: sidebar ? '-3px 0 6px 0 #555' : undefined
     }}>
+
+    <Tooltip
+      className='ant-layout-sider-zero-width-trigger ant-layout-sider-zero-width-trigger-left'
+      title={`Press '${sidebarKey}' to toggle.`}
+      placement={sidebar ? 'left' : 'right'}
+      mouseEnterDelay={0.5}
+      mouseLeaveDelay={0}>
+
+      <BarsOutlined
+        style={{
+          lineHeight: '46px' // this is a hack
+        }}
+        onClick={() => setSidebar(!sidebar)} />
+    </Tooltip>
+
     <div style={{
       opacity: sidebar ? 1 : 0,
       transition: sidebar ? 'opacity 0.5s' : undefined

@@ -38,9 +38,9 @@ export const App = () => {
 }
 
 const Routing = () => {
-  const { sidebar } = useContext(LayoutContext)
+  const { sidebar, mobile } = useContext(LayoutContext)
 
-  return <Layout style={{ marginLeft: sidebar ? SideBarWidth : 0 }}>
+  return <Layout style={{ marginLeft: sidebar && !mobile ? SideBarWidth : 0 }}>
     <Switch>
     </Switch>
   </Layout>
