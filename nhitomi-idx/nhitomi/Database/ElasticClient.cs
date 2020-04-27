@@ -124,7 +124,7 @@ namespace nhitomi.Database
         {
             descriptor = descriptor.Size(Query.Limit)
                                    .Prefix(Query.Prefix)
-                                   .Field(IDbSupportsAutocomplete.SuggestField)
+                                   .Field(x => x.Suggest)
                                    .SkipDuplicates();
 
             if (Query.Fuzzy)
@@ -383,8 +383,6 @@ namespace nhitomi.Database
             public override string ToString() => IndexName;
         }
 
-        public static readonly string[] SourceExcludeFields = { IDbSupportsAutocomplete.SuggestField };
-
         readonly ConcurrentDictionary<Type, IndexInfo> _indexes = new ConcurrentDictionary<Type, IndexInfo>();
 
         async ValueTask<IndexInfo> GetIndexAsync<T>(CancellationToken cancellationToken = default) where T : class
@@ -406,13 +404,17 @@ namespace nhitomi.Database
                 if (_indexes.TryGetValue(type, out var newIndex))
                     return newIndex;
 
+                var excludeFields = typeof(T).GetProperties()
+                                             .Where(p => p.IsDefined(typeof(DbCachedAttribute)))
+                                             .ToArray(p => p.GetCustomAttributes().OfType<IPropertyMapping>().First().Name);
+
                 // index mapping update
                 if ((await Request(c => c.Indices.ExistsAsync(index.IndexName, null, cancellationToken))).Exists)
                 {
                     IPutMappingRequest map(PutMappingDescriptor<T> m)
                         => m.Index(index.IndexName)
                             .AutoMap()
-                            .SourceField(s => s.Excludes(SourceExcludeFields))
+                            .SourceField(s => s.Excludes(excludeFields))
                             .Dynamic(false);
 
                     IPromise<IDynamicIndexSettings> settings(DynamicIndexSettingsDescriptor s)
@@ -431,7 +433,7 @@ namespace nhitomi.Database
                     ICreateIndexRequest map(CreateIndexDescriptor i)
                         => i.Settings(settings)
                             .Map(m => m.AutoMap<T>()
-                                       .SourceField(s => s.Excludes(SourceExcludeFields))
+                                       .SourceField(s => s.Excludes(excludeFields))
                                        .Dynamic(false));
 
                     IPromise<IIndexSettings> settings(IndexSettingsDescriptor s)

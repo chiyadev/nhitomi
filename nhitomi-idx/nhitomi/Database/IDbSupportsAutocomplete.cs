@@ -4,8 +4,10 @@ namespace nhitomi.Database
 {
     public interface IDbSupportsAutocomplete
     {
-        public const string SuggestField = "sug";
-
+        /// <summary>
+        /// Autocomplete completion fields must be named "sug".
+        /// </summary>
+        [Completion(Name = "sug")]
         CompletionField Suggest { get; set; }
     }
 }

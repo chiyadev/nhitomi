@@ -139,43 +139,43 @@ namespace nhitomi.Database
         /// <summary>
         /// This is a cached property for querying.
         /// </summary>
-        [IgnoreMember, Number(Name = "pc")]
+        [IgnoreMember, Number(Name = "pc"), DbCached]
         public int[] PageCount { get; set; }
 
         /// <summary>
         /// This is a cached property for querying.
         /// </summary>
-        [IgnoreMember, Number(Name = "nc")]
+        [IgnoreMember, Number(Name = "nc"), DbCached]
         public int[] NoteCount { get; set; }
 
         /// <summary>
         /// This is a cached property for querying.
         /// </summary>
-        [IgnoreMember, Number(Name = "tC")]
+        [IgnoreMember, Number(Name = "tC"), DbCached]
         public int TagCount { get; set; }
 
         /// <summary>
         /// This is a cached property for querying.
         /// </summary>
-        [IgnoreMember, Keyword(Name = "ln", DocValues = false)]
+        [IgnoreMember, Keyword(Name = "ln", DocValues = false), DbCached]
         public LanguageType[] Language { get; set; }
 
         /// <summary>
         /// This is a cached property for querying.
         /// </summary>
-        [IgnoreMember, Keyword(Name = "sr", DocValues = false)]
+        [IgnoreMember, Keyword(Name = "sr", DocValues = false), DbCached]
         public ScraperType[] Sources { get; set; }
 
         /// <summary>
         /// This is a cached property for querying.
         /// </summary>
-        [IgnoreMember, Keyword(Name = "si", DocValues = false)]
+        [IgnoreMember, Keyword(Name = "si", DocValues = false), DbCached]
         public string[] SourceIds { get; set; }
 
         /// <summary>
         /// This is a cached property for querying.
         /// </summary>
-        [IgnoreMember, Completion(Name = IDbSupportsAutocomplete.SuggestField, PreserveSeparators = false, PreservePositionIncrements = false), SanitizerIgnore]
+        [IgnoreMember, Completion(Name = "sug", PreserveSeparators = false, PreservePositionIncrements = false), DbCached, SanitizerIgnore]
         public CompletionField Suggest { get; set; }
 
         public override void UpdateCache()

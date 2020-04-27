@@ -78,7 +78,7 @@ namespace nhitomi.Database
         /// <summary>
         /// This is a cached property for querying.
         /// </summary>
-        [IgnoreMember, Keyword(Name = "cdi", DocValues = false)]
+        [IgnoreMember, Keyword(Name = "cdi", DocValues = false), DbCached]
         public ulong? DiscordId { get; set; }
 
         public override void UpdateCache()
