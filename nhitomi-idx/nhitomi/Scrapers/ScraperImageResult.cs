@@ -47,7 +47,7 @@ namespace nhitomi.Scrapers
 
             else if (error.TryPickT0(out _, out var exception))
             {
-                byte[] buffer;
+                var buffer = null as byte[];
 
                 var locker = context.HttpContext.RequestServices.GetService<IResourceLocker>();
 
@@ -62,33 +62,46 @@ namespace nhitomi.Scrapers
 
                     // download to memory
                     await using (var stream = await GetImageAsync(context))
-                        buffer = await stream.ToArrayAsync(CancellationToken.None); // don't cancel while downloading
-
-                    // detect format
-                    var mediaType = context.HttpContext.RequestServices.GetService<IImageProcessor>().GetMediaType(buffer);
-
-                    if (mediaType == null)
-                        throw new FormatException($"Unrecognized image format ({name}, {buffer.Length}).");
-
-                    using (file = new StorageFile
                     {
-                        Name      = name,
-                        MediaType = mediaType,
-                        Stream    = new MemoryStream(buffer)
-                    })
-                    {
-                        StorageFileResult.SetHeaders(context, file);
+                        if (stream != null)
+                            buffer = await stream.ToArrayAsync(CancellationToken.None); // don't cancel while downloading
+                    }
 
-                        // save to storage
-                        await storage.WriteAsync(file, CancellationToken.None); // don't cancel from saving
+                    if (buffer != null)
+                    {
+                        // detect format
+                        var mediaType = context.HttpContext.RequestServices.GetService<IImageProcessor>().GetMediaType(buffer);
+
+                        if (mediaType == null)
+                            throw new FormatException($"Unrecognized image format ({name}, {buffer.Length}).");
+
+                        using (file = new StorageFile
+                        {
+                            Name      = name,
+                            MediaType = mediaType,
+                            Stream    = new MemoryStream(buffer)
+                        })
+                        {
+                            StorageFileResult.SetHeaders(context, file);
+
+                            // save to storage
+                            await storage.WriteAsync(file, CancellationToken.None); // don't cancel from saving
+                        }
                     }
                 }
 
-                // write to response stream
-                await using var src  = await ProcessStreamAsync(context, buffer);
-                await using var dest = context.HttpContext.Response.Body;
+                if (buffer == null)
+                {
+                    await ResultUtilities.NotFound(FileName).ExecuteResultAsync(context);
+                }
+                else
+                {
+                    // write to response stream
+                    await using var src  = await ProcessStreamAsync(context, buffer);
+                    await using var dest = context.HttpContext.Response.Body;
 
-                await src.CopyToAsync(dest, cancellationToken);
+                    await src.CopyToAsync(dest, cancellationToken);
+                }
             }
 
             else
