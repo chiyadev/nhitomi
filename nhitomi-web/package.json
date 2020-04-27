@@ -1,0 +1,91 @@
+{
+  "name": "nhitomi-web",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "@ant-design/colors": "^4.0.0",
+    "@ant-design/icons": "^4.1.0",
+    "@openapitools/openapi-generator-cli": "^1.0.12-4.3.0",
+    "@seznam/compose-react-refs": "^1.0.4",
+    "@testing-library/jest-dom": "^4.2.4",
+    "@testing-library/react": "^9.5.0",
+    "@testing-library/user-event": "^7.2.1",
+    "@types/jest": "^24.9.1",
+    "@types/jszip": "^3.1.7",
+    "@types/node": "^12.12.37",
+    "@types/nprogress": "^0.2.0",
+    "@types/prismjs": "^1.16.0",
+    "@types/react": "^16.9.34",
+    "@types/react-dom": "^16.9.6",
+    "@types/react-google-recaptcha": "^1.1.1",
+    "@types/react-router-dom": "^5.1.5",
+    "antd": "^4.1.5",
+    "babel-plugin-import": "^1.13.0",
+    "cross-env": "^7.0.2",
+    "cross-var": "^1.1.0",
+    "customize-cra": "^0.9.1",
+    "jszip": "^3.4.0",
+    "less": "^3.11.1",
+    "less-loader": "^6.0.0",
+    "markdown-to-jsx": "^6.11.1",
+    "npm-run-all": "^4.1.5",
+    "nprogress": "^0.2.0",
+    "prismjs": "^1.20.0",
+    "react": "^16.13.1",
+    "react-app-polyfill": "^1.0.6",
+    "react-app-rewired": "^2.1.5",
+    "react-dom": "^16.13.1",
+    "react-google-recaptcha": "^2.0.1",
+    "react-intl": "^4.5.0",
+    "react-router-dom": "^5.1.2",
+    "react-scripts": "3.4.1",
+    "react-simple-code-editor": "^0.11.0",
+    "react-use": "^14.2.0",
+    "react-visibility-sensor": "^5.1.1",
+    "rimraf": "^3.0.2",
+    "strict-event-emitter-types": "^2.0.0",
+    "ts-custom-error": "^3.1.1",
+    "tslint": "^6.1.2",
+    "typescript": "^3.7.5",
+    "typescript-tslint-plugin": "^0.5.5",
+    "workerize-loader": "^1.1.0"
+  },
+  "optionalDependencies": {
+    "nanoka-api": "file:nanoka-api"
+  },
+  "scripts": {
+    "start": "react-app-rewired start",
+    "build": "react-app-rewired build",
+    "test": "react-app-rewired test",
+    "lint": "tslint --fix src/**/*.{ts,tsx} -t verbose --force",
+    "genclient": "cross-env API_SPECSRC=https://nhitomi-new.chiya.dev/api/v1/docs.json run-s genclient:_*",
+    "genclient:local": "cross-env API_SPECSRC=http://localhost:5000/api/v1/docs.json run-s genclient:_*",
+    "genclient:spec": "cross-env API_SPECSRC=apispec.json run-s genclient:_*",
+    "genclient:_clean": "rimraf nhitomi-api",
+    "genclient:_generate": "cross-var npx openapi-generator generate -psupportsES6=true -ptypescriptThreePlus=true -pprefixParameterInterfaces=true -pnpmName=nhitomi-api -pnpmRepository=https://github.com/chiyadev/nhitomi -i $API_SPECSRC -g typescript-fetch -o nhitomi-api",
+    "genclient:_build": "cd nhitomi-api && npm run build",
+    "genclient:_install": "npm install --no-save ./nhitomi-api"
+  },
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "compilerOptions": {
+    "plugins": [
+      {
+        "name": "typescript-tslint-plugin"
+      }
+    ]
+  }
+}
