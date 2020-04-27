@@ -23,7 +23,7 @@
     </Target>
 
     <ItemGroup>
-        <PackageReference Include="AWSSDK.S3" Version="3.3.110.52" />
+        <PackageReference Include="AWSSDK.S3" Version="3.3.110.57" />
         <PackageReference Include="CompareNETObjects" Version="4.66.0" />
         <PackageReference Include="DeepCloner" Version="0.10.2" />
         <PackageReference Include="Discord.Net" Version="2.2.0" />
@@ -37,10 +37,10 @@
         <PackageReference Include="Qmmands" Version="3.1.2" />
         <PackageReference Include="SkiaSharp" Version="1.68.1" />
         <PackageReference Include="StackExchange.Redis" Version="2.1.30" />
-        <PackageReference Include="Swashbuckle.AspNetCore.Newtonsoft" Version="5.3.2" />
-        <PackageReference Include="Swashbuckle.AspNetCore.ReDoc" Version="5.3.2" />
-        <PackageReference Include="Swashbuckle.AspNetCore.Swagger" Version="5.3.2" />
-        <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="5.3.2" />
+        <PackageReference Include="Swashbuckle.AspNetCore.Newtonsoft" Version="5.3.3" />
+        <PackageReference Include="Swashbuckle.AspNetCore.ReDoc" Version="5.3.3" />
+        <PackageReference Include="Swashbuckle.AspNetCore.Swagger" Version="5.3.3" />
+        <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="5.3.3" />
         <PackageReference Include="System.ComponentModel.Annotations" Version="4.7.0" />
     </ItemGroup>
 
