@@ -31,7 +31,7 @@ namespace nhitomi
 
             var buffer = TestUtils.DummyImage(1000, 1000, format);
 
-            Assert.That(processor.GetFormat(buffer), Is.EqualTo(format));
+            Assert.That(processor.MediaTypeToFormat(processor.GetMediaType(buffer)), Is.EqualTo(format));
         }
 
         [Test]

@@ -50,13 +50,13 @@ namespace nhitomi.Models.Validation
 
             var processor = validationContext.GetService<IImageProcessor>();
 
-            var format = processor.GetFormat(buffer);
+            var mediaType = processor.GetMediaType(buffer);
 
-            if (format == null)
+            if (mediaType == null)
                 return new ValidationResult("Unknown image format.");
 
-            if (IsFormatSpecified && format != Format)
-                return new ValidationResult($"Image format {format} is not supported. Image must be {Format}.");
+            if (IsFormatSpecified && processor.MediaTypeToFormat(mediaType) != Format)
+                return new ValidationResult($"Image format '{mediaType}' is not supported. Image must be {Format}.");
 
             var dimensions = processor.GetDimensions(buffer);
 

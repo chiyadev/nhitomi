@@ -6,22 +6,19 @@ namespace nhitomi
 {
     public interface IImageProcessor
     {
-        /// <summary>
-        /// Gets the media type for an image format.
-        /// </summary>
-        string GetMediaType(ImageFormat format) => format switch
+        ImageFormat MediaTypeToFormat(string mediaType) => mediaType?.ToLowerInvariant().Trim() switch
         {
-            ImageFormat.WebP => "image/webp",
-            ImageFormat.Jpeg => "image/jpeg",
-            ImageFormat.Png  => "image/png",
+            "image/jpeg" => ImageFormat.Jpeg,
+            "image/png"  => ImageFormat.Png,
+            "image/webp" => ImageFormat.WebP,
 
-            _ => null
+            _ => default
         };
 
         /// <summary>
-        /// Finds the image format of the given buffer using magic numbers.
+        /// Finds the image format of the given buffer using magic numbers, and returns the format's media type.
         /// </summary>
-        ImageFormat? GetFormat(byte[] buffer);
+        string GetMediaType(byte[] buffer);
 
         /// <summary>
         /// Gets the width and height of the given image.
@@ -48,12 +45,14 @@ namespace nhitomi
             _logger = logger;
         }
 
-        static readonly byte[] _webPPrefix1 = { 0x52, 0x49, 0x46, 0x46 };
-        static readonly byte[] _webPPrefix2 = { 0x57, 0x45, 0x42, 0x50 };
         static readonly byte[] _jpegPrefix = { 0xFF, 0xD8, 0xFF };
         static readonly byte[] _pngPrefix = { 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A };
+        static readonly byte[] _webPPrefix1 = { 0x52, 0x49, 0x46, 0x46 };
+        static readonly byte[] _webPPrefix2 = { 0x57, 0x45, 0x42, 0x50 };
+        static readonly byte[] _gifPrefix1 = { 47, 49, 46, 38, 37, 61 };
+        static readonly byte[] _gifPrefix2 = { 47, 49, 46, 38, 39, 61 };
 
-        public ImageFormat? GetFormat(byte[] buffer)
+        public string GetMediaType(byte[] buffer)
         {
             if (buffer == null)
                 return null;
@@ -73,13 +72,16 @@ namespace nhitomi
             }
 
             if (test(buffer, _jpegPrefix))
-                return ImageFormat.Jpeg;
+                return "image/jpeg";
 
             if (test(buffer, _pngPrefix))
-                return ImageFormat.Png;
+                return "image/png";
 
             if (test(buffer, _webPPrefix1) && test(buffer, _webPPrefix2, 8))
-                return ImageFormat.WebP;
+                return "image/webp";
+
+            if (test(buffer, _gifPrefix1) || test(buffer, _gifPrefix2))
+                return "image/gif";
 
             return null;
         }
@@ -153,7 +155,9 @@ namespace nhitomi
         {
             ImageFormat.Jpeg => SKEncodedImageFormat.Jpeg,
             ImageFormat.Png  => SKEncodedImageFormat.Png,
-            _                => SKEncodedImageFormat.Webp
+            ImageFormat.WebP => SKEncodedImageFormat.Webp,
+
+            _ => throw new ArgumentException($"'{format}' is not a valid {nameof(ImageFormat)}.")
         };
     }
 }
