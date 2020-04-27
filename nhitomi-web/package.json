@@ -51,7 +51,7 @@
     "workerize-loader": "^1.1.0"
   },
   "optionalDependencies": {
-    "nanoka-api": "file:nanoka-api"
+    "nhitomi-api": "file:nhitomi-api"
   },
   "scripts": {
     "start": "react-app-rewired start",
