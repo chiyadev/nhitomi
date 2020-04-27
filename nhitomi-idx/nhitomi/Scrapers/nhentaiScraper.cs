@@ -288,7 +288,7 @@ namespace nhitomi.Scrapers
 
             var ext = ParseExtension(data.Extensions[index]);
 
-            var response = await _http.GetAsync($"https://i.nhentai.net/galleries/{data.MediaId}/{index + 1}.{ext}", cancellationToken);
+            var response = await _http.GetAsync($"https://i.nhentai.net/galleries/{data.MediaId}/{index + 1}.{ext}", HttpCompletionOption.ResponseHeadersRead, cancellationToken);
 
             response.EnsureSuccessStatusCode();
 
