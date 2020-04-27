@@ -239,7 +239,7 @@ namespace nhitomi.Scrapers
             using var response = await _http.GetAsync($"https://nhentai.net/api/gallery/{id}", cancellationToken);
 
             // some books may be missing
-            if (response.StatusCode == HttpStatusCode.NotFound)
+            if (response.StatusCode == HttpStatusCode.NotFound || response.StatusCode == HttpStatusCode.Forbidden)
                 return null;
 
             response.EnsureSuccessStatusCode();
