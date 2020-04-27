@@ -23,5 +23,10 @@ namespace nhitomi
         /// Image will be scaled proportionally to fit within this height.
         /// </summary>
         public int MaxHeight { get; set; } = 600;
+
+        /// <summary>
+        /// If the image is already smaller then thumbnail size, true to scale it up.
+        /// </summary>
+        public bool AllowLarger { get; set; }
     }
 }

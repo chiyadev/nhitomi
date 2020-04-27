@@ -1,5 +1,4 @@
 using System;
-using System.IO;
 using Microsoft.Extensions.Logging;
 using SkiaSharp;
 
@@ -10,7 +9,14 @@ namespace nhitomi
         /// <summary>
         /// Gets the media type for an image format.
         /// </summary>
-        string GetMediaType(ImageFormat format);
+        string GetMediaType(ImageFormat format) => format switch
+        {
+            ImageFormat.WebP => "image/webp",
+            ImageFormat.Jpeg => "image/jpeg",
+            ImageFormat.Png  => "image/png",
+
+            _ => null
+        };
 
         /// <summary>
         /// Finds the image format of the given buffer using magic numbers.
@@ -25,12 +31,12 @@ namespace nhitomi
         /// <summary>
         /// Converts an image to a different format.
         /// </summary>
-        Stream Convert(byte[] buffer, int quality, ImageFormat format);
+        byte[] Convert(byte[] buffer, int quality, ImageFormat format);
 
         /// <summary>
         /// Generates a thumbnail for an image.
         /// </summary>
-        Stream GenerateThumbnail(byte[] buffer, ThumbnailConfig config);
+        byte[] GenerateThumbnail(byte[] buffer, ThumbnailConfig config);
     }
 
     public class SkiaImageProcessor : IImageProcessor
@@ -42,15 +48,6 @@ namespace nhitomi
             _logger = logger;
         }
 
-        public string GetMediaType(ImageFormat format) => format switch
-        {
-            ImageFormat.WebP => "image/webp",
-            ImageFormat.Jpeg => "image/jpeg",
-            ImageFormat.Png  => "image/png",
-
-            _ => null
-        };
-
         static readonly byte[] _webPPrefix1 = { 0x52, 0x49, 0x46, 0x46 };
         static readonly byte[] _webPPrefix2 = { 0x57, 0x45, 0x42, 0x50 };
         static readonly byte[] _jpegPrefix = { 0xFF, 0xD8, 0xFF };
@@ -61,7 +58,6 @@ namespace nhitomi
             if (buffer == null)
                 return null;
 
-            // ReSharper disable All
             static bool test(byte[] b, byte[] p, int offset = 0)
             {
                 if (b.Length < p.Length + offset)
@@ -75,7 +71,6 @@ namespace nhitomi
 
                 return true;
             }
-            // ReSharper enable All
 
             if (test(buffer, _jpegPrefix))
                 return ImageFormat.Jpeg;
@@ -108,18 +103,17 @@ namespace nhitomi
             }
         }
 
-        public Stream Convert(byte[] buffer, int quality, ImageFormat format)
+        public byte[] Convert(byte[] buffer, int quality, ImageFormat format)
         {
             using var image = SKImage.FromEncodedData(buffer);
 
             if (image == null)
                 throw new FormatException($"Could not load image: bin({buffer.Length})");
 
-            // reencode
             return EncodeImage(image, format, quality);
         }
 
-        public Stream GenerateThumbnail(byte[] buffer, ThumbnailConfig config)
+        public byte[] GenerateThumbnail(byte[] buffer, ThumbnailConfig config)
         {
             using var bitmap = SKBitmap.Decode(buffer);
 
@@ -132,8 +126,8 @@ namespace nhitomi
                 (double) config.MaxHeight / bitmap.Height);
 
             // don't make it larger than it was
-            if (scale >= 1)
-                return new MemoryStream(buffer);
+            if (scale >= 1 && !config.AllowLarger)
+                return buffer;
 
             var width  = (int) Math.Ceiling(bitmap.Width * scale);
             var height = (int) Math.Ceiling(bitmap.Height * scale);
@@ -145,14 +139,14 @@ namespace nhitomi
             return EncodeImage(image, config.Format, config.Quality);
         }
 
-        static Stream EncodeImage(SKImage image, ImageFormat format, int quality)
+        static byte[] EncodeImage(SKImage image, ImageFormat format, int quality)
         {
             var data = image.Encode(ConvertFormat(format), quality);
 
             if (data == null)
                 throw new FormatException($"Could not convert image {image.UniqueId} {image.Width}x{image.Height} ({image.ColorType}) to format {format}.");
 
-            return data.AsStream(true);
+            return data.ToArray();
         }
 
         public static SKEncodedImageFormat ConvertFormat(ImageFormat format) => format switch

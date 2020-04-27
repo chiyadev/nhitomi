@@ -18,8 +18,7 @@ namespace nhitomi
             using var fromImage = SKImage.Create(new SKImageInfo(1000, 1000));
             using var fromData  = fromImage.Encode(SkiaImageProcessor.ConvertFormat(from), 1);
 
-            using var toStream = processor.Convert(fromData.ToArray(), 1, to);
-            using var toImage  = SKImage.FromEncodedData(toStream);
+            using var toImage = SKImage.FromEncodedData(processor.Convert(fromData.ToArray(), 1, to));
 
             Assert.That(fromImage.Width, Is.EqualTo(toImage.Width));
             Assert.That(fromImage.Height, Is.EqualTo(toImage.Height));
