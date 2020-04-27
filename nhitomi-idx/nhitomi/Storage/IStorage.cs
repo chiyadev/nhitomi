@@ -50,7 +50,7 @@ namespace nhitomi.Storage
             return string.IsNullOrEmpty(data) ? null : data;
         }
 
-        Task WriteStringAsync(string name, string data, CancellationToken cancellationToken = default, Encoding encoding = null)
+        Task WriteStringAsync(string name, string data, CancellationToken cancellationToken = default, string mediaType = "text/plain", Encoding encoding = null)
         {
             if (string.IsNullOrEmpty(data))
                 return Task.CompletedTask;
@@ -58,8 +58,8 @@ namespace nhitomi.Storage
             using var file = new StorageFile
             {
                 Name      = name,
-                Stream    = new MemoryStream((encoding ?? Encoding.UTF8).GetBytes(data)),
-                MediaType = "text/plain"
+                MediaType = mediaType,
+                Stream    = new MemoryStream((encoding ?? Encoding.UTF8).GetBytes(data))
             };
 
             return WriteAsync(file, cancellationToken);
@@ -79,7 +79,7 @@ namespace nhitomi.Storage
         {
             var data = JsonConvert.SerializeObject(value);
 
-            return WriteStringAsync(name, data, cancellationToken, encoding);
+            return WriteStringAsync(name, data, cancellationToken, "application/json", encoding);
         }
     }
 }
