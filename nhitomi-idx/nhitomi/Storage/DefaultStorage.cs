@@ -11,9 +11,25 @@ namespace nhitomi.Storage
 {
     public enum StorageType
     {
+        /// <summary>
+        /// <see cref="MemoryStorage"/>
+        /// </summary>
         Memory,
+
+        /// <summary>
+        /// <see cref="LocalStorage"/>
+        /// </summary>
         Local,
-        Cached
+
+        /// <summary>
+        /// <see cref="CachedStorage"/>
+        /// </summary>
+        Cached,
+
+        /// <summary>
+        /// <see cref="S3Storage"/>
+        /// </summary>
+        S3
     }
 
     /// <summary>
@@ -25,7 +41,7 @@ namespace nhitomi.Storage
         object _inner = new MemoryStorageOptions();
 
         /// <summary>
-        /// Type of the storage backend.
+        /// Type of the storage backend. This must be set first before setting other options properties.
         /// </summary>
         public StorageType Type
         {
@@ -34,6 +50,7 @@ namespace nhitomi.Storage
                 MemoryStorageOptions _ => StorageType.Memory,
                 LocalStorageOptions _  => StorageType.Local,
                 CachedStorageOptions _ => StorageType.Cached,
+                S3StorageOptions _     => StorageType.S3,
 
                 _ => throw new NotSupportedException($"Unsupported inner storage {_inner?.GetType().Name ?? "<null>"}.")
             };
@@ -47,6 +64,7 @@ namespace nhitomi.Storage
                     StorageType.Memory => new MemoryStorageOptions(),
                     StorageType.Local  => new LocalStorageOptions(),
                     StorageType.Cached => new CachedStorageOptions(),
+                    StorageType.S3     => new S3StorageOptions(),
 
                     _ => throw new NotSupportedException($"Unsupported inner storage {value}.")
                 };
@@ -85,6 +103,12 @@ namespace nhitomi.Storage
             get => _inner as CachedStorageOptions;
             set => SetInner(value);
         }
+
+        public S3StorageOptions S3
+        {
+            get => _inner as S3StorageOptions;
+            set => SetInner(value);
+        }
     }
 
     /// <summary>
@@ -106,6 +130,9 @@ namespace nhitomi.Storage
 
             else if (options.Cached != null)
                 _impl = ActivatorUtilities.CreateInstance<CachedStorage>(services, options.Cached);
+
+            else if (options.S3 != null)
+                _impl = ActivatorUtilities.CreateInstance<S3Storage>(services, options.S3);
 
             else throw new NotSupportedException("Unsupported storage.");
 
