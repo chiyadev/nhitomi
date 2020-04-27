@@ -1,6 +1,6 @@
 namespace nhitomi
 {
-    public class ThumbnailConfig
+    public class ThumbnailOptions
     {
         /// <summary>
         /// Image format.

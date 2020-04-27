@@ -33,7 +33,7 @@ namespace nhitomi
         /// <summary>
         /// Generates a thumbnail for an image.
         /// </summary>
-        byte[] GenerateThumbnail(byte[] buffer, ThumbnailConfig config);
+        byte[] GenerateThumbnail(byte[] buffer, ThumbnailOptions options);
     }
 
     public class SkiaImageProcessor : IImageProcessor
@@ -115,7 +115,7 @@ namespace nhitomi
             return EncodeImage(image, format, quality);
         }
 
-        public byte[] GenerateThumbnail(byte[] buffer, ThumbnailConfig config)
+        public byte[] GenerateThumbnail(byte[] buffer, ThumbnailOptions options)
         {
             using var bitmap = SKBitmap.Decode(buffer);
 
@@ -124,11 +124,11 @@ namespace nhitomi
 
             // scale image proportionally to fit configured size
             var scale = Math.Min(
-                (double) config.MaxWidth / bitmap.Width,
-                (double) config.MaxHeight / bitmap.Height);
+                (double) options.MaxWidth / bitmap.Width,
+                (double) options.MaxHeight / bitmap.Height);
 
             // don't make it larger than it was
-            if (scale >= 1 && !config.AllowLarger)
+            if (scale >= 1 && !options.AllowLarger)
                 return buffer;
 
             var width  = (int) Math.Ceiling(bitmap.Width * scale);
@@ -138,7 +138,7 @@ namespace nhitomi
             using var resized = bitmap.Resize(new SKImageInfo(width, height), SKFilterQuality.High);
             using var image   = SKImage.FromBitmap(resized);
 
-            return EncodeImage(image, config.Format, config.Quality);
+            return EncodeImage(image, options.Format, options.Quality);
         }
 
         static byte[] EncodeImage(SKImage image, ImageFormat format, int quality)
