@@ -1,0 +1,8 @@
+html {
+  scroll-snap-type: y mandatory;
+  height: unset;
+}
+
+.ant-tag {
+  margin-right: 2px;
+}
