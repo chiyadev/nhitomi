@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using nhitomi.Database;
@@ -52,7 +53,7 @@ namespace nhitomi.Controllers
             var result = await _books.GetContentAsync(id, contentId);
 
             if (!result.TryPickT0(out var value, out _))
-                return ResultUtilities.NotFound(id);
+                return ResultUtilities.NotFound(id, contentId);
 
             var (_, content) = value;
 
@@ -162,13 +163,13 @@ namespace nhitomi.Controllers
         /// <param name="id">Book ID.</param>
         /// <param name="contentId">Content ID.</param>
         /// <param name="index">Zero-based page index.</param>
-        [HttpGet("{id}/contents/{contentId}/pages/{index}", Name = "getBookImage"), RequireUser, ProducesFile]
+        [HttpGet("{id}/contents/{contentId}/pages/{index}", Name = "getBookImage"), ProducesFile, AllowAnonymous]
         public async Task<ActionResult> GetImageAsync(string id, string contentId, int index)
         {
             var result = await _books.GetContentAsync(id, contentId);
 
             if (!result.TryPickT0(out var value, out _))
-                return ResultUtilities.NotFound(id);
+                return ResultUtilities.NotFound(id, contentId);
 
             var (book, content) = value;
 
@@ -180,13 +181,13 @@ namespace nhitomi.Controllers
         /// </summary>
         /// <param name="id">Book ID.</param>
         /// <param name="contentId">Content ID.</param>
-        [HttpGet("{id}/contents/{contentId}/thumb", Name = "getBookThumbnail"), RequireUser, ProducesFile]
+        [HttpGet("{id}/contents/{contentId}/thumb", Name = "getBookThumbnail"), ProducesFile, AllowAnonymous]
         public async Task<ActionResult> GetThumbnailAsync(string id, string contentId)
         {
             var result = await _books.GetContentAsync(id, contentId);
 
             if (!result.TryPickT0(out var value, out _))
-                return ResultUtilities.NotFound(id);
+                return ResultUtilities.NotFound(id, contentId);
 
             var (book, content) = value;
 
