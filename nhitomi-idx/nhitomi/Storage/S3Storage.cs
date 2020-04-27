@@ -30,16 +30,16 @@ namespace nhitomi.Storage
         /// </summary>
         public string BucketName { get; set; }
 
-        /// <inheritdoc cref="AmazonS3Config.MaxErrorRetry"/>
+        /// <inheritdoc cref="ClientConfig.MaxErrorRetry"/>
         public int MaxErrorRetry { get; set; } = 5;
 
         /// <inheritdoc cref="AmazonS3Config.UseAccelerateEndpoint"/>
         public bool UseAccelerateEndpoint { get; set; }
 
-        /// <inheritdoc cref="AmazonS3Config.RegionEndpoint"/>
+        /// <inheritdoc cref="ClientConfig.RegionEndpoint"/>
         public string Region { get; set; }
 
-        /// <inheritdoc cref="AmazonS3Config.ServiceURL"/>
+        /// <inheritdoc cref="ClientConfig.ServiceURL"/>
         public string ServiceUrl { get; set; }
     }
 
