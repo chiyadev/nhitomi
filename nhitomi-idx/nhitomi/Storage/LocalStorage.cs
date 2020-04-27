@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using MessagePack;
@@ -119,25 +120,22 @@ namespace nhitomi.Storage
             }
         }
 
-        public async Task DeleteAsync(string[] names, CancellationToken cancellationToken = default)
+        public Task DeleteAsync(string[] names, CancellationToken cancellationToken = default) => Task.WhenAll(names.Select(async name =>
         {
-            foreach (var name in names)
+            try
             {
-                try
-                {
-                    var path = GetPath(name);
+                var path = GetPath(name);
 
-                    await using (await _locker.EnterAsync($"storage:{path}", cancellationToken))
-                        File.Delete(path);
+                await using (await _locker.EnterAsync($"storage:{path}", cancellationToken))
+                    File.Delete(path);
 
-                    _logger.LogInformation($"Deleted file '{name}'.");
-                }
-                catch (Exception e)
-                {
-                    _logger.LogWarning(e, $"Failed to delete file '{name}'.");
-                }
+                _logger.LogInformation($"Deleted file '{name}'.");
             }
-        }
+            catch (Exception e)
+            {
+                _logger.LogWarning(e, $"Failed to delete file '{name}'.");
+            }
+        }));
 
         string GetPath(string name)
         {
