@@ -5,7 +5,7 @@
     },
     "help": {
       "title": "Help",
-      "tagline": "the doujinshi aggregator.",
+      "tagline": "doujinshi aggregator.",
       "invite": "[Join]({serverInvite}) the official server or [invite nhitomi]({botInvite}) to your server.",
       "owner": "made by chiya.dev",
       "doujinshi": {
