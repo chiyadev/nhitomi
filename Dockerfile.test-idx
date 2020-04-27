@@ -1,0 +1,8 @@
+FROM mcr.microsoft.com/dotnet/core/sdk:latest
+WORKDIR /app
+
+COPY nhitomi-idx ./
+
+RUN dotnet build nhitomi.Tests
+
+ENTRYPOINT ["dotnet", "test", "--no-build", "--no-restore", "--list-tests", "--verbosity", "normal", "nhitomi.Tests"]

@@ -1,0 +1,48 @@
+version: 2.1
+
+executors:
+  default:
+    machine: true
+    environment:
+      DOCKER_IMAGE_NAME: phosphene47/nhitomi:latest
+
+jobs:
+  test-idx:
+    executor: default
+    steps:
+      - checkout
+      - run: docker run -d --net=host -e bootstrap.system_call_filter=false -e transport.host=localhost elasticsearch:7.5.0
+      - run: docker run -d --net=host redis:latest
+
+      - run: chmod +x scripts/wait-for-it.sh && scripts/wait-for-it.sh -t 100 localhost:9200
+      - run: docker run --net=host -it $(docker build -q -f Dockerfile.test-idx .)
+
+      - run: docker kill $(docker ps -q)
+
+  # test-web:
+  #   docker:
+  #     image: alpine:latest
+  #   steps:
+
+  deploy:
+    executor: default
+    steps:
+      - checkout
+      - run: docker build -t $DOCKER_IMAGE_NAME .
+      - run: echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+      - run: docker push $DOCKER_IMAGE_NAME
+
+workflows:
+  version: 2
+  default:
+    jobs:
+      - test-idx
+      # - test-web
+
+      - deploy:
+          requires:
+            - test-idx
+            # - test-web
+          filters:
+            branches:
+              only: deploy

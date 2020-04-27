@@ -1,0 +1,17 @@
+# IDE files
+**/.vs/
+**/.vscode/
+**/.idea/
+
+# unnecessary files
+**/*.log
+**/.DS_Store
+**/Thumbs.db
+
+# npm files
+**/node_modules/
+
+# build files
+**/bin/
+**/obj/
+**/build/
