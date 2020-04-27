@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -277,5 +278,30 @@ namespace nhitomi.Scrapers
             [JsonProperty("media_id")] public int MediaId;
             [JsonProperty("ext")] public string Extensions;
         }
+
+        public override async Task<Stream> GetImageAsync(DbBook book, DbBookContent content, int index, CancellationToken cancellationToken = default)
+        {
+            var data = JsonConvert.DeserializeObject<DataContainer>(content.Data);
+
+            if (!(0 <= index && index < data.Extensions.Length))
+                return null;
+
+            var ext = ParseExtension(data.Extensions[index]);
+
+            var response = await _http.GetAsync($"https://i.nhentai.net/galleries/{data.MediaId}/{index + 1}.{ext}", cancellationToken);
+
+            response.EnsureSuccessStatusCode();
+
+            return await response.Content.ReadAsStreamAsync();
+        }
+
+        static string ParseExtension(char ext) => ext switch
+        {
+            'j' => "jpg",
+            'p' => "png",
+            'g' => "gif",
+
+            _ => "jpg"
+        };
     }
 }
