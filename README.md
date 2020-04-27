@@ -1,4 +1,4 @@
-# nhitomi ![Discord](https://img.shields.io/discord/515395714264858653.svg?label=Discord)
+# nhitomi [![Discord](https://img.shields.io/discord/515395714264858653.svg?label=Discord)](https://discord.gg/JFNga7q)
 
 ![nhitomi](https://github.com/chiyadev/nhitomi/raw/master/nhitomi.png)
 
