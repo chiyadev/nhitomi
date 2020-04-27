@@ -3,6 +3,7 @@ using System.IO;
 using System.Runtime.ExceptionServices;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using nhitomi.Storage;
@@ -112,7 +113,7 @@ namespace nhitomi.Scrapers
 
         public ThumbnailOptions Thumbnail { get; set; }
 
-        protected virtual async Task<Stream> ProcessStreamAsync(ActionContext context, OneOf<Stream, byte[]> data)
+        protected async Task<Stream> ProcessStreamAsync(ActionContext context, OneOf<Stream, byte[]> data)
         {
             if (Thumbnail == null)
                 return data.Match(
@@ -125,7 +126,11 @@ namespace nhitomi.Scrapers
             if (!data.TryPickT1(out var buffer, out var stream))
                 buffer = await stream.ToArrayAsync(cancellationToken);
 
+            // replace buffer with thumbnail
             buffer = processor.GenerateThumbnail(buffer, Thumbnail);
+
+            // overwrite content-length with new thumbnail size
+            context.HttpContext.Response.GetTypedHeaders().ContentLength = buffer.Length;
 
             return new MemoryStream(buffer);
         }
