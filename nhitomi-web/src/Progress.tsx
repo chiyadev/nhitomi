@@ -36,7 +36,7 @@ export const ProgressBarProvider = ({ children }: { children?: ReactNode }) => {
 
     nprogress.remove()
     nprogress.configure({
-      template: template(color === 'white' ? color : presetPrimaryColors[color])
+      template: template(presetPrimaryColors[color] || color)
     })
     nprogress.render()
 
