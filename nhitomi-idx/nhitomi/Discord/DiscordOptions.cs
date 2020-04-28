@@ -59,7 +59,7 @@ namespace nhitomi.Discord
             /// <summary>
             /// Required OAuth scopes.
             /// </summary>
-            public string[] Scopes { get; set; } = { "identify", "email", "connections" };
+            public string[] Scopes { get; set; } = { "identify", "email" };
         }
 
         /// <summary>
