@@ -5,6 +5,7 @@ import React from 'react'
 import { Modal, Divider } from 'antd'
 import { ApiOutlined } from '@ant-design/icons'
 import { ProgressContext } from './Progress'
+import { LocaleContext } from './LocaleProvider'
 
 /** API client context. */
 export const ClientContext = createContext<Client>(undefined as any)
@@ -12,6 +13,7 @@ export const ClientContext = createContext<Client>(undefined as any)
 export const ClientProvider = ({ children }: { children?: ReactNode }) => {
   const { start, stop } = useContext(ProgressContext)
   const [initialized, setInitialized] = useState<boolean | Error>(false)
+  const { setLocale } = useContext(LocaleContext)
 
   // create client
   const client = useMemo(() => new Client(), [])
@@ -20,7 +22,11 @@ export const ClientProvider = ({ children }: { children?: ReactNode }) => {
   useAsync(async () => {
     try {
       await client.initialize()
+
       setInitialized(true)
+
+      if (client.currentInfo.user)
+        setLocale(client.currentInfo.user.language)
     }
     catch (e) {
       setInitialized(e)

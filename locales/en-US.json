@@ -63,5 +63,6 @@
         "message": "`{input}` is not a valid source."
       }
     }
-  }
+  },
+  "web": {}
 }
