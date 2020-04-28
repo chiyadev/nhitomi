@@ -1,4 +1,4 @@
-const rimraf = require("rimraf")
+const { emptyDir } = require('fs-extra')
 const { exec } = require('child_process')
 const { promisify } = require('util')
 
@@ -14,9 +14,12 @@ switch (source) {
     break
 }
 
-const name = 'nhitomi-api'
+const name = 'nhitomi-api';
 
-rimraf(`./${name}`, async () => {
+(async () => {
+  // delete existing files
+  await emptyDir(`./${name}`)
+
   // generate client
   console.log('Generating client using spec:', source)
 
@@ -40,4 +43,4 @@ rimraf(`./${name}`, async () => {
   console.log('Installing package...')
 
   await promisify(exec)(`npm install --no-save ./${name}`)
-})
+})()
