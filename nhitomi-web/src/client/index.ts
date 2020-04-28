@@ -71,6 +71,11 @@ export class Client extends (EventEmitter as new () => StrictEventEmitter<EventE
     this.book = new BookApi(new Configuration(this.httpConfig))
 
     this.config = new ConfigManager(this)
+    this.config.on('token', () => { window.location.reload() })
+    this.config.on('baseUrl', () => { window.location.reload() })
+
+    this.httpConfig.accessToken = this.config.token
+    this.httpConfig.basePath = this.config.baseUrl
   }
 
   /** Initializes this client. */
