@@ -11,8 +11,8 @@ namespace nhitomi
         public string PublicUrl { get; set; }
 
         /// <summary>
-        /// URL to proxy frontend requests, used for proxying requests to nhitomi-web WebPack dev server in development.
-        /// This is enabled by default to localhost:3000.
+        /// URL to proxy frontend requests, used for proxying requests to nhitomi-web webpack-dev-server in development.
+        /// This is enabled by default to 127.0.0.1:3000. localhost is not used because it makes webpack-dev-server slow.
         /// </summary>
         public string ProxyUrl { get; set; }
 
