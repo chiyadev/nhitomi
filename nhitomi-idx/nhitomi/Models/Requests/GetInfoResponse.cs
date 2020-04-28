@@ -13,9 +13,15 @@ namespace nhitomi.Models.Requests
 
         /// <summary>
         /// reCAPTCHA site key to use to obtain tokens for authorizing certain endpoints.
-        /// If null, recaptcha is not required for those endpoints.
+        /// If null, recaptcha is not required at all.
         /// </summary>
         public string RecaptchaSiteKey { get; set; }
+
+        /// <summary>
+        /// Discord OAuth authorization URL.
+        /// </summary>
+        [Required]
+        public string DiscordOAuthUrl { get; set; }
 
         /// <summary>
         /// Number of objects in the database.

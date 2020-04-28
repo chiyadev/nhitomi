@@ -9,6 +9,8 @@ namespace nhitomi.Controllers
 {
     public interface IOAuthHandler
     {
+        string AuthorizeUrl { get; }
+
         Task<DbUser> GetOrCreateUserAsync(string code, CancellationToken cancellationToken = default);
     }
 

@@ -15,6 +15,7 @@ namespace nhitomi.Controllers
     public class InfoController : nhitomiControllerBase
     {
         readonly IConfiguration _config;
+        readonly IDiscordOAuthHandler _discordOAuth;
         readonly ServerOptions _serverOptions;
         readonly RecaptchaOptions _recaptchaOptions;
 
@@ -23,10 +24,11 @@ namespace nhitomi.Controllers
         readonly IBookService _books;
         readonly ISnapshotService _snapshots;
 
-        public InfoController(IConfiguration config, IOptionsSnapshot<ServerOptions> serverOptions, IOptionsSnapshot<RecaptchaOptions> recaptchaOptions,
+        public InfoController(IConfiguration config, IOptionsSnapshot<ServerOptions> serverOptions, IOptionsSnapshot<RecaptchaOptions> recaptchaOptions, IDiscordOAuthHandler discordOAuth,
                               IElasticClient elastic, IUserService users, IBookService books, ISnapshotService snapshots)
         {
             _config           = config;
+            _discordOAuth     = discordOAuth;
             _serverOptions    = serverOptions.Value;
             _recaptchaOptions = recaptchaOptions.Value;
 
@@ -47,6 +49,7 @@ namespace nhitomi.Controllers
         {
             Version          = VersionInfo.Commit,
             RecaptchaSiteKey = _recaptchaOptions.SiteKey,
+            DiscordOAuthUrl  = _discordOAuth.AuthorizeUrl,
             Counters = new Dictionary<ObjectType, int>
             {
                 [ObjectType.User]     = await _users.CountAsync(),
@@ -87,8 +90,7 @@ namespace nhitomi.Controllers
 
             var entry = _elastic.Entry<DbCompositeConfig>(DbCompositeConfig.DefaultId);
 
-            if (entry.Value == null)
-                entry.Value = new DbCompositeConfig();
+            entry.Value ??= new DbCompositeConfig();
 
             entry.Value.Config = data;
 

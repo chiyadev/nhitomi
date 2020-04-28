@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading;
@@ -53,6 +54,16 @@ namespace nhitomi.Controllers
         readonly IOptionsMonitor<DiscordOptions> _options;
         readonly IResourceLocker _locker;
 
+        public string AuthorizeUrl
+        {
+            get
+            {
+                var options = _options.CurrentValue.OAuth;
+
+                return $"https://discordapp.com/oauth2/authorize?response_type=code&prompt=none&client_id={options.ClientId}&scope={string.Join("%20", options.Scopes)}&redirect_uri={WebUtility.UrlEncode(options.RedirectUri)}";
+            }
+        }
+
         public DiscordOAuthHandler(IUserService users, IElasticClient client, IHttpClientFactory http, ISnapshotService snapshots, IOptionsMonitor<DiscordOptions> options, IResourceLocker locker)
         {
             _users     = users;
@@ -84,7 +95,7 @@ namespace nhitomi.Controllers
                     ["grant_type"]    = "authorization_code",
                     ["code"]          = code,
                     ["redirect_uri"]  = options.RedirectUri,
-                    ["scope"]         = "identify email connections"
+                    ["scope"]         = string.Join(' ', options.Scopes)
                 })
             }, cancellationToken))
             {
