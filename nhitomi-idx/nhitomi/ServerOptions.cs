@@ -11,6 +11,12 @@ namespace nhitomi
         public string PublicUrl { get; set; }
 
         /// <summary>
+        /// URL to proxy frontend requests, used for proxying requests to nhitomi-web WebPack dev server in development.
+        /// This is enabled by default to localhost:3000.
+        /// </summary>
+        public string ProxyUrl { get; set; }
+
+        /// <summary>
         /// HTTP port to be used in non-development environment.
         /// </summary>
         public int HttpPort { get; set; } = 80;
@@ -36,11 +42,6 @@ namespace nhitomi
         /// Optional SSL certificate password.
         /// </summary>
         public string CertificatePassword { get; set; }
-
-        /// <summary>
-        /// Absolute path to default static file to display for frontend.
-        /// </summary>
-        public string DefaultFile { get; set; } = "/index.html";
 
         /// <summary>
         /// Whether HTTP response compression is enabled or not. This is only valid for static files.

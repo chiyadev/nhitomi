@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using AspNetCore.Proxy;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http.Features;
@@ -243,6 +244,7 @@ namespace nhitomi
             // other
             services.AddHttpClient()
                     .AddHttpContextAccessor()
+                    .AddProxies()
                     .AddSingleton<StartupInitializer>()
                     .AddTransient<MemoryInfo>()
                     .AddSingleton<ILinkGenerator, LinkGenerator>()
@@ -273,37 +275,42 @@ namespace nhitomi
 
         void ConfigureFrontend(IApplicationBuilder app)
         {
-            var serverOptions = app.ApplicationServices.GetService<IOptionsMonitor<ServerOptions>>();
+            var serverOptions = app.ApplicationServices.GetService<IOptionsMonitor<ServerOptions>>().CurrentValue;
 
-            // route rewrite
-            app.Use((c, n) =>
+            if (serverOptions.ProxyUrl == null)
             {
-                switch (c.Request.Method)
+                // route rewrite
+                app.Use((c, n) =>
                 {
-                    case "HEAD":
-                    case "GET":
-                        if (c.Request.Path.Value == "/")
-                            c.Request.Path = serverOptions.CurrentValue.DefaultFile;
+                    switch (c.Request.Method)
+                    {
+                        case "HEAD":
+                        case "GET":
+                            // frontend is an SPA; if route doesn't exist, rewrite to return the default file
+                            if (!_environment.WebRootFileProvider.GetFileInfo(c.Request.Path.Value).Exists)
+                                c.Request.Path = "/";
 
-                        // frontend is an SPA; if route doesn't exist, rewrite to return the default file
-                        else if (!_environment.WebRootFileProvider.GetFileInfo(c.Request.Path.Value).Exists)
-                            c.Request.Path = serverOptions.CurrentValue.DefaultFile;
+                            return n();
 
-                        return n();
+                        default:
+                            return ResultUtilities.Status(HttpStatusCode.MethodNotAllowed).ExecuteResultAsync(c);
+                    }
+                });
 
-                    default:
-                        return ResultUtilities.Status(HttpStatusCode.MethodNotAllowed).ExecuteResultAsync(c);
-                }
-            });
+                // caching
+                app.UseResponseCaching();
 
-            // caching
-            app.UseResponseCaching();
-
-            // static files
-            app.UseStaticFiles(new StaticFileOptions
+                // static files
+                app.UseStaticFiles(new StaticFileOptions
+                {
+                    HttpsCompression = HttpsCompressionMode.Compress
+                });
+            }
+            else
             {
-                HttpsCompression = HttpsCompressionMode.Compress
-            });
+                app.RunProxy(p => p.UseHttp(serverOptions.ProxyUrl)
+                                   .UseWs(serverOptions.ProxyUrl.Replace("http://", "ws://").Replace("https://", "wss://")));
+            }
         }
 
         void ConfigureBackend(IApplicationBuilder app)
@@ -323,14 +330,16 @@ namespace nhitomi
             // swagger docs
             app.UseSwagger(s =>
             {
-                s.RouteTemplate = "{documentName}.json";
-                s.PreSerializeFilters.Add((document, request) => document.Servers = new List<OpenApiServer>
+                var servers = new List<OpenApiServer>
                 {
                     new OpenApiServer
                     {
                         Url = app.ApplicationServices.GetService<ILinkGenerator>().GetApiLink("/")
                     }
-                });
+                };
+
+                s.RouteTemplate = "{documentName}.json";
+                s.PreSerializeFilters.Add((document, request) => document.Servers = servers);
             });
 
             app.UseReDoc(r =>

@@ -23,6 +23,7 @@
     </Target>
 
     <ItemGroup>
+        <PackageReference Include="AspNetCore.Proxy" Version="4.0.1" />
         <PackageReference Include="AWSSDK.S3" Version="3.3.110.57" />
         <PackageReference Include="CompareNETObjects" Version="4.66.0" />
         <PackageReference Include="DeepCloner" Version="0.10.2" />
