@@ -3,6 +3,7 @@ import { EventEmitter } from 'events'
 import StrictEventEmitter from 'strict-event-emitter-types'
 import { ValidationError } from './validationError'
 import { ConfigManager } from './config'
+import { ImageWorker } from './image'
 
 export * from 'nhitomi-api'
 
@@ -48,16 +49,19 @@ export class Client extends (EventEmitter as new () => StrictEventEmitter<EventE
   }
 
   /** User API. */
-  public user!: UserApi
+  public user: UserApi
 
   /** Info API */
-  public info!: InfoApi
+  public info: InfoApi
 
   /** Book API. */
-  public book!: BookApi
+  public book: BookApi
 
   /** Configuration manager. */
-  public config!: ConfigManager
+  public config: ConfigManager
+
+  /** Image worker. */
+  public image: ImageWorker
 
   /** Contains client and API information. */
   public currentInfo!:
@@ -78,6 +82,7 @@ export class Client extends (EventEmitter as new () => StrictEventEmitter<EventE
     this.book = new BookApi(new Configuration(this.httpConfig))
 
     this.config = new ConfigManager(this)
+    this.image = new ImageWorker(this)
   }
 
   /** Initializes this client. */
