@@ -1,4 +1,4 @@
-import React, { useContext, ReactNode, useMemo } from 'react'
+import React, { useContext, ReactNode, useMemo, useEffect } from 'react'
 import { Modal, Typography, Button } from 'antd'
 import { ClientContext } from './ClientContext'
 import { HeartOutlined } from '@ant-design/icons'
@@ -13,9 +13,30 @@ import { ProgressContext } from './Progress'
 
 export const AuthenticationManager = ({ children }: { children?: ReactNode }) => {
   const client = useContext(ClientContext)
-  const { location: { pathname, search } } = useHistory()
 
+  const { location, replace } = useHistory()
+  let { pathname, search } = location
+
+  const { auth, ...q } = qs.parse(search.slice(1))
+  search = qs.stringify(q)
+
+  // use oauth state query to save current location
   const state = useMemo(() => btoa(JSON.stringify({ pathname, search })), [pathname, search])
+
+  const discordUrl = `${client.currentInfo.discordOAuthUrl}&state=${state}`
+
+  // transition to oauth authorization page immediately if auth query is specified
+  useEffect(() => {
+    if (!auth)
+      return
+
+    if (client.currentInfo.authenticated) {
+      replace({ ...location, search }) // remove auth query if already authenticated
+    }
+    else switch (auth) {
+      case 'discord': window.location.replace(discordUrl); break
+    }
+  }, [client.currentInfo.authenticated, replace, location, search, auth, discordUrl])
 
   return <>
     <Modal
@@ -35,7 +56,7 @@ export const AuthenticationManager = ({ children }: { children?: ReactNode }) =>
         <Typography.Text type='secondary'><FormattedMessage id='auth.description' /></Typography.Text>
       </p>
 
-      <a href={`${client.currentInfo.discordOAuthUrl}&state=${state}`}>
+      <a href={discordUrl}>
         <Button type='primary' style={{ background: '#7289DA', borderColor: '#7289DA' }} icon={<DiscordOutlined />}>
           <span><FormattedMessage id='auth.connect.discord' /></span>
         </Button>
