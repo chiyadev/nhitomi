@@ -51,7 +51,7 @@ export const NotificationProvider = ({ notif, alert, children }: { notif: Notifi
   const locale = useContext(LocaleContext)
 
   // wrap alert with localization context
-  const alertOpen = useCallback((args: ArgsProps) => alert.open({
+  const openAlert = useCallback((args: ArgsProps) => alert.open({
     ...args,
     content:
       <React.StrictMode>
@@ -115,13 +115,13 @@ export const NotificationProvider = ({ notif, alert, children }: { notif: Notifi
         }
       },
       alert: {
-        success: content => alertOpen({ type: 'success', duration: null, content }),
-        info: content => alertOpen({ type: 'info', duration: null, content }),
-        warning: content => alertOpen({ type: 'warning', duration: null, content })
+        success: content => openAlert({ type: 'success', duration: null, content }),
+        info: content => openAlert({ type: 'info', duration: null, content }),
+        warning: content => openAlert({ type: 'warning', duration: null, content })
       }
     }), [
       notif,
-      alert
+      openAlert
     ])}
     children={children} />
 }

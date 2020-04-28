@@ -1,4 +1,4 @@
-import { RequestContext, ResponseContext, GetInfoResponse, ConfigurationParameters, ValidationProblemArrayResult, InfoApi, BookApi, AuthApi, Configuration } from 'nhitomi-api'
+import { RequestContext, ResponseContext, GetInfoResponse, ConfigurationParameters, ValidationProblemArrayResult, InfoApi, BookApi, UserApi, Configuration } from 'nhitomi-api'
 import { EventEmitter } from 'events'
 import StrictEventEmitter from 'strict-event-emitter-types'
 import { ValidationError } from './validationError'
@@ -42,8 +42,8 @@ export class Client extends (EventEmitter as new () => StrictEventEmitter<EventE
     }]
   }
 
-  /** Auth API. */
-  public auth!: AuthApi
+  /** User API. */
+  public user!: UserApi
 
   /** Info API */
   public info!: InfoApi
@@ -66,7 +66,7 @@ export class Client extends (EventEmitter as new () => StrictEventEmitter<EventE
     // this.on('httpRequest', ({ init, url }) => console.log('sending http', init.method, url, init))
     // this.on('httpResponse', ({ init, url, response }) => console.log('received http', init.method, url, response))
 
-    this.auth = new AuthApi(new Configuration(this.httpConfig))
+    this.user = new UserApi(new Configuration(this.httpConfig))
     this.info = new InfoApi(new Configuration(this.httpConfig))
     this.book = new BookApi(new Configuration(this.httpConfig))
 
