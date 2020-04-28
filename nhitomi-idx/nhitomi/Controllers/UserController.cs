@@ -14,13 +14,13 @@ namespace nhitomi.Controllers
         Task<DbUser> GetOrCreateUserAsync(string code, CancellationToken cancellationToken = default);
     }
 
-    [Route("users/auth")]
-    public class AuthController : nhitomiControllerBase
+    [Route("users")]
+    public class UserController : nhitomiControllerBase
     {
         readonly IAuthService _auth;
         readonly IDiscordOAuthHandler _discord;
 
-        public AuthController(IAuthService auth, IDiscordOAuthHandler discord)
+        public UserController(IAuthService auth, IDiscordOAuthHandler discord)
         {
             _auth    = auth;
             _discord = discord;
@@ -30,7 +30,7 @@ namespace nhitomi.Controllers
         /// Authenticates using Discord OAuth.
         /// </summary>
         /// <param name="request">OAuth data.</param>
-        [HttpPost("discord", Name = "authenticateUserDiscord"), AllowAnonymous]
+        [HttpPost("oauth/discord", Name = "authenticateUserDiscord"), AllowAnonymous]
         public async Task<ActionResult<AuthenticateResponse>> AuthDiscordAsync(AuthenticateDiscordRequest request)
         {
             var user = await _discord.GetOrCreateUserAsync(request.Code);
