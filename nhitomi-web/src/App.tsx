@@ -15,12 +15,12 @@ export const App = () => {
   // https://ant.design/components/notification/#FAQ
   const [notif, notifNode] = antd_notif.useNotification()
 
-  // note: order matters!!
+  // note: order matters!!!!!
   return <React.StrictMode>
     <BrowserRouter>
-      <NotificationProvider notif={notif} alert={antd_alert}>
-        <ProgressBarProvider>
-          <LocaleProvider>
+      <ProgressBarProvider>
+        <LocaleProvider>
+          <NotificationProvider notif={notif} alert={antd_alert}>
             <ClientProvider>
               <LayoutProvider>
                 {notifNode}
@@ -34,9 +34,9 @@ export const App = () => {
                 </Layout>
               </LayoutProvider>
             </ClientProvider>
-          </LocaleProvider>
-        </ProgressBarProvider>
-      </NotificationProvider>
+          </NotificationProvider>
+        </LocaleProvider>
+      </ProgressBarProvider>
     </BrowserRouter>
   </React.StrictMode>
 }
