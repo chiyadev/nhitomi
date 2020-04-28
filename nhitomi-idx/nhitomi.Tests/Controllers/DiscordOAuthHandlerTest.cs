@@ -41,8 +41,7 @@ namespace nhitomi.Controllers
             services.PostConfigure<DiscordOptions>(o => o.OAuth = new DiscordOptions.OAuthOptions
             {
                 ClientId     = 1234,
-                ClientSecret = "secret",
-                RedirectUri  = "https://chiya.dev"
+                ClientSecret = "secret"
             });
         }
 
