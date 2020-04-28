@@ -44,14 +44,14 @@ namespace nhitomi.Discord.Commands
             {
                 Title       = book.PrimaryName,
                 Description = book.EnglishName == book.PrimaryName ? null : book.EnglishName,
-                Url         = link.GetWebLink($"/books/{book.Id}/contents/{content.Id}"),
-                ImageUrl    = link.GetApiLink($"/books/{book.Id}/contents/{content.Id}/thumb"),
+                Url         = link.GetWebLink($"books/{book.Id}/contents/{content.Id}"),
+                ImageUrl    = link.GetApiLink($"books/{book.Id}/contents/{content.Id}/thumb"),
                 Color       = Color.Green,
 
                 Author = new EmbedAuthorBuilder
                 {
                     Name    = book.TagsArtist?.Length > 0 ? string.Join(", ", book.TagsArtist) : content.Source.ToString(),
-                    IconUrl = link.GetWebLink($"/assets/icons/scrapers/{content.Source}.jpg")
+                    IconUrl = link.GetWebLink($"assets/icons/scrapers/{content.Source}.jpg")
                 },
 
                 Footer = new EmbedFooterBuilder
