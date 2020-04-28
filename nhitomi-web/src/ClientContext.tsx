@@ -10,7 +10,7 @@ import { ProgressContext } from './Progress'
 export const ClientContext = createContext<Client>(undefined as any)
 
 export const ClientProvider = ({ children }: { children?: ReactNode }) => {
-  const { start, stop, setColor } = useContext(ProgressContext)
+  const { start, stop } = useContext(ProgressContext)
   const [initialized, setInitialized] = useState<boolean | Error>(false)
 
   // create client
@@ -35,13 +35,6 @@ export const ClientProvider = ({ children }: { children?: ReactNode }) => {
     else
       stop()
   }, [initializing]) // eslint-disable-line
-
-  useEffect(() => {
-    if (initialized instanceof Error)
-      setColor('white')
-    else
-      setColor('blue')
-  }, [initialized]) // eslint-disable-line
 
   return <ClientContext.Provider value={client}>
     {initialized && !(initialized instanceof Error) && children}

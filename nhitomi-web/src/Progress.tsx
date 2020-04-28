@@ -20,7 +20,7 @@ export const ProgressContext = createContext<{
 export const ProgressBarProvider = ({ children }: { children?: ReactNode }) => {
   const count = useRef(0) // use ref because start/stop can be called asynchronously
 
-  const [color, setColor] = useState('blue')
+  const [color, setColor] = useState('white')
 
   // nprogress init
   useLayoutEffect(() => {
