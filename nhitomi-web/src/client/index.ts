@@ -1,4 +1,4 @@
-import { RequestContext, ResponseContext, GetInfoResponse, ConfigurationParameters, ValidationProblemArrayResult, InfoApi, BookApi, UserApi, Configuration } from 'nhitomi-api'
+import { RequestContext, ResponseContext, GetInfoResponse, ConfigurationParameters, ValidationProblemArrayResult, InfoApi, BookApi, UserApi, Configuration, GetInfoAuthenticatedResponse } from 'nhitomi-api'
 import { EventEmitter } from 'events'
 import StrictEventEmitter from 'strict-event-emitter-types'
 import { ValidationError } from './validationError'
@@ -55,7 +55,9 @@ export class Client extends (EventEmitter as new () => StrictEventEmitter<EventE
   public config!: ConfigManager
 
   /** Contains client and API information. */
-  public currentInfo!: GetInfoResponse
+  public currentInfo!:
+    GetInfoResponse & { authenticated: false } |
+    GetInfoAuthenticatedResponse & { authenticated: true }
 
   /**
    * Creates a new nhitomi client.
@@ -71,15 +73,24 @@ export class Client extends (EventEmitter as new () => StrictEventEmitter<EventE
     this.book = new BookApi(new Configuration(this.httpConfig))
 
     this.config = new ConfigManager(this)
-    this.config.on('token', () => { window.location.reload() })
-    this.config.on('baseUrl', () => { window.location.reload() })
-
-    this.httpConfig.accessToken = this.config.token
-    this.httpConfig.basePath = this.config.baseUrl
   }
 
   /** Initializes this client. */
   public async initialize() {
-    this.currentInfo = await this.info.getInfo()
+    // ensure token doesn't change until reinitialized
+    this.httpConfig.accessToken = this.config.token
+    this.httpConfig.basePath = this.config.baseUrl
+
+    if (this.httpConfig.accessToken)
+      this.currentInfo = {
+        ...await this.info.getInfoAuthenticated(),
+        authenticated: true
+      }
+
+    else
+      this.currentInfo = {
+        ...await this.info.getInfo(),
+        authenticated: false
+      }
   }
 }

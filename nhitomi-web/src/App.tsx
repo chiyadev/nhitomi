@@ -2,13 +2,13 @@ import './App.css'
 
 import { Layout, message as antd_alert, notification as antd_notif } from 'antd'
 import React, { useContext } from 'react'
-import { BrowserRouter, Switch } from 'react-router-dom'
+import { BrowserRouter, Switch, Route } from 'react-router-dom'
 import { NotificationProvider } from './NotificationContext'
 import { LayoutProvider, LayoutContext } from './LayoutContext'
 import { ProgressBarProvider } from './Progress'
 import { ClientProvider } from './ClientContext'
 import { SideBar, SideBarWidth } from './Sidebar'
-import { AuthenticationManager } from './Authentication'
+import { AuthenticationManager, AuthenticationRoute } from './Authentication'
 import { LocaleProvider } from './LocaleProvider'
 
 export const App = () => {
@@ -27,10 +27,7 @@ export const App = () => {
 
                 <Layout style={{ minHeight: '100vh' }}>
                   <SideBar />
-
-                  <AuthenticationManager>
-                    <Routing />
-                  </AuthenticationManager>
+                  <Routing />
                 </Layout>
               </LayoutProvider>
             </ClientProvider>
@@ -46,6 +43,13 @@ const Routing = () => {
 
   return <Layout style={{ marginLeft: sidebar && !mobile ? SideBarWidth : 0 }}>
     <Switch>
+      <Route path='/oauth/:service' exact render={({ match: { params } }) => <AuthenticationRoute {...params} />} />
+
+      <Route>
+        <AuthenticationManager>
+
+        </AuthenticationManager>
+      </Route>
     </Switch>
   </Layout>
 }

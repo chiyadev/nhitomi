@@ -82,7 +82,8 @@
       "description": "Sign in to continue.",
       "connect": {
         "discord": "Continue via Discord"
-      }
+      },
+      "failed": "Authentication failed."
     },
     "sidebar": {
       "opened": "Sidebar opened.",
