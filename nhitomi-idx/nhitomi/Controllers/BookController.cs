@@ -11,6 +11,9 @@ using nhitomi.Scrapers;
 
 namespace nhitomi.Controllers
 {
+    /// <summary>
+    /// Contains endpoints for searching books and downloading images.
+    /// </summary>
     [Route("books")]
     public class BookController : nhitomiControllerBase
     {

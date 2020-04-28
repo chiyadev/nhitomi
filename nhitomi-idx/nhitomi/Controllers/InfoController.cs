@@ -11,6 +11,9 @@ using nhitomi.Models.Requests;
 
 namespace nhitomi.Controllers
 {
+    /// <summary>
+    /// Contains endpoints for retrieving API information and various configurations.
+    /// </summary>
     [Route("/")]
     public class InfoController : nhitomiControllerBase
     {

@@ -14,6 +14,9 @@ namespace nhitomi.Controllers
         Task<DbUser> GetOrCreateUserAsync(string code, CancellationToken cancellationToken = default);
     }
 
+    /// <summary>
+    /// Contains endpoints for authenticating users and managing user information.
+    /// </summary>
     [Route("users")]
     public class UserController : nhitomiControllerBase
     {
