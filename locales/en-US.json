@@ -64,5 +64,21 @@
       }
     }
   },
-  "web": {}
+  "web": {
+    "api": {
+      "connectionFailed": {
+        "title": "Connection failed",
+        "description": "Could not connect to nhitomi. We will automatically try again."
+      }
+    },
+    "notification": {
+      "error": {
+        "unknownReason": "Unknown reason."
+      }
+    },
+    "sidebar": {
+      "opened": "Sidebar opened.",
+      "collapsed": "Sidebar collapsed."
+    }
+  }
 }

@@ -6,6 +6,7 @@ import { NotificationContext } from './NotificationContext'
 import { ClientContext } from './ClientContext'
 import { LayoutContext } from './LayoutContext'
 import { BarsOutlined } from '@ant-design/icons'
+import { FormattedMessage } from 'react-intl'
 
 export const SideBarWidth = 200
 
@@ -24,9 +25,9 @@ export const SideBar = () => {
     setSidebar(!sidebar)
 
     if (sidebar)
-      alert.info('Sidebar collapsed.')
+      alert.info(<FormattedMessage id='sidebar.collapsed' />)
     else
-      alert.info('Sidebar opened.')
+      alert.info(<FormattedMessage id='sidebar.opened' />)
   })
 
   const sidebarKey = useShortcutKeyName('sidebarKey')
