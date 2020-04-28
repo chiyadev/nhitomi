@@ -53,6 +53,7 @@ namespace nhitomi.Controllers
         readonly HttpClient _http;
         readonly IOptionsMonitor<DiscordOptions> _options;
         readonly IResourceLocker _locker;
+        readonly ILinkGenerator _link;
 
         public string AuthorizeUrl
         {
@@ -60,11 +61,14 @@ namespace nhitomi.Controllers
             {
                 var options = _options.CurrentValue.OAuth;
 
-                return $"https://discordapp.com/oauth2/authorize?response_type=code&prompt=none&client_id={options.ClientId}&scope={string.Join("%20", options.Scopes)}&redirect_uri={WebUtility.UrlEncode(options.RedirectUri)}";
+                return $"https://discordapp.com/oauth2/authorize?response_type=code&prompt=none&client_id={options.ClientId}&scope={string.Join("%20", options.Scopes)}&redirect_uri={WebUtility.UrlEncode(RedirectUrl)}";
             }
         }
 
-        public DiscordOAuthHandler(IUserService users, IElasticClient client, IHttpClientFactory http, ISnapshotService snapshots, IOptionsMonitor<DiscordOptions> options, IResourceLocker locker)
+        public string RedirectUrl => _link.GetWebLink("oauth/discord");
+
+        public DiscordOAuthHandler(IUserService users, IElasticClient client, IHttpClientFactory http, ISnapshotService snapshots,
+                                   IOptionsMonitor<DiscordOptions> options, IResourceLocker locker, ILinkGenerator link)
         {
             _users     = users;
             _client    = client;
@@ -72,6 +76,7 @@ namespace nhitomi.Controllers
             _http      = http.CreateClient(nameof(DiscordOAuthHandler));
             _options   = options;
             _locker    = locker;
+            _link      = link;
         }
 
         async Task<DiscordOAuthUser> ExchangeCodeAsync(string code, CancellationToken cancellationToken = default)
@@ -94,7 +99,7 @@ namespace nhitomi.Controllers
                     ["client_secret"] = options.ClientSecret,
                     ["grant_type"]    = "authorization_code",
                     ["code"]          = code,
-                    ["redirect_uri"]  = options.RedirectUri,
+                    ["redirect_uri"]  = RedirectUrl,
                     ["scope"]         = string.Join(' ', options.Scopes)
                 })
             }, cancellationToken))

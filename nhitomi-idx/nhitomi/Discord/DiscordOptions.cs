@@ -52,11 +52,6 @@ namespace nhitomi.Discord
             public string ClientSecret { get; set; }
 
             /// <summary>
-            /// Redirect URI configured for OAuth.
-            /// </summary>
-            public string RedirectUri { get; set; }
-
-            /// <summary>
             /// Required OAuth scopes.
             /// </summary>
             public string[] Scopes { get; set; } = { "identify", "email" };
