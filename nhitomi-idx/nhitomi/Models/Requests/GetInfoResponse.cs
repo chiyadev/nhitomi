@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace nhitomi.Models.Requests
@@ -22,16 +21,5 @@ namespace nhitomi.Models.Requests
         /// </summary>
         [Required]
         public string DiscordOAuthUrl { get; set; }
-
-        /// <summary>
-        /// Number of objects in the database.
-        /// </summary>
-        [Required]
-        public Dictionary<ObjectType, int> Counters { get; set; }
-
-        /// <summary>
-        /// Currently authenticated user information, or null if not authenticated.
-        /// </summary>
-        public User User { get; set; }
     }
 }
