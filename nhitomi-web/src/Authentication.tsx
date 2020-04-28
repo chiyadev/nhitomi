@@ -11,19 +11,11 @@ import qs from 'qs'
 import { AuthenticateResponse } from './client'
 import { ProgressContext } from './Progress'
 
-function createOAuthState() {
-  const x = Math.random().toString(36).substring(2)
-  localStorage.setItem('state', x)
-  return x
-}
-
-function getOAuthState() {
-  return localStorage.getItem('state') || undefined
-}
-
 export const AuthenticationManager = ({ children }: { children?: ReactNode }) => {
   const client = useContext(ClientContext)
-  const state = useMemo(createOAuthState, [])
+  const { location: { pathname, search } } = useHistory()
+
+  const state = useMemo(() => btoa(JSON.stringify({ pathname, search })), [pathname, search])
 
   return <>
     <Modal
@@ -66,11 +58,9 @@ export const AuthenticationRoute = ({ service }: { service: 'discord' }) => {
     start()
 
     try {
-      const savedState = getOAuthState()
-
       let response: AuthenticateResponse | undefined
 
-      switch (code && (!savedState || savedState === state) && service) {
+      switch (code && service) {
         case 'discord':
           response = await client.user.authenticateUserDiscord({ authenticateDiscordRequest: { code } })
           break
@@ -79,7 +69,10 @@ export const AuthenticationRoute = ({ service }: { service: 'discord' }) => {
       if (response)
         client.config.token = response.token
 
-      replace('/')
+      if (state)
+        replace(JSON.parse(atob(state)))
+      else
+        replace('/')
     }
     catch (e) {
       notification.error(e, <FormattedMessage id='auth.failed' />)
