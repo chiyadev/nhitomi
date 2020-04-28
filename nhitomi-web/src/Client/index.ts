@@ -25,6 +25,11 @@ export class Client extends (EventEmitter as new () => StrictEventEmitter<EventE
         if (response.ok)
           return
 
+        // authorization failure when we should be authorized
+        if (response.status === 401 && this.config.token) {
+          this.config.token = undefined // logout
+        }
+
         // validation failure (unprocessable entity)
         if (response.status === 422) {
           const result: ValidationProblemArrayResult = await response.json()
