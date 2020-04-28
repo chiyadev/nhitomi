@@ -1,6 +1,6 @@
 import { createContext, ReactNode, useState, useMemo, useEffect, useContext } from 'react'
 import { Client } from './Client'
-import { useAsync } from 'react-use'
+import { useAsync, useThrottleFn } from 'react-use'
 import React from 'react'
 import { Modal, Divider } from 'antd'
 import { ApiOutlined } from '@ant-design/icons'
@@ -49,12 +49,19 @@ export const ClientProvider = ({ children }: { children?: ReactNode }) => {
 
   const initializing = !initialized || initialized instanceof Error
 
+  // initializing progress
   useEffect(() => {
     if (initializing)
       start()
     else
       stop()
   }, [initializing]) // eslint-disable-line
+
+  // retry hook
+  useThrottleFn(() => {
+    if (initialized instanceof Error)
+      setInitialized(false)
+  }, 5000, [initialized] as any)
 
   return <ClientContext.Provider key={reset} value={client}>
     {initialized && !(initialized instanceof Error) && children}
