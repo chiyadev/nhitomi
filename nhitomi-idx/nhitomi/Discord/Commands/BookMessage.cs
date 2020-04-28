@@ -44,7 +44,7 @@ namespace nhitomi.Discord.Commands
             {
                 Title       = book.PrimaryName,
                 Description = book.EnglishName == book.PrimaryName ? null : book.EnglishName,
-                Url         = link.GetWebLink($"books/{book.Id}/contents/{content.Id}"),
+                Url         = link.GetWebLink($"books/{book.Id}/contents/{content.Id}?auth=discord"),
                 ImageUrl    = link.GetApiLink($"books/{book.Id}/contents/{content.Id}/thumb"),
                 Color       = Color.Green,
 
