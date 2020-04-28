@@ -3,6 +3,7 @@
 # generated things
 /nhitomi-api
 /src/react-app-env.d.ts
+/src/locales
 
 # dependencies
 /node_modules
