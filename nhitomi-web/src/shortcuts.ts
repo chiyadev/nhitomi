@@ -1,6 +1,6 @@
 import { useContext, useEffect, useRef } from 'react'
 import { useKey, useKeyPress, useRafLoop } from 'react-use'
-import { ShortcutConfig, ConfigStore, useConfig } from './client/config'
+import { ShortcutConfig, ConfigStore, useConfig } from './Client/config'
 import { LayoutContext } from './LayoutContext'
 import keycode from 'keycode'
 

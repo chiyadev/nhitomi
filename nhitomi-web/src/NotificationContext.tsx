@@ -2,7 +2,7 @@ import { MessageApi, ArgsProps } from 'antd/lib/message'
 import { NotificationInstance } from 'antd/lib/notification'
 import { createContext, ReactNode, useMemo, useContext, useCallback, useEffect } from 'react'
 import React from 'react'
-import { ValidationError } from './client/validationError'
+import { ValidationError } from './Client/validationError'
 import { FormattedMessage, useIntl, IntlProvider } from 'react-intl'
 import { LocaleContext } from './LocaleProvider'
 

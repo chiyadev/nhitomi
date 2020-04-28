@@ -1,7 +1,7 @@
 import React, { ComponentProps, Dispatch, useCallback, useContext, useEffect } from 'react'
 import { Link, useHistory } from 'react-router-dom'
 import { useAsync, useUpdate } from 'react-use'
-import { Client } from './client'
+import { Client } from './Client'
 import { eventHasAnyModifier } from './shortcuts'
 import { ClientContext } from './ClientContext'
 import { ProgressContext } from './Progress'

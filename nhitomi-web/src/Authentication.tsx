@@ -8,7 +8,7 @@ import { useAsync } from 'react-use'
 import { NotificationContext } from './NotificationContext'
 import { useHistory } from 'react-router-dom'
 import qs from 'qs'
-import { AuthenticateResponse } from './client'
+import { AuthenticateResponse } from './Client'
 import { ProgressContext } from './Progress'
 
 export const AuthenticationManager = ({ children }: { children?: ReactNode }) => {

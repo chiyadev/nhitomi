@@ -1,5 +1,5 @@
 import { createContext, ReactNode, useState, useMemo, useEffect, useContext } from 'react'
-import { Client } from './client'
+import { Client } from './Client'
 import { useAsync } from 'react-use'
 import React from 'react'
 import { Modal, Divider } from 'antd'

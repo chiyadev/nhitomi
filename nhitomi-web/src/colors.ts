@@ -1,5 +1,5 @@
 import { presetPrimaryColors } from '@ant-design/colors'
-import { BookCategory, BookTag, LanguageType, MaterialRating } from './client'
+import { BookCategory, BookTag, LanguageType, MaterialRating } from './Client'
 
 import colorOverrides from './colors.json'
 
