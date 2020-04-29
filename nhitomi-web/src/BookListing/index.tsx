@@ -1,6 +1,6 @@
 import { BookOutlined } from '@ant-design/icons'
 import { Empty, PageHeader } from 'antd'
-import React, { Dispatch, useCallback, useContext, useRef } from 'react'
+import React, { Dispatch, useCallback, useContext, useRef, useState } from 'react'
 import { useAsync } from 'react-use'
 import { Book, BookQuery, BookSort, SortDirection } from '../Client'
 import { useTabTitle } from '../hooks'
@@ -18,9 +18,7 @@ type Fetched = {
 
   /** this contains all items including ones loaded by infinite-scroll */
   items: Book[]
-
   total: number
-  selected?: string
 }
 
 export function getBookListingPrefetch(): Prefetch<Fetched> {
@@ -53,15 +51,15 @@ export const BookListing = () => {
   const { result, dispatch } = usePrefetch(getBookListingPrefetch())
 
   if (result)
-    return <Loaded {...result} dispatch={dispatch} />
+    return <Loaded fetched={result} dispatch={dispatch} />
 
   return null
 }
 
 export const BookListingLink = (props: PrefetchLinkProps) => <PrefetchLink fetch={getBookListingPrefetch()} {...props} />
 
-const Loaded = ({ dispatch, ...fetched }: Fetched & { dispatch: Dispatch<Fetched> }) => {
-  const { query, pending, items, selected, total } = fetched
+const Loaded = ({ fetched, dispatch }: { fetched: Fetched, dispatch: Dispatch<Fetched> }) => {
+  const { query, pending, items, total } = fetched
 
   useTabTitle('Books')
   useScrollShortcut()
@@ -105,9 +103,8 @@ const Loaded = ({ dispatch, ...fetched }: Fetched & { dispatch: Dispatch<Fetched
     }
   }, [query, pending])
 
-  // 'fetched' isn't a dep because dispatch func gets changed with it
-  const setItems = useCallback((v: Book[]) => dispatch({ ...fetched, items: v }), [dispatch]) // eslint-disable-line
-  const setSelected = useCallback((v?: string) => dispatch({ ...fetched, selected: v }), [dispatch]) // eslint-disable-line
+  const [selected, setSelected] = useState<string>()
+  const setItems = useCallback((v: Book[]) => dispatch({ ...fetched, items: v }), [dispatch, fetched])
 
   return <>
     <PageHeader
