@@ -9,6 +9,8 @@ import { FetchManager, FetchImage, FetchManagerContext } from './fetchManager'
 import { ClientContext } from '../ClientContext'
 import { LayoutRenderer } from './LayoutRenderer'
 import { useConfig } from '../Client/config'
+import { useShortcut } from '../shortcuts'
+import { FormattedMessage } from 'react-intl'
 
 type Fetched = {
   book: Book
@@ -62,9 +64,11 @@ const Loaded = ({ book, content }: Fetched) => {
   }, [fetch])
 
   // automatically adjust layout for mobile
-  const [, setImagesPerRow] = useConfig('bookReaderImagesPerRow')
-  const [, setViewportBound] = useConfig('bookReaderViewportBound')
-  const [, setSnapping] = useConfig('bookReaderSnapping')
+  const [imagesPerRow, setImagesPerRow] = useConfig('bookReaderImagesPerRow')
+  const [viewportBound, setViewportBound] = useConfig('bookReaderViewportBound')
+  const [leftToRight, setLeftToRight] = useConfig('bookReaderLeftToRight')
+  const [singleCover, setSingleCover] = useConfig('bookReaderSingleCover')
+  const [snapping, setSnapping] = useConfig('bookReaderSnapping')
 
   useLayoutEffect(() => {
     if (mobile) {
@@ -83,6 +87,36 @@ const Loaded = ({ book, content }: Fetched) => {
   useLayoutEffect(() => setCursorHidden(true), [currentPage])
 
   // key handling
+  useShortcut('bookReaderImagesPerRowKey', () => {
+    const value = imagesPerRow === 1 ? 2 : 1
+    setImagesPerRow(value)
+    alert.info(<FormattedMessage id='bookReader.alerts.imagesPerRow' values={{ value }} />)
+  })
+
+  useShortcut('bookReaderViewportBoundKey', () => {
+    const value = !viewportBound
+    setViewportBound(value)
+    alert.info(<FormattedMessage id={`bookReader.alerts.viewport${value ? 'Bound' : 'Unbound'}`} />)
+  })
+
+  useShortcut('bookReaderSnappingKey', () => {
+    const value = !snapping
+    setSnapping(value)
+    alert.info(<FormattedMessage id={`bookReader.alerts.snapping${value ? 'Enabled' : 'Disabled'}`} />)
+  })
+
+  useShortcut('bookReaderLeftToRightKey', () => {
+    const value = !leftToRight
+    setLeftToRight(value)
+    alert.info(<FormattedMessage id={`bookReader.alerts.${value ? 'leftToRight' : 'rightToLeft'}`} />)
+  })
+
+  useShortcut('bookReaderSingleCoverKey', () => {
+    const value = !singleCover
+    setSingleCover(value)
+    alert.info(<FormattedMessage id={`bookReader.alerts.singleCover${value ? 'Enabled' : 'Disabled'}`} />)
+  })
+
   // useShortcut('bookReaderPageModeKey', () => {
   //   const value = pageMode === 'single' ? 'double' : 'single'
 

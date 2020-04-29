@@ -24,20 +24,26 @@ export const LayoutRenderer = ({ book, content, fetched }: {
   const { width: viewportWidth, height: viewportHeight } = useContext(LayoutContext)
   const [imagesPerRow] = useConfig('bookReaderImagesPerRow')
   const [viewportBound] = useConfig('bookReaderViewportBound')
+  const [leftToRight] = useConfig('bookReaderLeftToRight')
+  const [singleCover] = useConfig('bookReaderSingleCover')
   // const [snapping] = useConfig('bookReaderSnapping')
 
   const { width, height, layout } = useMemo(() => manager.recalculate(fetched, {
     viewportWidth,
     viewportHeight,
+    viewportBound,
+    leftToRight,
     itemsPerRow: imagesPerRow,
-    viewportBound
+    initialRowLimit: singleCover ? 1 : imagesPerRow
   }), [
     manager,
     fetched,
     viewportWidth,
     viewportHeight,
+    viewportBound,
+    leftToRight,
     imagesPerRow,
-    viewportBound
+    singleCover
   ])
 
   const ref = useRef<HTMLDivElement>(null)
