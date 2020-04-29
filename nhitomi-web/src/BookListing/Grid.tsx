@@ -112,6 +112,7 @@ const Item = ({ book, selected, setSelected }: {
     </List.Item>,
     [
       book,
+      content,
       mobile,
       selected,
       setSelected,
