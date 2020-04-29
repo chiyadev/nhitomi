@@ -8,6 +8,7 @@ import { NotificationContext } from '../NotificationContext'
 import { FetchManager, FetchImage, FetchManagerContext } from './fetchManager'
 import { ClientContext } from '../ClientContext'
 import { LayoutRenderer } from './LayoutRenderer'
+import { useConfig } from '../Client/config'
 
 type Fetched = {
   book: Book
@@ -46,7 +47,7 @@ const Loaded = ({ book, content }: Fetched) => {
   useTabTitle(book.primaryName)
 
   const client = useContext(ClientContext)
-  const { mobile } = useContext(LayoutContext)
+  const { mobile, breakpoint } = useContext(LayoutContext)
   const { alert } = useContext(NotificationContext)
 
   const [cursorHidden, setCursorHidden] = useState(false)
@@ -57,35 +58,26 @@ const Loaded = ({ book, content }: Fetched) => {
 
   useEffect(() => {
     fetch.start()
-
     return () => fetch.destroy()
   }, [fetch])
 
-  // automatically switch to single-page on mobile
-  // const initialLayout = useRef(true)
-  //
-  // useLayoutEffect(() => {
-  //   if (mobile) {
-  //     setDisplayMode('flow')
-  //     setPageMode('single')
-  //     setFluid(true)
-  //     setSnapping(true)
+  // automatically adjust layout for mobile
+  const [, setImagesPerRow] = useConfig('bookReaderImagesPerRow')
+  const [, setViewportBound] = useConfig('bookReaderViewportBound')
+  const [, setSnapping] = useConfig('bookReaderSnapping')
 
-  //     if (!initialLayout.current)
-  //       alert.info('Switched to mobile layout.')
-  //   }
-  //   else {
-  //     setDisplayMode('flow')
-  //     setPageMode('double')
-  //     setFluid(false)
-  //     setSnapping(false)
-
-  //     if (!initialLayout.current)
-  //       alert.info('Switched to desktop layout.')
-  //   }
-
-  //   initialLayout.current = false // don't alert on initial layout
-  // }, [mobile]) // eslint-disable-line
+  useLayoutEffect(() => {
+    if (mobile) {
+      setImagesPerRow(1)
+      setViewportBound(false)
+      setSnapping(true)
+    }
+    else {
+      setImagesPerRow(2)
+      setViewportBound(!breakpoint)
+      setSnapping(false)
+    }
+  }, [mobile, breakpoint]) // eslint-disable-line
 
   // hide cursor when current page changes
   useLayoutEffect(() => setCursorHidden(true), [currentPage])
