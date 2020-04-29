@@ -288,7 +288,7 @@ namespace nhitomi
                         case "GET":
                             // frontend is an SPA; if route doesn't exist, rewrite to return the default file
                             if (!_environment.WebRootFileProvider.GetFileInfo(c.Request.Path.Value).Exists)
-                                c.Request.Path = "/";
+                                c.Request.Path = "/index.html";
 
                             return n();
 
