@@ -115,9 +115,9 @@ export const NotificationProvider = ({ notif, alert, children }: { notif: Notifi
         }
       },
       alert: {
-        success: content => openAlert({ type: 'success', duration: null, content }),
-        info: content => openAlert({ type: 'info', duration: null, content }),
-        warning: content => openAlert({ type: 'warning', duration: null, content })
+        success: content => openAlert({ type: 'success', duration: 2, content }),
+        info: content => openAlert({ type: 'info', duration: 2, content }),
+        warning: content => openAlert({ type: 'warning', duration: 2, content })
       }
     }), [
       notif,
