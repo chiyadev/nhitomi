@@ -41,7 +41,7 @@ export function usePageState(name: string, defaultValue?: any) {
   // rerender on state change
   useEffect(() => listen(rerender), [listen, rerender])
 
-  const value = location.state[name] || defaultValue
+  const value = (location.state || {})[name] || defaultValue
   const setValue = useCallback((v: any) => replace({ ...location, state: { ...location.state, [name]: v } }), [location, name, replace])
 
   return [value, setValue]
