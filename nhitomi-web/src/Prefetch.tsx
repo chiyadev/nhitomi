@@ -1,4 +1,4 @@
-import React, { ComponentProps, Dispatch, useCallback, useContext, useEffect } from 'react'
+import React, { ComponentProps, Dispatch, useCallback, useContext, useEffect, useRef } from 'react'
 import { Link, useHistory } from 'react-router-dom'
 import { useAsync, useUpdate } from 'react-use'
 import { Client } from './Client'
@@ -41,8 +41,14 @@ export function usePageState(defaultValue?: any) {
   // rerender on state change
   useEffect(() => listen(rerender), [listen, rerender])
 
+  const initialPathname = useRef(pathname)
+
   const value = state || defaultValue
   const setValue = useCallback((v: any) => replace({ pathname, search, hash, state: v }), [replace, pathname, search, hash])
+
+  // ensure path is the same
+  if (initialPathname.current !== pathname)
+    return []
 
   return [value, setValue]
 }
