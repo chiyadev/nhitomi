@@ -154,10 +154,19 @@ export const MaterialRatingDisplay = ({ rating, ...props }: { rating: MaterialRa
   <ExpandableTag type='rating' value={rating} color={MaterialRatingColorPresets[rating]} {...props} />
 
 /** Base component for tags that can expand on hover. */
-export const ExpandableTag = ({ type, value, children, ...props }: { type: string, value: string } & ComponentProps<typeof Tag>) => {
+export const ExpandableTag = ({ type, value, children, style, onClick, ...props }: { type: string, value: string } & ComponentProps<typeof Tag>) => {
   const [expand, setExpand] = useState(false)
 
-  return <Tag onMouseEnter={() => setExpand(true)} onMouseLeave={() => setExpand(false)} {...props}>
+  return <Tag
+    onMouseEnter={() => setExpand(true)}
+    onMouseLeave={() => setExpand(false)}
+    style={{
+      cursor: onClick ? 'pointer' : undefined, // link-like when clickable
+      ...style
+    }}
+    onClick={onClick}
+    {...props}>
+
     {expand
       ? <>{type}: <strong>{value}</strong></>
       : <>{value}</>}

@@ -5,11 +5,12 @@ import React, { useContext, useEffect, useMemo, useRef } from 'react'
 import { useIntl } from 'react-intl'
 import { useMouseHovered } from 'react-use'
 import { BookTagList, CategoryDisplay, LanguageTypeDisplay, MaterialRatingDisplay, TagDisplay } from '../Tags'
-import { Book, BookContent } from '../Client'
+import { Book, BookContent, QueryMatchMode } from '../Client'
 import { LayoutContext } from '../LayoutContext'
 import { ClientContext } from '../ClientContext'
 import { AsyncImage } from '../AsyncImage'
 import { BookReaderLink } from '../BookReader'
+import { BookListingContext } from '.'
 
 const gridGutter = 2
 const gridLayout: ListGridType = {
@@ -179,6 +180,7 @@ const OverlayTitle = ({ book, content, onClose }: { book: Book, content: BookCon
 
 const Overlay = ({ book: { createdTime, updatedTime, tags, category, rating }, content: { language } }: { book: Book, content: BookContent }) => {
   const { formatDate, formatTime } = useIntl()
+  const { query, setQuery } = useContext(BookListingContext)
 
   return <>
     <h4>Information</h4>
@@ -195,7 +197,21 @@ const Overlay = ({ book: { createdTime, updatedTime, tags, category, rating }, c
 
     <h4>Tags</h4>
     <p>
-      {BookTagList.flatMap(tag => tags[tag]?.map(value => <TagDisplay key={`${tag}:${value}`} tag={tag} value={value} />))}
+      {BookTagList.flatMap(tag => tags[tag]?.map(value =>
+        <TagDisplay
+          key={`${tag}:${value}`}
+          tag={tag}
+          value={value}
+          onClick={() => setQuery({
+            ...query,
+            tags: {
+              ...query.tags,
+              [tag]: {
+                mode: QueryMatchMode.All,
+                values: [...query.tags?.[tag]?.values || [], value].filter((x, i, a) => a.indexOf(x) === i)
+              }
+            }
+          })} />))}
     </p>
   </>
 }
