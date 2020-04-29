@@ -40,7 +40,7 @@ RUN npm install
 
 # generate api client
 COPY --from=idx /app/apispec.json ./
-RUN npm run genclient:spec
+RUN npm run genclient apispec.json
 
 # build project
 COPY nhitomi-web ./
