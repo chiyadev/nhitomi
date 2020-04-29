@@ -72,7 +72,7 @@ export class ImageWorker {
     if (src instanceof Uint8Array)
       return src
 
-    return new Uint8Array(await src.arrayBuffer())
+    return new Uint8Array(await new Response(src).arrayBuffer())
   }
 
   /** Loads an image file as HTML image element. */
