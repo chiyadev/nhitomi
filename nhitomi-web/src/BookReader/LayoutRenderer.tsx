@@ -20,6 +20,7 @@ export const LayoutRenderer = ({ book, content, fetched }: {
   const { width: viewportWidth, height: viewportHeight } = useContext(LayoutContext)
 
   const manager = useMemo(() => new LayoutManager(book, content), [book, content])
+
   const { width, height, layout } = useMemo(() => manager.recalculate(fetched, {
     viewportWidth,
     viewportHeight,
@@ -70,28 +71,35 @@ const ErrorDisplay = ({ image, style, error }: { image: FetchImage, style: CSSPr
 
   return <ReactVisibilitySensor onChange={setVisible} partialVisibility>
     <div style={style}>
-      {visible && <div style={{
-        position: 'relative',
-        top: '50%',
-        left: '50%',
-        transform: 'translate(-50%, -50%)',
-        width: '100%',
-        padding: '1em'
-      }}>
-        <Alert
-          message={<FormattedMessage id='bookReader.pageError.title' />}
-          description={<>
-            <p>
-              <FormattedMessage id='bookReader.pageError.description' />
-              <br />
-              <Typography.Text code copyable={{ text: error.stack }}>{error.message}</Typography.Text>
-            </p>
+      {useMemo(() => visible &&
+        <div style={{
+          position: 'relative',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          width: '100%',
+          padding: '1em'
+        }}>
+          <Alert
+            message={<FormattedMessage id='bookReader.pageError.title' />}
+            description={<>
+              <p>
+                <FormattedMessage id='bookReader.pageError.description' />
+                <br />
+                <Typography.Text code copyable={{ text: error.stack }}>{error.message}</Typography.Text>
+              </p>
 
-            <Button style={{ float: 'right' }} type='ghost' icon={<ReloadOutlined />} onClick={() => fetch.retry(image)}>Retry</Button>
-          </>}
-          type='error'
-          showIcon />
-      </div>}
+              <Button style={{ float: 'right' }} type='ghost' icon={<ReloadOutlined />} onClick={() => fetch.retry(image)}>Retry</Button>
+            </>}
+            type='error'
+            showIcon />
+        </div>,
+        [
+          visible,
+          error,
+          fetch,
+          image
+        ])}
     </div>
   </ReactVisibilitySensor>
 }
@@ -101,12 +109,16 @@ const Spinner = ({ style }: { style: CSSProperties }) => {
 
   return <ReactVisibilitySensor onChange={setVisible} partialVisibility>
     <div style={style}>
-      {visible && <Spin style={{
-        position: 'relative',
-        left: '50%',
-        top: '50%',
-        transform: 'translate(-50%, -50%'
-      }} />}
+      {useMemo(() => visible &&
+        <Spin style={{
+          position: 'relative',
+          left: '50%',
+          top: '50%',
+          transform: 'translate(-50%, -50%'
+        }} />,
+        [
+          visible
+        ])}
     </div>
   </ReactVisibilitySensor>
 }
