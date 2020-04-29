@@ -29,20 +29,20 @@ export type Prefetch<T> = {
 type HistoryLocationState = { [key: string]: unknown }
 
 /** Similar to useState but backed by history.state. */
-export function usePageState<T>(name: string): [T | undefined, Dispatch<T | undefined>]
+export function usePageState<T>(): [T | undefined, Dispatch<T | undefined>]
 
 /** Similar to useState but backed by history.state. */
-export function usePageState<T>(name: string, defaultValue: T): [T, Dispatch<T>]
+export function usePageState<T>(defaultValue: T): [T, Dispatch<T>]
 
-export function usePageState(name: string, defaultValue?: any) {
+export function usePageState(defaultValue?: any) {
   const rerender = useUpdate()
-  const { location, replace, listen } = useHistory<HistoryLocationState>()
+  const { location: { pathname, search, hash, state }, replace, listen } = useHistory<HistoryLocationState>()
 
   // rerender on state change
   useEffect(() => listen(rerender), [listen, rerender])
 
-  const value = (location.state || {})[name] || defaultValue
-  const setValue = useCallback((v: any) => replace({ ...location, state: { ...location.state, [name]: v } }), [location, name, replace])
+  const value = state || defaultValue
+  const setValue = useCallback((v: any) => replace({ pathname, search, hash, state: v }), [replace, pathname, search, hash])
 
   return [value, setValue]
 }
@@ -51,12 +51,12 @@ export function usePageState(name: string, defaultValue?: any) {
  * Fetches if not already fetched.
  * Result can be retrieved directly from the return value or from usePageState.
  */
-export function usePrefetch<T>({ path, progress = true, scroll = true, func: prefetch }: Prefetch<T>) {
+export function usePrefetch<T>({ progress = true, scroll = true, func: prefetch }: Prefetch<T>) {
   const client = useContext(ClientContext)
   const { start, stop } = useContext(ProgressContext)
   const { notification } = useContext(NotificationContext)
 
-  const [state, setState] = usePageState<T>(path)
+  const [state, setState] = usePageState<T>()
 
   const { error, loading } = useAsync(async () => {
     // already loaded
