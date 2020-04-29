@@ -96,7 +96,7 @@ const Item = ({ book, selected, setSelected }: {
               bordered
               hoverable
               size='small'
-              cover={<Cover book={book} content={content} selected={!!selected} />}>
+              cover={<Cover book={book} content={content} selected={selected} />}>
 
               <Card.Meta description={<div style={{
                 textOverflow: 'ellipsis',
@@ -120,41 +120,31 @@ const Item = ({ book, selected, setSelected }: {
 }
 
 const Cover = ({ book: { id }, content: { id: contentId }, selected }: { book: Book, content: BookContent, selected: boolean }) => {
+  console.log('cover rerender')
+
   const client = useContext(ClientContext)
 
   const ref = useRef<HTMLDivElement>(null)
   const imageRef = useRef<HTMLImageElement>(null)
 
-  const { elX, elY, elW, elH } = useMouseHovered(ref, { whenHovered: true, bound: true })
+  const { elX, elY } = useMouseHovered(ref, { whenHovered: true, bound: true })
 
-  const zoom = selected
-  let scale = 1
-  let resize = 'fill'
-
-  const imW = imageRef.current?.naturalWidth
-  const imH = imageRef.current?.naturalHeight
-
-  if (zoom && imW && imH && elW && elH) {
-    scale = Math.round(Math.max(imW / elW, imH / elH) / Math.min(imW / elW, imH / elH) * 10) / 10 * 1.1
-
-    if (imW > imH)
-      resize = 'fit'
-  }
+  const scale = selected ? 1.1 : 1
 
   return <AsyncImage
     ref={imageRef}
     width={5}
     height={7}
+    resize='fill'
     loadingDisabled
     fluid
-    resize={resize as any}
     src={() => client.book.getBookThumbnail({ id, contentId })}
     style={{
       transition: 'left 0.1s, top 0.1s, width 0.1s, height 0.1s',
       width: scale * 100 + '%',
       height: scale * 100 + '%',
-      left: zoom ? elX * (1 - scale) : 0,
-      top: zoom ? elY * (1 - scale) : 0
+      left: elX * (1 - scale),
+      top: elY * (1 - scale)
     }}
     wrapperRef={ref} />
 }
