@@ -95,11 +95,11 @@ export class Client extends (EventEmitter as new () => StrictEventEmitter<EventE
       url.protocol = window.location.protocol
     }
 
-    this.httpConfig.basePath = BASE_PATH
-
     // ensure token doesn't change until reinitialized
     this.httpConfig.accessToken = this.config.token
     this.httpConfig.basePath = this.config.baseUrl || url.href
+
+    console.log('api base path', this.httpConfig.basePath)
 
     if (this.httpConfig.accessToken)
       this.currentInfo = {
