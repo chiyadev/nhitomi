@@ -1,12 +1,12 @@
 import { FetchImage, FetchManagerContext } from './fetchManager'
 import { useMemo, useContext, CSSProperties, useState } from 'react'
-import { LayoutManager, LayoutImage } from './layoutManager'
+import { LayoutManager, LayoutImage, LayoutManagerContext } from './layoutManager'
 import { Book, BookContent } from '../Client'
 import React from 'react'
 import { LayoutContext } from '../LayoutContext'
 import { useScrollShortcut } from '../shortcuts'
 import ReactVisibilitySensor from 'react-visibility-sensor'
-import { Alert, Typography, Button } from 'antd'
+import { Alert, Typography, Button, Spin } from 'antd'
 import { FormattedMessage } from 'react-intl'
 import { ReloadOutlined } from '@ant-design/icons'
 
@@ -36,14 +36,13 @@ export const LayoutRenderer = ({ book, content, fetched }: {
     width,
     height
   }}>
-    {useMemo(() => layout.map((image, i) => <Image key={i} layoutImage={image} />), [layout])}
+    <LayoutManagerContext.Provider value={manager}>
+      {useMemo(() => layout.map((image, i) => <Image key={i} layoutImage={image} />), [layout])}
+    </LayoutManagerContext.Provider>
   </div>
 }
 
 const Image = ({ layoutImage }: { layoutImage: LayoutImage }) => useMemo(() => {
-  if (!layoutImage.image)
-    return null
-
   const { image, x, y, width, height } = layoutImage
 
   const style: CSSProperties = {
@@ -54,18 +53,18 @@ const Image = ({ layoutImage }: { layoutImage: LayoutImage }) => useMemo(() => {
     height
   }
 
-  if (image.done === true)
+  if (image?.done === true)
     return <img src={image.data} alt={image.data} style={style} />
 
-  if (image.done instanceof Error)
-    return <ErrorImage image={image} style={style} error={image.done} />
+  if (image?.done instanceof Error)
+    return <ErrorDisplay image={image} style={style} error={image.done} />
 
-  return null
+  return <Spinner style={style} />
 }, [
   layoutImage
 ])
 
-const ErrorImage = ({ image, style, error }: { image: FetchImage, style: CSSProperties, error: Error }) => {
+const ErrorDisplay = ({ image, style, error }: { image: FetchImage, style: CSSProperties, error: Error }) => {
   const [visible, setVisible] = useState(false)
   const fetch = useContext(FetchManagerContext)
 
@@ -93,6 +92,21 @@ const ErrorImage = ({ image, style, error }: { image: FetchImage, style: CSSProp
           type='error'
           showIcon />
       </div>}
+    </div>
+  </ReactVisibilitySensor>
+}
+
+const Spinner = ({ style }: { style: CSSProperties }) => {
+  const [visible, setVisible] = useState(false)
+
+  return <ReactVisibilitySensor onChange={setVisible} partialVisibility>
+    <div style={style}>
+      {visible && <Spin style={{
+        position: 'relative',
+        left: '50%',
+        top: '50%',
+        transform: 'translate(-50%, -50%'
+      }} />}
     </div>
   </ReactVisibilitySensor>
 }
