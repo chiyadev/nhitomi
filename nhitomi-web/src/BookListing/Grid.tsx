@@ -121,33 +121,47 @@ const Item = ({ book, selected, setSelected }: {
 }
 
 const Cover = ({ book: { id }, content: { id: contentId }, selected }: { book: Book, content: BookContent, selected: boolean }) => {
-  console.log('cover rerender')
-
   const client = useContext(ClientContext)
 
   const ref = useRef<HTMLDivElement>(null)
   const imageRef = useRef<HTMLImageElement>(null)
 
-  const { elX, elY } = useMouseHovered(ref, { whenHovered: true, bound: true })
+  let { elX, elY } = useMouseHovered(ref, { whenHovered: true, bound: true })
+  let scale = 1
 
-  const scale = selected ? 1.1 : 1
+  if (selected) {
+    scale = 1.1
+  }
+  else {
+    elX = 0
+    elY = 0
+  }
 
-  return <AsyncImage
-    ref={imageRef}
-    width={5}
-    height={7}
-    resize='fill'
-    loadingDisabled
-    fluid
-    src={() => client.book.getBookThumbnail({ id, contentId })}
-    style={{
-      transition: 'left 0.1s, top 0.1s, width 0.1s, height 0.1s',
-      width: scale * 100 + '%',
-      height: scale * 100 + '%',
-      left: elX * (1 - scale),
-      top: elY * (1 - scale)
-    }}
-    wrapperRef={ref} />
+  return useMemo(() =>
+    <AsyncImage
+      ref={imageRef}
+      width={5}
+      height={7}
+      resize='fill'
+      loadingDisabled
+      fluid
+      src={() => client.book.getBookThumbnail({ id, contentId })}
+      style={{
+        transition: 'left 0.1s, top 0.1s, width 0.1s, height 0.1s',
+        width: scale * 100 + '%',
+        height: scale * 100 + '%',
+        left: elX * (1 - scale),
+        top: elY * (1 - scale)
+      }}
+      wrapperRef={ref} />,
+    [
+      client.book,
+      id,
+      contentId,
+      elX,
+      elY,
+      scale
+    ])
 }
 
 const OverlayTitle = ({ book, content, onClose }: { book: Book, content: BookContent, onClose: () => void }) => <>
