@@ -1,11 +1,11 @@
 import { Select, Typography } from 'antd'
 import { SelectProps } from 'antd/lib/select'
-import React, { useContext, useState } from 'react'
+import React, { useContext, useState, useMemo } from 'react'
 import { useAsync } from 'react-use'
-import { BookQuery, BookQueryTags, BookTag, QueryMatchMode, SuggestItem } from '../Client'
+import { BookQuery, BookQueryTags, BookTag, QueryMatchMode, BookSuggestResultTags } from '../Client'
 import { ClientContext } from '../ClientContext'
 import { LayoutContext } from '../LayoutContext'
-import { TagColors, TagDisplay } from '../Tags'
+import { TagColors, TagDisplay, TagLabels } from '../Tags'
 
 export const Search = ({ query, setQuery, total }: {
   query: BookQuery
@@ -16,11 +16,13 @@ export const Search = ({ query, setQuery, total }: {
   const { width: windowWidth } = useContext(LayoutContext)
 
   const [search, setSearch] = useState('')
-  const [suggestions, setSuggestions] = useState<{ tag: BookTag, items: SuggestItem[] }[]>([])
+  const [suggestions, setSuggestions] = useState<BookSuggestResultTags>({})
+
+  const selectedValues = useMemo(() => Object.keys(query.tags || {}).flatMap(key => query.tags?.[key as BookTag]?.values?.map(v => `${key}:${v}`) || []), [query.tags])
 
   const { loading } = useAsync(async () => {
     if (!search) {
-      setSuggestions([])
+      setSuggestions({})
       return
     }
 
@@ -32,23 +34,8 @@ export const Search = ({ query, setQuery, total }: {
       }
     })
 
-    setSuggestions(Object
-      .keys(tags)
-      .map(key => {
-        const tag = key as BookTag
-
-        if (tags[tag]?.length)
-          return { tag, items: tags[tag]!.sort((a, b) => b.score - a.score) }
-
-        return { tag, items: [] }
-      })
-      .filter(x => x.items.length)
-      .sort((a, b) => b.items[0].score - a.items[0].score))
+    setSuggestions(tags)
   }, [search])
-
-  query.tags = query.tags || {}
-
-  const selectedValues = Object.keys(query.tags).flatMap(key => query.tags![key as BookTag]?.values?.map(v => `${key}:${v}`) || [])
 
   return <Select
     // no autoFocus because scroll position will be lost on navigation when it's enabled
@@ -63,12 +50,12 @@ export const Search = ({ query, setQuery, total }: {
       setQuery({
         ...query,
         tags: newValues.reduce((a, b) => {
-          const { tag, value } = parseValue(b)
+          const { tag, text } = parseValue(b)
 
           if (!a[tag])
             a[tag] = { values: [], mode: QueryMatchMode.All }
 
-          a[tag]!.values.push(value)
+          a[tag]!.values.push(text)
           return a
         }, {} as BookQueryTags)
       })
@@ -80,31 +67,31 @@ export const Search = ({ query, setQuery, total }: {
       width: '100%',
       minWidth: '20em',
       maxWidth: windowWidth / 2
-    }}>
-
-    {suggestions.map(({ tag, items }) => {
-      items = items.filter(v => !selectedValues.includes(`${tag}:${v}`))
-
-      if (!items.length)
-        return null
-
-      return <Select.OptGroup key={tag} label={tag}>
-        {items.map(({ text }) => {
-          const value = `${tag}:${text}`
-
-          return <Select.Option key={value} value={value}>
-            <Typography.Text style={{ color: TagColors[tag] }}>{text}</Typography.Text>
-          </Select.Option>
-        })}
-      </Select.OptGroup>
-    })}
-  </Select>
+    }}
+    options={useMemo(() =>
+      (Object.keys(suggestions) as BookTag[])
+        .filter(tag => suggestions[tag]?.length)
+        .sort((a, b) => suggestions[b]![0].score - suggestions[a]![0].score)
+        .map(tag => ({
+          label: TagLabels[tag],
+          options: suggestions[tag]!
+            .map(item => ({ item, value: `${tag}:${item.text}` }))
+            .filter(({ value }) => !selectedValues.includes(value))
+            .map(({ item, value }) => ({
+              label: <Typography.Text style={{ color: TagColors[tag] }}>{item.text}</Typography.Text>,
+              value
+            }))
+        })),
+      [
+        suggestions,
+        selectedValues
+      ])} />
 }
 
-const Tag: SelectProps<string>['tagRender'] = ({ value: valueRaw, ...props }) => {
-  const { tag, value } = parseValue(valueRaw as string)
+const Tag: SelectProps<string>['tagRender'] = ({ value, ...props }) => {
+  const { tag, text } = parseValue(value as string)
 
-  return <TagDisplay {...props} tag={tag} value={value} />
+  return <TagDisplay {...props} tag={tag} value={text} />
 }
 
 function parseValue(s: string) {
@@ -112,6 +99,6 @@ function parseValue(s: string) {
 
   return {
     tag: s.substring(0, i) as BookTag,
-    value: s.substring(i + 1)
+    text: s.substring(i + 1)
   }
 }
