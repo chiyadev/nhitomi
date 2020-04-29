@@ -37,6 +37,7 @@
         <PackageReference Include="OneOf" Version="2.1.151" />
         <PackageReference Include="Qmmands" Version="3.1.2" />
         <PackageReference Include="SkiaSharp" Version="1.68.1" />
+        <PackageReference Include="SkiaSharp.NativeAssets.Linux" Version="1.68.1" />
         <PackageReference Include="StackExchange.Redis" Version="2.1.30" />
         <PackageReference Include="Swashbuckle.AspNetCore.Newtonsoft" Version="5.3.3" />
         <PackageReference Include="Swashbuckle.AspNetCore.ReDoc" Version="5.3.3" />
