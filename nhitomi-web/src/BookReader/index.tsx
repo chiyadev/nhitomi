@@ -117,41 +117,6 @@ const Loaded = ({ book, content }: Fetched) => {
     alert.info(<FormattedMessage id={`bookReader.alerts.singleCover${value ? 'Enabled' : 'Disabled'}`} />)
   })
 
-  // useShortcut('bookReaderPageModeKey', () => {
-  //   const value = pageMode === 'single' ? 'double' : 'single'
-
-  //   setPageMode(value)
-  //   alert.info(`Switched to ${value} page layout.`)
-  // })
-
-  // useShortcut('bookReaderFluidKey', () => {
-  //   const value = !fluid
-
-  //   setFluid(value)
-  //   alert.info(`${value ? 'Enabled' : 'Disabled'} fluid mode.`)
-  // })
-
-  // useShortcut('bookReaderLeftToRightKey', () => {
-  //   const value = !leftToRight
-
-  //   setLeftToRight(value)
-  //   alert.info(`Pages are now ordered ${value ? 'left to right.' : 'right to left.'}`)
-  // })
-
-  // useShortcut('bookReaderDoubleCoverKey', () => {
-  //   const value = !doubleCover
-
-  //   setDoubleCover(value)
-  //   alert.info(`Cover page is now ${value ? 'grouped' : 'independent'}.`)
-  // })
-
-  // useShortcut('bookReaderSnappingKey', () => {
-  //   const value = !snapping
-
-  //   setSnapping(value)
-  //   alert.info(`${value ? 'Enabled' : 'Disabled'} scroll snapping.`)
-  // })
-
   return <>
     <Header book={book} content={content} />
 
