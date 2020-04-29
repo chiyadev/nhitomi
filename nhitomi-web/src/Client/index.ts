@@ -89,7 +89,7 @@ export class Client extends (EventEmitter as new () => StrictEventEmitter<EventE
   public async initialize() {
     // ensure token doesn't change until reinitialized
     this.httpConfig.accessToken = this.config.token
-    this.httpConfig.basePath = this.config.baseUrl
+    this.httpConfig.basePath = this.config.baseUrl || this.httpConfig.basePath
 
     if (this.httpConfig.accessToken)
       this.currentInfo = {
