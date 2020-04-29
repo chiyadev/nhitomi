@@ -72,15 +72,14 @@ export function useScrollShortcut() {
   const [scrollDown] = useShortcutPress('scrollDownKey')
   const [scrollUp] = useShortcutPress('scrollUpKey')
 
-  const [stopScroll, , startScroll] = useRafLoop(() => {
-    const now = performance.now()
-    const elapsed = now - timestamp.current
+  const [stopScroll, startScroll] = useRafLoop(time => {
+    const elapsed = time - timestamp.current
 
     window.scrollBy({
       top: elapsed / 500 * windowHeight * (scrollDown ? 1 : -1)
     })
 
-    timestamp.current = now
+    timestamp.current = time
   })
 
   useEffect(() => {
