@@ -1,5 +1,3 @@
-import './App.css'
-
 import { Layout, message as antd_alert, notification as antd_notif } from 'antd'
 import React, { useContext } from 'react'
 import { BrowserRouter, Switch, Route } from 'react-router-dom'
@@ -10,6 +8,9 @@ import { ClientProvider } from './ClientContext'
 import { SideBar, SideBarWidth } from './Sidebar'
 import { AuthenticationManager, AuthenticationRoute } from './Authentication'
 import { LocaleProvider } from './LocaleProvider'
+import { BookListing } from './BookListing'
+
+import './App.css'
 
 export const App = () => {
   // https://ant.design/components/notification/#FAQ
@@ -47,6 +48,8 @@ const Routing = () => {
 
       <Route>
         <AuthenticationManager>
+
+          <Route path='/books' exact component={BookListing} />
 
         </AuthenticationManager>
       </Route>
