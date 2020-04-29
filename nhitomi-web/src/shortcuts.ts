@@ -76,7 +76,7 @@ export function useScrollShortcut() {
     const elapsed = time - timestamp.current
 
     window.scrollBy({
-      top: elapsed / 500 * windowHeight * (scrollDown ? 1 : -1)
+      top: elapsed / 500 * windowHeight * (scrollDown ? 1 : scrollUp ? -1 : 0)
     })
 
     timestamp.current = time
