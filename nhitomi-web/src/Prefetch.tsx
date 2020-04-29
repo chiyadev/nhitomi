@@ -118,7 +118,7 @@ export function usePrefetchExecutor() {
     try {
       const value = await prefetch(client)
 
-      push(path, { [path]: value })
+      push(path, value)
 
       if (scroll)
         window.scrollTo({ top: 0 })
