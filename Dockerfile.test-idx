@@ -1,6 +1,7 @@
 FROM mcr.microsoft.com/dotnet/core/sdk:latest
 WORKDIR /app
 
+COPY locales ../locales/
 COPY nhitomi-idx ./
 
 RUN dotnet build nhitomi.Tests

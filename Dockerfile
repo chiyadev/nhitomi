@@ -17,6 +17,7 @@ COPY nhitomi-idx/nhitomi/nhitomi.csproj ./
 RUN dotnet restore
 
 # build project
+COPY locales ../locales/
 COPY nhitomi-idx/nhitomi ./
 
 RUN dotnet build -c Release -o build --no-restore
