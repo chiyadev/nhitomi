@@ -1,4 +1,4 @@
-import { RequestContext, ResponseContext, GetInfoResponse, ConfigurationParameters, ValidationProblemArrayResult, InfoApi, BookApi, UserApi, Configuration, GetInfoAuthenticatedResponse } from 'nhitomi-api'
+import { BASE_PATH, RequestContext, ResponseContext, GetInfoResponse, ConfigurationParameters, ValidationProblemArrayResult, InfoApi, BookApi, UserApi, Configuration, GetInfoAuthenticatedResponse } from 'nhitomi-api'
 import { EventEmitter } from 'events'
 import StrictEventEmitter from 'strict-event-emitter-types'
 import { ValidationError } from './validationError'
@@ -87,9 +87,19 @@ export class Client extends (EventEmitter as new () => StrictEventEmitter<EventE
 
   /** Initializes this client. */
   public async initialize() {
+    // use current domain if base path is localhost
+    const url = new URL(BASE_PATH)
+
+    if (url.host === 'localhost' || url.host === '127.0.0.1') {
+      url.host = window.location.host
+      url.protocol = window.location.protocol
+    }
+
+    this.httpConfig.basePath = BASE_PATH
+
     // ensure token doesn't change until reinitialized
     this.httpConfig.accessToken = this.config.token
-    this.httpConfig.basePath = this.config.baseUrl || this.httpConfig.basePath
+    this.httpConfig.basePath = this.config.baseUrl || url.href
 
     if (this.httpConfig.accessToken)
       this.currentInfo = {
