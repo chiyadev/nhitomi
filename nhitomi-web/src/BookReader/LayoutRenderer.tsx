@@ -1,4 +1,4 @@
-import { FetchImage } from './fetchManager'
+import { FetchImage, FetchManagerContext } from './fetchManager'
 import { useMemo, useContext, CSSProperties, useState } from 'react'
 import { LayoutManager, LayoutImage } from './layoutManager'
 import { Book, BookContent } from '../Client'
@@ -6,8 +6,9 @@ import React from 'react'
 import { LayoutContext } from '../LayoutContext'
 import { useScrollShortcut } from '../shortcuts'
 import ReactVisibilitySensor from 'react-visibility-sensor'
-import { Alert, Typography } from 'antd'
+import { Alert, Typography, Button } from 'antd'
 import { FormattedMessage } from 'react-intl'
+import { ReloadOutlined } from '@ant-design/icons'
 
 export const LayoutRenderer = ({ book, content, fetched }: {
   book: Book
@@ -57,15 +58,16 @@ const Image = ({ layoutImage }: { layoutImage: LayoutImage }) => useMemo(() => {
     return <img src={image.data} alt={image.data} style={style} />
 
   if (image.done instanceof Error)
-    return <ErrorImage style={style} error={image.done} />
+    return <ErrorImage image={image} style={style} error={image.done} />
 
   return null
 }, [
   layoutImage
 ])
 
-const ErrorImage = ({ style, error }: { style: CSSProperties, error: Error }) => {
+const ErrorImage = ({ image, style, error }: { image: FetchImage, style: CSSProperties, error: Error }) => {
   const [visible, setVisible] = useState(false)
+  const fetch = useContext(FetchManagerContext)
 
   return <ReactVisibilitySensor onChange={setVisible} partialVisibility>
     <div style={style}>
@@ -80,9 +82,13 @@ const ErrorImage = ({ style, error }: { style: CSSProperties, error: Error }) =>
         <Alert
           message={<FormattedMessage id='bookReader.pageError.title' />}
           description={<>
-            <FormattedMessage id='bookReader.pageError.description' />
-            <br />
-            <Typography.Text copyable={{ text: error.stack }}>{error.message}</Typography.Text>
+            <p>
+              <FormattedMessage id='bookReader.pageError.description' />
+              <br />
+              <Typography.Text code copyable={{ text: error.stack }}>{error.message}</Typography.Text>
+            </p>
+
+            <Button style={{ float: 'right' }} type='ghost' icon={<ReloadOutlined />} onClick={() => fetch.retry(image)}>Retry</Button>
           </>}
           type='error'
           showIcon />

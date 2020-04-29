@@ -1,4 +1,7 @@
 import { BookContent, BookImage, Client, Book } from '../Client'
+import { createContext } from 'react'
+
+export const FetchManagerContext = createContext<FetchManager>(undefined as any)
 
 export type FetchImage =
   { image: BookImage, index: number } & (
@@ -41,6 +44,16 @@ export class FetchManager {
 
   public stop() {
     this.running = false
+  }
+
+  public retry(image: FetchImage) {
+    const images = this.images.slice()
+    images[image.index] = undefined
+
+    this.queue.push(image) // insert back into queue at the start
+    this.onfetched(this.images = images)
+
+    this.start()
   }
 
   private async run() {

@@ -5,7 +5,7 @@ import { Prefetch, PrefetchLink, PrefetchLinkProps, usePrefetch } from '../Prefe
 import { Header } from './Header'
 import { LayoutContext } from '../LayoutContext'
 import { NotificationContext } from '../NotificationContext'
-import { FetchManager, FetchImage } from './fetchManager'
+import { FetchManager, FetchImage, FetchManagerContext } from './fetchManager'
 import { ClientContext } from '../ClientContext'
 import { LayoutRenderer } from './LayoutRenderer'
 
@@ -135,7 +135,9 @@ const Loaded = ({ book, content }: Fetched) => {
         cursor: cursorHidden ? 'none' : undefined
       }}>
 
-      <LayoutRenderer book={book} content={content} fetched={fetched} />
+      <FetchManagerContext.Provider value={fetch}>
+        <LayoutRenderer book={book} content={content} fetched={fetched} />
+      </FetchManagerContext.Provider>
     </div>
   </>
 }

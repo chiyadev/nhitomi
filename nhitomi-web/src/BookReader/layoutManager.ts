@@ -2,6 +2,9 @@
 
 import { FetchImage } from './fetchManager'
 import { Book, BookContent } from '../Client'
+import { createContext } from 'react'
+
+export const LayoutManagerContext = createContext<LayoutManager>(undefined as any)
 
 export type LayoutImage = {
   image?: FetchImage
