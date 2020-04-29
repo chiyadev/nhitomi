@@ -1,5 +1,5 @@
 import { FetchImage, FetchManagerContext } from './fetchManager'
-import { useMemo, useContext, CSSProperties, useState } from 'react'
+import { useMemo, useContext, CSSProperties, useState, useRef } from 'react'
 import { LayoutManager, LayoutImage, LayoutManagerContext } from './layoutManager'
 import { Book, BookContent } from '../Client'
 import React from 'react'
@@ -9,6 +9,8 @@ import ReactVisibilitySensor from 'react-visibility-sensor'
 import { Alert, Typography, Button, Spin } from 'antd'
 import { FormattedMessage } from 'react-intl'
 import { ReloadOutlined } from '@ant-design/icons'
+import { useConfig } from '../Client/config'
+import { ScrollPreserver } from './ScrollPreserver'
 
 export const LayoutRenderer = ({ book, content, fetched }: {
   book: Book
@@ -17,26 +19,36 @@ export const LayoutRenderer = ({ book, content, fetched }: {
 }) => {
   useScrollShortcut()
 
-  const { width: viewportWidth, height: viewportHeight } = useContext(LayoutContext)
-
   const manager = useMemo(() => new LayoutManager(book, content), [book, content])
+
+  const { width: viewportWidth, height: viewportHeight } = useContext(LayoutContext)
+  const [imagesPerRow] = useConfig('bookReaderImagesPerRow')
+  const [viewportBound] = useConfig('bookReaderViewportBound')
+  // const [snapping] = useConfig('bookReaderSnapping')
 
   const { width, height, layout } = useMemo(() => manager.recalculate(fetched, {
     viewportWidth,
     viewportHeight,
-    viewportBound: false
+    itemsPerRow: imagesPerRow,
+    viewportBound
   }), [
     manager,
     fetched,
     viewportWidth,
-    viewportHeight
+    viewportHeight,
+    imagesPerRow,
+    viewportBound
   ])
 
-  return <div style={{
+  const ref = useRef<HTMLDivElement>(null)
+
+  return <div ref={ref} style={{
     position: 'relative',
     width,
     height
   }}>
+    <ScrollPreserver containerRef={ref} />
+
     <LayoutManagerContext.Provider value={manager}>
       {useMemo(() => layout.map((image, i) => <Image key={i} layoutImage={image} />), [layout])}
     </LayoutManagerContext.Provider>
