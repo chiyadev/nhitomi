@@ -1,6 +1,6 @@
 import { Layout, message as antd_alert, notification as antd_notif } from 'antd'
 import React, { useContext } from 'react'
-import { BrowserRouter, Switch, Route } from 'react-router-dom'
+import { BrowserRouter, Switch, Route, Redirect } from 'react-router-dom'
 import { NotificationProvider } from './NotificationContext'
 import { LayoutProvider, LayoutContext } from './LayoutContext'
 import { ProgressBarProvider } from './Progress'
@@ -49,10 +49,10 @@ const Routing = () => {
 
       <Route>
         <AuthenticationManager>
+          <Route path='/' exact><Redirect to='/books' /></Route>
 
           <Route path='/books' exact component={BookListing} />
           <Route path='/books/:id/contents/:contentId' exact render={({ match: { params } }) => <BookReader {...params} />} />
-
         </AuthenticationManager>
       </Route>
     </Switch>
