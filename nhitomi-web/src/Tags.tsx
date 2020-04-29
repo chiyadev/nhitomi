@@ -84,8 +84,8 @@ export const CategoryDisplay = ({ category, ...props }: { category: keyof typeof
 /** Display names of language types. */
 export const LanguageTypeLabels: { [key in LanguageType]: string } = {
   'ja-JP': 'Japanese',
-  'en-US': 'English (US)',
-  'zh-CN': 'Chinese (PRC)',
+  'en-US': 'English', // English (US)
+  'zh-CN': 'Chinese', // Chinese (PRC)
   'ko-KR': 'Korean',
   'it-IT': 'Italian',
   'es-ES': 'Spanish',
@@ -122,7 +122,7 @@ export const LanguageTypeColorPresets: typeof LanguageTypeLabels = {
 export const LanguageTypeColors = Object.keys(LanguageTypeColorPresets).reduce((a, b) => { a[b as keyof typeof LanguageTypeColorPresets] = presetPrimaryColors[LanguageTypeColorPresets[b as keyof typeof LanguageTypeColorPresets]]; return a }, {} as typeof LanguageTypeColorPresets)
 
 export const LanguageTypeDisplay = ({ language, ...props }: { language: LanguageType } & ComponentProps<typeof Tag>) =>
-  <ExpandableTag type='language' value={language} color={LanguageTypeColorPresets[language]} {...props} />
+  <ExpandableTag type='language' value={LanguageTypeLabels[language]} color={LanguageTypeColorPresets[language]} {...props} />
 
 /** Display names of material ratings. */
 export const MaterialRatingLabels: { [key in MaterialRating]: string } = {
