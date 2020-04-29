@@ -41,9 +41,9 @@ export const App = () => {
 }
 
 const Routing = () => {
-  const { sidebar, mobile } = useContext(LayoutContext)
+  const { sidebar, breakpoint } = useContext(LayoutContext)
 
-  return <Layout style={{ marginLeft: sidebar && !mobile ? SideBarWidth : 0 }}>
+  return <Layout style={{ marginLeft: sidebar && !breakpoint ? SideBarWidth : 0 }}>
     <Switch>
       <Route path='/oauth/:service' exact render={({ match: { params } }) => <AuthenticationRoute {...params} />} />
 

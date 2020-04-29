@@ -1,5 +1,4 @@
 import React, { createContext, ReactNode, useMemo, useState } from 'react'
-import { Breakpoint } from 'antd/lib/_util/responsiveObserve'
 import { useWindowSize } from 'react-use'
 import { SideBarWidth } from './Sidebar'
 
@@ -8,31 +7,25 @@ export const LayoutContext = createContext<{
   width: number
   height: number
   mobile: boolean
-  breakpoint: Breakpoint
+  breakpoint: boolean
   sidebar: boolean
   setSidebar: (v: boolean) => void
 }>(undefined as any)
 
+const mdBreakpoint = 768
+
 export const LayoutProvider = ({ children }: { children?: ReactNode }) => {
   const { width: windowWidth, height: windowHeight } = useWindowSize()
 
-  let breakpoint: Breakpoint
-
-  if (windowWidth < 480) breakpoint = 'xs'
-  else if (windowWidth < 576) breakpoint = 'sm'
-  else if (windowWidth < 768) breakpoint = 'md'
-  else if (windowWidth < 992) breakpoint = 'lg'
-  else if (windowWidth < 1200) breakpoint = 'xl'
-  else breakpoint = 'xxl'
-
-  const [sidebar, setSidebar] = useState(windowWidth >= 768) // md
-
-  const width = sidebar ? windowWidth - SideBarWidth : windowWidth
-  const height = windowHeight
+  const breakpoint = windowWidth < mdBreakpoint
+  const [sidebar, setSidebar] = useState(!breakpoint)
 
   // mobile is determined by window orientation rather than resolution
   // this allows the reader UI to be displayed as desktop mode in landscape
   const mobile = windowHeight > windowWidth
+
+  const width = sidebar && !breakpoint ? windowWidth - SideBarWidth : windowWidth
+  const height = windowHeight
 
   return <LayoutContext.Provider children={children} value={useMemo(() => ({
     width,
