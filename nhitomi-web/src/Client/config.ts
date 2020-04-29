@@ -41,10 +41,16 @@ interface IStore {
   lastPageKey: ShortcutConfig
 
   // book reader
-  bookReaderPageModeKey: ShortcutConfig
-  bookReaderFluidKey: ShortcutConfig
+  bookReaderViewportBound: boolean
+  bookReaderLeftToRight: boolean
+  bookReaderImagesPerRow: number
+  bookReaderInitialRowLimit: number
+  bookReaderSnapping: boolean
+
+  bookReaderViewportBoundKey: ShortcutConfig
   bookReaderLeftToRightKey: ShortcutConfig
-  bookReaderDoubleCoverKey: ShortcutConfig
+  bookReaderImagesPerRowKey: ShortcutConfig
+  bookReaderInitialRowLimitKey: ShortcutConfig
   bookReaderSnappingKey: ShortcutConfig
 
   // ocr
@@ -65,11 +71,17 @@ const DefaultStore: IStore = {
   firstPageKey: { keys: [36] },             // home
   lastPageKey: { keys: [35] },              // end
 
-  bookReaderPageModeKey: { keys: [88] },             // x
-  bookReaderFluidKey: { keys: [67] },                // c
-  bookReaderLeftToRightKey: { keys: [76] },          // l
-  bookReaderDoubleCoverKey: { keys: [75] },          // k
-  bookReaderSnappingKey: { keys: [77] },             // m
+  bookReaderViewportBound: true,
+  bookReaderLeftToRight: false,
+  bookReaderImagesPerRow: 2,
+  bookReaderInitialRowLimit: 1,
+  bookReaderSnapping: false,
+
+  bookReaderViewportBoundKey: { keys: [67] },   // c
+  bookReaderLeftToRightKey: { keys: [76] },     // l
+  bookReaderImagesPerRowKey: { keys: [88] },    // x
+  bookReaderInitialRowLimitKey: { keys: [75] }, // k
+  bookReaderSnappingKey: { keys: [77] },        // m
 
   ocrVisualization: true
 }
@@ -95,10 +107,16 @@ export class ConfigManager extends (EventEmitter as new () => StrictEventEmitter
   public firstPageKey!: ShortcutConfig
   public lastPageKey!: ShortcutConfig
 
-  public bookReaderPageModeKey!: ShortcutConfig
-  public bookReaderFluidKey!: ShortcutConfig
+  public bookReaderViewportBound!: boolean
+  public bookReaderLeftToRight!: boolean
+  public bookReaderImagesPerRow!: number
+  public bookReaderInitialRowLimit!: number
+  public bookReaderSnapping!: boolean
+
+  public bookReaderViewportBoundKey!: ShortcutConfig
   public bookReaderLeftToRightKey!: ShortcutConfig
-  public bookReaderDoubleCoverKey!: ShortcutConfig
+  public bookReaderImagesPerRowKey!: ShortcutConfig
+  public bookReaderInitialRowLimitKey!: ShortcutConfig
   public bookReaderSnappingKey!: ShortcutConfig
 
   public ocrVisualization!: boolean

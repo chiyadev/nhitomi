@@ -88,6 +88,12 @@
     "sidebar": {
       "opened": "Sidebar opened.",
       "collapsed": "Sidebar collapsed."
+    },
+    "bookReader": {
+      "pageError": {
+        "title": "Error",
+        "description": "An error occured while downloading this image."
+      }
     }
   }
 }

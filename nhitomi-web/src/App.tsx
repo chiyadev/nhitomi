@@ -11,6 +11,7 @@ import { LocaleProvider } from './LocaleProvider'
 import { BookListing } from './BookListing'
 
 import './App.css'
+import { BookReader } from './BookReader'
 
 export const App = () => {
   // https://ant.design/components/notification/#FAQ
@@ -50,6 +51,7 @@ const Routing = () => {
         <AuthenticationManager>
 
           <Route path='/books' exact component={BookListing} />
+          <Route path='/books/:id/contents/:contentId' exact render={({ match: { params } }) => <BookReader {...params} />} />
 
         </AuthenticationManager>
       </Route>
