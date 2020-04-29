@@ -52,7 +52,14 @@ namespace nhitomi.Discord.Commands
                 {
                     case IBookScraper _:
                     {
-                        var result = _client.SearchStreamAsync(new DbBookQueryProcessor(new BookQuery { Source = type }));
+                        var result = _client.SearchStreamAsync(new DbBookQueryProcessor(new BookQuery
+                        {
+                            Source = type,
+                            Sorting =
+                            {
+                                (BookSort.CreatedTime, SortDirection.Descending)
+                            }
+                        }));
 
                         await Context.SendAsync<BookListMessage>(m => m.Enumerator = result.Select(b => (b, null as DbBookContent)).GetNavigableAsyncEnumerator());
                         return;
@@ -72,7 +79,11 @@ namespace nhitomi.Discord.Commands
                 {
                     foreach (BookTag tag in Enum.GetValues(typeof(BookTag)))
                         d[tag] = query;
-                })
+                }),
+                Sorting =
+                {
+                    (BookSort.Relevance, SortDirection.Descending)
+                }
             }));
 
             return Context.SendAsync<BookListMessage>(m => m.Enumerator = result.Select(b => (b, null as DbBookContent)).GetNavigableAsyncEnumerator());
