@@ -43,6 +43,11 @@ localStorage.setItem = (key, value) => {
   catch { }
 }
 
+localStorage.removeItem('clear')
+localStorage.removeItem('getItem')
+localStorage.removeItem('removeItem')
+localStorage.removeItem('setItem')
+
 try {
   // hydrate store with existing data
   for (let i = 0; i < localStorage.length; i++) {
