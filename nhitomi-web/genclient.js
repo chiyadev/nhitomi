@@ -6,7 +6,7 @@ let source = process.argv[2]
 
 switch (source) {
   case undefined:
-    source = 'https://nhitomi-new.chiya.dev/api/v1/docs.json'
+    source = 'https://nhitomi-next.chiya.dev/api/v1/docs.json'
     break
 
   case 'local':
