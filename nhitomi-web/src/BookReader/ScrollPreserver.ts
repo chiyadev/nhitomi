@@ -1,4 +1,4 @@
-import { RefObject, useLayoutEffect, useContext, useRef } from 'react'
+import { RefObject, useContext, useRef } from 'react'
 import { useWindowScroll } from 'react-use'
 import { LayoutContext } from '../LayoutContext'
 

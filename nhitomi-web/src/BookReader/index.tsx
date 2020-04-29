@@ -1,5 +1,5 @@
 import React, { useContext, useLayoutEffect, useState, useMemo, useEffect } from 'react'
-import { Book, BookContent, Client } from '../Client'
+import { Book, BookContent } from '../Client'
 import { useTabTitle } from '../hooks'
 import { Prefetch, PrefetchLink, PrefetchLinkProps, usePrefetch } from '../Prefetch'
 import { Header } from './Header'
