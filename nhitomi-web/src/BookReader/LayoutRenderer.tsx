@@ -28,7 +28,7 @@ export const LayoutRenderer = ({ book, content, fetched }: {
   const [singleCover] = useConfig('bookReaderSingleCover')
   // const [snapping] = useConfig('bookReaderSnapping')
 
-  const { width, height, layout } = useMemo(() => manager.recalculate(fetched, {
+  const result = useMemo(() => manager.recalculate(fetched, {
     viewportWidth,
     viewportHeight,
     viewportBound,
@@ -46,6 +46,8 @@ export const LayoutRenderer = ({ book, content, fetched }: {
     singleCover
   ])
 
+  const { width, height, layout } = result
+
   const ref = useRef<HTMLDivElement>(null)
 
   return <div ref={ref} style={{
@@ -53,7 +55,7 @@ export const LayoutRenderer = ({ book, content, fetched }: {
     width,
     height
   }}>
-    <ScrollPreserver containerRef={ref} />
+    <ScrollPreserver containerRef={ref} layout={result} />
 
     <LayoutManagerContext.Provider value={manager}>
       {useMemo(() => layout.map((image, i) => <Image key={i} layoutImage={image} />), [layout])}

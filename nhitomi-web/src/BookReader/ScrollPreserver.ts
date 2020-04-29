@@ -1,25 +1,26 @@
-import { RefObject, useContext, useRef } from 'react'
+import { RefObject, useRef, useContext } from 'react'
 import { useWindowScroll } from 'react-use'
+import { LayoutResult } from './layoutManager'
 import { LayoutContext } from '../LayoutContext'
 
-export const ScrollPreserver = ({ containerRef }: { containerRef: RefObject<HTMLDivElement> }) => {
+export const ScrollPreserver = ({ containerRef, layout }: { containerRef: RefObject<HTMLDivElement>, layout: LayoutResult }) => {
   const container = containerRef.current
 
   // rerender on scroll
   useWindowScroll()
 
-  const layout = useContext(LayoutContext)
-  const lastLayout = useRef(layout)
+  const { height: windowHeight } = useContext(LayoutContext)
+  const lastRef = useRef(layout)
   const visible = useRef<Element>()
   const scrolling = useRef<number>()
 
-  const last = lastLayout.current
-  lastLayout.current = layout
+  const last = lastRef.current
+  lastRef.current = layout
 
   if (scrolling.current)
     return null
 
-  if (layout.width !== last.width || layout.height !== last.height || layout.mobile !== last.mobile || layout.breakpoint !== last.breakpoint) {
+  if (layout.width !== last.width || layout.height !== last.height) {
     scrolling.current = requestAnimationFrame(() => {
       scrolling.current = undefined
 
@@ -38,7 +39,7 @@ export const ScrollPreserver = ({ containerRef }: { containerRef: RefObject<HTML
       // child is considered visible if they're in the middle of the window
       const { top, bottom } = child.getBoundingClientRect()
 
-      if (top < layout.height / 2 && layout.height / 2 < bottom) {
+      if (top < windowHeight / 2 && windowHeight / 2 < bottom) {
         if (visible.current !== child)
           console.log('set current', child)
 

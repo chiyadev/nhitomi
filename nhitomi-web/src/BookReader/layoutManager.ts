@@ -14,15 +14,21 @@ export type LayoutImage = {
   height: number
 }
 
+export type LayoutResult = {
+  layout: LayoutImage[]
+  width: number
+  height: number
+}
+
 /** Responsible for calculating the layout of pages. */
 export class LayoutManager {
-  private layout: LayoutImage[]
+  private lastResult: LayoutImage[]
 
   constructor(
     public readonly book: Book,
     public readonly content: BookContent
   ) {
-    this.layout = content.pages.map(() => ({
+    this.lastResult = content.pages.map(() => ({
       x: 0,
       y: 0,
       width: 0,
@@ -53,9 +59,9 @@ export class LayoutManager {
     itemsPerRow?: number
     similarAspectMargin?: number
     initialRowLimit?: number
-  }) {
-    const layout = this.layout.slice()
-    const length = layout.length
+  }): LayoutResult {
+    const result = this.lastResult.slice()
+    const length = result.length
 
     const row: {
       width: number
@@ -97,7 +103,7 @@ export class LayoutManager {
 
       for (let i = 0; i < row.items.length; i++) {
         const current = row.items[i]
-        const last = layout[flushed]
+        const last = result[flushed]
 
         current.width = Math.round(current.width * scale)
         current.height = Math.round(current.height * scale)
@@ -111,7 +117,7 @@ export class LayoutManager {
 
         // only change layout identity if layout changed
         if (current.image !== last.image || current.x !== last.x || current.y !== last.y || current.width !== last.width || current.height !== last.height)
-          layout[flushed] = current
+          result[flushed] = current
 
         x += current.width
         flushed++
@@ -188,7 +194,7 @@ export class LayoutManager {
     return {
       width: viewportWidth,
       height: y,
-      layout: this.layout = layout
+      layout: this.lastResult = result
     }
   }
 }
