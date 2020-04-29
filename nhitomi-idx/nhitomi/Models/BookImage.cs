@@ -23,7 +23,6 @@ namespace nhitomi.Models
         /// <summary>
         /// Notes on this image.
         /// </summary>
-        [Required]
         public ImageNote[] Notes { get; set; }
     }
 }
