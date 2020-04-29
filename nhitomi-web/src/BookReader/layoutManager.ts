@@ -49,7 +49,7 @@ export class LayoutManager {
     viewportHeight: number
     viewportBound?: boolean
     defaultImageAspect?: number
-    leftToRight?: false
+    leftToRight?: boolean
     itemsPerRow?: number
     similarAspectMargin?: number
     initialRowLimit?: number
@@ -117,6 +117,13 @@ export class LayoutManager {
         flushed++
       }
 
+      // correctly order layout array after setting image positions
+      if (!leftToRight) {
+        for (let i = 0; i < row.items.length; i++)
+          layout[flushed - i - 1] = row.items[i]
+      }
+
+      // overflow to next row
       y += row.height
 
       row.width = 0
