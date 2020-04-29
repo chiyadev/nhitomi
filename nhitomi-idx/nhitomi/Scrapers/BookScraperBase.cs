@@ -74,8 +74,8 @@ namespace nhitomi.Scrapers
                                                                .Text($"\"{_book.EnglishName}\"", b => b.EnglishName))
                                                .Nested(qq => qq.SetMode(QueryMatchMode.Any)
                                                                .Text(new TextQuery { Values = _book.TagsArtist?.ToArray(s => $"\"{s}\""), Mode = QueryMatchMode.Any }, b => b.TagsArtist)
-                                                               .Text(new TextQuery { Values = _book.TagsCircle?.ToArray(s => $"\"{s}\""), Mode = QueryMatchMode.Any }, b => b.TagsCircle))
-                                               .Filter(new FilterQuery<string> { Values = _book.TagsCharacter, Mode = QueryMatchMode.Any }, b => b.TagsCharacter))
+                                                               .Text(new TextQuery { Values = _book.TagsCircle?.ToArray(s => $"\"{s}\""), Mode = QueryMatchMode.Any }, b => b.TagsCircle)))
+                              //.Filter(new FilterQuery<string> { Values = _book.TagsCharacter, Mode = QueryMatchMode.Any }, b => b.TagsCharacter))
                              .MultiSort(() => (SortDirection.Descending, null));
         }
 
@@ -87,10 +87,10 @@ namespace nhitomi.Scrapers
             // we consider two books to be the same if they have:
             // - matching primary or english name
             // - matching artist or circle
-            // - at least one matching character
+            // // - at least one matching character (temporarily disabled 2020/04/29)
             IDbEntry<DbBook> entry;
 
-            if ((book.TagsArtist?.Length > 0 || book.TagsCircle?.Length > 0) && book.TagsCharacter?.Length > 0)
+            if (book.TagsArtist?.Length > 0 || book.TagsCircle?.Length > 0) // && book.TagsCharacter?.Length > 0)
             {
                 var result = await _client.SearchEntriesAsync(new SimilarQuery(book), cancellationToken);
 
