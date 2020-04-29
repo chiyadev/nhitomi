@@ -89,17 +89,17 @@ export const AuthenticationRoute = ({ service }: { service: 'discord' }) => {
 
       if (response)
         client.config.token = response.token
-
-      if (state)
-        replace(JSON.parse(atob(state)))
-      else
-        replace('/')
     }
     catch (e) {
       notification.error(e, <FormattedMessage id='auth.failed' />)
     }
     finally {
       stop()
+
+      if (state)
+        replace(JSON.parse(atob(state)))
+      else
+        replace('/')
     }
   }, [])
 
