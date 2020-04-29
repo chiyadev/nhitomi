@@ -80,10 +80,6 @@ export class LayoutManager {
       if (!row.items.length)
         return
 
-      // reverse row if rtl
-      if (!leftToRight)
-        row.items.reverse()
-
       let scale = 1
 
       // scale to fit height
@@ -109,18 +105,16 @@ export class LayoutManager {
         current.x = Math.round(x)
         current.y = Math.round(y + (row.height - current.height) / 2)
 
+        // reverse x if rtl
+        if (!leftToRight)
+          current.x = viewportWidth - current.x - current.width
+
         // only change layout identity if layout changed
         if (current.image !== last.image || current.x !== last.x || current.y !== last.y || current.width !== last.width || current.height !== last.height)
           layout[flushed] = current
 
         x += current.width
         flushed++
-      }
-
-      // correctly order layout array after setting image positions
-      if (!leftToRight) {
-        for (let i = 0; i < row.items.length; i++)
-          layout[flushed - i - 1] = row.items[i]
       }
 
       // overflow to next row
