@@ -2,18 +2,16 @@ import { Select, Typography } from 'antd'
 import { SelectProps } from 'antd/lib/select'
 import React, { useContext, useState, useMemo } from 'react'
 import { useAsync } from 'react-use'
-import { BookQuery, BookQueryTags, BookTag, QueryMatchMode, BookSuggestResultTags } from '../Client'
+import { BookQueryTags, BookTag, QueryMatchMode, BookSuggestResultTags } from '../Client'
 import { ClientContext } from '../ClientContext'
 import { LayoutContext } from '../LayoutContext'
 import { TagColors, TagDisplay, TagLabels } from '../Tags'
+import { BookListingContext } from '.'
 
-export const Search = ({ query, setQuery, total }: {
-  query: BookQuery
-  setQuery: (query: BookQuery) => void
-  total: number
-}) => {
+export const Search = () => {
   const client = useContext(ClientContext)
   const { width: windowWidth } = useContext(LayoutContext)
+  const { query, setQuery, total } = useContext(BookListingContext)
 
   const [search, setSearch] = useState('')
   const [suggestions, setSuggestions] = useState<BookSuggestResultTags>({})

@@ -1,6 +1,6 @@
 import { BookOutlined } from '@ant-design/icons'
 import { Empty, PageHeader } from 'antd'
-import React, { Dispatch, useCallback, useContext, useRef, useState } from 'react'
+import React, { Dispatch, useCallback, useContext, useRef, useState, createContext, useMemo } from 'react'
 import { useAsync } from 'react-use'
 import { Book, BookQuery, BookSort, SortDirection } from '../Client'
 import { useTabTitle } from '../hooks'
@@ -58,6 +58,16 @@ export const BookListing = () => {
 
 export const BookListingLink = (props: PrefetchLinkProps) => <PrefetchLink fetch={getBookListingPrefetch()} {...props} />
 
+export const BookListingContext = createContext<{
+  query: BookQuery
+  setQuery: (query: BookQuery) => void
+
+  items: Book[]
+  setItems: (items: Book[]) => void
+
+  total: number
+}>(undefined as any)
+
 const Loaded = ({ fetched, dispatch }: { fetched: Fetched, dispatch: Dispatch<Fetched> }) => {
   const { query, pending, items, total } = fetched
 
@@ -104,28 +114,37 @@ const Loaded = ({ fetched, dispatch }: { fetched: Fetched, dispatch: Dispatch<Fe
   }, [query, pending])
 
   const [selected, setSelected] = useState<string>()
+  const setQuery = useCallback((v: BookQuery) => dispatch({ ...fetched, query: v, pending: true }), [dispatch, fetched])
   const setItems = useCallback((v: Book[]) => dispatch({ ...fetched, items: v }), [dispatch, fetched])
 
   return <>
-    <PageHeader
-      avatar={{ icon: <BookOutlined />, shape: 'square' }}
-      title='Books'
-      subTitle='List of all books'
-      extra={
-        <Search
-          query={query}
-          setQuery={v => dispatch({ ...fetched, query: v, pending: true })}
-          total={total} />} />
+    <BookListingContext.Provider value={useMemo(() => ({
+      items, setItems,
+      query, setQuery,
+      total
+    }), [
+      items, setItems,
+      query, setQuery,
+      total
+    ])}>
 
-    <LayoutContent>
-      {items.length
-        ? <GridListing
-          items={items}
-          setItems={setItems}
-          selected={selected}
-          setSelected={setSelected} />
+      <PageHeader
+        avatar={{ icon: <BookOutlined />, shape: 'square' }}
+        title='Books'
+        subTitle='List of all books'
+        extra={<Search />} />
 
-        : <Empty description='No results' />}
-    </LayoutContent>
+      <LayoutContent>
+        {items.length
+          ? <GridListing
+            items={items}
+            setItems={setItems}
+            selected={selected}
+            setSelected={setSelected} />
+
+          : <Empty description='No results' />}
+      </LayoutContent>
+
+    </BookListingContext.Provider>
   </>
 }
