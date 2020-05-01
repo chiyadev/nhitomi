@@ -87,9 +87,9 @@ export class Client extends (EventEmitter as new () => StrictEventEmitter<EventE
 
   /** Initializes this client. */
   public async initialize() {
-    // use current domain if base path is localhost
     const url = new URL(BASE_PATH)
 
+    // use current domain if base path is localhost
     if (url.hostname === 'localhost' || url.hostname === '127.0.0.1') {
       url.host = window.location.host
       url.protocol = window.location.protocol

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Formatters;
@@ -299,6 +300,11 @@ namespace nhitomi
             {
                 HttpsCompression = HttpsCompressionMode.Compress
             });
+
+            if (_environment.IsDevelopment())
+                app.Use((c, n) => c.Response.WriteAsync(
+                    "404 Not Found; It seems like nhitomi-web was not compiled into nhitomi-idx's static asset directory. This is not necessary during development. " +
+                    "However, you should be running nhitomi-web separately using `npm start`. It is configured to proxy API requests automatically to nhitomi-idx."));
         }
 
         void ConfigureBackend(IApplicationBuilder app)

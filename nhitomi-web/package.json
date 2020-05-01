@@ -2,6 +2,7 @@
   "name": "nhitomi-web",
   "version": "1.0.0",
   "private": true,
+  "proxy": "http://localhost:5000",
   "dependencies": {
     "@ant-design/colors": "^4.0.0",
     "@ant-design/dark-theme": "^2.0.1",
