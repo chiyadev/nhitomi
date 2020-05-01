@@ -82,8 +82,7 @@ namespace nhitomi.Controllers
             {
                 new BookImage
                 {
-                    Size = 100,
-                    Hash = new byte[] { 1, 2, 3 }
+                    Notes = new ImageNote[0]
                 },
                 new BookImage
                 {
@@ -109,10 +108,6 @@ namespace nhitomi.Controllers
             Assert.That(book.Contents[0].Source, Is.EqualTo(ScraperType.Unknown));
             Assert.That(book.Contents[0].Language, Is.EqualTo(LanguageType.English));
             Assert.That(book.Contents[0].Pages, Has.Exactly(2).Items);
-            Assert.That(book.Contents[0].Pages[0].Size, Is.EqualTo(100));
-            Assert.That(book.Contents[0].Pages[0].Hash, Is.EqualTo(new byte[] { 1, 2, 3 }));
-            Assert.That(book.Contents[0].Pages[1].Size, Is.Null);
-            Assert.That(book.Contents[0].Pages[1].Hash, Is.Null);
             Assert.That(book.Contents[0].Pages[1].Notes, Has.Exactly(1).Items);
             Assert.That(book.Contents[0].Pages[1].Notes[0].Content, Is.EqualTo("note content"));
 
@@ -133,8 +128,6 @@ namespace nhitomi.Controllers
             {
                 new BookImage
                 {
-                    Size = 300,
-                    Hash = new byte[] { 255 },
                     Notes = new[]
                     {
                         new ImageNote
@@ -151,7 +144,6 @@ namespace nhitomi.Controllers
 
             Assert.That(secondContent.Language, Is.EqualTo(LanguageType.Chinese));
             Assert.That(secondContent.Pages, Has.Exactly(1).Items);
-            Assert.That(secondContent.Pages[0].Size, Is.EqualTo(300));
 
             getBookResult = await books.GetAsync(book.Id);
 

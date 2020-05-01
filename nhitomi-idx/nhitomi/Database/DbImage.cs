@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using MessagePack;
-using Microsoft.AspNetCore.WebUtilities;
 using Nest;
 using nhitomi.Models;
 using nhitomi.Scrapers;
@@ -22,25 +21,6 @@ namespace nhitomi.Database
 
         [Key("Tu"), Date(Name = "Tu")]
         public DateTime UpdatedTime { get; set; }
-
-        [Key("s"), Number(Name = "s")]
-        public int? Size { get; set; }
-
-        /// <summary>
-        /// Cannot query against this property.
-        /// </summary>
-        [Key("h"), Ignore] // for msgpack
-        public byte[] Hash { get; set; }
-
-        /// <summary>
-        /// Cannot query against this property.
-        /// </summary>
-        [IgnoreMember, Keyword(Name = "h", Index = false)] // for elasticsearch
-        public string HashString
-        {
-            get => WebEncoders.Base64UrlEncode(Hash);
-            set => Hash = WebEncoders.Base64UrlDecode(value);
-        }
 
         [Key("no"), Object(Name = "no", Enabled = false)]
         public DbImageNote[] Notes { get; set; }
@@ -113,8 +93,6 @@ namespace nhitomi.Database
 
             model.CreatedTime = CreatedTime;
             model.UpdatedTime = UpdatedTime;
-            model.Size        = Size;
-            model.Hash        = Hash;
             model.Notes       = Notes?.ToArray(n => n.Convert());
             model.Tags        = _tags.DictClone();
             model.Rating      = Rating;
@@ -127,8 +105,6 @@ namespace nhitomi.Database
 
             CreatedTime = model.CreatedTime;
             UpdatedTime = model.UpdatedTime;
-            Size        = model.Size;
-            Hash        = model.Hash;
             Notes       = model.Notes?.ToArray(p => new DbImageNote().Apply(p));
             _tags       = model.Tags?.DictClone() ?? new Dictionary<ImageTag, string[]>();
             Rating      = model.Rating;

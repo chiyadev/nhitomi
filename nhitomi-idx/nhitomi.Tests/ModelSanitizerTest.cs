@@ -316,10 +316,7 @@ namespace nhitomi
                         Language = LanguageType.French,
                         Pages = new[]
                         {
-                            new BookImage
-                            {
-                                Hash = new byte[] { 0, 1, 2, 3 }
-                            },
+                            new BookImage(),
                             new BookImage()
                         }
                     }
