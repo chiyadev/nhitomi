@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
-using AspNetCore.Proxy;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http.Features;
@@ -63,7 +62,7 @@ namespace nhitomi
 
                          if (_environment.IsDevelopment())
                          {
-                             o.ListenAnyIP(server.HttpPortDev);
+                             o.ListenLocalhost(server.HttpPortDev);
                          }
                          else
                          {
@@ -244,7 +243,6 @@ namespace nhitomi
             // other
             services.AddHttpClient()
                     .AddHttpContextAccessor()
-                    .AddProxies()
                     .AddSingleton<StartupInitializer>()
                     .AddTransient<MemoryInfo>()
                     .AddSingleton<ILinkGenerator, LinkGenerator>()
@@ -275,42 +273,32 @@ namespace nhitomi
 
         void ConfigureFrontend(IApplicationBuilder app)
         {
-            var serverOptions = app.ApplicationServices.GetService<IOptionsMonitor<ServerOptions>>().CurrentValue;
-
-            if (serverOptions.ProxyUrl == null)
+            // route rewrite
+            app.Use((c, n) =>
             {
-                // route rewrite
-                app.Use((c, n) =>
+                switch (c.Request.Method)
                 {
-                    switch (c.Request.Method)
-                    {
-                        case "HEAD":
-                        case "GET":
-                            // frontend is an SPA; if route doesn't exist, rewrite to return the default file
-                            if (!_environment.WebRootFileProvider.GetFileInfo(c.Request.Path.Value).Exists)
-                                c.Request.Path = "/index.html";
+                    case "HEAD":
+                    case "GET":
+                        // frontend is an SPA; if route doesn't exist, rewrite to return the default file
+                        if (!_environment.WebRootFileProvider.GetFileInfo(c.Request.Path.Value).Exists)
+                            c.Request.Path = "/index.html";
 
-                            return n();
+                        return n();
 
-                        default:
-                            return ResultUtilities.Status(HttpStatusCode.MethodNotAllowed).ExecuteResultAsync(c);
-                    }
-                });
+                    default:
+                        return ResultUtilities.Status(HttpStatusCode.MethodNotAllowed).ExecuteResultAsync(c);
+                }
+            });
 
-                // caching
-                app.UseResponseCaching();
+            // caching
+            app.UseResponseCaching();
 
-                // static files
-                app.UseStaticFiles(new StaticFileOptions
-                {
-                    HttpsCompression = HttpsCompressionMode.Compress
-                });
-            }
-            else
+            // static files
+            app.UseStaticFiles(new StaticFileOptions
             {
-                app.RunProxy(p => p.UseHttp(serverOptions.ProxyUrl)
-                                   .UseWs(serverOptions.ProxyUrl.Replace("http://", "ws://").Replace("https://", "wss://")));
-            }
+                HttpsCompression = HttpsCompressionMode.Compress
+            });
         }
 
         void ConfigureBackend(IApplicationBuilder app)
