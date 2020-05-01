@@ -18,11 +18,15 @@ export type LayoutResult = {
   layout: LayoutImage[]
   width: number
   height: number
+
+  /** describes what caused layout to be recalculated. */
+  cause: 'variable' | 'images'
 }
 
 /** Responsible for calculating the layout of pages. */
 export class LayoutManager {
   private lastResult: LayoutImage[]
+  private lastImages?: (FetchImage | undefined)[]
 
   constructor(
     public readonly book: Book,
@@ -191,10 +195,21 @@ export class LayoutManager {
     // flush remaining
     rowFlush()
 
+    let cause: LayoutResult['cause']
+
+    if (images === this.lastImages)
+      cause = 'variable'
+    else
+      cause = 'images'
+
+    this.lastResult = result
+    this.lastImages = images
+
     return {
       width: viewportWidth,
       height: y,
-      layout: this.lastResult = result
+      layout: result,
+      cause
     }
   }
 }

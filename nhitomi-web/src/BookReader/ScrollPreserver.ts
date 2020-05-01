@@ -20,7 +20,7 @@ export const ScrollPreserver = ({ containerRef, layout }: { containerRef: RefObj
   if (scrolling.current)
     return null
 
-  if (layout.width !== last.width || layout.height !== last.height) {
+  if (layout.cause !== 'images' && (layout.width !== last.width || layout.height !== last.height)) {
     scrolling.current = requestAnimationFrame(() => {
       scrolling.current = undefined
 
