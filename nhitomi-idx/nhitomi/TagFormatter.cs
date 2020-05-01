@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
@@ -26,6 +27,9 @@ namespace nhitomi
 
                     array[i] = value;
                 }
+
+                // sort tags
+                Array.Sort(array);
             }
 
             return array;
