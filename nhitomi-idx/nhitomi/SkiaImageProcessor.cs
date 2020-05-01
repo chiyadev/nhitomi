@@ -15,6 +15,15 @@ namespace nhitomi
             _ => default
         };
 
+        string FormatToMediaType(ImageFormat format) => format switch
+        {
+            ImageFormat.Jpeg => "image/jpeg",
+            ImageFormat.Png  => "image/png",
+            ImageFormat.WebP => "image/webp",
+
+            _ => default
+        };
+
         /// <summary>
         /// Finds the image format of the given buffer using magic numbers, and returns the format's media type.
         /// </summary>
