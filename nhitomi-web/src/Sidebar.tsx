@@ -5,8 +5,9 @@ import { useShortcut, useShortcutKeyName } from './shortcuts'
 import { NotificationContext } from './NotificationContext'
 import { ClientContext } from './ClientContext'
 import { LayoutContext } from './LayoutContext'
-import { BarsOutlined } from '@ant-design/icons'
+import { BarsOutlined, ReadOutlined } from '@ant-design/icons'
 import { FormattedMessage } from 'react-intl'
+import { BookListingLink } from './BookListing'
 
 export const SideBarWidth = 200
 
@@ -68,12 +69,12 @@ export const SideBar = () => {
       opacity: sidebar ? 1 : 0,
       transition: sidebar ? 'opacity 0.5s' : undefined
     }}>
-      {/* <HomeLink> */}
-      <PageHeader
-        backIcon={false}
-        style={{ minWidth: SideBarWidth }}
-        title='nhitomi' />
-      {/* </HomeLink> */}
+      <BookListingLink>
+        <PageHeader
+          backIcon={false}
+          style={{ minWidth: SideBarWidth }}
+          title='nhitomi' />
+      </BookListingLink>
 
       <Divider style={{ margin: 0 }} />
 
@@ -84,14 +85,14 @@ export const SideBar = () => {
         }}
         selectedKeys={[pathname.split('/')[1]]}>
 
-        {/* <Menu.Item key='books'>
-        <BookListingLink>
-          <BookOutlined />
-          <span>Books</span>
-        </BookListingLink>
-      </Menu.Item>
+        <Menu.Item key='books'>
+          <BookListingLink>
+            <ReadOutlined />
+            <span>Books</span>
+          </BookListingLink>
+        </Menu.Item>
 
-      <Menu.Item key='images'>
+        {/*<Menu.Item key='images'>
         <ImageListingLink>
           <PictureOutlined />
           <span>Images</span>
