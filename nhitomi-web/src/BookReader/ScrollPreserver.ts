@@ -2,6 +2,7 @@ import { RefObject, useRef, useContext } from 'react'
 import { useWindowScroll } from 'react-use'
 import { LayoutResult } from './layoutManager'
 import { LayoutContext } from '../LayoutContext'
+import { isSafari, safariResizeDelay } from '../safariTest'
 
 export const ScrollPreserver = ({ containerRef, layout }: { containerRef: RefObject<HTMLDivElement>, layout: LayoutResult }) => {
   const container = containerRef.current
@@ -21,14 +22,18 @@ export const ScrollPreserver = ({ containerRef, layout }: { containerRef: RefObj
     return null
 
   if (layout.cause !== 'images' && (layout.width !== last.width || layout.height !== last.height)) {
-    scrolling.current = requestAnimationFrame(() => {
-      scrolling.current = undefined
-
+    const scroll = () => {
       visible.current?.scrollIntoView({
         block: 'center',
         inline: 'center'
       })
-    })
+      scrolling.current = undefined
+    }
+
+    if (isSafari)
+      scrolling.current = window.setTimeout(scroll, safariResizeDelay)
+    else
+      scrolling.current = requestAnimationFrame(scroll)
   }
 
   else if (container) {
@@ -40,9 +45,6 @@ export const ScrollPreserver = ({ containerRef, layout }: { containerRef: RefObj
       const { top, bottom } = child.getBoundingClientRect()
 
       if (top < windowHeight / 2 && windowHeight / 2 < bottom) {
-        if (visible.current !== child)
-          console.log('set current', child)
-
         visible.current = child
         break
       }
