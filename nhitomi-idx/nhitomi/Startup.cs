@@ -63,7 +63,7 @@ namespace nhitomi
 
                          if (_environment.IsDevelopment())
                          {
-                             o.ListenLocalhost(server.HttpPortDev);
+                             o.ListenAnyIP(server.HttpPortDev);
                          }
                          else
                          {
