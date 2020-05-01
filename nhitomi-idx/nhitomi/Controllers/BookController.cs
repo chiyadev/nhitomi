@@ -1,7 +1,6 @@
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
 using nhitomi.Database;
 using nhitomi.Documentation;
 using nhitomi.Models;
@@ -20,14 +19,12 @@ namespace nhitomi.Controllers
         readonly IBookService _books;
         readonly ISnapshotService _snapshots;
         readonly IVoteService _votes;
-        readonly BookServiceOptions _options;
 
-        public BookController(IBookService books, ISnapshotService snapshots, IVoteService votes, IOptionsSnapshot<BookServiceOptions> options)
+        public BookController(IBookService books, ISnapshotService snapshots, IVoteService votes)
         {
             _books     = books;
             _snapshots = snapshots;
             _votes     = votes;
-            _options   = options.Value;
         }
 
         /// <summary>
@@ -196,7 +193,7 @@ namespace nhitomi.Controllers
 
             return new BookScraperImageResult(book, content, 0)
             {
-                Thumbnail = _options.CoverThumbnail
+                Thumbnail = true
             };
         }
 
