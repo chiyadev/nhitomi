@@ -34,10 +34,13 @@ namespace nhitomi.Database
             if (delimiter == -1)
                 return (null, str);
 
-            var type  = str.Substring(delimiter + 1);
-            var value = str.Substring(0, delimiter);
+            var typeStr = str.Substring(delimiter + 1);
+            var value   = str.Substring(0, delimiter);
 
-            return (int.Parse(type), value);
+            if (int.TryParse(typeStr, out var type))
+                return (type, value);
+
+            return (default, value);
         }
     }
 }
