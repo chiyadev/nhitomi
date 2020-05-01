@@ -184,7 +184,7 @@ namespace nhitomi.Controllers
         /// </summary>
         /// <param name="id">Book ID.</param>
         /// <param name="contentId">Content ID.</param>
-        [HttpGet("{id}/contents/{contentId}/thumb", Name = "getBookThumbnail"), ProducesFile, AllowAnonymous]
+        [HttpGet("{id}/contents/{contentId}/pages/0/thumb", Name = "getBookThumbnail"), ProducesFile, AllowAnonymous]
         public async Task<ActionResult> GetThumbnailAsync(string id, string contentId)
         {
             var result = await _books.GetContentAsync(id, contentId);
