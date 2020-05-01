@@ -13,7 +13,7 @@ namespace nhitomi.Storage
 {
     public class LocalStorageOptions
     {
-        public string Path { get; set; } = "data_storage";
+        public string Path { get; set; } = "data";
     }
 
     public class LocalStorage : IStorage
