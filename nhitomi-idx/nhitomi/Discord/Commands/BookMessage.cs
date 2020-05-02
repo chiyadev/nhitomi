@@ -51,7 +51,7 @@ namespace nhitomi.Discord.Commands
                 Author = new EmbedAuthorBuilder
                 {
                     Name    = book.TagsArtist?.Length > 0 ? string.Join(", ", book.TagsArtist) : content.Source.ToString(),
-                    IconUrl = link.GetWebLink($"assets/icons/scrapers/{content.Source}.jpg")
+                    IconUrl = link.GetWebLink($"assets/icons/{content.Source}.jpg")
                 },
 
                 Footer = new EmbedFooterBuilder
