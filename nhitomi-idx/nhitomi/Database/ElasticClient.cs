@@ -14,6 +14,7 @@ using Microsoft.Extensions.Options;
 using Nest;
 using nhitomi.Models;
 using nhitomi.Models.Queries;
+using StackExchange.Redis;
 using LogLevel = Microsoft.Extensions.Logging.LogLevel;
 
 namespace nhitomi.Database
@@ -304,33 +305,33 @@ namespace nhitomi.Database
         readonly Nest.ElasticClient _client;
 
         readonly IOptionsMonitor<ElasticOptions> _options;
+        readonly IRedisClient _redis;
         readonly IResourceLocker _locker;
         readonly ILogger<Nest.ElasticClient> _logger;
-        readonly ICacheStore _cache;
-        readonly ICacheManager _cacheManager;
 
-        public ElasticClient(IOptionsMonitor<ElasticOptions> options, IResourceLocker locker, ILogger<Nest.ElasticClient> logger, ICacheManager cacheManager)
+        public ElasticClient(IOptionsMonitor<ElasticOptions> options, IRedisClient redis, IResourceLocker locker, ILogger<Nest.ElasticClient> logger)
         {
             var opts = options.CurrentValue;
 
-            _options      = options;
-            _locker       = locker;
-            _logger       = logger;
-            _cache        = cacheManager.CreateStore(null, opts.CacheExpiry);
-            _cacheManager = cacheManager;
+            _options = options;
+            _redis   = redis;
+            _locker  = locker;
+            _logger  = logger;
 
             if (opts.Endpoint == null)
                 throw new ArgumentException("Elasticsearch endpoint is not configured.");
 
             var pool = new SingleNodeConnectionPool(new Uri($"http://{opts.Endpoint}"));
 
-            var connection = new ConnectionSettings(pool).DisableDirectStreaming()
-                                                         .ThrowExceptions(false);
-
-            _client = new Nest.ElasticClient(connection);
+            _client = new Nest.ElasticClient(new ConnectionSettings(pool).DisableDirectStreaming().ThrowExceptions(false));
         }
 
-        Task IElasticClient.InitializeAsync(CancellationToken cancellationToken) => Task.CompletedTask;
+        public Task InitializeAsync(CancellationToken cancellationToken)
+        {
+            _logger.LogWarning($"Connecting to Elasticsearch endpoint: {_options.CurrentValue.Endpoint}");
+
+            return Task.CompletedTask;
+        }
 
         async Task<T> Request<T>(Func<Nest.ElasticClient, Task<T>> request) where T : IResponse
         {
@@ -502,7 +503,7 @@ namespace nhitomi.Database
         {
             readonly ElasticClient _client;
             readonly ILogger<Nest.ElasticClient> _logger;
-            readonly ICacheStore _cache;
+            readonly IRedisClient _redis;
 
             public string Id { get; }
 
@@ -526,7 +527,7 @@ namespace nhitomi.Database
             {
                 _client = client;
                 _logger = client._logger;
-                _cache  = client._cache;
+                _redis  = client._redis;
 
                 Id = id;
 
@@ -593,11 +594,8 @@ namespace nhitomi.Database
 
                 Refresh(info);
 
-                // update cache store
-                await _cache.SetAsync(index.CachePrefix + Id, info, cancellationToken);
-
-                if (response.Result == Result.Created)
-                    await (await _client.GetCounterAsync<T>(cancellationToken)).IncrementAsync(1, cancellationToken);
+                // update cache
+                await _redis.SetObjectAsync(index.CachePrefix + Id, info, cancellationToken: cancellationToken);
 
                 return _value;
             }
@@ -635,11 +633,8 @@ namespace nhitomi.Database
 
                 Refresh(info);
 
-                // update cache store
-                await _cache.SetAsync(index.CachePrefix + Id, info, cancellationToken);
-
-                if (response.Result == Result.Deleted)
-                    await (await _client.GetCounterAsync<T>(cancellationToken)).DecrementAsync(1, cancellationToken);
+                // update cache
+                await _redis.SetObjectAsync(index.CachePrefix + Id, info, cancellationToken: cancellationToken);
             }
 
 #endregion
@@ -655,8 +650,8 @@ namespace nhitomi.Database
 
                 Refresh(info);
 
-                // update cache store
-                await _cache.SetAsync(index.CachePrefix + Id, info, cancellationToken);
+                // update cache
+                await _redis.SetObjectAsync(index.CachePrefix + Id, info, cancellationToken: cancellationToken);
 
                 return _value;
             }
@@ -674,7 +669,7 @@ namespace nhitomi.Database
 #region Get
 
         /// <summary>
-        /// Retrieves entry information bypassing caches.
+        /// Retrieves entry information bypassing the cache.
         /// </summary>
         async Task<EntryInfo<T>> GetDirectAsync<T>(string id, CancellationToken cancellationToken = default) where T : class, IDbObject
         {
@@ -697,8 +692,16 @@ namespace nhitomi.Database
 
             var index = await GetIndexAsync<T>(cancellationToken);
 
-            // get from cache or fresh value
-            var info = await _cache.GetAsync(index.CachePrefix + id, () => GetDirectAsync<T>(id, cancellationToken), cancellationToken);
+            // try get from cache
+            var info = await _redis.GetObjectAsync<EntryInfo<T>>(index.CachePrefix + id, cancellationToken);
+
+            // get fresh value from es
+            if (info == null)
+            {
+                info = await GetDirectAsync<T>(id, cancellationToken);
+
+                await _redis.SetObjectAsync(index.CachePrefix + id, info, cancellationToken: cancellationToken);
+            }
 
             return new EntryWrapper<T>(this, id, info);
         }
@@ -733,9 +736,13 @@ namespace nhitomi.Database
                 PrimaryTerm    = h.PrimaryTerm
             });
 
-            // update cache store
-            foreach (var info in infos)
-                await _cache.SetAsync(index.CachePrefix + info.Value.Id, info, cancellationToken);
+            // update caches
+            var cacheKeys = new RedisKey[infos.Length];
+
+            for (var i = 0; i < infos.Length; i++)
+                cacheKeys[i] = index.CachePrefix + infos[i].Value.Id;
+
+            await _redis.SetObjectManyAsync(cacheKeys, infos, cancellationToken: cancellationToken);
 
             return new SearchResult<IDbEntry<T>>
             {
@@ -813,35 +820,15 @@ namespace nhitomi.Database
 
 #region Count
 
-        readonly ConcurrentDictionary<Type, ICacheCounter> _counters = new ConcurrentDictionary<Type, ICacheCounter>();
-
-        async ValueTask<ICacheCounter> GetCounterAsync<T>(CancellationToken cancellationToken = default) where T : class
-        {
-            if (!_counters.TryGetValue(typeof(T), out var counter))
-            {
-                var index = await GetIndexAsync<T>(cancellationToken);
-
-                _counters[typeof(T)] = counter = _cacheManager.CreateCounter($"el_counter:{index.Name}", _options.CurrentValue.CacheExpiry);
-            }
-
-            return counter;
-        }
-
         public async Task<int> CountAsync<T>(CancellationToken cancellationToken = default) where T : class, IDbObject
         {
-            var counter = await GetCounterAsync<T>(cancellationToken);
+            var result = await SearchEntriesAsync(new CountQueryProcessor<T>(), cancellationToken);
 
-            return (int) await counter.GetAsync(async () =>
-            {
-                var result = await SearchEntriesAsync(new CountQueryProcessor<T>(), cancellationToken);
-
-                return result.Total;
-            }, cancellationToken);
+            return result.Total;
         }
 
         sealed class CountQueryProcessor<T> : IQueryProcessor<T> where T : class, IDbObject
         {
-            // we use Total property
             public SearchDescriptor<T> Process(SearchDescriptor<T> descriptor) => descriptor.Take(0);
         }
 
