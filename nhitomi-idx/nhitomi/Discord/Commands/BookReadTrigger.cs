@@ -19,15 +19,16 @@ namespace nhitomi.Discord.Commands
             _getter  = getter;
         }
 
-        protected override async Task<bool> RunAsync(CancellationToken cancellationToken = default)
+        protected override async Task<ReactionTriggerResult> RunAsync(CancellationToken cancellationToken = default)
         {
             var value = _getter();
 
             if (value == null)
-                return false;
+                return ReactionTriggerResult.Ignored;
 
             await _context.SendAsync<BookReadMessage>(m => m.Book = value.Value, cancellationToken);
-            return true;
+
+            return ReactionTriggerResult.Handled;
         }
     }
 }

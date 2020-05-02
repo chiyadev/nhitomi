@@ -18,18 +18,18 @@ namespace nhitomi.Discord
             _message = message;
         }
 
-        protected override async Task<bool> RunAsync(CancellationToken cancellationToken = default)
+        protected override async Task<ReactionTriggerResult> RunAsync(CancellationToken cancellationToken = default)
         {
             try
             {
                 await _message.Reply.DeleteAsync();
                 await _message.DisposeAsync();
 
-                return true;
+                return ReactionTriggerResult.Handled;
             }
             catch
             {
-                return false;
+                return ReactionTriggerResult.Ignored;
             }
         }
     }

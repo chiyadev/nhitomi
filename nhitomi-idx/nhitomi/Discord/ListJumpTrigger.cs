@@ -36,19 +36,24 @@ namespace nhitomi.Discord
             _destination = destination;
         }
 
-        protected override async Task<bool> RunAsync(CancellationToken cancellationToken = default)
+        protected override async Task<ReactionTriggerResult> RunAsync(CancellationToken cancellationToken = default)
         {
             switch (_destination)
             {
                 case ListJumpTriggerDestination.Start:
-                    return await _target.SetPositionAsync(_target.Start, cancellationToken);
+                    if (await _target.SetPositionAsync(_target.Start, cancellationToken))
+                        return ReactionTriggerResult.Handled | ReactionTriggerResult.StateUpdated;
+
+                    break;
 
                 case ListJumpTriggerDestination.End:
-                    return await _target.SetPositionAsync(_target.End, cancellationToken);
+                    if (await _target.SetPositionAsync(_target.End, cancellationToken))
+                        return ReactionTriggerResult.Handled | ReactionTriggerResult.StateUpdated;
 
-                default:
-                    return false;
+                    break;
             }
+
+            return ReactionTriggerResult.Ignored;
         }
     }
 }
