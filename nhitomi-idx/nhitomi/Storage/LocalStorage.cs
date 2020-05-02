@@ -21,7 +21,7 @@ namespace nhitomi.Storage
         static readonly MessagePackSerializerOptions _serializerOptions =
             MessagePackSerializerOptions
                .Standard
-               .WithCompression(MessagePackCompression.Lz4Block);
+               .WithCompression(MessagePackCompression.Lz4BlockArray);
 
         [MessagePackObject]
         public sealed class FileContainer
