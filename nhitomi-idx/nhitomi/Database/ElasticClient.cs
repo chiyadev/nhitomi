@@ -59,11 +59,6 @@ namespace nhitomi.Database
         public string CachePrefix { get; set; } = "el:";
 
         /// <summary>
-        /// Expiry of cached objects.
-        /// </summary>
-        public TimeSpan CacheExpiry { get; set; } = TimeSpan.FromMinutes(30);
-
-        /// <summary>
         /// Time to wait when Elasticsearch is being overloaded.
         /// </summary>
         public TimeSpan RateLimitWait { get; set; } = TimeSpan.FromSeconds(3);
