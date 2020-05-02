@@ -1,7 +1,7 @@
-using System;
 using System.Threading;
 using System.Threading.Tasks;
 using nhitomi.Controllers;
+using nhitomi.Database;
 using nhitomi.Localization;
 
 namespace nhitomi.Discord
@@ -15,19 +15,21 @@ namespace nhitomi.Discord
     {
         readonly IDiscordOAuthHandler _oauth;
         readonly IUserService _users;
-        readonly ICacheStore<string> _userIdCache;
+        readonly IRedisClient _redis;
 
-        public DiscordUserHandler(IDiscordOAuthHandler oauth, IUserService users, ICacheManager cache)
+        public DiscordUserHandler(IDiscordOAuthHandler oauth, IUserService users, IRedisClient redis)
         {
-            _oauth       = oauth;
-            _users       = users;
-            _userIdCache = cache.CreateStore<string>(k => $"discord:uid:{k}", TimeSpan.FromHours(1));
+            _oauth = oauth;
+            _users = users;
+            _redis = redis;
         }
 
         public async Task SetAsync(nhitomiCommandContext context, CancellationToken cancellationToken = default)
         {
             // try getting cached db user id from discord id
-            var id     = await _userIdCache.GetAsync(context.Executor.Id.ToString(), null, cancellationToken);
+            var idCache = $"discord:uid:{context.Executor.Id}";
+
+            var id     = await _redis.GetObjectAsync<string>(idCache, cancellationToken);
             var result = await _users.GetAsync(id, cancellationToken);
 
             if (!result.TryPickT0(out var user, out _))
@@ -40,7 +42,7 @@ namespace nhitomi.Discord
                     Discriminator = context.Executor.DiscriminatorValue
                 }, cancellationToken);
 
-                await _userIdCache.SetAsync(context.Executor.Id.ToString(), user.Id, cancellationToken);
+                await _redis.SetObjectAsync(idCache, user.Id, cancellationToken: cancellationToken);
             }
 
             context.User   = user;
