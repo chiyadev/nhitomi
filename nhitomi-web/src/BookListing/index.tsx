@@ -58,14 +58,9 @@ export const BookListing = () => {
 
 export const BookListingLink = (props: PrefetchLinkProps) => <PrefetchLink fetch={getBookListingPrefetch()} {...props} />
 
-export const BookListingContext = createContext<{
+export const BookQueryContext = createContext<{
   query: BookQuery
-  setQuery: (query: BookQuery) => void
-
-  items: Book[]
-  setItems: (items: Book[]) => void
-
-  total: number
+  setQuery: (q: BookQuery) => void
 }>(undefined as any)
 
 const Loaded = ({ fetched, dispatch }: { fetched: Fetched, dispatch: Dispatch<Fetched> }) => {
@@ -117,34 +112,29 @@ const Loaded = ({ fetched, dispatch }: { fetched: Fetched, dispatch: Dispatch<Fe
   const setQuery = useCallback((v: BookQuery) => dispatch({ ...fetched, query: v, pending: true }), [dispatch, fetched])
   const setItems = useCallback((v: Book[]) => dispatch({ ...fetched, items: v }), [dispatch, fetched])
 
-  return <>
-    <BookListingContext.Provider value={useMemo(() => ({
-      items, setItems,
-      query, setQuery,
-      total
-    }), [
-      items, setItems,
-      query, setQuery,
-      total
-    ])}>
+  return <BookQueryContext.Provider value={useMemo(() => ({
+    query,
+    setQuery
+  }), [
+    query,
+    setQuery
+  ])}>
 
-      <PageHeader
-        avatar={{ icon: <BookOutlined />, shape: 'square' }}
-        title='Books'
-        subTitle='List of all books'
-        extra={<Search />} />
+    <PageHeader
+      avatar={{ icon: <BookOutlined />, shape: 'square' }}
+      title='Books'
+      subTitle='List of all books'
+      extra={<Search query={query} setQuery={setQuery} total={total} />} />
 
-      <LayoutContent>
-        {items.length
-          ? <GridListing
-            items={items}
-            setItems={setItems}
-            selected={selected}
-            setSelected={setSelected} />
+    <LayoutContent>
+      {items.length
+        ? <GridListing
+          items={items}
+          setItems={setItems}
+          selected={selected}
+          setSelected={setSelected} />
 
-          : <Empty description='No results' />}
-      </LayoutContent>
-
-    </BookListingContext.Provider>
-  </>
+        : <Empty description='No results' />}
+    </LayoutContent>
+  </BookQueryContext.Provider>
 }

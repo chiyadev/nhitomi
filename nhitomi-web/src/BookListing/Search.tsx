@@ -2,21 +2,24 @@ import { Select, Typography } from 'antd'
 import { SelectProps } from 'antd/lib/select'
 import React, { useContext, useState, useMemo } from 'react'
 import { useAsync } from 'react-use'
-import { BookQueryTags, BookTag, QueryMatchMode, BookSuggestResultTags } from '../Client'
+import { BookTag, BookSuggestResultTags, BookQuery } from '../Client'
 import { ClientContext } from '../ClientContext'
 import { LayoutContext } from '../LayoutContext'
 import { TagColors, TagDisplay, TagLabels } from '../Tags'
-import { BookListingContext } from '.'
+import { setQueryTags, flattenQueryTags } from './queryHelper'
 
-export const Search = () => {
+export const Search = ({ query, setQuery, total }: {
+  query: BookQuery
+  setQuery: (v: BookQuery) => void
+  total: number
+}) => {
   const client = useContext(ClientContext)
   const { width: windowWidth } = useContext(LayoutContext)
-  const { query, setQuery, total } = useContext(BookListingContext)
 
   const [search, setSearch] = useState('')
   const [suggestions, setSuggestions] = useState<BookSuggestResultTags>({})
 
-  const selectedValues = useMemo(() => Object.keys(query.tags || {}).flatMap(key => query.tags?.[key as BookTag]?.values?.map(v => `${key}:${v}`) || []), [query.tags])
+  const selectedValues = useMemo(() => flattenQueryTags(query).map(({ tag, value }) => `${tag}:${value}`), [query])
 
   const { loading } = useAsync(async () => {
     if (!search) {
@@ -33,7 +36,7 @@ export const Search = () => {
     })
 
     setSuggestions(tags)
-  }, [search])
+  }, [search, selectedValues])
 
   return <Select
     // no autoFocus because scroll position will be lost on navigation when it's enabled
@@ -45,18 +48,7 @@ export const Search = () => {
     value={selectedValues}
     onChange={newValues => {
       setSearch('')
-      setQuery({
-        ...query,
-        tags: newValues.reduce((a, b) => {
-          const { tag, text } = parseValue(b)
-
-          if (!a[tag])
-            a[tag] = { values: [], mode: QueryMatchMode.All }
-
-          a[tag]!.values.push(text)
-          return a
-        }, {} as BookQueryTags)
-      })
+      setQuery(setQueryTags(query, newValues.map(parseValue)))
     }}
     searchValue={search}
     onSearch={setSearch}
@@ -87,7 +79,7 @@ export const Search = () => {
 }
 
 const Tag: SelectProps<string>['tagRender'] = ({ value, ...props }) => {
-  const { tag, text } = parseValue(value as string)
+  const { tag, value: text } = parseValue(value as string)
 
   return <TagDisplay {...props} tag={tag} value={text} expandable={false} />
 }
@@ -97,6 +89,6 @@ function parseValue(s: string) {
 
   return {
     tag: s.substring(0, i) as BookTag,
-    text: s.substring(i + 1)
+    value: s.substring(i + 1)
   }
 }

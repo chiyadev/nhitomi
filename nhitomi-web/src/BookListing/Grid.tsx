@@ -5,12 +5,13 @@ import React, { useContext, useEffect, useMemo, useRef } from 'react'
 import { useIntl } from 'react-intl'
 import { useMouseHovered } from 'react-use'
 import { BookTagList, CategoryDisplay, LanguageTypeDisplay, MaterialRatingDisplay, TagDisplay } from '../Tags'
-import { Book, BookContent, QueryMatchMode } from '../Client'
+import { Book, BookContent } from '../Client'
 import { LayoutContext } from '../LayoutContext'
 import { ClientContext } from '../ClientContext'
 import { AsyncImage } from '../AsyncImage'
 import { BookReaderLink } from '../BookReader'
-import { BookListingContext } from '.'
+import { addQueryTag } from './queryHelper'
+import { BookQueryContext } from '.'
 
 const gridGutter = 2
 const gridLayout: ListGridType = {
@@ -87,7 +88,7 @@ const Item = ({ book, selected, setSelected }: {
           maxWidth: mobile ? undefined : windowWidth / 2
         }}>
 
-        <div ref={ref} style={{ scrollMargin: '5em' }}>
+        <div ref={ref} style={{ scrollMargin: '2em' }}>
           <BookReaderLink
             id={book.id}
             contentId={content.id}
@@ -180,7 +181,7 @@ const OverlayTitle = ({ book, content, onClose }: { book: Book, content: BookCon
 
 const Overlay = ({ book: { createdTime, updatedTime, tags, category, rating }, content: { language } }: { book: Book, content: BookContent }) => {
   const { formatDate, formatTime } = useIntl()
-  const { query, setQuery } = useContext(BookListingContext)
+  const { query, setQuery } = useContext(BookQueryContext)
 
   return <>
     <h4>Information</h4>
@@ -202,16 +203,7 @@ const Overlay = ({ book: { createdTime, updatedTime, tags, category, rating }, c
           key={`${tag}:${value}`}
           tag={tag}
           value={value}
-          onClick={() => setQuery({
-            ...query,
-            tags: {
-              ...query.tags,
-              [tag]: {
-                mode: QueryMatchMode.All,
-                values: [...query.tags?.[tag]?.values || [], value].filter((x, i, a) => a.indexOf(x) === i)
-              }
-            }
-          })} />))}
+          onClick={() => setQuery(addQueryTag(query, tag, value))} />))}
     </p>
   </>
 }
