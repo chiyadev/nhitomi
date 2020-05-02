@@ -770,6 +770,8 @@ namespace nhitomi.Database
 
         public async IAsyncEnumerable<IDbEntry<T>> SearchEntriesStreamAsync<T>(IQueryProcessor<T> processor, [EnumeratorCancellation] CancellationToken cancellationToken = default) where T : class, IDbObject
         {
+            var ids = new HashSet<string>();
+
             for (var i = 0;;)
             {
                 var options = _options.CurrentValue;
@@ -780,7 +782,11 @@ namespace nhitomi.Database
                     break;
 
                 foreach (var item in result.Items)
-                    yield return item;
+                {
+                    // prevent duplicates in stream
+                    if (ids.Add(item.Id))
+                        yield return item;
+                }
 
                 i += result.Items.Length;
             }
