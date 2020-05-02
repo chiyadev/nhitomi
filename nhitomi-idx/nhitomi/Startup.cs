@@ -220,7 +220,6 @@ namespace nhitomi
             // redis
             services.Configure<RedisOptions>(_configuration.GetSection("Redis"))
                     .AddSingleton<IRedisClient, RedisClient>()
-                    .AddSingleton<ICacheManager, RedisCacheManager>()
                     .AddSingleton<IResourceLocker, RedisResourceLocker>();
 
             // scrapers
