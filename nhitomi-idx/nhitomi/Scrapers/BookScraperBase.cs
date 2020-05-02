@@ -25,7 +25,7 @@ namespace nhitomi.Scrapers
         /// Finds a book in the database given a book URL recognized by this scraper.
         /// Setting strict to false will allow multiple matches in the string; otherwise, the entire string will be attempted as one match.
         /// </summary>
-        IAsyncEnumerable<(IDbEntry<DbBook>, DbBookContent)> FindBookByUrlAsync(string url, bool strict, CancellationToken cancellationToken = default);
+        IAsyncEnumerable<(IDbEntry<DbBook> book, DbBookContent content)> FindBookByUrlAsync(string url, bool strict, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Retrieves the image of a page of the given book content as a stream.
