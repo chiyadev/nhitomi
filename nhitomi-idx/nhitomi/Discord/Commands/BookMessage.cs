@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Discord;
 using nhitomi.Database;
 using nhitomi.Localization;
@@ -10,18 +12,21 @@ namespace nhitomi.Discord.Commands
 {
     public class BookMessage : InteractiveMessage
     {
-        public (DbBook, DbBookContent) Book { get; set; }
+        public DbBook Book { get; set; }
+        public (DbBook book, DbBookContent content)? Current { get; private set; }
         public bool Destroyable { get; set; } = true;
 
         readonly nhitomiCommandContext _context;
         readonly ILocale _l;
         readonly ILinkGenerator _link;
+        readonly IBookContentSelector _selector;
 
-        public BookMessage(nhitomiCommandContext context, ILinkGenerator link)
+        public BookMessage(nhitomiCommandContext context, ILinkGenerator link, IBookContentSelector selector)
         {
-            _context = context;
-            _l       = context.Locale.Sections["get.book"];
-            _link    = link;
+            _context  = context;
+            _l        = context.Locale.Sections["get.book"];
+            _link     = link;
+            _selector = selector;
         }
 
         protected override IEnumerable<ReactionTrigger> CreateTriggers()
@@ -29,15 +34,15 @@ namespace nhitomi.Discord.Commands
             foreach (var trigger in base.CreateTriggers())
                 yield return trigger;
 
-            yield return new BookReadTrigger(_context, () => Book);
+            yield return new BookReadTrigger(_context, () => Current);
 
             if (Destroyable)
                 yield return new DestroyTrigger(this);
         }
 
-        protected override ReplyContent Render()
+        protected override async Task<ReplyContent> RenderAsync(CancellationToken cancellationToken = default)
         {
-            var (book, content) = Book;
+            var (book, content) = Current ??= (Book, await _selector.SelectAsync(Book, _context, cancellationToken));
 
             return Render(book, content, _l, _link);
         }

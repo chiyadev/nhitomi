@@ -26,7 +26,7 @@ namespace nhitomi.Discord.Commands
         public async Task GetAsync([Remainder] string link)
         {
             // try book scrapers
-            var books = await _scrapers.Books.ToAsyncEnumerable().SelectMany(s => s.FindBookByUrlAsync(link, true)).Select(x => (x.Item1.Value, x.Item2)).ToArrayAsync();
+            var books = await _scrapers.Books.ToAsyncEnumerable().SelectMany(s => s.FindBookByUrlAsync(link, true)).Select(x => x.book.Value).ToArrayAsync();
 
             switch (books.Length)
             {
@@ -76,7 +76,7 @@ namespace nhitomi.Discord.Commands
                             }
                         }));
 
-                        await Context.SendAsync<BookListMessage>(m => m.Enumerator = result.Select(b => (b, null as DbBookContent)).GetNavigableAsyncEnumerator());
+                        await Context.SendAsync<BookListMessage>(m => m.Enumerator = result.GetNavigableAsyncEnumerator());
                         return;
                     }
                 }
@@ -103,7 +103,7 @@ namespace nhitomi.Discord.Commands
                 }
             }));
 
-            return Context.SendAsync<BookListMessage>(m => m.Enumerator = result.Select(b => (b, null as DbBookContent)).GetNavigableAsyncEnumerator());
+            return Context.SendAsync<BookListMessage>(m => m.Enumerator = result.GetNavigableAsyncEnumerator());
         }
     }
 

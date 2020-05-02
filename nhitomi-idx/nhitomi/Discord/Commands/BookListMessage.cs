@@ -8,18 +8,20 @@ namespace nhitomi.Discord.Commands
 {
     public class BookListMessage : InteractiveMessage, IListTriggerTarget
     {
-        public INavigableAsyncEnumerator<(DbBook, DbBookContent)> Enumerator { get; set; }
-        public (DbBook, DbBookContent) Current { get; private set; }
+        public INavigableAsyncEnumerator<DbBook> Enumerator { get; set; }
+        public (DbBook book, DbBookContent content)? Current { get; private set; }
 
         readonly nhitomiCommandContext _context;
         readonly ILocale _l;
         readonly ILinkGenerator _link;
+        readonly IBookContentSelector _selector;
 
-        public BookListMessage(nhitomiCommandContext context, ILinkGenerator link)
+        public BookListMessage(nhitomiCommandContext context, ILinkGenerator link, IBookContentSelector selector)
         {
-            _context = context;
-            _l       = context.Locale.Sections["get.book"];
-            _link    = link;
+            _context  = context;
+            _l        = context.Locale.Sections["get.book"];
+            _link     = link;
+            _selector = selector;
         }
 
         protected override IEnumerable<ReactionTrigger> CreateTriggers()
@@ -42,28 +44,33 @@ namespace nhitomi.Discord.Commands
             _valid = await Enumerator.MoveNextAsync();
         }
 
-        protected override ReplyContent Render()
+        protected override async Task<ReplyContent> RenderAsync(CancellationToken cancellationToken = default)
         {
             // todo: no results message
             if (!_valid)
                 return null;
 
-            var (book, content) = Current;
-
-            // todo: smarter content selection based on user locale
-            content ??= book.Contents[0];
+            var (book, content) = Current ??= (Enumerator.Current, await _selector.SelectAsync(Enumerator.Current, _context, cancellationToken));
 
             return BookMessage.Render(book, content, _l, _link);
         }
 
         int IListTriggerTarget.Position => Enumerator.Position;
 
-        public Task<bool> SetPositionAsync(int position, CancellationToken cancellationToken = default) => Enumerator.MoveToAsync(position).AsTask();
+        public async Task<bool> SetPositionAsync(int position, CancellationToken cancellationToken = default)
+        {
+            if (await Enumerator.MoveToAsync(position))
+            {
+                Current = null;
+                return true;
+            }
+
+            return false;
+        }
 
         protected override async ValueTask OnDisposeAsync()
         {
             await base.OnDisposeAsync();
-
             await Enumerator.DisposeAsync();
         }
     }

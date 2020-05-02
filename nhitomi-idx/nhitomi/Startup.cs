@@ -21,6 +21,7 @@ using Newtonsoft.Json.Serialization;
 using nhitomi.Controllers;
 using nhitomi.Database;
 using nhitomi.Discord;
+using nhitomi.Discord.Commands;
 using nhitomi.Documentation;
 using nhitomi.Models;
 using nhitomi.Scrapers;
@@ -239,7 +240,8 @@ namespace nhitomi
 
             services.AddSingleton<IUserFilter, DefaultUserFilter>()
                     .AddSingleton<IInteractiveManager, InteractiveManager>()
-                    .AddSingleton<IReplyRenderer, ReplyRenderer>();
+                    .AddSingleton<IReplyRenderer, ReplyRenderer>()
+                    .AddSingleton<IBookContentSelector, BookContentSelector>();
 
             // other
             services.AddHttpClient()
