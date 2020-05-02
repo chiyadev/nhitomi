@@ -77,13 +77,12 @@ namespace nhitomi.Database
 
         public async Task InitializeAsync(CancellationToken cancellationToken = default)
         {
-            var measure = new MeasureContext();
             var options = _options.CurrentValue;
+
+            _logger.LogWarning($"Connecting to Redis endpoint: {options.Endpoint}");
 
             _connection = await ConnectionMultiplexer.ConnectAsync(options.Endpoint);
             _database   = _connection.GetDatabase();
-
-            _logger.LogDebug($"Connected to redis in {measure}: {options.Endpoint}");
         }
 
         public async Task<byte[]> GetAsync(RedisKey key, CancellationToken cancellationToken = default)
