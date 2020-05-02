@@ -13,7 +13,7 @@
         "get": "Displays doujinshi information.",
         "from": "Lists all doujinshi from a source.",
         "search": "Searches for doujinshi by tags.",
-        "read": "Shows the pages of a doujinshi.",
+        "view": "Shows the pages of a doujinshi.",
         "download": "Sends the download link for a doujinshi.",
         "sources": {
           "title": "Sources"
@@ -61,6 +61,11 @@
     "from": {
       "badSource": {
         "message": "`{input}` is not a valid source."
+      }
+    },
+    "view": {
+      "book": {
+        "pagination": "Page {current} of {total}"
       }
     }
   },

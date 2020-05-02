@@ -8,18 +8,18 @@ namespace nhitomi.Discord.Commands
 {
     public class BookListMessage : InteractiveMessage, IListTriggerTarget
     {
-        /// <summary>
-        /// Content will be selected automatically if null.
-        /// </summary>
         public INavigableAsyncEnumerator<(DbBook, DbBookContent)> Enumerator { get; set; }
+        public (DbBook, DbBookContent) Current { get; private set; }
 
+        readonly nhitomiCommandContext _context;
         readonly ILocale _l;
         readonly ILinkGenerator _link;
 
         public BookListMessage(nhitomiCommandContext context, ILinkGenerator link)
         {
-            _l    = context.Locale.Sections["get.book"];
-            _link = link;
+            _context = context;
+            _l       = context.Locale.Sections["get.book"];
+            _link    = link;
         }
 
         protected override IEnumerable<ReactionTrigger> CreateTriggers()
@@ -27,6 +27,7 @@ namespace nhitomi.Discord.Commands
             foreach (var trigger in base.CreateTriggers())
                 yield return trigger;
 
+            yield return new BookReadTrigger(_context, () => Current);
             yield return new ListTrigger(this, ListTriggerDirection.Left);
             yield return new ListTrigger(this, ListTriggerDirection.Right);
             yield return new DestroyTrigger(this);
@@ -47,7 +48,7 @@ namespace nhitomi.Discord.Commands
             if (!_valid)
                 return null;
 
-            var (book, content) = Enumerator.Current;
+            var (book, content) = Current;
 
             // todo: smarter content selection based on user locale
             content ??= book.Contents[0];

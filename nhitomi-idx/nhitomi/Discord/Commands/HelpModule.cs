@@ -87,7 +87,7 @@ namespace nhitomi.Discord.Commands
 - `{_options.Prefix}get [link]` — {l["get"]}
 - `{_options.Prefix}from [source]` — {l["from"]}
 - `{_options.Prefix}search [query]` — {l["search"]}
-- `{_options.Prefix}read [link]` — {l["read"]}
+- `{_options.Prefix}view [link]` — {l["view"]}
 - `{_options.Prefix}download [link]` — {l["download"]}
 ".Trim()
                         },

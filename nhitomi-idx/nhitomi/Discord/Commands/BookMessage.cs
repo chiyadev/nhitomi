@@ -13,19 +13,23 @@ namespace nhitomi.Discord.Commands
         public (DbBook, DbBookContent) Book { get; set; }
         public bool Destroyable { get; set; } = true;
 
+        readonly nhitomiCommandContext _context;
         readonly ILocale _l;
         readonly ILinkGenerator _link;
 
         public BookMessage(nhitomiCommandContext context, ILinkGenerator link)
         {
-            _l    = context.Locale.Sections["get.book"];
-            _link = link;
+            _context = context;
+            _l       = context.Locale.Sections["get.book"];
+            _link    = link;
         }
 
         protected override IEnumerable<ReactionTrigger> CreateTriggers()
         {
             foreach (var trigger in base.CreateTriggers())
                 yield return trigger;
+
+            yield return new BookReadTrigger(_context, () => Book);
 
             if (Destroyable)
                 yield return new DestroyTrigger(this);

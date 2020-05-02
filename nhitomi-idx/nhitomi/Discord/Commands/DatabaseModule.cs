@@ -44,6 +44,21 @@ namespace nhitomi.Discord.Commands
             await Context.SendAsync<GetNotFoundMessage>(m => m.Input = link);
         }
 
+        [Command("view", "v", "read", "r"), Name("view")] // read is legacy command scheme
+        public async Task ViewAsync([Remainder] string link)
+        {
+            // try book scrapers
+            var (book, content) = await _scrapers.Books.ToAsyncEnumerable().SelectMany(s => s.FindBookByUrlAsync(link, true)).FirstOrDefaultAsync();
+
+            if (book != null && content != null)
+            {
+                await Context.SendAsync<BookReadMessage>(m => m.Book = (book.Value, content));
+                return;
+            }
+
+            await Context.SendAsync<GetNotFoundMessage>(m => m.Input = link);
+        }
+
         [Command("from", "f"), Name("from")]
         public async Task FromAsync([Remainder] string source)
         {
@@ -74,7 +89,9 @@ namespace nhitomi.Discord.Commands
         {
             var result = _client.SearchStreamAsync(new DbBookQueryProcessor(new BookQuery
             {
-                Mode = QueryMatchMode.Any,
+                Mode        = QueryMatchMode.Any,
+                PrimaryName = query,
+                EnglishName = query,
                 Tags = new Dictionary<BookTag, TextQuery>().Chain(d =>
                 {
                     foreach (BookTag tag in Enum.GetValues(typeof(BookTag)))
