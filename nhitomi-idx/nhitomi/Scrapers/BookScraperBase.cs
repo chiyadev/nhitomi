@@ -221,7 +221,7 @@ namespace nhitomi.Scrapers
             var options   = context.HttpContext.RequestServices.GetService<IOptionsSnapshot<BookServiceOptions>>().Value.CoverThumbnail;
 
             // generate thumbnail
-            buffer = processor.GenerateThumbnail(buffer, options);
+            buffer = await Task.Run(() => processor.GenerateThumbnail(buffer, options), cancellationToken);
 
             // save to storage
             using (var file = new StorageFile
