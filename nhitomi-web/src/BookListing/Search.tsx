@@ -89,7 +89,7 @@ export const Search = () => {
 const Tag: SelectProps<string>['tagRender'] = ({ value, ...props }) => {
   const { tag, text } = parseValue(value as string)
 
-  return <TagDisplay {...props} tag={tag} value={text} />
+  return <TagDisplay {...props} tag={tag} value={text} expandable={false} />
 }
 
 function parseValue(s: string) {
