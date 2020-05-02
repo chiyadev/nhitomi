@@ -99,7 +99,7 @@ namespace nhitomi.Discord.Commands
                 }),
                 Sorting =
                 {
-                    (BookSort.Relevance, SortDirection.Descending)
+                    (BookSort.CreatedTime, SortDirection.Descending)
                 }
             }));
 
