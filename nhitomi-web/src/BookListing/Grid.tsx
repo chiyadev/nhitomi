@@ -10,7 +10,7 @@ import { LayoutContext } from '../LayoutContext'
 import { ClientContext } from '../ClientContext'
 import { AsyncImage } from '../AsyncImage'
 import { BookReaderLink } from '../BookReader'
-import { addQueryTag } from './queryHelper'
+import { toggleQueryTag } from './queryHelper'
 import { BookQueryContext } from '.'
 
 const gridGutter = 2
@@ -203,7 +203,7 @@ const Overlay = ({ book: { createdTime, updatedTime, tags, category, rating }, c
           key={`${tag}:${value}`}
           tag={tag}
           value={value}
-          onClick={() => setQuery(addQueryTag(query, tag, value))} />))}
+          onClick={() => setQuery(toggleQueryTag(query, tag, value))} />))}
     </p>
   </>
 }

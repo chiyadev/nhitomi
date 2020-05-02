@@ -1,6 +1,9 @@
 import { BookQuery, BookTag, QueryMatchMode, BookQueryTags } from '../Client'
 
 function convertValue(value: string) {
+  if (value.startsWith('"') && value.endsWith('"'))
+    value = value.slice(1, -1)
+
   // tag query is a full-text search (words are OR'ed)
   // wrap value in double quotes to use phrase query instead (words are AND'ed)
   return `"${value.toLowerCase()}"`
@@ -22,6 +25,34 @@ export function addQueryTag(query: BookQuery, tag: BookTag, value: string): Book
       }
     }
   }
+}
+
+export function removeQueryTag(query: BookQuery, tag: BookTag, value: string): BookQuery {
+  value = convertValue(value)
+
+  const values = query.tags?.[tag]?.values.filter(v => v !== value)
+
+  return {
+    ...query,
+    tags: {
+      ...query.tags,
+      [tag]: values?.length
+        ? {
+          mode: QueryMatchMode.All,
+          values
+        }
+        : undefined
+    }
+  }
+}
+
+export function toggleQueryTag(query: BookQuery, tag: BookTag, value: string): BookQuery {
+  value = convertValue(value)
+
+  if (query.tags?.[tag]?.values.includes(value))
+    return removeQueryTag(query, tag, value)
+
+  return addQueryTag(query, tag, value)
 }
 
 export function setQueryTags(query: BookQuery, tags: { tag: BookTag, value: string }[]): BookQuery {
