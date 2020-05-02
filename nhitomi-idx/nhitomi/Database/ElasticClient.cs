@@ -680,7 +680,7 @@ namespace nhitomi.Database
         {
             var index = await GetIndexAsync<T>(cancellationToken);
 
-            var response = await Request(c => c.GetAsync<T>(id, x => x.Index(index.IndexName), cancellationToken));
+            var response = await Request(c => c.GetAsync<T>(id, x => x.Index(index.IndexName).Realtime(), cancellationToken));
 
             return new EntryInfo<T>
             {
