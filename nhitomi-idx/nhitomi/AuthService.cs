@@ -134,10 +134,10 @@ namespace nhitomi
             }
         }
 
-        public async Task<long> GetSessionIdAsync(string userId, CancellationToken cancellationToken = default)
-            => await _redis.Hash("user:session").GetIntegerAsync(userId, cancellationToken) ?? 0;
+        public Task<long> GetSessionIdAsync(string userId, CancellationToken cancellationToken = default)
+            => _redis.GetIntegerAsync($"sess:{userId}", cancellationToken);
 
-        public async Task<long> InvalidateSessionAsync(string userId, CancellationToken cancellationToken = default)
-            => await _redis.Hash("user:session").IncrementAsync(userId, cancellationToken: cancellationToken) ?? 0;
+        public Task<long> InvalidateSessionAsync(string userId, CancellationToken cancellationToken = default)
+            => _redis.IncrementIntegerAsync($"sess:{userId}", 1, cancellationToken);
     }
 }
