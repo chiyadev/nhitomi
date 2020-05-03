@@ -26,21 +26,6 @@ namespace nhitomi.Database
             }
         }
 
-        public void Remove(RedisKey key)
-        {
-            lock (_keys)
-                _keys.Remove(key);
-        }
-
-        public void Remove(RedisKey[] keys)
-        {
-            lock (_keys)
-            {
-                foreach (var key in keys)
-                    Remove(key);
-            }
-        }
-
         public RedisKey[] Clear(RedisKey prefix = default)
         {
             lock (_keys)
