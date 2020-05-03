@@ -1,6 +1,6 @@
 import { presetPrimaryColors } from '@ant-design/colors'
 import nprogress from 'nprogress'
-import React, { createContext, ReactNode, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import React, { createContext, ReactNode, useLayoutEffect, useMemo, useRef, useState, useCallback } from 'react'
 import { useUpdate } from 'react-use'
 
 import './Progress.css'
@@ -44,19 +44,24 @@ export const ProgressBarProvider = ({ children }: { children?: ReactNode }) => {
       nprogress.start()
   }, [color]) // eslint-disable-line
 
+  // use timeout to prevent flickering when fetching multiple resources
+  const doneTimeout = useRef<number>()
+
   // nprogress start/done
   useLayoutEffect(() => {
+    clearTimeout(doneTimeout.current)
+
     const started = nprogress.isStarted()
 
     if (!started && count.current)
       nprogress.start()
 
     else if (started && !count.current)
-      nprogress.done()
+      doneTimeout.current = window.setTimeout(() => nprogress.done(), 200)
   }, [count.current]) // eslint-disable-line
 
   const rerender = useUpdate()
-  const setCount = (get: (c: number) => number) => { count.current = get(count.current); rerender() }
+  const setCount = useCallback((get: (c: number) => number) => { count.current = get(count.current); rerender() }, [rerender])
 
   return <ProgressContext.Provider children={children} value={useMemo(() => ({
     processes: count.current,
@@ -65,7 +70,8 @@ export const ProgressBarProvider = ({ children }: { children?: ReactNode }) => {
     start: () => setCount(c => c + 1),
     stop: () => setCount(c => Math.max(0, c - 1)),
     clear: () => setCount(() => 0)
-  }), [ // eslint-disable-line
-    color
+  }), [
+    color,
+    setCount
   ])} />
 }
