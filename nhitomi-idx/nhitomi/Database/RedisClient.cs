@@ -19,12 +19,14 @@ namespace nhitomi.Database
         Task<byte[][]> GetManyAsync(RedisKey[] keys, CancellationToken cancellationToken = default);
         Task<T> GetObjectAsync<T>(RedisKey key, CancellationToken cancellationToken = default);
         Task<T[]> GetObjectManyAsync<T>(RedisKey[] keys, CancellationToken cancellationToken = default);
+        Task<long> GetIntegerAsync(RedisKey key, CancellationToken cancellationToken = default);
 
         Task<bool> SetAsync(RedisKey key, RedisValue value, TimeSpan? expiry = null, When when = When.Always, CancellationToken cancellationToken = default);
         Task<bool> SetManyAsync(RedisKey[] keys, RedisValue[] values, When when = When.Always, CancellationToken cancellationToken = default);
         Task<bool> SetObjectAsync<T>(RedisKey key, T value, TimeSpan? expiry = null, When when = When.Always, CancellationToken cancellationToken = default);
         Task<bool> SetObjectManyAsync<T>(RedisKey[] keys, T[] values, TimeSpan? expiry = null, When when = When.Always, CancellationToken cancellationToken = default);
         Task<bool> SetIfEqualAsync(RedisKey key, RedisValue value, RedisValue comparand, TimeSpan? expiry = null, When when = When.Always, CancellationToken cancellationToken = default);
+        Task<long> IncrementIntegerAsync(RedisKey key, long delta, CancellationToken cancellationToken = default);
 
         Task<bool> DeleteAsync(RedisKey key, CancellationToken cancellationToken = default);
 
@@ -137,6 +139,13 @@ namespace nhitomi.Database
             return values;
         }
 
+        public async Task<long> GetIntegerAsync(RedisKey key, CancellationToken cancellationToken = default)
+        {
+            _keyMemory?.Add(key);
+
+            return (long) await _database.StringGetAsync(key);
+        }
+
         public Task<bool> SetAsync(RedisKey key, RedisValue value, TimeSpan? expiry = null, When when = When.Always, CancellationToken cancellationToken = default)
         {
             _keyMemory?.Add(key);
@@ -194,9 +203,16 @@ namespace nhitomi.Database
             return await transaction.ExecuteAsync() && await set;
         }
 
+        public async Task<long> IncrementIntegerAsync(RedisKey key, long delta, CancellationToken cancellationToken = default)
+        {
+            _keyMemory?.Add(key);
+
+            return await _database.StringIncrementAsync(key, delta);
+        }
+
         public Task<bool> DeleteAsync(RedisKey key, CancellationToken cancellationToken = default)
         {
-            _keyMemory?.Remove(key);
+            _keyMemory?.Add(key);
 
             return _database.KeyDeleteAsync(key.Prepend(_keyPrefix));
         }
