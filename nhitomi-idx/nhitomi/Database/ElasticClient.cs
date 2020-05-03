@@ -260,10 +260,21 @@ namespace nhitomi.Database
         async Task<T> GetAsync<T>(string id, CancellationToken cancellationToken = default) where T : class, IDbObject => (await GetEntryAsync<T>(id, cancellationToken)).Value;
 
         /// <summary>
+        /// Retrieves multiple objects from the database.
+        /// This is equivalent to calling <see cref="GetEntryManyAsync{T}"/> and reading their <see cref="IDbEntry{T}.Value"/>.
+        /// </summary>
+        async Task<T[]> GetManyAsync<T>(string[] ids, CancellationToken cancellationToken = default) where T : class, IDbObject => (await GetEntryManyAsync<T>(ids, cancellationToken)).ToArray(x => x.Value);
+
+        /// <summary>
         /// Retrieves an object from the database and wraps it in <see cref="IDbEntry{T}"/>.
         /// </summary>
         /// <returns>never null</returns>
         Task<IDbEntry<T>> GetEntryAsync<T>(string id, CancellationToken cancellationToken = default) where T : class, IDbObject;
+
+        /// <summary>
+        /// Retrieves multiple objects from the database and wraps them in <see cref="IDbEntry{T}"/>.
+        /// </summary>
+        Task<IDbEntry<T>[]> GetEntryManyAsync<T>(string[] ids, CancellationToken cancellationToken = default) where T : class, IDbObject => Task.WhenAll(ids.Select(id => GetEntryAsync<T>(id, cancellationToken)));
 
         /// <summary>
         /// Searches for objects from the database.
@@ -702,10 +713,105 @@ namespace nhitomi.Database
             {
                 info = await GetDirectAsync<T>(id, cancellationToken);
 
+                // update cache
                 await _redis.SetObjectAsync(index.CachePrefix + id, info, index.CacheExpiry, cancellationToken: cancellationToken);
             }
 
             return new EntryWrapper<T>(this, id, info);
+        }
+
+        /// <summary>
+        /// Retrieves many entry information bypassing the cache.
+        /// </summary>
+        async Task<EntryInfo<T>[]> GetDirectManyAsync<T>(string[] ids, CancellationToken cancellationToken = default) where T : class, IDbObject
+        {
+            var index = await GetIndexAsync<T>(cancellationToken);
+
+            var response = await Request(c => c.MultiGetAsync(x => x.Index(index.IndexName).GetMany<T>(ids), cancellationToken));
+
+            var indexes = new Dictionary<string, int>(ids.Length);
+
+            for (var i = 0; i < ids.Length; i++)
+                indexes[ids[i]] = i;
+
+            var entries = new EntryInfo<T>[ids.Length];
+
+            foreach (var hit in response.Hits)
+            {
+                if (!indexes.Remove(hit.Id, out var i))
+                    continue;
+
+                entries[i] = new EntryInfo<T>
+                {
+                    Value          = hit.Source as T,
+                    SequenceNumber = hit.SequenceNumber,
+                    PrimaryTerm    = hit.PrimaryTerm
+                };
+            }
+
+            foreach (var i in indexes.Values) // fill nulls with empty info
+                entries[i] = new EntryInfo<T>();
+
+            return entries;
+        }
+
+        public async Task<IDbEntry<T>[]> GetEntryManyAsync<T>(string[] ids, CancellationToken cancellationToken = default) where T : class, IDbObject
+        {
+            if (ids == null || ids.Length == 0)
+                return Array.Empty<IDbEntry<T>>();
+
+            if (ids.Length == 0)
+                return new[] { await GetEntryAsync<T>(ids[0], cancellationToken) };
+
+            var index = await GetIndexAsync<T>(cancellationToken);
+
+            // try get from cache
+            var cacheKeys = new RedisKey[ids.Length];
+
+            for (var i = 0; i < ids.Length; i++)
+                cacheKeys[i] = index.CachePrefix + ids[i];
+
+            var infos = await _redis.GetObjectManyAsync<EntryInfo<T>>(cacheKeys, cancellationToken);
+
+            // find missing ids (uncached entries)
+            var missingIds       = new string[ids.Length];
+            var missingCacheKeys = new RedisKey[ids.Length];
+            var missingIndexes   = new int[ids.Length];
+            var missing          = 0;
+
+            for (var i = 0; i < infos.Length; i++)
+            {
+                if (infos[i] == null)
+                {
+                    missingIds[missing]       = ids[i];
+                    missingCacheKeys[missing] = cacheKeys[i];
+                    missingIndexes[missing]   = i;
+
+                    ++missing;
+                }
+            }
+
+            // get fresh values from es
+            if (missing != 0)
+            {
+                Array.Resize(ref missingIds, missing);
+                Array.Resize(ref missingCacheKeys, missing);
+
+                var retrieved = await GetDirectManyAsync<T>(missingIds, cancellationToken);
+
+                for (var i = 0; i < retrieved.Length; i++)
+                    infos[missingIndexes[i]] = retrieved[i];
+
+                // update cache
+                await _redis.SetObjectManyAsync(missingCacheKeys, retrieved, index.CacheExpiry, cancellationToken: cancellationToken);
+            }
+
+            var entries = new IDbEntry<T>[infos.Length];
+
+            for (var i = 0; i < infos.Length; i++)
+                entries[i] = new EntryWrapper<T>(this, ids[i], infos[i]);
+
+            return entries;
         }
 
 #endregion
