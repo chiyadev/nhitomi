@@ -5,15 +5,12 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Nest;
-using nhitomi.Controllers;
 using nhitomi.Database;
 using nhitomi.Models.Queries;
-using nhitomi.Storage;
 using IElasticClient = nhitomi.Database.IElasticClient;
 using LogLevel = Microsoft.Extensions.Logging.LogLevel;
 
@@ -89,7 +86,7 @@ namespace nhitomi.Scrapers
             // we consider two books to be the same if they have:
             // - matching primary or english name
             // - matching artist or circle
-            // // - at least one matching character (temporarily disabled 2020/04/29)
+            // // - at least one matching character (todo: temporarily disabled 2020/04/29)
             IDbEntry<DbBook> entry;
 
             if (book.TagsArtist?.Length > 0 || book.TagsCircle?.Length > 0) // && book.TagsCharacter?.Length > 0)
@@ -107,10 +104,7 @@ namespace nhitomi.Scrapers
                     do
                     {
                         if (entry.Value == null)
-                        {
-                            await IndexAsync(book, cancellationToken);
-                            return;
-                        }
+                            goto create;
 
                         entry.Value.MergeFrom(book);
                     }
@@ -119,6 +113,8 @@ namespace nhitomi.Scrapers
                     return;
                 }
             }
+
+            create:
 
             // no similar books, so create a new one
             entry = _client.Entry(book);
@@ -170,73 +166,5 @@ namespace nhitomi.Scrapers
         }
 
         public abstract Task<Stream> GetImageAsync(DbBook book, DbBookContent content, int index, CancellationToken cancellationToken = default);
-    }
-
-    public class BookScraperImageResult : ScraperImageResult
-    {
-        readonly DbBook _book;
-        readonly DbBookContent _content;
-        readonly int _index;
-
-        /// <summary>
-        /// True to generate thumbnail.
-        /// </summary>
-        public bool Thumbnail { get; set; }
-
-        protected string FileNamePrefix => $"books/{_book.Id}/contents/{_content.Id}";
-        protected override string ReadFileName => Thumbnail ? $"{FileNamePrefix}/thumbs/{_index}" : WriteFileName;
-        protected override string WriteFileName => $"{FileNamePrefix}/pages/{_index}";
-
-        public BookScraperImageResult(DbBook book, DbBookContent content, int index)
-        {
-            _book    = book;
-            _content = content;
-            _index   = index;
-        }
-
-        protected override Task<Stream> GetImageAsync(ActionContext context)
-        {
-            var scrapers = context.HttpContext.RequestServices.GetService<IScraperService>();
-
-            if (!scrapers.GetBook(_content.Source, out var scraper))
-                throw new NotSupportedException($"Scraper {scraper} is not supported.");
-
-            return scraper.GetImageAsync(_book, _content, _index, context.HttpContext.RequestAborted);
-        }
-
-        protected override Task<byte[]> PostProcessAsync(ActionContext context, byte[] buffer, CancellationToken cancellationToken = default)
-        {
-            if (Thumbnail)
-                return PostProcessGenerateThumbnailAsync(context, buffer, cancellationToken);
-
-            return base.PostProcessAsync(context, buffer, cancellationToken);
-        }
-
-        protected async Task<byte[]> PostProcessGenerateThumbnailAsync(ActionContext context, byte[] buffer, CancellationToken cancellationToken = default)
-        {
-            buffer = await base.PostProcessAsync(context, buffer, cancellationToken);
-
-            var storage   = context.HttpContext.RequestServices.GetService<IStorage>();
-            var processor = context.HttpContext.RequestServices.GetService<IImageProcessor>();
-            var options   = context.HttpContext.RequestServices.GetService<IOptionsSnapshot<BookServiceOptions>>().Value.CoverThumbnail;
-
-            // generate thumbnail
-            buffer = await Task.Run(() => processor.GenerateThumbnail(buffer, options), cancellationToken);
-
-            // save to storage
-            using (var file = new StorageFile
-            {
-                Name      = ReadFileName,
-                MediaType = processor.FormatToMediaType(options.Format),
-                Stream    = new MemoryStream(buffer)
-            })
-            {
-                StorageFileResult.SetHeaders(context, file);
-
-                await storage.WriteAsync(file, cancellationToken);
-            }
-
-            return buffer;
-        }
     }
 }
