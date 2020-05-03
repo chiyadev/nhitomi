@@ -136,7 +136,7 @@ namespace nhitomi.Storage
 
             else throw new NotSupportedException("Unsupported storage.");
 
-            services.GetService<ILogger<DefaultStorage>>().LogInformation($"Created storage implementation: {_impl.GetType().Name}");
+            services.GetService<ILogger<DefaultStorage>>().LogWarning($"Created storage implementation: {_impl.GetType().Name}");
         }
 
         public Task InitializeAsync(CancellationToken cancellationToken = default) => _impl.InitializeAsync(cancellationToken);
