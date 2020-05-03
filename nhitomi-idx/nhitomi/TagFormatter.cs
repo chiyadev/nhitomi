@@ -29,7 +29,7 @@ namespace nhitomi
                 }
 
                 // sort tags
-                Array.Sort(array);
+                Array.Sort(array, StringComparer.Ordinal);
             }
 
             return array;
