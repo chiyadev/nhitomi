@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
@@ -6,36 +7,80 @@ using System.Text.RegularExpressions;
 
 namespace nhitomi
 {
+    /// <summary>
+    /// Sanitizes an array or dictionary of tags.
+    /// </summary>
+    public class SanitizedTagsAttribute : SanitizerAttribute
+    {
+        protected override object AfterSanitize(object value)
+        {
+            value = base.AfterSanitize(value);
+
+            switch (value)
+            {
+                // dictionary of tags
+                case IDictionary dict:
+                    var keys  = new object[dict.Count];
+                    var count = 0;
+
+                    foreach (var key in dict.Keys) // dict immutable within foreach
+                        keys[count++] = key;
+
+                    foreach (var key in keys)
+                    {
+                        if (dict[key] is string[] tags)
+                        {
+                            tags = TagFormatter.Format(tags);
+
+                            if (tags == null)
+                                dict.Remove(key);
+                            else
+                                dict[key] = tags;
+                        }
+                    }
+
+                    break;
+
+                case string[] tags:
+                    value = TagFormatter.Format(tags);
+                    break;
+            }
+
+            return value;
+        }
+    }
+
     public static class TagFormatter
     {
         /// <summary>
-        /// Formats an array of tags in-place.
-        /// Duplicate elements will be replaced with null.
+        /// Formats an array of tags.
         /// </summary>
         public static string[] Format(string[] array)
         {
-            if (array != null)
+            if (array == null)
+                return null;
+
+            var set = new HashSet<string>(array.Length);
+
+            foreach (var item in array)
             {
-                var tags = new HashSet<string>(array.Length);
+                var value = Format(item);
 
-                for (var i = 0; i < array.Length; i++)
-                {
-                    var value = Format(array[i]);
-
-                    if (!tags.Add(value))
-                        value = null;
-
-                    array[i] = value;
-                }
-
-                // sort tags
-                Array.Sort(array, StringComparer.Ordinal);
+                if (value != null)
+                    set.Add(value);
             }
+
+            if (set.Count == 0)
+                return null;
+
+            array = set.ToArray();
+
+            Array.Sort(array, StringComparer.Ordinal);
 
             return array;
         }
 
-        static readonly Regex _asciiRegex = new Regex(@"[^\u0020-\u007E]", RegexOptions.Compiled | RegexOptions.Singleline);
+        static readonly Regex _nonAsciiRegex = new Regex(@"[^\u0020-\u007E]", RegexOptions.Compiled | RegexOptions.Singleline);
 
         /// <summary>
         /// Formats a tag string.
@@ -52,7 +97,7 @@ namespace nhitomi
             tag = RemoveDiacritics(tag);
 
             // remove non-ascii
-            tag = _asciiRegex.Replace(tag, "");
+            tag = _nonAsciiRegex.Replace(tag, "");
 
             // space-separated
             tag = tag.Replace('_', ' ');

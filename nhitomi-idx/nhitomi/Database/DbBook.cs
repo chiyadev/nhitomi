@@ -13,7 +13,7 @@ namespace nhitomi.Database
     /// Represents a book.
     /// </summary>
     [MessagePackObject, ElasticsearchType(RelationName = nameof(Book))]
-    public class DbBook : DbObjectBase<Book>, IDbHasType, IDbModelConvertible<DbBook, Book, BookBase>, IHasUpdatedTime, IDbSupportsAutocomplete, ISanitizableObject
+    public class DbBook : DbObjectBase<Book>, IDbHasType, IDbModelConvertible<DbBook, Book, BookBase>, IHasUpdatedTime, IDbSupportsAutocomplete
     {
         [IgnoreMember, Ignore]
         ObjectType IDbHasType.Type => ObjectType.Book;
@@ -214,13 +214,5 @@ namespace nhitomi.Database
 #endregion
 
         public static implicit operator nhitomiObject(DbBook book) => new nhitomiObject(ObjectType.Book, book.Id);
-
-        public void BeforeSanitize()
-        {
-            foreach (var (key, value) in _tags.DictClone())
-                _tags[key] = TagFormatter.Format(value);
-        }
-
-        void ISanitizableObject.AfterSanitize() { }
     }
 }

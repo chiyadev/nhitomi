@@ -53,7 +53,7 @@ namespace nhitomi.Models
         /// <summary>
         /// Tags on this book.
         /// </summary>
-        [Required]
+        [Required, SanitizedTags]
         public Dictionary<BookTag, string[]> Tags { get; set; } = new Dictionary<BookTag, string[]>();
 
         /// <summary>

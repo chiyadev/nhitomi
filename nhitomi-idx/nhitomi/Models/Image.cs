@@ -40,7 +40,7 @@ namespace nhitomi.Models
         /// <summary>
         /// Tags on this image.
         /// </summary>
-        [Required]
+        [Required, SanitizedTags]
         public Dictionary<ImageTag, string[]> Tags { get; set; } = new Dictionary<ImageTag, string[]>();
 
         /// <summary>
