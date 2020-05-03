@@ -15,7 +15,7 @@ namespace nhitomi.Documentation
             if (attr == null)
                 return;
 
-            if (attr.Permissions != UserPermissions.None && attr.AllowSelf == null)
+            if (attr.Permissions != UserPermissions.None)
             {
                 var array = new OpenApiArray();
                 array.AddRange(attr.Permissions.ToFlags().Select(p => new OpenApiString(p.ToString())));

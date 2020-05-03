@@ -17,11 +17,6 @@ namespace nhitomi
         public UserPermissions Permissions { get; set; }
         public bool Unrestricted { get; set; }
 
-        /// <summary>
-        /// If not null, the authenticated user must have all specified <see cref="Permissions"/> OR their ID must match route parameter specified by this property.
-        /// </summary>
-        public string AllowSelf { get; set; }
-
         public async Task OnAuthorizationAsync(AuthorizationFilterContext context)
         {
             if (context.Result != null)
@@ -58,9 +53,7 @@ namespace nhitomi
                 }
 
                 // permission check
-                bool isSelf() => AllowSelf != null && context.RouteData.Values.TryGetValue(AllowSelf, out var v) && v?.ToString() == userId;
-
-                if (!user.HasPermissions(Permissions) && !isSelf())
+                if (!user.HasPermissions(Permissions))
                 {
                     context.Result = ResultUtilities.Forbidden($"Insufficient permissions to perform this action. Required: {string.Join(", ", Permissions.ToFlags())}");
                     return;

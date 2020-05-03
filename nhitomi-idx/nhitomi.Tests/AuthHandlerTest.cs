@@ -22,9 +22,6 @@ namespace nhitomi
 
         [HttpGet("perm"), RequireUser(Permissions = UserPermissions.ManageUsers)]
         public string Permission() => "pass";
-
-        [HttpGet("users/{id}"), RequireUser(Permissions = UserPermissions.ManageUsers, AllowSelf = "id")]
-        public string PermissionsWithAllowSelf(string id) => id;
     }
 
     /// <summary>
@@ -88,34 +85,6 @@ namespace nhitomi
             await MakeAndAuthUserAsync(null, UserPermissions.Administrator);
 
             Assert.That(await GetAsync<string>("perm"), Is.EqualTo("pass"));
-        }
-
-        [Test]
-        public async Task AllowSelfUsingSelf()
-        {
-            var user = await MakeAndAuthUserAsync("self user", UserPermissions.ManageUsers);
-
-            Assert.That(await GetAsync<string>($"users/{user.Id}"), Is.EqualTo(user.Id));
-        }
-
-        [Test]
-        public async Task AllowSelfUsingPerm()
-        {
-            var user = await MakeUserAsync("other user");
-
-            await MakeAndAuthUserAsync(null, UserPermissions.ManageUsers);
-
-            Assert.That(await GetAsync<string>($"users/{user.Id}"), Is.EqualTo(user.Id));
-        }
-
-        [Test]
-        public async Task AllowSelfRequired()
-        {
-            var user = await MakeUserAsync("other user");
-
-            await MakeAndAuthUserAsync();
-
-            await ThrowsStatusAsync(HttpStatusCode.Forbidden, () => GetAsync<string>($"users/{user.Id}"));
         }
     }
 }
