@@ -23,8 +23,7 @@ namespace nhitomi.Database
         Task<bool> SetAsync(RedisKey key, RedisValue value, TimeSpan? expiry = null, When when = When.Always, CancellationToken cancellationToken = default);
         Task<bool> SetManyAsync(RedisKey[] keys, RedisValue[] values, When when = When.Always, CancellationToken cancellationToken = default);
         Task<bool> SetObjectAsync<T>(RedisKey key, T value, TimeSpan? expiry = null, When when = When.Always, CancellationToken cancellationToken = default);
-        Task<bool> SetObjectManyAsync<T>(RedisKey[] keys, T[] values, When when = When.Always, CancellationToken cancellationToken = default);
-
+        Task<bool> SetObjectManyAsync<T>(RedisKey[] keys, T[] values, TimeSpan? expiry = null, When when = When.Always, CancellationToken cancellationToken = default);
         Task<bool> SetIfEqualAsync(RedisKey key, RedisValue value, RedisValue comparand, TimeSpan? expiry = null, When when = When.Always, CancellationToken cancellationToken = default);
 
         Task<bool> DeleteAsync(RedisKey key, CancellationToken cancellationToken = default);
@@ -160,14 +159,26 @@ namespace nhitomi.Database
         public Task<bool> SetObjectAsync<T>(RedisKey key, T value, TimeSpan? expiry = null, When when = When.Always, CancellationToken cancellationToken = default)
             => SetAsync(key, MessagePackSerializer.Serialize(value, _serializerOptions), expiry, when, cancellationToken);
 
-        public Task<bool> SetObjectManyAsync<T>(RedisKey[] keys, T[] values, When when = When.Always, CancellationToken cancellationToken = default)
+        public async Task<bool> SetObjectManyAsync<T>(RedisKey[] keys, T[] values, TimeSpan? expiry = null, When when = When.Always, CancellationToken cancellationToken = default)
         {
-            var values2 = new RedisValue[values.Length];
+            _keyMemory?.Add(keys);
 
-            for (var i = 0; i < values.Length; i++)
-                values2[i] = MessagePackSerializer.Serialize(values[i], _serializerOptions);
+            var pairs = new KeyValuePair<RedisKey, RedisValue>[keys.Length];
 
-            return SetManyAsync(keys, values2, when, cancellationToken);
+            for (var i = 0; i < keys.Length; i++)
+                pairs[i] = new KeyValuePair<RedisKey, RedisValue>(keys[i], MessagePackSerializer.Serialize(values[i], _serializerOptions));
+
+            var transaction = _database.CreateTransaction();
+
+            var set = transaction.StringSetAsync(pairs, when);
+
+            if (expiry != null)
+                foreach (var key in keys)
+                {
+                    var _ = transaction.KeyExpireAsync(key, expiry);
+                }
+
+            return await transaction.ExecuteAsync() && await set;
         }
 
         public async Task<bool> SetIfEqualAsync(RedisKey key, RedisValue value, RedisValue comparand, TimeSpan? expiry = null, When when = When.Always, CancellationToken cancellationToken = default)
