@@ -25,120 +25,138 @@ namespace nhitomi.Scrapers
 
             public Scraper(IServiceProvider services, IOptionsMonitor<Options> options, ILogger<Scraper> logger) : base(services, options, logger) { }
 
-            // refer to BookScraperBase on the criteria for merging books
-
-            DbBook[] _books =
+            sealed class DummyAdaptor : BookAdaptor
             {
-                // unique book 1
-                new DbBook
-                {
-                    PrimaryName    = "my doujinshi 1",
-                    EnglishName    = "english doujinshi 1",
-                    TagsArtist     = new[] { "artist 1" },
-                    TagsCircle     = new[] { "circle 1" },
-                    TagsCharacter  = new[] { "nana", "nono" },
-                    TagsConvention = new[] { "c100" },
-                    Contents = new[]
-                    {
-                        new DbBookContent
-                        {
-                            Language = LanguageType.Japanese
-                        }
-                    }
-                },
+                public override BookBase Book { get; }
+                public override IEnumerable<ContentAdaptor> Contents { get; }
 
-                // unique book 2: mismatched volume number
-                new DbBook
+                public DummyAdaptor(BookBase book, BookContentBase content)
                 {
-                    PrimaryName    = "my doujinshi 2",
-                    TagsArtist     = new[] { "artist 1" },
-                    TagsCircle     = new[] { "circle 1" },
-                    TagsCharacter  = new[] { "nana", "nono" },
-                    TagsConvention = new[] { "c100" },
-                    Contents = new[]
-                    {
-                        new DbBookContent
-                        {
-                            Language = LanguageType.Chinese
-                        }
-                    }
-                },
+                    Book     = book;
+                    Contents = new[] { new Nested(content) };
+                }
 
-                // merge into 1: same circle, convention, character
-                new DbBook
+                sealed class Nested : ContentAdaptor
                 {
-                    PrimaryName    = " my   doujinshi   1",
-                    TagsCircle     = new[] { "circle 1", "circle 2" },
-                    TagsCharacter  = new[] { "nana", "nunu" },
-                    TagsConvention = new[] { "c100", "c101" },
-                    Contents = new[]
-                    {
-                        new DbBookContent
-                        {
-                            Language = LanguageType.English
-                        }
-                    }
-                },
+                    public override string Id => null;
+                    public override string Data => null;
+                    public override int Pages => 0;
+                    public override BookContentBase Content { get; }
 
-                // merge into 1: same english name
-                new DbBook
-                {
-                    EnglishName    = "english doujinshi   1",
-                    TagsArtist     = new[] { "my artist 1", "artist 1" },
-                    TagsCircle     = new[] { "unrelated circle" },
-                    TagsSeries     = new[] { "unrelated series" },
-                    TagsCharacter  = new[] { "nana" },
-                    TagsConvention = new[] { "c100" },
-                    Contents = new[]
+                    public Nested(BookContentBase content)
                     {
-                        new DbBookContent
-                        {
-                            Language = LanguageType.French
-                        }
-                    }
-                },
-
-                // unique book 3: mismatched artist and no circle
-                new DbBook
-                {
-                    PrimaryName    = "my doujinshi 1",
-                    EnglishName    = "english doujinshi 1",
-                    TagsArtist     = new[] { "some completely different artist" },
-                    TagsCharacter  = new[] { "nana", "nono" },
-                    TagsConvention = new[] { "c100" },
-                    Contents = new[]
-                    {
-                        new DbBookContent
-                        {
-                            Language = LanguageType.Korean
-                        }
-                    }
-                },
-
-                // unique book 4: attempt to match english name to primary
-                new DbBook
-                {
-                    PrimaryName    = "english doujinshi 1",
-                    EnglishName    = "my doujinshi 1",
-                    TagsCircle     = new[] { "circle 1" },
-                    TagsCharacter  = new[] { "nana" },
-                    TagsConvention = new[] { "c100" },
-                    Contents = new[]
-                    {
-                        new DbBookContent
-                        {
-                            Language = LanguageType.German
-                        }
+                        Content = content;
                     }
                 }
+            }
+
+            // refer to BookScraperBase on the criteria for merging books
+            BookAdaptor[] _books =
+            {
+                // unique book 1
+                new DummyAdaptor(new BookBase
+                {
+                    PrimaryName = "my doujinshi 1",
+                    EnglishName = "english doujinshi 1",
+                    Tags = new Dictionary<BookTag, string[]>
+                    {
+                        [BookTag.Artist]     = new[] { "artist 1" },
+                        [BookTag.Circle]     = new[] { "circle 1" },
+                        [BookTag.Character]  = new[] { "nana", "nono" },
+                        [BookTag.Convention] = new[] { "c100" }
+                    }
+                }, new BookContentBase
+                {
+                    Language = LanguageType.Japanese
+                }),
+
+                // unique book 2: mismatched volume number
+                new DummyAdaptor(new BookBase
+                {
+                    PrimaryName = "my doujinshi 2",
+                    Tags = new Dictionary<BookTag, string[]>
+                    {
+                        [BookTag.Artist]     = new[] { "artist 1" },
+                        [BookTag.Circle]     = new[] { "circle 1" },
+                        [BookTag.Character]  = new[] { "nana", "nono" },
+                        [BookTag.Convention] = new[] { "c100" }
+                    }
+                }, new BookContentBase
+                {
+                    Language = LanguageType.Chinese
+                }),
+
+                // merge into 1: same circle, convention, character
+                new DummyAdaptor(new BookBase
+                {
+                    PrimaryName = " my   doujinshi   1",
+                    Tags = new Dictionary<BookTag, string[]>
+                    {
+                        [BookTag.Circle]     = new[] { "circle 1", "circle 2" },
+                        [BookTag.Character]  = new[] { "nana", "nunu" },
+                        [BookTag.Convention] = new[] { "c100", "c101" }
+                    }
+                }, new BookContentBase
+                {
+                    Language = LanguageType.English
+                }),
+
+                // merge into 1: same english name
+                new DummyAdaptor(new BookBase
+                {
+                    EnglishName = "english doujinshi   1",
+                    Tags = new Dictionary<BookTag, string[]>
+                    {
+                        [BookTag.Artist]     = new[] { "my artist 1", "artist 1" },
+                        [BookTag.Circle]     = new[] { "unrelated circle" },
+                        [BookTag.Series]     = new[] { "unrelated series" },
+                        [BookTag.Character]  = new[] { "nana" },
+                        [BookTag.Convention] = new[] { "c100" }
+                    }
+                }, new BookContentBase
+                {
+                    Language = LanguageType.French
+                }),
+
+                // unique book 3: mismatched artist and no circle
+                new DummyAdaptor(new BookBase
+                {
+                    PrimaryName = "my doujinshi 1",
+                    EnglishName = "english doujinshi 1",
+                    Tags = new Dictionary<BookTag, string[]>
+                    {
+                        [BookTag.Artist]     = new[] { "some completely different artist" },
+                        [BookTag.Character]  = new[] { "nana", "nono" },
+                        [BookTag.Convention] = new[] { "c100" }
+                    }
+                }, new BookContentBase
+                {
+                    Language = LanguageType.Korean
+                }),
+
+                // unique book 4: attempt to match english name to primary
+                new DummyAdaptor(new BookBase
+                {
+                    PrimaryName = "english doujinshi 1",
+                    EnglishName = "my doujinshi 1",
+                    Tags = new Dictionary<BookTag, string[]>
+                    {
+                        [BookTag.Circle]     = new[] { "circle 1" },
+                        [BookTag.Character]  = new[] { "nana" },
+                        [BookTag.Convention] = new[] { "c100" }
+                    }
+                }, new BookContentBase
+                {
+                    Language = LanguageType.German
+                })
             };
 
-            protected override IAsyncEnumerable<DbBook> ScrapeAsync(CancellationToken cancellationToken = default)
+            protected override IAsyncEnumerable<BookAdaptor> ScrapeAsync(CancellationToken cancellationToken = default)
             {
                 var books = Interlocked.Exchange(ref _books, null);
 
                 if (books == null)
-                    return AsyncEnumerable.Empty<DbBook>();
+                    return AsyncEnumerable.Empty<BookAdaptor>();
 
                 return books.ToAsyncEnumerable();
             }

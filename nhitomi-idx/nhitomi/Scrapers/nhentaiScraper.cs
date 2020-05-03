@@ -49,12 +49,26 @@ namespace nhitomi.Scrapers
             [JsonProperty("type")] public string Type;
             [JsonProperty("name")] public string Name;
         }
+    }
+
+    public class nhentaiList
+    {
+        [JsonProperty("result")] public nhentaiBook[] Results;
+        [JsonProperty("num_pages")] public int NumPages;
+        [JsonProperty("per_page")] public int PerPage;
+    }
+
+    public class nhentaiBookAdaptor : BookAdaptor
+    {
+        readonly nhentaiBook _book;
+
+        public nhentaiBookAdaptor(nhentaiBook book)
+        {
+            _book = book;
+        }
 
         // regex to match any () and [] in titles
         static readonly Regex _bracketsRegex = new Regex(@"\([^)]*\)|\[[^\]]*\]|（[^）]*）", RegexOptions.Compiled | RegexOptions.Singleline);
-
-        // regex to match the convention in title (first parentheses)
-        static readonly Regex _conventionRegex = new Regex(@"^\((?<convention>.*?)\)", RegexOptions.Compiled | RegexOptions.Singleline);
 
         public static string FixTitle(string s)
         {
@@ -64,64 +78,74 @@ namespace nhitomi.Scrapers
             // replace stuff in brackets with nothing
             s = _bracketsRegex.Replace(s, "").Trim();
 
-            return string.IsNullOrEmpty(s) ? null : HttpUtility.HtmlDecode(s);
+            // decode html-encoded strings
+            s = HttpUtility.HtmlDecode(s);
+
+            s = s.Trim();
+
+            return string.IsNullOrEmpty(s) ? null : s;
         }
+
+        // regex to match the convention in title (first parentheses)
+        static readonly Regex _conventionRegex = new Regex(@"^\((?<conv>.*?)\)", RegexOptions.Compiled | RegexOptions.Singleline);
 
         public static string FindConvention(string s)
         {
             if (string.IsNullOrEmpty(s))
                 return null;
 
-            return _conventionRegex.Match(s.TrimStart()).Groups["convention"].Value;
+            return _conventionRegex.Match(s.TrimStart()).Groups["conv"].Value;
         }
 
-        // some books are incorrectly tagged with a pipe separator
-        public static IEnumerable<string> ProcessTag(TagData tag) => tag.Name.Split('|', StringSplitOptions.RemoveEmptyEntries);
+        /// <summary>
+        /// Some books are incorrectly tagged with a pipe separator.
+        /// </summary>
+        public static IEnumerable<string> ProcessTag(nhentaiBook.TagData tag) => tag.Name.Split('|', StringSplitOptions.RemoveEmptyEntries);
 
-        public DbBook Convert()
+        public override BookBase Book => new BookBase
         {
-            var japanese = FixTitle(Title.Japanese);
-            var english  = FixTitle(Title.English);
+            PrimaryName = FixTitle(_book.Title.Japanese) ?? FixTitle(_book.Title.English),
+            EnglishName = FixTitle(_book.Title.English) ?? FixTitle(_book.Title.Japanese),
 
-            return new DbBook
+            Tags = new Dictionary<BookTag, string[]>
             {
-                PrimaryName = japanese ?? english,
-                EnglishName = english ?? japanese,
+                [BookTag.Artist]     = _book.Tags?.Where(t => t.Type == "artist").ToArrayMany(ProcessTag),
+                [BookTag.Parody]     = _book.Tags?.Where(t => t.Type == "tag").ToArrayMany(ProcessTag),
+                [BookTag.Character]  = _book.Tags?.Where(t => t.Type == "parody" && t.Name != "original").ToArrayMany(ProcessTag),
+                [BookTag.Convention] = _book.Tags?.Where(t => t.Type == "character").ToArrayMany(ProcessTag),
+                [BookTag.Convention] = new[] { FindConvention(_book.Title.English ?? _book.Title.Japanese) },
+                [BookTag.Circle]     = _book.Tags?.Where(t => t.Type == "group").ToArrayMany(ProcessTag)
+            },
 
-                TagsGeneral    = Tags?.Where(t => t.Type == "tag").ToArrayMany(ProcessTag),
-                TagsArtist     = Tags?.Where(t => t.Type == "artist").ToArrayMany(ProcessTag),
-                TagsParody     = Tags?.Where(t => t.Type == "parody" && t.Name != "original").ToArrayMany(ProcessTag),
-                TagsCharacter  = Tags?.Where(t => t.Type == "character").ToArrayMany(ProcessTag),
-                TagsConvention = new[] { FindConvention(english ?? japanese) },
-                TagsCircle     = Tags?.Where(t => t.Type == "group").ToArrayMany(ProcessTag),
+            Category = Enum.TryParse<BookCategory>(_book.Tags?.FirstOrDefault(t => t.Type == "category")?.Name, true, out var category) ? category : BookCategory.Doujinshi,
+            Rating   = MaterialRating.Explicit, // explicit by default
+        };
 
-                Category = Enum.TryParse<BookCategory>(Tags?.FirstOrDefault(t => t.Type == "category")?.Name, true, out var cat) ? cat : BookCategory.Doujinshi,
-                Rating   = MaterialRating.Explicit, // explicit by default
-
-                Contents = new[]
-                {
-                    new DbBookContent
-                    {
-                        Language = Tags?.FirstOrDefault(t => t.Type == "language" && t.Name != "translated")?.Name.ParseAsLanguage() ?? LanguageType.Japanese,
-                        Pages    = Images.Pages.ToArray(p => new DbBookImage()),
-                        Source   = ScraperType.nhentai,
-                        SourceId = Id.ToString(),
-                        Data = JsonConvert.SerializeObject(new nhentaiScraper.DataContainer
-                        {
-                            MediaId    = MediaId,
-                            Extensions = string.Concat(Images.Pages.Select(p => p.Type))
-                        })
-                    }
-                }
-            };
-        }
+        public override IEnumerable<ContentAdaptor> Contents => new[] { new nhentaiContentAdaptor(_book) };
     }
 
-    public class nhentaiList
+    public class nhentaiContentAdaptor : BookAdaptor.ContentAdaptor
     {
-        [JsonProperty("result")] public nhentaiBook[] Results;
-        [JsonProperty("num_pages")] public int NumPages;
-        [JsonProperty("per_page")] public int PerPage;
+        readonly nhentaiBook _book;
+
+        public nhentaiContentAdaptor(nhentaiBook book)
+        {
+            _book = book;
+        }
+
+        public override string Id => _book.Id.ToString();
+        public override int Pages => _book.Images.Pages.Length;
+
+        public override string Data => nhentaiScraper.DataContainer.Serialize(new nhentaiScraper.DataContainer
+        {
+            MediaId    = _book.MediaId,
+            Extensions = string.Concat(_book.Images.Pages.Select(p => p.Type))
+        });
+
+        public override BookContentBase Content => new BookContentBase
+        {
+            Language = _book.Tags?.FirstOrDefault(t => t.Type == "language" && t.Name != "translated")?.Name.ParseAsLanguage() ?? LanguageType.Japanese
+        };
     }
 
     public class nhentaiScraperOptions : ScraperOptions
@@ -169,7 +193,7 @@ namespace nhitomi.Scrapers
             [JsonProperty("last_lower")] public int? LastLower;
         }
 
-        protected override async IAsyncEnumerable<DbBook> ScrapeAsync([EnumeratorCancellation] CancellationToken cancellationToken = default)
+        protected override async IAsyncEnumerable<BookAdaptor> ScrapeAsync([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             var options = _options.CurrentValue;
 
@@ -195,7 +219,7 @@ namespace nhitomi.Scrapers
                     if (book.Id <= state.LastUpper || !FilterBook(book))
                         break;
 
-                    yield return book.Convert();
+                    yield return new nhentaiBookAdaptor(book);
                 }
 
                 // set upper as latest book
@@ -218,7 +242,7 @@ namespace nhitomi.Scrapers
                     if (!FilterBook(book))
                         break;
 
-                    yield return book.Convert();
+                    yield return new nhentaiBookAdaptor(book);
                 }
 
                 // set lower as oldest book
@@ -244,7 +268,7 @@ namespace nhitomi.Scrapers
 
             response.EnsureSuccessStatusCode();
 
-            return ModelSanitizer.Sanitize(JsonConvert.DeserializeObject<nhentaiBook>(await response.Content.ReadAsStringAsync()));
+            return JsonConvert.DeserializeObject<nhentaiBook>(await response.Content.ReadAsStringAsync());
         }
 
         /// <summary>
@@ -260,7 +284,7 @@ namespace nhitomi.Scrapers
 
                 response.EnsureSuccessStatusCode();
 
-                var list = ModelSanitizer.Sanitize(JsonConvert.DeserializeObject<nhentaiList>(await response.Content.ReadAsStringAsync()));
+                var list = JsonConvert.DeserializeObject<nhentaiList>(await response.Content.ReadAsStringAsync());
 
                 if (list.Results.Length == 0)
                     break;
@@ -275,13 +299,16 @@ namespace nhitomi.Scrapers
 
         public sealed class DataContainer
         {
+            public static string Serialize(DataContainer data) => JsonConvert.SerializeObject(data);
+            public static DataContainer Deserialize(string data) => JsonConvert.DeserializeObject<DataContainer>(data);
+
             [JsonProperty("media_id")] public int MediaId;
             [JsonProperty("ext")] public string Extensions;
         }
 
         public override async Task<Stream> GetImageAsync(DbBook book, DbBookContent content, int index, CancellationToken cancellationToken = default)
         {
-            var data = JsonConvert.DeserializeObject<DataContainer>(content.Data);
+            var data = DataContainer.Deserialize(content.Data);
 
             if (!(0 <= index && index < data.Extensions.Length))
                 return null;

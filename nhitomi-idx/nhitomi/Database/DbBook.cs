@@ -175,7 +175,7 @@ namespace nhitomi.Database
         /// <summary>
         /// This is a cached property for querying.
         /// </summary>
-        [IgnoreMember, Completion(Name = "sug", PreserveSeparators = false, PreservePositionIncrements = false), DbCached, SanitizerIgnore]
+        [IgnoreMember, Completion(Name = "sug", PreserveSeparators = false, PreservePositionIncrements = false), DbCached]
         public CompletionField Suggest { get; set; }
 
         public override void UpdateCache()

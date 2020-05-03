@@ -10,12 +10,48 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Nest;
 using nhitomi.Database;
+using nhitomi.Models;
 using nhitomi.Models.Queries;
 using IElasticClient = nhitomi.Database.IElasticClient;
 using LogLevel = Microsoft.Extensions.Logging.LogLevel;
 
 namespace nhitomi.Scrapers
 {
+    /// <summary>
+    /// Converts a book scraped from an arbitrary source to a model supported by nhitomi.
+    /// </summary>
+    public abstract class BookAdaptor
+    {
+        public abstract BookBase Book { get; }
+        public abstract IEnumerable<ContentAdaptor> Contents { get; }
+
+        public abstract class ContentAdaptor
+        {
+            public abstract string Id { get; }
+            public abstract string Data { get; }
+            public abstract int Pages { get; }
+            public abstract BookContentBase Content { get; }
+        }
+
+        public DbBook Convert()
+        {
+            var book = new DbBook().ApplyBase(ModelSanitizer.Sanitize(Book));
+
+            book.Contents = (Contents ?? Enumerable.Empty<ContentAdaptor>()).ToArray(c =>
+            {
+                var content = new DbBookContent().ApplyBase(ModelSanitizer.Sanitize(c.Content));
+
+                content.SourceId = c.Id;
+                content.Data     = c.Data;
+                content.Pages    = Enumerable.Range(0, c.Pages).ToArray(_ => new DbBookImage());
+
+                return content;
+            });
+
+            return book;
+        }
+    }
+
     public interface IBookScraper : IScraper
     {
         /// <summary>
@@ -44,7 +80,7 @@ namespace nhitomi.Scrapers
         /// <summary>
         /// Scrapes new books without adding them to the database.
         /// </summary>
-        protected abstract IAsyncEnumerable<DbBook> ScrapeAsync(CancellationToken cancellationToken = default);
+        protected abstract IAsyncEnumerable<BookAdaptor> ScrapeAsync(CancellationToken cancellationToken = default);
 
         protected override async Task RunAsync(CancellationToken cancellationToken = default)
         {
@@ -78,9 +114,9 @@ namespace nhitomi.Scrapers
                              .MultiSort(() => (SortDirection.Descending, null));
         }
 
-        protected async Task IndexAsync(DbBook book, CancellationToken cancellationToken = default)
+        protected async Task IndexAsync(BookAdaptor adaptor, CancellationToken cancellationToken = default)
         {
-            book = ModelSanitizer.Sanitize(book);
+            var book = adaptor.Convert();
 
             // the database is structured so that "books" are containers of "contents" which are containers of "pages"
             // we consider two books to be the same if they have:
