@@ -33,7 +33,7 @@ namespace nhitomi.Scrapers
             public abstract BookContentBase Content { get; }
         }
 
-        public DbBook Convert()
+        public DbBook Convert(IScraper scraper)
         {
             var book = new DbBook().ApplyBase(ModelSanitizer.Sanitize(Book));
 
@@ -41,6 +41,7 @@ namespace nhitomi.Scrapers
             {
                 var content = new DbBookContent().ApplyBase(ModelSanitizer.Sanitize(c.Content));
 
+                content.Source   = scraper.Type;
                 content.SourceId = c.Id;
                 content.Data     = c.Data;
                 content.Pages    = Enumerable.Range(0, c.Pages).ToArray(_ => new DbBookImage());
@@ -116,7 +117,7 @@ namespace nhitomi.Scrapers
 
         protected async Task IndexAsync(BookAdaptor adaptor, CancellationToken cancellationToken = default)
         {
-            var book = adaptor.Convert();
+            var book = adaptor.Convert(this);
 
             // the database is structured so that "books" are containers of "contents" which are containers of "pages"
             // we consider two books to be the same if they have:

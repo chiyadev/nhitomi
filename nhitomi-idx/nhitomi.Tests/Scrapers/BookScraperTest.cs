@@ -20,7 +20,7 @@ namespace nhitomi.Scrapers
 
         sealed class Scraper : BookScraperBase
         {
-            public override ScraperType Type => ScraperType.Unknown;
+            public override ScraperType Type => ScraperType.nhentai;
             public override string Url => null;
 
             public Scraper(IServiceProvider services, IOptionsMonitor<Options> options, ILogger<Scraper> logger) : base(services, options, logger) { }
@@ -195,6 +195,7 @@ namespace nhitomi.Scrapers
             Assert.That(one.TagsCharacter, Is.EquivalentTo(new[] { "nana", "nono", "nunu" }));
             Assert.That(one.TagsConvention, Is.EquivalentTo(new[] { "c100", "c101" }));
             Assert.That(one.Contents, Has.Exactly(3).Items);
+            Assert.That(one.Contents[0].Source, Is.EqualTo(ScraperType.nhentai));
             Assert.That(one.Contents.Select(c => c.Language), Is.EquivalentTo(new[] { LanguageType.Japanese, LanguageType.English, LanguageType.French }));
 
             // unique book 2 (scrape 2)
