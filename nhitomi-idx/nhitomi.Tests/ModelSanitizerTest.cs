@@ -2,6 +2,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using AgileObjects.ReadableExpressions;
 using nhitomi.Models;
 using NUnit.Framework;
 
@@ -13,6 +14,9 @@ namespace nhitomi
     [Parallelizable(ParallelScope.All)]
     public class ModelSanitizerTest
     {
+        [SetUp]
+        public void SetUp() => ModelSanitizer.OnExpressionBuilt = expr => Console.WriteLine(expr.ToReadableString());
+
         [Test]
         public void EmptyString()
             => Assert.That(ModelSanitizer.Sanitize(""), Is.Null);
@@ -478,6 +482,80 @@ namespace nhitomi
 
             Assert.That(obj.Ignore, Is.EqualTo("  "));
             Assert.That(obj.NonIgnore, Is.Null);
+        }
+
+        sealed class CustomStringSanitizerAttribute : SanitizerAttribute
+        {
+            protected override object BeforeSanitize(object value)
+            {
+                Assert.That(value, Is.TypeOf<string>());
+                Assert.That(value, Is.EqualTo("   before  sanitize   "));
+
+                return "   sanitize    this    ";
+            }
+
+            protected override object AfterSanitize(object value)
+            {
+                Assert.That(value, Is.TypeOf<string>());
+                Assert.That(value, Is.EqualTo("sanitize this"));
+
+                return "  after   sanitize  ";
+            }
+        }
+
+        sealed class TestCustomAttributeOnProperty
+        {
+            [CustomStringSanitizer]
+            public string Property { get; set; } = "   before  sanitize   ";
+        }
+
+        [Test]
+        public void CustomAttributeOnProperty()
+        {
+            var obj = ModelSanitizer.Sanitize(new TestCustomAttributeOnProperty());
+
+            Assert.That(obj.Property, Is.EqualTo("  after   sanitize  "));
+        }
+
+        sealed class CustomObjectSanitizerAttribute : SanitizerAttribute
+        {
+            protected override object BeforeSanitize(object value)
+            {
+                Assert.That(value, Is.TypeOf<TestCustomAttributeOnObject>());
+
+                var obj = (TestCustomAttributeOnObject) value;
+
+                Assert.That(obj.Property, Is.EqualTo("   before   sanitize  "));
+
+                obj.Property = "   sanitize this  ";
+                return obj;
+            }
+
+            protected override object AfterSanitize(object value)
+            {
+                Assert.That(value, Is.TypeOf<TestCustomAttributeOnObject>());
+
+                var obj = (TestCustomAttributeOnObject) value;
+
+                Assert.That(obj.Property, Is.EqualTo("sanitize this"));
+
+                obj.Property = "   after  sanitize  ";
+                return obj;
+            }
+        }
+
+        [CustomObjectSanitizer]
+        sealed class TestCustomAttributeOnObject
+        {
+            public string Property { get; set; } = "   before   sanitize  ";
+        }
+
+        [Test]
+        public void CustomAttributeOnObject()
+        {
+            var obj = ModelSanitizer.Sanitize(new TestCustomAttributeOnObject());
+
+            Assert.That(obj.Property, Is.EqualTo("   after  sanitize  "));
         }
     }
 }

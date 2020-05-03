@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Threading;
 using FastExpressionCompiler;
@@ -16,6 +17,9 @@ namespace nhitomi
     /// </summary>
     public static class ModelSanitizer
     {
+        /// <summary>For debugging.</summary>
+        public static Action<LambdaExpression> OnExpressionBuilt;
+
         static readonly ConcurrentDictionary<Type, IModelSanitizer> _cache = new ConcurrentDictionary<Type, IModelSanitizer>
         {
             [typeof(object)]   = new EmptySanitizer<object>(),
@@ -218,7 +222,11 @@ namespace nhitomi
             // ReSharper disable once AssignNullToNotNullAttribute
             var result = Expression.Convert(Expression.Call(Expression.Constant(sanitizer), sanitizerMethod, Expression.Convert(param, typeof(TInner))), typeof(TOuter));
 
-            _sanitize = Expression.Lambda<Func<TOuter, TOuter>>(result, param).CompileFast();
+            var lambda = Expression.Lambda<Func<TOuter, TOuter>>(result, param);
+
+            ModelSanitizer.OnExpressionBuilt?.Invoke(lambda);
+
+            _sanitize = lambda.CompileFast();
         }
 
         public override TOuter Sanitize(TOuter value) => _sanitize(value);
@@ -370,8 +378,14 @@ namespace nhitomi
     /// <summary>
     /// Similar to <see cref="IValidatableObject"/> but for sanitization.
     /// </summary>
+    /// <remarks>
+    /// This is only handled by <see cref="ComplexTypeSanitizer{T}"/> (i.e. invalid on collection types).
+    /// </remarks>
     public interface ISanitizableObject
     {
+        public static readonly MethodInfo BeforeSanitizeMethod = typeof(ISanitizableObject).GetMethod(nameof(BeforeSanitize));
+        public static readonly MethodInfo AfterSanitizeMethod = typeof(ISanitizableObject).GetMethod(nameof(AfterSanitize));
+
         /// <summary>
         /// Called immediately before this object is sanitized.
         /// </summary>
@@ -389,6 +403,29 @@ namespace nhitomi
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Property)]
     public sealed class SanitizerIgnoreAttribute : Attribute { }
 
+    /// <summary>
+    /// Called when <see cref="ModelSanitizer"/> is sanitizing an object or its property.
+    /// </summary>
+    /// <remarks>
+    /// This is only handled by <see cref="ComplexTypeSanitizer{T}"/> (i.e. invalid on collection types).
+    /// </remarks>
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Property)]
+    public abstract class SanitizerAttribute : Attribute
+    {
+        public static readonly MethodInfo BeforeSanitizeMethod = typeof(SanitizerAttribute).GetMethod(nameof(BeforeSanitize), BindingFlags.Instance | BindingFlags.NonPublic);
+        public static readonly MethodInfo AfterSanitizeMethod = typeof(SanitizerAttribute).GetMethod(nameof(AfterSanitize), BindingFlags.Instance | BindingFlags.NonPublic);
+
+        /// <summary>
+        /// Called immediately before an object is sanitized.
+        /// </summary>
+        protected virtual object BeforeSanitize(object value) => value;
+
+        /// <summary>
+        /// Called immediately after an object is sanitized.
+        /// </summary>
+        protected virtual object AfterSanitize(object value) => value;
+    }
+
     public class ComplexTypeSanitizer<T> : SanitizerBase<T> where T : class
     {
         readonly Func<T, T> _sanitize;
@@ -398,47 +435,56 @@ namespace nhitomi
             var type  = typeof(T);
             var param = Expression.Parameter(type, "value");
 
-            var body = type.GetProperties()
-                           .Where(p => p.CanRead && p.CanWrite)
-                           .Select(p =>
-                            {
-                                if (p.IsDefined(typeof(SanitizerIgnoreAttribute), true))
-                                    return null;
+            var body = new List<Expression>();
 
-                                var sanitizer = ModelSanitizer.GetSanitizer(p.PropertyType);
-
-                                if (sanitizer is IEmptySanitizer)
-                                    return null;
-
-                                var sanitizerMethod = sanitizer.GetType().GetMethod(nameof(Sanitize));
-
-                                var property = Expression.Property(param, p);
-
-                                // ReSharper disable once AssignNullToNotNullAttribute
-                                return Expression.Assign(property, Expression.Call(Expression.Constant(sanitizer), sanitizerMethod, property)) as Expression;
-                            })
-                           .Where(x => x != null)
-                           .ToList();
-
-            // sanitize callback
+            // before sanitize callback
             if (typeof(ISanitizableObject).IsAssignableFrom(type))
+                body.Add(Expression.Call(param, ISanitizableObject.BeforeSanitizeMethod));
+
+            var paramAttrs = type.GetCustomAttributes().OfType<SanitizerAttribute>().ToArray();
+
+            // before sanitize attributes
+            body.AddRange(paramAttrs.Select(a => Expression.Assign(param, Expression.Convert(Expression.Call(Expression.Constant(a), SanitizerAttribute.BeforeSanitizeMethod, Expression.Convert(param, typeof(object))), type))));
+
+            foreach (var property in type.GetProperties().Where(p => p.CanRead && p.CanWrite))
             {
-                var before = type.GetMethod(nameof(ISanitizableObject.BeforeSanitize));
-                var after  = type.GetMethod(nameof(ISanitizableObject.AfterSanitize));
+                // skip on ignore attribute
+                if (property.IsDefined(typeof(SanitizerIgnoreAttribute), true))
+                    continue;
 
-                if (before != null)
-                    body.Insert(0, Expression.Call(param, before));
+                var target = Expression.Property(param, property);
 
-                if (after != null)
-                    body.Add(Expression.Call(param, after));
+                var propertyAttrs = property.GetCustomAttributes().OfType<SanitizerAttribute>().ToArray();
+
+                // before sanitize attributes on property
+                body.AddRange(propertyAttrs.Select(a => Expression.Assign(target, Expression.Convert(Expression.Call(Expression.Constant(a), SanitizerAttribute.BeforeSanitizeMethod, Expression.Convert(target, typeof(object))), property.PropertyType))));
+
+                // property sanitizer
+                var sanitizer      = ModelSanitizer.GetSanitizer(property.PropertyType);
+                var sanitizeMethod = sanitizer.GetType().GetMethod(nameof(Sanitize));
+
+                if (!(sanitizer is IEmptySanitizer) && sanitizeMethod != null)
+                    body.Add(Expression.Assign(target, Expression.Call(Expression.Constant(sanitizer), sanitizeMethod, target)));
+
+                // after sanitize attributes on property
+                body.AddRange(propertyAttrs.Select(a => Expression.Assign(target, Expression.Convert(Expression.Call(Expression.Constant(a), SanitizerAttribute.AfterSanitizeMethod, Expression.Convert(target, typeof(object))), property.PropertyType))));
             }
 
-            // return value
+            // after sanitize attributes
+            body.AddRange(paramAttrs.Select(a => Expression.Assign(param, Expression.Convert(Expression.Call(Expression.Constant(a), SanitizerAttribute.AfterSanitizeMethod, Expression.Convert(param, typeof(object))), type))));
+
+            // after sanitize callback
+            if (typeof(ISanitizableObject).IsAssignableFrom(type))
+                body.Add(Expression.Call(param, ISanitizableObject.AfterSanitizeMethod));
+
+            // return value expression
             body.Add(param);
 
-            _sanitize = body.Count == 0
-                ? v => v
-                : Expression.Lambda<Func<T, T>>(Expression.Block(body), param).CompileFast();
+            var lambda = Expression.Lambda<Func<T, T>>(Expression.Block(body), param);
+
+            ModelSanitizer.OnExpressionBuilt?.Invoke(lambda);
+
+            _sanitize = lambda.CompileFast();
         }
 
         public override T Sanitize(T value) => value is null ? null : _sanitize(value);
