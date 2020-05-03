@@ -419,7 +419,7 @@ namespace nhitomi.Database
                     return newIndex;
 
                 var excludeFields = typeof(T).GetProperties()
-                                             .Where(p => p.IsDefined(typeof(DbCachedAttribute)))
+                                             .Where(p => p.GetCustomAttributes().OfType<DbSourceExcludeAttribute>().Any())
                                              .ToArray(p => p.GetCustomAttributes().OfType<IPropertyMapping>().First().Name);
 
                 // index mapping update
