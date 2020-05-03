@@ -143,7 +143,7 @@ namespace nhitomi.Database
         {
             _keyMemory?.Add(key);
 
-            return (long) await _database.StringGetAsync(key);
+            return (long) await _database.StringGetAsync(key.Prepend(_keyPrefix));
         }
 
         public Task<bool> SetAsync(RedisKey key, RedisValue value, TimeSpan? expiry = null, When when = When.Always, CancellationToken cancellationToken = default)
@@ -160,7 +160,7 @@ namespace nhitomi.Database
             var pairs = new KeyValuePair<RedisKey, RedisValue>[keys.Length];
 
             for (var i = 0; i < keys.Length; i++)
-                pairs[i] = new KeyValuePair<RedisKey, RedisValue>(keys[i], values[i]);
+                pairs[i] = new KeyValuePair<RedisKey, RedisValue>(keys[i].Prepend(_keyPrefix), values[i]);
 
             return _database.StringSetAsync(pairs, when);
         }
@@ -175,16 +175,16 @@ namespace nhitomi.Database
             var pairs = new KeyValuePair<RedisKey, RedisValue>[keys.Length];
 
             for (var i = 0; i < keys.Length; i++)
-                pairs[i] = new KeyValuePair<RedisKey, RedisValue>(keys[i], MessagePackSerializer.Serialize(values[i], _serializerOptions));
+                pairs[i] = new KeyValuePair<RedisKey, RedisValue>(keys[i].Prepend(_keyPrefix), MessagePackSerializer.Serialize(values[i], _serializerOptions));
 
             var transaction = _database.CreateTransaction();
 
             var set = transaction.StringSetAsync(pairs, when);
 
             if (expiry != null)
-                foreach (var key in keys)
+                foreach (var pair in pairs)
                 {
-                    var _ = transaction.KeyExpireAsync(key, expiry);
+                    var _ = transaction.KeyExpireAsync(pair.Key, expiry);
                 }
 
             return await transaction.ExecuteAsync() && await set;
@@ -193,12 +193,13 @@ namespace nhitomi.Database
         public async Task<bool> SetIfEqualAsync(RedisKey key, RedisValue value, RedisValue comparand, TimeSpan? expiry = null, When when = When.Always, CancellationToken cancellationToken = default)
         {
             _keyMemory?.Add(key);
+            key = key.Prepend(_keyPrefix);
 
             var transaction = _database.CreateTransaction();
 
-            transaction.AddCondition(Condition.StringEqual(key.Prepend(_keyPrefix), comparand));
+            transaction.AddCondition(Condition.StringEqual(key, comparand));
 
-            var set = transaction.StringSetAsync(key.Prepend(_keyPrefix), value, expiry, when);
+            var set = transaction.StringSetAsync(key, value, expiry, when);
 
             return await transaction.ExecuteAsync() && await set;
         }
@@ -207,7 +208,7 @@ namespace nhitomi.Database
         {
             _keyMemory?.Add(key);
 
-            return await _database.StringIncrementAsync(key, delta);
+            return await _database.StringIncrementAsync(key.Prepend(_keyPrefix), delta);
         }
 
         public Task<bool> DeleteAsync(RedisKey key, CancellationToken cancellationToken = default)
