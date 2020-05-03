@@ -94,7 +94,7 @@ namespace nhitomi.Discord.Commands
                         new EmbedFieldBuilder
                         {
                             Name  = l["sources.title"],
-                            Value = string.Join('\n', _scrapers.Books.Select(s => $"- {s.Type} — {s.Url}"))
+                            Value = string.Join('\n', _scrapers.Books.Select(s => $"- {s.Type.GetEnumName()} — {s.Url}"))
                         }
                     });
                     break;
