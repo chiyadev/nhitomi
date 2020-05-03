@@ -1,3 +1,4 @@
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using nhitomi.Controllers;
@@ -42,7 +43,7 @@ namespace nhitomi.Discord
                     Discriminator = context.Executor.DiscriminatorValue
                 }, cancellationToken);
 
-                await _redis.SetObjectAsync(idCache, user.Id, cancellationToken: cancellationToken);
+                await _redis.SetObjectAsync(idCache, user.Id, TimeSpan.FromHours(1), cancellationToken: cancellationToken);
             }
 
             context.User   = user;

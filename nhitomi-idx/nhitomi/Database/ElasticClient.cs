@@ -59,6 +59,11 @@ namespace nhitomi.Database
         public string CachePrefix { get; set; } = "el:";
 
         /// <summary>
+        /// Expiry of cached objects.
+        /// </summary>
+        public TimeSpan CacheExpiry { get; set; } = TimeSpan.FromHours(1);
+
+        /// <summary>
         /// Time to wait when Elasticsearch is being overloaded.
         /// </summary>
         public TimeSpan RateLimitWait { get; set; } = TimeSpan.FromSeconds(3);
@@ -367,13 +372,15 @@ namespace nhitomi.Database
             public readonly string Name;
             public readonly string IndexName;
             public readonly string CachePrefix;
+            public readonly TimeSpan CacheExpiry;
 
-            public IndexInfo(Type type, string indexPrefix, string cachePrefix)
+            public IndexInfo(Type type, ElasticOptions options)
             {
                 Name = (type.GetCustomAttribute<ElasticsearchTypeAttribute>()?.RelationName ?? type.Name).ToLowerInvariant();
 
-                IndexName   = indexPrefix + Name;
-                CachePrefix = cachePrefix + Name + ":";
+                IndexName   = options.IndexPrefix + Name;
+                CachePrefix = options.CachePrefix + Name + ":";
+                CacheExpiry = options.CacheExpiry;
             }
 
             public override string ToString() => IndexName;
@@ -390,7 +397,7 @@ namespace nhitomi.Database
             if (_indexes.TryGetValue(type, out var index))
                 return index;
 
-            index = new IndexInfo(type, options.IndexPrefix, options.CachePrefix);
+            index = new IndexInfo(type, options);
 
             var measure = new MeasureContext();
 
@@ -590,7 +597,7 @@ namespace nhitomi.Database
                 Refresh(info);
 
                 // update cache
-                await _redis.SetObjectAsync(index.CachePrefix + Id, info, cancellationToken: cancellationToken);
+                await _redis.SetObjectAsync(index.CachePrefix + Id, info, index.CacheExpiry, cancellationToken: cancellationToken);
 
                 return _value;
             }
@@ -629,7 +636,7 @@ namespace nhitomi.Database
                 Refresh(info);
 
                 // update cache
-                await _redis.SetObjectAsync(index.CachePrefix + Id, info, cancellationToken: cancellationToken);
+                await _redis.SetObjectAsync(index.CachePrefix + Id, info, index.CacheExpiry, cancellationToken: cancellationToken);
             }
 
 #endregion
@@ -646,7 +653,7 @@ namespace nhitomi.Database
                 Refresh(info);
 
                 // update cache
-                await _redis.SetObjectAsync(index.CachePrefix + Id, info, cancellationToken: cancellationToken);
+                await _redis.SetObjectAsync(index.CachePrefix + Id, info, index.CacheExpiry, cancellationToken: cancellationToken);
 
                 return _value;
             }
@@ -695,7 +702,7 @@ namespace nhitomi.Database
             {
                 info = await GetDirectAsync<T>(id, cancellationToken);
 
-                await _redis.SetObjectAsync(index.CachePrefix + id, info, cancellationToken: cancellationToken);
+                await _redis.SetObjectAsync(index.CachePrefix + id, info, index.CacheExpiry, cancellationToken: cancellationToken);
             }
 
             return new EntryWrapper<T>(this, id, info);
@@ -737,7 +744,7 @@ namespace nhitomi.Database
             for (var i = 0; i < infos.Length; i++)
                 cacheKeys[i] = index.CachePrefix + infos[i].Value.Id;
 
-            await _redis.SetObjectManyAsync(cacheKeys, infos, cancellationToken: cancellationToken);
+            await _redis.SetObjectManyAsync(cacheKeys, infos, index.CacheExpiry, cancellationToken: cancellationToken);
 
             return new SearchResult<IDbEntry<T>>
             {

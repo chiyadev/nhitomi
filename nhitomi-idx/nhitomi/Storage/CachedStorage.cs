@@ -19,6 +19,11 @@ namespace nhitomi.Storage
         public string Prefix { get; set; } = "fs:";
 
         /// <summary>
+        /// Expiry of cached files.
+        /// </summary>
+        public TimeSpan Expiry { get; set; } = TimeSpan.FromMinutes(30);
+
+        /// <summary>
         /// Inner storage.
         /// </summary>
         public StorageOptions Inner { get; set; } = new StorageOptions();
@@ -70,7 +75,7 @@ namespace nhitomi.Storage
                                 MediaType = file.MediaType
                             };
 
-                            await _redis.SetObjectAsync(_options.Prefix + name, cache, cancellationToken: cancellationToken);
+                            await _redis.SetObjectAsync(_options.Prefix + name, cache, _options.Expiry, cancellationToken: cancellationToken);
                         }
                 }
 
@@ -110,11 +115,15 @@ namespace nhitomi.Storage
             var result = await _impl.WriteAsync(file, cancellationToken);
 
             if (result.IsT0)
-                await _redis.SetObjectAsync(_options.Prefix + file.Name, new Cache
+            {
+                var cache = new Cache
                 {
                     Data      = data,
                     MediaType = file.MediaType
-                }, cancellationToken: CancellationToken.None); // don't cancel
+                };
+
+                await _redis.SetObjectAsync(_options.Prefix + file.Name, cache, _options.Expiry, cancellationToken: CancellationToken.None); // don't cancel
+            }
 
             return result;
         }
