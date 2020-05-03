@@ -11,7 +11,7 @@ namespace nhitomi.Database
     /// Represents an image in an imageboard/booru (synonymous to "post").
     /// </summary>
     [MessagePackObject, ElasticsearchType(RelationName = nameof(Image))]
-    public class DbImage : DbObjectBase<Image>, IDbHasType, IDbModelConvertible<DbImage, Image, ImageBase>, IHasUpdatedTime, IDbSupportsAutocomplete
+    public class DbImage : DbObjectBase<Image>, IDbHasType, IDbModelConvertible<DbImage, Image, ImageBase>, IHasUpdatedTime, IDbSupportsAutocomplete, ISanitizableObject
     {
         [IgnoreMember, Ignore]
         ObjectType IDbHasType.Type => ObjectType.Image;
@@ -138,6 +138,14 @@ namespace nhitomi.Database
         }
 
 #endregion
+
+        public void BeforeSanitize()
+        {
+            foreach (var (key, value) in _tags.DictClone())
+                _tags[key] = TagFormatter.Format(value);
+        }
+
+        void ISanitizableObject.AfterSanitize() { }
 
         public static implicit operator nhitomiObject(DbImage image) => new nhitomiObject(ObjectType.Image, image.Id);
     }
