@@ -215,7 +215,8 @@ namespace nhitomi
                     .AddSingleton<IUserService, UserService>()
                     .AddSingleton<IBookService, BookService>()
                     .AddSingleton<ISnapshotService, SnapshotService>()
-                    .AddSingleton<IVoteService, VoteService>();
+                    .AddSingleton<IVoteService, VoteService>()
+                    .AddSingleton<ICollectionService, CollectionService>();
 
             // redis
             services.Configure<RedisOptions>(_configuration.GetSection("Redis"))
