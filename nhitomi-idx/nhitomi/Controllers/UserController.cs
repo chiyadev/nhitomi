@@ -65,6 +65,12 @@ namespace nhitomi.Controllers
         }
 
         /// <summary>
+        /// Retrieves user information of the requester.
+        /// </summary>
+        [HttpGet("me", Name = "getSelfUser")]
+        public User GetSelfAsync() => ProcessUser(User.Convert());
+
+        /// <summary>
         /// Updates user information.
         /// </summary>
         /// <param name="id">User ID.</param>
@@ -73,7 +79,7 @@ namespace nhitomi.Controllers
         [HttpPut("{id}", Name = "updateUser"), RequireUser(Unrestricted = false)]
         public async Task<ActionResult<User>> UpdateAsync(string id, UserBase model, [FromQuery] string reason = null)
         {
-            if (!User.HasPermissions(UserPermissions.ManageUsers) && UserId != id)
+            if (UserId != id && !User.HasPermissions(UserPermissions.ManageUsers))
                 return ResultUtilities.Forbidden("Insufficient permissions to update this user.");
 
             var result = await _users.UpdateAsync(id, model, new SnapshotArgs
