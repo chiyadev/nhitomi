@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Nest;
@@ -12,18 +13,34 @@ using IElasticClient = nhitomi.Database.IElasticClient;
 
 namespace nhitomi.Controllers
 {
+    public class CollectionConstraints
+    {
+        public string OwnerId { get; set; }
+
+        public bool Test(DbCollection collection)
+        {
+            if (OwnerId != null && Array.IndexOf(collection.OwnerIds, OwnerId) == -1)
+                return false;
+
+            return true;
+        }
+    }
+
     public interface ICollectionService
     {
         Task<OneOf<DbCollection, NotFound>> GetAsync(string id, CancellationToken cancellationToken = default);
         Task<SearchResult<DbCollection>> GetUserCollectionsAsync(string id, bool publicOnly, CancellationToken cancellationToken = default);
 
-        Task<OneOf<DbCollection, NotFound>> UpdateAsync(string id, CollectionBase collection, CancellationToken cancellationToken = default);
-        Task<OneOf<DbCollection, NotFound>> SortAsync(string id, string[] items, CancellationToken cancellationToken = default);
+        Task<OneOf<DbCollection, NotFound>> UpdateAsync(string id, CollectionBase collection, CollectionConstraints constraints, CancellationToken cancellationToken = default);
+        Task<OneOf<DbCollection, NotFound>> SortAsync(string id, string[] items, CollectionConstraints constraints, CancellationToken cancellationToken = default);
 
-        Task<OneOf<DbCollection, NotFound>> AddItemsAsync(string id, string[] items, CollectionInsertPosition position, CancellationToken cancellationToken = default);
-        Task<OneOf<DbCollection, NotFound>> RemoveItemsAsync(string id, string[] items, CancellationToken cancellationToken = default);
+        Task<OneOf<DbCollection, NotFound>> AddItemsAsync(string id, string[] items, CollectionInsertPosition position, CollectionConstraints constraints, CancellationToken cancellationToken = default);
+        Task<OneOf<DbCollection, NotFound>> RemoveItemsAsync(string id, string[] items, CollectionConstraints constraints, CancellationToken cancellationToken = default);
 
-        Task<OneOf<Success, NotFound>> DeleteAsync(string id, CancellationToken cancellationToken = default);
+        Task<OneOf<DbCollection, NotFound>> AddOwnerAsync(string id, string userId, CollectionConstraints constraints, CancellationToken cancellationToken = default);
+        Task<OneOf<DbCollection, Success, NotFound>> RemoveOwnerAsync(string id, string userId, CollectionConstraints constraints, CancellationToken cancellationToken = default);
+
+        Task<OneOf<Success, NotFound>> DeleteAsync(string id, CollectionConstraints constraints, CancellationToken cancellationToken = default);
     }
 
     public class CollectionService : ICollectionService
@@ -72,13 +89,13 @@ namespace nhitomi.Controllers
         public Task<SearchResult<DbCollection>> GetUserCollectionsAsync(string id, bool publicOnly, CancellationToken cancellationToken = default)
             => _client.SearchAsync(new UserCollectionQuery(id, publicOnly), cancellationToken);
 
-        public async Task<OneOf<DbCollection, NotFound>> UpdateAsync(string id, CollectionBase collection, CancellationToken cancellationToken = default)
+        public async Task<OneOf<DbCollection, NotFound>> UpdateAsync(string id, CollectionBase collection, CollectionConstraints constraints, CancellationToken cancellationToken = default)
         {
             var entry = await _client.GetEntryAsync<DbCollection>(id, cancellationToken);
 
             do
             {
-                if (entry.Value == null)
+                if (entry.Value == null || !constraints.Test(entry.Value))
                     return new NotFound();
 
                 if (!entry.Value.TryApplyBase(collection))
@@ -89,7 +106,7 @@ namespace nhitomi.Controllers
             return entry.Value;
         }
 
-        public async Task<OneOf<DbCollection, NotFound>> SortAsync(string id, string[] items, CancellationToken cancellationToken = default)
+        public async Task<OneOf<DbCollection, NotFound>> SortAsync(string id, string[] items, CollectionConstraints constraints, CancellationToken cancellationToken = default)
         {
             // we build an index table and sort the collection using it
             // this allows the collection to be sorted even if the set of items isn't exactly the same
@@ -103,7 +120,7 @@ namespace nhitomi.Controllers
 
             do
             {
-                if (entry.Value == null)
+                if (entry.Value == null || !constraints.Test(entry.Value))
                     return new NotFound();
 
                 if (entry.Value.Items.Length == 0)
@@ -125,13 +142,13 @@ namespace nhitomi.Controllers
             return entry.Value;
         }
 
-        public async Task<OneOf<DbCollection, NotFound>> AddItemsAsync(string id, string[] items, CollectionInsertPosition position, CancellationToken cancellationToken = default)
+        public async Task<OneOf<DbCollection, NotFound>> AddItemsAsync(string id, string[] items, CollectionInsertPosition position, CollectionConstraints constraints, CancellationToken cancellationToken = default)
         {
             var entry = await _client.GetEntryAsync<DbCollection>(id, cancellationToken);
 
             do
             {
-                if (entry.Value == null)
+                if (entry.Value == null || !constraints.Test(entry.Value))
                     return new NotFound();
 
                 if (items.Length == 0)
@@ -171,13 +188,13 @@ namespace nhitomi.Controllers
             return entry.Value;
         }
 
-        public async Task<OneOf<DbCollection, NotFound>> RemoveItemsAsync(string id, string[] items, CancellationToken cancellationToken = default)
+        public async Task<OneOf<DbCollection, NotFound>> RemoveItemsAsync(string id, string[] items, CollectionConstraints constraints, CancellationToken cancellationToken = default)
         {
             var entry = await _client.GetEntryAsync<DbCollection>(id, cancellationToken);
 
             do
             {
-                if (entry.Value == null)
+                if (entry.Value == null || !constraints.Test(entry.Value))
                     return new NotFound();
 
                 if (items.Length == 0)
@@ -206,13 +223,59 @@ namespace nhitomi.Controllers
             return entry.Value;
         }
 
-        public async Task<OneOf<Success, NotFound>> DeleteAsync(string id, CancellationToken cancellationToken = default)
+        public async Task<OneOf<DbCollection, NotFound>> AddOwnerAsync(string id, string userId, CollectionConstraints constraints, CancellationToken cancellationToken = default)
         {
             var entry = await _client.GetEntryAsync<DbCollection>(id, cancellationToken);
 
             do
             {
-                if (entry.Value == null)
+                if (entry.Value == null || !constraints.Test(entry.Value))
+                    return new NotFound();
+
+                entry.Value.OwnerIds = entry.Value.OwnerIds.Append(userId).Distinct().ToArray();
+            }
+            while (!await entry.TryUpdateAsync(cancellationToken));
+
+            return entry.Value;
+        }
+
+        public async Task<OneOf<DbCollection, Success, NotFound>> RemoveOwnerAsync(string id, string userId, CollectionConstraints constraints, CancellationToken cancellationToken = default)
+        {
+            var entry = await _client.GetEntryAsync<DbCollection>(id, cancellationToken);
+
+            do
+            {
+                if (entry.Value == null || !constraints.Test(entry.Value))
+                    return new NotFound();
+
+                if (!entry.Value.OwnerIds.Contains(userId))
+                    return entry.Value;
+
+                entry.Value.OwnerIds = entry.Value.OwnerIds.Where(x => x != userId).ToArray();
+
+                // if no owner, delete collection
+                if (entry.Value.OwnerIds.Length == 0)
+                {
+                    if (await entry.TryDeleteAsync(cancellationToken))
+                        return new Success();
+                }
+
+                else
+                {
+                    if (await entry.TryUpdateAsync(cancellationToken))
+                        return entry.Value;
+                }
+            }
+            while (true);
+        }
+
+        public async Task<OneOf<Success, NotFound>> DeleteAsync(string id, CollectionConstraints constraints, CancellationToken cancellationToken = default)
+        {
+            var entry = await _client.GetEntryAsync<DbCollection>(id, cancellationToken);
+
+            do
+            {
+                if (entry.Value == null || !constraints.Test(entry.Value))
                     return new NotFound();
             }
             while (!await entry.TryDeleteAsync(cancellationToken));
