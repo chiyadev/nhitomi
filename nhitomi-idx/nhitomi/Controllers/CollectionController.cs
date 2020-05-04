@@ -21,6 +21,18 @@ namespace nhitomi.Controllers
             _users       = users;
         }
 
+        /// <summary>
+        /// Creates a new empty collection.
+        /// </summary>
+        /// <param name="request">Create collection request.</param>
+        [HttpPost, RequireUser(Unrestricted = true)]
+        public async Task<ActionResult<Collection>> CreateAsync(CreateCollectionRequest request)
+        {
+            var result = await _collections.CreateAsync(request.Type, request, UserId);
+
+            return result.AsT0.Convert();
+        }
+
         CollectionConstraints CurrentConstraint => new CollectionConstraints
         {
             // allow manage users perm because collections are considered as part of "user data"

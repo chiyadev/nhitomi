@@ -28,8 +28,10 @@ namespace nhitomi.Controllers
 
     public interface ICollectionService
     {
+        Task<OneOf<DbCollection>> CreateAsync(ObjectType type, CollectionBase model, string userId, CancellationToken cancellationToken = default);
+
         Task<OneOf<DbCollection, NotFound>> GetAsync(string id, CancellationToken cancellationToken = default);
-        Task<SearchResult<DbCollection>> GetUserCollectionsAsync(string id, bool publicOnly, CancellationToken cancellationToken = default);
+        Task<SearchResult<DbCollection>> GetUserCollectionsAsync(string id, CancellationToken cancellationToken = default);
 
         Task<OneOf<DbCollection, NotFound>> UpdateAsync(string id, CollectionBase collection, CollectionConstraints constraints, CancellationToken cancellationToken = default);
         Task<OneOf<DbCollection, NotFound>> SortAsync(string id, string[] items, CollectionConstraints constraints, CancellationToken cancellationToken = default);
@@ -52,6 +54,18 @@ namespace nhitomi.Controllers
             _client = client;
         }
 
+        public async Task<OneOf<DbCollection>> CreateAsync(ObjectType type, CollectionBase model, string userId, CancellationToken cancellationToken = default)
+        {
+            var collection = new DbCollection
+            {
+                Type     = type,
+                OwnerIds = new[] { userId },
+                Items    = Array.Empty<string>()
+            }.ApplyBase(model);
+
+            return await _client.Entry(collection).CreateAsync(cancellationToken);
+        }
+
         public async Task<OneOf<DbCollection, NotFound>> GetAsync(string id, CancellationToken cancellationToken = default)
         {
             var collection = await _client.GetAsync<DbCollection>(id, cancellationToken);
@@ -65,29 +79,19 @@ namespace nhitomi.Controllers
         sealed class UserCollectionQuery : IQueryProcessor<DbCollection>
         {
             readonly string _userId;
-            readonly bool _publicOnly;
 
-            public UserCollectionQuery(string userId, bool publicOnly)
+            public UserCollectionQuery(string userId)
             {
-                _userId     = userId;
-                _publicOnly = publicOnly;
+                _userId = userId;
             }
 
             public SearchDescriptor<DbCollection> Process(SearchDescriptor<DbCollection> descriptor)
                 => descriptor.Take(1000)
-                             .MultiQuery(q =>
-                              {
-                                  q = q.Filter((FilterQuery<string>) _userId, c => c.OwnerIds);
-
-                                  if (_publicOnly)
-                                      q = q.Filter((FilterQuery<bool>) true, c => c.IsPublic);
-
-                                  return q;
-                              });
+                             .MultiQuery(q => q.Filter((FilterQuery<string>) _userId, c => c.OwnerIds));
         }
 
-        public Task<SearchResult<DbCollection>> GetUserCollectionsAsync(string id, bool publicOnly, CancellationToken cancellationToken = default)
-            => _client.SearchAsync(new UserCollectionQuery(id, publicOnly), cancellationToken);
+        public Task<SearchResult<DbCollection>> GetUserCollectionsAsync(string id, CancellationToken cancellationToken = default)
+            => _client.SearchAsync(new UserCollectionQuery(id), cancellationToken);
 
         public async Task<OneOf<DbCollection, NotFound>> UpdateAsync(string id, CollectionBase collection, CollectionConstraints constraints, CancellationToken cancellationToken = default)
         {
