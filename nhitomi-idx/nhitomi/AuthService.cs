@@ -21,6 +21,19 @@ namespace nhitomi
         Invalidated
     }
 
+    [MessagePackObject]
+    public class AuthTokenPayload
+    {
+        [Key(0)]
+        public string UserId { get; set; }
+
+        [Key(1)]
+        public DateTime Expiry { get; set; }
+
+        [Key(2)]
+        public long SessionId { get; set; }
+    }
+
     public interface IAuthService
     {
         Task<string> GenerateTokenAsync(DbUser user, CancellationToken cancellationToken = default);

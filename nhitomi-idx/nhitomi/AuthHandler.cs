@@ -3,7 +3,6 @@ using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Text.Encodings.Web;
 using System.Threading.Tasks;
-using MessagePack;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -11,19 +10,6 @@ using Microsoft.Extensions.Options;
 namespace nhitomi
 {
     public class AuthOptions : AuthenticationSchemeOptions { }
-
-    [MessagePackObject]
-    public class AuthTokenPayload
-    {
-        [Key(0)]
-        public string UserId { get; set; }
-
-        [Key(1)]
-        public DateTime Expiry { get; set; }
-
-        [Key(2)]
-        public long SessionId { get; set; }
-    }
 
     public class AuthHandler : AuthenticationHandler<AuthOptions>
     {
