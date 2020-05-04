@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using nhitomi.Database;
+using nhitomi.Models;
 using nhitomi.Models.Requests;
 
 namespace nhitomi.Controllers
@@ -23,11 +24,13 @@ namespace nhitomi.Controllers
     {
         readonly IAuthService _auth;
         readonly IDiscordOAuthHandler _discord;
+        readonly IUserService _users;
 
-        public UserController(IAuthService auth, IDiscordOAuthHandler discord)
+        public UserController(IAuthService auth, IDiscordOAuthHandler discord, IUserService users)
         {
             _auth    = auth;
             _discord = discord;
+            _users   = users;
         }
 
         /// <summary>
@@ -42,8 +45,94 @@ namespace nhitomi.Controllers
             return new AuthenticateResponse
             {
                 Token = await _auth.GenerateTokenAsync(user),
-                User  = ProcessUser(user.Convert())
+                User  = user.Convert() // no ProcessUser
             };
+        }
+
+        /// <summary>
+        /// Retrieves user information.
+        /// </summary>
+        /// <param name="id">User ID.</param>
+        [HttpGet("{id}", Name = "getUser")]
+        public async Task<ActionResult<User>> GetAsync(string id)
+        {
+            var result = await _users.GetAsync(id);
+
+            if (!result.TryPickT0(out var user, out _))
+                return ResultUtilities.NotFound(id);
+
+            return ProcessUser(user.Convert());
+        }
+
+        /// <summary>
+        /// Updates user information.
+        /// </summary>
+        /// <param name="id">User ID.</param>
+        /// <param name="model">New user information.</param>
+        /// <param name="reason">Reason for this action.</param>
+        [HttpPut("{id}", Name = "updateUser"), RequireUser(Unrestricted = false)]
+        public async Task<ActionResult<User>> UpdateAsync(string id, UserBase model, [FromQuery] string reason = null)
+        {
+            if (!User.HasPermissions(UserPermissions.ManageUsers) && UserId != id)
+                return ResultUtilities.Forbidden("Insufficient permissions to update this user.");
+
+            var result = await _users.UpdateAsync(id, model, new SnapshotArgs
+            {
+                Committer = User,
+                Event     = SnapshotEvent.AfterModification,
+                Reason    = reason,
+                Source    = SnapshotSource.User
+            });
+
+            if (!result.TryPickT0(out var user, out _))
+                return ResultUtilities.NotFound(id);
+
+            return ProcessUser(user.Convert());
+        }
+
+        /// <summary>
+        /// Adds a restriction to a user.
+        /// </summary>
+        /// <param name="id">User ID.</param>
+        /// <param name="request">Restriction request.</param>
+        /// <param name="reason">Reason for this action.</param>
+        [HttpPost("{id}/restrictions", Name = "restrictUser"), RequireUser(Unrestricted = true, Permissions = UserPermissions.RestrictUsers), RequireReason]
+        public async Task<ActionResult<User>> RestrictAsync(string id, RestrictUserRequest request, [FromQuery] string reason = null)
+        {
+            var result = await _users.RestrictAsync(id, UserId, request.Duration, new SnapshotArgs
+            {
+                Committer = User,
+                Event     = SnapshotEvent.AfterModification,
+                Reason    = reason,
+                Source    = SnapshotSource.User
+            });
+
+            if (!result.TryPickT0(out var user, out _))
+                return ResultUtilities.NotFound(id);
+
+            return ProcessUser(user.Convert());
+        }
+
+        /// <summary>
+        /// Ends all currently active restrictions for a user.
+        /// </summary>
+        /// <param name="id">User ID.</param>
+        /// <param name="reason">Reason for this action.</param>
+        [HttpDelete("{id}/restrictions", Name = "clearUserRestrictions"), RequireUser(Unrestricted = true, Permissions = UserPermissions.RestrictUsers), RequireReason]
+        public async Task<ActionResult<User>> UnrestrictAsync(string id, [FromQuery] string reason = null)
+        {
+            var result = await _users.UnrestrictAsync(id, new SnapshotArgs
+            {
+                Committer = User,
+                Event     = SnapshotEvent.AfterModification,
+                Reason    = reason,
+                Source    = SnapshotSource.User
+            });
+
+            if (!result.TryPickT0(out var user, out _))
+                return ResultUtilities.NotFound(id);
+
+            return ProcessUser(user.Convert());
         }
     }
 }
