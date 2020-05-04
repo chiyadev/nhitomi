@@ -16,13 +16,13 @@ namespace nhitomi.Models
         public string Id { get; set; }
 
         /// <summary>
-        /// Time when this book was created.
+        /// Time when this collection was created.
         /// </summary>
         [Required]
         public DateTime CreatedTime { get; set; }
 
         /// <summary>
-        /// Time when this book was updated.
+        /// Time when this collection was updated.
         /// </summary>
         [Required]
         public DateTime UpdatedTime { get; set; }
