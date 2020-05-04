@@ -23,9 +23,6 @@ namespace nhitomi.Database
         [Key("Tu"), Date(Name = "Tu")]
         public DateTime UpdatedTime { get; set; }
 
-        [Key("pu"), Boolean(Name = "pu", DocValues = false)]
-        public bool IsPublic { get; set; }
-
         [Key("ow"), Keyword(Name = "ow", DocValues = false)]
         public string[] OwnerIds { get; set; }
 
@@ -43,7 +40,6 @@ namespace nhitomi.Database
             model.Description = Description;
             model.CreatedTime = CreatedTime;
             model.UpdatedTime = UpdatedTime;
-            model.IsPublic    = IsPublic;
             model.OwnerIds    = OwnerIds;
             model.Type        = Type;
             model.Items       = Items;
@@ -57,7 +53,6 @@ namespace nhitomi.Database
             Description = model.Description;
             CreatedTime = model.CreatedTime;
             UpdatedTime = model.UpdatedTime;
-            IsPublic    = model.IsPublic;
             OwnerIds    = model.OwnerIds;
             Type        = model.Type;
             Items       = model.Items;

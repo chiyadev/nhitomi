@@ -151,9 +151,10 @@ namespace nhitomi.Controllers
         [HttpGet("{id}/collections", Name = "getUserCollections"), RequireUser]
         public async Task<ActionResult<SearchResult<Collection>>> GetCollectionsAsync(string id)
         {
-            var publicOnly = UserId != id && !User.HasPermissions(UserPermissions.ManageUsers);
+            if (UserId != id && !User.HasPermissions(UserPermissions.ManageUsers))
+                return ResultUtilities.Forbidden("Insufficient permissions to see user collections.");
 
-            var result = await _collections.GetUserCollectionsAsync(id, publicOnly);
+            var result = await _collections.GetUserCollectionsAsync(id);
 
             return result.Project(c => c.Convert());
         }

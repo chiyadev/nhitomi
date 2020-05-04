@@ -59,11 +59,5 @@ namespace nhitomi.Models
         /// </summary>
         [Required]
         public string Description { get; set; }
-
-        /// <summary>
-        /// True if this collection can be accessed by any user publicly.
-        /// </summary>
-        [Required]
-        public bool IsPublic { get; set; }
     }
 }
