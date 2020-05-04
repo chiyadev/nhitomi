@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -114,34 +113,17 @@ namespace nhitomi.Controllers
                 if (entry.Value == null)
                     return new NotFound();
 
-                var list = new List<DbUserRestriction>();
+                var now = DateTime.UtcNow;
 
-                if (entry.Value.Restrictions != null)
-                    list.AddRange(entry.Value.Restrictions);
-
-                var start = DateTime.UtcNow;
-
-                // if the user already has an active restriction, add to the duration
-                var last = list.LastOrDefault();
-
-                if (last != null && start < last.EndTime)
-                    start = last.EndTime ?? start;
-
-                var end = start as DateTime?;
-
-                if (duration == null)
-                    end = null;
-
-                // append to the list of restrictions
-                list.Add(new DbUserRestriction
+                var restriction = new DbUserRestriction
                 {
-                    StartTime   = start,
-                    EndTime     = end,
+                    StartTime   = now,
+                    EndTime     = now + duration,
                     ModeratorId = moderatorId,
                     Reason      = snapshot?.Reason
-                });
+                };
 
-                entry.Value.Restrictions = list.ToArray();
+                entry.Value.Restrictions = (entry.Value.Restrictions ?? Enumerable.Empty<DbUserRestriction>()).Append(restriction).ToArray();
             }
             while (!await entry.TryUpdateAsync(cancellationToken));
 
@@ -170,7 +152,7 @@ namespace nhitomi.Controllers
                 foreach (var restriction in entry.Value.Restrictions)
                 {
                     // currently active restrictions
-                    if (restriction.StartTime <= now && now < restriction.EndTime)
+                    if (now <= restriction.EndTime || restriction.EndTime == null)
                     {
                         // move restriction end time to current time, ending it immediately
                         restriction.EndTime = now;
@@ -181,7 +163,7 @@ namespace nhitomi.Controllers
                     // future restrictions
                     else if (now < restriction.StartTime)
                     {
-                        // move restriction end time to start time, which invalidates it
+                        // move restriction end time to start time, invalidating it
                         restriction.EndTime = restriction.StartTime;
 
                         changed = true;
