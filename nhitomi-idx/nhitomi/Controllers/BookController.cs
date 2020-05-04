@@ -117,16 +117,13 @@ namespace nhitomi.Controllers
         [HttpDelete("{id}", Name = "deleteBook"), RequireHuman, RequireUser(Unrestricted = true), RequireReason]
         public async Task<ActionResult> DeleteAsync(string id, [FromQuery] string reason = null)
         {
-            var result = await _books.DeleteAsync(id, new SnapshotArgs
+            await _books.DeleteAsync(id, new SnapshotArgs
             {
                 Committer = User,
                 Event     = SnapshotEvent.BeforeDeletion,
                 Reason    = reason,
                 Source    = SnapshotSource.User
             });
-
-            if (!result.IsT0)
-                return ResultUtilities.NotFound(id);
 
             return Ok();
         }
@@ -143,16 +140,13 @@ namespace nhitomi.Controllers
         [HttpDelete("{id}/contents/{contentId}", Name = "deleteBookContent"), RequireHuman, RequireUser(Unrestricted = true), RequireReason]
         public async Task<ActionResult> DeleteContentAsync(string id, string contentId, [FromQuery] string reason = null)
         {
-            var result = await _books.DeleteContentAsync(id, contentId, new SnapshotArgs
+            await _books.DeleteContentAsync(id, contentId, new SnapshotArgs
             {
                 Committer = User,
                 Event     = SnapshotEvent.BeforeDeletion,
                 Reason    = reason,
                 Source    = SnapshotSource.User
             });
-
-            if (!result.TryPickT0(out _, out var x) && !x.TryPickT0(out _, out _))
-                return ResultUtilities.NotFound(id, contentId);
 
             return Ok();
         }
