@@ -15,7 +15,7 @@ namespace nhitomi.Controllers
     public interface ICollectionService
     {
         Task<OneOf<DbCollection, NotFound>> GetAsync(ObjectType type, string id, CancellationToken cancellationToken = default);
-        Task<SearchResult<DbCollection>> GetUserCollectionsAsync(ObjectType type, string id, bool publicOnly, CancellationToken cancellationToken = default);
+        Task<SearchResult<DbCollection>> GetUserCollectionsAsync(string id, bool publicOnly, CancellationToken cancellationToken = default);
 
         Task<OneOf<DbCollection, NotFound>> UpdateAsync(ObjectType type, string id, CollectionBase collection, CancellationToken cancellationToken = default);
         Task<OneOf<DbCollection, NotFound>> SortAsync(ObjectType type, string id, string[] items, CancellationToken cancellationToken = default);
@@ -69,7 +69,7 @@ namespace nhitomi.Controllers
                               });
         }
 
-        public Task<SearchResult<DbCollection>> GetUserCollectionsAsync(ObjectType type, string id, bool publicOnly, CancellationToken cancellationToken = default)
+        public Task<SearchResult<DbCollection>> GetUserCollectionsAsync(string id, bool publicOnly, CancellationToken cancellationToken = default)
             => _client.SearchAsync(new UserCollectionQuery(id, publicOnly), cancellationToken);
 
         public async Task<OneOf<DbCollection, NotFound>> UpdateAsync(ObjectType type, string id, CollectionBase collection, CancellationToken cancellationToken = default)
