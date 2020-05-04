@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace nhitomi.Models
 {
     /// <summary>
@@ -8,6 +10,7 @@ namespace nhitomi.Models
         /// <summary>
         /// Notes on this image.
         /// </summary>
+        [Required]
         public ImageNote[] Notes { get; set; }
     }
 }
