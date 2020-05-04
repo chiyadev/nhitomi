@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using nhitomi.Database;
 using nhitomi.Models;
+using nhitomi.Models.Queries;
 using nhitomi.Models.Requests;
 
 namespace nhitomi.Controllers
@@ -25,12 +26,14 @@ namespace nhitomi.Controllers
         readonly IAuthService _auth;
         readonly IDiscordOAuthHandler _discord;
         readonly IUserService _users;
+        readonly ICollectionService _collections;
 
-        public UserController(IAuthService auth, IDiscordOAuthHandler discord, IUserService users)
+        public UserController(IAuthService auth, IDiscordOAuthHandler discord, IUserService users, ICollectionService collections)
         {
-            _auth    = auth;
-            _discord = discord;
-            _users   = users;
+            _auth        = auth;
+            _discord     = discord;
+            _users       = users;
+            _collections = collections;
         }
 
         /// <summary>
@@ -67,7 +70,7 @@ namespace nhitomi.Controllers
         /// <summary>
         /// Retrieves user information of the requester.
         /// </summary>
-        [HttpGet("me", Name = "getSelfUser")]
+        [HttpGet("me", Name = "getSelfUser"), RequireUser]
         public User GetSelfAsync() => ProcessUser(User.Convert());
 
         /// <summary>
@@ -124,7 +127,7 @@ namespace nhitomi.Controllers
         /// </summary>
         /// <param name="id">User ID.</param>
         /// <param name="reason">Reason for this action.</param>
-        [HttpDelete("{id}/restrictions", Name = "clearUserRestrictions"), RequireUser(Unrestricted = true, Permissions = UserPermissions.RestrictUsers), RequireReason]
+        [HttpDelete("{id}/restrictions", Name = "unrestrictUser"), RequireUser(Unrestricted = true, Permissions = UserPermissions.RestrictUsers), RequireReason]
         public async Task<ActionResult<User>> UnrestrictAsync(string id, [FromQuery] string reason = null)
         {
             var result = await _users.UnrestrictAsync(id, new SnapshotArgs
@@ -139,6 +142,20 @@ namespace nhitomi.Controllers
                 return ResultUtilities.NotFound(id);
 
             return ProcessUser(user.Convert());
+        }
+
+        /// <summary>
+        /// Retrieves all collections owned by a user.
+        /// </summary>
+        /// <param name="id">User ID.</param>
+        [HttpGet("{id}/collections", Name = "getUserCollections"), RequireUser]
+        public async Task<ActionResult<SearchResult<Collection>>> GetCollectionsAsync(string id)
+        {
+            var publicOnly = UserId != id && !User.HasPermissions(UserPermissions.ManageUsers);
+
+            var result = await _collections.GetUserCollectionsAsync(id, publicOnly);
+
+            return result.Project(c => c.Convert());
         }
     }
 }

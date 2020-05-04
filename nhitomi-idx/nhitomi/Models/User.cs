@@ -57,21 +57,32 @@ namespace nhitomi.Models
         public UserPermissions[] Permissions { get; set; }
 
         /// <summary>
-        /// User configured language.
-        /// </summary>
-        [Required]
-        public LanguageType Language { get; set; }
-
-        /// <summary>
         /// Discord connection information.
         /// </summary>
         public UserDiscordConnection DiscordConnection { get; set; }
+
+        /// <summary>
+        /// ID of the book collection in which favorite books are added.
+        /// </summary>
+        public string DefaultBookCollection { get; set; }
     }
 
     public class UserBase
     {
         public const int UsernameMinLength = 4;
         public const int UsernameMaxLength = 20;
+
+        /// <summary>
+        /// User configured language.
+        /// </summary>
+        [Required]
+        public LanguageType Language { get; set; }
+
+        /// <summary>
+        /// True to allow sharing collections with this user.
+        /// </summary>
+        [Required]
+        public bool AllowSharedCollections { get; set; }
     }
 
     [Flags]
@@ -94,7 +105,7 @@ namespace nhitomi.Models
         ManageUsers = 1 << 1,
 
         /// <summary>
-        /// Can restrict and derestrict users.
+        /// Can restrict and unrestrict users.
         /// </summary>
         RestrictUsers = 1 << 2,
 

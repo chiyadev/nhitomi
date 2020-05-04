@@ -33,10 +33,16 @@ namespace nhitomi.Database
         public UserPermissions[] Permissions { get; set; }
 
         [Key("ln"), Keyword(Name = "ln", DocValues = false)]
-        public LanguageType Language { get; set; }
+        public LanguageType Language { get; set; } = LanguageType.English;
 
         [Key("cd"), Object(Name = "cd", Enabled = false)]
         public DbUserDiscordConnection DiscordConnection { get; set; }
+
+        [Key("cA"), Keyword(Name = "cA", Index = false)]
+        public bool AllowSharedCollections { get; set; } = true;
+
+        [Key("cb"), Keyword(Name = "cd", Index = false)]
+        public string DefaultBookCollection { get; set; }
 
         /// <summary>
         /// Returns true if this user has the specified permissions.
@@ -49,28 +55,32 @@ namespace nhitomi.Database
         {
             base.MapTo(model);
 
-            model.CreatedTime       = CreatedTime;
-            model.UpdatedTime       = UpdatedTime;
-            model.Username          = Username;
-            model.Email             = Email;
-            model.Restrictions      = Restrictions?.ToArray(r => r.Convert()) ?? Array.Empty<UserRestriction>();
-            model.Permissions       = Permissions;
-            model.Language          = Language;
-            model.DiscordConnection = DiscordConnection?.Convert();
+            model.CreatedTime            = CreatedTime;
+            model.UpdatedTime            = UpdatedTime;
+            model.Username               = Username;
+            model.Email                  = Email;
+            model.Restrictions           = Restrictions?.ToArray(r => r.Convert()) ?? Array.Empty<UserRestriction>();
+            model.Permissions            = Permissions;
+            model.Language               = Language;
+            model.DiscordConnection      = DiscordConnection?.Convert();
+            model.AllowSharedCollections = AllowSharedCollections;
+            model.DefaultBookCollection  = DefaultBookCollection;
         }
 
         public override void MapFrom(User model)
         {
             base.MapFrom(model);
 
-            CreatedTime       = model.CreatedTime;
-            UpdatedTime       = model.UpdatedTime;
-            Username          = model.Username;
-            Email             = model.Email;
-            Restrictions      = model.Restrictions?.ToArray(r => new DbUserRestriction().Apply(r));
-            Permissions       = model.Permissions.ToDistinctFlags();
-            Language          = model.Language;
-            DiscordConnection = model.DiscordConnection == null ? null : new DbUserDiscordConnection().Apply(model.DiscordConnection);
+            CreatedTime            = model.CreatedTime;
+            UpdatedTime            = model.UpdatedTime;
+            Username               = model.Username;
+            Email                  = model.Email;
+            Restrictions           = model.Restrictions?.ToArray(r => new DbUserRestriction().Apply(r));
+            Permissions            = model.Permissions.ToDistinctFlags();
+            Language               = model.Language;
+            DiscordConnection      = model.DiscordConnection == null ? null : new DbUserDiscordConnection().Apply(model.DiscordConnection);
+            AllowSharedCollections = model.AllowSharedCollections;
+            DefaultBookCollection  = model.DefaultBookCollection;
         }
 
 #region Cached
