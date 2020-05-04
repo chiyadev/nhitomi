@@ -23,7 +23,12 @@ namespace nhitomi.Models
         /// <summary>
         /// <see cref="Snapshot"/>
         /// </summary>
-        Snapshot = 3
+        Snapshot = 3,
+
+        /// <summary>
+        /// <see cref="Collection"/>
+        /// </summary>
+        Collection = 4
     }
 
     /// <summary>
