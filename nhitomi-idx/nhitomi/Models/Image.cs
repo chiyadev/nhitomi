@@ -52,6 +52,7 @@ namespace nhitomi.Models
         /// <summary>
         /// Source from where this image was downloaded.
         /// </summary>
+        [Required]
         public ScraperType Source { get; set; }
     }
 

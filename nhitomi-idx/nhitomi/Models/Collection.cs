@@ -51,13 +51,13 @@ namespace nhitomi.Models
         /// <summary>
         /// Name of this collection.
         /// </summary>
-        [Required]
+        [Required, MinLength(1), MaxLength(64)]
         public string Name { get; set; }
 
         /// <summary>
         /// Text describing this collection.
         /// </summary>
-        [Required]
+        [Required, MaxLength(512)]
         public string Description { get; set; }
     }
 }

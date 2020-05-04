@@ -40,14 +40,14 @@ namespace nhitomi.Models
         /// <summary>
         /// Fully localized name of this book, which is usually in Japanese.
         /// </summary>
-        [Required, MinLength(3)]
+        [Required, MinLength(3), MaxLength(64)]
         public string PrimaryName { get; set; }
 
         /// <summary>
         /// Name of this book translated to English.
         /// This should be in plain comprehensible English, not a direct romanization of primary name.
         /// </summary>
-        [MinLength(3)]
+        [MinLength(3), MaxLength(64)]
         public string EnglishName { get; set; }
 
         /// <summary>
