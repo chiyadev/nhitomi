@@ -38,10 +38,10 @@ namespace nhitomi.Database
         [Key("cd"), Object(Name = "cd", Enabled = false)]
         public DbUserDiscordConnection DiscordConnection { get; set; }
 
-        [Key("cA"), Keyword(Name = "cA", Index = false)]
+        [Key("Cs"), Keyword(Name = "Cs", Index = false)]
         public bool AllowSharedCollections { get; set; } = true;
 
-        [Key("cb"), Keyword(Name = "cd", Index = false)]
+        [Key("Cb"), Keyword(Name = "Cb", Index = false)]
         public string DefaultBookCollection { get; set; }
 
         /// <summary>
