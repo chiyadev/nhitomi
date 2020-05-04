@@ -44,21 +44,23 @@ namespace nhitomi.Controllers
 
         Task<int> CountAsync(CancellationToken cancellationToken = default);
 
-        Task<OneOf<DbUser, NotFound>> UpdateAsync(string id, UserBase user, CancellationToken cancellationToken = default);
+        Task<OneOf<DbUser, NotFound>> UpdateAsync(string id, UserBase user, SnapshotArgs snapshot, CancellationToken cancellationToken = default);
 
-        Task<OneOf<DbUser, NotFound>> RestrictAsync(string id, string moderatorId, TimeSpan? duration, string reason, CancellationToken cancellationToken = default);
-        Task<OneOf<DbUser, NotFound>> UnrestrictAsync(string id, CancellationToken cancellationToken = default);
+        Task<OneOf<DbUser, NotFound>> RestrictAsync(string id, string moderatorId, TimeSpan? duration, SnapshotArgs snapshot, CancellationToken cancellationToken = default);
+        Task<OneOf<DbUser, NotFound>> UnrestrictAsync(string id, SnapshotArgs snapshot, CancellationToken cancellationToken = default);
     }
 
     public class UserService : IUserService
     {
         readonly IOptionsMonitor<UserServiceOptions> _options;
         readonly IElasticClient _client;
+        readonly ISnapshotService _snapshots;
 
-        public UserService(IOptionsMonitor<UserServiceOptions> options, IElasticClient client)
+        public UserService(IOptionsMonitor<UserServiceOptions> options, IElasticClient client, ISnapshotService snapshots)
         {
-            _options = options;
-            _client  = client;
+            _options   = options;
+            _client    = client;
+            _snapshots = snapshots;
         }
 
         public DbUser MakeUserObject() => new DbUser
@@ -83,7 +85,7 @@ namespace nhitomi.Controllers
         public Task<int> CountAsync(CancellationToken cancellationToken = default)
             => _client.CountAsync<DbUser>(cancellationToken);
 
-        public async Task<OneOf<DbUser, NotFound>> UpdateAsync(string id, UserBase user, CancellationToken cancellationToken = default)
+        public async Task<OneOf<DbUser, NotFound>> UpdateAsync(string id, UserBase user, SnapshotArgs snapshot, CancellationToken cancellationToken = default)
         {
             var entry = await _client.GetEntryAsync<DbUser>(id, cancellationToken);
 
@@ -97,10 +99,13 @@ namespace nhitomi.Controllers
             }
             while (!await entry.TryUpdateAsync(cancellationToken));
 
+            if (snapshot != null)
+                await _snapshots.CreateAsync(entry.Value, snapshot, cancellationToken);
+
             return entry.Value;
         }
 
-        public async Task<OneOf<DbUser, NotFound>> RestrictAsync(string id, string moderatorId, TimeSpan? duration, string reason, CancellationToken cancellationToken = default)
+        public async Task<OneOf<DbUser, NotFound>> RestrictAsync(string id, string moderatorId, TimeSpan? duration, SnapshotArgs snapshot, CancellationToken cancellationToken = default)
         {
             var entry = await _client.GetEntryAsync<DbUser>(id, cancellationToken);
 
@@ -133,17 +138,20 @@ namespace nhitomi.Controllers
                     StartTime   = start,
                     EndTime     = end,
                     ModeratorId = moderatorId,
-                    Reason      = reason
+                    Reason      = snapshot?.Reason
                 });
 
                 entry.Value.Restrictions = list.ToArray();
             }
             while (!await entry.TryUpdateAsync(cancellationToken));
 
+            if (snapshot != null)
+                await _snapshots.CreateAsync(entry.Value, snapshot, cancellationToken);
+
             return entry.Value;
         }
 
-        public async Task<OneOf<DbUser, NotFound>> UnrestrictAsync(string id, CancellationToken cancellationToken = default)
+        public async Task<OneOf<DbUser, NotFound>> UnrestrictAsync(string id, SnapshotArgs snapshot, CancellationToken cancellationToken = default)
         {
             var entry = await _client.GetEntryAsync<DbUser>(id, cancellationToken);
 
@@ -184,6 +192,9 @@ namespace nhitomi.Controllers
                     break;
             }
             while (!await entry.TryUpdateAsync(cancellationToken));
+
+            if (snapshot != null)
+                await _snapshots.CreateAsync(entry.Value, snapshot, cancellationToken);
 
             return entry.Value;
         }
