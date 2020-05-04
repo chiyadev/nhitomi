@@ -28,8 +28,7 @@ namespace nhitomi.Models
         public DateTime UpdatedTime { get; set; }
 
         /// <summary>
-        /// IDs of users that own this collection.
-        /// The first user is the original creator of this collection.
+        /// IDs of users that jointly own this collection.
         /// </summary>
         [Required]
         public string[] OwnerIds { get; set; }
