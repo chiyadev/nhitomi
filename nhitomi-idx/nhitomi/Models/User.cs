@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using nhitomi.Models.Validation;
 
@@ -60,11 +61,6 @@ namespace nhitomi.Models
         /// Discord connection information.
         /// </summary>
         public UserDiscordConnection DiscordConnection { get; set; }
-
-        /// <summary>
-        /// ID of the book collection in which favorite books are added.
-        /// </summary>
-        public string DefaultBookCollection { get; set; }
     }
 
     public class UserBase
@@ -83,6 +79,11 @@ namespace nhitomi.Models
         /// </summary>
         [Required]
         public bool AllowSharedCollections { get; set; }
+
+        /// <summary>
+        /// IDs of special collections.
+        /// </summary>
+        public Dictionary<ObjectType, Dictionary<SpecialCollection, string>> SpecialCollections { get; set; }
     }
 
     [Flags]

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using MessagePack;
 using Nest;
 using nhitomi.Models;
@@ -41,8 +42,8 @@ namespace nhitomi.Database
         [Key("Cs"), Keyword(Name = "Cs", Index = false)]
         public bool AllowSharedCollections { get; set; } = true;
 
-        [Key("Cb"), Keyword(Name = "Cb", Index = false)]
-        public string DefaultBookCollection { get; set; }
+        [Key("Cp"), Object(Name = "Cp", Enabled = false)]
+        public Dictionary<ObjectType, Dictionary<SpecialCollection, string>> SpecialCollections { get; set; }
 
         /// <summary>
         /// Returns true if this user has the specified permissions.
@@ -64,7 +65,7 @@ namespace nhitomi.Database
             model.Language               = Language;
             model.DiscordConnection      = DiscordConnection?.Convert();
             model.AllowSharedCollections = AllowSharedCollections;
-            model.DefaultBookCollection  = DefaultBookCollection;
+            model.SpecialCollections     = SpecialCollections;
         }
 
         public override void MapFrom(User model)
@@ -80,7 +81,7 @@ namespace nhitomi.Database
             Language               = model.Language;
             DiscordConnection      = model.DiscordConnection == null ? null : new DbUserDiscordConnection().Apply(model.DiscordConnection);
             AllowSharedCollections = model.AllowSharedCollections;
-            DefaultBookCollection  = model.DefaultBookCollection;
+            SpecialCollections     = model.SpecialCollections;
         }
 
 #region Cached

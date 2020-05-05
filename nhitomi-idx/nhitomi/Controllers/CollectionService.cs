@@ -29,9 +29,10 @@ namespace nhitomi.Controllers
     public interface ICollectionService
     {
         Task<OneOf<DbCollection>> CreateAsync(ObjectType type, CollectionBase model, string userId, CancellationToken cancellationToken = default);
-
         Task<OneOf<DbCollection, NotFound>> GetAsync(string id, CancellationToken cancellationToken = default);
+
         Task<SearchResult<DbCollection>> GetUserCollectionsAsync(string id, CancellationToken cancellationToken = default);
+        Task<OneOf<IDbEntry<DbCollection>, NotFound>> GetOrCreateUserSpecialCollectionAsync(string userId, ObjectType type, SpecialCollection collection, CancellationToken cancellationToken = default);
 
         Task<OneOf<DbCollection, NotFound>> UpdateAsync(string id, CollectionBase collection, CollectionConstraints constraints, CancellationToken cancellationToken = default);
         Task<OneOf<DbCollection, NotFound>> SortAsync(string id, string[] items, CollectionConstraints constraints, CancellationToken cancellationToken = default);
@@ -92,6 +93,48 @@ namespace nhitomi.Controllers
 
         public Task<SearchResult<DbCollection>> GetUserCollectionsAsync(string id, CancellationToken cancellationToken = default)
             => _client.SearchAsync(new UserCollectionQuery(id), cancellationToken);
+
+        public async Task<OneOf<IDbEntry<DbCollection>, NotFound>> GetOrCreateUserSpecialCollectionAsync(string userId, ObjectType type, SpecialCollection collection, CancellationToken cancellationToken = default)
+        {
+            IDbEntry<DbCollection> collectionEntry;
+
+            var userEntry = await _client.GetEntryAsync<DbUser>(userId, cancellationToken);
+
+            do
+            {
+                if (userEntry.Value == null)
+                    return new NotFound();
+
+                userEntry.Value.SpecialCollections ??= new Dictionary<ObjectType, Dictionary<SpecialCollection, string>>();
+
+                // check if user already has collection
+                if (userEntry.Value.SpecialCollections.TryGetValue(type, out var col) && col.TryGetValue(collection, out var collectionId))
+                {
+                    collectionEntry = await _client.GetEntryAsync<DbCollection>(collectionId, cancellationToken);
+
+                    if (collectionEntry.Value != null)
+                        return OneOf<IDbEntry<DbCollection>, NotFound>.FromT0(collectionEntry);
+                }
+
+                // create collection after updating user
+                collectionEntry = _client.Entry(new DbCollection
+                {
+                    Type     = type,
+                    OwnerIds = new[] { userId },
+                    Items    = Array.Empty<string>()
+                });
+
+                if (userEntry.Value.SpecialCollections.TryGetValue(type, out col))
+                    col[collection] = collectionEntry.Id;
+                else
+                    userEntry.Value.SpecialCollections[type] = new Dictionary<SpecialCollection, string> { [collection] = collectionEntry.Id };
+            }
+            while (!await userEntry.TryUpdateAsync(cancellationToken));
+
+            await collectionEntry.CreateAsync(cancellationToken);
+
+            return OneOf<IDbEntry<DbCollection>, NotFound>.FromT0(collectionEntry);
+        }
 
         public async Task<OneOf<DbCollection, NotFound>> UpdateAsync(string id, CollectionBase collection, CollectionConstraints constraints, CancellationToken cancellationToken = default)
         {

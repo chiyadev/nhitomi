@@ -60,4 +60,20 @@ namespace nhitomi.Models
         [Required, MaxLength(512)]
         public string Description { get; set; }
     }
+
+    /// <summary>
+    /// Special types of collections.
+    /// </summary>
+    public enum SpecialCollection
+    {
+        /// <summary>
+        /// Indicates that a collection be used for objects marked favorite.
+        /// </summary>
+        Favorites = 0,
+
+        /// <summary>
+        /// Indicates that a collection be used for objects marked "see later".
+        /// </summary>
+        Later = 1
+    }
 }
