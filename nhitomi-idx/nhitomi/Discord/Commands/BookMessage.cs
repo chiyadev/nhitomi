@@ -74,7 +74,7 @@ namespace nhitomi.Discord.Commands
                              .ToList(t => new EmbedFieldBuilder
                               {
                                   Name     = l.Sections["tags"][t.ToString()],
-                                  Value    = string.Join(", ", book.GetTags(t)),
+                                  Value    = string.Join(", ", book.GetTags(t).OrderBy(x => x)),
                                   IsInline = true
                               })
             }
