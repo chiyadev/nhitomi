@@ -26,7 +26,7 @@ namespace nhitomi.Discord.Commands
         public async Task GetAsync([Remainder] string link)
         {
             // try book scrapers
-            var books = await _scrapers.Books.ToAsyncEnumerable().SelectMany(s => s.FindBookByUrlAsync(link, true)).Select(x => x.book.Value).ToArrayAsync();
+            var books = await _scrapers.Books.ToAsyncEnumerable().SelectMany(s => s.FindByUrlAsync(link, true)).Select(x => x.book.Value).ToArrayAsync();
 
             switch (books.Length)
             {
@@ -48,7 +48,7 @@ namespace nhitomi.Discord.Commands
         public async Task ViewAsync([Remainder] string link)
         {
             // try book scrapers
-            var (book, content) = await _scrapers.Books.ToAsyncEnumerable().SelectMany(s => s.FindBookByUrlAsync(link, true)).FirstOrDefaultAsync();
+            var (book, content) = await _scrapers.Books.ToAsyncEnumerable().SelectMany(s => s.FindByUrlAsync(link, true)).FirstOrDefaultAsync();
 
             if (book != null && content != null)
             {

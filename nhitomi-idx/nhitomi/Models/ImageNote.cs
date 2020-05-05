@@ -45,7 +45,7 @@ namespace nhitomi.Models
         /// <summary>
         /// Content text that supports markdown.
         /// </summary>
-        [Required, MinLength(5), MaxLength(1024)]
+        [Required, MinLength(5), MaxLength(256)]
         public string Content { get; set; }
     }
 }

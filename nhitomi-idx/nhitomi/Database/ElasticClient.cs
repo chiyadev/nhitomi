@@ -45,7 +45,7 @@ namespace nhitomi.Database
         /// <summary>
         /// Time between Elasticsearch index refreshes.
         /// </summary>
-        public TimeSpan RefreshInterval { get; set; } = TimeSpan.FromSeconds(1);
+        public TimeSpan RefreshInterval { get; set; } = TimeSpan.FromSeconds(5);
 
         /// <summary>
         /// Refresh setting when updating Elasticsearch indexes.
@@ -76,7 +76,7 @@ namespace nhitomi.Database
         /// <summary>
         /// Number of items to search per chunk when searching as a stream.
         /// </summary>
-        public int StreamSearchChunkSize { get; set; } = 20;
+        public int StreamSearchChunkSize { get; set; } = 10;
     }
 
     public interface IQueryProcessor<T> where T : class, IDbObject
@@ -234,9 +234,23 @@ namespace nhitomi.Database
         Task<T> RefreshAsync(CancellationToken cancellationToken = default);
     }
 
+    public class IndexingOptions
+    {
+        public Refresh? Refresh { get; set; }
+
+        public void MergeInto(IndexingOptions options)
+            => options.Refresh ??= Refresh;
+    }
+
     public interface IElasticClient : IDisposable
     {
         Task InitializeAsync(CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// Uses the given options while indexing.
+        /// This is only valid within the caller's async context.
+        /// </summary>
+        IDisposable UseIndexingOptions(IndexingOptions options);
 
         /// <summary>
         /// Creates a wrapper object of the specified type with the given ID.
@@ -251,7 +265,7 @@ namespace nhitomi.Database
         /// This method is useful when creating a new object in the database.
         /// Operations on the object will bypass concurrency checks because concurrency information had not been loaded (hence it is not recommended).
         /// </remarks>
-        IDbEntry<T> Entry<T>(T value) where T : class, IDbObject => Entry<T>(value.Id ?? Snowflake.New).Chain(x => x.Value = value);
+        IDbEntry<T> Entry<T>(T value) where T : class, IDbObject;
 
         /// <summary>
         /// Retrieves an object from the database.
@@ -275,6 +289,11 @@ namespace nhitomi.Database
         /// Retrieves multiple objects from the database and wraps them in <see cref="IDbEntry{T}"/>.
         /// </summary>
         Task<IDbEntry<T>[]> GetEntryManyAsync<T>(string[] ids, CancellationToken cancellationToken = default) where T : class, IDbObject => Task.WhenAll(ids.Select(id => GetEntryAsync<T>(id, cancellationToken)));
+
+        /// <summary>
+        /// Indexes many objects in bulk.
+        /// </summary>
+        Task<IDbEntry<T>[]> IndexManyAsync<T>(T[] values, OpType type, CancellationToken cancellationToken = default) where T : class, IDbObject => Task.WhenAll(values.Select(v => Entry(v).Chain(x => x.CreateAsync(cancellationToken))));
 
         /// <summary>
         /// Searches for objects from the database.
@@ -318,9 +337,9 @@ namespace nhitomi.Database
         readonly IOptionsMonitor<ElasticOptions> _options;
         readonly IRedisClient _redis;
         readonly IResourceLocker _locker;
-        readonly ILogger<Nest.ElasticClient> _logger;
+        readonly ILogger<ElasticClient> _logger;
 
-        public ElasticClient(IOptionsMonitor<ElasticOptions> options, IRedisClient redis, IResourceLocker locker, ILogger<Nest.ElasticClient> logger)
+        public ElasticClient(IOptionsMonitor<ElasticOptions> options, IRedisClient redis, IResourceLocker locker, ILogger<ElasticClient> logger)
         {
             var opts = options.CurrentValue;
 
@@ -342,6 +361,25 @@ namespace nhitomi.Database
             _logger.LogWarning($"Connecting to Elasticsearch endpoint: {_options.CurrentValue.Endpoint}");
 
             return Task.CompletedTask;
+        }
+
+        readonly AsyncLocal<Stack<IndexingOptions>> _indexingOptions = new AsyncLocal<Stack<IndexingOptions>>();
+
+        public IDisposable UseIndexingOptions(IndexingOptions options)
+            => (_indexingOptions.Value ??= new Stack<IndexingOptions>()).PushContext(options);
+
+        IndexingOptions CurrentIndexingOptions
+        {
+            get
+            {
+                var options = new IndexingOptions();
+
+                if (_indexingOptions.Value != null)
+                    foreach (var opts in _indexingOptions.Value)
+                        opts.MergeInto(options);
+
+                return options;
+            }
         }
 
         async Task<T> Request<T>(Func<Nest.ElasticClient, Task<T>> request) where T : IResponse
@@ -492,6 +530,7 @@ namespace nhitomi.Database
 #endregion
 
         public IDbEntry<T> Entry<T>(string id) where T : class, IDbObject => new EntryWrapper<T>(this, id);
+        public IDbEntry<T> Entry<T>(T value) where T : class, IDbObject => Entry<T>(value.Id ?? Snowflake.New).Chain(x => x.Value = value);
 
         /// <summary>
         /// Serializable entry object for storing in cache.
@@ -515,7 +554,7 @@ namespace nhitomi.Database
         sealed class EntryWrapper<T> : IDbEntry<T> where T : class, IDbObject
         {
             readonly ElasticClient _client;
-            readonly ILogger<Nest.ElasticClient> _logger;
+            readonly ILogger<ElasticClient> _logger;
             readonly IRedisClient _redis;
 
             public string Id { get; }
@@ -545,7 +584,7 @@ namespace nhitomi.Database
                 Id = id;
 
                 if (info != null)
-                    Refresh(info);
+                    SetInfo(info);
             }
 
 #region Index
@@ -556,36 +595,40 @@ namespace nhitomi.Database
             public Task<T> UpdateAsync(CancellationToken cancellationToken = default)
                 => IndexAsyncInternal(OpType.Index, cancellationToken);
 
-            async Task<T> IndexAsyncInternal(OpType type, CancellationToken cancellationToken = default)
+            internal void PrepareIndexInternal()
             {
-                if (Value == null)
+                if (_value == null)
                     throw new InvalidOperationException($"Cannot create or update entry when {nameof(Value)} is null.");
 
-                var measure = new MeasureContext();
-                var options = _client._options.CurrentValue;
+                var now = DateTime.UtcNow;
+
+                if (_value is IHasCreatedTime hasCreatedTime && hasCreatedTime.CreatedTime == default)
+                    hasCreatedTime.CreatedTime = now;
+
+                if (_value is IHasUpdatedTime hasUpdatedTime)
+                    hasUpdatedTime.UpdatedTime = now;
+
+                _value.UpdateCache();
+            }
+
+            async Task<T> IndexAsyncInternal(OpType type, CancellationToken cancellationToken = default)
+            {
+                var measure  = new MeasureContext();
+                var options  = _client._options.CurrentValue;
+                var options2 = _client.CurrentIndexingOptions;
+
+                PrepareIndexInternal();
 
                 var index = await _client.GetIndexAsync<T>(cancellationToken);
 
-                // set created time
-                if (_value is IHasCreatedTime hasCreatedTime && hasCreatedTime.CreatedTime == default)
-                    hasCreatedTime.CreatedTime = DateTime.UtcNow;
-
-                // set updated time
-                if (_value is IHasUpdatedTime hasUpdatedTime)
-                    hasUpdatedTime.UpdatedTime = DateTime.UtcNow;
-
-                // update cached properties
-                _value.UpdateCache();
-
-                // index request
                 IIndexRequest<T> selector(IndexDescriptor<T> x)
                 {
                     x = x.Index(index.IndexName)
                          .Id(Id)
                          .OpType(type)
-                         .Refresh(options.RequestRefreshOption);
+                         .Refresh(options2.Refresh ?? options.RequestRefreshOption);
 
-                    if (type == OpType.Index) // create can't have versioning
+                    if (type != OpType.Create) // create can't have versioning
                         x = x.IfSequenceNumber(_sequenceNumber)
                              .IfPrimaryTerm(_primaryTerm);
 
@@ -597,7 +640,6 @@ namespace nhitomi.Database
                 if (_logger.IsEnabled(LogLevel.Debug))
                     _logger.LogDebug($"{(type == OpType.Index ? "Indexed" : "Created")} {index} {Id} in {measure}: {SerializeValue(Value)}");
 
-                // update info
                 var info = new EntryInfo<T>
                 {
                     Value          = _value,
@@ -605,7 +647,7 @@ namespace nhitomi.Database
                     PrimaryTerm    = response.PrimaryTerm
                 };
 
-                Refresh(info);
+                SetInfo(info);
 
                 // update cache
                 await _redis.SetObjectAsync(index.CachePrefix + Id, info, index.CacheExpiry, cancellationToken: cancellationToken);
@@ -619,32 +661,31 @@ namespace nhitomi.Database
 
             public async Task DeleteAsync(CancellationToken cancellationToken = default)
             {
-                var measure = new MeasureContext();
-                var options = _client._options.CurrentValue;
+                var measure  = new MeasureContext();
+                var options  = _client._options.CurrentValue;
+                var options2 = _client.CurrentIndexingOptions;
 
                 var index = await _client.GetIndexAsync<T>(cancellationToken);
 
-                // delete request
                 IDeleteRequest selector(DeleteDescriptor<T> x)
                     => x.Index(index.IndexName)
                         .IfSequenceNumber(_sequenceNumber)
                         .IfPrimaryTerm(_primaryTerm)
-                        .Refresh(options.RequestRefreshOption);
+                        .Refresh(options2.Refresh ?? options.RequestRefreshOption);
 
                 var response = await _client.Request(c => c.DeleteAsync<T>(Id, selector, cancellationToken));
 
                 if (_logger.IsEnabled(LogLevel.Debug))
                     _logger.LogDebug($"Deleted {index} {Id} in {measure}: {SerializeValue(Value)}");
 
-                // update info
                 var info = new EntryInfo<T>
                 {
-                    Value          = _value = default,
+                    Value          = default,
                     SequenceNumber = response.SequenceNumber,
                     PrimaryTerm    = response.PrimaryTerm
                 };
 
-                Refresh(info);
+                SetInfo(info);
 
                 // update cache
                 await _redis.SetObjectAsync(index.CachePrefix + Id, info, index.CacheExpiry, cancellationToken: cancellationToken);
@@ -658,10 +699,10 @@ namespace nhitomi.Database
             {
                 var index = await _client.GetIndexAsync<T>(cancellationToken);
 
-                // update info with fresh values
+                // set info with fresh value
                 var info = await _client.GetDirectAsync<T>(Id, cancellationToken);
 
-                Refresh(info);
+                SetInfo(info);
 
                 // update cache
                 await _redis.SetObjectAsync(index.CachePrefix + Id, info, index.CacheExpiry, cancellationToken: cancellationToken);
@@ -669,7 +710,7 @@ namespace nhitomi.Database
                 return _value;
             }
 
-            void Refresh(EntryInfo<T> info)
+            internal void SetInfo(EntryInfo<T> info)
             {
                 _value          = info.Value;
                 _sequenceNumber = info.SequenceNumber;
@@ -701,7 +742,7 @@ namespace nhitomi.Database
         public async Task<IDbEntry<T>> GetEntryAsync<T>(string id, CancellationToken cancellationToken = default) where T : class, IDbObject
         {
             if (string.IsNullOrEmpty(id))
-                return Entry<T>(null);
+                return Entry<T>(id);
 
             var index = await GetIndexAsync<T>(cancellationToken);
 
@@ -727,7 +768,7 @@ namespace nhitomi.Database
         {
             var index = await GetIndexAsync<T>(cancellationToken);
 
-            var response = await Request(c => c.MultiGetAsync(x => x.Index(index.IndexName).GetMany<T>(ids), cancellationToken));
+            var response = await Request(c => c.MultiGetAsync(x => x.Index(index.IndexName).GetMany<T>(ids).Realtime(), cancellationToken));
 
             var indexes = new Dictionary<string, int>(ids.Length);
 
@@ -760,7 +801,7 @@ namespace nhitomi.Database
             if (ids == null || ids.Length == 0)
                 return Array.Empty<IDbEntry<T>>();
 
-            if (ids.Length == 0)
+            if (ids.Length == 1)
                 return new[] { await GetEntryAsync<T>(ids[0], cancellationToken) };
 
             var index = await GetIndexAsync<T>(cancellationToken);
@@ -812,6 +853,95 @@ namespace nhitomi.Database
                 entries[i] = new EntryWrapper<T>(this, ids[i], infos[i]);
 
             return entries;
+        }
+
+#endregion
+
+#region Create (bulk)
+
+        public async Task<IDbEntry<T>[]> IndexManyAsync<T>(T[] values, OpType type, CancellationToken cancellationToken = default) where T : class, IDbObject
+        {
+            if (values == null || values.Length == 0)
+                return Array.Empty<IDbEntry<T>>();
+
+            if (values.Length == 1)
+                return new[] { await Entry(values[0]).Chain(x => x.CreateAsync(cancellationToken)) };
+
+            var measure  = new MeasureContext();
+            var options  = _options.CurrentValue;
+            var options2 = CurrentIndexingOptions;
+
+            var entries = new EntryWrapper<T>[values.Length];
+            var results = new IDbEntry<T>[entries.Length]; // co-variant conversion
+            var indexes = new Dictionary<string, int>(entries.Length);
+
+            for (var i = 0; i < values.Length; i++)
+            {
+                var entry = (EntryWrapper<T>) Entry(values[i]);
+
+                entries[i] = entry;
+                results[i] = entry;
+                entry.PrepareIndexInternal();
+
+                indexes[entry.Id] = i;
+            }
+
+            var index = await GetIndexAsync<T>(cancellationToken);
+
+            var response = await Request(c => c.BulkAsync(b =>
+            {
+                b = type switch
+                {
+                    OpType.Create => b.CreateMany(entries.Select(x => x.Value), (x, v) => x.Index(index.IndexName).Id(v.Id)),
+                    OpType.Index  => b.IndexMany(entries.Select(x => x.Value), (x, v) => x.Index(index.IndexName).Id(v.Id)),
+
+                    _ => throw new NotSupportedException(nameof(type))
+                };
+
+                return b.Refresh(options2.Refresh ?? options.RequestRefreshOption);
+            }, cancellationToken));
+
+            var infos     = new EntryInfo<T>[entries.Length];
+            var cacheKeys = new RedisKey[entries.Length];
+
+            foreach (var item in response.Items)
+            {
+                if (!indexes.Remove(item.Id, out var i))
+                    continue;
+
+                var entry = entries[i];
+
+                var info = new EntryInfo<T>
+                {
+                    Value          = entry.Value,
+                    SequenceNumber = item.SequenceNumber,
+                    PrimaryTerm    = item.PrimaryTerm
+                };
+
+                infos[i]     = info;
+                cacheKeys[i] = index.CachePrefix + entry.Id;
+
+                entry.SetInfo(info);
+
+                if (_logger.IsEnabled(LogLevel.Debug))
+                    _logger.LogDebug($"{(type == OpType.Index ? "Indexed" : "Created")} {index} {entry.Id} in {measure} (bulk): {SerializeValue(entry.Value)}");
+            }
+
+            foreach (var i in indexes.Values) // fill nulls with empty info
+            {
+                var entry = entries[i];
+                var info  = new EntryInfo<T>();
+
+                infos[i]     = info;
+                cacheKeys[i] = index.CachePrefix + entry.Id;
+
+                entry.SetInfo(info);
+            }
+
+            // update cache
+            await _redis.SetObjectManyAsync(cacheKeys, infos, index.CacheExpiry, cancellationToken: cancellationToken);
+
+            return results;
         }
 
 #endregion

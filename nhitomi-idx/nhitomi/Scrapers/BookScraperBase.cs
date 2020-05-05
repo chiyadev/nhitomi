@@ -13,7 +13,6 @@ using nhitomi.Database;
 using nhitomi.Models;
 using nhitomi.Models.Queries;
 using IElasticClient = nhitomi.Database.IElasticClient;
-using LogLevel = Microsoft.Extensions.Logging.LogLevel;
 
 namespace nhitomi.Scrapers
 {
@@ -59,7 +58,7 @@ namespace nhitomi.Scrapers
         /// Finds a book in the database given a book URL recognized by this scraper.
         /// Setting strict to false will allow multiple matches in the string; otherwise, the entire string will be attempted as one match.
         /// </summary>
-        IAsyncEnumerable<(IDbEntry<DbBook> book, DbBookContent content)> FindBookByUrlAsync(string url, bool strict, CancellationToken cancellationToken = default);
+        IAsyncEnumerable<(IDbEntry<DbBook> book, DbBookContent content)> FindByUrlAsync(string url, bool strict, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Retrieves the image of a page of the given book content as a stream.
@@ -70,12 +69,12 @@ namespace nhitomi.Scrapers
     public abstract class BookScraperBase : ScraperBase, IBookScraper
     {
         readonly IElasticClient _client;
-        readonly ILogger<BookScraperBase> _logger;
+        readonly IBookIndexer _indexer;
 
         protected BookScraperBase(IServiceProvider services, IOptionsMonitor<ScraperOptions> options, ILogger<BookScraperBase> logger) : base(services, options, logger)
         {
-            _client = services.GetService<IElasticClient>();
-            _logger = logger;
+            _client  = services.GetService<IElasticClient>();
+            _indexer = services.GetService<IBookIndexer>();
         }
 
         /// <summary>
@@ -84,83 +83,7 @@ namespace nhitomi.Scrapers
         protected abstract IAsyncEnumerable<BookAdaptor> ScrapeAsync(CancellationToken cancellationToken = default);
 
         protected override async Task RunAsync(CancellationToken cancellationToken = default)
-        {
-            // it's better to fully enumerate scrape results before indexing them
-            var books = await ScrapeAsync(cancellationToken).ToArrayAsync(cancellationToken);
-
-            // index books one-by-one for effective merging
-            foreach (var book in books)
-                await IndexAsync(book, cancellationToken);
-        }
-
-        sealed class SimilarQuery : IQueryProcessor<DbBook>
-        {
-            readonly DbBook _book;
-
-            public SimilarQuery(DbBook book)
-            {
-                _book = book;
-            }
-
-            public SearchDescriptor<DbBook> Process(SearchDescriptor<DbBook> descriptor)
-                => descriptor.Take(1)
-                             .MultiQuery(q => q.SetMode(QueryMatchMode.All)
-                                               .Nested(qq => qq.SetMode(QueryMatchMode.Any)
-                                                               .Text($"\"{_book.PrimaryName}\"", b => b.PrimaryName) // quotes for phrase query
-                                                               .Text($"\"{_book.EnglishName}\"", b => b.EnglishName))
-                                               .Nested(qq => qq.SetMode(QueryMatchMode.Any)
-                                                               .Text(new TextQuery { Values = _book.TagsArtist?.ToArray(s => $"\"{s}\""), Mode = QueryMatchMode.Any }, b => b.TagsArtist)
-                                                               .Text(new TextQuery { Values = _book.TagsCircle?.ToArray(s => $"\"{s}\""), Mode = QueryMatchMode.Any }, b => b.TagsCircle)))
-                              //.Filter(new FilterQuery<string> { Values = _book.TagsCharacter, Mode = QueryMatchMode.Any }, b => b.TagsCharacter))
-                             .MultiSort(() => (SortDirection.Descending, null));
-        }
-
-        protected async Task IndexAsync(BookAdaptor adaptor, CancellationToken cancellationToken = default)
-        {
-            var book = adaptor.Convert(this);
-
-            // the database is structured so that "books" are containers of "contents" which are containers of "pages"
-            // we consider two books to be the same if they have:
-            // - matching primary or english name
-            // - matching artist or circle
-            // // - at least one matching character (todo: temporarily disabled 2020/04/29)
-            IDbEntry<DbBook> entry;
-
-            if (book.TagsArtist?.Length > 0 || book.TagsCircle?.Length > 0) // && book.TagsCharacter?.Length > 0)
-            {
-                var result = await _client.SearchEntriesAsync(new SimilarQuery(book), cancellationToken);
-
-                if (result.Items.Length != 0)
-                {
-                    // merge with similar
-                    entry = result.Items[0];
-
-                    if (_logger.IsEnabled(LogLevel.Debug))
-                        _logger.LogInformation($"Merging {Type} book '{book.PrimaryName}' into similar book {entry.Id} '{entry.Value.PrimaryName}'.");
-
-                    do
-                    {
-                        if (entry.Value == null)
-                            goto create;
-
-                        entry.Value.MergeFrom(book);
-                    }
-                    while (!await entry.TryUpdateAsync(cancellationToken));
-
-                    return;
-                }
-            }
-
-            create:
-
-            // no similar books, so create a new one
-            entry = _client.Entry(book);
-
-            if (_logger.IsEnabled(LogLevel.Debug))
-                _logger.LogInformation($"Creating unique {Type} book {book.Id} '{book.PrimaryName}'.");
-
-            await entry.CreateAsync(cancellationToken);
-        }
+            => await _indexer.IndexAsync(await ScrapeAsync(cancellationToken).Select(b => b.Convert(this)).ToArrayAsync(cancellationToken), cancellationToken);
 
         sealed class SourceQuery : IQueryProcessor<DbBook>
         {
@@ -180,7 +103,7 @@ namespace nhitomi.Scrapers
                              .MultiSort(() => (SortDirection.Descending, null));
         }
 
-        public async IAsyncEnumerable<(IDbEntry<DbBook>, DbBookContent)> FindBookByUrlAsync(string url, bool strict, [EnumeratorCancellation] CancellationToken cancellationToken = default)
+        public async IAsyncEnumerable<(IDbEntry<DbBook>, DbBookContent)> FindByUrlAsync(string url, bool strict, [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             if (UrlRegex == null)
                 yield break;

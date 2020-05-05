@@ -1,3 +1,4 @@
+using System;
 using MessagePack;
 using Nest;
 using nhitomi.Models;
@@ -17,7 +18,7 @@ namespace nhitomi.Database
         {
             base.MapTo(model);
 
-            model.Notes = Notes?.ToArray(n => n.Convert());
+            model.Notes = Notes?.ToArray(n => n.Convert()) ?? Array.Empty<ImageNote>();
         }
 
         public override void MapFrom(BookImage model)
