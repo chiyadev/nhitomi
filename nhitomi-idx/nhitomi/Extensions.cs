@@ -52,6 +52,27 @@ namespace nhitomi
 
     public static class Extensions
     {
+        sealed class DisposableStackContext<T> : IDisposable
+        {
+            readonly Stack<T> _stack;
+
+            public DisposableStackContext(Stack<T> stack)
+            {
+                _stack = stack;
+            }
+
+            public void Dispose() => _stack.Pop();
+        }
+
+        /// <summary>
+        /// Pushes an item to a stack and returns a disposable value that pops once when disposed.
+        /// </summary>
+        public static IDisposable PushContext<T>(this Stack<T> stack, T item)
+        {
+            stack.Push(item);
+            return new DisposableStackContext<T>(stack);
+        }
+
         sealed class DisposableSemaphoreReleaseContext : IDisposable
         {
             readonly SemaphoreSlim _semaphore;
