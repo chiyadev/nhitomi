@@ -92,13 +92,13 @@ namespace nhitomi.Discord
 
                 IResult result;
 
-                // ref-counted service scope is used to keep services alive for interactive messages that spans multiple commands/reactions
-                using (var context = new nhitomiCommandContext(new RefCountedServiceScope(_services.CreateScope()), message, cancellationToken))
+                // ref-counted service scope is used to keep services alive for interactive messages that span multiple commands/reactions
+                using (var scope = new RefCountedServiceScope(_services.CreateScope()))
                 {
-                    // set user
+                    var context = new nhitomiCommandContext(scope, message, cancellationToken);
+
                     await _user.SetAsync(context, cancellationToken);
 
-                    // execute command
                     result = await _command.ExecuteAsync(command, context);
                 }
 

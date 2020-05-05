@@ -25,12 +25,9 @@ namespace nhitomi.Discord
         /// </summary>
         protected virtual IEnumerable<ReactionTrigger> CreateTriggers() => Enumerable.Empty<ReactionTrigger>();
 
-        IInteractiveManager _manager;
+        nhitomiCommandContext _context;
 
-        /// <summary>
-        /// Manager of this interactive.
-        /// </summary>
-        public IInteractiveManager Manager => _manager;
+        public nhitomiCommandContext Context => _context;
 
         /// <summary>
         /// Scope of services provided for this interactive.
@@ -46,7 +43,7 @@ namespace nhitomi.Discord
         /// <summary>
         /// Message containing the command that caused this interactive to spawn.
         /// </summary>
-        public IUserMessage Command { get; private set; }
+        public IUserMessage Command => Context.Message;
 
         /// <summary>
         /// Message containing the rendered reply of this interactive.
@@ -74,15 +71,14 @@ namespace nhitomi.Discord
         /// </summary>
         public Timeout Timeout { get; private set; }
 
-        internal async Task<bool> InitializeAsync(IInteractiveManager manager, IServiceScope scope, IUserMessage command, CancellationToken cancellationToken = default)
+        internal async Task<bool> InitializeAsync(IInteractiveManager manager, nhitomiCommandContext context, CancellationToken cancellationToken = default)
         {
             try
             {
-                if (Interlocked.CompareExchange(ref _manager, manager, null) != null)
+                if (Interlocked.CompareExchange(ref _context, context, null) != null)
                     throw new InvalidOperationException($"Interactive message {GetType()} already initialized.");
 
-                ServiceScope = scope;
-                Command      = command;
+                ServiceScope = context.ServiceScope.CreateReference();
                 Renderer     = ActivatorUtilities.CreateInstance<InteractiveRenderer>(Services, this);
 
                 // create reaction triggers
@@ -116,19 +112,28 @@ namespace nhitomi.Discord
         /// </summary>
         public Task RerenderAsync(CancellationToken cancellationToken = default)
         {
-            if (_manager == null)
+            if (_context == null)
                 return Task.CompletedTask;
 
             return Renderer.RenderAsync(cancellationToken);
         }
 
+        /// <summary>
+        /// Asynchronously listens for a message from the user who commands this interactive.
+        /// </summary>
+        public Task<IUserMessage> ListenAsync(string message, CancellationToken cancellationToken = default)
+            => Services.GetService<IDiscordMessageHandler>()
+                       .ListenAsync(new MessageListenArgs
+                        {
+                            User    = Command.Author,
+                            Channel = Channel,
+                            Message = message
+                        }, cancellationToken);
+
         public override string ToString() => $"{GetType().Name} {Reply?.Id.ToString() ?? "<not initialized>"}";
 
         public async ValueTask DisposeAsync()
-        {
-            if (Manager != null)
-                await Manager.UnregisterAsync(this); // manager calls internal dispose
-        }
+            => await Services.GetService<IInteractiveManager>().UnregisterAsync(this); // manager calls internal dispose
 
         internal ValueTask DisposeAsyncInternal()
         {
@@ -142,9 +147,8 @@ namespace nhitomi.Discord
                 foreach (var trigger in Triggers.Values)
                     trigger.Dispose();
 
-            _manager     = null;
+            _context     = null;
             ServiceScope = null;
-            Command      = null;
             Reply        = null;
             Renderer     = null;
             Triggers     = null;

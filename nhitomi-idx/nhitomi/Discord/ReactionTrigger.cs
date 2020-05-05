@@ -41,6 +41,12 @@ namespace nhitomi.Discord
         /// </summary>
         public InteractiveMessage Message => _message;
 
+        /// <inheritdoc cref="InteractiveMessage.Context"/>
+        public nhitomiCommandContext Context => Message.Context;
+
+        /// <inheritdoc cref="InteractiveMessage.Services"/>
+        public IServiceProvider Services => Message.Services;
+
         internal void Initialize(InteractiveMessage message)
         {
             if (Interlocked.CompareExchange(ref _message, message, null) != null)

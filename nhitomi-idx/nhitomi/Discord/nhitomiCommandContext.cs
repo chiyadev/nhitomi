@@ -10,7 +10,7 @@ using Qmmands;
 
 namespace nhitomi.Discord
 {
-    public class nhitomiCommandContext : CommandContext, IDisposable
+    public class nhitomiCommandContext : CommandContext
     {
         /// <summary>
         /// Gets the ref-counted scope of <see cref="CommandContext.ServiceProvider"/>.
@@ -90,13 +90,11 @@ namespace nhitomi.Discord
         public async Task SendAsync(ReplyMessage reply, CancellationToken cancellationToken = default)
         {
             // if interactive, register in interactive manager
-            if (reply is InteractiveMessage interactiveReply)
-                await InteractiveManager.RegisterAsync(Message, interactiveReply, ServiceScope.CreateReference(), cancellationToken);
+            if (reply is InteractiveMessage interactive)
+                await InteractiveManager.RegisterAsync(this, interactive, cancellationToken);
 
             // else send statically
             else await ReplyRenderer.SendAsync(Message, reply, cancellationToken);
         }
-
-        public void Dispose() => ServiceScope.Dispose();
     }
 }

@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Discord;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -15,14 +14,7 @@ namespace nhitomi.Discord
         int Count { get; }
         TimeSpan InteractiveExpiry { get; }
 
-        /// <summary>
-        /// Initializes and registers a new interactive message.
-        /// </summary>
-        Task<bool> RegisterAsync(IUserMessage command, InteractiveMessage message, IServiceScope scope, CancellationToken cancellationToken = default);
-
-        /// <summary>
-        /// Removes a registered interactive message.
-        /// </summary>
+        Task<bool> RegisterAsync(nhitomiCommandContext context, InteractiveMessage message, CancellationToken cancellationToken = default);
         Task UnregisterAsync(InteractiveMessage message, CancellationToken cancellationToken = default);
 
         /// <summary>
@@ -83,9 +75,9 @@ namespace nhitomi.Discord
         /// </summary>
         readonly Dictionary<ulong, List<InteractiveMessage>> _channelMap = new Dictionary<ulong, List<InteractiveMessage>>();
 
-        public async Task<bool> RegisterAsync(IUserMessage command, InteractiveMessage message, IServiceScope scope, CancellationToken cancellationToken = default)
+        public async Task<bool> RegisterAsync(nhitomiCommandContext context, InteractiveMessage message, CancellationToken cancellationToken = default)
         {
-            if (!await message.InitializeAsync(this, scope, command, cancellationToken))
+            if (!await message.InitializeAsync(this, context, cancellationToken))
                 return false;
 
             lock (_lock)
