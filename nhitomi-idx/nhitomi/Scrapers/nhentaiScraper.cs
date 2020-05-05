@@ -110,9 +110,9 @@ namespace nhitomi.Scrapers
             Tags = new Dictionary<BookTag, string[]>
             {
                 [BookTag.Artist]     = _book.Tags?.Where(t => t.Type == "artist").ToArrayMany(ProcessTag),
-                [BookTag.Parody]     = _book.Tags?.Where(t => t.Type == "tag").ToArrayMany(ProcessTag),
-                [BookTag.Character]  = _book.Tags?.Where(t => t.Type == "parody" && t.Name != "original").ToArrayMany(ProcessTag),
-                [BookTag.Convention] = _book.Tags?.Where(t => t.Type == "character").ToArrayMany(ProcessTag),
+                [BookTag.Tag]        = _book.Tags?.Where(t => t.Type == "tag").ToArrayMany(ProcessTag),
+                [BookTag.Parody]     = _book.Tags?.Where(t => t.Type == "parody" && t.Name != "original").ToArrayMany(ProcessTag),
+                [BookTag.Character]  = _book.Tags?.Where(t => t.Type == "character").ToArrayMany(ProcessTag),
                 [BookTag.Convention] = new[] { FindConvention(_book.Title.English ?? _book.Title.Japanese) },
                 [BookTag.Circle]     = _book.Tags?.Where(t => t.Type == "group").ToArrayMany(ProcessTag)
             },
