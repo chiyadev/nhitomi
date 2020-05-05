@@ -45,7 +45,7 @@ namespace nhitomi.Database
         /// <summary>
         /// Time between Elasticsearch index refreshes.
         /// </summary>
-        public TimeSpan RefreshInterval { get; set; } = TimeSpan.FromSeconds(1);
+        public TimeSpan RefreshInterval { get; set; } = TimeSpan.FromSeconds(5);
 
         /// <summary>
         /// Refresh setting when updating Elasticsearch indexes.
@@ -76,7 +76,7 @@ namespace nhitomi.Database
         /// <summary>
         /// Number of items to search per chunk when searching as a stream.
         /// </summary>
-        public int StreamSearchChunkSize { get; set; } = 20;
+        public int StreamSearchChunkSize { get; set; } = 10;
     }
 
     public interface IQueryProcessor<T> where T : class, IDbObject
@@ -234,9 +234,23 @@ namespace nhitomi.Database
         Task<T> RefreshAsync(CancellationToken cancellationToken = default);
     }
 
+    public class IndexingOptions
+    {
+        public Refresh? Refresh { get; set; }
+
+        public void MergeInto(IndexingOptions options)
+            => options.Refresh ??= Refresh;
+    }
+
     public interface IElasticClient : IDisposable
     {
         Task InitializeAsync(CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// Uses the given options while indexing.
+        /// This is only valid within the caller's async context.
+        /// </summary>
+        IDisposable UseIndexingOptions(IndexingOptions options);
 
         /// <summary>
         /// Creates a wrapper object of the specified type with the given ID.
@@ -342,6 +356,24 @@ namespace nhitomi.Database
             _logger.LogWarning($"Connecting to Elasticsearch endpoint: {_options.CurrentValue.Endpoint}");
 
             return Task.CompletedTask;
+        }
+
+        readonly AsyncLocal<Stack<IndexingOptions>> _indexingOptions = new AsyncLocal<Stack<IndexingOptions>>();
+
+        public IDisposable UseIndexingOptions(IndexingOptions options)
+            => (_indexingOptions.Value ??= new Stack<IndexingOptions>()).PushContext(options);
+
+        IndexingOptions CurrentIndexingOptions
+        {
+            get
+            {
+                var options = new IndexingOptions();
+
+                foreach (var opts in _indexingOptions.Value)
+                    opts.MergeInto(options);
+
+                return options;
+            }
         }
 
         async Task<T> Request<T>(Func<Nest.ElasticClient, Task<T>> request) where T : IResponse
@@ -561,8 +593,9 @@ namespace nhitomi.Database
                 if (Value == null)
                     throw new InvalidOperationException($"Cannot create or update entry when {nameof(Value)} is null.");
 
-                var measure = new MeasureContext();
-                var options = _client._options.CurrentValue;
+                var measure  = new MeasureContext();
+                var options  = _client._options.CurrentValue;
+                var options2 = _client.CurrentIndexingOptions;
 
                 var index = await _client.GetIndexAsync<T>(cancellationToken);
 
@@ -583,9 +616,9 @@ namespace nhitomi.Database
                     x = x.Index(index.IndexName)
                          .Id(Id)
                          .OpType(type)
-                         .Refresh(options.RequestRefreshOption);
+                         .Refresh(options2.Refresh ?? options.RequestRefreshOption);
 
-                    if (type == OpType.Index) // create can't have versioning
+                    if (type != OpType.Create) // create can't have versioning
                         x = x.IfSequenceNumber(_sequenceNumber)
                              .IfPrimaryTerm(_primaryTerm);
 
@@ -619,8 +652,9 @@ namespace nhitomi.Database
 
             public async Task DeleteAsync(CancellationToken cancellationToken = default)
             {
-                var measure = new MeasureContext();
-                var options = _client._options.CurrentValue;
+                var measure  = new MeasureContext();
+                var options  = _client._options.CurrentValue;
+                var options2 = _client.CurrentIndexingOptions;
 
                 var index = await _client.GetIndexAsync<T>(cancellationToken);
 
@@ -629,7 +663,7 @@ namespace nhitomi.Database
                     => x.Index(index.IndexName)
                         .IfSequenceNumber(_sequenceNumber)
                         .IfPrimaryTerm(_primaryTerm)
-                        .Refresh(options.RequestRefreshOption);
+                        .Refresh(options2.Refresh ?? options.RequestRefreshOption);
 
                 var response = await _client.Request(c => c.DeleteAsync<T>(Id, selector, cancellationToken));
 
