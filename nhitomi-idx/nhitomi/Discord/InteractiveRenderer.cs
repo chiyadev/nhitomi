@@ -2,6 +2,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Discord;
+using Discord.Net;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -66,39 +67,59 @@ namespace nhitomi.Discord
                         {
                             try
                             {
-                                // rerender interactive
-                                var result = await _renderer.ModifyAsync(_message.Reply, _message, cancellationToken);
+                                var content = await _message.RenderInternalAsync(cancellationToken);
 
-                                // if false, expire interactive
-                                if (!result)
+                                if (content == null || !content.IsValid || _message.Reply == null)
                                 {
                                     await _message.DisposeAsync();
+
+                                    if (_message.Reply != null)
+                                        await _message.Reply.DeleteAsync();
+
                                     return;
                                 }
-                                else
+
+                                try
                                 {
-                                    // restart expiry timeout
-                                    _message.Timeout.Restart();
+                                    await _message.Reply.ModifyAsync(m =>
+                                    {
+                                        m.Content = content.Message;
+                                        m.Embed   = content.Embed?.Build();
+                                    }, new RequestOptions
+                                    {
+                                        CancelToken = cancellationToken,
+                                        RetryMode   = RetryMode.AlwaysRetry & ~RetryMode.RetryRatelimit
+                                    });
+                                }
+                                catch (RateLimitedException)
+                                {
+                                    // ignore rate limit exceptions since this rerendering loop is throttled anyway
+                                    _enqueued = true;
+                                    goto next;
                                 }
 
-                                // signal success
+                                if (_logger.IsEnabled(LogLevel.Debug))
+                                    _logger.LogDebug($"Rendered message {_message.GetType().Name} {_message.Reply.Id} in channel #{_message.Channel}.");
+
                                 _signaller.TrySetResult(null);
                             }
                             catch (Exception e)
                             {
-                                // signal fail
                                 _signaller.TrySetException(e);
+                            }
+                            finally
+                            {
+                                _message.Timeout.Restart();
                             }
                         }
 
-                        // sleep interval
+                        next:
                         await Task.Delay(_options.CurrentValue.Interactive.RenderInterval, cancellationToken);
                     }
                 }
                 finally
                 {
                     _logger.LogDebug($"Exiting interactive rendering loop for message {_message}.");
-
                     _semaphore.ReleaseSafe();
                 }
             }, cancellationToken);

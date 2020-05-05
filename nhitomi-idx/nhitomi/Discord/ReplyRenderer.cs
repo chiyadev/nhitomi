@@ -7,17 +7,15 @@ using Microsoft.Extensions.Logging;
 
 namespace nhitomi.Discord
 {
+    /// <summary>
+    /// Responsible for rendering static reply messages. Use <see cref="InteractiveManager"/> for interactive messages.
+    /// </summary>
     public interface IReplyRenderer
     {
         /// <summary>
         /// Sends a rendered <see cref="ReplyContent"/> in response to the given command message.
         /// </summary>
         Task<IUserMessage> SendAsync(IUserMessage command, ReplyMessage reply, CancellationToken cancellationToken = default);
-
-        /// <summary>
-        /// Modifies the given message's content with a rendered <see cref="ReplyContent"/>.
-        /// </summary>
-        Task<bool> ModifyAsync(IUserMessage message, ReplyMessage reply, CancellationToken cancellationToken = default);
     }
 
     /// <summary>
@@ -77,27 +75,5 @@ namespace nhitomi.Discord
 
         static Task<IUserMessage> SendChannelAsync(IMessageChannel channel, ReplyContent content)
             => channel.SendMessageAsync(content.Message, false, content.Embed?.Build());
-
-        public async Task<bool> ModifyAsync(IUserMessage message, ReplyMessage reply, CancellationToken cancellationToken = default)
-        {
-            var content = await reply.RenderInternalAsync(cancellationToken);
-
-            if (content == null || !content.IsValid)
-            {
-                await message.DeleteAsync();
-                return false;
-            }
-
-            await message.ModifyAsync(m =>
-            {
-                m.Content = content.Message;
-                m.Embed   = content.Embed?.Build();
-            });
-
-            if (_logger.IsEnabled(LogLevel.Debug))
-                _logger.LogDebug($"Rendered message {reply.GetType().Name} {message.Id} in channel #{message.Channel}.");
-
-            return true;
-        }
     }
 }
