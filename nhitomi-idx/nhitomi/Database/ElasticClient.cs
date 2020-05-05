@@ -45,7 +45,7 @@ namespace nhitomi.Database
         /// <summary>
         /// Time between Elasticsearch index refreshes.
         /// </summary>
-        public TimeSpan RefreshInterval { get; set; } = TimeSpan.FromSeconds(5);
+        public TimeSpan RefreshInterval { get; set; } = TimeSpan.FromSeconds(1);
 
         /// <summary>
         /// Refresh setting when updating Elasticsearch indexes.
