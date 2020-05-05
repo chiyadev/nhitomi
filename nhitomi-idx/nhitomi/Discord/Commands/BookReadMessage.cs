@@ -27,10 +27,9 @@ namespace nhitomi.Discord.Commands
             foreach (var trigger in base.CreateTriggers())
                 yield return trigger;
 
-            yield return new ListJumpTrigger(this, ListJumpTriggerDestination.Start);
             yield return new ListTrigger(this, ListTriggerDirection.Left);
             yield return new ListTrigger(this, ListTriggerDirection.Right);
-            yield return new ListJumpTrigger(this, ListJumpTriggerDestination.End);
+            yield return new ListJumpTrigger(this, ListJumpTriggerDestination.Input);
             yield return new DestroyTrigger(this);
         }
 

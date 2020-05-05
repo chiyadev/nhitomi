@@ -70,7 +70,7 @@ namespace nhitomi.Discord
         {
             try
             {
-                if (_listeners.TryRemove((message.Author.Id, message.Id), out var completion))
+                if (_listeners.TryRemove((message.Author.Id, message.Channel.Id), out var completion))
                 {
                     completion.TrySetResult(message);
 
