@@ -225,7 +225,7 @@ namespace nhitomi
 
             // scrapers
             services.AddSingleton<IScraperService, ScraperService>()
-                    .AddInjectableHostedService<IBookIndexer, BackgroundBookIndexer>();
+                    .AddSingleton<IBookIndexer, BookIndexer>();
 
             services.Configure<nhentaiScraperOptions>(_configuration.GetSection("Scrapers:nhentai"));
             services.AddInjectableHostedService<nhentaiScraper>();
