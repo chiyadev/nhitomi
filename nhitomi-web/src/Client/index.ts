@@ -32,7 +32,7 @@ export class Client extends (EventEmitter as new () => StrictEventEmitter<EventE
         }
 
         // validation failure (unprocessable entity)
-        if (response.status === 422) {
+        else if (response.status === 422) {
           const result: ValidationProblemArrayResult = await response.json()
 
           throw new ValidationError(result.message, result.value)
