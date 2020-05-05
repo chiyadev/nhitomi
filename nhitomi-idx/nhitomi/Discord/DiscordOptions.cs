@@ -84,6 +84,11 @@ namespace nhitomi.Discord
             /// Interval of interactive rerenders.
             /// </summary>
             public TimeSpan RenderInterval { get; set; } = TimeSpan.FromSeconds(1);
+
+            /// <summary>
+            /// Timeout of listening for messages from a specific user, for interactive input.
+            /// </summary>
+            public TimeSpan? MessageListenTimeout { get; set; } = TimeSpan.FromMinutes(1);
         }
 
         /// <summary>

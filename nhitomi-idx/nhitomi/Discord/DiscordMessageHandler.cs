@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Threading;
 using System.Threading.Tasks;
 using Discord;
@@ -9,13 +10,29 @@ using Qmmands;
 
 namespace nhitomi.Discord
 {
-    public interface IDiscordMessageHandler
+    public class MessageListenArgs
+    {
+        public IUser User { get; set; }
+        public IMessageChannel Channel { get; set; }
+        public string Message { get; set; }
+        public TimeSpan? Timeout { get; set; }
+
+        internal (ulong, ulong) Key => (User.Id, Channel.Id);
+    }
+
+    public interface IDiscordMessageHandler : IDisposable
     {
         int Total { get; }
         int Handled { get; }
 
         Task HandleAsync(IUserMessage message, CancellationToken cancellationToken = default);
         Task OnDeletedAsync(ulong messageId, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// Begins listening for a message from a user in a specific channel.
+        /// Listeners bypass all user filters and prevent the message from propagating to command handlers if matched.
+        /// </summary>
+        Task<IUserMessage> ListenAsync(MessageListenArgs args, CancellationToken cancellationToken = default);
     }
 
     public class DiscordMessageHandler : IDiscordMessageHandler
@@ -53,6 +70,14 @@ namespace nhitomi.Discord
         {
             try
             {
+                if (_listeners.TryRemove((message.Author.Id, message.Id), out var completion))
+                {
+                    completion.TrySetResult(message);
+
+                    Interlocked.Increment(ref _handled);
+                    return;
+                }
+
                 if (!_filter.HandleUser(message.Author))
                     return;
 
@@ -114,6 +139,60 @@ namespace nhitomi.Discord
             catch (Exception e)
             {
                 _logger.LogInformation(e, $"Exception while disposing interactive message {messageId}.");
+            }
+        }
+
+        // (userId, channelId)
+        readonly ConcurrentDictionary<(ulong, ulong), TaskCompletionSource<IUserMessage>> _listeners = new ConcurrentDictionary<(ulong, ulong), TaskCompletionSource<IUserMessage>>();
+
+        public async Task<IUserMessage> ListenAsync(MessageListenArgs args, CancellationToken cancellationToken = default)
+        {
+            args.Timeout ??= _options.CurrentValue.Interactive.MessageListenTimeout;
+
+            using var rootCts   = args.Timeout == null ? new CancellationTokenSource() : new CancellationTokenSource(args.Timeout.Value);
+            using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(rootCts.Token, cancellationToken);
+
+            cancellationToken = linkedCts.Token;
+
+            if (!_listeners.TryGetValue(args.Key, out var completion))
+                _listeners[args.Key] = completion = new TaskCompletionSource<IUserMessage>();
+
+            var sent     = null as IUserMessage;
+            var received = null as IUserMessage;
+
+            try
+            {
+                await using (cancellationToken.Register(() => completion.TrySetCanceled(cancellationToken)))
+                {
+                    if (!string.IsNullOrEmpty(args.Message))
+                        sent = await args.Channel.SendMessageAsync(args.Message);
+
+                    return received = await completion.Task;
+                }
+            }
+            finally
+            {
+                _listeners.TryRemove(args.Key, out _);
+                completion?.TrySetCanceled();
+
+                try
+                {
+                    if (sent != null) await sent.DeleteAsync();
+                    if (received != null) await received.DeleteAsync();
+                }
+                catch
+                {
+                    // ignored
+                }
+            }
+        }
+
+        public void Dispose()
+        {
+            foreach (var (key, listener) in _listeners)
+            {
+                _listeners.TryRemove(key, out _);
+                listener.TrySetCanceled();
             }
         }
     }
