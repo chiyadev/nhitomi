@@ -224,10 +224,12 @@ namespace nhitomi
                     .AddSingleton<IResourceLocker, RedisResourceLocker>();
 
             // scrapers
-            services.Configure<nhentaiScraperOptions>(_configuration.GetSection("Scrapers:nhentai"));
-
             services.AddSingleton<IScraperService, ScraperService>()
-                    .AddScraper<nhentaiScraper>();
+                    .AddInjectableHostedService<IBookIndexer, BackgroundBookIndexer>();
+
+            services.Configure<nhentaiScraperOptions>(_configuration.GetSection("Scrapers:nhentai"));
+            services.AddInjectableHostedService<nhentaiScraper>();
+            services.AddSingleton<IScraper>(s => s.GetService<nhentaiScraper>());
 
             // discord
             services.Configure<DiscordOptions>(_configuration.GetSection("Discord"))
