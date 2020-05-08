@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using nhitomi.Database;
 using nhitomi.Localization;
+using nhitomi.Scrapers;
 
 namespace nhitomi.Discord.Commands
 {
@@ -15,13 +16,15 @@ namespace nhitomi.Discord.Commands
         readonly ILocale _l;
         readonly ILinkGenerator _link;
         readonly IBookContentSelector _selector;
+        readonly IScraperService _scrapers;
 
-        public BookListMessage(nhitomiCommandContext context, ILinkGenerator link, IBookContentSelector selector)
+        public BookListMessage(nhitomiCommandContext context, ILinkGenerator link, IBookContentSelector selector, IScraperService scrapers)
         {
             _context  = context;
             _l        = context.Locale.Sections["get.book"];
             _link     = link;
             _selector = selector;
+            _scrapers = scrapers;
         }
 
         protected override IEnumerable<ReactionTrigger> CreateTriggers()
@@ -52,7 +55,7 @@ namespace nhitomi.Discord.Commands
 
             var (book, content) = Current ??= (Enumerator.Current, await _selector.SelectAsync(Enumerator.Current, _context, cancellationToken));
 
-            return BookMessage.Render(book, content, _l, _link);
+            return BookMessage.Render(book, content, _l, _link, _scrapers);
         }
 
         int IListTriggerTarget.Position => Enumerator.Position;

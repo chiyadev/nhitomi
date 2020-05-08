@@ -7,6 +7,7 @@ using Discord;
 using nhitomi.Database;
 using nhitomi.Localization;
 using nhitomi.Models;
+using nhitomi.Scrapers;
 
 namespace nhitomi.Discord.Commands
 {
@@ -20,13 +21,15 @@ namespace nhitomi.Discord.Commands
         readonly ILocale _l;
         readonly ILinkGenerator _link;
         readonly IBookContentSelector _selector;
+        readonly IScraperService _scrapers;
 
-        public BookMessage(nhitomiCommandContext context, ILinkGenerator link, IBookContentSelector selector)
+        public BookMessage(nhitomiCommandContext context, ILinkGenerator link, IBookContentSelector selector, IScraperService scrapers)
         {
             _context  = context;
             _l        = context.Locale.Sections["get.book"];
             _link     = link;
             _selector = selector;
+            _scrapers = scrapers;
         }
 
         protected override IEnumerable<ReactionTrigger> CreateTriggers()
@@ -44,11 +47,30 @@ namespace nhitomi.Discord.Commands
         {
             var (book, content) = Current ??= (Book, await _selector.SelectAsync(Book, _context, cancellationToken));
 
-            return Render(book, content, _l, _link);
+            return Render(book, content, _l, _link, _scrapers);
         }
 
-        public static ReplyContent Render(DbBook book, DbBookContent content, ILocale l, ILinkGenerator link) => new ReplyContent
+        public static ReplyContent Render(DbBook book, DbBookContent content, ILocale l, ILinkGenerator link, IScraperService scrapers) => new ReplyContent
         {
+            Message = string.Join('\n', book.Contents.GroupBy(c => (c.Source, c.Language)).OrderBy(g => g.Key.Source).ThenBy(g => g.Key.Language).Select(group =>
+            {
+                var (source, language) = group.Key;
+
+                var urls = string.Join(' ', group.Select(c =>
+                {
+                    if (!scrapers.GetBook(c.Source, out var scraper))
+                        return null;
+
+                    var url = scraper.GetExternalUrl(book, c);
+
+                    if (c == content)
+                        url = $"**{url}**";
+
+                    return url;
+                }).Where(x => x != null));
+
+                return $"{source} ({language}): {urls}";
+            })),
             Embed = new EmbedBuilder
             {
                 Title       = book.PrimaryName,
@@ -65,7 +87,7 @@ namespace nhitomi.Discord.Commands
 
                 Footer = new EmbedFooterBuilder
                 {
-                    Text = $"{content.Source}/{content.SourceId} — {book.Id}/{content.Id}"
+                    Text = $"{book.Id}/{content.Id}"
                 },
 
                 Fields = Enum.GetValues(typeof(BookTag))
