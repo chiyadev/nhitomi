@@ -151,6 +151,8 @@ namespace nhitomi.Scrapers
                 })
             };
 
+            public override string GetExternalUrl(DbBook book, DbBookContent content) => null;
+
             protected override IAsyncEnumerable<BookAdaptor> ScrapeAsync(CancellationToken cancellationToken = default)
             {
                 var books = Interlocked.Exchange(ref _books, null);

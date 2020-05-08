@@ -54,6 +54,8 @@ namespace nhitomi.Scrapers
 
     public interface IBookScraper : IScraper
     {
+        string GetExternalUrl(DbBook book, DbBookContent content);
+
         /// <summary>
         /// Finds a book in the database given a book URL recognized by this scraper.
         /// Setting strict to false will allow multiple matches in the string; otherwise, the entire string will be attempted as one match.
@@ -76,6 +78,8 @@ namespace nhitomi.Scrapers
             _client  = services.GetService<IElasticClient>();
             _indexer = services.GetService<IBookIndexer>();
         }
+
+        public abstract string GetExternalUrl(DbBook book, DbBookContent content);
 
         /// <summary>
         /// Scrapes new books without adding them to the database.
