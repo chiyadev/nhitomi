@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using Nest;
 using nhitomi.Models.Queries;
@@ -76,8 +77,8 @@ namespace nhitomi.Database
         /// </summary>
         /// <param name="wrapper">Query wrapper.</param>
         /// <param name="query">Query object.</param>
-        /// <param name="path">Expression path to querying field.</param>
-        public static QueryWrapper<T> Text<T>(this QueryWrapper<T> wrapper, TextQuery query, Expression<Func<T, object>> path) where T : class
+        /// <param name="paths">Expression path to querying field.</param>
+        public static QueryWrapper<T> Text<T>(this QueryWrapper<T> wrapper, TextQuery query, params Expression<Func<T, object>>[] paths) where T : class
         {
             if (query == null || !query.IsSpecified)
                 return wrapper;
@@ -91,7 +92,7 @@ namespace nhitomi.Database
                     if (string.IsNullOrEmpty(value))
                         continue;
 
-                    var c = descriptor.SimpleQueryString(q => q.Fields(f => f.Field(path)).Query(value));
+                    var c = descriptor.SimpleQueryString(q => q.Fields(f => paths.Aggregate(f, (ff, p) => ff.Field(p))).Query(value));
 
                     if (container == null)
                         container = c;
