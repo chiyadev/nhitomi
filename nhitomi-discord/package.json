@@ -1,0 +1,40 @@
+{
+  "name": "nhitomi-discord",
+  "version": "1.0.0",
+  "private": true,
+  "main": "build/index.js",
+  "scripts": {
+    "start": "tsc && node build/index.js",
+    "build": "tsc",
+    "genclient": "node ../scripts/genclient"
+  },
+  "dependencies": {
+    "@types/node": "^13.13.5",
+    "@typescript-eslint/eslint-plugin": "^2.31.0",
+    "@typescript-eslint/parser": "^2.31.0",
+    "eslint": "^7.0.0",
+    "typescript": "^3.8.3"
+  },
+  "eslintConfig": {
+    "extends": "eslint:recommended",
+    "parserOptions": {
+      "ecmaVersion": 2017,
+      "sourceType": "module"
+    },
+    "env": {
+      "node": true,
+      "es6": true
+    },
+    "rules": {
+      "curly": "off",
+      "arrow-parens": [
+        "warn",
+        "as-needed"
+      ],
+      "no-empty": "warn",
+      "no-unused-expressions": "warn",
+      "no-console": "off",
+      "prefer-const": "warn"
+    }
+  }
+}
