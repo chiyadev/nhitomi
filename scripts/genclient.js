@@ -27,7 +27,8 @@ const rmdirSyncRecurse = function (dir) {
   fs.rmdirSync(dir)
 }
 
-let source = process.argv[2]
+let language = process.argv[2]
+let source = process.argv[3]
 
 switch (source) {
   case undefined:
@@ -52,9 +53,9 @@ const name = 'nhitomi-api';
       -pnpmName=${name} \
       -pnpmRepository=https://github.com/chiyadev/nhitomi \
       -i ${source} \
-      -g typescript-fetch \
+      -g ${language} \
       -o ${name}`)
 
-  await promisify(exec2)(`cd ${name} && npm run build`)
+  await promisify(exec2)(`cd ${name} && npm i && npm run build`)
   await promisify(exec2)(`npm install --no-save ${name}`)
 })()

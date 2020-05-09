@@ -56,7 +56,7 @@
   "scripts": {
     "start": "react-app-rewired start",
     "build": "react-app-rewired build",
-    "genclient": "node ../scripts/genclient"
+    "genclient": "node ../scripts/genclient typescript-fetch"
   },
   "browserslist": {
     "production": [
