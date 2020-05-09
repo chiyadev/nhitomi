@@ -4,8 +4,9 @@ This is nhitomi backend server written in C#.
 
 ### Prerequisites
 
-- [.NET Core SDK](https://dotnet.microsoft.com/download) 3.1+
-- A C# IDE such as [Visual Studio](https://visualstudio.microsoft.com/vs/), [VSCode](https://code.visualstudio.com/) or [Rider](https://www.jetbrains.com/rider/)
+- [.NET Core SDK 3.1+](https://dotnet.microsoft.com/download)
+- [Elasticsearch 7+](https://www.elastic.co/downloads/elasticsearch)
+- [Redis 4+](https://redis.io/download)
 
 ### Testing
 
