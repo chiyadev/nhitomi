@@ -16,7 +16,10 @@
     "typescript": "^3.8.3"
   },
   "eslintConfig": {
-    "extends": "eslint:recommended",
+    "extends": [
+      "eslint:recommended",
+      "../eslint.json"
+    ],
     "parserOptions": {
       "ecmaVersion": 2017,
       "sourceType": "module"
@@ -24,17 +27,6 @@
     "env": {
       "node": true,
       "es6": true
-    },
-    "rules": {
-      "curly": "off",
-      "arrow-parens": [
-        "warn",
-        "as-needed"
-      ],
-      "no-empty": "warn",
-      "no-unused-expressions": "warn",
-      "no-console": "off",
-      "prefer-const": "warn"
     }
   }
 }
