@@ -1,8 +1,8 @@
+using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using nhitomi.Database;
 using nhitomi.Models;
-using nhitomi.Models.Requests;
 
 namespace nhitomi.Controllers
 {
@@ -19,6 +19,15 @@ namespace nhitomi.Controllers
         {
             _collections = collections;
             _users       = users;
+        }
+
+        public class CreateCollectionRequest : CollectionBase
+        {
+            /// <summary>
+            /// Type of objects in this collection.
+            /// </summary>
+            [Required]
+            public ObjectType Type { get; set; }
         }
 
         /// <summary>
@@ -85,6 +94,15 @@ namespace nhitomi.Controllers
             return Ok();
         }
 
+        public class AddCollectionOwnerRequest
+        {
+            /// <summary>
+            /// ID of the user to add as a co-owner of the collection.
+            /// </summary>
+            [Required]
+            public string UserId { get; set; }
+        }
+
         /// <summary>
         /// Adds a user as a co-owner of a collection.
         /// </summary>
@@ -124,6 +142,24 @@ namespace nhitomi.Controllers
             await _collections.RemoveOwnerAsync(id, ownerId, CurrentConstraint);
 
             return Ok();
+        }
+
+        public class CollectionItemsRequest
+        {
+            /// <summary>
+            /// IDs of items in collection.
+            /// </summary>
+            [Required]
+            public string[] Items { get; set; }
+        }
+
+        public class AddCollectionItemsRequest : CollectionItemsRequest
+        {
+            /// <summary>
+            /// Position of the inserted items.
+            /// </summary>
+            [Required]
+            public CollectionInsertPosition Position { get; set; }
         }
 
         /// <summary>

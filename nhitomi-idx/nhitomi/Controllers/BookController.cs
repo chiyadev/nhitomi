@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -5,7 +6,7 @@ using nhitomi.Database;
 using nhitomi.Documentation;
 using nhitomi.Models;
 using nhitomi.Models.Queries;
-using nhitomi.Models.Requests;
+using nhitomi.Models.Validation;
 using nhitomi.Scrapers;
 
 namespace nhitomi.Controllers
@@ -249,6 +250,15 @@ namespace nhitomi.Controllers
         [HttpPost("snapshots/search", Name = "searchBookSnapshots")]
         public async Task<SearchResult<Snapshot>> SearchSnapshotsAsync(SnapshotQuery query)
             => (await _snapshots.SearchAsync(ObjectType.Book, query)).Project(s => s.Convert());
+
+        public class RollbackRequest
+        {
+            /// <summary>
+            /// ID of the snapshot to rollback the target object to.
+            /// </summary>
+            [Required, nhitomiId]
+            public string SnapshotId { get; set; }
+        }
 
         /// <summary>
         /// Reverts book information to a previous snapshot.

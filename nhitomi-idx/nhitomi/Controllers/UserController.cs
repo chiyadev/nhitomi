@@ -1,3 +1,5 @@
+using System;
+using System.ComponentModel.DataAnnotations;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
@@ -5,7 +7,6 @@ using Microsoft.AspNetCore.Mvc;
 using nhitomi.Database;
 using nhitomi.Models;
 using nhitomi.Models.Queries;
-using nhitomi.Models.Requests;
 
 namespace nhitomi.Controllers
 {
@@ -34,6 +35,30 @@ namespace nhitomi.Controllers
             _discord     = discord;
             _users       = users;
             _collections = collections;
+        }
+
+        public class AuthenticateDiscordRequest
+        {
+            /// <summary>
+            /// OAuth code.
+            /// </summary>
+            [Required]
+            public string Code { get; set; }
+        }
+
+        public class AuthenticateResponse
+        {
+            /// <summary>
+            /// JWT bearer token.
+            /// </summary>
+            [Required]
+            public string Token { get; set; }
+
+            /// <summary>
+            /// Authenticated user information.
+            /// </summary>
+            [Required]
+            public User User { get; set; }
         }
 
         /// <summary>
@@ -97,6 +122,14 @@ namespace nhitomi.Controllers
                 return ResultUtilities.NotFound(id);
 
             return ProcessUser(user.Convert());
+        }
+
+        public class RestrictUserRequest
+        {
+            /// <summary>
+            /// Duration of the restriction. Null implies indefinite restriction.
+            /// </summary>
+            public TimeSpan? Duration { get; set; }
         }
 
         /// <summary>
