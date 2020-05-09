@@ -329,9 +329,10 @@ namespace nhitomi
 
             app.UseReDoc(r =>
             {
-                r.RoutePrefix  = "";
-                r.SpecUrl      = "docs.json";
-                r.ConfigObject = new ConfigObject { RequiredPropsFirst = true };
+                r.RoutePrefix   = "";
+                r.SpecUrl       = "docs.json";
+                r.ConfigObject  = new ConfigObject { RequiredPropsFirst = true };
+                r.DocumentTitle = "nhitomi API documentation";
             });
 
             // routing
