@@ -1,7 +1,10 @@
 {
   "typescript.tsdk": "node_modules\\typescript\\lib",
+  "eslint.validate": [
+    "typescript"
+  ],
   "editor.codeActionsOnSave": {
-    "source.fixAll.tslint": true
+    "source.fixAll.eslint": true
   },
   "editor.tabSize": 2,
   "files.exclude": {
