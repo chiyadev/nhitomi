@@ -1,6 +1,6 @@
-# nhitomi-web
+# nhitomi-discord
 
-This is nhitomi browser frontend using Preact with Typescript.
+This is nhitomi [Discord](https://discord.com) frontend written in Typescript.
 
 ### Prerequisites
 

@@ -10,6 +10,12 @@ Join our [Discord server](https://discord.gg/JFNga7q) or [invite nhitomi](https:
 
 This project is currently in the progress of a complete rewrite. Please see `old` branch for old code.
 
+## Subprojects
+
+- [nhitomi-idx](nhitomi-idx) - API server
+- [nhitomi-web](nhitomi-web) - Browser frontend
+- [nhitomi-discord](nhitomi-discord) - Discord frontend
+
 ## License
 
 This project is licensed under the [MIT license](https://opensource.org/licenses/MIT). Please see the [license](LICENSE) for more information.
