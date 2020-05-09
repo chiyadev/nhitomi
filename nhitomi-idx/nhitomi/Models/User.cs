@@ -113,6 +113,11 @@ namespace nhitomi.Models
         /// <summary>
         /// Can manage internal server configuration, maintenance mode, restart, etc.
         /// </summary>
-        ManageServer = 1 << 3
+        ManageServer = 1 << 3,
+
+        /// <summary>
+        /// Can create users bypassing OAuth2 procedures.
+        /// </summary>
+        CreateUsers = 1 << 4
     }
 }
