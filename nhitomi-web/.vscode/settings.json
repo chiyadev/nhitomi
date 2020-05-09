@@ -1,7 +1,8 @@
 {
   "typescript.tsdk": "node_modules\\typescript\\lib",
   "eslint.validate": [
-    "typescript"
+    "typescript",
+    "typescript-react"
   ],
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": true

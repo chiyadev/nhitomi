@@ -1,0 +1,34 @@
+{
+  "rules": {
+    "curly": "off",
+    "quotes": [
+      "warn",
+      "single",
+      {
+        "avoidEscape": true,
+        "allowTemplateLiterals": false
+      }
+    ],
+    "semi": [
+      "warn",
+      "never"
+    ],
+    "comma-dangle": [
+      "warn",
+      "never"
+    ],
+    "arrow-parens": [
+      "warn",
+      "as-needed"
+    ],
+    "no-empty": "warn",
+    "no-unused-expressions": "warn",
+    "no-console": "off",
+    "prefer-const": [
+      "warn",
+      {
+        "destructuring": "any"
+      }
+    ]
+  }
+}
