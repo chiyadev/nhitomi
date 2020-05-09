@@ -22,8 +22,7 @@ RUN dotnet "build/nhitomi.dll" -- --generate-spec > apispec.json
 FROM node:lts-alpine AS web
 WORKDIR /app
 
-COPY nhitomi-web/package.json ./
-COPY nhitomi-web/package-lock.json ./
+COPY nhitomi-web/package*.json ./
 RUN npm install
 
 COPY --from=idx /app/apispec.json ./
