@@ -26,14 +26,24 @@ namespace nhitomi
         /// </summary>
         public IServiceScope CreateReference()
         {
+            if (_scope is RefCountedServiceScope counted)
+                return counted.CreateReference();
+
             Interlocked.Increment(ref _count);
             return this;
         }
 
         public void Dispose()
         {
-            if (Interlocked.Decrement(ref _count) == 0)
-                _scope.Dispose();
+            if (_scope is RefCountedServiceScope counted)
+            {
+                counted.Dispose();
+            }
+            else
+            {
+                if (Interlocked.Decrement(ref _count) == 0)
+                    _scope.Dispose();
+            }
         }
     }
 }
