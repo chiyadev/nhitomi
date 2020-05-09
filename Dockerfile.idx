@@ -26,7 +26,7 @@ COPY nhitomi-web/package*.json ./
 RUN npm install
 
 COPY --from=idx /app/apispec.json ./
-COPY nhitomi-web/genclient.js ./
+COPY scripts ../scripts/
 
 # java 8 required by openapi-generator
 RUN apk add --no-cache openjdk8-jre

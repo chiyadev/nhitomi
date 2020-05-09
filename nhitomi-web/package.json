@@ -57,7 +57,7 @@
     "build": "react-app-rewired build",
     "test": "react-app-rewired test",
     "lint": "tslint --fix src/**/*.{ts,tsx} -t verbose --force",
-    "genclient": "node genclient"
+    "genclient": "node ../scripts/genclient"
   },
   "eslintConfig": {
     "extends": "react-app"
