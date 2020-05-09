@@ -1,8 +1,4 @@
 const { override, fixBabelImports, addLessLoader, addWebpackAlias } = require('customize-cra')
-const symlinkDir = require('symlink-dir')
-
-// symlink locale folder into src for webpack import
-symlinkDir('../locales', './src/locales')
 
 const theme = require('@ant-design/dark-theme')
 const colors = require('./src/colors.json')
