@@ -135,6 +135,9 @@ namespace nhitomi.Controllers
         /// <summary>
         /// Adds a restriction to a user.
         /// </summary>
+        /// <remarks>
+        /// Requires <see cref="UserPermissions.RestrictUsers"/> permission.
+        /// </remarks>
         /// <param name="id">User ID.</param>
         /// <param name="request">Restriction request.</param>
         /// <param name="reason">Reason for this action.</param>
@@ -158,6 +161,9 @@ namespace nhitomi.Controllers
         /// <summary>
         /// Ends all currently active restrictions for a user.
         /// </summary>
+        /// <remarks>
+        /// Requires <see cref="UserPermissions.RestrictUsers"/> permission.
+        /// </remarks>
         /// <param name="id">User ID.</param>
         /// <param name="reason">Reason for this action.</param>
         [HttpDelete("{id}/restrictions", Name = "unrestrictUser"), RequireUser(Unrestricted = true, Permissions = UserPermissions.RestrictUsers), RequireReason]
