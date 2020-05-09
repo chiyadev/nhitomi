@@ -20,8 +20,6 @@ using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
 using nhitomi.Controllers;
 using nhitomi.Database;
-using nhitomi.Discord;
-using nhitomi.Discord.Commands;
 using nhitomi.Documentation;
 using nhitomi.Models;
 using nhitomi.Scrapers;
@@ -154,9 +152,13 @@ namespace nhitomi
                 };
             });
 
+            // authentication
             services.AddSingleton<IAuthService, AuthService>()
                     .AddAuthentication(AuthHandler.SchemeName)
                     .AddScheme<AuthOptions, AuthHandler>(AuthHandler.SchemeName, null);
+
+            services.Configure<DiscordOAuthOptions>(_configuration.GetSection("Discord"))
+                    .AddSingleton<IDiscordOAuthHandler, DiscordOAuthHandler>();
 
             // swagger docs
             services.AddSwaggerGen(s =>
@@ -230,20 +232,6 @@ namespace nhitomi
             services.Configure<nhentaiScraperOptions>(_configuration.GetSection("Scrapers:nhentai"));
             services.AddInjectableHostedService<nhentaiScraper>();
             services.AddSingleton<IScraper>(s => s.GetService<nhentaiScraper>());
-
-            // discord
-            services.Configure<DiscordOptions>(_configuration.GetSection("Discord"))
-                    .AddSingleton<IDiscordClient, DiscordClient>()
-                    .AddSingleton<IDiscordMessageHandler, DiscordMessageHandler>()
-                    .AddSingleton<IDiscordReactionHandler, DiscordReactionHandler>()
-                    .AddSingleton<IDiscordUserHandler, DiscordUserHandler>()
-                    .AddSingleton<IDiscordOAuthHandler, DiscordOAuthHandler>()
-                    .AddHostedService<DiscordConnectionManager>();
-
-            services.AddSingleton<IUserFilter, DefaultUserFilter>()
-                    .AddSingleton<IInteractiveManager, InteractiveManager>()
-                    .AddSingleton<IReplyRenderer, ReplyRenderer>()
-                    .AddSingleton<IBookContentSelector, BookContentSelector>();
 
             // other
             services.AddHttpClient()

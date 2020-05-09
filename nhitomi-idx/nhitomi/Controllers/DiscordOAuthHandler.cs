@@ -9,14 +9,31 @@ using Microsoft.Extensions.Options;
 using Nest;
 using Newtonsoft.Json;
 using nhitomi.Database;
-using nhitomi.Discord;
 using nhitomi.Models;
 using nhitomi.Models.Queries;
 using IElasticClient = nhitomi.Database.IElasticClient;
 
 namespace nhitomi.Controllers
 {
-    public sealed class DiscordOAuthUser
+    public class DiscordOAuthOptions
+    {
+        /// <summary>
+        /// Client ID.
+        /// </summary>
+        public ulong ClientId { get; set; }
+
+        /// <summary>
+        /// Client secret.
+        /// </summary>
+        public string ClientSecret { get; set; }
+
+        /// <summary>
+        /// Required OAuth scopes.
+        /// </summary>
+        public string[] Scopes { get; set; } = { "identify", "email" };
+    }
+
+    public class DiscordOAuthUser
     {
         [JsonProperty("id")] public ulong Id;
         [JsonProperty("username")] public string Username;
@@ -51,7 +68,7 @@ namespace nhitomi.Controllers
         readonly IElasticClient _client;
         readonly ISnapshotService _snapshots;
         readonly HttpClient _http;
-        readonly IOptionsMonitor<DiscordOptions> _options;
+        readonly IOptionsMonitor<DiscordOAuthOptions> _options;
         readonly IResourceLocker _locker;
         readonly ILinkGenerator _link;
 
@@ -59,7 +76,7 @@ namespace nhitomi.Controllers
         {
             get
             {
-                var options = _options.CurrentValue.OAuth;
+                var options = _options.CurrentValue;
 
                 return $"https://discordapp.com/oauth2/authorize?response_type=code&prompt=none&client_id={options.ClientId}&scope={string.Join("%20", options.Scopes)}&redirect_uri={WebUtility.UrlEncode(RedirectUrl)}";
             }
@@ -68,7 +85,7 @@ namespace nhitomi.Controllers
         public string RedirectUrl => _link.GetWebLink("oauth/discord");
 
         public DiscordOAuthHandler(IUserService users, IElasticClient client, IHttpClientFactory http, ISnapshotService snapshots,
-                                   IOptionsMonitor<DiscordOptions> options, IResourceLocker locker, ILinkGenerator link)
+                                   IOptionsMonitor<DiscordOAuthOptions> options, IResourceLocker locker, ILinkGenerator link)
         {
             _users     = users;
             _client    = client;
@@ -81,7 +98,7 @@ namespace nhitomi.Controllers
 
         async Task<DiscordOAuthUser> ExchangeCodeAsync(string code, CancellationToken cancellationToken = default)
         {
-            var options = _options.CurrentValue.OAuth;
+            var options = _options.CurrentValue;
 
             if (options == null)
                 throw new NotSupportedException("Discord OAuth not supported.");

@@ -2,7 +2,6 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using nhitomi.Database;
-using nhitomi.Discord;
 using nhitomi.Models;
 using NUnit.Framework;
 using RichardSzalay.MockHttp;
@@ -38,10 +37,10 @@ namespace nhitomi.Controllers
         {
             base.ConfigureServices(services);
 
-            services.PostConfigure<DiscordOptions>(o => o.OAuth = new DiscordOptions.OAuthOptions
+            services.PostConfigure<DiscordOAuthOptions>(o =>
             {
-                ClientId     = 1234,
-                ClientSecret = "secret"
+                o.ClientId     = 1234;
+                o.ClientSecret = "secret";
             });
         }
 
