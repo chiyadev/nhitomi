@@ -68,12 +68,12 @@ namespace nhitomi.Controllers
         [HttpPost("oauth/discord", Name = "authenticateUserDiscord"), AllowAnonymous]
         public async Task<ActionResult<AuthenticateResponse>> AuthDiscordAsync(AuthenticateDiscordRequest request)
         {
-            var user = await _discord.GetOrCreateUserAsync(request.Code);
+            var user = User = await _discord.GetOrCreateUserAsync(request.Code);
 
             return new AuthenticateResponse
             {
                 Token = await _auth.GenerateTokenAsync(user),
-                User  = user.Convert() // no ProcessUser
+                User  = ProcessUser(user.Convert())
             };
         }
 
