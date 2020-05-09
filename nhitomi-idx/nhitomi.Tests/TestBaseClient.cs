@@ -1,6 +1,7 @@
 using System;
 using System.Net;
 using System.Net.Http;
+using System.Net.Sockets;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
@@ -21,7 +22,7 @@ namespace nhitomi
 
         protected override IServiceProvider SetUpServices()
         {
-            var endpoint = $"http://localhost:{Extensions.NextTcpPort()}";
+            var endpoint = $"http://localhost:{GetPort()}";
 
             Server = new TestServer(Program.CreateWebHostBuilder(null)
                                            .UseEnvironment(Environments.Development)
@@ -32,6 +33,22 @@ namespace nhitomi
             };
 
             return Server.Services;
+        }
+
+        static int GetPort()
+        {
+            var listener = new TcpListener(IPAddress.Loopback, 0);
+
+            listener.Start();
+
+            try
+            {
+                return ((IPEndPoint) listener.LocalEndpoint).Port;
+            }
+            finally
+            {
+                listener.Stop();
+            }
         }
 
         public override async Task TearDownAsync()

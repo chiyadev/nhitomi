@@ -230,14 +230,13 @@ namespace nhitomi
                     .AddSingleton<IBookIndexer, BookIndexer>();
 
             services.Configure<nhentaiScraperOptions>(_configuration.GetSection("Scrapers:nhentai"));
-            services.AddInjectableHostedService<nhentaiScraper>();
-            services.AddSingleton<IScraper>(s => s.GetService<nhentaiScraper>());
+
+            services.AddInjectableHostedService<IScraper, nhentaiScraper>();
 
             // other
             services.AddHttpClient()
                     .AddHttpContextAccessor()
                     .AddSingleton<StartupInitializer>()
-                    .AddTransient<MemoryInfo>()
                     .AddSingleton<ILinkGenerator, LinkGenerator>()
                     .AddSingleton<IImageProcessor, SkiaImageProcessor>();
 

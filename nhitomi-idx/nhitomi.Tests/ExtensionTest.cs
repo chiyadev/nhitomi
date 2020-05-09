@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
@@ -55,26 +54,6 @@ namespace nhitomi
             b[2] = 0;
 
             Assert.That(a.BufferEquals(b), Is.False);
-        }
-
-        [Test]
-        public void BufferSubset()
-        {
-            var a = new HashSet<byte[]>
-            {
-                new byte[] { 1, 2, 3 },
-                new byte[] { 4, 5, 6 }
-            };
-
-            var b = new HashSet<byte[]>
-            {
-                new byte[] { 1, 2, 3 },
-                new byte[] { 4, 5, 6 },
-                new byte[] { 7, 8, 9 }
-            };
-
-            Assert.That(a.BufferSubset(b), Is.True);
-            Assert.That(b.BufferSubset(a), Is.False);
         }
 
         [Test]

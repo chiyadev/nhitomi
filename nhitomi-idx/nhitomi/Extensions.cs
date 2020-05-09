@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Net;
-using System.Net.Sockets;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
@@ -18,7 +16,6 @@ using Microsoft.AspNetCore.Mvc.Abstractions;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
-using StackExchange.Redis;
 
 namespace nhitomi
 {
@@ -104,33 +101,6 @@ namespace nhitomi
                 semaphore.Release();
             }
             catch (ObjectDisposedException) { }
-        }
-
-        public static string ToStringSafe(this RedisKey key) => EscapeUnicode(key);
-
-        public static string EscapeUnicode(this string str)
-        {
-            var builder = new StringBuilder();
-
-            // ReSharper disable once ForCanBeConvertedToForeach
-            for (var i = 0; i < str.Length; i++)
-            {
-                var c = str[i];
-
-                // ascii that can be displayed
-                if (32 < c && c < 127)
-                {
-                    builder.Append(c);
-                }
-                else
-                {
-                    var encoded = "\\u" + ((int) c).ToString("x4");
-
-                    builder.Append(encoded);
-                }
-            }
-
-            return builder.ToString();
         }
 
         static readonly CompareLogic _deepComparer = new CompareLogic(new ComparisonConfig
@@ -331,7 +301,6 @@ namespace nhitomi
             return executor.ExecuteAsync(actionContext, result);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static T[] ToArray<T>(this ISet<T> set)
         {
             var array = new T[set.Count];
@@ -339,11 +308,30 @@ namespace nhitomi
             return array;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        // ReSharper disable PossibleMultipleEnumeration
         public static T2[] ToArray<T1, T2>(this IEnumerable<T1> enumerable, Func<T1, T2> selector)
-            => enumerable.Select(selector).ToArray();
+        {
+            var length = enumerable switch
+            {
+                ICollection<T1> c         => c.Count,
+                IReadOnlyCollection<T1> c => c.Count,
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+                _ => null as int?
+            };
+
+            if (length == null)
+                return enumerable.Select(selector).ToArray();
+
+            var array = new T2[length.Value];
+            var count = 0;
+
+            foreach (var item in enumerable)
+                array[count++] = selector(item);
+
+            return array;
+        }
+        // ReSharper enable PossibleMultipleEnumeration
+
         public static T2[] ToArrayMany<T1, T2>(this IEnumerable<T1> enumerable, Func<T1, IEnumerable<T2>> selector)
             => enumerable.SelectMany(selector).ToArray();
 
@@ -413,39 +401,6 @@ namespace nhitomi
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool BufferEquals(this byte[] a, byte[] b) => ((Span<byte>) a).SequenceEqual(b);
-
-        /// <summary>
-        /// Returns true if this array of byte arrays is a subset of another array of byte arrays.
-        /// </summary>
-        public static bool BufferSubset(this IEnumerable<byte[]> a, IEnumerable<byte[]> b)
-            => new HashSet<byte[]>(a, new ByteArrayEqualityComparer()).IsSubsetOf(b);
-
-        sealed class ByteArrayEqualityComparer : IEqualityComparer<byte[]>
-        {
-            readonly uint _seed = unchecked((uint) new Random().Next());
-
-            public bool Equals(byte[] x, byte[] y) => ((Span<byte>) x).SequenceEqual(y);
-            public int GetHashCode(byte[] obj) => unchecked((int) Crc32.Compute(_seed, obj));
-        }
-
-        /// <summary>
-        /// Finds the next available TCP port by binding to it.
-        /// </summary>
-        public static int NextTcpPort()
-        {
-            var listener = new TcpListener(IPAddress.Loopback, 0);
-
-            listener.Start();
-
-            try
-            {
-                return ((IPEndPoint) listener.LocalEndpoint).Port;
-            }
-            finally
-            {
-                listener.Stop();
-            }
-        }
 
         /// <summary>
         /// Returns the name of this enum specified by <see cref="EnumMemberAttribute"/>.
