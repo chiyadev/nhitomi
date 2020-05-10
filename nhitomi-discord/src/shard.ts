@@ -1,5 +1,6 @@
 import { Client as DiscordClient } from 'discord.js'
 import config from 'config'
+import { CommandModule } from './Commands'
 
 export const Client = new DiscordClient({
   fetchAllMembers: false,
@@ -18,6 +19,26 @@ export const Client = new DiscordClient({
 })
 
 Client.on('debug', x => console.debug(x))
-Client.on('message', m => console.log('message', m))
+
+Client.on('message', async message => {
+  const prefix = config.get<string>('prefix')
+
+  if (!message.content.startsWith(prefix))
+    return
+
+  const content = message.content.substring(prefix.length).trim()
+  const space = content.indexOf(' ')
+  const command = space === -1 ? content : content.substring(0, space)
+  const arg = space === -1 ? undefined : content.substring(space + 1).trim()
+
+  let module: CommandModule
+
+  try {
+    module = await import(`./Commands/${command}`)
+  }
+  catch{ return }
+
+  await module.run(message, arg)
+})
 
 Client.login(config.get('token'))
