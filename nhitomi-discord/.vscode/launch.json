@@ -10,7 +10,10 @@
       ],
       "preLaunchTask": "tsc: build - tsconfig.json",
       "program": "${workspaceFolder}\\build\\index.js",
-      "autoAttachChildProcesses": true
+      "autoAttachChildProcesses": true,
+      "env": {
+        "NODE_ENV": "development"
+      }
     }
   ]
 }
