@@ -180,7 +180,7 @@ export abstract class ReactionTrigger {
 
     await interactive.lock.wait()
     try {
-      console.log('invoking trigger', this.emoji, 'for interactive', interactive.constructor.name, interactive.reply.id)
+      console.debug('invoking trigger', this.emoji, 'for interactive', interactive.constructor.name, interactive.reply.id)
 
       return await this.run()
     }
