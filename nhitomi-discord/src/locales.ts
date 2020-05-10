@@ -14,12 +14,12 @@ configure({
 
 /** Contains localized strings that can be formatted. */
 export class Locale {
-  static default: Locale = new Locale(LanguageType.EnUS)
+  static default: Locale = Locale.get(LanguageType.EnUS)
   static get(language: LanguageType): Locale { return new Locale(language) }
 
   readonly locale: string
 
-  constructor(readonly language: LanguageType) {
+  private constructor(readonly language: LanguageType) {
     this.locale = language.toString()
   }
 
