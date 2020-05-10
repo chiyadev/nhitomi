@@ -1,10 +1,9 @@
-console.log('hello, world');
+import { ShardingManager } from 'discord.js'
+import config from 'config'
 
-(async () => {
-  for (; ;) {
-    await new Promise(r => setTimeout(r, 1000))
+const shards = new ShardingManager('./build/shard.js', {
+  token: config.get('token'),
+  respawn: true
+})
 
-    console.log('hello, fewf')
-  }
-
-})()
+shards.spawn()

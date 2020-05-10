@@ -9,11 +9,13 @@
     "@types/node": "^13.13.5",
     "@typescript-eslint/eslint-plugin": "^2.31.0",
     "@typescript-eslint/parser": "^2.31.0",
+    "bufferutil": "^4.0.1",
     "config": "^3.3.1",
     "discord.js": "^12.2.0",
     "eslint": "^7.0.0",
     "symlink-dir": "^4.0.3",
-    "typescript": "^3.8.3"
+    "typescript": "^3.8.3",
+    "utf-8-validate": "^5.0.2"
   },
   "optionalDependencies": {
     "nhitomi-api": "file:nhitomi-api"
