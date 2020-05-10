@@ -1,4 +1,7 @@
 {
   "token": "",
-  "prefix": "n!"
+  "prefix": "n!",
+  "interactive": {
+    "timeout": 21600
+  }
 }
