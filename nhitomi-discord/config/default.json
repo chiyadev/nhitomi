@@ -2,6 +2,6 @@
   "token": "",
   "prefix": "n!",
   "interactive": {
-    "timeout": 21600
+    "timeout": 7200
   }
 }
