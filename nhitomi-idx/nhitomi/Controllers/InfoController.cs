@@ -13,11 +13,13 @@ namespace nhitomi.Controllers
     [Route("/")]
     public class InfoController : nhitomiControllerBase
     {
+        readonly ILinkGenerator _link;
         readonly IDiscordOAuthHandler _discordOAuth;
         readonly RecaptchaOptions _recaptchaOptions;
 
-        public InfoController(IOptionsSnapshot<RecaptchaOptions> recaptchaOptions, IDiscordOAuthHandler discordOAuth)
+        public InfoController(ILinkGenerator link, IOptionsSnapshot<RecaptchaOptions> recaptchaOptions, IDiscordOAuthHandler discordOAuth)
         {
+            _link             = link;
             _discordOAuth     = discordOAuth;
             _recaptchaOptions = recaptchaOptions.Value;
         }
@@ -27,6 +29,12 @@ namespace nhitomi.Controllers
 
         public class GetInfoResponse
         {
+            /// <summary>
+            /// Public frontend URL.
+            /// </summary>
+            [Required]
+            public string PublicUrl { get; set; }
+
             /// <summary>
             /// Backend version information.
             /// </summary>
@@ -52,6 +60,7 @@ namespace nhitomi.Controllers
         [HttpGet("info", Name = "getInfo"), AllowAnonymous]
         public GetInfoResponse GetInfo() => new GetInfoResponse
         {
+            PublicUrl        = _link.GetWebLink("/"),
             Version          = VersionInfo.Commit,
             RecaptchaSiteKey = _recaptchaOptions.SiteKey,
             DiscordOAuthUrl  = _discordOAuth.AuthorizeUrl
@@ -72,6 +81,7 @@ namespace nhitomi.Controllers
         [HttpGet("info/auth", Name = "getInfoAuthenticated"), RequireUser]
         public GetInfoAuthenticatedResponse GetInfoAuthenticated() => new GetInfoAuthenticatedResponse
         {
+            PublicUrl        = _link.GetWebLink("/"),
             Version          = VersionInfo.Commit,
             RecaptchaSiteKey = _recaptchaOptions.SiteKey,
             DiscordOAuthUrl  = _discordOAuth.AuthorizeUrl,
