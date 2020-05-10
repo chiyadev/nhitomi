@@ -1,4 +1,4 @@
-import { InfoApi, BookApi, UserApi, CollectionApi, InternalApi } from 'nhitomi-api'
+import { InfoApi, BookApi, UserApi, CollectionApi, InternalApi, GetInfoAuthenticatedResponse } from 'nhitomi-api'
 import config from 'config'
 
 type ApiClientCore = {
@@ -58,11 +58,27 @@ export class ApiClient implements ApiClientCore {
     this._core = rentCore(token)
   }
 
+  /** Destroys this API client, making it unusable. */
+  destroy(): void {
+    if (this._core) {
+      returnCore(this._core)
+    }
+
+    this._core = undefined
+  }
+}
+
+class BotApiClient extends ApiClient {
+  constructor() { super(config.get<string>('api.token')) }
+
+  /** Bot API information. */
+  currentInfo!: GetInfoAuthenticatedResponse
+
   /** URL to make API requests to. */
   get baseUrl(): string { return this.info.basePath }
 
   /** URL to use to format links. */
-  get publicUrl(): string { return config.get<string>('api.publicUrl') }
+  get publicUrl(): string { return this.currentInfo.publicUrl }
 
   /** Formats a link using publicUrl. */
   getLink(route: string): string {
@@ -74,15 +90,16 @@ export class ApiClient implements ApiClientCore {
     return `${this.publicUrl}/${route}`
   }
 
-  /** Destroys this API client, making it unusable. */
-  destroy(): void {
-    if (this._core) {
-      returnCore(this._core)
-    }
+  async initialize(): Promise<void> {
+    const { body: info } = await this.info.getInfoAuthenticated()
 
-    this._core = undefined
+    this.currentInfo = info
+  }
+
+  destroy(): void {
+    // prevent bot client destruction
   }
 }
 
 /** Global nhitomi API client authenticated as bot user. */
-export const Api = new ApiClient(config.get<string>('api.token'))
+export const Api = new BotApiClient()

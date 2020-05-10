@@ -6,7 +6,6 @@
   },
   "api": {
     "baseUrl": "Api:BaseUrl",
-    "publicUrl": "Api:PublicUrl",
     "token": "Api:Token"
   }
 }
