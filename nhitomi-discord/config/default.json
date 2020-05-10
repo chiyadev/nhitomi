@@ -3,5 +3,10 @@
   "prefix": "n!",
   "interactive": {
     "timeout": 7200
+  },
+  "api": {
+    "baseUrl": "",
+    "publicUrl": "",
+    "token": ""
   }
 }

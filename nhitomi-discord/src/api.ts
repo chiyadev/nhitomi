@@ -15,11 +15,29 @@ export class ApiClient {
     this.collection = new CollectionApi()
   }
 
+  /** URL to make API requests to. */
+  baseUrl = ''
+
+  /** URL to use to format links. */
+  publicUrl = ''
+
   initialize(token: string): void {
     for (const part of [this.info, this.user, this.book, this.collection]) {
-      part.basePath = config.get<string>('api.baseUrl')
+      part.basePath = this.baseUrl = config.get<string>('api.baseUrl') || part.basePath
       part.accessToken = token
     }
+
+    this.publicUrl = config.get<string>('api.publicUrl')
+  }
+
+  /** Formats a link using publicUrl. */
+  getLink(route: string): string {
+    if (route.startsWith('/')) route = route.substring(1)
+
+    if (!route)
+      return this.publicUrl
+
+    return `${this.publicUrl}/${route}`
   }
 
   /** Contains API client pooling. */
@@ -40,6 +58,9 @@ export class ApiClient {
 
     return(client: ApiClient): void {
       this.instances.push(client)
+
+      // clear token for safety
+      client.initialize('')
     }
   }
 }
