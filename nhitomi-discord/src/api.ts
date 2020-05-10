@@ -94,6 +94,8 @@ class BotApiClient extends ApiClient {
     const { body: info } = await this.info.getInfoAuthenticated()
 
     this.currentInfo = info
+
+    console.log('api initialized', this.currentInfo)
   }
 
   destroy(): void {
