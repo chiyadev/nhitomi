@@ -1,4 +1,4 @@
-import { InfoApi, BookApi, UserApi, CollectionApi } from 'nhitomi-api'
+import { InfoApi, BookApi, UserApi, CollectionApi, InternalApi } from 'nhitomi-api'
 import config from 'config'
 
 type ApiClientCore = {
@@ -6,6 +6,7 @@ type ApiClientCore = {
   readonly user: UserApi
   readonly book: BookApi
   readonly collection: CollectionApi
+  readonly internal: InternalApi
 }
 
 const cores: ApiClientCore[] = []
@@ -18,7 +19,8 @@ function rentCore(token: string): ApiClientCore {
       info: new InfoApi(),
       user: new UserApi(),
       book: new BookApi(),
-      collection: new CollectionApi()
+      collection: new CollectionApi(),
+      internal: new InternalApi()
     }
 
   for (const key in core) {
@@ -50,6 +52,7 @@ export class ApiClient implements ApiClientCore {
   get user(): UserApi { return this.core.user }
   get book(): BookApi { return this.core.book }
   get collection(): CollectionApi { return this.core.collection }
+  get internal(): InternalApi { return this.core.internal }
 
   constructor(token: string) {
     this._core = rentCore(token)
