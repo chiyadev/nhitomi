@@ -92,8 +92,11 @@ namespace nhitomi.Controllers
 
         public class GetOrCreateDiscordUserRequest
         {
+            /// <remarks>
+            /// This is a string but should represent a 64-bit unsigned integer.
+            /// </remarks>
             [Required]
-            public ulong Id { get; set; }
+            public string Id { get; set; }
 
             [Required]
             public string Username { get; set; }
@@ -120,7 +123,7 @@ namespace nhitomi.Controllers
         {
             var user = await _discord.GetOrCreateUserAsync(new DiscordOAuthUser
             {
-                Id            = request.Id,
+                Id            = ulong.Parse(request.Id),
                 Username      = request.Username,
                 Discriminator = request.Discriminator,
                 Locale        = request.Locale,
