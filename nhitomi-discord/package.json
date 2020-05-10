@@ -13,6 +13,8 @@
     "config": "^3.3.1",
     "discord.js": "^12.2.0",
     "eslint": "^7.0.0",
+    "fast-deep-equal": "^3.1.1",
+    "semaphore-async-await": "^1.5.1",
     "symlink-dir": "^4.0.3",
     "typescript": "^3.8.3",
     "utf-8-validate": "^5.0.2"
