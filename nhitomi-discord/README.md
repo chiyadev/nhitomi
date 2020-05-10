@@ -4,7 +4,7 @@ This is nhitomi [Discord](https://discord.com) frontend written in Typescript.
 
 ### Prerequisites
 
-- [Node.js](https://nodejs.org/en/)
+- [Node.js 12+](https://nodejs.org/en/)
 - [Java Runtime 8+](https://www.java.com/en/download/) (for [genclient](../genclient.md))
 
 ### Setup
