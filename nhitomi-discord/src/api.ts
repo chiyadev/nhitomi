@@ -1,34 +1,65 @@
 import { InfoApi, BookApi, UserApi, CollectionApi } from 'nhitomi-api'
 import config from 'config'
 
-/** Represents an nhitomi API client. */
-export class ApiClient {
+type ApiClientCore = {
   readonly info: InfoApi
   readonly user: UserApi
   readonly book: BookApi
   readonly collection: CollectionApi
+}
 
-  constructor() {
-    this.info = new InfoApi()
-    this.user = new UserApi()
-    this.book = new BookApi()
-    this.collection = new CollectionApi()
+const cores: ApiClientCore[] = []
+
+function rentCore(token: string): ApiClientCore {
+  let core = cores.pop()
+
+  if (!core)
+    core = {
+      info: new InfoApi(),
+      user: new UserApi(),
+      book: new BookApi(),
+      collection: new CollectionApi()
+    }
+
+  for (const key in core) {
+    const api = (core as Record<string, (typeof core)[keyof typeof core]>)[key]
+
+    api.basePath = config.get<string>('api.baseUrl') || api.basePath
+    api.accessToken = token
+  }
+
+  return core
+}
+
+function returnCore(core: ApiClientCore): void {
+  cores.push(core)
+}
+
+/** Represents an nhitomi API client. */
+export class ApiClient implements ApiClientCore {
+  _core?: ApiClientCore
+
+  get core(): ApiClientCore {
+    const core = this._core
+
+    if (core) return core
+    throw Error('API client was destroyed.')
+  }
+
+  get info(): InfoApi { return this.core.info }
+  get user(): UserApi { return this.core.user }
+  get book(): BookApi { return this.core.book }
+  get collection(): CollectionApi { return this.core.collection }
+
+  constructor(token: string) {
+    this._core = rentCore(token)
   }
 
   /** URL to make API requests to. */
-  baseUrl = ''
+  get baseUrl(): string { return this.info.basePath }
 
   /** URL to use to format links. */
-  publicUrl = ''
-
-  initialize(token: string): void {
-    for (const part of [this.info, this.user, this.book, this.collection]) {
-      part.basePath = this.baseUrl = config.get<string>('api.baseUrl') || part.basePath
-      part.accessToken = token
-    }
-
-    this.publicUrl = config.get<string>('api.publicUrl')
-  }
+  get publicUrl(): string { return config.get<string>('api.publicUrl') }
 
   /** Formats a link using publicUrl. */
   getLink(route: string): string {
@@ -40,31 +71,15 @@ export class ApiClient {
     return `${this.publicUrl}/${route}`
   }
 
-  /** Contains API client pooling. */
-  static pool = {
-    instances: [] as ApiClient[],
-
-    rent(token: string): ApiClient {
-      let client = this.instances.pop()
-
-      if (!client) {
-        // pooling is used because api client instances are expensive to construct
-        client = new ApiClient()
-      }
-
-      client.initialize(token)
-      return client
-    },
-
-    return(client: ApiClient): void {
-      this.instances.push(client)
-
-      // clear token for safety
-      client.initialize('')
+  /** Destroys this API client, making it unusable. */
+  destroy(): void {
+    if (this._core) {
+      returnCore(this._core)
     }
+
+    this._core = undefined
   }
 }
 
 /** Global nhitomi API client authenticated as bot user. */
-export const Api = new ApiClient()
-Api.initialize(config.get<string>('api.token'))
+export const Api = new ApiClient(config.get<string>('api.token'))
