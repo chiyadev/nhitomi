@@ -1,31 +1,29 @@
 import { Locale } from './locales'
 import { User } from 'nhitomi-api'
-import { ApiClient } from './api'
+import { ApiClient, Api } from './api'
 import { Message } from 'discord.js'
+
+/** Cache of authenticated user tokens. */
+const tokenCache: { [key: string]: string } = {}
 
 /** Context in which messages are handled. */
 export class MessageContext {
-  /** API client to make requests on behald of the user. */
-  readonly api: ApiClient
-
   /** Locale to format output messages. */
   readonly locale: Locale
 
   /** Shorthand for `locale.l(...)`. */
   l!: Locale['l']
 
-  constructor(
-    /** Message to be handled. */
+  private constructor(
+    /** Message being handled. */
     readonly message: Message,
 
-    /** API client token. */
-    token: string,
+    /** API client that makes requests on behalf of the user. */
+    readonly api: ApiClient,
 
     /** API user information. */
     readonly user: User
   ) {
-    this.api = ApiClient.pool.rent(token)
-
     this.locale = Locale.get(user.language)
     this.l = this.locale.l.bind(this.locale)
   }
@@ -45,7 +43,42 @@ export class MessageContext {
   destroy(): void {
     const count = --this.refCount
 
-    if (count === 0)
-      ApiClient.pool.return(this.api)
+    if (count === 0) {
+      this.api.destroy()
+
+      console.log('context destroyed for message', this.message.id)
+    }
+  }
+
+  /** Creates a message context from a message. */
+  static async create(message: Message): Promise<MessageContext> {
+    const author = message.author
+    const cachedToken = tokenCache[author.id]
+
+    if (cachedToken) {
+      const api = new ApiClient(cachedToken)
+
+      try {
+        const { body: user } = await api.user.getSelfUser()
+
+        return new MessageContext(message, api, user)
+      }
+      catch (e) {
+        api.destroy()
+        console.debug('message context error using cached token', cachedToken, e)
+
+        delete tokenCache[author.id]
+      }
+    }
+
+    const { body: { token, user } } = await Api.internal.getOrCreateUserDiscord(false, {
+      id: author.id,
+      username: author.username,
+      discriminator: parseInt(author.discriminator)
+    })
+
+    tokenCache[author.id] = token
+
+    return new MessageContext(message, new ApiClient(token), user)
   }
 }
