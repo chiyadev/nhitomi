@@ -7,7 +7,13 @@ import { handleInteractiveMessage, handleInteractiveReaction, handleInteractiveM
 export const Client = new DiscordClient({
   fetchAllMembers: false,
   messageCacheMaxSize: 0,
-  partials: ['GUILD_MEMBER', 'CHANNEL'],
+  partials: [
+    'CHANNEL',
+    'GUILD_MEMBER',
+    'MESSAGE',
+    'REACTION',
+    'USER'
+  ],
   ws: {
     intents: [
       'GUILDS',
@@ -21,6 +27,8 @@ export const Client = new DiscordClient({
 })
 
 Client.on('debug', console.debug)
+Client.on('warn', console.warn)
+Client.on('error', console.error)
 
 function wrapHandler<T extends Function>(name: string, func: T): T {
   return (async (...args: unknown[]) => {
