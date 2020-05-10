@@ -1,6 +1,8 @@
+/locales
+/config/local*
+
 # generated things
 /nhitomi-api
-/src/locales
 /build
 
 # dependencies
