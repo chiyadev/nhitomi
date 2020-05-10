@@ -1,10 +1,10 @@
-import { Client as DiscordClient } from 'discord.js'
+import { Client } from 'discord.js'
 import config from 'config'
 import { CommandModule } from './Commands'
 import { shouldHandleMessage } from './filter'
 import { handleInteractiveMessage, handleInteractiveReaction, handleInteractiveMessageDeleted } from './interactive'
 
-export const Client = new DiscordClient({
+export const Discord = new Client({
   fetchAllMembers: false,
   messageCacheMaxSize: 0,
   partials: [
@@ -26,9 +26,9 @@ export const Client = new DiscordClient({
   }
 })
 
-Client.on('debug', console.debug)
-Client.on('warn', console.warn)
-Client.on('error', console.error)
+Discord.on('debug', console.debug)
+Discord.on('warn', console.warn)
+Discord.on('error', console.error)
 
 function wrapHandler<T extends Function>(name: string, func: T): T {
   return (async (...args: unknown[]) => {
@@ -41,7 +41,7 @@ function wrapHandler<T extends Function>(name: string, func: T): T {
   }) as unknown as T
 }
 
-Client.on('message', wrapHandler('message', async message => {
+Discord.on('message', wrapHandler('message', async message => {
   if (!await shouldHandleMessage(message)) return
   if (await handleInteractiveMessage(message)) return
 
@@ -64,21 +64,21 @@ Client.on('message', wrapHandler('message', async message => {
     return
   }
 
-  console.log(`executing command '${command}' with args '${arg || ''}'`)
+  console.debug(`executing command '${command}' with args '${arg || ''}'`)
 
   await module.run(message, arg)
 }))
 
-Client.on('messageDelete', wrapHandler('messageDelete', async message => {
+Discord.on('messageDelete', wrapHandler('messageDelete', async message => {
   await handleInteractiveMessageDeleted(message)
 }))
 
-Client.on('messageReactionAdd', wrapHandler('messageReactionAdd', async reaction => {
+Discord.on('messageReactionAdd', wrapHandler('messageReactionAdd', async reaction => {
   await handleInteractiveReaction(reaction)
 }))
 
-Client.on('messageReactionRemove', wrapHandler('messageReactionRemove', async reaction => {
+Discord.on('messageReactionRemove', wrapHandler('messageReactionRemove', async reaction => {
   await handleInteractiveReaction(reaction)
 }))
 
-Client.login(config.get('token'))
+Discord.login(config.get('token'))
