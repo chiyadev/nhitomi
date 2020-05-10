@@ -4,6 +4,7 @@ import { CommandModule } from './Commands'
 import { shouldHandleMessage } from './filter'
 import { handleInteractiveMessage, handleInteractiveReaction, handleInteractiveMessageDeleted } from './interactive'
 import { MessageContext } from './context'
+import { Api } from './api'
 
 export const Discord = new Client({
   fetchAllMembers: false,
@@ -82,6 +83,19 @@ Discord.on('messageReactionAdd', wrapHandler('messageReactionAdd', async reactio
 
 Discord.on('messageReactionRemove', wrapHandler('messageReactionRemove', async reaction => {
   await handleInteractiveReaction(reaction)
-}))
+}));
 
-Discord.login(config.get('token'))
+(async (): Promise<void> => {
+  let die = false
+
+  if (!die)
+    try { await Api.initialize() }
+    catch (e) { console.error('could not initialize api client', e); die = true }
+
+  if (!die)
+    try { await Discord.login(config.get('token')) }
+    catch (e) { console.error('could not start discord client', e); die = true }
+
+  if (die)
+    setTimeout(() => process.exit(1), 5000)
+})()
