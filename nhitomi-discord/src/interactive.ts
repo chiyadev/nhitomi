@@ -65,8 +65,10 @@ export abstract class InteractiveMessage {
       const lastReply = this.reply
 
       if (this.reply && this.reply.editable) {
-        if (deepEqual(this.lastView, view))
+        if (deepEqual(this.lastView, view)) {
+          console.debug('skipping rendering for interactive', this.constructor.name, this.reply.id)
           return false
+        }
 
         this.reply = await this.reply.edit(view.message, view.embed)
       }
@@ -84,6 +86,8 @@ export abstract class InteractiveMessage {
             trigger.reaction = await this.reply.react(trigger.emoji)
           }
       }
+
+      if (this.reply) console.debug('rendered interactive', this.constructor.name, this.reply.id)
 
       this.lastView = view
       return true
@@ -106,6 +110,8 @@ export abstract class InteractiveMessage {
   async destroy(expiring?: boolean): Promise<void> {
     await this.lock.wait()
     try {
+      if (this.reply) console.debug('destroying interactive', this.constructor.name, this.reply.id, 'expiring', expiring || false)
+
       try { if (!expiring && this.command?.deletable) await this.command.delete() }
       catch { /* ignored */ }
 
@@ -169,11 +175,13 @@ export abstract class ReactionTrigger {
   async invoke(): Promise<boolean> {
     const interactive = this.interactive
 
-    if (!interactive)
+    if (!interactive?.reply)
       return false
 
     await interactive.lock.wait()
     try {
+      console.log('invoking trigger', this.emoji, 'for interactive', interactive.constructor.name, interactive.reply.id)
+
       return await this.run()
     }
     finally {
