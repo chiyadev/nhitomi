@@ -1,0 +1,37 @@
+{
+  "notification": {
+    "error": {
+      "unknownReason": "Unknown reason."
+    }
+  },
+  "auth": {
+    "title": "Welcome to nhitomi",
+    "tagline": "doujinshi aggregator",
+    "description": "Sign in to continue.",
+    "connect": {
+      "discord": "Continue via Discord"
+    },
+    "failed": "Authentication failed."
+  },
+  "sidebar": {
+    "opened": "Sidebar opened.",
+    "collapsed": "Sidebar collapsed."
+  },
+  "bookReader": {
+    "pageError": {
+      "title": "Error",
+      "description": "An error occured while downloading this image."
+    },
+    "alerts": {
+      "imagesPerRow": "Switched to {value, plural, =1 {single} =2 {double} other {{value}}} page mode.",
+      "viewportBound": "Pages are bound to window height.",
+      "viewportUnbound": "Pages are unbound from window height.",
+      "snappingEnabled": "Scroll snapping is enabled.",
+      "snappingDisabled": "Scroll snapping is disabled.",
+      "leftToRight": "Pages are ordered left to right.",
+      "rightToLeft": "Pages are ordered right to left.",
+      "singleCoverEnabled": "Cover page is displayed separately.",
+      "singleCoverDisabled": "Cover page is grouped with other pages."
+    }
+  }
+}

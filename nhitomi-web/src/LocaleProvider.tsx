@@ -21,17 +21,7 @@ export const LocaleProvider = ({ children }: { children?: ReactNode }) => {
     try {
       const loaded = await loadLocale(locale)
 
-      // namespace to web only
-      for (const x of Object.keys(loaded)) {
-        const value = loaded[x]
-        delete loaded[x]
-
-        if (x.startsWith('web.'))
-          loaded[x.slice(4)] = value
-      }
-
       setMessages(loaded)
-
       console.log('loaded locale', locale, loaded)
     }
     finally {
@@ -53,12 +43,12 @@ export const LocaleProvider = ({ children }: { children?: ReactNode }) => {
 
 async function loadLocale(locale: string): Promise<Record<string, string>> {
   // load and clone default locale
-  let obj = JSON.parse(JSON.stringify((await import(`./Locales/${defaultLocale}.json`)).default))
+  let obj = JSON.parse(JSON.stringify((await import(`./Locales/web/${defaultLocale}.json`)).default))
 
   // layer configured locale on top
   if (locale !== defaultLocale) {
     try {
-      const obj2 = (await import(`./Locales/${locale}.json`)).default
+      const obj2 = (await import(`./Locales/web/${locale}.json`)).default
 
       obj = mergeObjects(obj, obj2)
     }
