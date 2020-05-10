@@ -12,6 +12,7 @@
     "bufferutil": "^4.0.1",
     "config": "^3.3.1",
     "discord.js": "^12.2.0",
+    "discord.js-commando": "github:discordjs/Commando",
     "eslint": "^7.0.0",
     "symlink-dir": "^4.0.3",
     "typescript": "^3.8.3",
