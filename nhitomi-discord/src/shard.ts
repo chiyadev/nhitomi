@@ -68,9 +68,14 @@ Discord.on('message', wrapHandler('message', async message => {
 
   const context = await MessageContext.create(message)
 
-  console.debug(`user ${context.user.id} '${context.user.username}' executing command '${command}' with args '${arg || ''}'`)
+  try {
+    console.debug(`user ${context.user.id} '${context.user.username}' executing command '${command}' with args '${arg || ''}'`)
 
-  await module.run(context, arg)
+    await module.run(context, arg)
+  }
+  finally {
+    context.destroy()
+  }
 }))
 
 Discord.on('messageDelete', wrapHandler('messageDelete', async message => {
