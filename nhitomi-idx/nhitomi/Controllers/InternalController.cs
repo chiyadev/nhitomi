@@ -104,10 +104,7 @@ namespace nhitomi.Controllers
             [Required]
             public int Discriminator { get; set; }
 
-            [Required]
             public string Locale { get; set; }
-
-            [Required]
             public string Email { get; set; }
         }
 
