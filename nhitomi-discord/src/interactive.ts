@@ -2,6 +2,7 @@ import { Message, MessageEmbed, MessageEmbedOptions, MessageReaction, PartialMes
 import { Lock } from 'semaphore-async-await'
 import deepEqual from 'fast-deep-equal'
 import config from 'config'
+import { MessageContext } from './context'
 
 const interactives: { [id: string]: InteractiveMessage } = {}
 export function getInteractive(message: Message | PartialMessage): InteractiveMessage | undefined { return interactives[message.id] }
@@ -19,14 +20,14 @@ export abstract class InteractiveMessage {
   /** Timeout responsible for destroying this interactive after a delay. */
   readonly timeout = setTimeout(() => this.destroy(true), config.get<number>('interactive.timeout') * 1000)
 
-  /** Message that contains the command string. */
-  command?: Message
+  /** Context of the command message. */
+  context?: MessageContext
 
   /** Message that contains the rendered interactive content. */
-  reply?: Message
+  rendered?: Message
 
   /** Channel in which this interactive operates. */
-  get channel(): TextChannel | DMChannel | NewsChannel | undefined { return this.reply?.channel || this.command?.channel }
+  get channel(): TextChannel | DMChannel | NewsChannel | undefined { return this.rendered?.channel || this.context?.message.channel }
 
   /** List of triggers that alter interactive state. */
   triggers?: ReactionTrigger[]
@@ -36,13 +37,20 @@ export abstract class InteractiveMessage {
     embed?: MessageEmbed
   } = {}
 
-  /** Initializes this interactive message. */
-  initialize({ command, reply }: { command?: Message, reply?: Message }): Promise<boolean> {
-    if (this.command) delete interactives[this.command.id]
-    if (this.reply) delete interactives[this.reply.id]
+  /** Initializes this interactive message. Context need not be ref'ed. */
+  initialize(context: MessageContext): Promise<boolean> {
+    if (this.context) {
+      delete interactives[this.context.message.id]
+      this.context.destroy()
+    }
 
-    if ((this.command = command)) interactives[this.command.id] = this
-    if ((this.reply = reply)) interactives[this.reply.id] = this
+    this.context = context.ref()
+    interactives[this.context.message.id] = this
+
+    if (this.rendered) {
+      delete interactives[this.rendered.id]
+      this.rendered = undefined
+    }
 
     return this.update()
   }
@@ -62,32 +70,32 @@ export abstract class InteractiveMessage {
       if (!view.message && !view.embed)
         return false
 
-      const lastReply = this.reply
+      const lastRendered = this.rendered
 
-      if (this.reply && this.reply.editable) {
+      if (this.rendered?.editable) {
         if (deepEqual(this.lastView, view)) {
-          console.debug('skipping rendering for interactive', this.constructor.name, this.reply.id)
+          console.debug('skipping rendering for interactive', this.constructor.name, this.rendered.id)
           return false
         }
 
-        this.reply = await this.reply.edit(view.message, view.embed)
+        this.rendered = await this.rendered.edit(view.message, view.embed)
       }
       else {
-        this.reply = await this.command?.channel.send(view.message, view.embed)
+        this.rendered = await this.context?.message.channel.send(view.message, view.embed)
       }
 
-      if (lastReply) delete interactives[lastReply.id]
-      if (this.reply) {
-        interactives[this.reply.id] = this
+      if (lastRendered) delete interactives[lastRendered.id]
+      if (this.rendered) {
+        interactives[this.rendered.id] = this
 
-        if (this.reply.id !== lastReply?.id)
+        console.debug('rendered interactive', this.constructor.name, this.rendered.id)
+
+        if (this.rendered.id !== lastRendered?.id)
           for (const trigger of this.triggers = this.createTriggers()) {
             trigger.interactive = this
-            trigger.reaction = await this.reply.react(trigger.emoji)
+            trigger.reaction = await this.rendered.react(trigger.emoji)
           }
       }
-
-      if (this.reply) console.debug('rendered interactive', this.constructor.name, this.reply.id)
 
       this.lastView = view
       return true
@@ -110,19 +118,25 @@ export abstract class InteractiveMessage {
   async destroy(expiring?: boolean): Promise<void> {
     await this.lock.wait()
     try {
-      if (this.reply) console.debug('destroying interactive', this.constructor.name, this.reply.id, 'expiring', expiring || false)
+      if (this.rendered) console.debug('destroying interactive', this.constructor.name, this.rendered.id, 'expiring', expiring || false)
 
-      try { if (!expiring && this.command?.deletable) await this.command.delete() }
+      try { if (!expiring && this.context?.message.deletable) await this.context.message.delete() }
       catch { /* ignored */ }
 
-      if (this.command) delete interactives[this.command.id]
-      this.command = undefined
+      if (this.context) {
+        delete interactives[this.context.message.id]
+        this.context.destroy()
+        this.context = undefined
+      }
 
-      try { if (!expiring && this.reply?.deletable) await this.reply.delete() }
+      try { if (!expiring && this.rendered?.deletable) await this.rendered.delete() }
       catch { /* ignored */ }
 
-      if (this.reply) delete interactives[this.reply.id]
-      this.reply = undefined
+      if (this.rendered) {
+        delete interactives[this.rendered.id]
+        this.rendered = undefined
+      }
+
       this.triggers = undefined
     }
     finally {
@@ -175,12 +189,12 @@ export abstract class ReactionTrigger {
   async invoke(): Promise<boolean> {
     const interactive = this.interactive
 
-    if (!interactive?.reply)
+    if (!interactive?.rendered)
       return false
 
     await interactive.lock.wait()
     try {
-      console.debug('invoking trigger', this.emoji, 'for interactive', interactive.constructor.name, interactive.reply.id)
+      console.debug('invoking trigger', this.emoji, 'for interactive', interactive.constructor.name, interactive.rendered.id)
 
       return await this.run()
     }

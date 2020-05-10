@@ -1,4 +1,4 @@
-import { Message } from 'discord.js'
+import { MessageContext } from '../context'
 
-export type CommandFunc = (message: Message, arg?: string) => Promise<boolean>
+export type CommandFunc = (context: MessageContext, arg?: string) => Promise<boolean>
 export type CommandModule = { run: CommandFunc }
