@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { configure, __mf } from 'i18n'
+import { configure, __mf, __ } from 'i18n'
 import { LanguageType } from 'nhitomi-api'
 
 configure({
-  directory: './locales',
+  directory: './locales/discord',
   defaultLocale: 'en-US',
   autoReload: true,
   objectNotation: true,
@@ -18,8 +18,9 @@ export class Locale {
   static get(language: LanguageType): Locale { return new Locale(language) }
 
   readonly locale: string
+  get default(): boolean { return this.locale === Locale.default.locale }
 
-  protected constructor(readonly language: LanguageType) {
+  constructor(readonly language: LanguageType) {
     this.locale = language.toString()
   }
 
@@ -27,10 +28,10 @@ export class Locale {
   get(key: string, values?: Record<string, any>): string {
     let result = __mf({ phrase: key, locale: this.locale }, values)
 
-    // until key-level fallback is implemented, we use this hack to fallback to default language.
+    // until key-level fallback is implemented, we use this hack for fallback to default language.
     // https://github.com/mashpie/i18n-node/issues/80
     // https://github.com/mashpie/i18n-node/issues/167
-    if (result === key)
+    if (result === key && !this.default)
       result = Locale.default.get(key, values)
 
     return result
