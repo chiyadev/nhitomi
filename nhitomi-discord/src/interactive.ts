@@ -3,6 +3,7 @@ import { Lock } from 'semaphore-async-await'
 import deepEqual from 'fast-deep-equal'
 import config from 'config'
 import { MessageContext } from './context'
+import { Locale } from './locales'
 
 const interactives: { [id: string]: InteractiveMessage } = {}
 export function getInteractive(message: Message | PartialMessage): InteractiveMessage | undefined { return interactives[message.id] }
@@ -61,7 +62,7 @@ export abstract class InteractiveMessage {
     try {
       this.timeout.refresh()
 
-      const result = await this.render()
+      const result = await this.render(this.context?.locale ?? Locale.default)
       const view = {
         message: result.message,
         embed: result.embed ? new MessageEmbed(result.embed) : undefined
@@ -109,7 +110,7 @@ export abstract class InteractiveMessage {
   protected createTriggers(): ReactionTrigger[] { return [] }
 
   /** Constructs a new view of this interactive. */
-  protected abstract render(): Promise<RenderResult>
+  protected abstract render(l: Locale): Promise<RenderResult>
 
   /**
    * Destroys this interactive, deleting all related messages.

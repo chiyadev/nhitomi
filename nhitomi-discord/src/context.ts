@@ -14,9 +14,6 @@ export class MessageContext {
   /** Locale to format output messages. */
   readonly locale: Locale
 
-  /** Shorthand for `locale.l(...)`. */
-  l!: Locale['l']
-
   private constructor(
     /** Message being handled. */
     readonly message: Message,
@@ -28,7 +25,6 @@ export class MessageContext {
     readonly user: User
   ) {
     this.locale = Locale.get(user.language)
-    this.l = this.locale.l.bind(this.locale)
   }
 
   private refCount = 1
