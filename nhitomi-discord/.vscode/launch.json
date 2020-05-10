@@ -10,7 +10,7 @@
       ],
       "preLaunchTask": "tsc: build - tsconfig.json",
       "program": "${workspaceFolder}\\build\\index.js",
-      "internalConsoleOptions": "openOnSessionStart"
+      "autoAttachChildProcesses": true
     }
   ]
 }
