@@ -11,7 +11,7 @@ exec2 = (...x) => {
   return p
 }
 
-const rmdirSyncRecurse = function (dir) {
+const emptyDirSync = function (dir) {
   if (!fs.existsSync(dir))
     return
 
@@ -19,12 +19,10 @@ const rmdirSyncRecurse = function (dir) {
     const file = path.join(dir, filename)
 
     if (fs.lstatSync(file).isDirectory())
-      rmdirSyncRecurse(file)
+      emptyDirSync(file)
     else
       fs.unlinkSync(file)
   }
-
-  fs.rmdirSync(dir)
 }
 
 let language = process.argv[2]
@@ -43,7 +41,7 @@ switch (source) {
 const name = 'nhitomi-api';
 
 (async () => {
-  rmdirSyncRecurse(name)
+  emptyDirSync(name)
 
   await promisify(exec2)(
     `npx openapi-generator generate \
