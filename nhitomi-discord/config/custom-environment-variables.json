@@ -6,6 +6,7 @@
   },
   "api": {
     "baseUrl": "Api:BaseUrl",
-    "token": "Api:Token"
+    "token": "Api:Token",
+    "cachedTokenExpiry": "Api:CachedTokenExpiry"
   }
 }

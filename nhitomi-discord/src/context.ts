@@ -2,9 +2,12 @@ import { Locale } from './locales'
 import { User } from 'nhitomi-api'
 import { ApiClient, Api } from './api'
 import { Message } from 'discord.js'
+import NodeCache from 'node-cache'
+import config from 'config'
 
-/** Cache of authenticated user tokens. */
-const tokenCache: { [key: string]: string } = {}
+const tokenCache = new NodeCache({
+  stdTTL: config.get<number>('api.cachedTokenExpiry')
+})
 
 /** Context in which messages are handled. */
 export class MessageContext {
@@ -53,7 +56,7 @@ export class MessageContext {
   /** Creates a message context from a message. */
   static async create(message: Message): Promise<MessageContext> {
     const author = message.author
-    const cachedToken = tokenCache[author.id]
+    const cachedToken = tokenCache.get<string>(author.id)
 
     if (cachedToken) {
       const api = new ApiClient(cachedToken)
@@ -66,8 +69,6 @@ export class MessageContext {
       catch (e) {
         api.destroy()
         console.debug('message context error using cached token', cachedToken, e)
-
-        delete tokenCache[author.id]
       }
     }
 
@@ -77,7 +78,7 @@ export class MessageContext {
       discriminator: parseInt(author.discriminator)
     })
 
-    tokenCache[author.id] = token
+    tokenCache.set(author.id, token)
 
     return new MessageContext(message, new ApiClient(token), user)
   }

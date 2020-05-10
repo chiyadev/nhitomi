@@ -6,6 +6,7 @@
   },
   "api": {
     "baseUrl": "",
-    "token": ""
+    "token": "",
+    "cachedTokenExpiry": 3600
   }
 }
