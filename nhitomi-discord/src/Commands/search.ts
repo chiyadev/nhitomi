@@ -1,12 +1,13 @@
 import { CommandFunc } from '.'
 import { InteractiveMessage, RenderResult, ReactionTrigger } from '../interactive'
 import { Locale } from '../locales'
-import { BookQuery, BookSort, SortDirection, Book, BookContent } from 'nhitomi-api'
+import { BookQuery, BookSort, SortDirection, Book, BookContent, ObjectType, SpecialCollection } from 'nhitomi-api'
 import { AsyncArray } from '../asyncArray'
 import { BookMessage } from './get'
 import { ReadTrigger } from '../Triggers/read'
 import { DestroyTrigger } from '../Triggers/destroy'
 import { ListTrigger } from '../Triggers/list'
+import { FavoriteTrigger } from '../Triggers/favorite'
 
 export class BookSearchMessage extends InteractiveMessage {
   readonly results = new AsyncArray<Book>(20, async (offset, limit) => (await this.context?.api.book.searchBooks(false, { ...this.baseQuery, offset, limit }))?.body.items || [])
@@ -17,6 +18,8 @@ export class BookSearchMessage extends InteractiveMessage {
 
   book?: Book
   content?: BookContent
+
+  get favoriteObject(): Book | undefined { return this.book }
 
   protected async render(l: Locale): Promise<RenderResult> {
     this.book = await this.results.get(this.position)
@@ -35,6 +38,7 @@ export class BookSearchMessage extends InteractiveMessage {
     return [
       ...super.createTriggers(),
 
+      new FavoriteTrigger(this, ObjectType.Book, SpecialCollection.Favorites),
       new ReadTrigger(this),
       new ListTrigger(this, 'left'),
       new ListTrigger(this, 'right'),

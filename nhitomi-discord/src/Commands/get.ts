@@ -1,14 +1,17 @@
 import { CommandFunc } from '.'
 import { InteractiveMessage, RenderResult, ReactionTrigger } from '../interactive'
 import { Locale } from '../locales'
-import { Book, BookContent, BookTag } from 'nhitomi-api'
+import { Book, BookContent, BookTag, ObjectType, SpecialCollection } from 'nhitomi-api'
 import { Api } from '../api'
 import { DestroyTrigger } from '../Triggers/destroy'
 import { MessageContext } from '../context'
 import { Message } from 'discord.js'
 import { ReadTrigger } from '../Triggers/read'
+import { FavoriteTrigger } from '../Triggers/favorite'
 
 export class BookMessage extends InteractiveMessage {
+  get favoriteObject(): Book { return this.book }
+
   constructor(
     readonly book: Book,
     public content: BookContent
@@ -67,6 +70,7 @@ export class BookMessage extends InteractiveMessage {
     return [
       ...super.createTriggers(),
 
+      new FavoriteTrigger(this, ObjectType.Book, SpecialCollection.Favorites),
       new ReadTrigger(this),
       new DestroyTrigger()
     ]
