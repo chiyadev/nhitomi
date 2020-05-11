@@ -266,22 +266,22 @@ export abstract class ReactionTrigger {
   interactive?: InteractiveMessage
   reaction?: MessageReaction
 
-  get context(): MessageContext | undefined { return this.interactive?.context }
-
   /** Runs this trigger immediately. */
   async invoke(): Promise<boolean> {
     const interactive = this.interactive
 
-    if (!interactive?.rendered)
-      return false
+    if (!interactive) return false
 
     let result: boolean
 
     await interactive.lock.wait()
     try {
+      if (!interactive.rendered || !interactive.context)
+        return false
+
       console.debug('invoking trigger', this.emoji, 'for interactive', interactive.constructor.name, interactive.rendered.id)
 
-      result = await this.run()
+      result = await this.run(interactive.context)
     }
     finally {
       interactive.lock.signal()
@@ -294,5 +294,5 @@ export abstract class ReactionTrigger {
   }
 
   /** Alters the state of the interactive while the message is locked. Returning true will rerender the interactive. */
-  protected abstract run(): Promise<boolean>
+  protected abstract run(context: MessageContext): Promise<boolean>
 }

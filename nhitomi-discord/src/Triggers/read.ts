@@ -1,6 +1,7 @@
 import { ReactionTrigger } from '../interactive'
 import { Book, BookContent } from 'nhitomi-api'
 import { BookReadMessage } from '../Commands/read'
+import { MessageContext } from '../context'
 
 export type ReadTriggerTarget = {
   book?: Book
@@ -12,12 +13,12 @@ export class ReadTrigger extends ReactionTrigger {
 
   constructor(readonly target: ReadTriggerTarget) { super() }
 
-  protected async run(): Promise<boolean> {
+  protected async run(context: MessageContext): Promise<boolean> {
     const book = this.target.book
     const content = this.target.content
 
-    if (this.context && book && content)
-      return await new BookReadMessage(book, content).initialize(this.context)
+    if (book && content)
+      return await new BookReadMessage(book, content).initialize(context)
 
     return false
   }

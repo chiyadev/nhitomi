@@ -1,4 +1,5 @@
 import { ReactionTrigger } from '../interactive'
+import { MessageContext } from '../context'
 
 export type ListTriggerTarget = {
   position: number
@@ -51,9 +52,8 @@ export class ListJumpTrigger extends ReactionTrigger {
     super()
   }
 
-  protected async run(): Promise<boolean> {
-    const l = this.context?.locale.section('reaction.list')
-    if (!l) return false
+  protected async run(context: MessageContext): Promise<boolean> {
+    const l = context.locale.section('reaction.list')
 
     switch (this.direction) {
       case 'start': this.target.position = 0; break
