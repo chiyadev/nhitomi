@@ -193,17 +193,24 @@ export abstract class ReactionTrigger {
     if (!interactive?.rendered)
       return false
 
+    let result: boolean
+
     await interactive.lock.wait()
     try {
       console.debug('invoking trigger', this.emoji, 'for interactive', interactive.constructor.name, interactive.rendered.id)
 
-      return await this.run()
+      result = await this.run()
     }
     finally {
       interactive.lock.signal()
     }
+
+    if (result)
+      result = await interactive.update()
+
+    return result
   }
 
-  /** Alters the state of the interactive while the message is locked. */
+  /** Alters the state of the interactive while the message is locked. Returning true will rerender the interactive. */
   protected abstract run(): Promise<boolean>
 }
