@@ -82,7 +82,7 @@ export abstract class InteractiveMessage {
         this.rendered = await this.rendered.edit(view.message, view.embed)
       }
       else {
-        this.rendered = await this.context?.message.channel.send(view.message, view.embed)
+        this.rendered = await this.context?.reply(view.message, view.embed)
       }
 
       if (lastRendered) delete interactives[lastRendered.id]

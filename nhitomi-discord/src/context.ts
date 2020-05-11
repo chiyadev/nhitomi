@@ -25,6 +25,7 @@ export class MessageContext {
     readonly user: User
   ) {
     this.locale = Locale.get(user.language)
+    this.reply = message.channel.send.bind(message.channel)
   }
 
   private refCount = 1
@@ -48,6 +49,9 @@ export class MessageContext {
       console.log('context destroyed for message', this.message.id)
     }
   }
+
+  /** Shorthand for `message.channel.send(...)`. */
+  reply: Message['channel']['send']
 
   /** Creates a message context from a message. */
   static async create(message: Message): Promise<MessageContext> {
