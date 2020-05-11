@@ -9,13 +9,19 @@ namespace nhitomi.Models.Queries
         /// <summary>
         /// Number of items to skip before returning.
         /// </summary>
-        [Range(0, int.MaxValue)]
+        /// <remarks>
+        /// There is a hard limit of 950 items (1000 items in total retrievable via search).
+        /// </remarks>
+        [Range(0, 950)]
         public int Offset { get; set; }
 
         /// <summary>
         /// Number of items to return before stopping.
         /// </summary>
-        [Required, Range(0, int.MaxValue)]
+        /// <remarks>
+        /// There is a hard limit of 50 items.
+        /// </remarks>
+        [Required, Range(0, 50)]
         public int Limit { get; set; }
 
         /// <summary>

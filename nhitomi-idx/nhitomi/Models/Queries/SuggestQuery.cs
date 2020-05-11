@@ -13,7 +13,10 @@ namespace nhitomi.Models.Queries
         /// <summary>
         /// Number of suggestions to return.
         /// </summary>
-        [Required, Range(0, int.MaxValue)]
+        /// <remarks>
+        /// There is a hard limit of 50 items.
+        /// </remarks>
+        [Required, Range(0, 50)]
         public int Limit { get; set; }
 
         /// <summary>
