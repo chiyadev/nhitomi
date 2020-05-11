@@ -1,52 +1,54 @@
-import { BookContent, BookImage, Client, Book } from '../Client'
+import { BookContent, Client, Book } from '../Client'
 import { createContext } from 'react'
 
 export const FetchManagerContext = createContext<FetchManager>(undefined as any)
 
 export type FetchImage =
-  { image: BookImage, index: number } & (
+  { index: number } & (
     { done: true, data: string, width: number, height: number } |
     { done: Error })
 
 /** Responsible for fetching book images sequentially and asynchronously. */
 export class FetchManager {
-  public images: (FetchImage | undefined)[] = []
+  images: (FetchImage | undefined)[] = []
 
   /** Images pending fetch. */
-  public readonly queue: { image: BookImage, index: number }[]
+  readonly queue: { index: number }[] = []
 
   constructor(
-    public readonly client: Client,
-    public readonly book: Book,
-    public readonly content: BookContent,
+    readonly client: Client,
+    readonly book: Book,
+    readonly content: BookContent,
 
     /** Maximum fetch concurrency (number of workers). */
-    public readonly concurrency: number,
+    readonly concurrency: number,
 
     /** Callback when an image fetch was done. */
     private readonly onfetched: (images: (FetchImage | undefined)[]) => void
   ) {
-    this.images = content.pages.map(() => undefined)
-    this.queue = content.pages.map((image, index) => ({ image, index })).reverse()
+    this.images = new Array(content.pageCount)
+
+    for (let i = content.pageCount - 1; i >= 0; i--)
+      this.queue.push({ index: i })
   }
 
   /** Number of workers currently running. */
-  public current = 0
-  public running = false
-  public destroyed = false
+  current = 0
+  running = false
+  destroyed = false
 
-  public start() {
+  start() {
     this.running = true
 
     for (let i = this.current; i < this.concurrency; i++)
       this.run()
   }
 
-  public stop() {
+  stop() {
     this.running = false
   }
 
-  public retry(image: FetchImage) {
+  retry(image: FetchImage) {
     const images = this.images.slice()
     images[image.index] = undefined
 
@@ -108,7 +110,7 @@ export class FetchManager {
     }
   }
 
-  public destroy() {
+  destroy() {
     this.stop()
     this.destroyed = true
 

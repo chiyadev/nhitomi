@@ -53,7 +53,7 @@ const Loaded = ({ book, content }: Fetched) => {
   const { alert } = useContext(NotificationContext)
 
   const [cursorHidden, setCursorHidden] = useState(false)
-  const [currentPage, setCurrentPage] = useState([content.pages[0]])
+  const [currentPage, setCurrentPage] = useState(0)
 
   const [fetched, setFetched] = useState<(FetchImage | undefined)[]>([])
   const fetch = useMemo(() => new FetchManager(client, book, content, 5, setFetched), []) // eslint-disable-line

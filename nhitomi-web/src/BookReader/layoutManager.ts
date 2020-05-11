@@ -25,19 +25,20 @@ export type LayoutResult = {
 
 /** Responsible for calculating the layout of pages. */
 export class LayoutManager {
-  private lastResult: LayoutImage[]
+  private lastResult: LayoutImage[] = []
   private lastImages?: (FetchImage | undefined)[]
 
   constructor(
-    public readonly book: Book,
-    public readonly content: BookContent
+    readonly book: Book,
+    readonly content: BookContent
   ) {
-    this.lastResult = content.pages.map(() => ({
-      x: 0,
-      y: 0,
-      width: 0,
-      height: 0
-    }))
+    for (let i = 0; i < content.pageCount; i++)
+      this.lastResult.push({
+        x: 0,
+        y: 0,
+        width: 0,
+        height: 0
+      })
   }
 
   /**
@@ -45,7 +46,7 @@ export class LayoutManager {
    * This function is stateful.
    * If a layout image has not changed appearance since the last calculation, it will have the same identity.
    */
-  public recalculate(images: (FetchImage | undefined)[], {
+  recalculate(images: (FetchImage | undefined)[], {
     viewportWidth,
     viewportHeight,
     viewportBound = true,
