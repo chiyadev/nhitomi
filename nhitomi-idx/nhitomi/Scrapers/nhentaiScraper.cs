@@ -49,7 +49,7 @@ namespace nhitomi.Scrapers
             TestManager = new ScraperTestManager<nhentaiBook>(this);
         }
 
-        public override string GetExternalUrl(DbBookContent content) => $"https://nhentai.net/g/{content.SourceId}";
+        public override string GetExternalUrl(DbBookContent content) => $"https://nhentai.net/g/{content.SourceId}/";
 
         public sealed class ScraperState
         {
