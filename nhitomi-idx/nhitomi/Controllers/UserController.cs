@@ -208,19 +208,19 @@ namespace nhitomi.Controllers
         /// </remarks>
         /// <param name="id">User ID.</param>
         /// <param name="type">Collection object type.</param>
-        /// <param name="special">Special collection type.</param>
-        [HttpGet("{id}/collections/{type}/{special}")]
-        public async Task<ActionResult<Collection>> GetSpecialCollectionAsync(string id, ObjectType type, SpecialCollection special)
+        /// <param name="collection">Special collection type.</param>
+        [HttpGet("{id}/collections/{type}/{special}", Name = "getUserSpecialCollection"), RequireUser]
+        public async Task<ActionResult<Collection>> GetSpecialCollectionAsync(string id, ObjectType type, SpecialCollection collection)
         {
             if (UserId != id && !User.HasPermissions(UserPermissions.ManageUsers))
                 return ResultUtilities.Forbidden("Insufficient permissions to see user collections.");
 
-            var result = await _collections.GetOrCreateUserSpecialCollectionAsync(id, type, special);
+            var result = await _collections.GetOrCreateUserSpecialCollectionAsync(id, type, collection);
 
-            if (!result.TryPickT0(out var collection, out _))
+            if (!result.TryPickT0(out var coll, out _))
                 return ResultUtilities.NotFound(id);
 
-            return collection.Convert(_services);
+            return coll.Convert(_services);
         }
     }
 }
