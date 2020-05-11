@@ -1,7 +1,7 @@
 import { Client } from 'discord.js'
 import config from 'config'
 import { CommandModule } from './Commands'
-import { shouldHandleMessage } from './filter'
+import { shouldHandleMessage, shouldHandleReaction } from './filter'
 import { handleInteractiveMessage, handleInteractiveReaction, handleInteractiveMessageDeleted } from './interactive'
 import { MessageContext } from './context'
 import { Api } from './api'
@@ -82,12 +82,14 @@ Discord.on('messageDelete', wrapHandler('messageDelete', async message => {
   await handleInteractiveMessageDeleted(message)
 }))
 
-Discord.on('messageReactionAdd', wrapHandler('messageReactionAdd', async reaction => {
-  await handleInteractiveReaction(reaction)
+Discord.on('messageReactionAdd', wrapHandler('messageReactionAdd', async (reaction, user) => {
+  if (await shouldHandleReaction(reaction))
+    await handleInteractiveReaction(reaction, user)
 }))
 
-Discord.on('messageReactionRemove', wrapHandler('messageReactionRemove', async reaction => {
-  await handleInteractiveReaction(reaction)
+Discord.on('messageReactionRemove', wrapHandler('messageReactionRemove', async (reaction, user) => {
+  if (await shouldHandleReaction(reaction))
+    await handleInteractiveReaction(reaction, user)
 }));
 
 (async (): Promise<void> => {
