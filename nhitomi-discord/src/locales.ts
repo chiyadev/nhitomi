@@ -51,6 +51,6 @@ class LocaleSection extends Locale {
   }
 
   section(name: string): Locale {
-    return new LocaleSection(this.inner, name + '.' + this.prefix)
+    return new LocaleSection(this.inner, this.prefix + name + '.')
   }
 }
