@@ -2,6 +2,14 @@
 export class AsyncArray<T> {
   readonly cache: T[] = []
 
+  get loadedLength(): number {
+    for (let i = this.cache.length - 1; i >= 0; i--)
+      if (this.cache[i])
+        return i + 1
+
+    return 0
+  }
+
   constructor(
     readonly chunkSize: number,
     readonly onload: (offset: number, limit: number) => Promise<T[]>
