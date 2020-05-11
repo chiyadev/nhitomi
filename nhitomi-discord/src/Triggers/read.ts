@@ -1,6 +1,6 @@
 import { ReactionTrigger } from '../interactive'
 import { Book, BookContent } from 'nhitomi-api'
-import { BookReadMessage } from '../Commands/view'
+import { BookReadMessage } from '../Commands/read'
 
 export type ReadTriggerTarget = {
   book?: Book

@@ -19,7 +19,7 @@ export class BookReadMessage extends InteractiveMessage {
   get end(): number { return this.content.pageCount - 1 }
 
   protected async render(l: Locale): Promise<RenderResult> {
-    l = l.section('view.book')
+    l = l.section('read.book')
 
     this.position = Math.max(0, Math.min(this.end, this.position))
 

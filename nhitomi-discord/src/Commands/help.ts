@@ -39,7 +39,7 @@ class HelpMessage extends InteractiveMessage {
 - \`${prefix}get [link]\` — ${l.get('get')}
 - \`${prefix}from [source]\` — ${l.get('from')}
 - \`${prefix}search [query]\` — ${l.get('search')}
-- \`${prefix}view [link]\` — ${l.get('view')}
+- \`${prefix}read [link]\` — ${l.get('read')}
 - \`${prefix}download [link]\` — ${l.get('download')}
 `.trim()
         }, {
