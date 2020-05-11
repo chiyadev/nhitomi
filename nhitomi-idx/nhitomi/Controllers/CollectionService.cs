@@ -32,7 +32,7 @@ namespace nhitomi.Controllers
         Task<OneOf<DbCollection, NotFound>> GetAsync(string id, CancellationToken cancellationToken = default);
 
         Task<SearchResult<DbCollection>> GetUserCollectionsAsync(string id, CancellationToken cancellationToken = default);
-        Task<OneOf<IDbEntry<DbCollection>, NotFound>> GetOrCreateUserSpecialCollectionAsync(string userId, ObjectType type, SpecialCollection collection, CancellationToken cancellationToken = default);
+        Task<OneOf<DbCollection, NotFound>> GetOrCreateUserSpecialCollectionAsync(string userId, ObjectType type, SpecialCollection collection, CancellationToken cancellationToken = default);
 
         Task<OneOf<DbCollection, NotFound>> UpdateAsync(string id, CollectionBase collection, CollectionConstraints constraints, CancellationToken cancellationToken = default);
         Task<OneOf<DbCollection, NotFound>> SortAsync(string id, string[] items, CollectionConstraints constraints, CancellationToken cancellationToken = default);
@@ -96,7 +96,7 @@ namespace nhitomi.Controllers
         public Task<SearchResult<DbCollection>> GetUserCollectionsAsync(string id, CancellationToken cancellationToken = default)
             => _client.SearchAsync(new UserCollectionQuery(id), cancellationToken);
 
-        public async Task<OneOf<IDbEntry<DbCollection>, NotFound>> GetOrCreateUserSpecialCollectionAsync(string userId, ObjectType type, SpecialCollection collection, CancellationToken cancellationToken = default)
+        public async Task<OneOf<DbCollection, NotFound>> GetOrCreateUserSpecialCollectionAsync(string userId, ObjectType type, SpecialCollection collection, CancellationToken cancellationToken = default)
         {
             IDbEntry<DbCollection> collectionEntry;
 
@@ -115,7 +115,7 @@ namespace nhitomi.Controllers
                     collectionEntry = await _client.GetEntryAsync<DbCollection>(collectionId, cancellationToken);
 
                     if (collectionEntry.Value != null)
-                        return OneOf<IDbEntry<DbCollection>, NotFound>.FromT0(collectionEntry);
+                        return collectionEntry.Value;
                 }
 
                 // create collection after updating user
@@ -133,9 +133,7 @@ namespace nhitomi.Controllers
             }
             while (!await userEntry.TryUpdateAsync(cancellationToken));
 
-            await collectionEntry.CreateAsync(cancellationToken);
-
-            return OneOf<IDbEntry<DbCollection>, NotFound>.FromT0(collectionEntry);
+            return await collectionEntry.CreateAsync(cancellationToken);
         }
 
         public async Task<OneOf<DbCollection, NotFound>> UpdateAsync(string id, CollectionBase collection, CollectionConstraints constraints, CancellationToken cancellationToken = default)

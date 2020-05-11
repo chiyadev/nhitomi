@@ -199,5 +199,28 @@ namespace nhitomi.Controllers
 
             return result.Project(c => c.Convert(_services));
         }
+
+        /// <summary>
+        /// Retrieves a special collection owned by a user.
+        /// </summary>
+        /// <remarks>
+        /// If the user does not own a special collection yet, a new one will be automatically created.
+        /// </remarks>
+        /// <param name="id">User ID.</param>
+        /// <param name="type">Collection object type.</param>
+        /// <param name="special">Special collection type.</param>
+        [HttpGet("{id}/collections/{type}/{special}")]
+        public async Task<ActionResult<Collection>> GetSpecialCollectionAsync(string id, ObjectType type, SpecialCollection special)
+        {
+            if (UserId != id && !User.HasPermissions(UserPermissions.ManageUsers))
+                return ResultUtilities.Forbidden("Insufficient permissions to see user collections.");
+
+            var result = await _collections.GetOrCreateUserSpecialCollectionAsync(id, type, special);
+
+            if (!result.TryPickT0(out var collection, out _))
+                return ResultUtilities.NotFound(id);
+
+            return collection.Convert(_services);
+        }
     }
 }
