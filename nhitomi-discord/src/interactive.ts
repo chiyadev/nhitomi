@@ -1,4 +1,4 @@
-import { Message, MessageEmbed, MessageEmbedOptions, MessageReaction, PartialMessage, TextChannel, DMChannel, NewsChannel } from 'discord.js'
+import { Message, MessageEmbed, MessageEmbedOptions, MessageReaction, PartialMessage, TextChannel, DMChannel, NewsChannel, User, PartialUser } from 'discord.js'
 import { Lock } from 'semaphore-async-await'
 import deepEqual from 'fast-deep-equal'
 import config from 'config'
@@ -165,10 +165,14 @@ export async function handleInteractiveMessageDeleted(message: Message | Partial
   return true
 }
 
-export async function handleInteractiveReaction(reaction: MessageReaction): Promise<boolean> {
+export async function handleInteractiveReaction(reaction: MessageReaction, user: User | PartialUser): Promise<boolean> {
   const interactive = getInteractive(reaction.message)
 
   if (!interactive)
+    return false
+
+  // reactor must be command author
+  if (user.id !== interactive.context?.message.author.id)
     return false
 
   const trigger = interactive.triggers?.find(t => t.emoji === reaction.emoji.name)
