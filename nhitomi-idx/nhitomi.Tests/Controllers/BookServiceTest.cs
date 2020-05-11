@@ -28,10 +28,10 @@ namespace nhitomi.Controllers
                 {
                     new DbBookContent
                     {
-                        Pages = pages.ToArray(p => new DbBookImage().Apply(p))
-                    }.ApplyBase(content)
+                        Pages = pages.ToArray(p => new DbBookImage().Apply(p, Services))
+                    }.ApplyBase(content, Services)
                 }
-            }.ApplyBase(book));
+            }.ApplyBase(book, Services));
 
             return await entry.CreateAsync();
         }
@@ -43,8 +43,8 @@ namespace nhitomi.Controllers
             var cont = new DbBookContent
             {
                 Id    = Snowflake.New,
-                Pages = pages.ToArray(p => new DbBookImage().Apply(p))
-            }.ApplyBase(content);
+                Pages = pages.ToArray(p => new DbBookImage().Apply(p, Services))
+            }.ApplyBase(content, Services);
 
             var entry = await client.GetEntryAsync<DbBook>(id);
 
@@ -96,7 +96,7 @@ namespace nhitomi.Controllers
                 }
             });
 
-            var book = createBookResult.Convert();
+            var book = createBookResult.Convert(Services);
 
             Assert.That(book, Is.Not.Null);
             Assert.That(book.PrimaryName, Is.EqualTo("my book"));
@@ -140,7 +140,7 @@ namespace nhitomi.Controllers
 
             Assert.That(contentResult.AsT0.Item1.Id, Is.EqualTo(book.Id));
 
-            var secondContent = contentResult.AsT0.Item2.Convert();
+            var secondContent = contentResult.AsT0.Item2.Convert(Services);
 
             Assert.That(secondContent.Language, Is.EqualTo(LanguageType.Chinese));
             Assert.That(secondContent.Pages, Has.Exactly(1).Items);
@@ -149,7 +149,7 @@ namespace nhitomi.Controllers
 
             Assert.That(getBookResult.AsT0.Id, Is.EqualTo(book.Id));
 
-            var secondBook = getBookResult.AsT0.Convert();
+            var secondBook = getBookResult.AsT0.Convert(Services);
 
             Assert.That(secondBook.Contents, Has.Exactly(2).Items);
             Assert.That(secondBook.Contents[0].Id, Is.EqualTo(book.Contents[0].Id));

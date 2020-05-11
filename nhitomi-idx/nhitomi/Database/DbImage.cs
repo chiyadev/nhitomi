@@ -87,25 +87,25 @@ namespace nhitomi.Database
         [Key("da"), Keyword(Name = "da", Index = false)]
         public string Data { get; set; }
 
-        public override void MapTo(Image model)
+        public override void MapTo(Image model, IServiceProvider services)
         {
-            base.MapTo(model);
+            base.MapTo(model, services);
 
             model.CreatedTime = CreatedTime;
             model.UpdatedTime = UpdatedTime;
-            model.Notes       = Notes?.ToArray(n => n.Convert());
+            model.Notes       = Notes?.ToArray(n => n.Convert(services));
             model.Tags        = _tags.DictClone();
             model.Rating      = Rating;
             model.Source      = Source;
         }
 
-        public override void MapFrom(Image model)
+        public override void MapFrom(Image model, IServiceProvider services)
         {
-            base.MapFrom(model);
+            base.MapFrom(model, services);
 
             CreatedTime = model.CreatedTime;
             UpdatedTime = model.UpdatedTime;
-            Notes       = model.Notes?.ToArray(p => new DbImageNote().Apply(p));
+            Notes       = model.Notes?.ToArray(p => new DbImageNote().Apply(p, services));
             _tags       = model.Tags?.DictClone() ?? new Dictionary<ImageTag, string[]>();
             Rating      = model.Rating;
 
@@ -120,9 +120,9 @@ namespace nhitomi.Database
         [IgnoreMember, Completion(Name = "sug", PreserveSeparators = false, PreservePositionIncrements = false, DocValues = false), DbCached]
         public CompletionField Suggest { get; set; }
 
-        public override void UpdateCache()
+        public override void UpdateCache(IServiceProvider services)
         {
-            base.UpdateCache();
+            base.UpdateCache(services);
 
             Suggest = new CompletionField
             {

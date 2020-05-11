@@ -51,12 +51,14 @@ namespace nhitomi.Controllers
 
     public class UserService : IUserService
     {
+        readonly IServiceProvider _services;
         readonly IOptionsMonitor<UserServiceOptions> _options;
         readonly IElasticClient _client;
         readonly ISnapshotService _snapshots;
 
-        public UserService(IOptionsMonitor<UserServiceOptions> options, IElasticClient client, ISnapshotService snapshots)
+        public UserService(IServiceProvider services, IOptionsMonitor<UserServiceOptions> options, IElasticClient client, ISnapshotService snapshots)
         {
+            _services  = services;
             _options   = options;
             _client    = client;
             _snapshots = snapshots;
@@ -93,7 +95,7 @@ namespace nhitomi.Controllers
                 if (entry.Value == null)
                     return new NotFound();
 
-                if (!entry.Value.TryApplyBase(user))
+                if (!entry.Value.TryApplyBase(user, _services))
                     break;
             }
             while (!await entry.TryUpdateAsync(cancellationToken));

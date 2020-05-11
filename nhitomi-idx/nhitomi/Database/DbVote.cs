@@ -1,3 +1,4 @@
+using System;
 using MessagePack;
 using Nest;
 using nhitomi.Models;
@@ -38,9 +39,9 @@ namespace nhitomi.Database
             set => Id = MakeId(UserId, value);
         }
 
-        public override void MapTo(Vote model)
+        public override void MapTo(Vote model, IServiceProvider services)
         {
-            base.MapTo(model);
+            base.MapTo(model, services);
 
             model.UserId   = UserId;
             model.Target   = Target;
@@ -48,9 +49,9 @@ namespace nhitomi.Database
             model.Type     = Type;
         }
 
-        public override void MapFrom(Vote model)
+        public override void MapFrom(Vote model, IServiceProvider services)
         {
-            base.MapFrom(model);
+            base.MapFrom(model, services);
 
             UserId   = model.UserId;
             Target   = model.Target;

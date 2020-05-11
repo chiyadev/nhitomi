@@ -100,9 +100,9 @@ namespace nhitomi.Database
         [Key("co"), Object(Name = "co", Enabled = false)]
         public DbBookContent[] Contents { get; set; }
 
-        public override void MapTo(Book model)
+        public override void MapTo(Book model, IServiceProvider services)
         {
-            base.MapTo(model);
+            base.MapTo(model, services);
 
             model.CreatedTime = CreatedTime;
             model.UpdatedTime = UpdatedTime;
@@ -111,12 +111,12 @@ namespace nhitomi.Database
             model.Tags        = _tags.DictClone();
             model.Category    = Category;
             model.Rating      = Rating;
-            model.Contents    = Contents?.ToArray(c => c.Convert());
+            model.Contents    = Contents?.ToArray(c => c.Convert(services));
         }
 
-        public override void MapFrom(Book model)
+        public override void MapFrom(Book model, IServiceProvider services)
         {
-            base.MapFrom(model);
+            base.MapFrom(model, services);
 
             CreatedTime = model.CreatedTime;
             UpdatedTime = model.UpdatedTime;
@@ -125,7 +125,7 @@ namespace nhitomi.Database
             _tags       = model.Tags?.DictClone() ?? new Dictionary<BookTag, string[]>();
             Category    = model.Category;
             Rating      = model.Rating;
-            Contents    = model.Contents?.ToArray(c => new DbBookContent().Apply(c));
+            Contents    = model.Contents?.ToArray(c => new DbBookContent().Apply(c, services));
         }
 
         public void MergeFrom(DbBook other)
@@ -178,9 +178,9 @@ namespace nhitomi.Database
         [IgnoreMember, Completion(Name = "sug", PreserveSeparators = false, PreservePositionIncrements = false), DbCached]
         public CompletionField Suggest { get; set; }
 
-        public override void UpdateCache()
+        public override void UpdateCache(IServiceProvider services)
         {
-            base.UpdateCache();
+            base.UpdateCache(services);
 
             // auto-set content ids
             if (Contents != null)

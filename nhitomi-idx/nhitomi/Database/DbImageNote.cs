@@ -1,3 +1,4 @@
+using System;
 using MessagePack;
 using Nest;
 using nhitomi.Models;
@@ -26,9 +27,9 @@ namespace nhitomi.Database
         [Key("c"), Text(Name = "c")]
         public string Content { get; set; }
 
-        public override void MapTo(ImageNote model)
+        public override void MapTo(ImageNote model, IServiceProvider services)
         {
-            base.MapTo(model);
+            base.MapTo(model, services);
 
             model.X       = X;
             model.Y       = Y;
@@ -37,9 +38,9 @@ namespace nhitomi.Database
             model.Content = Content;
         }
 
-        public override void MapFrom(ImageNote model)
+        public override void MapFrom(ImageNote model, IServiceProvider services)
         {
-            base.MapFrom(model);
+            base.MapFrom(model, services);
 
             X       = model.X;
             Y       = model.Y;

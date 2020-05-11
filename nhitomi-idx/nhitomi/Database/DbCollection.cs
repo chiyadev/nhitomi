@@ -32,9 +32,9 @@ namespace nhitomi.Database
         [Key("it"), Keyword(Name = "it", Index = false)]
         public string[] Items { get; set; }
 
-        public override void MapTo(Collection model)
+        public override void MapTo(Collection model, IServiceProvider services)
         {
-            base.MapTo(model);
+            base.MapTo(model, services);
 
             model.Name        = Name;
             model.Description = Description;
@@ -45,9 +45,9 @@ namespace nhitomi.Database
             model.Items       = Items;
         }
 
-        public override void MapFrom(Collection model)
+        public override void MapFrom(Collection model, IServiceProvider services)
         {
-            base.MapFrom(model);
+            base.MapFrom(model, services);
 
             Name        = model.Name;
             Description = model.Description;

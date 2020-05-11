@@ -1,3 +1,4 @@
+using System;
 using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
@@ -12,11 +13,13 @@ namespace nhitomi.Controllers
     [Route("collections")]
     public class CollectionController : nhitomiControllerBase
     {
+        readonly IServiceProvider _services;
         readonly ICollectionService _collections;
         readonly IUserService _users;
 
-        public CollectionController(ICollectionService collections, IUserService users)
+        public CollectionController(IServiceProvider services, ICollectionService collections, IUserService users)
         {
+            _services    = services;
             _collections = collections;
             _users       = users;
         }
@@ -39,7 +42,7 @@ namespace nhitomi.Controllers
         {
             var result = await _collections.CreateAsync(request.Type, request, UserId);
 
-            return result.AsT0.Convert();
+            return result.AsT0.Convert(_services);
         }
 
         CollectionConstraints CurrentConstraint => new CollectionConstraints
@@ -60,7 +63,7 @@ namespace nhitomi.Controllers
             if (!result.TryPickT0(out var collection, out _) || !CurrentConstraint.Test(collection))
                 return ResultUtilities.NotFound(id);
 
-            return collection.Convert();
+            return collection.Convert(_services);
         }
 
         /// <summary>
@@ -76,7 +79,7 @@ namespace nhitomi.Controllers
             if (!result.TryPickT0(out var collection, out _))
                 return ResultUtilities.NotFound(id);
 
-            return collection.Convert();
+            return collection.Convert(_services);
         }
 
         /// <summary>
@@ -124,7 +127,7 @@ namespace nhitomi.Controllers
             if (!result.TryPickT0(out var collection, out _))
                 return ResultUtilities.NotFound(id);
 
-            return collection.Convert();
+            return collection.Convert(_services);
         }
 
         /// <summary>
@@ -178,7 +181,7 @@ namespace nhitomi.Controllers
             if (!result.TryPickT0(out var collection, out _))
                 return ResultUtilities.NotFound(id);
 
-            return collection.Convert();
+            return collection.Convert(_services);
         }
 
         /// <summary>
@@ -194,7 +197,7 @@ namespace nhitomi.Controllers
             if (!result.TryPickT0(out var collection, out _))
                 return ResultUtilities.NotFound(id);
 
-            return collection.Convert();
+            return collection.Convert(_services);
         }
 
         /// <summary>
@@ -214,7 +217,7 @@ namespace nhitomi.Controllers
             if (!result.TryPickT0(out var collection, out _))
                 return ResultUtilities.NotFound(id);
 
-            return collection.Convert();
+            return collection.Convert(_services);
         }
     }
 }

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using MessagePack;
 using Nest;
@@ -21,6 +22,6 @@ namespace nhitomi.Database
         [Key("c"), Object(Name = "c", Enabled = false)]
         public Dictionary<string, string> Config { get; set; }
 
-        public void UpdateCache() { }
+        public void UpdateCache(IServiceProvider services) { }
     }
 }

@@ -46,13 +46,15 @@ namespace nhitomi.Controllers
 
     public class BookService : IBookService
     {
+        readonly IServiceProvider _services;
         readonly IElasticClient _client;
         readonly ISnapshotService _snapshots;
         readonly IOptionsMonitor<BookServiceOptions> _options;
         readonly IScraperService _scrapers;
 
-        public BookService(IElasticClient client, ISnapshotService snapshots, IOptionsMonitor<BookServiceOptions> options, IScraperService scrapers)
+        public BookService(IServiceProvider services, IElasticClient client, ISnapshotService snapshots, IOptionsMonitor<BookServiceOptions> options, IScraperService scrapers)
         {
+            _services  = services;
             _client    = client;
             _snapshots = snapshots;
             _options   = options;
@@ -108,7 +110,7 @@ namespace nhitomi.Controllers
                 if (entry.Value == null)
                     return new NotFound();
 
-                if (!entry.Value.TryApplyBase(book))
+                if (!entry.Value.TryApplyBase(book, _services))
                     break;
             }
             while (!await entry.TryUpdateAsync(cancellationToken));
@@ -135,7 +137,7 @@ namespace nhitomi.Controllers
                 if (cont == null)
                     return new NotFound();
 
-                if (!cont.TryApplyBase(content))
+                if (!cont.TryApplyBase(content, _services))
                     break;
             }
             while (!await entry.TryUpdateAsync(cancellationToken));

@@ -24,9 +24,9 @@ namespace nhitomi.Database
         [Key("r"), Text(Name = "r")]
         public string Reason { get; set; }
 
-        public override void MapTo(UserRestriction model)
+        public override void MapTo(UserRestriction model, IServiceProvider services)
         {
-            base.MapTo(model);
+            base.MapTo(model, services);
 
             model.StartTime   = StartTime;
             model.EndTime     = EndTime;
@@ -34,9 +34,9 @@ namespace nhitomi.Database
             model.Reason      = Reason;
         }
 
-        public override void MapFrom(UserRestriction model)
+        public override void MapFrom(UserRestriction model, IServiceProvider services)
         {
-            base.MapFrom(model);
+            base.MapFrom(model, services);
 
             StartTime   = model.StartTime;
             EndTime     = model.EndTime;

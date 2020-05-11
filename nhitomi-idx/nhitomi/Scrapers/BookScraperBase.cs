@@ -32,13 +32,13 @@ namespace nhitomi.Scrapers
             public abstract BookContentBase Content { get; }
         }
 
-        public DbBook Convert(IScraper scraper)
+        public DbBook Convert(IScraper scraper, IServiceProvider services)
         {
-            var book = new DbBook().ApplyBase(ModelSanitizer.Sanitize(Book));
+            var book = new DbBook().ApplyBase(ModelSanitizer.Sanitize(Book), services);
 
             book.Contents = (Contents ?? Enumerable.Empty<ContentAdaptor>()).ToArray(c =>
             {
-                var content = new DbBookContent().ApplyBase(ModelSanitizer.Sanitize(c.Content));
+                var content = new DbBookContent().ApplyBase(ModelSanitizer.Sanitize(c.Content), services);
 
                 content.Source   = scraper.Type;
                 content.SourceId = c.Id;
@@ -70,13 +70,15 @@ namespace nhitomi.Scrapers
 
     public abstract class BookScraperBase : ScraperBase, IBookScraper
     {
+        readonly IServiceProvider _services;
         readonly IElasticClient _client;
         readonly IBookIndexer _indexer;
 
         protected BookScraperBase(IServiceProvider services, IOptionsMonitor<ScraperOptions> options, ILogger<BookScraperBase> logger) : base(services, options, logger)
         {
-            _client  = services.GetService<IElasticClient>();
-            _indexer = services.GetService<IBookIndexer>();
+            _services = services;
+            _client   = services.GetService<IElasticClient>();
+            _indexer  = services.GetService<IBookIndexer>();
         }
 
         public abstract string GetExternalUrl(DbBook book, DbBookContent content);
@@ -87,7 +89,7 @@ namespace nhitomi.Scrapers
         protected abstract IAsyncEnumerable<BookAdaptor> ScrapeAsync(CancellationToken cancellationToken = default);
 
         protected override async Task RunAsync(CancellationToken cancellationToken = default)
-            => await _indexer.IndexAsync(await ScrapeAsync(cancellationToken).Select(b => b.Convert(this)).ToArrayAsync(cancellationToken), cancellationToken);
+            => await _indexer.IndexAsync(await ScrapeAsync(cancellationToken).Select(b => b.Convert(this, _services)).ToArrayAsync(cancellationToken), cancellationToken);
 
         sealed class SourceQuery : IQueryProcessor<DbBook>
         {

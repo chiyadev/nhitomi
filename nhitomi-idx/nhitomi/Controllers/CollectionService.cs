@@ -48,11 +48,13 @@ namespace nhitomi.Controllers
 
     public class CollectionService : ICollectionService
     {
+        readonly IServiceProvider _services;
         readonly IElasticClient _client;
 
-        public CollectionService(IElasticClient client)
+        public CollectionService(IServiceProvider services, IElasticClient client)
         {
-            _client = client;
+            _services = services;
+            _client   = client;
         }
 
         public async Task<OneOf<DbCollection>> CreateAsync(ObjectType type, CollectionBase model, string userId, CancellationToken cancellationToken = default)
@@ -62,7 +64,7 @@ namespace nhitomi.Controllers
                 Type     = type,
                 OwnerIds = new[] { userId },
                 Items    = Array.Empty<string>()
-            }.ApplyBase(model);
+            }.ApplyBase(model, _services);
 
             return await _client.Entry(collection).CreateAsync(cancellationToken);
         }
@@ -145,7 +147,7 @@ namespace nhitomi.Controllers
                 if (entry.Value == null || !constraints.Test(entry.Value))
                     return new NotFound();
 
-                if (!entry.Value.TryApplyBase(collection))
+                if (!entry.Value.TryApplyBase(collection, _services))
                     break;
             }
             while (!await entry.TryUpdateAsync(cancellationToken));

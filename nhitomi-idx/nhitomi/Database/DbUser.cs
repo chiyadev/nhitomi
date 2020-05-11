@@ -52,34 +52,34 @@ namespace nhitomi.Database
         public bool HasPermissions(UserPermissions permissions)
             => Permissions.ToBitwise().Compose(p => p.HasFlag(UserPermissions.Administrator) || p.HasFlag(permissions));
 
-        public override void MapTo(User model)
+        public override void MapTo(User model, IServiceProvider services)
         {
-            base.MapTo(model);
+            base.MapTo(model, services);
 
             model.CreatedTime            = CreatedTime;
             model.UpdatedTime            = UpdatedTime;
             model.Username               = Username;
             model.Email                  = Email;
-            model.Restrictions           = Restrictions?.ToArray(r => r.Convert()) ?? Array.Empty<UserRestriction>();
+            model.Restrictions           = Restrictions?.ToArray(r => r.Convert(services)) ?? Array.Empty<UserRestriction>();
             model.Permissions            = Permissions;
             model.Language               = Language;
-            model.DiscordConnection      = DiscordConnection?.Convert();
+            model.DiscordConnection      = DiscordConnection?.Convert(services);
             model.AllowSharedCollections = AllowSharedCollections;
             model.SpecialCollections     = SpecialCollections;
         }
 
-        public override void MapFrom(User model)
+        public override void MapFrom(User model, IServiceProvider services)
         {
-            base.MapFrom(model);
+            base.MapFrom(model, services);
 
             CreatedTime            = model.CreatedTime;
             UpdatedTime            = model.UpdatedTime;
             Username               = model.Username;
             Email                  = model.Email;
-            Restrictions           = model.Restrictions?.ToArray(r => new DbUserRestriction().Apply(r));
+            Restrictions           = model.Restrictions?.ToArray(r => new DbUserRestriction().Apply(r, services));
             Permissions            = model.Permissions.ToDistinctFlags();
             Language               = model.Language;
-            DiscordConnection      = model.DiscordConnection == null ? null : new DbUserDiscordConnection().Apply(model.DiscordConnection);
+            DiscordConnection      = model.DiscordConnection == null ? null : new DbUserDiscordConnection().Apply(model.DiscordConnection, services);
             AllowSharedCollections = model.AllowSharedCollections;
             SpecialCollections     = model.SpecialCollections;
         }
@@ -92,9 +92,9 @@ namespace nhitomi.Database
         [IgnoreMember, Keyword(Name = "cdi", DocValues = false), DbCached]
         public ulong? DiscordId { get; set; }
 
-        public override void UpdateCache()
+        public override void UpdateCache(IServiceProvider services)
         {
-            base.UpdateCache();
+            base.UpdateCache(services);
 
             DiscordId = DiscordConnection?.Id;
         }

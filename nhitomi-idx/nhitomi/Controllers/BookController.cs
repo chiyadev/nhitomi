@@ -1,3 +1,4 @@
+using System;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
@@ -18,12 +19,14 @@ namespace nhitomi.Controllers
     [Route("books")]
     public class BookController : nhitomiControllerBase
     {
+        readonly IServiceProvider _services;
         readonly IBookService _books;
         readonly ISnapshotService _snapshots;
         readonly IVoteService _votes;
 
-        public BookController(IBookService books, ISnapshotService snapshots, IVoteService votes)
+        public BookController(IServiceProvider services, IBookService books, ISnapshotService snapshots, IVoteService votes)
         {
+            _services  = services;
             _books     = books;
             _snapshots = snapshots;
             _votes     = votes;
@@ -41,7 +44,7 @@ namespace nhitomi.Controllers
             if (!result.TryPickT0(out var book, out _))
                 return ResultUtilities.NotFound(id);
 
-            return book.Convert();
+            return book.Convert(_services);
         }
 
         /// <summary>
@@ -59,7 +62,7 @@ namespace nhitomi.Controllers
 
             var (_, content) = value;
 
-            return content.Convert();
+            return content.Convert(_services);
         }
 
         public class GetByLinkRequest
@@ -96,7 +99,7 @@ namespace nhitomi.Controllers
 
                 return new GetByLinkResponse.GetByLinkMatch
                 {
-                    Book              = book.Value.Convert(),
+                    Book              = book.Value.Convert(_services),
                     SelectedContentId = content.Id
                 };
             }).ToArrayAsync()
@@ -122,7 +125,7 @@ namespace nhitomi.Controllers
             if (!result.TryPickT0(out var book, out _))
                 return ResultUtilities.NotFound(id);
 
-            return book.Convert();
+            return book.Convert(_services);
         }
 
         /// <summary>
@@ -148,7 +151,7 @@ namespace nhitomi.Controllers
 
             var (_, content) = value;
 
-            return content.Convert();
+            return content.Convert(_services);
         }
 
         /// <summary>
@@ -239,7 +242,7 @@ namespace nhitomi.Controllers
         /// <param name="query">Book information query.</param>
         [HttpPost("search", Name = "searchBooks")]
         public async Task<SearchResult<Book>> SearchAsync(BookQuery query)
-            => (await _books.SearchAsync(query)).Project(b => b.Convert());
+            => (await _books.SearchAsync(query)).Project(b => b.Convert(_services));
 
         /// <summary>
         /// Finds autocomplete suggestions for books matching the given query.
@@ -261,7 +264,7 @@ namespace nhitomi.Controllers
             if (!result.TryPickT0(out var snapshot, out _))
                 return ResultUtilities.NotFound(id);
 
-            return snapshot.Convert();
+            return snapshot.Convert(_services);
         }
 
         /// <summary>
@@ -281,7 +284,7 @@ namespace nhitomi.Controllers
             if (!valueResult.TryPickT0(out var book, out _))
                 return ResultUtilities.NotFound(id);
 
-            return book.Convert();
+            return book.Convert(_services);
         }
 
         /// <summary>
@@ -290,7 +293,7 @@ namespace nhitomi.Controllers
         /// <param name="query">Snapshot information query.</param>
         [HttpPost("snapshots/search", Name = "searchBookSnapshots")]
         public async Task<SearchResult<Snapshot>> SearchSnapshotsAsync(SnapshotQuery query)
-            => (await _snapshots.SearchAsync(ObjectType.Book, query)).Project(s => s.Convert());
+            => (await _snapshots.SearchAsync(ObjectType.Book, query)).Project(s => s.Convert(_services));
 
         public class RollbackRequest
         {
@@ -329,7 +332,7 @@ namespace nhitomi.Controllers
 
             var (book, _) = value;
 
-            return book.Convert();
+            return book.Convert(_services);
         }
 
         /// <summary>
@@ -344,7 +347,7 @@ namespace nhitomi.Controllers
             if (!result.TryPickT0(out var vote, out _))
                 return ResultUtilities.NotFound(id);
 
-            return vote.Convert();
+            return vote.Convert(_services);
         }
 
         /// <summary>
@@ -362,7 +365,7 @@ namespace nhitomi.Controllers
 
             var vote = await _votes.SetAsync(UserId, book, model.Type);
 
-            return vote.Convert();
+            return vote.Convert(_services);
         }
 
         /// <summary>

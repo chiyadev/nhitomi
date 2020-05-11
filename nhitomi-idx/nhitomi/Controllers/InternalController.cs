@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
@@ -18,6 +19,7 @@ namespace nhitomi.Controllers
     [Route("internal")]
     public class InternalController : nhitomiControllerBase
     {
+        readonly IServiceProvider _services;
         readonly IConfiguration _config;
         readonly ServerOptions _serverOptions;
         readonly IElasticClient _elastic;
@@ -25,8 +27,10 @@ namespace nhitomi.Controllers
         readonly IAuthService _auth;
         readonly IDiscordOAuthHandler _discord;
 
-        public InternalController(IConfiguration config, IOptionsSnapshot<ServerOptions> serverOptions, IElasticClient elastic, IUserService users, IAuthService auth, IDiscordOAuthHandler discord)
+        public InternalController(IServiceProvider services, IConfiguration config, IOptionsSnapshot<ServerOptions> serverOptions,
+                                  IElasticClient elastic, IUserService users, IAuthService auth, IDiscordOAuthHandler discord)
         {
+            _services      = services;
             _config        = config;
             _serverOptions = serverOptions.Value;
             _elastic       = elastic;
@@ -86,7 +90,7 @@ namespace nhitomi.Controllers
             return new UserController.AuthenticateResponse
             {
                 Token = await _auth.GenerateTokenAsync(user),
-                User  = ProcessUser(user.Convert())
+                User  = ProcessUser(user.Convert(_services))
             };
         }
 
@@ -132,7 +136,7 @@ namespace nhitomi.Controllers
             return new UserController.AuthenticateResponse
             {
                 Token = await _auth.GenerateTokenAsync(user),
-                User  = ProcessUser(user.Convert())
+                User  = ProcessUser(user.Convert(_services))
             };
         }
     }

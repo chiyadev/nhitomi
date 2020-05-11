@@ -1,3 +1,4 @@
+using System;
 using MessagePack;
 using Nest;
 using nhitomi.Models;
@@ -19,9 +20,9 @@ namespace nhitomi.Database
         [Key("e"), Keyword(Name = "e", DocValues = false)]
         public string Email { get; set; }
 
-        public override void MapTo(UserDiscordConnection model)
+        public override void MapTo(UserDiscordConnection model, IServiceProvider services)
         {
-            base.MapTo(model);
+            base.MapTo(model, services);
 
             model.Id            = Id;
             model.Username      = Username;
@@ -29,9 +30,9 @@ namespace nhitomi.Database
             model.Email         = Email;
         }
 
-        public override void MapFrom(UserDiscordConnection model)
+        public override void MapFrom(UserDiscordConnection model, IServiceProvider services)
         {
-            base.MapFrom(model);
+            base.MapFrom(model, services);
 
             Id            = model.Id;
             Username      = model.Username;

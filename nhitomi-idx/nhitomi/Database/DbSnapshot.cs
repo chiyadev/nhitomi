@@ -2,6 +2,7 @@ using System;
 using MessagePack;
 using Nest;
 using nhitomi.Models;
+using Snapshot = nhitomi.Models.Snapshot;
 
 namespace nhitomi.Database
 {
@@ -46,9 +47,9 @@ namespace nhitomi.Database
         [Key("d"), Keyword(Name = "d", Index = false)]
         public string Data { get; set; }
 
-        public override void MapTo(Models.Snapshot model)
+        public override void MapTo(Snapshot model, IServiceProvider services)
         {
-            base.MapTo(model);
+            base.MapTo(model, services);
 
             model.CreatedTime = CreatedTime;
             model.Source      = Source;
@@ -60,9 +61,9 @@ namespace nhitomi.Database
             model.Reason      = Reason;
         }
 
-        public override void MapFrom(Models.Snapshot model)
+        public override void MapFrom(Snapshot model, IServiceProvider services)
         {
-            base.MapFrom(model);
+            base.MapFrom(model, services);
 
             CreatedTime = model.CreatedTime;
             Source      = model.Source;

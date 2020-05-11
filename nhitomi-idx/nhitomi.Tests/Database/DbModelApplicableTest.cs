@@ -5,8 +5,7 @@ using NUnit.Framework;
 
 namespace nhitomi.Database
 {
-    [Parallelizable(ParallelScope.All)]
-    public class DbModelApplicableTest
+    public class DbModelApplicableTest : TestBaseServices
     {
         static readonly DbBook _book = new DbBook
         {
@@ -29,7 +28,7 @@ namespace nhitomi.Database
                 }
             };
 
-            Assert.That(book.TryApplyBase(bookBase), Is.True);
+            Assert.That(book.TryApplyBase(bookBase, Services), Is.True);
 
             Assert.That(book.PrimaryName, Is.Null);
             Assert.That(book.EnglishName, Is.Null);
@@ -52,7 +51,7 @@ namespace nhitomi.Database
                 EnglishName = "test2"
             };
 
-            Assert.That(book.TryApplyBase(bookBase), Is.False);
+            Assert.That(book.TryApplyBase(bookBase, Services), Is.False);
         }
     }
 }

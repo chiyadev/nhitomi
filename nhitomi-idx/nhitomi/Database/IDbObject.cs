@@ -1,3 +1,4 @@
+using System;
 using MessagePack;
 using Nest;
 using nhitomi.Models;
@@ -9,7 +10,7 @@ namespace nhitomi.Database
         /// <summary>
         /// Updates cached properties used for querying.
         /// </summary>
-        void UpdateCache();
+        void UpdateCache(IServiceProvider services);
     }
 
     public interface IDbObject<in T> : IDbObject, IDbModel<T> where T : IHasId { }
@@ -27,16 +28,16 @@ namespace nhitomi.Database
         [Key("id"), Keyword(Name = "id", Index = false)]
         public string Id { get; set; }
 
-        public override void MapTo(T model)
+        public override void MapTo(T model, IServiceProvider services)
         {
-            base.MapTo(model);
+            base.MapTo(model, services);
 
             model.Id = Id;
         }
 
-        public override void MapFrom(T model)
+        public override void MapFrom(T model, IServiceProvider services)
         {
-            base.MapFrom(model);
+            base.MapFrom(model, services);
 
             Id = model.Id;
         }

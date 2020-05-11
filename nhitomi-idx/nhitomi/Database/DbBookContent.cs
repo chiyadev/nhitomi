@@ -1,3 +1,4 @@
+using System;
 using MessagePack;
 using Nest;
 using nhitomi.Models;
@@ -30,21 +31,21 @@ namespace nhitomi.Database
         [Key("da"), Keyword(Name = "da", Index = false)]
         public string Data { get; set; }
 
-        public override void MapTo(BookContent model)
+        public override void MapTo(BookContent model, IServiceProvider services)
         {
-            base.MapTo(model);
+            base.MapTo(model, services);
 
             model.Language = Language;
-            model.Pages    = Pages?.ToArray(p => p.Convert());
+            model.Pages    = Pages?.ToArray(p => p.Convert(services));
             model.Source   = Source;
         }
 
-        public override void MapFrom(BookContent model)
+        public override void MapFrom(BookContent model, IServiceProvider services)
         {
-            base.MapFrom(model);
+            base.MapFrom(model, services);
 
             Language = model.Language;
-            Pages    = model.Pages?.ToArray(p => new DbBookImage().Apply(p));
+            Pages    = model.Pages?.ToArray(p => new DbBookImage().Apply(p, services));
 
             // do not map source because Data is valid only for the scraper that initialized it
         }

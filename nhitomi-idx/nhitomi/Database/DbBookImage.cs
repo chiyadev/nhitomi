@@ -14,18 +14,18 @@ namespace nhitomi.Database
         [Key("n"), Object(Name = "n", Enabled = false)]
         public DbImageNote[] Notes { get; set; }
 
-        public override void MapTo(BookImage model)
+        public override void MapTo(BookImage model, IServiceProvider services)
         {
-            base.MapTo(model);
+            base.MapTo(model, services);
 
-            model.Notes = Notes?.ToArray(n => n.Convert()) ?? Array.Empty<ImageNote>();
+            model.Notes = Notes?.ToArray(n => n.Convert(services)) ?? Array.Empty<ImageNote>();
         }
 
-        public override void MapFrom(BookImage model)
+        public override void MapFrom(BookImage model, IServiceProvider services)
         {
-            base.MapFrom(model);
+            base.MapFrom(model, services);
 
-            Notes = model.Notes?.ToArray(p => new DbImageNote().Apply(p));
+            Notes = model.Notes?.ToArray(p => new DbImageNote().Apply(p, services));
         }
     }
 }

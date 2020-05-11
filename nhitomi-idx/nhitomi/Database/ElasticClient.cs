@@ -338,15 +338,17 @@ namespace nhitomi.Database
         readonly IRedisClient _redis;
         readonly IResourceLocker _locker;
         readonly ILogger<ElasticClient> _logger;
+        readonly IServiceProvider _services;
 
-        public ElasticClient(IOptionsMonitor<ElasticOptions> options, IRedisClient redis, IResourceLocker locker, ILogger<ElasticClient> logger)
+        public ElasticClient(IOptionsMonitor<ElasticOptions> options, IRedisClient redis, IResourceLocker locker, ILogger<ElasticClient> logger, IServiceProvider services)
         {
             var opts = options.CurrentValue;
 
-            _options = options;
-            _redis   = redis;
-            _locker  = locker;
-            _logger  = logger;
+            _options  = options;
+            _redis    = redis;
+            _locker   = locker;
+            _logger   = logger;
+            _services = services;
 
             if (opts.Endpoint == null)
                 throw new ArgumentException("Elasticsearch endpoint is not configured.");
@@ -608,7 +610,7 @@ namespace nhitomi.Database
                 if (_value is IHasUpdatedTime hasUpdatedTime)
                     hasUpdatedTime.UpdatedTime = now;
 
-                _value.UpdateCache();
+                _value.UpdateCache(_client._services);
             }
 
             async Task<T> IndexAsyncInternal(OpType type, CancellationToken cancellationToken = default)

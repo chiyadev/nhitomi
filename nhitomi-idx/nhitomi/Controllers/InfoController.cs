@@ -1,3 +1,4 @@
+using System;
 using System.ComponentModel.DataAnnotations;
 using Force.DeepCloner;
 using Microsoft.AspNetCore.Authorization;
@@ -15,13 +16,15 @@ namespace nhitomi.Controllers
     [Route("/")]
     public class InfoController : nhitomiControllerBase
     {
+        readonly IServiceProvider _services;
         readonly ILinkGenerator _link;
         readonly IDiscordOAuthHandler _discordOAuth;
         readonly IScraperService _scrapers;
         readonly RecaptchaOptions _recaptchaOptions;
 
-        public InfoController(ILinkGenerator link, IOptionsSnapshot<RecaptchaOptions> recaptchaOptions, IDiscordOAuthHandler discordOAuth, IScraperService scrapers)
+        public InfoController(IServiceProvider services, ILinkGenerator link, IOptionsSnapshot<RecaptchaOptions> recaptchaOptions, IDiscordOAuthHandler discordOAuth, IScraperService scrapers)
         {
+            _services         = services;
             _link             = link;
             _discordOAuth     = discordOAuth;
             _scrapers         = scrapers;
@@ -98,7 +101,7 @@ namespace nhitomi.Controllers
         [HttpGet("info/auth", Name = "getInfoAuthenticated"), RequireUser]
         public GetInfoAuthenticatedResponse GetInfoAuthenticated() => GetInfo().ShallowCloneTo(new GetInfoAuthenticatedResponse
         {
-            User = User.Convert()
+            User = ProcessUser(User.Convert(_services))
         });
     }
 }

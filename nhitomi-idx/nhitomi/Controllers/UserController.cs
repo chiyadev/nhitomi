@@ -24,13 +24,15 @@ namespace nhitomi.Controllers
     [Route("users")]
     public class UserController : nhitomiControllerBase
     {
+        readonly IServiceProvider _services;
         readonly IAuthService _auth;
         readonly IDiscordOAuthHandler _discord;
         readonly IUserService _users;
         readonly ICollectionService _collections;
 
-        public UserController(IAuthService auth, IDiscordOAuthHandler discord, IUserService users, ICollectionService collections)
+        public UserController(IServiceProvider services, IAuthService auth, IDiscordOAuthHandler discord, IUserService users, ICollectionService collections)
         {
+            _services    = services;
             _auth        = auth;
             _discord     = discord;
             _users       = users;
@@ -73,7 +75,7 @@ namespace nhitomi.Controllers
             return new AuthenticateResponse
             {
                 Token = await _auth.GenerateTokenAsync(user),
-                User  = ProcessUser(user.Convert())
+                User  = ProcessUser(user.Convert(_services))
             };
         }
 
@@ -89,14 +91,14 @@ namespace nhitomi.Controllers
             if (!result.TryPickT0(out var user, out _))
                 return ResultUtilities.NotFound(id);
 
-            return ProcessUser(user.Convert());
+            return ProcessUser(user.Convert(_services));
         }
 
         /// <summary>
         /// Retrieves user information of the requester.
         /// </summary>
         [HttpGet("me", Name = "getSelfUser"), RequireUser]
-        public User GetSelfAsync() => ProcessUser(User.Convert());
+        public User GetSelfAsync() => ProcessUser(User.Convert(_services));
 
         /// <summary>
         /// Updates user information.
@@ -121,7 +123,7 @@ namespace nhitomi.Controllers
             if (!result.TryPickT0(out var user, out _))
                 return ResultUtilities.NotFound(id);
 
-            return ProcessUser(user.Convert());
+            return ProcessUser(user.Convert(_services));
         }
 
         public class RestrictUserRequest
@@ -155,7 +157,7 @@ namespace nhitomi.Controllers
             if (!result.TryPickT0(out var user, out _))
                 return ResultUtilities.NotFound(id);
 
-            return ProcessUser(user.Convert());
+            return ProcessUser(user.Convert(_services));
         }
 
         /// <summary>
@@ -180,7 +182,7 @@ namespace nhitomi.Controllers
             if (!result.TryPickT0(out var user, out _))
                 return ResultUtilities.NotFound(id);
 
-            return ProcessUser(user.Convert());
+            return ProcessUser(user.Convert(_services));
         }
 
         /// <summary>
@@ -195,7 +197,7 @@ namespace nhitomi.Controllers
 
             var result = await _collections.GetUserCollectionsAsync(id);
 
-            return result.Project(c => c.Convert());
+            return result.Project(c => c.Convert(_services));
         }
     }
 }

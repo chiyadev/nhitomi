@@ -1,3 +1,5 @@
+using System;
+
 namespace nhitomi.Database
 {
     /// <summary>
@@ -12,19 +14,19 @@ namespace nhitomi.Database
         /// <summary>
         /// Maps this object to the specified object.
         /// </summary>
-        void MapTo(T model);
+        void MapTo(T model, IServiceProvider services);
 
         /// <summary>
         /// Maps the specified object to this object.
         /// </summary>
-        void MapFrom(T model);
+        void MapFrom(T model, IServiceProvider services);
     }
 
     public abstract class DbModelBase<T> : IDbModel<T>
     {
-        public virtual void MapTo(T model) { }
-        public virtual void MapFrom(T model) { }
+        public virtual void MapTo(T model, IServiceProvider services) { }
+        public virtual void MapFrom(T model, IServiceProvider services) { }
 
-        public virtual void UpdateCache() { }
+        public virtual void UpdateCache(IServiceProvider services) { }
     }
 }
