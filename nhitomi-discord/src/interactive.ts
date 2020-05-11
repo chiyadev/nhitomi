@@ -190,6 +190,8 @@ export abstract class ReactionTrigger {
   interactive?: InteractiveMessage
   reaction?: MessageReaction
 
+  get context(): MessageContext | undefined { return this.interactive?.context }
+
   /** Runs this trigger immediately. */
   async invoke(): Promise<boolean> {
     const interactive = this.interactive
