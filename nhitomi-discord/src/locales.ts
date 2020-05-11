@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { configure, __mf, __ } from 'i18n'
+import { configure, __mf } from 'i18n'
 import { LanguageType } from 'nhitomi-api'
 
 configure({
@@ -9,7 +9,8 @@ configure({
   objectNotation: true,
   logDebugFn: console.debug,
   logWarnFn: console.warn,
-  logErrorFn: console.error
+  logErrorFn: console.error,
+  updateFiles: false
 })
 
 /** Contains localized strings that can be formatted. */
