@@ -4,7 +4,7 @@ export class AsyncArray<T> {
 
   get loadedLength(): number {
     for (let i = this.cache.length - 1; i >= 0; i--)
-      if (this.cache[i])
+      if (this.cache[i]?.value)
         return i + 1
 
     return 0
@@ -16,6 +16,8 @@ export class AsyncArray<T> {
   ) { }
 
   async get(index: number): Promise<T | undefined> {
+    if (index < 0) return
+
     let current = this.cache[index]
 
     if (current)
