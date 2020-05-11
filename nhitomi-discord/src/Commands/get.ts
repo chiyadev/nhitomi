@@ -52,7 +52,7 @@ export class BookMessage extends InteractiveMessage {
           iconURL: Api.getWebLink(`assets/icons/${content.source}.jpg`)
         },
         footer: {
-          text: `${book.id}/${content.id} (${l.section('categories').get(book.category.toString())})`
+          text: `${book.id}/${content.id} (${l.section('categories').get(book.category.toString())}, ${l.get('pageCount', { count: content.pageCount })})`
         },
         fields: (Object.keys(BookTag) as (keyof typeof book.tags)[]).sort().filter(t => book.tags[t]?.length).map(t => ({
           name: l.section('tags').get(t),
