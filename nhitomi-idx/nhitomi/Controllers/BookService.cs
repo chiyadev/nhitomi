@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -6,6 +7,7 @@ using Microsoft.Extensions.Options;
 using nhitomi.Database;
 using nhitomi.Models;
 using nhitomi.Models.Queries;
+using nhitomi.Scrapers;
 using OneOf;
 using OneOf.Types;
 
@@ -29,6 +31,7 @@ namespace nhitomi.Controllers
     {
         Task<OneOf<DbBook, NotFound>> GetAsync(string id, CancellationToken cancellationToken = default);
         Task<OneOf<(DbBook, DbBookContent), NotFound>> GetContentAsync(string id, string contentId, CancellationToken cancellationToken = default);
+        IAsyncEnumerable<(IDbEntry<DbBook>, DbBookContent)> GetByLinkAsync(string link, CancellationToken cancellationToken = default);
 
         Task<SearchResult<DbBook>> SearchAsync(BookQuery query, CancellationToken cancellationToken = default);
         Task<BookSuggestResult> SuggestAsync(SuggestQuery query, CancellationToken cancellationToken = default);
@@ -46,12 +49,14 @@ namespace nhitomi.Controllers
         readonly IElasticClient _client;
         readonly ISnapshotService _snapshots;
         readonly IOptionsMonitor<BookServiceOptions> _options;
+        readonly IScraperService _scrapers;
 
-        public BookService(IElasticClient client, ISnapshotService snapshots, IOptionsMonitor<BookServiceOptions> options)
+        public BookService(IElasticClient client, ISnapshotService snapshots, IOptionsMonitor<BookServiceOptions> options, IScraperService scrapers)
         {
             _client    = client;
             _snapshots = snapshots;
             _options   = options;
+            _scrapers  = scrapers;
         }
 
         public async Task<OneOf<DbBook, NotFound>> GetAsync(string id, CancellationToken cancellationToken = default)
@@ -78,6 +83,9 @@ namespace nhitomi.Controllers
 
             return (book, content);
         }
+
+        public IAsyncEnumerable<(IDbEntry<DbBook>, DbBookContent)> GetByLinkAsync(string link, CancellationToken cancellationToken = default)
+            => _scrapers.Books.ToAsyncEnumerable().SelectMany(s => s.FindByUrlAsync(link, true, cancellationToken));
 
         public Task<SearchResult<DbBook>> SearchAsync(BookQuery query, CancellationToken cancellationToken = default)
             => _client.SearchAsync(new DbBookQueryProcessor(query), cancellationToken);

@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -60,6 +61,46 @@ namespace nhitomi.Controllers
 
             return content.Convert();
         }
+
+        public class GetByLinkRequest
+        {
+            [Required]
+            public string Link { get; set; }
+        }
+
+        public class GetByLinkResponse
+        {
+            [Required]
+            public GetByLinkMatch[] Matches { get; set; }
+
+            public class GetByLinkMatch
+            {
+                [Required]
+                public Book Book { get; set; }
+
+                [Required, nhitomiId]
+                public string SelectedContentId { get; set; }
+            }
+        }
+
+        /// <summary>
+        /// Finds books that were scraped from an URL.
+        /// </summary>
+        /// <param name="request">Get by link request.</param>
+        [HttpPost("search/link", Name = "getBooksByLink")]
+        public async Task<GetByLinkResponse> GetByLinkAsync(GetByLinkRequest request) => new GetByLinkResponse
+        {
+            Matches = await _books.GetByLinkAsync(request.Link).Select(x =>
+            {
+                var (book, content) = x;
+
+                return new GetByLinkResponse.GetByLinkMatch
+                {
+                    Book              = book.Value.Convert(),
+                    SelectedContentId = content.Id
+                };
+            }).ToArrayAsync()
+        };
 
         /// <summary>
         /// Updates book information.
