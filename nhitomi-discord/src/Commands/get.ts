@@ -1,8 +1,11 @@
 import { CommandFunc } from '.'
-import { InteractiveMessage, RenderResult } from '../interactive'
+import { InteractiveMessage, RenderResult, ReactionTrigger } from '../interactive'
 import { Locale } from '../locales'
 import { Book, BookContent, BookTag } from 'nhitomi-api'
 import { Api } from '../api'
+import { DestroyTrigger } from '../Triggers/destroy'
+import { MessageContext } from '../context'
+import { Message } from 'discord.js'
 
 export class BookMessage extends InteractiveMessage {
   constructor(
@@ -58,9 +61,23 @@ export class BookMessage extends InteractiveMessage {
       }
     }
   }
+
+  createTriggers(): ReactionTrigger[] {
+    return [
+      ...super.createTriggers(),
+
+      new DestroyTrigger()
+    ]
+  }
 }
 
-export const run: CommandFunc = async (context, link) => {
+export async function handleGetLink(context: MessageContext, link: string | undefined): Promise<{
+  type: 'book'
+  book: Book
+  content: BookContent
+} | {
+  type: 'notFound'
+}> {
   if (link) {
     // try finding books
     const { body: { matches: [bookMatch] } } = await context.api.book.getBooksByLink(false, { link })
@@ -70,17 +87,36 @@ export const run: CommandFunc = async (context, link) => {
       const content = book.contents.find(c => c.id === selectedContentId)
 
       if (content)
-        return await new BookMessage(book, content).initialize(context)
+        return { type: 'book', book, content }
     }
   }
 
+  return { type: 'notFound' }
+}
+
+export function replyNotFound(context: MessageContext, input: string): Promise<Message> {
   const l = context.locale.section('get.notFound')
 
-  await context.reply(`
-${l.get('message', { input: link })}
+  return context.reply(`
+${l.get('message', { input })}
 
 > - ${l.get('usageLink', { example: 'https://nhentai.net/g/123/' })}
 > - ${l.get('usageSource', { example: 'hitomi 123' })}`)
+}
 
-  return true
+export const run: CommandFunc = async (context, link) => {
+  const result = await handleGetLink(context, link)
+
+  switch (result.type) {
+    case 'book': {
+      const { book, content } = result
+
+      return await new BookMessage(book, content).initialize(context)
+    }
+
+    case 'notFound': {
+      await replyNotFound(context, link || '')
+      return true
+    }
+  }
 }
