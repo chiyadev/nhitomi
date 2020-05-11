@@ -38,21 +38,23 @@ namespace nhitomi.Controllers
         [JsonProperty("id")] public ulong Id;
         [JsonProperty("username")] public string Username;
         [JsonProperty("discriminator")] public int Discriminator;
+
+        // optional
         [JsonProperty("locale")] public string Locale;
         [JsonProperty("email")] public string Email;
 
         public void ApplyOn(DbUser user)
         {
             user.Username = Username;
-            user.Email    = Email;
-            user.Language = Locale?.ParseAsLanguage() ?? LanguageType.English;
+            user.Email    = Email ?? user.Email;
+            user.Language = Locale?.ParseAsLanguage() ?? user.Language;
 
             user.DiscordConnection = new DbUserDiscordConnection
             {
                 Id            = Id,
                 Username      = Username,
                 Discriminator = Discriminator,
-                Email         = Email
+                Email         = Email ?? user.DiscordConnection?.Email ?? user.Email
             };
         }
     }

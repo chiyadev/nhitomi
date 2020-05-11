@@ -123,8 +123,10 @@ namespace nhitomi.Controllers
                 Id            = ulong.Parse(request.Id),
                 Username      = request.Username,
                 Discriminator = request.Discriminator,
-                Locale        = request.Locale,
-                Email         = request.Email
+
+                // optional
+                Locale = request.Locale,
+                Email  = request.Email
             });
 
             return new UserController.AuthenticateResponse
