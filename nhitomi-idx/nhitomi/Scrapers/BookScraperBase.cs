@@ -40,10 +40,10 @@ namespace nhitomi.Scrapers
             {
                 var content = new DbBookContent().ApplyBase(ModelSanitizer.Sanitize(c.Content), services);
 
-                content.Source   = scraper.Type;
-                content.SourceId = c.Id;
-                content.Data     = c.Data;
-                content.Pages    = Enumerable.Range(0, c.Pages).ToArray(_ => new DbBookImage());
+                content.PageCount = c.Pages;
+                content.Source    = scraper.Type;
+                content.SourceId  = c.Id;
+                content.Data      = c.Data;
 
                 return content;
             });

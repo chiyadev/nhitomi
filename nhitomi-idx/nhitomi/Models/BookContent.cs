@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using nhitomi.Models.Validation;
 using nhitomi.Scrapers;
@@ -16,10 +17,19 @@ namespace nhitomi.Models
         public string Id { get; set; }
 
         /// <summary>
-        /// Pages in this content.
+        /// Number of pages in this content.
         /// </summary>
+        [Required]
+        public int PageCount { get; set; }
+
+        /// <summary>
+        /// Notes in this content.
+        /// </summary>
+        /// <remarks>
+        /// Key is the index of the page to which notes are attached.
+        /// </remarks>
         [Required, MaxLength(512)]
-        public BookImage[] Pages { get; set; }
+        public Dictionary<int, ImageNote[]> Notes { get; set; }
 
         /// <summary>
         /// Scraper used to index this content.

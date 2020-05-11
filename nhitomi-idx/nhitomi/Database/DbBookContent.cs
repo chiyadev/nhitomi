@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using MessagePack;
 using Microsoft.Extensions.DependencyInjection;
 using Nest;
@@ -14,11 +16,14 @@ namespace nhitomi.Database
     [MessagePackObject]
     public class DbBookContent : DbObjectBase<BookContent>, IDbModelConvertible<DbBookContent, BookContent, BookContentBase>
     {
+        [Key("pg"), Keyword(Name = "pg", DocValues = false)]
+        public int PageCount { get; set; }
+
         [Key("la"), Keyword(Name = "la", DocValues = false)]
         public LanguageType Language { get; set; }
 
-        [Key("pg"), Object(Name = "pg", Enabled = false)]
-        public DbBookImage[] Pages { get; set; }
+        [Key("no"), Object(Name = "no", Enabled = false)]
+        public Dictionary<int, DbImageNote[]> Notes { get; set; }
 
         [Key("sr"), Keyword(Name = "sr", DocValues = false)]
         public ScraperType Source { get; set; }
@@ -36,8 +41,9 @@ namespace nhitomi.Database
         {
             base.MapTo(model, services);
 
+            model.PageCount = PageCount;
             model.Language  = Language;
-            model.Pages     = Pages?.ToArray(p => p.Convert(services));
+            model.Notes     = Notes?.ToDictionary(x => x.Key, x => x.Value.ToArray(n => n.Convert(services))) ?? new Dictionary<int, ImageNote[]>();
             model.Source    = Source;
             model.SourceUrl = services.GetService<IScraperService>().GetBook(Source, out var s) ? s.GetExternalUrl(this) : null;
         }
@@ -46,8 +52,9 @@ namespace nhitomi.Database
         {
             base.MapFrom(model, services);
 
-            Language = model.Language;
-            Pages    = model.Pages?.ToArray(p => new DbBookImage().Apply(p, services));
+            PageCount = model.PageCount;
+            Language  = model.Language;
+            Notes     = model.Notes?.ToDictionary(x => x.Key, x => x.Value.ToArray(n => new DbImageNote().Apply(n, services)));
 
             // do not map source because Data is valid only for the scraper that initialized it
         }

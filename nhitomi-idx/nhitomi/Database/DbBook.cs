@@ -187,8 +187,8 @@ namespace nhitomi.Database
                 foreach (var content in Contents)
                     content.Id ??= Snowflake.New;
 
-            PageCount = Contents?.ToArray(c => c.Pages?.Length ?? 0);
-            NoteCount = Contents?.ToArray(c => c.Pages?.Sum(p => p.Notes?.Length ?? 0) ?? 0);
+            PageCount = Contents?.ToArray(c => c.PageCount);
+            NoteCount = Contents?.ToArray(c => c.Notes?.Values.Sum(x => x?.Length ?? 0) ?? 0);
             TagCount  = _tags.Values.Sum(x => x?.Length ?? 0);
             Language  = Contents?.ToArray(c => c.Language);
             Sources   = Contents?.ToArray(c => c.Source);

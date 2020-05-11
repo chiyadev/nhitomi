@@ -18,7 +18,7 @@ namespace nhitomi.Controllers
     /// </summary>
     public class BookServiceTest : TestBaseServices
     {
-        public async Task<DbBook> CreateAsync(BookBase book, BookContentBase content, BookImage[] pages)
+        public async Task<DbBook> CreateAsync(BookBase book, BookContentBase content, int pages)
         {
             var client = Services.GetService<IElasticClient>();
 
@@ -28,7 +28,7 @@ namespace nhitomi.Controllers
                 {
                     new DbBookContent
                     {
-                        Pages = pages.ToArray(p => new DbBookImage().Apply(p, Services))
+                        PageCount = pages
                     }.ApplyBase(content, Services)
                 }
             }.ApplyBase(book, Services));
@@ -36,14 +36,14 @@ namespace nhitomi.Controllers
             return await entry.CreateAsync();
         }
 
-        public async Task<OneOf<(DbBook, DbBookContent), NotFound>> CreateContentAsync(string id, BookContentBase content, BookImage[] pages)
+        public async Task<OneOf<(DbBook, DbBookContent), NotFound>> CreateContentAsync(string id, BookContentBase content, int pages)
         {
             var client = Services.GetService<IElasticClient>();
 
             var cont = new DbBookContent
             {
-                Id    = Snowflake.New,
-                Pages = pages.ToArray(p => new DbBookImage().Apply(p, Services))
+                Id        = Snowflake.New,
+                PageCount = pages
             }.ApplyBase(content, Services);
 
             var entry = await client.GetEntryAsync<DbBook>(id);
@@ -78,23 +78,7 @@ namespace nhitomi.Controllers
             }, new BookContentBase
             {
                 Language = LanguageType.English
-            }, new[]
-            {
-                new BookImage
-                {
-                    Notes = new ImageNote[0]
-                },
-                new BookImage
-                {
-                    Notes = new[]
-                    {
-                        new ImageNote
-                        {
-                            Content = "note content"
-                        }
-                    }
-                }
-            });
+            }, 2);
 
             var book = createBookResult.Convert(Services);
 
@@ -107,9 +91,7 @@ namespace nhitomi.Controllers
             Assert.That(book.Contents, Has.One.Items);
             Assert.That(book.Contents[0].Source, Is.EqualTo(ScraperType.Unknown));
             Assert.That(book.Contents[0].Language, Is.EqualTo(LanguageType.English));
-            Assert.That(book.Contents[0].Pages, Has.Exactly(2).Items);
-            Assert.That(book.Contents[0].Pages[1].Notes, Has.Exactly(1).Items);
-            Assert.That(book.Contents[0].Pages[1].Notes[0].Content, Is.EqualTo("note content"));
+            Assert.That(book.Contents[0].PageCount, Is.EqualTo(2));
 
             var getBookResult = await books.GetAsync(book.Id);
 
@@ -124,26 +106,14 @@ namespace nhitomi.Controllers
             var contentResult = await CreateContentAsync(book.Id, new BookContentBase
             {
                 Language = LanguageType.Chinese
-            }, new[]
-            {
-                new BookImage
-                {
-                    Notes = new[]
-                    {
-                        new ImageNote
-                        {
-                            Content = "second note"
-                        }
-                    }
-                }
-            });
+            }, 5);
 
             Assert.That(contentResult.AsT0.Item1.Id, Is.EqualTo(book.Id));
 
             var secondContent = contentResult.AsT0.Item2.Convert(Services);
 
             Assert.That(secondContent.Language, Is.EqualTo(LanguageType.Chinese));
-            Assert.That(secondContent.Pages, Has.Exactly(1).Items);
+            Assert.That(secondContent.PageCount, Is.EqualTo(5));
 
             getBookResult = await books.GetAsync(book.Id);
 
@@ -170,13 +140,7 @@ namespace nhitomi.Controllers
             {
                 Contents = new[]
                 {
-                    new DbBookContent
-                    {
-                        Pages = new[]
-                        {
-                            new DbBookImage()
-                        }
-                    }
+                    new DbBookContent()
                 }
             };
 
@@ -226,13 +190,7 @@ namespace nhitomi.Controllers
             {
                 Contents = new[]
                 {
-                    new DbBookContent
-                    {
-                        Pages = new[]
-                        {
-                            new DbBookImage()
-                        }
-                    }
+                    new DbBookContent()
                 }
             };
 
@@ -277,20 +235,8 @@ namespace nhitomi.Controllers
             {
                 Contents = new[]
                 {
-                    new DbBookContent
-                    {
-                        Pages = new[]
-                        {
-                            new DbBookImage()
-                        }
-                    },
-                    new DbBookContent
-                    {
-                        Pages = new[]
-                        {
-                            new DbBookImage()
-                        }
-                    }
+                    new DbBookContent(),
+                    new DbBookContent()
                 }
             };
 
@@ -336,13 +282,13 @@ namespace nhitomi.Controllers
             {
                 PrimaryName = "test primary name",
                 EnglishName = "test english name"
-            }, new BookContentBase(), new BookImage[0]);
+            }, new BookContentBase(), 0);
 
             await CreateAsync(new BookBase
             {
                 PrimaryName = "test primary 2",
                 EnglishName = "another english name"
-            }, new BookContentBase(), new BookImage[0]);
+            }, new BookContentBase(), 0);
 
             var result = await books.SuggestAsync(new SuggestQuery
             {
@@ -393,7 +339,7 @@ namespace nhitomi.Controllers
                     [BookTag.Artist]     = new[] { "artist" },
                     [BookTag.Convention] = new[] { "c97" }
                 }
-            }, new BookContentBase(), new BookImage[0]);
+            }, new BookContentBase(), 0);
 
             await CreateAsync(new BookBase
             {
@@ -403,7 +349,7 @@ namespace nhitomi.Controllers
                     [BookTag.Convention] = new[] { "c98" },
                     [BookTag.Parody]     = new[] { "book parody" }
                 }
-            }, new BookContentBase(), new BookImage[0]);
+            }, new BookContentBase(), 0);
 
             await CreateAsync(new BookBase
             {
@@ -412,7 +358,7 @@ namespace nhitomi.Controllers
                     [BookTag.Circle] = new[] { "circles" },
                     [BookTag.Series] = new[] { "book series" }
                 }
-            }, new BookContentBase(), new BookImage[0]);
+            }, new BookContentBase(), 0);
 
             var result = await books.SuggestAsync(new SuggestQuery
             {
@@ -452,12 +398,12 @@ namespace nhitomi.Controllers
             await CreateAsync(new BookBase
             {
                 PrimaryName = "test"
-            }, new BookContentBase(), new BookImage[0]);
+            }, new BookContentBase(), 0);
 
             await CreateAsync(new BookBase
             {
                 PrimaryName = "test"
-            }, new BookContentBase(), new BookImage[0]);
+            }, new BookContentBase(), 0);
 
             var result = await books.SuggestAsync(new SuggestQuery
             {

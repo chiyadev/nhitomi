@@ -318,10 +318,13 @@ namespace nhitomi
                     new BookContent
                     {
                         Language = LanguageType.French,
-                        Pages = new[]
+                        Notes = new Dictionary<int, ImageNote[]>
                         {
-                            new BookImage(),
-                            new BookImage()
+                            [1] = new[]
+                            {
+                                new ImageNote(),
+                                new ImageNote()
+                            }
                         }
                     }
                 }
