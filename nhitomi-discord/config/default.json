@@ -2,7 +2,8 @@
   "token": "",
   "prefix": "n!",
   "interactive": {
-    "timeout": 7200
+    "timeout": 7200,
+    "inputTimeout": 60
   },
   "api": {
     "baseUrl": "",

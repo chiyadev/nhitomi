@@ -2,7 +2,8 @@
   "token": "Discord:Token",
   "prefix": "Discord:Prefix",
   "interactive": {
-    "timeout": "Interactive:Timeout"
+    "timeout": "Interactive:Timeout",
+    "inputTimeout": "Interactive:InputTimeout"
   },
   "api": {
     "baseUrl": "Api:BaseUrl",

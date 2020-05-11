@@ -1,9 +1,19 @@
-import { Message, MessageEmbed, MessageEmbedOptions, MessageReaction, PartialMessage, TextChannel, DMChannel, NewsChannel, User, PartialUser } from 'discord.js'
+import { Message, MessageEmbed, MessageEmbedOptions, MessageReaction, PartialMessage, User, PartialUser } from 'discord.js'
 import { Lock } from 'semaphore-async-await'
 import deepEqual from 'fast-deep-equal'
 import config from 'config'
 import { MessageContext } from './context'
 import { Locale } from './locales'
+
+type InteractiveInput = {
+  userId: string
+  channelId: string
+  resolve(message: Message): void
+  resolveDirect(message: string): void
+  reject(error?: Error): void
+}
+
+const pendingInputs: InteractiveInput[] = []
 
 const interactives: { [id: string]: InteractiveMessage } = {}
 export function getInteractive(message: Message | PartialMessage): InteractiveMessage | undefined { return interactives[message.id] }
@@ -26,9 +36,6 @@ export abstract class InteractiveMessage {
 
   /** Message that contains the rendered interactive content. */
   rendered?: Message
-
-  /** Channel in which this interactive operates. */
-  get channel(): TextChannel | DMChannel | NewsChannel | undefined { return this.rendered?.channel || this.context?.message.channel }
 
   /** List of triggers that alter interactive state. */
   triggers?: ReactionTrigger[]
@@ -102,7 +109,7 @@ export abstract class InteractiveMessage {
           setTimeout(async () => {
             for (const trigger of triggers)
               try { trigger.reaction = await rendered.react(trigger.emoji) }
-              catch {/* ignored */ }
+              catch { /* ignored */ }
           }, 0)
         }
       }
@@ -121,14 +128,66 @@ export abstract class InteractiveMessage {
   /** Constructs a new view of this interactive. */
   protected abstract render(l: Locale): Promise<RenderResult>
 
+  readonly ownedInputs: InteractiveInput[] = []
+
+  /** Waits for a message from the owner of this interactive. This will never reject. */
+  async waitInput(content: string, timeout?: number): Promise<string> {
+    const context = this.context
+
+    if (!context)
+      return ''
+
+    const sent = await context.reply(content)
+
+    return new Promise<string>(resolve => {
+      const input: InteractiveInput = {
+        userId: context.message.author.id,
+        channelId: context.message.channel.id,
+
+        resolveDirect: async message => {
+          const i1 = pendingInputs.indexOf(input)
+          if (i1 !== -1) pendingInputs.splice(i1, 1)
+
+          const i2 = this.ownedInputs.indexOf(input)
+          if (i2 !== -1) this.ownedInputs.splice(i2, 1)
+
+          resolve(message)
+
+          try { if (sent.deletable) await sent.delete() }
+          catch { /* ignored */ }
+        },
+
+        resolve: async received => {
+          input.resolveDirect(received.content)
+
+          try { if (received.deletable) await received.delete() }
+          catch { /* ignored */ }
+        },
+
+        reject: () => input.resolveDirect('')
+      }
+
+      pendingInputs.push(input)
+      this.ownedInputs.push(input)
+
+      setTimeout(input.reject, (timeout || config.get<number>('interactive.inputTimeout')) * 1000)
+    })
+  }
+
   /**
    * Destroys this interactive, deleting all related messages.
    * @param expiring true if interactive is being destroyed because it expired
    */
   async destroy(expiring?: boolean): Promise<void> {
+    // reject pending inputs before entering lock to ensure it gets freed
+    for (const input of this.ownedInputs) input.reject()
+
     await this.lock.wait()
     try {
       if (this.rendered) console.debug('destroying interactive', this.constructor.name, this.rendered.id, 'expiring', expiring || false)
+
+      for (const input of this.ownedInputs)
+        input.reject()
 
       try { if (!expiring && this.context?.message.deletable) await this.context.message.delete() }
       catch { /* ignored */ }
@@ -155,8 +214,16 @@ export abstract class InteractiveMessage {
   }
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-export async function handleInteractiveMessage(_: Message | PartialMessage): Promise<boolean> {
+export async function handleInteractiveMessage(message: Message): Promise<boolean> {
+  const userId = message.author.id
+  const channelId = message.channel.id
+
+  for (const input of pendingInputs)
+    if (input.userId === userId && input.channelId === channelId) {
+      input.resolve(message)
+      return true
+    }
+
   return false
 }
 
@@ -178,6 +245,10 @@ export async function handleInteractiveReaction(reaction: MessageReaction, user:
 
   // reactor must be command author
   if (user.id !== interactive.context?.message.author.id)
+    return false
+
+  // prevent triggers while pending inputs
+  if (interactive.ownedInputs.length)
     return false
 
   const trigger = interactive.triggers?.find(t => t.emoji === reaction.emoji.name)
