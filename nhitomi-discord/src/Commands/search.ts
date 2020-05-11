@@ -1,7 +1,7 @@
 import { CommandFunc } from '.'
 import { InteractiveMessage, RenderResult, ReactionTrigger } from '../interactive'
 import { Locale } from '../locales'
-import { BookQuery, BookSort, SortDirection, QueryMatchMode, Book, BookContent } from 'nhitomi-api'
+import { BookQuery, BookSort, SortDirection, Book, BookContent } from 'nhitomi-api'
 import { AsyncArray } from '../asyncArray'
 import { BookMessage } from './get'
 import { ReadTrigger } from '../Triggers/read'
@@ -46,8 +46,7 @@ export class BookSearchMessage extends InteractiveMessage {
 export const run: CommandFunc = (context, query) => {
   const baseQuery: BookQuery = {
     all: !query ? undefined : {
-      values: [query],
-      mode: QueryMatchMode.All
+      values: [query]
     },
     limit: 20,
     sorting: [{
