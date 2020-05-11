@@ -58,8 +58,8 @@
     },
     "notFound": {
       "message": "Could not find item `{input}`.",
-      "usageLink": "Try pasting a link, like `{ex}`.",
-      "usageSource": "Explicitly specify source and ID, like `{ex}`."
+      "usageLink": "Try pasting a link, like `{example}`.",
+      "usageSource": "Explicitly specify source and ID, like `{example}`."
     }
   },
   "from": {
