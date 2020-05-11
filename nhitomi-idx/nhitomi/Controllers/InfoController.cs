@@ -1,9 +1,11 @@
 using System.ComponentModel.DataAnnotations;
+using Force.DeepCloner;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using nhitomi.Database;
 using nhitomi.Models;
+using nhitomi.Scrapers;
 
 namespace nhitomi.Controllers
 {
@@ -15,12 +17,14 @@ namespace nhitomi.Controllers
     {
         readonly ILinkGenerator _link;
         readonly IDiscordOAuthHandler _discordOAuth;
+        readonly IScraperService _scrapers;
         readonly RecaptchaOptions _recaptchaOptions;
 
-        public InfoController(ILinkGenerator link, IOptionsSnapshot<RecaptchaOptions> recaptchaOptions, IDiscordOAuthHandler discordOAuth)
+        public InfoController(ILinkGenerator link, IOptionsSnapshot<RecaptchaOptions> recaptchaOptions, IDiscordOAuthHandler discordOAuth, IScraperService scrapers)
         {
             _link             = link;
             _discordOAuth     = discordOAuth;
+            _scrapers         = scrapers;
             _recaptchaOptions = recaptchaOptions.Value;
         }
 
@@ -52,6 +56,12 @@ namespace nhitomi.Controllers
             /// </summary>
             [Required]
             public string DiscordOAuthUrl { get; set; }
+
+            /// <summary>
+            /// List of supported scrapers.
+            /// </summary>
+            [Required]
+            public ScraperInfo[] Scrapers { get; set; }
         }
 
         /// <summary>
@@ -63,7 +73,14 @@ namespace nhitomi.Controllers
             PublicUrl        = _link.GetWebLink("/"),
             Version          = VersionInfo.Commit,
             RecaptchaSiteKey = _recaptchaOptions.SiteKey,
-            DiscordOAuthUrl  = _discordOAuth.AuthorizeUrl
+            DiscordOAuthUrl  = _discordOAuth.AuthorizeUrl,
+            Scrapers = _scrapers.ToArray(s => new ScraperInfo
+            {
+                Name    = s.Name,
+                Type    = s.Type,
+                Enabled = s.Enabled,
+                Url     = s.Url
+            })
         };
 
         public class GetInfoAuthenticatedResponse : GetInfoResponse
@@ -79,14 +96,9 @@ namespace nhitomi.Controllers
         /// Retrieves authenticated API information.
         /// </summary>
         [HttpGet("info/auth", Name = "getInfoAuthenticated"), RequireUser]
-        public GetInfoAuthenticatedResponse GetInfoAuthenticated() => new GetInfoAuthenticatedResponse
+        public GetInfoAuthenticatedResponse GetInfoAuthenticated() => GetInfo().ShallowCloneTo(new GetInfoAuthenticatedResponse
         {
-            PublicUrl        = _link.GetWebLink("/"),
-            Version          = VersionInfo.Commit,
-            RecaptchaSiteKey = _recaptchaOptions.SiteKey,
-            DiscordOAuthUrl  = _discordOAuth.AuthorizeUrl,
-
             User = User.Convert()
-        };
+        });
     }
 }

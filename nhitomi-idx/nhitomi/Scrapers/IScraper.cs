@@ -42,13 +42,12 @@ namespace nhitomi.Scrapers
     public interface IScraper : IHostedService, IDisposable
     {
         IServiceProvider Services { get; }
-
-        /// <summary>
-        /// Type of this scraper.
-        /// </summary>
-        ScraperType Type { get; }
-
         IScraperTestManager TestManager { get; }
+
+        string Name { get; }
+        ScraperType Type { get; }
+        bool Enabled { get; }
+
         string Url { get; }
         ScraperUrlRegex UrlRegex { get; }
     }
@@ -61,8 +60,12 @@ namespace nhitomi.Scrapers
         readonly ILogger<ScraperBase> _logger;
 
         public IServiceProvider Services { get; }
-        public abstract ScraperType Type { get; }
         public virtual IScraperTestManager TestManager => null;
+
+        public abstract string Name { get; }
+        public abstract ScraperType Type { get; }
+        public bool Enabled => _options.CurrentValue.Enabled;
+
         public abstract string Url { get; }
         public virtual ScraperUrlRegex UrlRegex => null;
 
@@ -80,27 +83,28 @@ namespace nhitomi.Scrapers
         {
             while (!stoppingToken.IsCancellationRequested)
             {
-                var options = _options.CurrentValue;
-
                 try
                 {
-                    if (options.Enabled)
-                        await using (await _locker.EnterAsync($"scrape:{Type}", stoppingToken))
-                        {
-                            _logger.LogDebug($"Begin {Type} scrape.");
+                    if (!Enabled)
+                        goto sleep;
 
-                            await TestAsync(stoppingToken);
-                            await RunAsync(stoppingToken);
+                    await using (await _locker.EnterAsync($"scrape:{Type}", stoppingToken))
+                    {
+                        _logger.LogDebug($"Begin {Type} scrape.");
 
-                            _logger.LogDebug($"End {Type} scrape.");
-                        }
+                        await TestAsync(stoppingToken);
+                        await RunAsync(stoppingToken);
+
+                        _logger.LogDebug($"End {Type} scrape.");
+                    }
                 }
                 catch (Exception e)
                 {
                     _logger.LogWarning(e, $"Exception while scraping {Type}.");
                 }
 
-                await Task.Delay(options.Interval, stoppingToken);
+                sleep:
+                await Task.Delay(_options.CurrentValue.Interval, stoppingToken);
             }
         }
 

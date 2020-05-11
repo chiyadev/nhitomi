@@ -20,6 +20,7 @@ namespace nhitomi.Scrapers
 
         sealed class Scraper : BookScraperBase
         {
+            public override string Name => null;
             public override ScraperType Type => ScraperType.nhentai;
             public override string Url => null;
 
