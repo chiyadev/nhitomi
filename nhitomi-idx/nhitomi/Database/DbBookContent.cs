@@ -1,5 +1,6 @@
 using System;
 using MessagePack;
+using Microsoft.Extensions.DependencyInjection;
 using Nest;
 using nhitomi.Models;
 using nhitomi.Scrapers;
@@ -35,9 +36,10 @@ namespace nhitomi.Database
         {
             base.MapTo(model, services);
 
-            model.Language = Language;
-            model.Pages    = Pages?.ToArray(p => p.Convert(services));
-            model.Source   = Source;
+            model.Language  = Language;
+            model.Pages     = Pages?.ToArray(p => p.Convert(services));
+            model.Source    = Source;
+            model.SourceUrl = services.GetService<IScraperService>().GetBook(Source, out var s) ? s.GetExternalUrl(this) : null;
         }
 
         public override void MapFrom(BookContent model, IServiceProvider services)

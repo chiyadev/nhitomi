@@ -22,9 +22,16 @@ namespace nhitomi.Models
         public BookImage[] Pages { get; set; }
 
         /// <summary>
-        /// Source from where this content was downloaded.
+        /// Scraper used to index this content.
         /// </summary>
+        [Required]
         public ScraperType Source { get; set; }
+
+        /// <summary>
+        /// URL from which this content was scraped.
+        /// </summary>
+        [Required]
+        public string SourceUrl { get; set; }
     }
 
     public class BookContentBase
