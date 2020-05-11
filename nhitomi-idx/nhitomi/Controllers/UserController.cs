@@ -209,7 +209,7 @@ namespace nhitomi.Controllers
         /// <param name="id">User ID.</param>
         /// <param name="type">Collection object type.</param>
         /// <param name="collection">Special collection type.</param>
-        [HttpGet("{id}/collections/{type}/{special}", Name = "getUserSpecialCollection"), RequireUser]
+        [HttpGet("{id}/collections/{type}/{collection}", Name = "getUserSpecialCollection"), RequireUser]
         public async Task<ActionResult<Collection>> GetSpecialCollectionAsync(string id, ObjectType type, SpecialCollection collection)
         {
             if (UserId != id && !User.HasPermissions(UserPermissions.ManageUsers))
