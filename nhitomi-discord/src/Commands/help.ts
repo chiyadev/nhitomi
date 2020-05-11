@@ -11,10 +11,8 @@ const Pages: Page[] = ['doujinshi', 'collections', 'oss']
 
 class HelpMessage extends InteractiveMessage {
   position = 0
-
-  get page(): Page {
-    return Pages[this.position = Math.max(0, Math.min(Pages.length - 1, this.position))]
-  }
+  get end(): number { return Pages.length - 1 }
+  get page(): Page { return Pages[this.position = Math.max(0, Math.min(this.end, this.position))] }
 
   protected async render(l: Locale): Promise<RenderResult> {
     l = l.section('help')
