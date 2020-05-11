@@ -6,6 +6,7 @@ import { Api } from '../api'
 import { DestroyTrigger } from '../Triggers/destroy'
 import { MessageContext } from '../context'
 import { Message } from 'discord.js'
+import { ReadTrigger } from '../Triggers/read'
 
 export class BookMessage extends InteractiveMessage {
   constructor(
@@ -66,6 +67,7 @@ export class BookMessage extends InteractiveMessage {
     return [
       ...super.createTriggers(),
 
+      new ReadTrigger(this),
       new DestroyTrigger()
     ]
   }
