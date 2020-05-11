@@ -91,11 +91,20 @@ export abstract class InteractiveMessage {
 
         console.debug('rendered interactive', this.constructor.name, this.rendered.id)
 
-        if (this.rendered.id !== lastRendered?.id)
-          for (const trigger of this.triggers = this.createTriggers()) {
+        if (this.rendered.id !== lastRendered?.id) {
+          const triggers = this.triggers = this.createTriggers()
+          const rendered = this.rendered
+
+          for (const trigger of triggers)
             trigger.interactive = this
-            trigger.reaction = await this.rendered.react(trigger.emoji)
-          }
+
+          // attach triggers outside lock
+          setTimeout(async () => {
+            for (const trigger of triggers)
+              try { trigger.reaction = await rendered.react(trigger.emoji) }
+              catch {/* ignored */ }
+          }, 0)
+        }
       }
 
       this.lastView = view
@@ -146,19 +155,15 @@ export abstract class InteractiveMessage {
   }
 }
 
-export async function handleInteractiveMessage(message: Message | PartialMessage): Promise<boolean> {
-  const interactive = getInteractive(message)
-
-  if (!interactive)
-    return false
-
-  return true
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export async function handleInteractiveMessage(_: Message | PartialMessage): Promise<boolean> {
+  return false
 }
 
 export async function handleInteractiveMessageDeleted(message: Message | PartialMessage): Promise<boolean> {
   const interactive = getInteractive(message)
 
-  if (!interactive)
+  if (!interactive || message.id !== interactive.rendered?.id)
     return false
 
   await interactive.destroy()
@@ -168,7 +173,7 @@ export async function handleInteractiveMessageDeleted(message: Message | Partial
 export async function handleInteractiveReaction(reaction: MessageReaction, user: User | PartialUser): Promise<boolean> {
   const interactive = getInteractive(reaction.message)
 
-  if (!interactive)
+  if (!interactive || reaction.message.id !== interactive.rendered?.id)
     return false
 
   // reactor must be command author
@@ -183,7 +188,7 @@ export async function handleInteractiveReaction(reaction: MessageReaction, user:
   return await trigger.invoke()
 }
 
-/** Represents an interactive trigger that is invoked via message reactions. */
+/** Represents an interactive trigger that is invoked via reactions. */
 export abstract class ReactionTrigger {
   abstract readonly emoji: string
 
