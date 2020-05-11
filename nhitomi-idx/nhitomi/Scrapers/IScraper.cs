@@ -8,6 +8,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
+using nhitomi.Models;
 using nhitomi.Scrapers.Tests;
 using nhitomi.Storage;
 
@@ -46,6 +47,7 @@ namespace nhitomi.Scrapers
 
         string Name { get; }
         ScraperType Type { get; }
+        ScraperCategory Category { get; }
         bool Enabled { get; }
 
         string Url { get; }
@@ -64,6 +66,7 @@ namespace nhitomi.Scrapers
 
         public abstract string Name { get; }
         public abstract ScraperType Type { get; }
+        public abstract ScraperCategory Category { get; }
         public bool Enabled => _options.CurrentValue.Enabled;
 
         public abstract string Url { get; }

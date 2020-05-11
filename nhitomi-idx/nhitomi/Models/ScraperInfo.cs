@@ -21,6 +21,12 @@ namespace nhitomi.Models
         public ScraperType Type { get; set; }
 
         /// <summary>
+        /// Category in which this scraper belongs.
+        /// </summary>
+        [Required]
+        public ScraperCategory Category { get; set; }
+
+        /// <summary>
         /// True if this scraper is enabled.
         /// </summary>
         [Required]
@@ -31,5 +37,16 @@ namespace nhitomi.Models
         /// </summary>
         [Required]
         public string Url { get; set; }
+    }
+
+    /// <summary>
+    /// Categories of scrapers.
+    /// </summary>
+    public enum ScraperCategory
+    {
+        /// <summary>
+        /// Scraper is responsible for books.
+        /// </summary>
+        Book
     }
 }

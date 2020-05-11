@@ -79,10 +79,11 @@ namespace nhitomi.Controllers
             DiscordOAuthUrl  = _discordOAuth.AuthorizeUrl,
             Scrapers = _scrapers.ToArray(s => new ScraperInfo
             {
-                Name    = s.Name,
-                Type    = s.Type,
-                Enabled = s.Enabled,
-                Url     = s.Url
+                Name     = s.Name,
+                Type     = s.Type,
+                Category = s.Category,
+                Enabled  = s.Enabled,
+                Url      = s.Url
             })
         };
 

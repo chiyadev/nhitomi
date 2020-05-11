@@ -74,6 +74,8 @@ namespace nhitomi.Scrapers
         readonly IElasticClient _client;
         readonly IBookIndexer _indexer;
 
+        public override ScraperCategory Category => ScraperCategory.Book;
+
         protected BookScraperBase(IServiceProvider services, IOptionsMonitor<ScraperOptions> options, ILogger<BookScraperBase> logger) : base(services, options, logger)
         {
             _services = services;
