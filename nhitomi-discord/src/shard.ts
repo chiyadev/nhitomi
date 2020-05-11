@@ -62,7 +62,7 @@ Discord.on('message', wrapHandler('message', async message => {
     module = await import(`./Commands/${command}`)
   }
   catch (e) {
-    console.debug('command exec error', e)
+    console.debug('module find error', e)
     return
   }
 
