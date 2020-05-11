@@ -36,7 +36,7 @@ export class BookReadMessage extends InteractiveMessage {
         },
         color: 'DARK_GREEN',
         author: {
-          name: (book.tags.artist || book.tags.circle || [content.source]).join(', '),
+          name: (book.tags.artist || book.tags.circle || [content.source]).sort().join(', '),
           iconURL: Api.getWebLink(`assets/icons/${content.source}.jpg`)
         },
         footer: {

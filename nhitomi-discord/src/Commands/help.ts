@@ -44,7 +44,7 @@ class HelpMessage extends InteractiveMessage {
 `.trim()
         }, {
           name: l.get('sources.title'),
-          value: Api.currentInfo.scrapers.map(s => `- ${s.name} — ${s.url}`).join('\n')
+          value: Api.currentInfo.scrapers.map(s => `- ${s.name} — ${s.url}`).sort().join('\n')
         }]
         break
 

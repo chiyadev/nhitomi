@@ -11,7 +11,7 @@ export function sourceInvalid(context: MessageContext, input: string): Promise<M
   return context.reply(`
 ${l.get('message', { input })}
 
-${Api.currentInfo.scrapers.map(s => `> - ${s.name} — <${s.url}>`).join('\n')}
+${Api.currentInfo.scrapers.map(s => `> - ${s.name} — <${s.url}>`).sort().join('\n')}
 `.trim())
 }
 
