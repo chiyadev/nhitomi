@@ -14,7 +14,19 @@ namespace nhitomi.Database
                    .MultiQuery(q =>
                     {
                         q = q.SetMode(Query.Mode)
-                             .Range(Query.CreatedTime, b => b.CreatedTime)
+                             .Text(Query.All,
+                                  b => b.PrimaryName,
+                                  b => b.EnglishName,
+                                  b => b.TagsGeneral,
+                                  b => b.TagsArtist,
+                                  b => b.TagsParody,
+                                  b => b.TagsCharacter,
+                                  b => b.TagsConvention,
+                                  b => b.TagsSeries,
+                                  b => b.TagsCircle,
+                                  b => b.TagsMetadata);
+
+                        q = q.Range(Query.CreatedTime, b => b.CreatedTime)
                              .Range(Query.UpdatedTime, b => b.UpdatedTime)
                              .Range(Query.PageCount, b => b.PageCount)
                              .Range(Query.NoteCount, b => b.NoteCount)

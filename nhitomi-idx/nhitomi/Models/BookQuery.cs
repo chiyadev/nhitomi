@@ -7,6 +7,8 @@ namespace nhitomi.Models
 {
     public class BookQuery : QueryBase<BookSort>
     {
+        public TextQuery All { get; set; }
+
         public RangeQuery<DateTime> CreatedTime { get; set; }
         public RangeQuery<DateTime> UpdatedTime { get; set; }
         public RangeQuery<int> PageCount { get; set; }
