@@ -152,7 +152,7 @@ namespace nhitomi.Scrapers
                 })
             };
 
-            public override string GetExternalUrl(DbBook book, DbBookContent content) => null;
+            public override string GetExternalUrl(DbBookContent content) => null;
 
             protected override IAsyncEnumerable<BookAdaptor> ScrapeAsync(CancellationToken cancellationToken = default)
             {

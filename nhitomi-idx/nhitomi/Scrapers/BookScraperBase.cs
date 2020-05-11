@@ -54,7 +54,7 @@ namespace nhitomi.Scrapers
 
     public interface IBookScraper : IScraper
     {
-        string GetExternalUrl(DbBook book, DbBookContent content);
+        string GetExternalUrl(DbBookContent content);
 
         /// <summary>
         /// Finds a book in the database given a book URL recognized by this scraper.
@@ -81,7 +81,7 @@ namespace nhitomi.Scrapers
             _indexer  = services.GetService<IBookIndexer>();
         }
 
-        public abstract string GetExternalUrl(DbBook book, DbBookContent content);
+        public abstract string GetExternalUrl(DbBookContent content);
 
         /// <summary>
         /// Scrapes new books without adding them to the database.
