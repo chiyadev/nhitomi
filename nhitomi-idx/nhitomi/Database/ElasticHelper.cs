@@ -92,7 +92,7 @@ namespace nhitomi.Database
                     if (string.IsNullOrEmpty(value))
                         continue;
 
-                    var c = descriptor.SimpleQueryString(q => q.Fields(f => paths.Aggregate(f, (ff, p) => ff.Field(p))).Query(value));
+                    var c = descriptor.SimpleQueryString(q => q.Query(value).Fields(f => paths.Aggregate(f, (ff, p) => ff.Field(p))).DefaultOperator(wrapper.Mode == QueryMatchMode.All ? Operator.And : Operator.Or));
 
                     if (container == null)
                         container = c;
