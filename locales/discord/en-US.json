@@ -1,5 +1,5 @@
 {
-  "reactions": {
+  "reaction": {
     "list": {
       "jump": "Type the page number to jump to, or `cancel`:"
     }

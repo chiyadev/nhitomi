@@ -39,21 +39,33 @@ export class ListJumpTrigger extends ReactionTrigger {
     switch (this.direction) {
       case 'start': return '\u23EA'
       case 'end': return '\u23E9'
+      case 'input': return '\ud83d\udcd1'
       default: return ''
     }
   }
 
   constructor(
     readonly target: ListJumpTriggerTarget,
-    readonly direction: 'start' | 'end'
+    readonly direction: 'start' | 'end' | 'input'
   ) {
     super()
   }
 
   protected async run(): Promise<boolean> {
+    const l = this.context?.locale.section('reaction.list')
+    if (!l) return false
+
     switch (this.direction) {
       case 'start': this.target.position = 0; break
       case 'end': this.target.position = this.target.end; break
+
+      case 'input': {
+        const result = parseInt(await this.interactive?.waitInput(l.get('jump')) || '')
+
+        if (isNaN(result)) return false
+        this.target.position = result - 1
+        break
+      }
     }
 
     return true

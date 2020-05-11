@@ -52,7 +52,7 @@ export class BookReadMessage extends InteractiveMessage {
 
       new ListTrigger(this, 'left'),
       new ListTrigger(this, 'right'),
-      new ListJumpTrigger(this, 'end'),
+      new ListJumpTrigger(this, 'input'),
       new DestroyTrigger()
     ]
   }
