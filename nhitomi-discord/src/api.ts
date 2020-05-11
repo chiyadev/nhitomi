@@ -80,14 +80,22 @@ class BotApiClient extends ApiClient {
   /** URL to use to format links. */
   get publicUrl(): string { return this.currentInfo.publicUrl }
 
-  /** Formats a link using publicUrl. */
-  getLink(route: string): string {
-    if (route.startsWith('/')) route = route.substring(1)
+  /** Formats a link to an API route using publicUrl. */
+  getApiLink(path: string): string {
+    if (path.startsWith('/')) path = path.substring(1)
 
-    if (!route)
+    return this.getWebLink(`api/v1/${path}`)
+  }
+
+  /** Formats a link to a frontend route using publicUrl. */
+  getWebLink(path: string): string {
+    if (path.startsWith('/')) path = path.substring(1)
+    if (path.endsWith('/')) path = path.slice(0, -1)
+
+    if (!path)
       return this.publicUrl
 
-    return `${this.publicUrl}/${route}`
+    return `${this.publicUrl}/${path}`
   }
 
   async initialize(): Promise<void> {
