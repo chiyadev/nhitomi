@@ -31,7 +31,7 @@ namespace nhitomi.Controllers
     {
         Task<OneOf<DbBook, NotFound>> GetAsync(string id, CancellationToken cancellationToken = default);
         Task<OneOf<(DbBook, DbBookContent), NotFound>> GetContentAsync(string id, string contentId, CancellationToken cancellationToken = default);
-        IAsyncEnumerable<(IDbEntry<DbBook>, DbBookContent)> GetByLinkAsync(string link, CancellationToken cancellationToken = default);
+        IAsyncEnumerable<(IDbEntry<DbBook>, DbBookContent)> GetByLinkAsync(string link, bool strict, CancellationToken cancellationToken = default);
 
         Task<SearchResult<DbBook>> SearchAsync(BookQuery query, CancellationToken cancellationToken = default);
         Task<BookSuggestResult> SuggestAsync(SuggestQuery query, CancellationToken cancellationToken = default);
@@ -86,8 +86,8 @@ namespace nhitomi.Controllers
             return (book, content);
         }
 
-        public IAsyncEnumerable<(IDbEntry<DbBook>, DbBookContent)> GetByLinkAsync(string link, CancellationToken cancellationToken = default)
-            => _scrapers.Books.ToAsyncEnumerable().SelectMany(s => s.FindByUrlAsync(link, true, cancellationToken));
+        public IAsyncEnumerable<(IDbEntry<DbBook>, DbBookContent)> GetByLinkAsync(string link, bool strict, CancellationToken cancellationToken = default)
+            => _scrapers.Books.ToAsyncEnumerable().SelectMany(s => s.FindByUrlAsync(link, strict, cancellationToken));
 
         public Task<SearchResult<DbBook>> SearchAsync(BookQuery query, CancellationToken cancellationToken = default)
             => _client.SearchAsync(new DbBookQueryProcessor(query), cancellationToken);

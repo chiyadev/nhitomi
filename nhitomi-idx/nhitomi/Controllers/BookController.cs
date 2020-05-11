@@ -90,10 +90,11 @@ namespace nhitomi.Controllers
         /// Finds books that were scraped from an URL.
         /// </summary>
         /// <param name="request">Get by link request.</param>
+        /// <param name="strict">True to use strict mode; otherwise, scan all matching links in text.</param>
         [HttpPost("search/link", Name = "getBooksByLink")]
-        public async Task<GetByLinkResponse> GetByLinkAsync(GetByLinkRequest request) => new GetByLinkResponse
+        public async Task<GetByLinkResponse> GetByLinkAsync(GetByLinkRequest request, [FromQuery] bool strict = true) => new GetByLinkResponse
         {
-            Matches = await _books.GetByLinkAsync(request.Link).Select(x =>
+            Matches = await _books.GetByLinkAsync(request.Link, strict).Select(x =>
             {
                 var (book, content) = x;
 
