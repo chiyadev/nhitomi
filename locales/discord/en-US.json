@@ -2,10 +2,11 @@
   "reaction": {
     "list": {
       "jump": "Type the page number to jump to, or `cancel`:"
+    },
+    "favorite": {
+      "add": "Added `{name}` to the favorites collection.",
+      "remove": "Removed `{name}` from the favorites collection."
     }
-  },
-  "debug": {
-    "title": "Debug information"
   },
   "help": {
     "title": "Help",

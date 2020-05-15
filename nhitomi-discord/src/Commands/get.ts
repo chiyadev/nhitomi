@@ -7,11 +7,9 @@ import { DestroyTrigger } from '../Triggers/destroy'
 import { MessageContext } from '../context'
 import { Message } from 'discord.js'
 import { ReadTrigger } from '../Triggers/read'
-import { FavoriteTrigger } from '../Triggers/favorite'
+import { FavoriteTrigger, FavoriteTriggerTarget } from '../Triggers/favorite'
 
 export class BookMessage extends InteractiveMessage {
-  get favoriteObject(): Book { return this.book }
-
   constructor(
     readonly book: Book,
     public content: BookContent
@@ -66,7 +64,14 @@ export class BookMessage extends InteractiveMessage {
     }
   }
 
-  createTriggers(): ReactionTrigger[] {
+  get favoriteObject(): FavoriteTriggerTarget['favoriteObject'] {
+    return {
+      id: this.book.id,
+      name: this.book.primaryName
+    }
+  }
+
+  protected createTriggers(): ReactionTrigger[] {
     return [
       ...super.createTriggers(),
 

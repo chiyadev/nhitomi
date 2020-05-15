@@ -7,7 +7,7 @@ import { BookMessage } from './get'
 import { ReadTrigger } from '../Triggers/read'
 import { DestroyTrigger } from '../Triggers/destroy'
 import { ListTrigger } from '../Triggers/list'
-import { FavoriteTrigger } from '../Triggers/favorite'
+import { FavoriteTrigger, FavoriteTriggerTarget } from '../Triggers/favorite'
 
 export class BookSearchMessage extends InteractiveMessage {
   readonly results = new AsyncArray<Book>(20, async (offset, limit) => (await this.context?.api.book.searchBooks(false, { ...this.baseQuery, offset, limit }))?.body.items || [])
@@ -18,8 +18,6 @@ export class BookSearchMessage extends InteractiveMessage {
 
   book?: Book
   content?: BookContent
-
-  get favoriteObject(): Book | undefined { return this.book }
 
   protected async render(l: Locale): Promise<RenderResult> {
     this.book = await this.results.get(this.position)
@@ -32,6 +30,13 @@ export class BookSearchMessage extends InteractiveMessage {
     this.content = this.book.contents.filter(c => c.language === this.context?.user.language)[0] || this.book.contents[0]
 
     return BookMessage.renderStatic(l, this.book, this.content)
+  }
+
+  get favoriteObject(): FavoriteTriggerTarget['favoriteObject'] {
+    return this.book ? {
+      id: this.book.id,
+      name: this.book.primaryName
+    } : undefined
   }
 
   protected createTriggers(): ReactionTrigger[] {
