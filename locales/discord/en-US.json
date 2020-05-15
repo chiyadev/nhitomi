@@ -73,5 +73,11 @@
     "book": {
       "pagination": "Page {current} of {total}"
     }
+  },
+  "list": {
+    "empty": {
+      "title": "No results",
+      "message": "There are no results to display."
+    }
   }
 }

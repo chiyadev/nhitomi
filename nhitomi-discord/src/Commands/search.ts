@@ -1,7 +1,7 @@
 import { CommandFunc } from '.'
 import { InteractiveMessage, RenderResult, ReactionTrigger } from '../interactive'
 import { Locale } from '../locales'
-import { BookQuery, BookSort, SortDirection, Book, BookContent, ObjectType, SpecialCollection } from 'nhitomi-api'
+import { BookQuery, BookSort, SortDirection, Book, BookContent, ObjectType, SpecialCollection, QueryMatchMode } from 'nhitomi-api'
 import { AsyncArray } from '../asyncArray'
 import { BookMessage } from './get'
 import { ReadTrigger } from '../Triggers/read'
@@ -23,8 +23,15 @@ export class BookSearchMessage extends InteractiveMessage {
     this.book = await this.results.get(this.position)
 
     if (!this.book && !(this.book = this.results.getCached(this.position = Math.max(0, Math.min(this.results.loadedLength - 1, this.position))))) {
-      //todo: empty results
-      return { message: 'empty results' }
+      l = l.section('list.empty')
+
+      return {
+        embed: {
+          title: l.get('title'),
+          description: l.get('message'),
+          color: 'AQUA'
+        }
+      }
     }
 
     this.content = this.book.contents.filter(c => c.language === this.context?.user.language)[0] || this.book.contents[0]
@@ -40,6 +47,8 @@ export class BookSearchMessage extends InteractiveMessage {
   }
 
   protected createTriggers(): ReactionTrigger[] {
+    if (!this.book) return []
+
     return [
       ...super.createTriggers(),
 
@@ -55,6 +64,7 @@ export class BookSearchMessage extends InteractiveMessage {
 export const run: CommandFunc = (context, query) => {
   const baseQuery: BookQuery = {
     all: !query ? undefined : {
+      mode: QueryMatchMode.All,
       values: [query]
     },
     limit: 20,
