@@ -3,7 +3,8 @@
   "prefix": "n!",
   "interactive": {
     "timeout": 7200,
-    "inputTimeout": 60
+    "inputTimeout": 60,
+    "notifTimeout": 10
   },
   "api": {
     "baseUrl": "",

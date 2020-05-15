@@ -3,7 +3,8 @@
   "prefix": "Discord:Prefix",
   "interactive": {
     "timeout": "Interactive:Timeout",
-    "inputTimeout": "Interactive:InputTimeout"
+    "inputTimeout": "Interactive:InputTimeout",
+    "notifTimeout": "Interactive:NotifTimeout"
   },
   "api": {
     "baseUrl": "Api:BaseUrl",

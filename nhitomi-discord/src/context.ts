@@ -53,6 +53,19 @@ export class MessageContext {
   /** Shorthand for `message.channel.send(...)`. */
   reply: Message['channel']['send']
 
+  /** Schedules the deletion of the given message and returns a promise that resolves when it is deleted. Promise will never reject. */
+  async scheduleDelete(message: Message, timeout = config.get<number>('interactive.notifTimeout')): Promise<void> {
+    await new Promise(r => setTimeout(r, timeout * 1000))
+
+    if (message.deletable)
+      try {
+        await message.delete()
+      }
+      catch (e) {
+        console.debug('could not delete message', message.id, e)
+      }
+  }
+
   /** Creates a message context from a message. */
   static async create(message: Message): Promise<MessageContext> {
     const author = message.author
