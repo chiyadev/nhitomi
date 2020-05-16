@@ -1,6 +1,6 @@
 import { Client } from 'discord.js'
 import config from 'config'
-import { CommandModule } from './Commands'
+import { CommandModule, loadCommands, matchCommand } from './Commands'
 import { shouldHandleMessage, shouldHandleReaction } from './filter'
 import { handleInteractiveMessage, handleInteractiveReaction, handleInteractiveMessageDeleted } from './interactive'
 import { MessageContext } from './context'
@@ -56,15 +56,10 @@ Discord.on('message', wrapHandler('message', async message => {
   const command = space === -1 ? content : content.substring(0, space)
   const arg = space === -1 ? undefined : content.substring(space + 1).trim()
 
-  let module: CommandModule
+  const func = matchCommand(command)
 
-  try {
-    module = await import(`./Commands/${command}`)
-  }
-  catch (e) {
-    console.debug('module find error', e)
+  if (!func)
     return
-  }
 
   message.channel.startTyping()
 
@@ -74,7 +69,7 @@ Discord.on('message', wrapHandler('message', async message => {
     try {
       console.debug(`user ${context.user.id} '${context.user.username}' executing command '${command}' with args '${arg || ''}'`)
 
-      await module.run(context, arg)
+      await func(context, arg)
     }
     finally {
       context.destroy()
@@ -103,12 +98,16 @@ Discord.on('messageReactionRemove', wrapHandler('messageReactionRemove', async (
   let die = false
 
   if (!die)
+    try { await loadCommands() }
+    catch (e) { die = true; console.error('could not load commands', e) }
+
+  if (!die)
     try { await Api.initialize() }
-    catch (e) { console.error('could not initialize api client', e); die = true }
+    catch (e) { die = true; console.error('could not initialize api client', e) }
 
   if (!die)
     try { await Discord.login(config.get('token')) }
-    catch (e) { console.error('could not start discord client', e); die = true }
+    catch (e) { die = true; console.error('could not start discord client', e) }
 
   if (die)
     setTimeout(() => process.exit(1), 5000)

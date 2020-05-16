@@ -1,4 +1,40 @@
 import { MessageContext } from '../context'
+import { promisify } from 'util'
+import fs from 'fs'
+import path from 'path'
+
+const readdir = promisify(fs.readdir)
 
 export type CommandFunc = (context: MessageContext, arg?: string) => Promise<boolean>
-export type CommandModule = { run: CommandFunc }
+export type CommandModule = { name: string, run: CommandFunc }
+
+const modules: CommandModule[] = []
+
+export async function loadCommands(): Promise<void> {
+  modules.length = 0
+
+  for (const x of await readdir('./build/Commands')) {
+    const xp = path.parse(x)
+
+    if (xp.ext !== '.js')
+      continue
+
+    try {
+      const module = await import(`./${xp.name}`)
+
+      if ('run' in module) {
+        modules.push({
+          name: xp.name,
+          run: module.run
+        })
+      }
+    }
+    catch (e) {
+      console.warn('could not import command module', x, module)
+    }
+  }
+}
+
+export function matchCommand(command: string): CommandFunc | undefined {
+  return modules.find(m => m.name.startsWith(command.toLowerCase()))?.run
+}
