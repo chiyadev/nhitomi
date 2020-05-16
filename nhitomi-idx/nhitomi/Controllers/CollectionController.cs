@@ -24,8 +24,14 @@ namespace nhitomi.Controllers
             _users       = users;
         }
 
-        public class CreateCollectionRequest : CollectionBase
+        public class CreateCollectionRequest
         {
+            /// <summary>
+            /// Collection information.
+            /// </summary>
+            [Required]
+            public CollectionBase Collection { get; set; }
+
             /// <summary>
             /// Type of objects in this collection.
             /// </summary>
@@ -40,7 +46,7 @@ namespace nhitomi.Controllers
         [HttpPost(Name = "createCollection"), RequireUser(Unrestricted = true)]
         public async Task<ActionResult<Collection>> CreateAsync(CreateCollectionRequest request)
         {
-            var result = await _collections.CreateAsync(request.Type, request, UserId);
+            var result = await _collections.CreateAsync(request.Type, request.Collection, UserId);
 
             return result.AsT0.Convert(_services);
         }
