@@ -66,15 +66,22 @@ Discord.on('message', wrapHandler('message', async message => {
     return
   }
 
-  const context = await MessageContext.create(message)
+  message.channel.startTyping()
 
   try {
-    console.debug(`user ${context.user.id} '${context.user.username}' executing command '${command}' with args '${arg || ''}'`)
+    const context = await MessageContext.create(message)
 
-    await module.run(context, arg)
+    try {
+      console.debug(`user ${context.user.id} '${context.user.username}' executing command '${command}' with args '${arg || ''}'`)
+
+      await module.run(context, arg)
+    }
+    finally {
+      context.destroy()
+    }
   }
   finally {
-    context.destroy()
+    message.channel.stopTyping(true)
   }
 }))
 
