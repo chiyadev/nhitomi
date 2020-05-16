@@ -37,7 +37,7 @@ namespace nhitomi.Controllers
         /// Creates a new empty collection.
         /// </summary>
         /// <param name="request">Create collection request.</param>
-        [HttpPost, RequireUser(Unrestricted = true)]
+        [HttpPost(Name = "createCollection"), RequireUser(Unrestricted = true)]
         public async Task<ActionResult<Collection>> CreateAsync(CreateCollectionRequest request)
         {
             var result = await _collections.CreateAsync(request.Type, request, UserId);
