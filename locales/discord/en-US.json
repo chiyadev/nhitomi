@@ -79,5 +79,20 @@
       "title": "No results",
       "message": "There are no results to display."
     }
+  },
+  "collection": {
+    "notFound": "Could not find collection `{input}`.",
+    "add": {
+      "exists": "`{item}` already exists in collection `{collection}`.",
+      "success": "Added `{item}` to collection `{collection}`."
+    },
+    "remove": {
+      "notExists": "`{item}` does not exist in collection `{collection}`.",
+      "success": "Removed `{item}` from collection `{collection}`."
+    },
+    "delete": {
+      "confirm": "Are you sure to permanently delete the collection `{collection}`? (yes/no)",
+      "success": "Collection `{collection}` has been deleted."
+    }
   }
 }
