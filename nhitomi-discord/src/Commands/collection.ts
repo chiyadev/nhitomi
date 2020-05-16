@@ -10,9 +10,6 @@ export const run: CommandFunc = async (context, arg) => {
   const collectionName = match?.groups?.collection?.trim() || ''
   const link = match?.groups?.link?.trim() || ''
 
-  console.log('command full!!!', arg)
-  console.log('command info!!!', command, collectionName, link)
-
   let { items: collections } = await context.api.user.getUserCollections({ id: context.user.id })
   collections = collections.filter(c => c.name?.toLowerCase() === collectionName.toLowerCase())
 
