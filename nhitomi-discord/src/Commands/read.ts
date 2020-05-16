@@ -1,7 +1,7 @@
 import { CommandFunc } from '.'
 import { InteractiveMessage, RenderResult, ReactionTrigger } from '../interactive'
 import { Locale } from '../locales'
-import { Book, BookContent } from 'nhitomi-api'
+import { Book, BookContent, ObjectType } from 'nhitomi-api'
 import { replyNotFound, handleGetLink } from './get'
 import { DestroyTrigger } from '../Triggers/destroy'
 import { ListTrigger, ListJumpTrigger } from '../Triggers/list'
@@ -62,7 +62,7 @@ export const run: CommandFunc = async (context, link) => {
   const result = await handleGetLink(context, link)
 
   switch (result.type) {
-    case 'book': {
+    case ObjectType.Book: {
       const { book, content } = result
 
       return await new BookReadMessage(book, content).initialize(context)

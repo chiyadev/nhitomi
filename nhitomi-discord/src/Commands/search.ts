@@ -10,7 +10,7 @@ import { ListTrigger } from '../Triggers/list'
 import { FavoriteTrigger, FavoriteTriggerTarget } from '../Triggers/favorite'
 
 export class BookSearchMessage extends InteractiveMessage {
-  readonly results = new AsyncArray<Book>(20, async (offset, limit) => (await this.context?.api.book.searchBooks(false, { ...this.baseQuery, offset, limit }))?.body.items || [])
+  readonly results = new AsyncArray<Book>(20, async (offset, limit) => (await this.context?.api.book.searchBooks({ bookQuery: { ...this.baseQuery, offset, limit } }))?.items || [])
 
   constructor(readonly baseQuery: BookQuery) { super() }
 

@@ -28,19 +28,29 @@ export class FavoriteTrigger extends ReactionTrigger {
     const itemName = this.target.favoriteObject.name
 
     const l = context.locale.section('reaction.favorite')
-    const { body: { id: collectionId, items } } = await context.api.user.getUserSpecialCollection(context.user.id, this.type, this.collection)
+    const { id: collectionId, items } = await context.api.user.getUserSpecialCollection({
+      id: context.user.id,
+      type: this.type,
+      collection: this.collection
+    })
 
     if (items.includes(itemId)) {
-      await context.api.collection.removeCollectionItems(collectionId, false, {
-        items: [itemId]
+      await context.api.collection.removeCollectionItems({
+        id: collectionId,
+        collectionItemsRequest: {
+          items: [itemId]
+        }
       })
 
       context.scheduleDelete(await context.reply(l.get('remove', { name: itemName })))
     }
     else {
-      await context.api.collection.addCollectionItems(collectionId, false, {
-        items: [itemId],
-        position: CollectionInsertPosition.Start
+      await context.api.collection.addCollectionItems({
+        id: collectionId,
+        addCollectionItemsRequest: {
+          items: [itemId],
+          position: CollectionInsertPosition.Start
+        }
       })
 
       context.scheduleDelete(await context.reply(l.get('add', { name: itemName })))

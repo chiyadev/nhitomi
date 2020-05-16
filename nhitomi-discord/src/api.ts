@@ -1,7 +1,9 @@
-import { InfoApi, BookApi, UserApi, CollectionApi, InternalApi, GetInfoAuthenticatedResponse } from 'nhitomi-api'
+import { BASE_PATH, InfoApi, BookApi, UserApi, CollectionApi, InternalApi, GetInfoAuthenticatedResponse, Configuration, ConfigurationParameters } from 'nhitomi-api'
 import config from 'config'
+import fetch from 'node-fetch'
 
 type ApiClientCore = {
+  readonly config: ConfigurationParameters
   readonly info: InfoApi
   readonly user: UserApi
   readonly book: BookApi
@@ -14,22 +16,24 @@ const cores: ApiClientCore[] = []
 function rentCore(token: string): ApiClientCore {
   let core = cores.pop()
 
-  if (!core)
-    core = {
-      info: new InfoApi(),
-      user: new UserApi(),
-      book: new BookApi(),
-      collection: new CollectionApi(),
-      internal: new InternalApi()
+  if (!core) {
+    const cfg: ConfigurationParameters = {
+      basePath: config.get<string>('api.baseUrl') || BASE_PATH,
+      fetchApi: fetch
     }
+    const cfg2 = new Configuration(cfg)
 
-  for (const key in core) {
-    const api = (core as Record<string, (typeof core)[keyof typeof core]>)[key]
-
-    api.basePath = config.get<string>('api.baseUrl') || api.basePath
-    api.accessToken = token
+    core = {
+      config: cfg,
+      info: new InfoApi(cfg2),
+      user: new UserApi(cfg2),
+      book: new BookApi(cfg2),
+      collection: new CollectionApi(cfg2),
+      internal: new InternalApi(cfg2)
+    }
   }
 
+  core.config.accessToken = token
   return core
 }
 
@@ -48,6 +52,7 @@ export class ApiClient implements ApiClientCore {
     throw Error('API client was destroyed.')
   }
 
+  get config(): ConfigurationParameters { return this.core.config }
   get info(): InfoApi { return this.core.info }
   get user(): UserApi { return this.core.user }
   get book(): BookApi { return this.core.book }
@@ -75,7 +80,7 @@ class BotApiClient extends ApiClient {
   currentInfo!: GetInfoAuthenticatedResponse
 
   /** URL to make API requests to. */
-  get baseUrl(): string { return this.info.basePath }
+  get baseUrl(): string { return this.config.basePath || '' }
 
   /** URL to use to format links. */
   get publicUrl(): string { return this.currentInfo.publicUrl }
@@ -99,7 +104,7 @@ class BotApiClient extends ApiClient {
   }
 
   async initialize(): Promise<void> {
-    const { body: info } = await this.info.getInfoAuthenticated()
+    const info = await this.info.getInfoAuthenticated()
 
     const refresh = !!this.currentInfo
     this.currentInfo = info

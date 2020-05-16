@@ -75,7 +75,7 @@ export class MessageContext {
       const api = new ApiClient(cachedToken)
 
       try {
-        const { body: user } = await api.user.getSelfUser()
+        const user = await api.user.getSelfUser()
 
         return new MessageContext(message, api, user)
       }
@@ -85,10 +85,12 @@ export class MessageContext {
       }
     }
 
-    const { body: { token, user } } = await Api.internal.getOrCreateUserDiscord(false, {
-      id: author.id,
-      username: author.username,
-      discriminator: parseInt(author.discriminator)
+    const { token, user } = await Api.internal.getOrCreateUserDiscord({
+      getOrCreateDiscordUserRequest: {
+        id: author.id,
+        username: author.username,
+        discriminator: parseInt(author.discriminator)
+      }
     })
 
     tokenCache.set(author.id, token)

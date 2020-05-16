@@ -55,7 +55,7 @@ export class BookMessage extends InteractiveMessage {
         footer: {
           text: `${book.id}/${content.id} (${l.section('categories').get(book.category.toString())}, ${l.get('pageCount', { count: content.pageCount })})`
         },
-        fields: (Object.keys(BookTag) as (keyof typeof book.tags)[]).sort().filter(t => book.tags[t]?.length).map(t => ({
+        fields: Object.values(BookTag).filter(t => book.tags[t]?.length).map(t => ({
           name: l.section('tags').get(t),
           value: book.tags[t]?.sort().join(', '),
           inline: true
@@ -83,7 +83,7 @@ export class BookMessage extends InteractiveMessage {
 }
 
 export async function handleGetLink(context: MessageContext, link: string | undefined): Promise<{
-  type: 'book'
+  type: ObjectType.Book
   book: Book
   content: BookContent
 } | {
@@ -91,14 +91,14 @@ export async function handleGetLink(context: MessageContext, link: string | unde
 }> {
   if (link) {
     // try finding books
-    const { body: { matches: [bookMatch] } } = await context.api.book.getBooksByLink(true, false, { link })
+    const { matches: [bookMatch] } = await context.api.book.getBooksByLink({ strict: true, getByLinkRequest: { link } })
 
     if (bookMatch) {
       const { book, selectedContentId } = bookMatch
       const content = book.contents.find(c => c.id === selectedContentId)
 
       if (content)
-        return { type: 'book', book, content }
+        return { type: ObjectType.Book, book, content }
     }
   }
 
@@ -119,7 +119,7 @@ export const run: CommandFunc = async (context, link) => {
   const result = await handleGetLink(context, link)
 
   switch (result.type) {
-    case 'book': {
+    case ObjectType.Book: {
       const { book, content } = result
 
       return await new BookMessage(book, content).initialize(context)

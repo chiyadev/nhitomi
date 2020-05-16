@@ -8,6 +8,7 @@
     "@types/config": "0.0.36",
     "@types/i18n": "^0.8.6",
     "@types/node": "^13.13.5",
+    "@types/node-fetch": "^2.5.7",
     "@typescript-eslint/eslint-plugin": "^2.31.0",
     "@typescript-eslint/parser": "^2.31.0",
     "bufferutil": "^4.0.1",
@@ -17,6 +18,7 @@
     "fast-deep-equal": "^3.1.1",
     "i18n": "^0.9.1",
     "node-cache": "^5.1.0",
+    "node-fetch": "^2.6.0",
     "semaphore-async-await": "^1.5.1",
     "symlink-dir": "^4.0.3",
     "typescript": "^3.8.3",
@@ -29,7 +31,7 @@
     "postinstall": "node -e \"require('symlink-dir')('../locales', './locales')\"",
     "start": "tsc && node build/index.js",
     "build": "tsc",
-    "genclient": "node ../scripts/genclient typescript-node"
+    "genclient": "node ../scripts/genclient typescript-fetch"
   },
   "eslintConfig": {
     "extends": [
