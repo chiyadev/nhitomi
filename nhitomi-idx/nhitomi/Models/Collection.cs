@@ -57,7 +57,7 @@ namespace nhitomi.Models
         /// <summary>
         /// Text describing this collection.
         /// </summary>
-        [Required, MaxLength(512)]
+        [MaxLength(512)]
         public string Description { get; set; }
     }
 
