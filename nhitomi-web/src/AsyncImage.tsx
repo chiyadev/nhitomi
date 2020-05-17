@@ -3,6 +3,7 @@ import React, { CSSProperties, forwardRef, ReactNode, Ref, useContext, useEffect
 import { useAsync, useInterval, useUpdate } from 'react-use'
 import VisibilitySensor from 'react-visibility-sensor'
 import { LayoutContext } from './LayoutContext'
+import { Spin } from 'antd'
 
 /** Image component that loads images asynchronously with lazy loading, loading animation, aspect ratio preservation and advanced styling. */
 export const AsyncImage = forwardRef(({ onVisibleChange, wrapperRef, src, onLoad, resize, width, height, fluid, naturalSize, centered, rounded, style, wrapperStyle, disabled, loadingDisabled, preloadScale = 2, children }: {
@@ -155,10 +156,12 @@ export const AsyncImage = forwardRef(({ onVisibleChange, wrapperRef, src, onLoad
 
   return <VisibilitySensor
     onChange={v => {
-      setVisible(v)
-      onVisibleChange?.(v)
+      if (v) {
+        setVisible(v)
+        !shouldLoad && setShouldLoad(true)
+      }
 
-      v && !shouldLoad && setShouldLoad(true)
+      onVisibleChange?.(v)
     }}
     intervalCheck
     scrollCheck
@@ -179,50 +182,13 @@ export const AsyncImage = forwardRef(({ onVisibleChange, wrapperRef, src, onLoad
           alt={result}
           style={style} />}
 
-      {visible && !result && !loadingDisabled &&
-        <div style={style}>
-          <div style={{
-            position: 'absolute',
-            top: '50%',
-            left: '50%',
-            width: '100%',
-            transform: 'translate(-50%, -50%)'
-          }}>
-            {/* todo: loading animation */}
-            {/* <Progress percent={Math.round(error ? 100 : progress * 100)} size='small' status={error ? 'exception' : 'normal'} style={{
-              display: 'block',
-              width: '10rem',
-              margin: 'auto'
-            }} />
-
-            <div style={{
-              marginTop: '1em',
-              textAlign: 'center',
-              width: '100%',
-              overflowWrap: 'break-word'
-            }}>
-              <Typography.Text strong type='secondary' style={{ fontSize: '0.8em' }}>
-                {error
-                  ? <LinedText>{error.message || 'An error occurred.'}</LinedText>
-                  : <LinedText>{message}</LinedText>}
-              </Typography.Text>
-
-              {error && <>
-                <br />
-
-                <Button
-                  type='link'
-                  icon={<ReloadOutlined />}
-                  onClick={() => {
-                    setShouldLoad(false)
-                  }}>
-
-                  <span>Retry</span>
-                </Button>
-              </>}
-            </div> */}
-          </div>
-        </div>}
+      {visible && !result && !error && !loadingDisabled &&
+        <Spin style={{
+          position: 'absolute',
+          left: '50%',
+          top: '50%',
+          transform: 'translate(-50%, -50%)'
+        }} />}
 
       {children}
     </div>
