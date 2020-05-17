@@ -214,6 +214,11 @@ export abstract class InteractiveMessage {
   }
 }
 
+/** Implements InteractiveMessage without any GUI. */
+export class HeadlessInteractiveMessage extends InteractiveMessage {
+  protected async render(): Promise<RenderResult> { return {} }
+}
+
 export async function handleInteractiveMessage(message: Message): Promise<boolean> {
   const userId = message.author.id
   const channelId = message.channel.id

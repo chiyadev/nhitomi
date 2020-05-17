@@ -4,6 +4,7 @@ import { ApiClient, Api } from './api'
 import { Message } from 'discord.js'
 import NodeCache from 'node-cache'
 import config from 'config'
+import { InteractiveMessage, HeadlessInteractiveMessage } from './interactive'
 
 const tokenCache = new NodeCache({
   stdTTL: config.get<number>('api.cachedTokenExpiry')
@@ -64,6 +65,20 @@ export class MessageContext {
       catch (e) {
         console.debug('could not delete message', message.id, e)
       }
+  }
+
+  /** Creates a headless interactive and calls waitInput on it. */
+  waitInput: InteractiveMessage['waitInput'] = async (content, timeout) => {
+    const interactive = new HeadlessInteractiveMessage()
+
+    try {
+      await interactive.initialize(this)
+
+      return await interactive.waitInput(content, timeout)
+    }
+    finally {
+      interactive.destroy()
+    }
   }
 
   /** Creates a message context from a message. */
