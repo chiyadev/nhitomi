@@ -9,9 +9,10 @@ import { SideBar, SideBarWidth } from './Sidebar'
 import { AuthenticationManager, AuthenticationRoute } from './Authentication'
 import { LocaleProvider } from './LocaleProvider'
 import { BookListing } from './BookListing'
+import { BookReader } from './BookReader'
+import { ExperimentalBanner } from './ExperimentalBanner'
 
 import './App.css'
-import { BookReader } from './BookReader'
 
 export const App = () => {
   // https://ant.design/components/notification/#FAQ
@@ -44,6 +45,8 @@ const Routing = () => {
   const { sidebar, breakpoint } = useContext(LayoutContext)
 
   return <Layout style={{ marginLeft: sidebar && !breakpoint ? SideBarWidth : 0 }}>
+    <ExperimentalBanner />
+
     <Switch>
       <Route path='/oauth/:service' exact render={({ match: { params } }) => <AuthenticationRoute {...params} />} />
 
