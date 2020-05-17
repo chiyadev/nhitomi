@@ -109,7 +109,7 @@ export function replyNotFound(context: MessageContext, input: string): Promise<M
   const l = context.locale.section('get.notFound')
 
   return context.reply(`
-${l.get('message', { input })}
+${input && l.get('message', { input })}
 
 > - ${l.get('usageLink', { example: 'https://nhentai.net/g/123/' })}
 > - ${l.get('usageSource', { example: 'hitomi 123' })}`)

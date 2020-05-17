@@ -65,7 +65,8 @@
   },
   "from": {
     "badSource": {
-      "message": "`{input}` is not a valid source."
+      "message": "`{input}` is not a valid source.",
+      "list": "List of supported sources:"
     }
   },
   "read": {

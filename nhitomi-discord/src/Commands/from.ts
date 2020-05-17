@@ -9,8 +9,9 @@ export function sourceInvalid(context: MessageContext, input: string): Promise<M
   const l = context.locale.section('from.badSource')
 
   return context.reply(`
-${l.get('message', { input })}
+${input && l.get('message', { input })}
 
+${l.get('list')}
 ${Api.currentInfo.scrapers.filter(s => s.enabled).map(s => `> - ${s.name} — <${s.url}>`).sort().join('\n')}
 `.trim())
 }
