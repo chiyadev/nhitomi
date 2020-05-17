@@ -24,7 +24,7 @@ export const run: CommandFunc = async (context, source) => {
         source: {
           values: [scraper.type]
         },
-        limit: 20,
+        limit: 0,
         sorting: [{
           value: BookSort.CreatedTime,
           direction: SortDirection.Descending

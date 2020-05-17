@@ -9,10 +9,8 @@ import { DestroyTrigger } from '../Triggers/destroy'
 import { ListTrigger } from '../Triggers/list'
 import { FavoriteTrigger, FavoriteTriggerTarget } from '../Triggers/favorite'
 
-export class BookSearchMessage extends InteractiveMessage {
-  readonly results = new AsyncArray<Book>(20, async (offset, limit) => (await this.context?.api.book.searchBooks({ bookQuery: { ...this.baseQuery, offset, limit } }))?.items || [])
-
-  constructor(readonly baseQuery: BookQuery) { super() }
+export class BookListMessage extends InteractiveMessage {
+  constructor(readonly items: AsyncArray<Book>) { super() }
 
   position = 0
 
@@ -20,9 +18,9 @@ export class BookSearchMessage extends InteractiveMessage {
   content?: BookContent
 
   protected async render(l: Locale): Promise<RenderResult> {
-    this.book = await this.results.get(this.position)
+    this.book = await this.items.get(this.position)
 
-    if (!this.book && !(this.book = this.results.getCached(this.position = Math.max(0, Math.min(this.results.loadedLength - 1, this.position))))) {
+    if (!this.book && !(this.book = this.items.getCached(this.position = Math.max(0, Math.min(this.items.loadedLength - 1, this.position))))) {
       l = l.section('list.empty')
 
       return {
@@ -61,13 +59,30 @@ export class BookSearchMessage extends InteractiveMessage {
   }
 }
 
+export class BookSearchMessage extends BookListMessage {
+  constructor(query: BookQuery) {
+    super(new AsyncArray<Book>(20, async (offset, limit) => {
+
+      const results = await this.context?.api.book.searchBooks({
+        bookQuery: {
+          ...query,
+          offset,
+          limit
+        }
+      })
+
+      return results?.items || []
+    }))
+  }
+}
+
 export const run: CommandFunc = (context, query) => {
   const baseQuery: BookQuery = {
     all: !query ? undefined : {
       mode: QueryMatchMode.All,
       values: [query]
     },
-    limit: 20,
+    limit: 0,
     sorting: [{
       value: BookSort.CreatedTime,
       direction: SortDirection.Descending
