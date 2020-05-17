@@ -1,0 +1,20 @@
+FROM node:lts-alpine AS web
+WORKDIR /app
+
+COPY nhitomi-discord/package*.json ./
+RUN npm install
+
+COPY scripts ../scripts/
+
+# java 8 required by openapi-generator
+RUN apk add --no-cache openjdk8-jre
+RUN npm run genclient
+
+COPY nhitomi-discord ./
+COPY locales ../locales/
+RUN npm run build
+RUN npm run prestart
+
+WORKDIR /app/build
+ENV NODE_ENV production
+ENTRYPOINT ["node", "index"]
