@@ -1,5 +1,5 @@
 /locales
-/config/local*
+/src/config/local*
 
 # generated things
 /nhitomi-api
