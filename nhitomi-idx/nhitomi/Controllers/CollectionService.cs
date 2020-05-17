@@ -121,6 +121,7 @@ namespace nhitomi.Controllers
                 // create collection after updating user
                 collectionEntry = _client.Entry(new DbCollection
                 {
+                    Name     = collection.ToString(),
                     Type     = type,
                     OwnerIds = new[] { userId },
                     Items    = Array.Empty<string>()
