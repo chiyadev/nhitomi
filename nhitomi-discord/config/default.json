@@ -1,6 +1,9 @@
 {
   "token": "",
   "prefix": "n!",
+  "search": {
+    "chunkSize": 20
+  },
   "interactive": {
     "timeout": 7200,
     "inputTimeout": 60,

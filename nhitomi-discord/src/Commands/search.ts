@@ -8,6 +8,7 @@ import { ReadTrigger } from '../Triggers/read'
 import { DestroyTrigger } from '../Triggers/destroy'
 import { ListTrigger } from '../Triggers/list'
 import { FavoriteTrigger, FavoriteTriggerTarget } from '../Triggers/favorite'
+import config from 'config'
 
 export class BookListMessage extends InteractiveMessage {
   constructor(readonly items: AsyncArray<Book>) { super() }
@@ -61,8 +62,7 @@ export class BookListMessage extends InteractiveMessage {
 
 export class BookSearchMessage extends BookListMessage {
   constructor(query: BookQuery) {
-    super(new AsyncArray<Book>(20, async (offset, limit) => {
-
+    super(new AsyncArray<Book>(config.get('search.chunkSize'), async (offset, limit) => {
       const results = await this.context?.api.book.searchBooks({
         bookQuery: {
           ...query,

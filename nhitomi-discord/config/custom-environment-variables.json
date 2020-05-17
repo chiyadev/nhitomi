@@ -1,6 +1,9 @@
 {
   "token": "Discord:Token",
   "prefix": "Discord:Prefix",
+  "search": {
+    "chunkSize": "Search:ChunkSize"
+  },
   "interactive": {
     "timeout": "Interactive:Timeout",
     "inputTimeout": "Interactive:InputTimeout",
