@@ -17,6 +17,7 @@ FROM node:lts-alpine as app
 WORKDIR /app
 
 COPY --from=discord /app/build ./
+COPY --from=discord /app/node_modules ./node_modules/
 
 ENV NODE_ENV production
 ENTRYPOINT ["node", "index.js"]
