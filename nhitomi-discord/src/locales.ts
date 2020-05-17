@@ -3,7 +3,7 @@ import { configure, __mf } from 'i18n'
 import { LanguageType } from 'nhitomi-api'
 
 configure({
-  directory: './locales',
+  directory: './Locales',
   defaultLocale: 'en-US',
   autoReload: true,
   objectNotation: true,
