@@ -28,5 +28,10 @@ namespace nhitomi
         /// If the image is already smaller then thumbnail size, true to scale it up.
         /// </summary>
         public bool AllowLarger { get; set; }
+
+        /// <summary>
+        /// Generate high quality thumbnails. Defaults to false for performance.
+        /// </summary>
+        public bool HighQuality { get; set; }
     }
 }

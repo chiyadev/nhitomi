@@ -144,7 +144,7 @@ namespace nhitomi
             var height = (int) Math.Ceiling(bitmap.Height * scale);
 
             // resize and encode
-            using var resized = bitmap.Resize(new SKImageInfo(width, height), SKFilterQuality.High);
+            using var resized = bitmap.Resize(new SKImageInfo(width, height), options.HighQuality ? SKFilterQuality.High : SKFilterQuality.Medium);
             using var image   = SKImage.FromBitmap(resized);
 
             return EncodeImage(image, options.Format, options.Quality);
