@@ -28,7 +28,7 @@ namespace nhitomi.Controllers
         /// Lifetime of the access token in user sessions before expiry.
         /// This can be long because access tokens can be invalidated on-demand.
         /// </summary>
-        public TimeSpan AccessTokenLifetime { get; set; } = TimeSpan.FromDays(90);
+        public TimeSpan AccessTokenLifetime { get; set; } = TimeSpan.FromDays(365 * 100); //TimeSpan.FromDays(90); practically never expiring
     }
 
     public interface IUserService
