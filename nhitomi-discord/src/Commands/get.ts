@@ -91,7 +91,7 @@ export async function handleGetLink(context: MessageContext, link: string | unde
 }> {
   if (link) {
     // try finding books
-    const { matches: [bookMatch] } = await context.api.book.getBooksByLink({ strict: true, getByLinkRequest: { link } })
+    const { matches: [bookMatch] } = await context.api.book.getBooksByLink({ strict: true, getBookByLinkRequest: { link } })
 
     if (bookMatch) {
       const { book, selectedContentId } = bookMatch
