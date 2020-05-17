@@ -61,7 +61,11 @@ Discord.on('message', wrapHandler('message', async message => {
   if (!func)
     return
 
+  let typing = true
   message.channel.startTyping()
+
+  // max typing time 3s
+  setTimeout(() => { message.channel.stopTyping(); typing = false }, 3000)
 
   try {
     const context = await MessageContext.create(message)
@@ -76,7 +80,8 @@ Discord.on('message', wrapHandler('message', async message => {
     }
   }
   finally {
-    message.channel.stopTyping()
+    if (typing)
+      message.channel.stopTyping()
   }
 }))
 
