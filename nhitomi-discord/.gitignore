@@ -1,4 +1,4 @@
-/locales
+# local config
 /src/config/local*
 
 # generated things

@@ -8,9 +8,10 @@
       "skipFiles": [
         "<node_internals>/**"
       ],
-      "preLaunchTask": "tsc: build - tsconfig.json",
+      "preLaunchTask": "preLaunchTask",
       "program": "${workspaceFolder}\\build\\index.js",
       "autoAttachChildProcesses": true,
+      "cwd": "${workspaceFolder}\\build",
       "env": {
         "NODE_ENV": "development"
       }

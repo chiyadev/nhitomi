@@ -1,0 +1,23 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "build",
+      "type": "typescript",
+      "tsconfig": "tsconfig.json",
+      "problemMatcher": [
+        "$tsc"
+      ],
+      "group": "build"
+    },
+    {
+      "label": "preLaunchTask",
+      "type": "npm",
+      "script": "prestart",
+      "group": "build",
+      "dependsOn": [
+        "build"
+      ]
+    }
+  ]
+}

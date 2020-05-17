@@ -28,8 +28,8 @@
     "nhitomi-api": "file:nhitomi-api"
   },
   "scripts": {
-    "postinstall": "node -e \"require('symlink-dir')('../locales', './locales')\"",
-    "start": "tsc && node build/index.js",
+    "prestart": "node prestart",
+    "start": "tsc && cd build && node index.js",
     "build": "tsc",
     "genclient": "node ../scripts/genclient typescript-fetch"
   },

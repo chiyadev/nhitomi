@@ -13,7 +13,7 @@ const modules: CommandModule[] = []
 export async function loadCommands(): Promise<void> {
   modules.length = 0
 
-  for (const x of await readdir('./build/Commands')) {
+  for (const x of await readdir('Commands')) {
     const xp = path.parse(x)
 
     if (xp.ext !== '.js')
