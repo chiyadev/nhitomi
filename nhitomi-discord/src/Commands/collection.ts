@@ -98,7 +98,7 @@ export const run: CommandFunc = async (context, arg) => {
   const link = match?.groups?.link?.trim() || ''
 
   let { items: collections } = await context.api.user.getUserCollections({ id: context.user.id })
-  collections = collections.filter(c => !collectionName || c.name?.toLowerCase().startsWith(collectionName.toLowerCase()))
+  collections = collections.filter(c => !collectionName || c.name.toLowerCase().startsWith(collectionName.toLowerCase()))
 
   let collection: Collection | undefined
 
@@ -123,7 +123,7 @@ ${collections.map((c, i) => {
       const index = parseInt(selected) - 1
 
       if (isNaN(index))
-        collection = collections.find(c => c.name?.toLowerCase().startsWith(selected.toLowerCase()))
+        collection = collections.find(c => c.name.toLowerCase().startsWith(selected.toLowerCase()))
       else
         collection = collections[Math.max(0, Math.min(collections.length - 1, index))]
 
