@@ -1,6 +1,7 @@
 import { BASE_PATH, InfoApi, BookApi, UserApi, CollectionApi, InternalApi, GetInfoAuthenticatedResponse, Configuration, ConfigurationParameters } from 'nhitomi-api'
 import config from 'config'
 import fetch from 'node-fetch'
+import { URL } from 'url'
 
 type ApiClientCore = {
   readonly config: ConfigurationParameters
@@ -87,20 +88,17 @@ class BotApiClient extends ApiClient {
 
   /** Formats a link to an API route using publicUrl. */
   getApiLink(path: string): string {
-    if (path.startsWith('/')) path = path.substring(1)
-
-    return this.getWebLink(`api/v1/${path}`)
+    return new URL(path, `${this.publicUrl}/api/v1/`).href
   }
 
   /** Formats a link to a frontend route using publicUrl. */
   getWebLink(path: string): string {
-    if (path.startsWith('/')) path = path.substring(1)
-    if (path.endsWith('/')) path = path.slice(0, -1)
+    const url = new URL(path, this.publicUrl)
 
-    if (!path)
-      return this.publicUrl
+    // automatically authenticate using discord
+    url.searchParams.set('auth', 'discord')
 
-    return `${this.publicUrl}/${path}`
+    return url.href
   }
 
   async initialize(): Promise<void> {

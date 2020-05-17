@@ -43,7 +43,7 @@ export class BookMessage extends InteractiveMessage {
       embed: {
         title: book.primaryName,
         description: book.englishName === book.primaryName ? undefined : book.englishName,
-        url: Api.getWebLink(`books/${book.id}/contents/${content.id}?auth=discord`),
+        url: Api.getWebLink(`books/${book.id}/contents/${content.id}`),
         image: {
           url: Api.getApiLink(`books/${book.id}/contents/${content.id}/pages/0/thumb`)
         },

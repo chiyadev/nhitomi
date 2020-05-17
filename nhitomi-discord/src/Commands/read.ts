@@ -30,7 +30,7 @@ export class BookReadMessage extends InteractiveMessage {
       embed: {
         title: book.primaryName,
         description: l.get('pagination', { current: this.position + 1, total: this.end + 1 }),
-        url: Api.getWebLink(`books/${book.id}/contents/${content.id}?auth=discord`),
+        url: Api.getWebLink(`books/${book.id}/contents/${content.id}`),
         image: {
           url: Api.getApiLink(`books/${book.id}/contents/${content.id}/pages/${this.position}`)
         },
