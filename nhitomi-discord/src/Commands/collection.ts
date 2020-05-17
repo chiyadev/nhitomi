@@ -15,13 +15,13 @@ export const run: CommandFunc = async (context, arg) => {
 
   let collection = collections[0]
 
-  const linkResult = await handleGetLink(context, link)
-
   switch (command) {
     case 'a':
     case 'r':
     case 'add':
     case 'remove': {
+      const linkResult = await handleGetLink(context, link)
+
       if (linkResult.type === 'notFound') {
         await replyNotFound(context, link)
         return true
@@ -95,21 +95,21 @@ export const run: CommandFunc = async (context, arg) => {
       break
     }
 
-    case 'delete': {
-      if (linkResult.type !== 'notFound')
-        break
-
+    case 'delete':
       if (collection) {
         const l = context.locale.section('collection.delete')
 
-        // todo: confirm deletion here
+        const confirm = await context.waitInput(l.get('confirm', { collection: collection.name }))
+
+        if (!'yes'.startsWith(confirm.trim().toLowerCase() || 'no'))
+          return true
 
         await context.api.collection.deleteCollection({ id: collection.id })
 
         await context.reply(l.get('success', { collection: collection.name }))
       }
+
       break
-    }
   }
 
   return true
