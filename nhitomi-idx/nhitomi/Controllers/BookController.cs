@@ -65,18 +65,18 @@ namespace nhitomi.Controllers
             return content.Convert(_services);
         }
 
-        public class GetByLinkRequest
+        public class GetBookByLinkRequest
         {
             [Required]
             public string Link { get; set; }
         }
 
-        public class GetByLinkResponse
+        public class GetBookByLinkResponse
         {
             [Required]
-            public GetByLinkMatch[] Matches { get; set; }
+            public GetBookByLinkMatch[] Matches { get; set; }
 
-            public class GetByLinkMatch
+            public class GetBookByLinkMatch
             {
                 [Required]
                 public Book Book { get; set; }
@@ -92,19 +92,37 @@ namespace nhitomi.Controllers
         /// <param name="request">Get by link request.</param>
         /// <param name="strict">True to use strict mode; otherwise, scan all matching links in text.</param>
         [HttpPost("search/link", Name = "getBooksByLink")]
-        public async Task<GetByLinkResponse> GetByLinkAsync(GetByLinkRequest request, [FromQuery] bool strict = true) => new GetByLinkResponse
+        public async Task<GetBookByLinkResponse> GetByLinkAsync(GetBookByLinkRequest request, [FromQuery] bool strict = true) => new GetBookByLinkResponse
         {
             Matches = await _books.GetByLinkAsync(request.Link, strict).Select(x =>
             {
                 var (book, content) = x;
 
-                return new GetByLinkResponse.GetByLinkMatch
+                return new GetBookByLinkResponse.GetBookByLinkMatch
                 {
                     Book              = book.Value.Convert(_services),
                     SelectedContentId = content.Id
                 };
             }).ToArrayAsync()
         };
+
+        public class GetBookManyRequest
+        {
+            [Required, Range(1, 50)]
+            public string[] Ids { get; set; }
+        }
+
+        /// <summary>
+        /// Retrieves many book information.
+        /// </summary>
+        /// <param name="request">Many request.</param>
+        [HttpPost("get", Name = "getBooks")]
+        public async Task<Book[]> GetManyAsync(GetBookManyRequest request)
+        {
+            var books = await _books.GetManyAsync(request.Ids);
+
+            return books.ToArray(b => b.Convert(_services));
+        }
 
         /// <summary>
         /// Updates book information.
