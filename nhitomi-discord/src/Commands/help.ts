@@ -40,7 +40,6 @@ class HelpMessage extends InteractiveMessage {
 - \`${prefix}from [source]\` — ${l.get('from')}
 - \`${prefix}search [query]\` — ${l.get('search')}
 - \`${prefix}read [link]\` — ${l.get('read')}
-- \`${prefix}download [link]\` — ${l.get('download')}
 `.trim()
         }, {
           name: l.get('sources.title'),
