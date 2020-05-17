@@ -1,4 +1,4 @@
-FROM node:lts-alpine
+FROM node:lts-alpine as discord
 WORKDIR /app
 
 COPY nhitomi-discord/package*.json ./
@@ -13,6 +13,10 @@ COPY nhitomi-discord ./
 RUN npm run build
 RUN npm run prestart
 
-WORKDIR /app/build
+FROM node:lts-alpine as app
+WORKDIR /app
+
+COPY --from=discord /app/build ./
+
 ENV NODE_ENV production
-ENTRYPOINT ["node", "index"]
+ENTRYPOINT ["node", "index.js"]
