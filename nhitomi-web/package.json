@@ -71,8 +71,8 @@
   },
   "eslintConfig": {
     "extends": [
-      "eslint:recommended",
       "react-app",
+      "eslint:recommended",
       "../eslint.json"
     ]
   }

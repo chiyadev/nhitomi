@@ -22,7 +22,8 @@
       "as-needed"
     ],
     "no-empty": "warn",
-    "no-unused-expressions": "warn",
+    "no-unused-expressions": "off",
+    "@typescript-eslint/no-unused-expressions": "warn",
     "no-console": "off",
     "prefer-const": [
       "warn",
