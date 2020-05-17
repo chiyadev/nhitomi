@@ -47,7 +47,7 @@ workflows:
           filters:
             branches:
               only: deploy
-      # - deploy-discord:
-      #     filters:
-      #       branches:
-      #         only: deploy
+      - deploy-discord:
+          filters:
+            branches:
+              only: deploy
