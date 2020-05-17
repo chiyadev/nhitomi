@@ -145,8 +145,8 @@ const Cover = ({ book: { id }, content: { id: contentId }, selected }: { book: B
       width={5}
       height={7}
       resize='fill'
-      loadingDisabled
       fluid
+      preloadScale={0}
       src={() => client.book.getBookThumbnail({ id, contentId })}
       style={{
         transition: 'left 0.1s, top 0.1s, width 0.1s, height 0.1s',
