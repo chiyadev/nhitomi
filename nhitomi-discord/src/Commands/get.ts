@@ -38,7 +38,7 @@ export class BookMessage extends InteractiveMessage {
           if (urls[i] === content.sourceUrl)
             urls[i] = `**${urls[i]}**`
 
-        return `${source} (${language.toString().split('-')[0]}): ${urls.join(' ')}`
+        return `${source} (${language.split('-')[0]}): ${urls.join(' ')}`
       }).sort().join('\n'),
       embed: {
         title: book.primaryName,
@@ -53,7 +53,7 @@ export class BookMessage extends InteractiveMessage {
           iconURL: Api.getWebLink(`assets/icons/${content.source}.jpg`)
         },
         footer: {
-          text: `${book.id}/${content.id} (${l.section('categories').get(book.category.toString())}, ${l.get('pageCount', { count: content.pageCount })})`
+          text: `${book.id}/${content.id} (${l.section('categories').get(book.category)}, ${l.get('pageCount', { count: content.pageCount })})`
         },
         fields: Object.values(BookTag).filter(t => book.tags[t]?.length).map(t => ({
           name: l.section('tags').get(t),

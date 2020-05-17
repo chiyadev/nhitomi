@@ -16,7 +16,7 @@ ${Api.currentInfo.scrapers.filter(s => s.enabled).map(s => `> - ${s.name} — <$
 }
 
 export const run: CommandFunc = async (context, source) => {
-  const scraper = Api.currentInfo.scrapers.filter(s => s.enabled).find(s => source && s.type.toString().toLowerCase().startsWith(source.toLowerCase()))
+  const scraper = Api.currentInfo.scrapers.filter(s => s.enabled).find(s => source && s.type.toLowerCase().startsWith(source.toLowerCase()))
 
   switch (scraper?.category) {
     case ScraperCategory.Book: {
