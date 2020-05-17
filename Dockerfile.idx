@@ -23,17 +23,16 @@ FROM node:lts-alpine AS web
 WORKDIR /app
 
 COPY nhitomi-web/package*.json ./
+COPY scripts ../scripts/
 RUN npm install
 
 COPY --from=idx /app/apispec.json ./
-COPY scripts ../scripts/
 
 # java 8 required by openapi-generator
 RUN apk add --no-cache openjdk8-jre
 RUN npm run genclient apispec.json
 
 COPY nhitomi-web ./
-COPY locales ../locales/
 RUN npm run build
 
 # build final image

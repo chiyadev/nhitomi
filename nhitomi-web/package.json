@@ -45,7 +45,6 @@
     "react-use": "^14.2.0",
     "react-visibility-sensor": "^5.1.1",
     "strict-event-emitter-types": "^2.0.0",
-    "symlink-dir": "^4.0.1",
     "ts-custom-error": "^3.1.1",
     "typescript": "^3.7.5",
     "workerize-loader": "^1.1.0"
@@ -54,7 +53,6 @@
     "nhitomi-api": "file:nhitomi-api"
   },
   "scripts": {
-    "prestart": "node prestart",
     "start": "react-app-rewired start",
     "build": "react-app-rewired build",
     "genclient": "node ../scripts/genclient typescript-fetch"
