@@ -1,3 +1,4 @@
+import './logging'
 import { Client } from 'discord.js'
 import config from 'config'
 import { loadCommands, matchCommand } from './Commands'
