@@ -76,7 +76,7 @@ Discord.on('message', wrapHandler('message', async message => {
     }
   }
   finally {
-    message.channel.stopTyping(true)
+    message.channel.stopTyping()
   }
 }))
 
