@@ -82,6 +82,9 @@
   },
   "collection": {
     "notFound": "Could not find collection `{input}`.",
+    "select": {
+      "message": "There are multiple collections with similar names. Select collection:"
+    },
     "add": {
       "exists": "`{item}` already exists in collection `{collection}`.",
       "success": "Added `{item}` to collection `{collection}`."

@@ -1,6 +1,6 @@
 import { CommandFunc } from '.'
 import { handleGetLink, replyNotFound } from './get'
-import { ObjectType, CollectionInsertPosition } from 'nhitomi-api'
+import { ObjectType, CollectionInsertPosition, Collection } from 'nhitomi-api'
 
 const regex = /(?<collection>.+)\s+(?<command>a(dd)?|r(emove)?|delete)(\s+(?<link>.+))?/ms
 
@@ -11,9 +11,37 @@ export const run: CommandFunc = async (context, arg) => {
   const link = match?.groups?.link?.trim() || ''
 
   let { items: collections } = await context.api.user.getUserCollections({ id: context.user.id })
-  collections = collections.filter(c => c.name?.toLowerCase() === collectionName.toLowerCase())
+  collections = collections.filter(c => c.name?.toLowerCase().startsWith(collectionName.toLowerCase()))
 
-  let collection = collections[0]
+  let collection: Collection | undefined = collections[0]
+
+  // ambiguous collection match
+  if (collectionName && collections.length > 1) {
+    const l = context.locale.section('collection.select')
+
+    const selected = await context.waitInput(`
+${l.get('message')}
+
+${collections.map((c, i) => {
+      let name = `${i + 1}. \`${c.name}\``
+
+      if (collections.some(c2 => c !== c2 && c.name === c2.name))
+        name = `${name} (${c.id} ${c.type})`
+
+      return name
+    }).join('\n')}
+`.trim())
+
+    const index = parseInt(selected) - 1
+
+    if (isNaN(index))
+      collection = collections.find(c => c.name?.toLowerCase().startsWith(selected.toLowerCase()))
+    else
+      collection = collections[Math.max(0, Math.min(collections.length - 1, index))]
+
+    if (!collection)
+      return true
+  }
 
   switch (command) {
     case 'a':
