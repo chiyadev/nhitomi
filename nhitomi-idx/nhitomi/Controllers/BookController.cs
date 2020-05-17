@@ -108,7 +108,7 @@ namespace nhitomi.Controllers
 
         public class GetBookManyRequest
         {
-            [Required, Range(1, 50)]
+            [Required, MaxLength(50)]
             public string[] Ids { get; set; }
         }
 
