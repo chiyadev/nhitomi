@@ -39,7 +39,7 @@
   },
   "get": {
     "book": {
-      "pageCount": "{count, plural, =0 {no pages} one {1 page} other {# pages}}",
+      "pageCount": "{count, plural, =0 {no pages} =1 {1 page} other {# pages}}",
       "tags": {
         "artist": "Artist",
         "parody": "Parody",
@@ -97,6 +97,9 @@
     "delete": {
       "confirm": "Are you sure to permanently delete the collection `{collection}`? (yes/no)",
       "success": "Collection `{collection}` has been deleted."
+    },
+    "list": {
+      "itemCount": "{count, plural, =0 {no items} =1 {1 item} other {# items}}"
     }
   }
 }

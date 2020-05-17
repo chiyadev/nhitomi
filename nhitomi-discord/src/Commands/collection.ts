@@ -1,51 +1,129 @@
 import { CommandFunc } from '.'
 import { handleGetLink, replyNotFound } from './get'
-import { ObjectType, CollectionInsertPosition, Collection } from 'nhitomi-api'
+import { ObjectType, CollectionInsertPosition, Collection, Book } from 'nhitomi-api'
+import { BookListMessage } from './search'
+import { AsyncArray } from '../asyncArray'
+import config from 'config'
+import { InteractiveMessage, RenderResult, ReactionTrigger } from '../interactive'
+import { Locale } from '../locales'
+import { Api } from '../api'
+import { ListTrigger } from '../Triggers/list'
+import { DestroyTrigger } from '../Triggers/destroy'
 
-const regex = /(?<collection>.+)\s+(?<command>a(dd)?|r(emove)?|delete)(\s+(?<link>.+))?/ms
+export class CollectionListMessage extends InteractiveMessage {
+  constructor(readonly collections: Collection[]) { super() }
+
+  position = 0
+  collection?: Collection
+
+  protected async render(l: Locale): Promise<RenderResult> {
+    if (!(this.collection = this.collections[this.position = Math.max(0, Math.min(this.collections.length - 1, this.position))])) {
+      l = l.section('list.empty')
+
+      return {
+        embed: {
+          title: l.get('title'),
+          description: l.get('message'),
+          color: 'AQUA'
+        }
+      }
+    }
+
+    return CollectionListMessage.renderStatic(l, this.collection)
+  }
+
+  static renderStatic(l: Locale, collection: Collection): RenderResult {
+    l = l.section('collection.list')
+
+    return {
+      embed: {
+        title: collection.name || '<unnamed>',
+        description: collection.description || '<no description>',
+        url: Api.getWebLink(`collections/${collection.id}`),
+        color: 'AQUA',
+        footer: {
+          text: `${collection.id} (${collection.type}, ${l.get('itemCount', { count: collection.items.length })})`
+        }
+      }
+    }
+  }
+
+  protected createTriggers(): ReactionTrigger[] {
+    if (!this.collection) return []
+
+    return [
+      ...super.createTriggers(),
+
+      new ListTrigger(this, 'left'),
+      new ListTrigger(this, 'right'),
+      new DestroyTrigger()
+    ]
+  }
+}
+
+export class BookCollectionContentMessage extends BookListMessage {
+  constructor(collection: Collection) {
+    super(new AsyncArray<Book>(config.get('search.chunkSize'), async (offset, limit) => {
+      const ids = collection.items.slice(offset, offset + limit)
+
+      if (!ids.length)
+        return []
+
+      const results = await this.context?.api.book.getBooks({ getBookManyRequest: { ids } })
+
+      // collections can contain ids of deleted items
+      return results?.filter(b => b) || []
+    }))
+  }
+}
+
+const commandRegex = /(?<collection>.+)\s+(?<command>add|remove|delete)(\s+(?<link>.+))?/ms
 
 export const run: CommandFunc = async (context, arg) => {
-  const match = regex.exec(arg || '')
+  const match = commandRegex.exec(arg || '')
   const command = match?.groups?.command?.trim().toLowerCase() || ''
-  const collectionName = match?.groups?.collection?.trim() || ''
+  const collectionName = match?.groups?.collection?.trim() || arg || ''
   const link = match?.groups?.link?.trim() || ''
 
   let { items: collections } = await context.api.user.getUserCollections({ id: context.user.id })
   collections = collections.filter(c => c.name?.toLowerCase().startsWith(collectionName.toLowerCase()))
 
-  let collection: Collection | undefined = collections[0]
+  let collection: Collection | undefined
 
-  // ambiguous collection match
-  if (collectionName && collections.length > 1) {
-    const l = context.locale.section('collection.select')
+  if (collectionName) {
+    // ambiguous collection match
+    if (collections.length > 1) {
+      const l = context.locale.section('collection.select')
 
-    const selected = await context.waitInput(`
+      const selected = await context.waitInput(`
 ${l.get('message')}
 
 ${collections.map((c, i) => {
-      let name = `${i + 1}. \`${c.name}\``
+        let name = `${i + 1}. \`${c.name}\``
 
-      if (collections.some(c2 => c !== c2 && c.name === c2.name))
-        name = `${name} (${c.id} ${c.type})`
+        if (collections.some(c2 => c !== c2 && c.name === c2.name))
+          name = `${name} (${c.id} ${c.type})`
 
-      return name
-    }).join('\n')}
+        return name
+      }).join('\n')}
 `.trim())
 
-    const index = parseInt(selected) - 1
+      const index = parseInt(selected) - 1
 
-    if (isNaN(index))
-      collection = collections.find(c => c.name?.toLowerCase().startsWith(selected.toLowerCase()))
-    else
-      collection = collections[Math.max(0, Math.min(collections.length - 1, index))]
+      if (isNaN(index))
+        collection = collections.find(c => c.name?.toLowerCase().startsWith(selected.toLowerCase()))
+      else
+        collection = collections[Math.max(0, Math.min(collections.length - 1, index))]
 
-    if (!collection)
-      return true
+      if (!collection)
+        return true
+    }
+    else {
+      collection = collections[0]
+    }
   }
 
   switch (command) {
-    case 'a':
-    case 'r':
     case 'add':
     case 'remove': {
       const linkResult = await handleGetLink(context, link)
@@ -76,7 +154,6 @@ ${collections.map((c, i) => {
       }
 
       switch (command) {
-        case 'a':
         case 'add': {
           const l = context.locale.section('collection.add')
 
@@ -104,10 +181,9 @@ ${collections.map((c, i) => {
             }
           }
 
-          return true
+          break
         }
 
-        case 'r':
         case 'remove': {
           const l = context.locale.section('collection.remove')
 
@@ -125,11 +201,11 @@ ${collections.map((c, i) => {
             await context.reply(l.get('success', { item: itemName, collection: collection.name }))
           }
 
-          return true
+          break
         }
       }
 
-      break
+      return true
     }
 
     case 'delete':
@@ -146,8 +222,13 @@ ${collections.map((c, i) => {
         await context.reply(l.get('success', { collection: collection.name }))
       }
 
-      break
+      return true
   }
 
-  return true
+  switch (collection?.type) {
+    case ObjectType.Book:
+      return await new BookCollectionContentMessage(collection).initialize(context)
+  }
+
+  return await new CollectionListMessage(collections).initialize(context)
 }
