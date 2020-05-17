@@ -1,10 +1,11 @@
 import { Client } from 'discord.js'
 import config from 'config'
-import { CommandModule, loadCommands, matchCommand } from './Commands'
+import { loadCommands, matchCommand } from './Commands'
 import { shouldHandleMessage, shouldHandleReaction } from './filter'
 import { handleInteractiveMessage, handleInteractiveReaction, handleInteractiveMessageDeleted } from './interactive'
 import { MessageContext } from './context'
 import { Api } from './api'
+import { beginPresenceRotation } from './status'
 
 export const Discord = new Client({
   fetchAllMembers: false,
@@ -97,7 +98,9 @@ Discord.on('messageReactionAdd', wrapHandler('messageReactionAdd', async (reacti
 Discord.on('messageReactionRemove', wrapHandler('messageReactionRemove', async (reaction, user) => {
   if (await shouldHandleReaction(reaction))
     await handleInteractiveReaction(reaction, user)
-}));
+}))
+
+beginPresenceRotation();
 
 (async (): Promise<void> => {
   let die = false

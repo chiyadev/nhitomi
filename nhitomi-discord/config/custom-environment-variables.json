@@ -13,5 +13,10 @@
     "baseUrl": "Api:BaseUrl",
     "token": "Api:Token",
     "cachedTokenExpiry": "Api:CachedTokenExpiry"
+  },
+  "status": {
+    "adjectives": "Status:Adjectives",
+    "nouns": "Status:Nouns",
+    "interval": "Status:Interval"
   }
 }
