@@ -1,7 +1,7 @@
 import { ShardingManager } from 'discord.js'
 import config from 'config'
 
-const shards = new ShardingManager('./build/shard.js', {
+const shards = new ShardingManager('shard.js', {
   token: config.get('token'),
   respawn: true
 })
