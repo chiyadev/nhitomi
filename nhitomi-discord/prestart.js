@@ -2,4 +2,4 @@
 const symlink = require('symlink-dir')
 
 symlink('../locales', 'build/locales')
-symlink('src/config', 'build/config')
+symlink('config', 'build/config')
