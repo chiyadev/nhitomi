@@ -70,9 +70,7 @@
     }
   },
   "read": {
-    "book": {
-      "pagination": "Page {current} of {total}"
-    }
+    "pagination": "Page {current} of {total}"
   },
   "list": {
     "empty": {
