@@ -54,7 +54,7 @@
     "nhitomi-api": "file:nhitomi-api"
   },
   "scripts": {
-    "postinstall": "node -e \"require('symlink-dir')('../locales', './src/Locales')\"",
+    "prestart": "node prestart",
     "start": "react-app-rewired start",
     "build": "react-app-rewired build",
     "genclient": "node ../scripts/genclient typescript-fetch"
