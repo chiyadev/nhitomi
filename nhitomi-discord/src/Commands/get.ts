@@ -112,7 +112,8 @@ export function replyNotFound(context: MessageContext, input: string): Promise<M
 ${input && l.get('message', { input })}
 
 > - ${l.get('usageLink', { example: 'https://nhentai.net/g/123/' })}
-> - ${l.get('usageSource', { example: 'hitomi 123' })}`)
+> - ${l.get('usageSource', { example: 'hitomi 123' })}
+`.trim())
 }
 
 export const run: CommandFunc = async (context, link) => {
