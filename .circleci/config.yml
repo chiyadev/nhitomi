@@ -4,7 +4,8 @@ executors:
   default:
     machine: true
     environment:
-      DOCKER_IMAGE_NAME: phosphene47/nhitomi:latest
+      DOCKER_IMAGE_IDX: phosphene47/nhitomi:latest
+      DOCKER_IMAGE_DISCORD: phosphene47/nhitomi-discord:latest
 
 jobs:
   test-idx:
@@ -19,29 +20,34 @@ jobs:
 
       - run: docker kill $(docker ps -q)
 
-  # test-web:
-  #   docker:
-  #     image: alpine:latest
-  #   steps:
-
-  deploy:
+  deploy-idx:
     executor: default
     steps:
       - checkout
-      - run: docker build -t $DOCKER_IMAGE_NAME -f Dockerfile.idx .
+      - run: docker build -t $DOCKER_IMAGE_IDX -f Dockerfile.idx .
       - run: echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-      - run: docker push $DOCKER_IMAGE_NAME
+      - run: docker push $DOCKER_IMAGE_IDX
+
+  deploy-discord:
+    executor: default
+    steps:
+      - checkout
+      - run: docker build -t $DOCKER_IMAGE_DISCORD -f Dockerfile.discord .
+      - run: echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+      - run: docker push $DOCKER_IMAGE_DISCORD
 
 workflows:
   version: 2
   default:
     jobs:
       - test-idx
-      # - test-web
-      - deploy:
+      - deploy-idx:
           requires:
             - test-idx
-            # - test-web
+          filters:
+            branches:
+              only: deploy
+      - deploy-discord:
           filters:
             branches:
               only: deploy
