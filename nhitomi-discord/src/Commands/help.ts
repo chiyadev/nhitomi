@@ -36,10 +36,10 @@ class HelpMessage extends InteractiveMessage {
         embed.fields = [{
           name: l.get('title'),
           value: `
-- \`${prefix}get [link]\` — ${l.get('get')}
-- \`${prefix}from [source]\` — ${l.get('from')}
-- \`${prefix}search [query]\` — ${l.get('search')}
-- \`${prefix}read [link]\` — ${l.get('read')}
+- \`${prefix}get\` — ${l.get('get')}
+- \`${prefix}from\` — ${l.get('from')}
+- \`${prefix}search\` — ${l.get('search')}
+- \`${prefix}read\` — ${l.get('read')}
 `.trim()
         }, {
           name: l.get('sources.title'),
@@ -52,10 +52,10 @@ class HelpMessage extends InteractiveMessage {
           name: l.get('title'),
           value: `
 - \`${prefix}collection\` — ${l.get('list')}
-- \`${prefix}collection [name]\` — ${l.get('show')}
-- \`${prefix}collection [name] add [link]\` — ${l.get('add')}
-- \`${prefix}collection [name] remove [link]\` — ${l.get('remove')}
-- \`${prefix}collection [name] delete [link]\` — ${l.get('delete')}
+- \`${prefix}collection {name}\` — ${l.get('show')}
+- \`${prefix}collection {name} add\` — ${l.get('add')}
+- \`${prefix}collection {name} remove\` — ${l.get('remove')}
+- \`${prefix}collection {name} delete\` — ${l.get('delete')}
 `.trim()
         }]
         break
