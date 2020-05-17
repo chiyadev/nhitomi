@@ -62,7 +62,7 @@ export class CollectionListMessage extends InteractiveMessage {
 }
 
 export class BookCollectionContentMessage extends BookListMessage {
-  constructor(collection: Collection) {
+  constructor(readonly collection: Collection) {
     super(new AsyncArray<Book>(config.get('search.chunkSize'), async (offset, limit) => {
       const ids = collection.items.slice(offset, offset + limit)
 
@@ -75,6 +75,18 @@ export class BookCollectionContentMessage extends BookListMessage {
       return results?.filter(b => b) || []
     }))
   }
+
+  protected processRenderResult(result: RenderResult): RenderResult {
+    result = super.processRenderResult(result)
+
+    result.message = `
+> __${this.collection.name}__ — ${Api.getWebLink(`collections/${this.collection.id}`)}
+
+${result.message}
+`.trim()
+
+    return result
+  }
 }
 
 const commandRegex = /(?<collection>.+)\s+(?<command>add|remove|delete)(\s+(?<link>.+))?/ms
@@ -86,7 +98,7 @@ export const run: CommandFunc = async (context, arg) => {
   const link = match?.groups?.link?.trim() || ''
 
   let { items: collections } = await context.api.user.getUserCollections({ id: context.user.id })
-  collections = collections.filter(c => c.name?.toLowerCase().startsWith(collectionName.toLowerCase()))
+  collections = collections.filter(c => !collectionName || c.name?.toLowerCase().startsWith(collectionName.toLowerCase()))
 
   let collection: Collection | undefined
 

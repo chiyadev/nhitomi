@@ -35,7 +35,7 @@ export class BookListMessage extends InteractiveMessage {
 
     this.content = this.book.contents.filter(c => c.language === this.context?.user.language)[0] || this.book.contents[0]
 
-    return BookMessage.renderStatic(l, this.book, this.content)
+    return this.processRenderResult(BookMessage.renderStatic(l, this.book, this.content))
   }
 
   get favoriteObject(): FavoriteTriggerTarget['favoriteObject'] {
@@ -58,6 +58,8 @@ export class BookListMessage extends InteractiveMessage {
       new DestroyTrigger()
     ]
   }
+
+  protected processRenderResult(result: RenderResult): RenderResult { return result }
 }
 
 export class BookSearchMessage extends BookListMessage {
