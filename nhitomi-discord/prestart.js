@@ -1,5 +1,8 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
-const symlink = require('symlink-dir')
+const fs = require('fs-extra')
 
-symlink('config', 'build/config')
-symlink('src/Locales', 'build/Locales')
+fs.emptyDirSync('build/config')
+fs.copySync('config', 'build/config')
+
+fs.emptyDirSync('build/Locales')
+fs.copySync('src/Locales', 'build/Locales')
