@@ -84,15 +84,24 @@ ${collections.map((c, i) => {
             await context.reply(l.get('exists', { item: itemName, collection: collection.name }))
 
           else {
-            await context.api.collection.addCollectionItems({
-              id: collection.id,
-              addCollectionItemsRequest: {
-                items: [itemId],
-                position: CollectionInsertPosition.Start
-              }
-            })
+            // ensure item type is the same as collection type
+            if (collection.type !== linkResult.type) {
+              const l = context.locale.section('collection.add.typeIncompatible')
 
-            await context.reply(l.get('success', { item: itemName, collection: collection.name }))
+              await context.reply(l.get('typeIncompatible', { item: itemName, itemType: linkResult.type, collection: collection.name, collectionType: collection.type }))
+            }
+
+            else {
+              await context.api.collection.addCollectionItems({
+                id: collection.id,
+                addCollectionItemsRequest: {
+                  items: [itemId],
+                  position: CollectionInsertPosition.Start
+                }
+              })
+
+              await context.reply(l.get('success', { item: itemName, collection: collection.name }))
+            }
           }
 
           return true

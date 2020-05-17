@@ -87,7 +87,8 @@
     },
     "add": {
       "exists": "`{item}` already exists in collection `{collection}`.",
-      "success": "Added `{item}` to collection `{collection}`."
+      "success": "Added `{item}` to collection `{collection}`.",
+      "typeIncompatible": "`{item}` ({itemType}) cannot be added to collection `{collection}` ({collectionType})."
     },
     "remove": {
       "notExists": "`{item}` does not exist in collection `{collection}`.",
