@@ -4,8 +4,9 @@ executors:
   default:
     machine: true
     environment:
-      DOCKER_IMAGE_IDX: phosphene47/nhitomi:latest
-      DOCKER_IMAGE_DISCORD: phosphene47/nhitomi-discord:latest
+      DOCKER_REGISTRY: registry.digitalocean.com/chiyadev
+      DOCKER_IMAGE_IDX: $DOCKER_REGISTRY/nhitomi:latest
+      DOCKER_IMAGE_DISCORD: $DOCKER_REGISTRY/nhitomi-discord:latest
 
 jobs:
   test-idx:
@@ -25,7 +26,7 @@ jobs:
     steps:
       - checkout
       - run: docker build -t $DOCKER_IMAGE_IDX -f Dockerfile.idx .
-      - run: echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+      - run: echo "$DOCKER_PASSWORD" | docker login $DOCKER_REGISTRY -u "$DOCKER_USERNAME" --password-stdin
       - run: docker push $DOCKER_IMAGE_IDX
 
   deploy-discord:
@@ -33,7 +34,7 @@ jobs:
     steps:
       - checkout
       - run: docker build -t $DOCKER_IMAGE_DISCORD -f Dockerfile.discord .
-      - run: echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+      - run: echo "$DOCKER_PASSWORD" | docker login $DOCKER_REGISTRY -u "$DOCKER_USERNAME" --password-stdin
       - run: docker push $DOCKER_IMAGE_DISCORD
 
 workflows:
