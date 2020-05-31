@@ -28,6 +28,7 @@
         <PackageReference Include="DeepCloner" Version="0.10.2" />
         <PackageReference Include="Fastenshtein" Version="1.0.0.5" />
         <PackageReference Include="FastExpressionCompiler" Version="2.0.0" />
+        <PackageReference Include="http2dotnet" Version="0.8.0" />
         <PackageReference Include="MessagePack" Version="2.1.115" />
         <PackageReference Include="NEST" Version="7.6.2" />
         <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
