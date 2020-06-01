@@ -112,7 +112,7 @@ namespace nhitomi
                 new HeaderField
                 {
                     Name  = ":path",
-                    Value = request.RequestUri.AbsolutePath
+                    Value = request.RequestUri.PathAndQuery
                 },
                 new HeaderField
                 {
@@ -199,10 +199,12 @@ namespace nhitomi
                     try
                     {
                         var responseStream = new Http2ResponseStream(stream, response);
+                        response.Content = new StreamContent(responseStream);
 
                         foreach (var header in await stream.ReadHeadersAsync())
                         {
                             response.Headers.TryAddWithoutValidation(header.Name, header.Value);
+                            response.Content.Headers.TryAddWithoutValidation(header.Name, header.Value);
 
                             switch (header.Name)
                             {
@@ -216,7 +218,6 @@ namespace nhitomi
                             }
                         }
 
-                        response.Content = new StreamContent(responseStream);
                         return response;
                     }
                     catch
@@ -314,6 +315,8 @@ namespace nhitomi
                     {
                         var result = await _stream.ReadAsync(new ArraySegment<byte>(bufferSrc, 0, _bodyBufferSize));
 
+                        await destination.WriteAsync(new Memory<byte>(bufferSrc, 0, result.BytesRead), cancellationToken);
+
                         if (result.EndOfStream)
                         {
                             foreach (var trailer in await _stream.ReadTrailersAsync())
@@ -321,8 +324,6 @@ namespace nhitomi
 
                             break;
                         }
-
-                        await destination.WriteAsync(new Memory<byte>(bufferSrc, 0, result.BytesRead), cancellationToken);
                     }
                 }
                 finally
