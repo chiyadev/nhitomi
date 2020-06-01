@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Http;
 using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json.Converters;
@@ -233,10 +234,12 @@ namespace nhitomi
 
             services.AddInjectableHostedService<IScraper, nhentaiScraper>();
 
+            services.Configure<ProxyOptions>(_configuration.GetSection("Proxy"))
+                    .AddHttpClient()
+                    .AddTransient<HttpMessageHandlerBuilder, ChiyaProxyHttp2HandlerBuilder>();
+
             // other
-            services.AddHttpClient()
-                    .AddHttpContextAccessor()
-                    .AddSingleton<StartupInitializer>()
+            services.AddSingleton<StartupInitializer>()
                     .AddSingleton<ILinkGenerator, LinkGenerator>()
                     .AddSingleton<IImageProcessor, SkiaImageProcessor>();
 
