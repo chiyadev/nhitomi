@@ -175,7 +175,10 @@ namespace nhitomi
                                 var read = await requestBody.ReadAsync(new Memory<byte>(buffer, 0, _bodyBufferSize), cancellationToken);
 
                                 if (read == 0)
+                                {
+                                    await stream.CloseAsync();
                                     break;
+                                }
 
                                 await stream.WriteAsync(new ArraySegment<byte>(buffer, 0, read));
                             }
@@ -186,8 +189,6 @@ namespace nhitomi
 
                             await requestBody.DisposeAsync();
                         }
-
-                        await stream.CloseAsync();
                     }
 
                     var response = new HttpResponseMessage
