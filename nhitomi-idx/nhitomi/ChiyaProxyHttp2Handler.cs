@@ -39,7 +39,7 @@ namespace nhitomi
         {
             var connection = _connection;
 
-            if (connection != null)
+            if (connection?.IsExhausted == false)
                 return connection;
 
             await _initLock.WaitAsync(cancellationToken);
@@ -47,7 +47,7 @@ namespace nhitomi
             {
                 connection = _connection;
 
-                if (connection != null)
+                if (connection?.IsExhausted == false)
                     return connection;
 
                 var client = new TcpClient();
