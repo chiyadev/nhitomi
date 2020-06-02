@@ -71,7 +71,7 @@ namespace nhitomi.Storage
             if (options.AccessKey == null || options.SecretKey == null)
                 throw new ArgumentException("AWS S3 access key and secret key must be configured.");
 
-            if (options.Region == null || options.ServiceUrl == null)
+            if (options.Region == null && options.ServiceUrl == null)
                 throw new ArgumentException("AWS S3 region must be configured.");
 
             _client = new AmazonS3Client(new BasicAWSCredentials(options.AccessKey, options.SecretKey), new AmazonS3Config
@@ -81,7 +81,7 @@ namespace nhitomi.Storage
                 HttpClientFactory     = new S3AspNetHttpClientFactoryWrapper(http, nameof(S3Storage)),
                 MaxErrorRetry         = options.MaxErrorRetry,
                 UseAccelerateEndpoint = options.UseAccelerateEndpoint,
-                RegionEndpoint        = RegionEndpoint.GetBySystemName(options.Region)
+                RegionEndpoint        = options.Region == null ? null : RegionEndpoint.GetBySystemName(options.Region)
             }.Chain(c =>
             {
                 if (options.ServiceUrl != null)
