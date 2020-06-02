@@ -80,6 +80,7 @@ namespace nhitomi.Storage
                 HttpClientFactory     = new S3AspNetHttpClientFactoryWrapper(http, nameof(S3Storage)),
                 MaxErrorRetry         = options.MaxErrorRetry,
                 UseAccelerateEndpoint = options.UseAccelerateEndpoint,
+                AuthenticationRegion  = options.Region,
                 RegionEndpoint        = options.Region == null ? null : RegionEndpoint.GetBySystemName(options.Region)
             }.Chain(c =>
             {
