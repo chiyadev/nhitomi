@@ -76,7 +76,6 @@ namespace nhitomi.Storage
 
             _client = new AmazonS3Client(new BasicAWSCredentials(options.AccessKey, options.SecretKey), new AmazonS3Config
             {
-                BufferSize            = 1684,
                 RetryMode             = RequestRetryMode.Standard,
                 HttpClientFactory     = new S3AspNetHttpClientFactoryWrapper(http, nameof(S3Storage)),
                 MaxErrorRetry         = options.MaxErrorRetry,
