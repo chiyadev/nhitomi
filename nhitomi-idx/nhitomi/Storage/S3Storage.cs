@@ -81,7 +81,8 @@ namespace nhitomi.Storage
                 MaxErrorRetry         = options.MaxErrorRetry,
                 UseAccelerateEndpoint = options.UseAccelerateEndpoint,
                 AuthenticationRegion  = options.Region,
-                RegionEndpoint        = options.Region == null ? null : RegionEndpoint.GetBySystemName(options.Region)
+                RegionEndpoint        = options.Region == null ? null : RegionEndpoint.GetBySystemName(options.Region),
+                ForcePathStyle        = true
             }.Chain(c =>
             {
                 if (options.ServiceUrl != null)
