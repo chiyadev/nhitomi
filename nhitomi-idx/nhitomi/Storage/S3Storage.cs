@@ -81,7 +81,7 @@ namespace nhitomi.Storage
                 MaxErrorRetry         = options.MaxErrorRetry,
                 UseAccelerateEndpoint = options.UseAccelerateEndpoint,
                 AuthenticationRegion  = options.Region,
-                RegionEndpoint        = options.Region == null ? null : RegionEndpoint.GetBySystemName(options.Region)
+                RegionEndpoint        = options.Region == null ? RegionEndpoint.GetBySystemName(options.Region) : null
             }.Chain(c =>
             {
                 if (options.ServiceUrl != null)
@@ -125,10 +125,12 @@ namespace nhitomi.Storage
             {
                 var request = new PutObjectRequest
                 {
-                    BucketName  = _options.BucketName,
-                    Key         = file.Name,
-                    ContentType = file.MediaType,
-                    InputStream = file.Stream
+                    BucketName       = _options.BucketName,
+                    Key              = file.Name,
+                    ContentType      = file.MediaType,
+                    InputStream      = file.Stream,
+                    UseChunkEncoding = false,
+                    AutoCloseStream  = false
                 };
 
                 await _client.PutObjectAsync(request, cancellationToken);
