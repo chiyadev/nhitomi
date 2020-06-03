@@ -20,7 +20,6 @@ namespace nhitomi
             if (!HandleArgs(host, args))
             {
                 await host.Services.GetService<StartupInitializer>().RunAsync();
-
                 await host.RunAsync();
             }
         }

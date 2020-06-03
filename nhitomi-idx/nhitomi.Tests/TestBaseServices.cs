@@ -28,7 +28,10 @@ namespace nhitomi
             _serviceScope = SetUpServices().CreateScope();
 
             // startup initializer
-            await Services.GetService<StartupInitializer>().RunAsync();
+            var init = Services.GetService<StartupInitializer>();
+            init.SanityChecks = false;
+
+            await init.RunAsync();
         }
 
         [TearDown]

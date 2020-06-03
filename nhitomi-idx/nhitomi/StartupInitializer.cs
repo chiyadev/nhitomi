@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using ChiyaFlake;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using nhitomi.Controllers;
 using nhitomi.Database;
@@ -21,8 +23,9 @@ namespace nhitomi
         readonly IElasticClient _elastic;
         readonly IStorage _storage;
         readonly IReloadableConfigurationProvider[] _configProviders;
+        readonly ILogger<StartupInitializer> _logger;
 
-        public StartupInitializer(IOptionsMonitor<UserServiceOptions> options, IServiceProvider services, IRedisClient redis, IElasticClient elastic, IStorage storage, IConfigurationRoot config)
+        public StartupInitializer(IOptionsMonitor<UserServiceOptions> options, IServiceProvider services, IRedisClient redis, IElasticClient elastic, IStorage storage, IConfigurationRoot config, ILogger<StartupInitializer> logger)
         {
             _options         = options;
             _services        = services;
@@ -30,50 +33,119 @@ namespace nhitomi
             _elastic         = elastic;
             _storage         = storage;
             _configProviders = config.Providers.OfType<IReloadableConfigurationProvider>().ToArray();
+            _logger          = logger;
         }
 
         public async Task RunAsync(CancellationToken cancellationToken = default)
         {
-            // initialize redis and elasticsearch
-            await _redis.InitializeAsync(cancellationToken);
-            await _elastic.InitializeAsync(cancellationToken);
+            await InitRedisAsync(cancellationToken);
+            await InitElasticAsync(cancellationToken);
 
             // load dynamic configurations
             await Task.WhenAll(_configProviders.Select(p => p.LoadAsync(_services, cancellationToken)));
 
-            // initialize storage
+            await InitStorageAsync(cancellationToken);
+            await ConfigureUsersAsync(cancellationToken);
+        }
+
+        public bool SanityChecks { get; set; } = true;
+
+        async Task InitRedisAsync(CancellationToken cancellationToken = default)
+        {
+            await _redis.InitializeAsync(cancellationToken);
+
+            if (!SanityChecks)
+                return;
+
+            var key  = $"sanity_check_{Snowflake.New}";
+            var data = new byte[] { 1, 2, 3, 4 };
+
+            await _redis.SetAsync(key, data, TimeSpan.FromMinutes(1), cancellationToken: cancellationToken);
+
+            try
+            {
+                var result = await _redis.GetAsync(key, cancellationToken);
+
+                if (!result.BufferEquals(data))
+                    throw new ApplicationException("Redis sanity check failed.");
+
+                _logger.LogWarning("Redis sanity check succeeded.");
+            }
+            finally
+            {
+                await _redis.DeleteAsync(key, cancellationToken);
+            }
+        }
+
+        async Task InitElasticAsync(CancellationToken cancellationToken = default)
+        {
+            await _elastic.InitializeAsync(cancellationToken);
+
+            if (!SanityChecks)
+                return;
+
+            var count = await _elastic.CountAsync<DbUser>(cancellationToken);
+
+            if (count < 0)
+                throw new ApplicationException("Elasticsearch sanity check failed.");
+
+            _logger.LogWarning("Elasticsearch sanity check succeeded.");
+        }
+
+        async Task InitStorageAsync(CancellationToken cancellationToken = default)
+        {
             await _storage.InitializeAsync(cancellationToken);
 
-            await ConfigureUsersAsync(cancellationToken);
+            if (!SanityChecks)
+                return;
+
+            var key  = $"sanity_check_{Snowflake.New}";
+            var data = key;
+
+            await _storage.WriteStringAsync(key, data, cancellationToken);
+
+            try
+            {
+                var result = await _storage.ReadStringAsync(key, cancellationToken);
+
+                if (result != data)
+                    throw new ApplicationException("Storage sanity check failed.");
+
+                _logger.LogWarning("Storage sanity check succeeded.");
+            }
+            finally
+            {
+                await _storage.DeleteAsync(key, cancellationToken);
+            }
         }
 
         public async Task ConfigureUsersAsync(CancellationToken cancellationToken = default)
         {
-            // make admin user
-            if (_options.CurrentValue.FirstUserAdmin)
+            if (!_options.CurrentValue.FirstUserAdmin)
+                return;
+
+            // assign admin to the first user
+            var result = await _elastic.SearchEntriesAsync(new DbUserQueryProcessor(new UserQuery
             {
-                var result = await _elastic.SearchEntriesAsync(new DbUserQueryProcessor(new UserQuery
+                Limit = 1,
+                Sorting = new List<SortField<UserSort>>
                 {
-                    Limit = 1,
-                    Sorting = new List<SortField<UserSort>>
-                    {
-                        (UserSort.CreatedTime, SortDirection.Ascending)
-                    }
-                }), cancellationToken);
-
-                if (result.Items.Length != 0)
-                {
-                    var entry = result.Items[0];
-
-                    do
-                    {
-                        if (entry.Value.HasPermissions(UserPermissions.Administrator))
-                            break;
-
-                        entry.Value.Permissions = new[] { UserPermissions.Administrator };
-                    }
-                    while (!await entry.TryUpdateAsync(cancellationToken));
+                    (UserSort.CreatedTime, SortDirection.Ascending)
                 }
+            }), cancellationToken);
+
+            if (result.Items.Length != 0)
+            {
+                var entry = result.Items[0];
+
+                do
+                {
+                    if (entry.Value.HasPermissions(UserPermissions.Administrator))
+                        break;
+
+                    entry.Value.Permissions = new[] { UserPermissions.Administrator };
+                }
+                while (!await entry.TryUpdateAsync(cancellationToken));
             }
         }
     }
