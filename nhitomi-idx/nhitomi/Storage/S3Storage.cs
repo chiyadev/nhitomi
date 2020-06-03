@@ -119,18 +119,22 @@ namespace nhitomi.Storage
             }
         }
 
+        sealed class PutObjectRequestNoContinue : PutObjectRequest
+        {
+            protected override bool Expect100Continue => false;
+        }
+
         public async Task<OneOf<Success, Exception>> WriteAsync(StorageFile file, CancellationToken cancellationToken = default)
         {
             try
             {
-                var request = new PutObjectRequest
+                var request = new PutObjectRequestNoContinue
                 {
-                    BucketName       = _options.BucketName,
-                    Key              = file.Name,
-                    ContentType      = file.MediaType,
-                    InputStream      = file.Stream,
-                    UseChunkEncoding = false,
-                    AutoCloseStream  = false
+                    BucketName      = _options.BucketName,
+                    Key             = file.Name,
+                    ContentType     = file.MediaType,
+                    InputStream     = file.Stream,
+                    AutoCloseStream = false
                 };
 
                 await _client.PutObjectAsync(request, cancellationToken);
