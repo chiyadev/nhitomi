@@ -23,7 +23,7 @@
     </Target>
 
     <ItemGroup>
-        <PackageReference Include="AWSSDK.S3" Version="3.3.110.57" />
+        <PackageReference Include="AWSSDK.S3" Version="3.3.111.5" />
         <PackageReference Include="CompareNETObjects" Version="4.66.0" />
         <PackageReference Include="DeepCloner" Version="0.10.2" />
         <PackageReference Include="Fastenshtein" Version="1.0.0.5" />
