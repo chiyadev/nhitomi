@@ -32,15 +32,17 @@ namespace nhitomi
     {
         readonly IServiceProvider _services;
         readonly IOptionsMonitor<ProxyOptions> _options;
+        readonly ILogger<ChiyaProxyHttp2HandlerBuilder> _logger;
 
         public override string Name { get; set; }
         public override HttpMessageHandler PrimaryHandler { get; set; }
         public override IList<DelegatingHandler> AdditionalHandlers { get; } = new List<DelegatingHandler>();
 
-        public ChiyaProxyHttp2HandlerBuilder(IServiceProvider services, IOptionsMonitor<ProxyOptions> options)
+        public ChiyaProxyHttp2HandlerBuilder(IServiceProvider services, IOptionsMonitor<ProxyOptions> options, ILogger<ChiyaProxyHttp2HandlerBuilder> logger)
         {
             _services = services;
             _options  = options;
+            _logger   = logger;
         }
 
         public override HttpMessageHandler Build()
@@ -62,6 +64,8 @@ namespace nhitomi
                         break;
                 }
             }
+
+            _logger.LogWarning($"Created HTTP client implementation: {handler?.GetType().Name}");
 
             return CreateHandlerPipeline(handler, AdditionalHandlers);
         }
