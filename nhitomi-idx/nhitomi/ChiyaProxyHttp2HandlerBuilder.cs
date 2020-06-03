@@ -26,6 +26,11 @@ namespace nhitomi
         /// URL or IP address to the proxy server.
         /// </summary>
         public string ProxyUrl { get; set; }
+
+        /// <summary>
+        /// List of services that should be proxied.
+        /// </summary>
+        public HashSet<string> ProxiedServices = new HashSet<string> { "Scraper" };
     }
 
     public class ChiyaProxyHttp2HandlerBuilder : HttpMessageHandlerBuilder
@@ -53,19 +58,26 @@ namespace nhitomi
             {
                 var options = _options.CurrentValue;
 
-                switch (options.Type)
+                foreach (var keyword in options.ProxiedServices)
                 {
-                    case ProxyType.Sockets:
-                        handler = CreateSocketsHandler(options);
-                        break;
+                    if (Name.Contains(keyword, StringComparison.OrdinalIgnoreCase))
+                    {
+                        handler = options.Type switch
+                        {
+                            ProxyType.Sockets    => CreateSocketsHandler(options),
+                            ProxyType.ChiyaHttp2 => CreateChiyaHttp2Handler(options, _services),
 
-                    case ProxyType.ChiyaHttp2:
-                        handler = CreateChiyaHttp2Handler(options, _services);
+                            _ => throw new NotSupportedException($"Unsupported proxy type '{options.Type}'.")
+                        };
+
                         break;
+                    }
                 }
+
+                handler ??= new SocketsHttpHandler();
             }
 
-            _logger.LogWarning($"Created HTTP client implementation: {handler?.GetType().Name}");
+            _logger.LogDebug($"Created HTTP client implementation for {Name}: {handler.GetType().Name}");
 
             return CreateHandlerPipeline(handler, AdditionalHandlers);
         }

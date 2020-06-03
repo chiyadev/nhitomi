@@ -234,14 +234,14 @@ namespace nhitomi
 
             services.AddInjectableHostedService<IScraper, nhentaiScraper>();
 
-            services.Configure<ProxyOptions>(_configuration.GetSection("Proxy"))
-                    .AddHttpClient()
-                    .AddTransient<HttpMessageHandlerBuilder, ChiyaProxyHttp2HandlerBuilder>();
-
             // other
             services.AddSingleton<StartupInitializer>()
                     .AddSingleton<ILinkGenerator, LinkGenerator>()
                     .AddSingleton<IImageProcessor, SkiaImageProcessor>();
+
+            services.Configure<ProxyOptions>(_configuration.GetSection("Proxy"))
+                    .AddHttpClient()
+                    .AddTransient<HttpMessageHandlerBuilder, ChiyaProxyHttp2HandlerBuilder>();
 
             services.Configure<RecaptchaOptions>(_configuration.GetSection("Recaptcha"))
                     .AddSingleton<IRecaptchaValidator, RecaptchaValidator>();
