@@ -5,11 +5,13 @@ using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Net.Sockets;
+using System.Runtime.ExceptionServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Http2;
 using Http2.Hpack;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace nhitomi
 {
@@ -23,12 +25,113 @@ namespace nhitomi
     public class ChiyaProxyHttp2Handler : HttpMessageHandler
     {
         readonly IPEndPoint _endPoint;
+        readonly IOptionsMonitor<ProxyOptions> _options;
         readonly ILogger<ChiyaProxyHttp2Handler> _logger;
 
-        public ChiyaProxyHttp2Handler(IPEndPoint endPoint, ILogger<ChiyaProxyHttp2Handler> logger)
+        public ChiyaProxyHttp2Handler(IPEndPoint endPoint, IOptionsMonitor<ProxyOptions> options, ILogger<ChiyaProxyHttp2Handler> logger)
         {
             _endPoint = endPoint;
+            _options  = options;
             _logger   = logger;
+        }
+
+        protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+        {
+            var options   = _options.CurrentValue;
+            var response  = null as HttpResponseMessage;
+            var exception = null as Exception;
+
+            for (var i = 0; i < options.RetryCount + 1; i++)
+            {
+                var waited = false;
+
+                try
+                {
+                    response = await SendAsyncInternal(request, cancellationToken);
+
+                    switch (response.StatusCode)
+                    {
+                        // retry on certain statuses
+                        case HttpStatusCode.TooManyRequests:
+                        case HttpStatusCode.InternalServerError:
+                        case HttpStatusCode.BadGateway:
+                        case HttpStatusCode.ServiceUnavailable:
+                            break;
+
+                        default:
+                            return response;
+                    }
+
+                    // use retry-after header
+                    var retry = response.Headers.RetryAfter;
+                    var date  = retry.Date?.UtcDateTime;
+                    var delta = retry.Delta;
+
+                    if (date > DateTime.UtcNow)
+                    {
+                        await Task.Delay(date.Value - DateTime.UtcNow, cancellationToken);
+                        waited = true;
+                    }
+
+                    else if (delta != null)
+                    {
+                        await Task.Delay(delta.Value, cancellationToken);
+                        waited = true;
+                    }
+                }
+                catch (OperationCanceledException)
+                {
+                    throw;
+                }
+                catch (Exception e)
+                {
+                    exception ??= e;
+                }
+
+                if (!waited)
+                    await Task.Delay(TimeSpan.FromSeconds(i + 1), cancellationToken);
+
+                // request needs to be cloned for resend
+                var newRequest = await CloneAsync(request);
+
+                request.Dispose();
+                request = newRequest;
+            }
+
+            if (exception != null)
+                ExceptionDispatchInfo.Throw(exception);
+
+            return response;
+        }
+
+        static async Task<HttpRequestMessage> CloneAsync(HttpRequestMessage request)
+        {
+            var clone = new HttpRequestMessage(request.Method, request.RequestUri)
+            {
+                Version = request.Version
+            };
+
+            foreach (var property in request.Properties)
+                clone.Properties.Add(property);
+
+            foreach (var (header, value) in request.Headers)
+                clone.Headers.TryAddWithoutValidation(header, value);
+
+            if (request.Content != null)
+            {
+                var memory = new MemoryStream();
+
+                await request.Content.CopyToAsync(memory);
+
+                memory.Position = 0;
+
+                clone.Content = new StreamContent(memory);
+
+                foreach (var (header, value) in request.Content.Headers)
+                    clone.Content.Headers.TryAddWithoutValidation(header, value);
+            }
+
+            return clone;
         }
 
         readonly SemaphoreSlim _initLock = new SemaphoreSlim(1);
@@ -95,7 +198,7 @@ namespace nhitomi
         const int _bodyBufferSize = 4096;
         static readonly ArrayPool<byte> _bufferPool = ArrayPool<byte>.Shared;
 
-        protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+        async Task<HttpResponseMessage> SendAsyncInternal(HttpRequestMessage request, CancellationToken cancellationToken)
         {
             var requestHeaders = new List<HeaderField>(8)
             {

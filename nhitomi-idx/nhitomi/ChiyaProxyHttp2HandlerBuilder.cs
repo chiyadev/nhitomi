@@ -30,7 +30,12 @@ namespace nhitomi
         /// <summary>
         /// List of services that should be proxied.
         /// </summary>
-        public HashSet<string> ProxiedServices = new HashSet<string> { "Scraper" };
+        public HashSet<string> ProxiedServices { get; } = new HashSet<string> { "Scraper" };
+
+        /// <summary>
+        /// Number of retries in case of a proxy error.
+        /// </summary>
+        public int RetryCount { get; set; } = 3;
     }
 
     public class ChiyaProxyHttp2HandlerBuilder : HttpMessageHandlerBuilder
@@ -82,7 +87,7 @@ namespace nhitomi
             return CreateHandlerPipeline(handler, AdditionalHandlers);
         }
 
-        static SocketsHttpHandler CreateSocketsHandler(ProxyOptions options)
+        SocketsHttpHandler CreateSocketsHandler(ProxyOptions options)
         {
             var handler = new SocketsHttpHandler();
 
@@ -92,7 +97,7 @@ namespace nhitomi
             return handler;
         }
 
-        static ChiyaProxyHttp2Handler CreateChiyaHttp2Handler(ProxyOptions options, IServiceProvider services)
+        ChiyaProxyHttp2Handler CreateChiyaHttp2Handler(ProxyOptions options, IServiceProvider services)
         {
             var parts = options.ProxyUrl?.Split(':', 2);
             var host  = parts?[0];
@@ -105,7 +110,7 @@ namespace nhitomi
                 address = Dns.GetHostEntry(host).AddressList[0];
 
             var endPoint = new IPEndPoint(address, port);
-            var handler  = new ChiyaProxyHttp2Handler(endPoint, services.GetService<ILogger<ChiyaProxyHttp2Handler>>());
+            var handler  = new ChiyaProxyHttp2Handler(endPoint, _options, services.GetService<ILogger<ChiyaProxyHttp2Handler>>());
 
             return handler;
         }
