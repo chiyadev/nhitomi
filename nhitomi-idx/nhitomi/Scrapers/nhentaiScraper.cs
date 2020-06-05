@@ -46,6 +46,11 @@ namespace nhitomi.Scrapers
             _options = options;
             _http    = http.CreateClient(nameof(nhentaiScraper));
 
+            _http.DefaultRequestHeaders.TryAddWithoutValidation("Accept", "*/*");
+            _http.DefaultRequestHeaders.TryAddWithoutValidation("Accept-Language", "en");
+            _http.DefaultRequestHeaders.TryAddWithoutValidation("Referer", "https://nhentai.net");
+            _http.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", ScraperAgent.GetUserAgent());
+
             TestManager = new ScraperTestManager<nhentaiBook>(this);
         }
 
