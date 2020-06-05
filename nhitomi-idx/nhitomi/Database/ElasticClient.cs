@@ -967,6 +967,7 @@ namespace nhitomi.Database
             // searching bypasses cache
             var response = await Request(c => c.SearchAsync<T>(q => q.Index(index.IndexName)
                                                                      .SequenceNumberPrimaryTerm()
+                                                                     .TrackTotalHits()
                                                                      .Compose(processor.Process), cancellationToken));
 
             var infos = response.Hits.ToArray(h => new EntryInfo<T>
