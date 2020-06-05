@@ -335,7 +335,7 @@ namespace nhitomi
                 r.RoutePrefix   = "";
                 r.SpecUrl       = "docs.json";
                 r.ConfigObject  = new ConfigObject { RequiredPropsFirst = true };
-                r.DocumentTitle = "nhitomi API documentation";
+                r.DocumentTitle = "nhitomi API Documentation";
             });
 
             // routing
