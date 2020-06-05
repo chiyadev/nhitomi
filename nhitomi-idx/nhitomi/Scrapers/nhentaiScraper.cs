@@ -12,7 +12,6 @@ using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using nhitomi.Database;
 using nhitomi.Scrapers.Tests;
-using nhitomi.Storage;
 
 namespace nhitomi.Scrapers
 {
@@ -41,7 +40,7 @@ namespace nhitomi.Scrapers
         public override ScraperUrlRegex UrlRegex { get; } = new ScraperUrlRegex(@"(nh(entai)?(\/|\s+)|(https?:\/\/)?nhentai\.net\/g\/)(?<id>\d{1,6})\/?");
         public override IScraperTestManager TestManager { get; }
 
-        public nhentaiScraper(IServiceProvider services, IOptionsMonitor<nhentaiScraperOptions> options, ILogger<nhentaiScraper> logger, IHttpClientFactory http, IStorage storage) : base(services, options, logger)
+        public nhentaiScraper(IServiceProvider services, IOptionsMonitor<nhentaiScraperOptions> options, ILogger<nhentaiScraper> logger, IHttpClientFactory http) : base(services, options, logger)
         {
             _options = options;
             _http    = http.CreateClient(nameof(nhentaiScraper));
