@@ -158,7 +158,7 @@ namespace nhitomi.Scrapers
             Title             = _book.GalleryInfo.Title,
             LanguageLocalName = _book.GalleryInfo.LanguageLocalName,
 
-            Hashes = _book.GalleryInfo.Files.ToArray(f => f.Hash + Path.GetExtension(f.Name))
+            Hashes = _book.GalleryInfo.Files.ToArray(f => HitomiScraper.DataContainer.CompressHash(f.Hash) + Path.GetExtension(f.Name))
         });
 
         public override int Pages => _book.GalleryInfo.Files.Length;

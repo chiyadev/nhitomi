@@ -217,6 +217,42 @@ namespace nhitomi.Scrapers
             /// Hashes have file extensions.
             /// </summary>
             [JsonProperty("hashes")] public string[] Hashes;
+
+            public static string CompressHash(string hash)
+            {
+                static int value(char hex)
+                {
+                    var v = (int) hex;
+
+                    return v - (v < 58 ? 48 : (v < 97 ? 55 : 87));
+                }
+
+                // hashes are hex; they can be stored more efficiently internally with base64
+                var buffer = new byte[hash.Length / 2];
+
+                for (var i = 0; i < hash.Length >> 1; i++)
+                    buffer[i] = (byte) ((value(hash[i << 1]) << 4) + (value(hash[(i << 1) + 1])));
+
+                return Convert.ToBase64String(buffer);
+            }
+
+            public static string DecompressHash(string hash)
+            {
+                var buffer = Convert.FromBase64String(hash);
+                var chars  = new char[buffer.Length * 2];
+
+                for (var i = 0; i < buffer.Length; i++)
+                {
+                    var b = buffer[i] >> 4;
+
+                    // https://stackoverflow.com/a/14333437
+                    chars[i * 2]     = (char) (87 + b + (((b - 10) >> 31) & -39));
+                    b                = buffer[i] & 0xF;
+                    chars[i * 2 + 1] = (char) (87 + b + (((b - 10) >> 31) & -39));
+                }
+
+                return new string(chars);
+            }
         }
 
         // https://ltn.hitomi.la/common.js subdomain_from_galleryid
@@ -242,7 +278,7 @@ namespace nhitomi.Scrapers
             var hash = data.Hashes[index];
             var ext  = Path.GetExtension(hash);
 
-            hash = Path.GetFileNameWithoutExtension(hash);
+            hash = DataContainer.DecompressHash(Path.GetFileNameWithoutExtension(hash));
 
             var cdn = SubdomainFromGalleryId(Convert.ToInt32(hash.Substring(hash.Length - 3, 2), 16));
 
