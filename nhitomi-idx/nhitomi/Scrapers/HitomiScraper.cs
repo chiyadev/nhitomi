@@ -51,6 +51,8 @@ namespace nhitomi.Scrapers
             TestManager = new ScraperTestManager<HitomiBook>(this);
         }
 
+        static readonly char[] _titleReplaceChars = { ' ', '(', ')', '[', ']', '{', '}', '?', '/', ':', '<', '>' };
+
         static string GetCombinedId(HitomiGalleryIdentity info)
         {
             var type = info.Type.ToLowerInvariant() switch
@@ -59,12 +61,10 @@ namespace nhitomi.Scrapers
                 _          => info.Type
             };
 
-            var title = new StringBuilder(info.Title)
-                       .Replace(' ', '-')
-                       .Replace('(', '-')
-                       .Replace(')', '-')
-                       .Replace('[', '-')
-                       .Replace(']', '-');
+            var title = new StringBuilder(info.Title);
+
+            foreach (var c in _titleReplaceChars)
+                title.Replace(c, '-');
 
             var language = info.LanguageLocalName;
             var id       = info.Id;
