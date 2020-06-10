@@ -198,7 +198,7 @@ namespace nhitomi
                 s.SchemaFilter<GenericTypeParameterAdditionalSchemaFilter>();
                 s.SchemaFilter<NullableRemovingSchemaFilter>();
 
-                s.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, "nhitomi.xml"));
+                s.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, $"{nameof(nhitomi)}.xml"));
             });
 
             services.AddSwaggerGenNewtonsoftSupport();
@@ -230,9 +230,11 @@ namespace nhitomi
             services.AddSingleton<IScraperService, ScraperService>()
                     .AddSingleton<IBookIndexer, BookIndexer>();
 
-            services.Configure<nhentaiScraperOptions>(_configuration.GetSection("Scrapers:nhentai"));
+            services.Configure<nhentaiScraperOptions>(_configuration.GetSection("Scraper:nhentai"))
+                    .Configure<HitomiScraperOptions>(_configuration.GetSection("Scraper:Hitomi"));
 
-            services.AddInjectableHostedService<IScraper, nhentaiScraper>();
+            services.AddInjectableHostedService<IScraper, nhentaiScraper>()
+                    .AddInjectableHostedService<IScraper, HitomiScraper>();
 
             // other
             services.AddSingleton<StartupInitializer>()
@@ -335,7 +337,7 @@ namespace nhitomi
                 r.RoutePrefix   = "";
                 r.SpecUrl       = "docs.json";
                 r.ConfigObject  = new ConfigObject { RequiredPropsFirst = true };
-                r.DocumentTitle = "nhitomi API documentation";
+                r.DocumentTitle = "nhitomi API Documentation";
             });
 
             // routing

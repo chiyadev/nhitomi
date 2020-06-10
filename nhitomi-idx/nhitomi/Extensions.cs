@@ -313,6 +313,7 @@ namespace nhitomi
         {
             var length = enumerable switch
             {
+                T1[] c                    => c.Length,
                 ICollection<T1> c         => c.Count,
                 IReadOnlyCollection<T1> c => c.Count,
 

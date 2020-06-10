@@ -12,7 +12,6 @@ using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using nhitomi.Database;
 using nhitomi.Scrapers.Tests;
-using nhitomi.Storage;
 
 namespace nhitomi.Scrapers
 {
@@ -23,11 +22,6 @@ namespace nhitomi.Scrapers
         /// Specifies the number of additional books to index after indexing all newer books since the last indexed book.
         /// </summary>
         public int AdditionalScrapeItems { get; set; } = 5;
-
-        /// <summary>
-        /// Minimum upload time of books to be indexed, which is year 2016 by default (approx. ID 153000).
-        /// </summary>
-        public DateTime MinimumUploadTime { get; set; } = new DateTime(2016, 1, 1, 0, 0, 0, DateTimeKind.Utc);
     }
 
     public class nhentaiScraper : BookScraperBase
@@ -41,10 +35,15 @@ namespace nhitomi.Scrapers
         public override ScraperUrlRegex UrlRegex { get; } = new ScraperUrlRegex(@"(nh(entai)?(\/|\s+)|(https?:\/\/)?nhentai\.net\/g\/)(?<id>\d{1,6})\/?");
         public override IScraperTestManager TestManager { get; }
 
-        public nhentaiScraper(IServiceProvider services, IOptionsMonitor<nhentaiScraperOptions> options, ILogger<nhentaiScraper> logger, IHttpClientFactory http, IStorage storage) : base(services, options, logger)
+        public nhentaiScraper(IServiceProvider services, IOptionsMonitor<nhentaiScraperOptions> options, ILogger<nhentaiScraper> logger, IHttpClientFactory http) : base(services, options, logger)
         {
             _options = options;
             _http    = http.CreateClient(nameof(nhentaiScraper));
+
+            _http.DefaultRequestHeaders.TryAddWithoutValidation("Accept", "*/*");
+            _http.DefaultRequestHeaders.TryAddWithoutValidation("Accept-Language", "en");
+            _http.DefaultRequestHeaders.TryAddWithoutValidation("Referer", "https://nhentai.net");
+            _http.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", ScraperAgent.GetUserAgent());
 
             TestManager = new ScraperTestManager<nhentaiBook>(this);
         }
@@ -87,7 +86,7 @@ namespace nhitomi.Scrapers
                 {
                     latest ??= book;
 
-                    if (book.Id <= state.LastUpper || !FilterBook(book))
+                    if (book.Id <= state.LastUpper)
                         break;
 
                     yield return new nhentaiBookAdaptor(book);
@@ -109,12 +108,7 @@ namespace nhitomi.Scrapers
                 var books = await Task.WhenAll(Enumerable.Range(start, options.AdditionalScrapeItems).Select(id => GetAsync(id, cancellationToken)));
 
                 foreach (var book in books)
-                {
-                    if (!FilterBook(book))
-                        break;
-
                     yield return new nhentaiBookAdaptor(book);
-                }
 
                 // set lower as oldest book
                 state.LastLower = start;
@@ -122,9 +116,6 @@ namespace nhitomi.Scrapers
 
             await SetStateAsync(state, cancellationToken);
         }
-
-        bool FilterBook(nhentaiBook book)
-            => book != null && DateTimeOffset.FromUnixTimeSeconds(book.UploadDate).UtcDateTime >= _options.CurrentValue.MinimumUploadTime;
 
         /// <summary>
         /// Retrieves a book by ID.

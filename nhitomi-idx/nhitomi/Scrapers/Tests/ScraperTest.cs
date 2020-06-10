@@ -36,6 +36,14 @@ namespace nhitomi.Scrapers.Tests
             _logger?.LogDebug($"{name}: not null");
         }
 
+        protected void IsNull(string name, object value)
+        {
+            if (!(value is null))
+                throw new TestCaseException(this, $"{name}: expected null but was not null.");
+
+            _logger?.LogDebug($"{name}: null");
+        }
+
         protected virtual int StringMatchMaxDifferences => 0;
         protected virtual int StringCollectionMatchMaxDifferences => 0;
         protected virtual double NumberMatchPrecision => 0;
