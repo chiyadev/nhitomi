@@ -51,7 +51,7 @@ namespace nhitomi.Scrapers
             TestManager = new ScraperTestManager<HitomiBook>(this);
         }
 
-        static readonly char[] _titleReplaceChars = { ' ', '(', ')', '[', ']', '{', '}', '?', '/', ':', '<', '>' };
+        static readonly char[] _titleReplaceChars = { ' ', '(', ')', '[', ']', '{', '}', '?', '/', ':', '<', '>', '"', '\'', '#', '%' };
 
         static string GetCombinedId(HitomiGalleryIdentity info)
         {
@@ -66,10 +66,10 @@ namespace nhitomi.Scrapers
             foreach (var c in _titleReplaceChars)
                 title.Replace(c, '-');
 
-            var language = info.LanguageLocalName;
-            var id       = info.Id;
+            // language can be null (gamecg)
+            var other = info.LanguageLocalName == null ? info.Id.ToString() : $"{info.LanguageLocalName}-{info.Id}";
 
-            return $"{type}/{title}-{language}-{id}".ToLowerInvariant();
+            return $"{type}/{title}-{other}".ToLowerInvariant();
         }
 
         public override string GetExternalUrl(DbBookContent content) => $"https://hitomi.la/{GetCombinedId(DataContainer.Deserialize(content.Data))}.html";

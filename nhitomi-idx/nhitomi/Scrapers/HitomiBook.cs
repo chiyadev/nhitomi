@@ -165,7 +165,7 @@ namespace nhitomi.Scrapers
 
         public override BookContentBase Content => new BookContentBase
         {
-            Language = _book.GalleryInfo.Language.ParseAsLanguage()
+            Language = _book.GalleryInfo.Language?.ParseAsLanguage() ?? LanguageType.Japanese
         };
     }
 }
