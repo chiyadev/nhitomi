@@ -46,7 +46,7 @@ namespace nhitomi.Scrapers
 
         static string FormatBook(DbBook book)
         {
-            var s = $"'{book.PrimaryName}' {string.Join(',', book.Contents.Select(c => $"{c.Source}/{c.SourceId}"))}";
+            var s = $"'{book.PrimaryName}' {string.Join(", ", book.Contents.Select(c => $"{c.Source}/{c.SourceId}"))}";
 
             if (book.Id != null)
                 s = $"{book.Id} {s}";
