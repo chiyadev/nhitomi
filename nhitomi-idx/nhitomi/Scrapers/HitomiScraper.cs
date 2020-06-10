@@ -48,7 +48,7 @@ namespace nhitomi.Scrapers
             _http.DefaultRequestHeaders.TryAddWithoutValidation("Referer", "https://hitomi.la");
             _http.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", ScraperAgent.GetUserAgent());
 
-            TestManager = new ScraperTestManager<HitomiGalleryInfo>(this);
+            TestManager = new ScraperTestManager<HitomiBook>(this);
         }
 
         static string GetCombinedId(HitomiGalleryIdentity info)
