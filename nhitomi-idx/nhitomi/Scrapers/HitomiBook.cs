@@ -89,7 +89,7 @@ namespace nhitomi.Scrapers
             }
 
             var a = name.Substring(0, pipe).Trim();
-            var b = name.Substring(pipe).Trim(); // more english-like
+            var b = name.Substring(pipe + 1).Trim(); // more english-like
 
             if (a.Length == 0) a = b;
             if (b.Length == 0) b = a;
@@ -132,16 +132,8 @@ namespace nhitomi.Scrapers
                 [BookTag.Tag]       = _book.Tags?.ToArray(ConvertTag)
             },
 
-            Category = _book.GalleryInfo.Type.ToLowerInvariant() switch
-            {
-                "doujinshi" => BookCategory.Doujinshi,
-                "manga"     => BookCategory.Manga,
-                "cg"        => BookCategory.ArtistCg,
-                "gamecg"    => BookCategory.GameCg,
-
-                _ => BookCategory.Doujinshi
-            },
-            Rating = MaterialRating.Explicit // explicit by default
+            Category = Enum.TryParse<BookCategory>(_book.GalleryInfo.Type, out var category) ? category : BookCategory.Doujinshi,
+            Rating   = MaterialRating.Explicit // explicit by default
         };
 
         public override IEnumerable<ContentAdaptor> Contents => new[] { new HitomiContentAdaptor(_book) };

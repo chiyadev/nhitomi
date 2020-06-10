@@ -50,7 +50,20 @@ namespace nhitomi.Scrapers
             TestManager = new ScraperTestManager<HitomiGalleryInfo>(this);
         }
 
-        static string GetCombinedId(HitomiGalleryIdentity info) => $"{info.Type}/{info.Title.Replace(' ', '-')}-{info.LanguageLocalName}-{info.Id}".ToLowerInvariant();
+        static string GetCombinedId(HitomiGalleryIdentity info)
+        {
+            var type = info.Type.ToLowerInvariant() switch
+            {
+                "artistcg" => "cg", // artistcg becomes cg for some reason
+                _          => info.Type
+            };
+
+            var title    = info.Title.Replace(' ', '-');
+            var language = info.LanguageLocalName;
+            var id       = info.Id;
+
+            return $"{type}/{title}-{language}-{id}".ToLowerInvariant();
+        }
 
         public override string GetExternalUrl(DbBookContent content) => $"https://hitomi.la/{GetCombinedId(DataContainer.Deserialize(content.Data))}.html";
 
