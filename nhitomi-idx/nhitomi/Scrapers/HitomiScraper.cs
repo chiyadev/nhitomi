@@ -296,7 +296,7 @@ namespace nhitomi.Scrapers
             var hash = data.Hashes[index];
             var ext  = Path.GetExtension(hash);
 
-            hash = DataContainer.DecompressHash(Path.GetFileNameWithoutExtension(hash));
+            hash = DataContainer.DecompressHash(hash.Substring(0, hash.Length - ext.Length)); // substr instead of GetFileNameWithoutExtension because hash has slashes
 
             var cdn = SubdomainFromGalleryId(Convert.ToInt32(hash.Substring(hash.Length - 3, 2), 16));
 
