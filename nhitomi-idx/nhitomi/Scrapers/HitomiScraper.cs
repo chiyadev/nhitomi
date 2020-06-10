@@ -240,11 +240,22 @@ namespace nhitomi.Scrapers
                 for (var i = 0; i < hash.Length >> 1; i++)
                     buffer[i] = (byte) ((value(hash[i << 1]) << 4) + (value(hash[(i << 1) + 1])));
 
-                return Convert.ToBase64String(buffer);
+                return Convert.ToBase64String(buffer).TrimEnd('=');
             }
 
             public static string DecompressHash(string hash)
             {
+                switch (hash.Length % 4)
+                {
+                    case 2:
+                        hash += "==";
+                        break;
+
+                    case 3:
+                        hash += "=";
+                        break;
+                }
+
                 var buffer = Convert.FromBase64String(hash);
                 var chars  = new char[buffer.Length * 2];
 
