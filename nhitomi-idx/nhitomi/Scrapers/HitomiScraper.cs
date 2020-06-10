@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Runtime.CompilerServices;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using HtmlAgilityPack;
@@ -58,7 +59,13 @@ namespace nhitomi.Scrapers
                 _          => info.Type
             };
 
-            var title    = info.Title.Replace(' ', '-');
+            var title = new StringBuilder(info.Title)
+                       .Replace(' ', '-')
+                       .Replace('(', '-')
+                       .Replace(')', '-')
+                       .Replace('[', '-')
+                       .Replace(']', '-');
+
             var language = info.LanguageLocalName;
             var id       = info.Id;
 
