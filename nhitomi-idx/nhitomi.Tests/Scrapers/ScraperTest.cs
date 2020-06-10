@@ -4,10 +4,8 @@ using NUnit.Framework;
 
 namespace nhitomi.Scrapers
 {
-    /// <summary>
-    /// <see cref="nhentaiScraper"/>
-    /// </summary>
     [TestFixture(typeof(nhentaiScraper))]
+    [TestFixture(typeof(HitomiScraper))]
     public class ScraperTest<T> : TestBaseServices where T : IScraper
     {
         [Test]

@@ -1,0 +1,251 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Runtime.CompilerServices;
+using System.Threading;
+using System.Threading.Tasks;
+using HtmlAgilityPack;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
+using nhitomi.Database;
+using nhitomi.Scrapers.Tests;
+
+namespace nhitomi.Scrapers
+{
+    public class HitomiScraperOptions : ScraperOptions
+    {
+        /// <summary>
+        /// Number of books to index for each scrape.
+        /// </summary>
+        public int ScrapeItems { get; set; } = 5;
+    }
+
+    public class HitomiScraper : BookScraperBase
+    {
+        readonly HttpClient _http;
+        readonly HitomiNozomiIndexReader _index;
+        readonly IOptionsMonitor<HitomiScraperOptions> _options;
+
+        public override string Name => "Hitomi";
+        public override ScraperType Type => ScraperType.Hitomi;
+        public override string Url => "https://hitomi.la";
+        public override ScraperUrlRegex UrlRegex { get; } = new ScraperUrlRegex(@"(hi(tomi)?(\/|\s+)|(https?:\/\/)?hitomi\.la\/)((?<type>\w+)\/)?([^\/\s]+\-)?(?<id>\d{1,8})(\.html)?");
+        public override IScraperTestManager TestManager { get; }
+
+        public HitomiScraper(IServiceProvider services, IOptionsMonitor<HitomiScraperOptions> options, ILogger<BookScraperBase> logger, IHttpClientFactory http) : base(services, options, logger)
+        {
+            _http    = http.CreateClient(nameof(HitomiScraper));
+            _index   = new HitomiNozomiIndexReader(_http);
+            _options = options;
+
+            _http.DefaultRequestHeaders.TryAddWithoutValidation("Accept", "*/*");
+            _http.DefaultRequestHeaders.TryAddWithoutValidation("Accept-Language", "en");
+            _http.DefaultRequestHeaders.TryAddWithoutValidation("Referer", "https://hitomi.la");
+            _http.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", ScraperAgent.GetUserAgent());
+
+            TestManager = new ScraperTestManager<HitomiGalleryInfo>(this);
+        }
+
+        static string GetCombinedId(HitomiGalleryIdentity info) => $"{info.Type}/{info.Title.Replace(' ', '-')}-{info.LanguageLocalName}-{info.Id}".ToLowerInvariant();
+
+        public override string GetExternalUrl(DbBookContent content) => $"https://hitomi.la/{GetCombinedId(DataContainer.Deserialize(content.Data))}.html";
+
+        public sealed class ScraperState
+        {
+            [JsonProperty("last_upper")] public int? LastUpper;
+            [JsonProperty("last_lower")] public int? LastLower;
+        }
+
+        protected override async IAsyncEnumerable<BookAdaptor> ScrapeAsync([EnumeratorCancellation] CancellationToken cancellationToken = default)
+        {
+            var options = _options.CurrentValue;
+
+            var state = await GetStateAsync<ScraperState>(cancellationToken) ?? new ScraperState();
+            var index = await _index.ReadAsync(cancellationToken);
+
+            var targets = new HashSet<int>(options.ScrapeItems);
+
+            // find new books
+            if (state.LastUpper == null)
+            {
+                state.LastUpper = index[^1];
+            }
+            else
+            {
+                var i = Array.BinarySearch(index, state.LastUpper.Value);
+
+                if (i < 0)
+                    i = ~i;
+                else
+                    ++i;
+
+                for (; targets.Count < options.ScrapeItems && i < index.Length; i++)
+                {
+                    var id = index[i];
+
+                    state.LastUpper = id;
+                    targets.Add(id);
+                }
+            }
+
+            state.LastLower ??= state.LastUpper;
+
+            // find additional books
+            if (state.LastLower != null)
+            {
+                var i = Array.BinarySearch(index, state.LastLower.Value);
+
+                if (i < 0)
+                    i = ~i - 1;
+                else
+                    --i;
+
+                for (; targets.Count < options.ScrapeItems && i >= 0; i--)
+                {
+                    var id = index[i];
+
+                    state.LastLower = id;
+                    targets.Add(id);
+                }
+            }
+
+            foreach (var book in await Task.WhenAll(targets.Select(id => GetAsync(id, cancellationToken))))
+                yield return new HitomiBookAdaptor(book);
+
+            await SetStateAsync(state, cancellationToken);
+        }
+
+        public static class XPaths
+        {
+            const string _gallery = "//div[contains(@class,'gallery')]";
+
+            public const string Title = _gallery + "//a[contains(@href,'/reader/')]";
+            public const string Artist = _gallery + "//a[contains(@href,'/artist/')]";
+            public const string Group = _gallery + "//a[contains(@href,'/group/')]";
+            public const string Series = _gallery + "//a[contains(@href,'/series/')]";
+            public const string Tags = _gallery + "//a[contains(@href,'/tag/')]";
+            public const string Characters = _gallery + "//a[contains(@href,'/character/')]";
+        }
+
+        /// <summary>
+        /// Retrieves a book by ID.
+        /// </summary>
+        public async Task<HitomiBook> GetAsync(int id, CancellationToken cancellationToken = default)
+        {
+            HitomiGalleryInfo galleryInfo;
+
+            // load gallery info
+            using (var response = await _http.GetAsync($"https://ltn.hitomi.la/galleries/{id}.js", cancellationToken))
+            {
+                // some books may be missing
+                if (response.StatusCode == HttpStatusCode.NotFound)
+                    return null;
+
+                response.EnsureSuccessStatusCode();
+
+                // content is javascript like "var galleryinfo = {json}"
+                var script = await response.Content.ReadAsStringAsync();
+
+                const string declare = "var galleryinfo =";
+
+                if (!script.StartsWith(declare, StringComparison.OrdinalIgnoreCase))
+                    throw new FormatException($"Could not parse Hitomi gallery information JavaScript file for {id}.");
+
+                var json = script.Substring(declare.Length).Trim();
+
+                galleryInfo = JsonConvert.DeserializeObject<HitomiGalleryInfo>(json);
+            }
+
+            HtmlNode node;
+
+            // load gallery html
+            using (var response = await _http.GetAsync($"https://hitomi.la/{GetCombinedId(galleryInfo)}.html", cancellationToken))
+            {
+                response.EnsureSuccessStatusCode();
+
+                var doc = new HtmlDocument();
+                doc.LoadHtml(await response.Content.ReadAsStringAsync());
+
+                node = doc.DocumentNode;
+            }
+
+            static string getText(HtmlNode n)
+            {
+                if (n == null)
+                    return null;
+
+                var text = HtmlEntity.DeEntitize(n.InnerText).Trim();
+
+                return string.IsNullOrEmpty(text) ? null : text;
+            }
+
+            // scrape from html
+            return new HitomiBook(galleryInfo)
+            {
+                Title      = getText(node.SelectSingleNode(XPaths.Title)),
+                Artist     = getText(node.SelectSingleNode(XPaths.Artist)),
+                Group      = getText(node.SelectSingleNode(XPaths.Group)),
+                Series     = getText(node.SelectSingleNode(XPaths.Series)),
+                Characters = node.SelectNodes(XPaths.Characters)?.ToArray(getText),
+                Tags       = node.SelectNodes(XPaths.Tags)?.ToArray(getText)
+            };
+        }
+
+        public sealed class DataContainer : HitomiGalleryIdentity
+        {
+            public static string Serialize(DataContainer data) => JsonConvert.SerializeObject(data);
+            public static DataContainer Deserialize(string data) => JsonConvert.DeserializeObject<DataContainer>(data);
+
+            /// <summary>
+            /// Hashes have file extensions.
+            /// </summary>
+            [JsonProperty("hashes")] public string[] Hashes;
+        }
+
+        // https://ltn.hitomi.la/common.js subdomain_from_galleryid
+        public static char SubdomainFromGalleryId(int id)
+        {
+            const int frontends = 3;
+
+            return (char) ('a' + id % frontends);
+        }
+
+        // https://ltn.hitomi.la/common.js full_path_from_hash
+        public static string FullPathFromHash(string hash)
+        {
+            if (hash.Length < 3)
+                return hash;
+
+            return $"{hash.Substring(hash.Length - 1, 1)}/{hash.Substring(hash.Length - 3, 2)}/{hash}";
+        }
+
+        public override async Task<Stream> GetImageAsync(DbBook book, DbBookContent content, int index, CancellationToken cancellationToken = default)
+        {
+            var data = DataContainer.Deserialize(content.Data);
+            var hash = data.Hashes[index];
+            var ext  = Path.GetExtension(hash);
+
+            hash = Path.GetFileNameWithoutExtension(hash);
+
+            var cdn = SubdomainFromGalleryId(Convert.ToInt32(hash.Substring(hash.Length - 3, 2), 16));
+
+            var response = await _http.SendAsync(new HttpRequestMessage
+            {
+                Method     = HttpMethod.Get,
+                RequestUri = new Uri($"https://{cdn}a.hitomi.la/images/{FullPathFromHash(hash)}{ext}"),
+                Headers =
+                {
+                    Referrer = new Uri($"https://hitomi.la/reader/{data.Id}.html")
+                }
+            }, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
+
+            response.EnsureSuccessStatusCode();
+
+            return await response.Content.ReadAsStreamAsync();
+        }
+    }
+}

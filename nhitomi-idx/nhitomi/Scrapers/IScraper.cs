@@ -21,7 +21,12 @@ namespace nhitomi.Scrapers
         /// <summary>
         /// <see cref="nhentaiScraper"/>
         /// </summary>
-        nhentai = 1
+        nhentai = 1,
+
+        /// <summary>
+        /// <see cref="HitomiScraper"/>
+        /// </summary>
+        Hitomi = 2
     }
 
     public abstract class ScraperOptions
