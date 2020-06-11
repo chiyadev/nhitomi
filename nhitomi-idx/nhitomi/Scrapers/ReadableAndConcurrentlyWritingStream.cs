@@ -27,15 +27,15 @@ namespace nhitomi.Scrapers
             Array.Copy(_destinations, 0, _streams, 1, _destinations.Length);
         }
 
-        public override bool CanRead => true;
-        public override bool CanSeek => false;
-        public override bool CanWrite => false;
+        public override bool CanRead => _source.CanRead;
+        public override bool CanSeek => _source.CanSeek;
+        public override bool CanWrite => _source.CanWrite;
         public override long Length => _source.Length;
 
         public override long Position
         {
             get => _source.Position;
-            set => Seek(value, SeekOrigin.Begin);
+            set => _source.Position = value;
         }
 
         public override int Read(byte[] buffer, int offset, int count)
@@ -91,26 +91,14 @@ namespace nhitomi.Scrapers
             return result;
         }
 
-        public override long Seek(long offset, SeekOrigin origin)
-            => throw new NotSupportedException($"Cannot seek on {nameof(ReadableAndConcurrentlyWritingStream)}.");
+        public override long Seek(long offset, SeekOrigin origin) => _source.Seek(offset, origin);
+        public override void SetLength(long value) => _source.SetLength(value);
 
-        public override void SetLength(long value)
-            => throw new NotSupportedException($"Cannot modify length of {nameof(ReadableAndConcurrentlyWritingStream)}.");
-
-        public override void Write(byte[] buffer, int offset, int count)
-            => throw new NotSupportedException($"Cannot write to {nameof(ReadableAndConcurrentlyWritingStream)}.");
-
-        public override void Write(ReadOnlySpan<byte> buffer)
-            => throw new NotSupportedException($"Cannot write to {nameof(ReadableAndConcurrentlyWritingStream)}.");
-
-        public override void WriteByte(byte value)
-            => throw new NotSupportedException($"Cannot write to {nameof(ReadableAndConcurrentlyWritingStream)}.");
-
-        public override Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
-            => Task.FromException(new NotSupportedException($"Cannot write to {nameof(ReadableAndConcurrentlyWritingStream)}."));
-
-        public override ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = new CancellationToken())
-            => new ValueTask(Task.FromException(new NotSupportedException($"Cannot write to {nameof(ReadableAndConcurrentlyWritingStream)}.")));
+        public override void Write(byte[] buffer, int offset, int count) => _source.Write(buffer, offset, count);
+        public override void Write(ReadOnlySpan<byte> buffer) => _source.Write(buffer);
+        public override void WriteByte(byte value) => _source.WriteByte(value);
+        public override Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken) => _source.WriteAsync(buffer, offset, count, cancellationToken);
+        public override ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = new CancellationToken()) => _source.WriteAsync(buffer, cancellationToken);
 
         public override void Flush()
         {
