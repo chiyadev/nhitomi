@@ -108,7 +108,10 @@ namespace nhitomi.Scrapers
                 var books = await Task.WhenAll(Enumerable.Range(start, options.AdditionalScrapeItems).Select(id => GetAsync(id, cancellationToken)));
 
                 foreach (var book in books)
-                    yield return new nhentaiBookAdaptor(book);
+                {
+                    if (book != null)
+                        yield return new nhentaiBookAdaptor(book);
+                }
 
                 // set lower as oldest book
                 state.LastLower = start;

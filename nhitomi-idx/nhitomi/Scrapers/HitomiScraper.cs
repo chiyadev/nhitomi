@@ -135,7 +135,10 @@ namespace nhitomi.Scrapers
             }
 
             foreach (var book in await Task.WhenAll(targets.Select(id => GetAsync(id, cancellationToken))))
-                yield return new HitomiBookAdaptor(book);
+            {
+                if (book != null)
+                    yield return new HitomiBookAdaptor(book);
+            }
 
             await SetStateAsync(state, cancellationToken);
         }
