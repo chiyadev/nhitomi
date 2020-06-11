@@ -305,7 +305,7 @@ namespace nhitomi.Scrapers
 
             var cdn = SubdomainFromGalleryId(Convert.ToInt32(hash.Substring(hash.Length - 3, 2), 16));
             var url = index == -1
-                ? $"https://tn.hitomi.la/bigtn/{FullPathFromHash(hash)}{ext}"
+                ? $"https://tn.hitomi.la/bigtn/{FullPathFromHash(hash)}.jpg" // it seems like hitomi thumbnails are always jpg
                 : $"https://{cdn}a.hitomi.la/images/{FullPathFromHash(hash)}{ext}";
 
             var response = await _http.SendAsync(new HttpRequestMessage
