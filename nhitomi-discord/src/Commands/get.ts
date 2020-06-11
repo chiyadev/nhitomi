@@ -45,7 +45,7 @@ export class BookMessage extends InteractiveMessage {
         description: book.englishName === book.primaryName ? undefined : book.englishName,
         url: Api.getWebLink(`books/${book.id}/contents/${content.id}`),
         image: {
-          url: Api.getApiLink(`books/${book.id}/contents/${content.id}/pages/0/thumb`)
+          url: Api.getApiLink(`books/${book.id}/contents/${content.id}/pages/-1`)
         },
         color: 'GREEN',
         author: {
