@@ -14,6 +14,7 @@ using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using nhitomi.Database;
 using nhitomi.Scrapers.Tests;
+using nhitomi.Storage;
 
 namespace nhitomi.Scrapers
 {
@@ -290,7 +291,7 @@ namespace nhitomi.Scrapers
             return $"{hash.Substring(hash.Length - 1, 1)}/{hash.Substring(hash.Length - 3, 2)}/{hash}";
         }
 
-        public override async Task<Stream> GetImageAsync(DbBook book, DbBookContent content, int index, CancellationToken cancellationToken = default)
+        public override async Task<StorageFile> GetImageAsync(DbBook book, DbBookContent content, int index, CancellationToken cancellationToken = default)
         {
             var data = DataContainer.Deserialize(content.Data);
             var hash = data.Hashes[index];
@@ -312,7 +313,12 @@ namespace nhitomi.Scrapers
 
             response.EnsureSuccessStatusCode();
 
-            return await response.Content.ReadAsStreamAsync();
+            return new StorageFile
+            {
+                Name      = response.RequestMessage.RequestUri.ToString(),
+                MediaType = response.Content.Headers.ContentType?.MediaType,
+                Stream    = await response.Content.ReadAsStreamAsync()
+            };
         }
     }
 }

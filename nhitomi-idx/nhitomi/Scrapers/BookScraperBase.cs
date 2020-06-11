@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
@@ -12,6 +11,7 @@ using Nest;
 using nhitomi.Database;
 using nhitomi.Models;
 using nhitomi.Models.Queries;
+using nhitomi.Storage;
 using IElasticClient = nhitomi.Database.IElasticClient;
 
 namespace nhitomi.Scrapers
@@ -65,7 +65,7 @@ namespace nhitomi.Scrapers
         /// <summary>
         /// Retrieves the image of a page of the given book content as a stream.
         /// </summary>
-        Task<Stream> GetImageAsync(DbBook book, DbBookContent content, int index, CancellationToken cancellationToken = default);
+        Task<StorageFile> GetImageAsync(DbBook book, DbBookContent content, int index, CancellationToken cancellationToken = default);
     }
 
     public abstract class BookScraperBase : ScraperBase, IBookScraper
@@ -133,6 +133,6 @@ namespace nhitomi.Scrapers
             }
         }
 
-        public abstract Task<Stream> GetImageAsync(DbBook book, DbBookContent content, int index, CancellationToken cancellationToken = default);
+        public virtual Task<StorageFile> GetImageAsync(DbBook book, DbBookContent content, int index, CancellationToken cancellationToken = default) => Task.FromResult<StorageFile>(null);
     }
 }

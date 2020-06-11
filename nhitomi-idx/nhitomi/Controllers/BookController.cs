@@ -218,6 +218,9 @@ namespace nhitomi.Controllers
         /// <summary>
         /// Retrieves book page image.
         /// </summary>
+        /// <remarks>
+        /// An index of -1 indicates the thumbnail of the first image.
+        /// </remarks>
         /// <param name="id">Book ID.</param>
         /// <param name="contentId">Content ID.</param>
         /// <param name="index">Zero-based page index.</param>
@@ -232,27 +235,6 @@ namespace nhitomi.Controllers
             var (book, content) = value;
 
             return new BookScraperImageResult(book, content, index);
-        }
-
-        /// <summary>
-        /// Retrieves book thumbnail image.
-        /// </summary>
-        /// <param name="id">Book ID.</param>
-        /// <param name="contentId">Content ID.</param>
-        [HttpGet("{id}/contents/{contentId}/pages/0/thumb", Name = "getBookThumbnail"), ProducesFile, AllowAnonymous]
-        public async Task<ActionResult> GetThumbnailAsync(string id, string contentId)
-        {
-            var result = await _books.GetContentAsync(id, contentId);
-
-            if (!result.TryPickT0(out var value, out _))
-                return ResultUtilities.NotFound(id, contentId);
-
-            var (book, content) = value;
-
-            return new BookScraperImageResult(book, content, 0)
-            {
-                Thumbnail = true
-            };
         }
 
         /// <summary>
