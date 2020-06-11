@@ -176,14 +176,17 @@ namespace nhitomi.Scrapers
                 return null;
 
             var ext = ParseExtension(data.Extensions[index]);
+            var url = index == -1
+                ? $"https://t.nhentai.net/galleries/{data.MediaId}/thumb{ext}"
+                : $"https://i.nhentai.net/galleries/{data.MediaId}/{index + 1}{ext}";
 
-            var response = await _http.GetAsync($"https://i.nhentai.net/galleries/{data.MediaId}/{index + 1}.{ext}", HttpCompletionOption.ResponseHeadersRead, cancellationToken);
+            var response = await _http.GetAsync(url, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
 
             response.EnsureSuccessStatusCode();
 
             return new StorageFile
             {
-                Name      = response.RequestMessage.RequestUri.ToString(),
+                Name      = url,
                 MediaType = response.Content.Headers.ContentType?.MediaType,
                 Stream    = await response.Content.ReadAsStreamAsync()
             };
@@ -191,11 +194,11 @@ namespace nhitomi.Scrapers
 
         static string ParseExtension(char ext) => ext switch
         {
-            'j' => "jpg",
-            'p' => "png",
-            'g' => "gif",
+            'j' => ".jpg",
+            'p' => ".png",
+            'g' => ".gif",
 
-            _ => "jpg"
+            _ => ".jpg"
         };
     }
 }

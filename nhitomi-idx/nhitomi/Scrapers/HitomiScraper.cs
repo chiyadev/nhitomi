@@ -300,11 +300,14 @@ namespace nhitomi.Scrapers
             hash = DataContainer.DecompressHash(hash.Substring(0, hash.Length - ext.Length)); // substr instead of GetFileNameWithoutExtension because hash has slashes
 
             var cdn = SubdomainFromGalleryId(Convert.ToInt32(hash.Substring(hash.Length - 3, 2), 16));
+            var url = index == -1
+                ? $"https://tn.hitomi.la/bigtn/{FullPathFromHash(hash)}{ext}"
+                : $"https://{cdn}a.hitomi.la/images/{FullPathFromHash(hash)}{ext}";
 
             var response = await _http.SendAsync(new HttpRequestMessage
             {
                 Method     = HttpMethod.Get,
-                RequestUri = new Uri($"https://{cdn}a.hitomi.la/images/{FullPathFromHash(hash)}{ext}"),
+                RequestUri = new Uri(url),
                 Headers =
                 {
                     Referrer = new Uri($"https://hitomi.la/reader/{data.Id}.html")
