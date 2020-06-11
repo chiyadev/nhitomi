@@ -42,8 +42,9 @@ namespace nhitomi.Scrapers
         {
             var result = _source.Read(buffer, offset, count);
 
-            foreach (var dest in _destinations)
-                dest.Write(buffer, offset, count);
+            if (result != 0)
+                foreach (var dest in _destinations)
+                    dest.Write(buffer, offset, result);
 
             return result;
         }
@@ -52,18 +53,20 @@ namespace nhitomi.Scrapers
         {
             var result = _source.Read(buffer);
 
-            foreach (var dest in _destinations)
-                dest.Write(buffer);
+            if (result != 0)
+                foreach (var dest in _destinations)
+                    dest.Write(buffer.Slice(0, result));
 
             return result;
         }
 
         public override int ReadByte()
         {
-            var result = unchecked((byte) _source.ReadByte());
+            var result = _source.ReadByte();
 
-            foreach (var dest in _destinations)
-                dest.WriteByte(result);
+            if (result != -1)
+                foreach (var dest in _destinations)
+                    dest.WriteByte((byte) result);
 
             return result;
         }
@@ -72,7 +75,8 @@ namespace nhitomi.Scrapers
         {
             var result = await _source.ReadAsync(buffer, offset, count, cancellationToken);
 
-            await WhenAllFast(_destinations, s => s.WriteAsync(buffer, offset, count, cancellationToken));
+            if (result != 0)
+                await WhenAllFast(_destinations, s => s.WriteAsync(buffer, offset, result, cancellationToken));
 
             return result;
         }
@@ -81,7 +85,8 @@ namespace nhitomi.Scrapers
         {
             var result = await _source.ReadAsync(buffer, cancellationToken);
 
-            await WhenAllFast(_destinations, s => s.WriteAsync(buffer, cancellationToken));
+            if (result != 0)
+                await WhenAllFast(_destinations, s => s.WriteAsync(buffer.Slice(0, result), cancellationToken));
 
             return result;
         }
@@ -179,6 +184,12 @@ namespace nhitomi.Scrapers
 
         static Task WhenAllFast(Stream[] streams, Func<Stream, Task> func)
         {
+            switch (streams.Length)
+            {
+                case 0: return Task.CompletedTask;
+                case 1: return func(streams[0]);
+            }
+
             var tasks = new Task[streams.Length];
             var count = 0;
 
@@ -206,6 +217,12 @@ namespace nhitomi.Scrapers
 
         static ValueTask WhenAllFast(Stream[] streams, Func<Stream, ValueTask> func)
         {
+            switch (streams.Length)
+            {
+                case 0: return default;
+                case 1: return func(streams[0]);
+            }
+
             var tasks = new ValueTask[streams.Length];
             var count = 0;
 
