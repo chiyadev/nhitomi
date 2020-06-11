@@ -120,7 +120,7 @@ namespace nhitomi.Controllers
             var readResult = await _storage.ReadAsync($"snapshots/{snapshot.Id}", cancellationToken);
 
             if (readResult.TryPickT0(out var file, out _))
-                using (file)
+                await using (file)
                 {
                     var value = MessagePackSerializer.Deserialize<T>(await file.Stream.ToArrayAsync(cancellationToken), _serializerOptions);
 
@@ -223,7 +223,7 @@ namespace nhitomi.Controllers
             // otherwise use storage
             else
             {
-                using var file = new StorageFile
+                await using var file = new StorageFile
                 {
                     Name   = $"snapshots/{entry.Id}",
                     Stream = new MemoryStream(data)

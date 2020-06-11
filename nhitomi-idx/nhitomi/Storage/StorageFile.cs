@@ -1,9 +1,10 @@
 using System;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace nhitomi.Storage
 {
-    public class StorageFile : IDisposable
+    public class StorageFile : IAsyncDisposable
     {
         public string Name { get; set; }
         public Stream Stream { get; set; }
@@ -25,6 +26,12 @@ namespace nhitomi.Storage
             MediaType = mediaType;
         }
 
-        public void Dispose() => Stream?.Dispose();
+        public ValueTask DisposeAsync()
+        {
+            if (Stream == null)
+                return default;
+
+            return Stream.DisposeAsync();
+        }
     }
 }

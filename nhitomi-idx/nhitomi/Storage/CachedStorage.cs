@@ -67,7 +67,7 @@ namespace nhitomi.Storage
                     var result = await _impl.ReadAsync(name, cancellationToken);
 
                     if (result.TryPickT0(out var file, out _))
-                        using (file)
+                        await using (file)
                         {
                             cache = new Cache
                             {

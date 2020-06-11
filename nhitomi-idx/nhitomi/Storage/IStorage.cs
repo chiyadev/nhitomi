@@ -44,7 +44,7 @@ namespace nhitomi.Storage
             var result = await ReadAsync(name, cancellationToken);
 
             if (result.TryPickT0(out var file, out _))
-                using (file)
+                await using (file)
                     data = (encoding ?? Encoding.UTF8).GetString(await file.Stream.ToArrayAsync(cancellationToken));
 
             return string.IsNullOrEmpty(data) ? null : data;
@@ -54,7 +54,7 @@ namespace nhitomi.Storage
         {
             data ??= "";
 
-            using var file = new StorageFile
+            await using var file = new StorageFile
             {
                 Name      = name,
                 MediaType = mediaType,

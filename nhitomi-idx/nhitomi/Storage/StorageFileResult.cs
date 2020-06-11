@@ -31,7 +31,7 @@ namespace nhitomi.Storage
                 return;
             }
 
-            using (file)
+            await using (file)
             {
                 SetHeaders(context, file);
 
