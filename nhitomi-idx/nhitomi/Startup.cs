@@ -238,8 +238,7 @@ namespace nhitomi
 
             // other
             services.AddSingleton<StartupInitializer>()
-                    .AddSingleton<ILinkGenerator, LinkGenerator>()
-                    .AddSingleton<IImageProcessor, SkiaImageProcessor>();
+                    .AddSingleton<ILinkGenerator, LinkGenerator>();
 
             services.Configure<ProxyOptions>(_configuration.GetSection("Proxy"))
                     .AddHttpClient()

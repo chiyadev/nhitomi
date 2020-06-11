@@ -8,7 +8,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Newtonsoft.Json;
 using RichardSzalay.MockHttp;
-using SkiaSharp;
 
 namespace nhitomi
 {
@@ -16,14 +15,6 @@ namespace nhitomi
     {
         public static IFormFile AsFormFile(this Stream stream, string name = null)
             => new FormFile(stream, 0, stream.Length, name, name);
-
-        public static byte[] DummyImage(int width = 1000, int height = 1000, ImageFormat format = ImageFormat.Jpeg)
-        {
-            using var image = SKImage.Create(new SKImageInfo(width, height));
-            using var data  = image.Encode(SkiaImageProcessor.ConvertFormat(format), 1);
-
-            return data.ToArray();
-        }
 
         public static IServiceCollection RemoveLogging(this IServiceCollection services)
             => services.Replace(ServiceDescriptor.Singleton<ILoggerFactory, NullLoggerFactory>())
