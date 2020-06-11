@@ -98,16 +98,15 @@ namespace nhitomi.Scrapers
 
             Tags = new Dictionary<BookTag, string[]>
             {
-                // tags CAN be null!
-                [BookTag.Artist]     = _book.Tags?.Where(t => t.Type == "artist").ToArrayMany(ProcessTag),
-                [BookTag.Tag]        = _book.Tags?.Where(t => t.Type == "tag").ToArrayMany(ProcessTag),
-                [BookTag.Parody]     = _book.Tags?.Where(t => t.Type == "parody" && t.Name != "original").ToArrayMany(ProcessTag),
-                [BookTag.Character]  = _book.Tags?.Where(t => t.Type == "character").ToArrayMany(ProcessTag),
+                [BookTag.Artist]     = _book.Tags.Where(t => t.Type == "artist").ToArrayMany(ProcessTag),
+                [BookTag.Tag]        = _book.Tags.Where(t => t.Type == "tag").ToArrayMany(ProcessTag),
+                [BookTag.Parody]     = _book.Tags.Where(t => t.Type == "parody" && t.Name != "original").ToArrayMany(ProcessTag),
+                [BookTag.Character]  = _book.Tags.Where(t => t.Type == "character").ToArrayMany(ProcessTag),
                 [BookTag.Convention] = new[] { FindConvention(_book.Title.English ?? _book.Title.Japanese) },
-                [BookTag.Circle]     = _book.Tags?.Where(t => t.Type == "group").ToArrayMany(ProcessTag)
+                [BookTag.Circle]     = _book.Tags.Where(t => t.Type == "group").ToArrayMany(ProcessTag)
             },
 
-            Category = Enum.TryParse<BookCategory>(_book.Tags?.FirstOrDefault(t => t.Type == "category")?.Name, true, out var category) ? category : BookCategory.Doujinshi,
+            Category = Enum.TryParse<BookCategory>(_book.Tags.FirstOrDefault(t => t.Type == "category")?.Name, true, out var category) ? category : BookCategory.Doujinshi,
             Rating   = MaterialRating.Explicit, // explicit by default
         };
 
@@ -134,7 +133,7 @@ namespace nhitomi.Scrapers
 
         public override BookContentBase Content => new BookContentBase
         {
-            Language = _book.Tags?.FirstOrDefault(t => t.Type == "language" && t.Name != "translated")?.Name.ParseAsLanguage() ?? LanguageType.Japanese
+            Language = _book.Tags.FirstOrDefault(t => t.Type == "language" && t.Name != "translated")?.Name.ParseAsLanguage() ?? LanguageType.Japanese
         };
     }
 }
