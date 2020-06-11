@@ -172,7 +172,7 @@ namespace nhitomi.Scrapers
         {
             var data = DataContainer.Deserialize(content.Data);
 
-            if (!(0 <= index && index < data.Extensions.Length))
+            if (index < -1 || index >= data.Extensions.Length)
                 return null;
 
             var ext = ParseExtension(data.Extensions[index]);

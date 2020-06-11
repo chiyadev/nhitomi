@@ -294,7 +294,11 @@ namespace nhitomi.Scrapers
         public override async Task<StorageFile> GetImageAsync(DbBook book, DbBookContent content, int index, CancellationToken cancellationToken = default)
         {
             var data = DataContainer.Deserialize(content.Data);
-            var hash = data.Hashes[index];
+
+            if (index < -1 || index >= data.Hashes.Length)
+                return null;
+
+            var hash = data.Hashes[Math.Max(0, index)];
             var ext  = Path.GetExtension(hash);
 
             hash = DataContainer.DecompressHash(hash.Substring(0, hash.Length - ext.Length)); // substr instead of GetFileNameWithoutExtension because hash has slashes

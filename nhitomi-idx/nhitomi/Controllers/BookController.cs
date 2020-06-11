@@ -227,6 +227,9 @@ namespace nhitomi.Controllers
         [HttpGet("{id}/contents/{contentId}/pages/{index}", Name = "getBookImage"), ProducesFile, AllowAnonymous]
         public async Task<ActionResult> GetImageAsync(string id, string contentId, int index)
         {
+            if (index < -1)
+                return ResultUtilities.NotFound(id, contentId, index);
+
             var result = await _books.GetContentAsync(id, contentId);
 
             if (!result.TryPickT0(out var value, out _))
