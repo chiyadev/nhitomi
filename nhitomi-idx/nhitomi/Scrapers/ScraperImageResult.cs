@@ -1,3 +1,6 @@
+using System;
+using System.Buffers;
+using System.IO;
 using System.Runtime.ExceptionServices;
 using System.Threading;
 using System.Threading.Tasks;
@@ -16,6 +19,9 @@ namespace nhitomi.Scrapers
         /// </summary>
         protected abstract Task<StorageFile> GetImageAsync(ActionContext context);
 
+        const int _bufferSize = 32768;
+        static readonly ArrayPool<byte> _bufferPool = ArrayPool<byte>.Shared;
+
         public override async Task ExecuteResultAsync(ActionContext context)
         {
             var name = Name;
@@ -30,7 +36,7 @@ namespace nhitomi.Scrapers
             // file is already saved in storage
             if (result.TryPickT0(out var file, out var error))
             {
-                using (file)
+                await using (file)
                 {
                     StorageFileResult.SetHeaders(context, file);
 
@@ -62,13 +68,49 @@ namespace nhitomi.Scrapers
                         return;
                     }
 
-                    // save to storage while writing to response stream
-                    file.Name   = name;
-                    file.Stream = new ReadableAndConcurrentlyWritingStream(file.Stream, context.HttpContext.Response.Body);
+                    await using (file)
+                    {
+                        StorageFileResult.SetHeaders(context, file);
 
-                    StorageFileResult.SetHeaders(context, file);
+                        // pipe data to response stream while buffering in memory
+                        // buffering is required because certain storage implementations (s3) need to know stream length in advance
+                        await using var memory = new MemoryStream();
 
-                    await storage.WriteAsync(file, CancellationToken.None); // don't cancel
+                        var response = context.HttpContext.Response.BodyWriter;
+                        var buffer   = _bufferPool.Rent(_bufferSize);
+
+                        try
+                        {
+                            while (true)
+                            {
+                                var read = await file.Stream.ReadAsync(buffer, 0, buffer.Length, CancellationToken.None);
+
+                                if (read == 0)
+                                {
+                                    await response.CompleteAsync();
+                                    break;
+                                }
+
+                                memory.Write(buffer, 0, read);
+
+                                await response.WriteAsync(((ReadOnlyMemory<byte>) buffer).Slice(0, read), CancellationToken.None);
+                            }
+                        }
+                        finally
+                        {
+                            _bufferPool.Return(buffer);
+
+                            await file.DisposeAsync(); // opportunistic dispose
+                        }
+
+                        // save to storage
+                        await storage.WriteAsync(new StorageFile
+                        {
+                            Name      = name,
+                            MediaType = file.MediaType,
+                            Stream    = memory
+                        }, CancellationToken.None);
+                    }
                 }
             }
 
