@@ -153,7 +153,11 @@ namespace nhitomi
                 if (connection?.IsExhausted == false)
                     return connection;
 
-                var client = new TcpClient();
+                var client = new TcpClient
+                {
+                    SendBufferSize    = _bodyBufferSize,
+                    ReceiveBufferSize = _bodyBufferSize
+                };
 
                 try
                 {
@@ -163,7 +167,7 @@ namespace nhitomi
 
                     connection = new Connection(
                         new ConnectionConfigurationBuilder(false)
-                           .UseSettings(Settings.Default)
+                           .UseSettings(Settings.Max)
                            .Build(),
                         streams.ReadableStream,
                         streams.WriteableStream,
@@ -195,7 +199,7 @@ namespace nhitomi
             }
         }
 
-        const int _bodyBufferSize = 4096;
+        const int _bodyBufferSize = 32768;
         static readonly ArrayPool<byte> _bufferPool = ArrayPool<byte>.Shared;
 
         async Task<HttpResponseMessage> SendAsyncInternal(HttpRequestMessage request, CancellationToken cancellationToken)
