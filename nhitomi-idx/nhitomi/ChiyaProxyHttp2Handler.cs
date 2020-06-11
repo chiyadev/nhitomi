@@ -381,14 +381,14 @@ namespace nhitomi
 
             public override async ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken cancellationToken = new CancellationToken())
             {
-                // unfortunately we need a secondary byte[] buffer
+                // unfortunately we need a secondary buffer because http2dotnet won't take memory<byte>
                 var buffer2 = _bufferPool.Rent(buffer.Length);
 
                 try
                 {
-                    var result = await _stream.ReadAsync(new ArraySegment<byte>(buffer2, 0, buffer2.Length));
+                    var result = await _stream.ReadAsync(new ArraySegment<byte>(buffer2, 0, buffer.Length)); // original buffer (not buffer2) length!
 
-                    buffer2.CopyTo(buffer.Slice(0, result.BytesRead));
+                    ((Memory<byte>) buffer2).Slice(0, result.BytesRead).CopyTo(buffer);
 
                     if (result.EndOfStream)
                         foreach (var trailer in await _stream.ReadTrailersAsync())
