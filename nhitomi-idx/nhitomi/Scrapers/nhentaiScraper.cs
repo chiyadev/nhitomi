@@ -175,7 +175,7 @@ namespace nhitomi.Scrapers
             if (index < -1 || index >= data.Extensions.Length)
                 return null;
 
-            var ext = ParseExtension(data.Extensions[index]);
+            var ext = ParseExtension(data.Extensions[Math.Max(0, index)]);
             var url = index == -1
                 ? $"https://t.nhentai.net/galleries/{data.MediaId}/thumb{ext}"
                 : $"https://i.nhentai.net/galleries/{data.MediaId}/{index + 1}{ext}";
