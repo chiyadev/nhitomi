@@ -80,7 +80,7 @@ export class BookCollectionContentMessage extends BookListMessage {
     result = super.processRenderResult(result)
 
     result.message = `
-> __${this.collection.name}__ — ${Api.getWebLink(`collections/${this.collection.id}`)}
+> ${this.collection.name} — ${Api.getWebLink(`collections/${this.collection.id}`)}
 
 ${result.message}
 `.trim()
