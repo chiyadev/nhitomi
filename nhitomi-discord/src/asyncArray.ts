@@ -3,9 +3,9 @@ export class AsyncArray<T> {
   readonly cache: ({ loaded: true, value: T | undefined } | undefined)[] = []
 
   get loadedLength(): number {
-    for (let i = this.cache.length - 1; i >= 0; i--)
-      if (this.cache[i]?.value)
-        return i + 1
+    for (let i = this.cache.length; i > 0; i--)
+      if (this.cache[i - 1]?.value) // value must be set (not loaded=true)
+        return i
 
     return 0
   }
@@ -19,7 +19,7 @@ export class AsyncArray<T> {
   static fromArray<T>(array: T[]): AsyncArray<T> {
     const a = new AsyncArray<T>(1, async () => [])
 
-    for (let i = 1; i < array.length; i++)
+    for (let i = 0; i < array.length; i++)
       a.cache[i] = { loaded: true, value: array[i] }
 
     return a
