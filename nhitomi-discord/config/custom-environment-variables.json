@@ -1,6 +1,8 @@
 {
   "token": "Discord:Token",
   "prefix": "Discord:Prefix",
+  "serverInvite": "ServerInvite",
+  "botInvitePerms": "BotInvitePerms",
   "search": {
     "chunkSize": "Search:ChunkSize"
   },
@@ -15,6 +17,7 @@
     "cachedTokenExpiry": "Api:CachedTokenExpiry"
   },
   "status": {
+    "format": " Status:Format",
     "adjectives": "Status:Adjectives",
     "nouns": "Status:Nouns",
     "interval": "Status:Interval"

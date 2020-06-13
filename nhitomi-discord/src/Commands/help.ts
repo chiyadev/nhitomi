@@ -5,6 +5,7 @@ import { ListTrigger } from '../Triggers/list'
 import { Api } from '../api'
 import { MessageEmbedOptions } from 'discord.js'
 import config from 'config'
+import { Discord } from '../shard'
 
 type Page = 'doujinshi' | 'collections' | 'oss'
 const Pages: Page[] = ['doujinshi', 'collections', 'oss']
@@ -28,11 +29,18 @@ class HelpMessage extends InteractiveMessage {
       }
     }
 
+    const invite = l.get('invite', {
+      serverInvite: `https://discord.gg/${config.get<string>('serverInvite')}`,
+      botInvite: `https://discordapp.com/oauth2/authorize?client_id=${Discord.user?.id}&scope=bot&permissions=${config.get<string>('botInvitePerms')}`
+    })
+
     l = l.section(this.page)
     const prefix = config.get<string>('prefix')
 
     switch (this.page) {
       case 'doujinshi':
+        embed.description = invite
+
         embed.fields = [{
           name: l.get('title'),
           value: `

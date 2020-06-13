@@ -1,6 +1,8 @@
 {
   "token": "",
   "prefix": "n!",
+  "serverInvite": "JFNga7q",
+  "botInvitePerms": "347200",
   "search": {
     "chunkSize": 20
   },
