@@ -129,7 +129,9 @@ namespace nhitomi.Database
                                    .SkipDuplicates();
 
             if (Query.Fuzzy)
-                descriptor = descriptor.Fuzzy(f => f.Transpositions()
+                descriptor = descriptor.Fuzzy(f => f.Fuzziness(Fuzziness.Auto)
+                                                    .MinLength(2)
+                                                    .Transpositions()
                                                     .UnicodeAware());
 
             return descriptor;
@@ -1052,6 +1054,7 @@ namespace nhitomi.Database
             var index = await GetIndexAsync<T>(cancellationToken);
 
             var response = await Request(c => c.SearchAsync<T>(q => q.Index(index.IndexName)
+                                                                     .Source(false)
                                                                      .SequenceNumberPrimaryTerm()
                                                                      .Compose(processor.Process)
                                                                      .Suggest(s => s.Completion("suggest", processor.Process)), cancellationToken));
