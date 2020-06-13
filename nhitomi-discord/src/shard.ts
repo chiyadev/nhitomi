@@ -1,5 +1,5 @@
 import './logging'
-import { Client } from 'discord.js'
+import { Client, Message } from 'discord.js'
 import config from 'config'
 import { loadCommands, matchCommand } from './Commands'
 import { shouldHandleMessage, shouldHandleReaction } from './filter'
@@ -7,6 +7,9 @@ import { handleInteractiveMessage, handleInteractiveReaction, handleInteractiveM
 import { MessageContext } from './context'
 import { Api } from './api'
 import { beginPresenceRotation } from './status'
+import { BookListMessage } from './Commands/search'
+import { AsyncArray } from './asyncArray'
+import { BookMessage } from './Commands/get'
 
 export const Discord = new Client({
   fetchAllMembers: false,
@@ -45,45 +48,78 @@ function wrapHandler<T extends Function>(name: string, func: T): T {
   }) as unknown as T
 }
 
+async function whileTyping<T>(channel: Message['channel'], action: () => Promise<T>): Promise<T> {
+  let typing = true
+  channel.startTyping()
+
+  // max typing time 3s
+  setTimeout(() => { channel.stopTyping(); typing = false }, 3000)
+
+  try {
+    return await action()
+  }
+  finally {
+    if (typing)
+      channel.stopTyping()
+  }
+}
+
 Discord.on('message', wrapHandler('message', async message => {
   if (!await shouldHandleMessage(message)) return
   if (await handleInteractiveMessage(message)) return
 
   const prefix = config.get<string>('prefix')
 
-  if (!message.content.startsWith(prefix)) return
+  // message is a command
+  if (message.content.startsWith(prefix)) {
+    const content = message.content.substring(prefix.length).trim()
+    const space = content.indexOf(' ')
+    const command = space === -1 ? content : content.substring(0, space)
+    const arg = space === -1 ? undefined : content.substring(space + 1).trim()
 
-  const content = message.content.substring(prefix.length).trim()
-  const space = content.indexOf(' ')
-  const command = space === -1 ? content : content.substring(0, space)
-  const arg = space === -1 ? undefined : content.substring(space + 1).trim()
+    const func = matchCommand(command)
 
-  const func = matchCommand(command)
+    if (!func)
+      return
 
-  if (!func)
-    return
+    await whileTyping(message.channel, async () => {
+      const context = await MessageContext.create(message)
 
-  let typing = true
-  message.channel.startTyping()
+      try {
+        console.debug(`user ${context.user.id} '${context.user.username}' executing command '${command}' with args '${arg || ''}'`)
 
-  // max typing time 3s
-  setTimeout(() => { message.channel.stopTyping(); typing = false }, 3000)
-
-  try {
-    const context = await MessageContext.create(message)
-
-    try {
-      console.debug(`user ${context.user.id} '${context.user.username}' executing command '${command}' with args '${arg || ''}'`)
-
-      await func(context, arg)
-    }
-    finally {
-      context.destroy()
-    }
+        await func(context, arg)
+      }
+      finally {
+        context.destroy()
+      }
+    })
   }
-  finally {
-    if (typing)
-      message.channel.stopTyping()
+
+  // scan message for links (this is slightly different from n!get command because strict=false; allows multiple links)
+  else {
+    const result = await Api.book.getBooksByLink({ strict: false, getBookByLinkRequest: { link: message.content } })
+
+    if (!result.matches.length)
+      return
+
+    await whileTyping(message.channel, async () => {
+      const context = await MessageContext.create(message)
+
+      try {
+        if (result.matches.length === 1) {
+          const { book, selectedContentId } = result.matches[0]
+
+          await new BookMessage(book, book.contents.find(c => c.id === selectedContentId) || book.contents[0]).initialize(context)
+        }
+        else {
+          await new BookListMessage(AsyncArray.fromArray(result.matches.map(m => m.book))).initialize(context)
+        }
+      }
+      finally {
+        context.destroy()
+      }
+    })
   }
 }))
 
