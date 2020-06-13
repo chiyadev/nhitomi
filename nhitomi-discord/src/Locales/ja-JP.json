@@ -1,0 +1,107 @@
+{
+  "error": {
+    "title": "エラーが発生しました",
+    "description": "このエラーは開発者に報告されました。もう一度試してください。"
+  },
+  "reaction": {
+    "list": {
+      "jump": "ページを入力してください（`cancel`でキャンセル）:"
+    },
+    "favorite": {
+      "add": "`{name}`をお気に入りに追加しました。",
+      "remove": "`{name}`をお気に入りから削除しました。"
+    }
+  },
+  "help": {
+    "title": "ヘルプ",
+    "tagline": "同人誌ミラー",
+    "invite": "公式サーバーに[加入]({serverInvite})、またはnhitomiをあなたのサーバーに[追加]({botInvite})することができます。",
+    "owner": "chiya.dev",
+    "doujinshi": {
+      "title": "同人誌",
+      "get": "同人誌の情報を表示します。",
+      "from": "特定のサイトのすべての同人誌を表示します。",
+      "search": "タグまたは名前で同人誌を検索します。",
+      "read": "同人誌のページ内容を表示します。",
+      "sources": {
+        "title": "サイト"
+      }
+    },
+    "collections": {
+      "title": "コレクション管理",
+      "list": "全てのコレクションを表示します。",
+      "show": "コレクションの内容を表示します。",
+      "add": "コレクションに項目を追加します。",
+      "remove": "コレクションから項目を削除します。",
+      "delete": "コレクションを削除します。"
+    },
+    "oss": {
+      "title": "オープンソース",
+      "license": "nhitomiはMIT License下にライセンスされています。"
+    }
+  },
+  "get": {
+    "book": {
+      "pageCount": "{count}枚のページ",
+      "tags": {
+        "artist": "アーティスト",
+        "parody": "パロディ",
+        "character": "キャラ",
+        "convention": "イベント",
+        "series": "シリーズ",
+        "circle": "サークル",
+        "metadata": "メタ",
+        "tag": "タグ"
+      },
+      "categories": {
+        "doujinshi": "同人誌",
+        "manga": "漫画",
+        "artistCg": "アーティストCG",
+        "gameCg": "ゲームCG",
+        "lightNovel": "ライトノベル"
+      }
+    },
+    "notFound": {
+      "message": "`{input}`という項目が探せませんでした。",
+      "usageLink": "`{example}`のようにリンクを入力してみてください。",
+      "usageSource": "`{example}`のようにサイト名とIDを入力してみてください。"
+    }
+  },
+  "from": {
+    "badSource": {
+      "message": "`{input}`はサイト名ではありません。",
+      "list": "検索できるサイト:"
+    }
+  },
+  "read": {
+    "pagination": "{total}枚のページ中{current}"
+  },
+  "list": {
+    "empty": {
+      "title": "結果なし",
+      "message": "検索語と一致する項目がありません。"
+    }
+  },
+  "collection": {
+    "notFound": "`{input}`というコレクションが探せませんでした。",
+    "select": {
+      "message": "似た名前のコレクションがあります。コレクション選択:"
+    },
+    "add": {
+      "exists": "`{item}`はすでにコレクション`{collection}`に追加されています。",
+      "success": "`{item}`をコレクション`{collection}`に追加しました。",
+      "typeIncompatible": "`{item}` ({itemType})はコレクション`{collection}` ({collectionType})に追加できません。"
+    },
+    "remove": {
+      "notExists": "`{item}`はコレクション`{collection}`に追加されていません。",
+      "success": "`{item}`をコレクション`{collection}`から削除しました。"
+    },
+    "delete": {
+      "confirm": "本当にコレクション`{collection}`を削除しますか？(yes/no)",
+      "success": "コレクション`{collection}`が削除されました。"
+    },
+    "list": {
+      "itemCount": "{count}個の項目"
+    }
+  }
+}
