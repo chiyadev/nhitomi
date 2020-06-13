@@ -5,7 +5,7 @@ import { ValidationProblem } from '.'
  * Represents an error that occurs when validation fails.
  */
 export class ValidationError extends CustomError {
-  public list: ValidationProblem[]
+  list: ValidationProblem[]
 
   constructor(message: string, problems: ValidationProblem[]) {
     super(message)
@@ -14,12 +14,12 @@ export class ValidationError extends CustomError {
   }
 
   /** Finds the first validation problem with the given field prefix. */
-  public find(prefix: string) {
+  find(prefix: string) {
     return this.list.find(p => this.isPrefixed(p, prefix))
   }
 
   /** Removes all validation problems beginning with the given prefix. */
-  public remove(prefix: string) {
+  remove(prefix: string) {
     this.list = this.list.filter(p => !this.isPrefixed(p, prefix))
   }
 

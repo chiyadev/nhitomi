@@ -10,10 +10,10 @@ type SizeObj = { width: number, height: number }
 
 /** Contains functions for working with images asynchronously. */
 export class ImageWorker {
-  constructor(public readonly client: Client) { }
+  constructor(readonly client: Client) { }
 
   /** Detects format and dimensions from the given image file. */
-  public detect(buffer: Uint8Array): { width: number, height: number, type: string } {
+  detect(buffer: Uint8Array): { width: number, height: number, type: string } {
     const { width, height, mime: type } = probeImage(buffer) || {}
 
     if (!type)
@@ -23,7 +23,7 @@ export class ImageWorker {
   }
 
   /** Resizes the given image file. */
-  public async resize(src: ImageSource, size: SizeObj | ((size: SizeObj) => SizeObj), mode: ImageResizeMode, type: string, quality: number) {
+  async resize(src: ImageSource, size: SizeObj | ((size: SizeObj) => SizeObj), mode: ImageResizeMode, type: string, quality: number) {
     let { image, canvas, context, data } = await this.loadPixels(src)
 
     let { width, height } = typeof size === 'object' ? size : size(image)
@@ -68,7 +68,7 @@ export class ImageWorker {
   }
 
   /** Loads an image source into an uint8array. */
-  public async loadBuffer(src: ImageSource) {
+  async loadBuffer(src: ImageSource) {
     if (src instanceof Uint8Array)
       return src
 
@@ -76,7 +76,7 @@ export class ImageWorker {
   }
 
   /** Loads an image file as HTML image element. */
-  public loadImage(src: ImageSource) {
+  loadImage(src: ImageSource) {
     const blobSrc = src instanceof Uint8Array ? new Blob([src]) : src
 
     // use createImageBitmap on supported browsers
@@ -102,7 +102,7 @@ export class ImageWorker {
   }
 
   /** Loads a new canvas from an image file. */
-  public async loadCanvas(src: ImageSource) {
+  async loadCanvas(src: ImageSource) {
     const image = await this.loadImage(src)
 
     const { canvas, context } = this.createCanvas(image.width, image.height)
@@ -113,14 +113,14 @@ export class ImageWorker {
   }
 
   /** Loads pixel data from an image file. */
-  public async loadPixels(src: ImageSource) {
+  async loadPixels(src: ImageSource) {
     const { image, canvas, context } = await this.loadCanvas(src)
 
     return { image, canvas, context, data: context.getImageData(0, 0, canvas.width, canvas.height) }
   }
 
   /** Helper for creating a canvas element. */
-  public createCanvas(width: number, height: number) {
+  createCanvas(width: number, height: number) {
     const canvas = document.createElement('canvas')
 
     canvas.width = width
@@ -138,7 +138,7 @@ export class ImageWorker {
   }
 
   /** Serializes canvas data into an image file of the given format. */
-  public serializeCanvas(canvas: HTMLCanvasElement, type: string, quality: number) {
+  serializeCanvas(canvas: HTMLCanvasElement, type: string, quality: number) {
     return new Promise<Blob>((resolve, reject) =>
       canvas.toBlob(b => {
         if (b)
@@ -152,7 +152,7 @@ export class ImageWorker {
    * Lays the given image files side-by-side in a specific direction.
    * If some images are smaller than others, they will be scaled up to fit the width/height of the largest image based on the layout direction.
    */
-  public async combine(direction: 'vertical' | 'horizontal', type: string, quality: number, ...src: ImageSource[]) {
+  async combine(direction: 'vertical' | 'horizontal', type: string, quality: number, ...src: ImageSource[]) {
     if (!src.length)
       throw Error('No images to combine.')
 
@@ -218,7 +218,7 @@ export class ImageWorker {
   }
 
   /** Crops the given image file, returning a portion of it. */
-  public async crop(src: ImageSource, { x, y, width, height }: { x: number, y: number, width: number, height: number }, type: string, quality: number) {
+  async crop(src: ImageSource, { x, y, width, height }: { x: number, y: number, width: number, height: number }, type: string, quality: number) {
     const image = await this.loadImage(src)
 
     const { canvas, context } = this.createCanvas(width, height)

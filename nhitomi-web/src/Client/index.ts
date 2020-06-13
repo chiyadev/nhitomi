@@ -49,22 +49,22 @@ export class Client extends (EventEmitter as new () => StrictEventEmitter<EventE
   }
 
   /** User API. */
-  public user: UserApi
+  user: UserApi
 
   /** Info API */
-  public info: InfoApi
+  info: InfoApi
 
   /** Book API. */
-  public book: BookApi
+  book: BookApi
 
   /** Configuration manager. */
-  public config: ConfigManager
+  config: ConfigManager
 
   /** Image worker. */
-  public image: ImageWorker
+  image: ImageWorker
 
   /** Contains client and API information. */
-  public currentInfo!:
+  currentInfo!:
     GetInfoResponse & { authenticated: false } |
     GetInfoAuthenticatedResponse & { authenticated: true }
 
@@ -86,7 +86,7 @@ export class Client extends (EventEmitter as new () => StrictEventEmitter<EventE
   }
 
   /** Initializes this client. */
-  public async initialize() {
+  async initialize() {
     const url = new URL(BASE_PATH)
 
     // use current domain if base path is localhost

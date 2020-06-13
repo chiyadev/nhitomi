@@ -94,34 +94,34 @@ export type ShortcutConfig = {
 const StoreKeys = Object.keys(DefaultStore) as (keyof IStore)[]
 
 export class ConfigManager extends (EventEmitter as new () => StrictEventEmitter<EventEmitter, { [key in keyof IStore]: (value: IStore[key]) => void }>) implements IStore {
-  public token!: string | undefined
-  public baseUrl!: string | undefined
-  public workerConcurrency!: number
+  token!: string | undefined
+  baseUrl!: string | undefined
+  workerConcurrency!: number
 
-  public cancelKey!: ShortcutConfig
-  public sidebarKey!: ShortcutConfig
-  public scrollDownKey!: ShortcutConfig
-  public scrollUpKey!: ShortcutConfig
-  public nextPageKey!: ShortcutConfig
-  public previousPageKey!: ShortcutConfig
-  public firstPageKey!: ShortcutConfig
-  public lastPageKey!: ShortcutConfig
+  cancelKey!: ShortcutConfig
+  sidebarKey!: ShortcutConfig
+  scrollDownKey!: ShortcutConfig
+  scrollUpKey!: ShortcutConfig
+  nextPageKey!: ShortcutConfig
+  previousPageKey!: ShortcutConfig
+  firstPageKey!: ShortcutConfig
+  lastPageKey!: ShortcutConfig
 
-  public bookReaderViewportBound!: boolean
-  public bookReaderLeftToRight!: boolean
-  public bookReaderImagesPerRow!: number
-  public bookReaderSingleCover!: boolean
-  public bookReaderSnapping!: boolean
+  bookReaderViewportBound!: boolean
+  bookReaderLeftToRight!: boolean
+  bookReaderImagesPerRow!: number
+  bookReaderSingleCover!: boolean
+  bookReaderSnapping!: boolean
 
-  public bookReaderViewportBoundKey!: ShortcutConfig
-  public bookReaderLeftToRightKey!: ShortcutConfig
-  public bookReaderImagesPerRowKey!: ShortcutConfig
-  public bookReaderSingleCoverKey!: ShortcutConfig
-  public bookReaderSnappingKey!: ShortcutConfig
+  bookReaderViewportBoundKey!: ShortcutConfig
+  bookReaderLeftToRightKey!: ShortcutConfig
+  bookReaderImagesPerRowKey!: ShortcutConfig
+  bookReaderSingleCoverKey!: ShortcutConfig
+  bookReaderSnappingKey!: ShortcutConfig
 
-  public ocrVisualization!: boolean
+  ocrVisualization!: boolean
 
-  constructor(public readonly client: Client) {
+  constructor(readonly client: Client) {
     super()
 
     window.addEventListener('storage', ({ key, newValue }) => {
@@ -141,13 +141,13 @@ export class ConfigManager extends (EventEmitter as new () => StrictEventEmitter
     }
   }
 
-  public get<TKey extends keyof IStore>(key: TKey) {
+  get<TKey extends keyof IStore>(key: TKey) {
     const [success, value] = this.parse(localStorage.getItem(key))
 
     return success ? value as IStore[TKey] : DefaultStore[key]
   }
 
-  public set<TKey extends keyof IStore>(key: TKey, value: IStore[TKey]) {
+  set<TKey extends keyof IStore>(key: TKey, value: IStore[TKey]) {
     if (typeof value === 'undefined')
       localStorage.removeItem(key)
     else
@@ -156,12 +156,12 @@ export class ConfigManager extends (EventEmitter as new () => StrictEventEmitter
     this.emit(key as any, value)
   }
 
-  public async import(data: IStore) {
+  async import(data: IStore) {
     for (const key of StoreKeys)
       this.set(key, data[key] as any)
   }
 
-  public export() {
+  export() {
     const data = { ...DefaultStore } as any
 
     for (const key of StoreKeys)
