@@ -1,4 +1,8 @@
 {
+  "error": {
+    "title": "An error occurred",
+    "description": "This error has been reported to the developers. Please try again later!"
+  },
   "reaction": {
     "list": {
       "jump": "Type the page number to jump to, or `cancel`:"

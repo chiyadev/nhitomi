@@ -90,6 +90,28 @@ Discord.on('message', wrapHandler('message', async message => {
 
         await func(context, arg)
       }
+      catch (e) {
+        if (e instanceof Error) {
+          const l = context.locale.section('error')
+
+          await context.reply({
+            embed: {
+              title: l.get('title'),
+              color: 'RED',
+              description: `
+${l.get('description')}
+
+\`\`\`
+${e.stack}
+\`\`\`
+`.trim(),
+              footer: {
+                text: `${context.user.username} (${context.user.id})`
+              }
+            }
+          })
+        }
+      }
       finally {
         context.destroy()
       }
