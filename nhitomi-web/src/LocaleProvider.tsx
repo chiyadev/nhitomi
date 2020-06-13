@@ -2,12 +2,13 @@ import React, { createContext, ReactNode, useState, useMemo, useContext } from '
 import { IntlProvider } from 'react-intl'
 import { useAsync } from 'react-use'
 import { ProgressContext } from './Progress'
+import { LanguageType } from './Client'
 
-const defaultLocale = 'en-US'
+const defaultLocale = LanguageType.EnUS
 
 export const LocaleContext = createContext<{
-  locale: string
-  setLocale: (locale: string) => void
+  locale: LanguageType
+  setLocale: (locale: LanguageType) => void
 }>(undefined as any)
 
 export const LocaleProvider = ({ children }: { children?: ReactNode }) => {
