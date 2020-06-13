@@ -12,12 +12,12 @@ export function sourceInvalid(context: MessageContext, input: string): Promise<M
 ${input && l.get('message', { input })}
 
 ${l.get('list')}
-${Api.currentInfo.scrapers.filter(s => s.enabled).map(s => `> - ${s.name} — <${s.url}>`).sort().join('\n')}
+${Api.currentInfo.scrapers.map(s => `> - ${s.name} — <${s.url}>`).sort().join('\n')}
 `.trim())
 }
 
 export const run: CommandFunc = async (context, source) => {
-  const scraper = Api.currentInfo.scrapers.filter(s => s.enabled).find(s => source && s.type.toLowerCase().startsWith(source.toLowerCase()))
+  const scraper = Api.currentInfo.scrapers.find(s => source && s.type.toLowerCase().startsWith(source.toLowerCase()))
 
   switch (scraper?.category) {
     case ScraperCategory.Book: {
