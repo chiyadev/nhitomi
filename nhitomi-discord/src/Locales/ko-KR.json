@@ -1,0 +1,107 @@
+{
+  "error": {
+    "title": "에러가 발생했습니다",
+    "description": "이 에러는 개발자에게 보고되었습니다. 다시 시도해 주세요."
+  },
+  "reaction": {
+    "list": {
+      "jump": "페이지를 입력해 주세요 (`cancel`로 취소):"
+    },
+    "favorite": {
+      "add": "`{name}`을(를) 즐겨찾기에 추가했습니다.",
+      "remove": "`{name}`을(를) 즐겨찾기에서 제거했습니다."
+    }
+  },
+  "help": {
+    "title": "도움말",
+    "tagline": "동인지 미러",
+    "invite": "공식 서버에 [가입]({serverInvite})하거나 nhitomi를 서버에 [초대]({botInvite})할 수 있습니다.",
+    "owner": "chiya.dev",
+    "doujinshi": {
+      "title": "동인지",
+      "get": "동인지 정보를 표시합니다.",
+      "from": "특정 사이트의 모든 동인지를 표시합니다.",
+      "search": "태그 또는 이름으로 동인지를 검색합니다.",
+      "read": "동인지의 페이지 내용을 표시합니다.",
+      "sources": {
+        "title": "사이트"
+      }
+    },
+    "collections": {
+      "title": "컬렉션 관리",
+      "list": "모든 컬렉션을 표시합니다.",
+      "show": "컬렉션의 내용을 표시합니다.",
+      "add": "컬렉션에 항목을 추가합니다.",
+      "remove": "컬렉션에서 항목을 제거합니다.",
+      "delete": "컬렉션을 삭제합니다."
+    },
+    "oss": {
+      "title": "오픈 소스",
+      "license": "nhitomi는 MIT License하에 배포됩니다."
+    }
+  },
+  "get": {
+    "book": {
+      "pageCount": "{count} 페이지",
+      "tags": {
+        "artist": "아티스트",
+        "parody": "패러디",
+        "character": "캐릭터",
+        "convention": "이벤트",
+        "series": "시리즈",
+        "circle": "서클",
+        "metadata": "메타",
+        "tag": "태그"
+      },
+      "categories": {
+        "doujinshi": "동인지",
+        "manga": "만화",
+        "artistCG": "아티스트 CG",
+        "gameCg": "게임 CG",
+        "lightNovel": "라노벨"
+      }
+    },
+    "notFound": {
+      "message": "`{input}`이라는 항목을 찾을 수 없었습니다.",
+      "usageLink": "`{example}`처럼 링크를 삽입해 보세요.",
+      "usageSource": "`{example}`처럼 사이트 이름과 아이디를 입력해 보세요."
+    }
+  },
+  "from": {
+    "badSource": {
+      "message": "`{input}`은(는) 사이트 이름이 아닙니다.",
+      "list": "검색 가능한 사이트들:"
+    }
+  },
+  "read": {
+    "pagination": "{total} 페이지 중 {current}"
+  },
+  "list": {
+    "empty": {
+      "title": "결과 없음",
+      "message": "검색어와 일치하는 항목이 없습니다."
+    }
+  },
+  "collection": {
+    "notFound": "`{input}`이라는 컬렉션을 찾을 수 없었습니다.",
+    "select": {
+      "message": "이름이 비슷한 컬렉션들이 있습니다. 컬렉션 선택:"
+    },
+    "add": {
+      "exists": "`{item}`은(는) 이미 컬렉션 `{collection}`에 추가되어 있습니다.",
+      "success": "`{item}`을(를) 컬렉션 `{collection}`에 추가했습니다.",
+      "typeIncompatible": "`{item}` ({itemType})을(를) 컬렉션 `{collection}` ({collectionType})에 추가할 수 없습니다."
+    },
+    "remove": {
+      "notExists": "`{item}`은(는) 컬렉션 `{collection}`에 추가되어 있지 않습니다.",
+      "success": "`{item}`을(를) 컬렉션 `{collection}`에서 제거했습니다."
+    },
+    "delete": {
+      "confirm": "정말로 컬렉션 `{collection}`을(를) 삭제하시겠습니까? (yes/no)",
+      "success": "컬렉션 `{collection}`을(를) 삭제했습니다."
+    },
+    "list": {
+      "itemCount": "{count} 항목"
+    }
+  }
+}
