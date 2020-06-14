@@ -104,18 +104,18 @@ export const LanguageTypeList = Object.keys(LanguageTypeLabels) as LanguageType[
 /** Preset colors for language types. */
 export const LanguageTypeColorPresets: typeof LanguageTypeLabels = {
   'ja-JP': 'cyan',
-  'en-US': 'purple',
+  'en-US': 'yellow',
   'zh-CN': 'orange',
   'ko-KR': 'geekblue',
-  'it-IT': 'grey',
-  'es-ES': 'grey',
-  'de-DE': 'grey',
-  'fr-FR': 'grey',
-  'tr-TR': 'grey',
-  'nl-nl': 'grey',
-  'ru-RU': 'grey',
-  'id-ID': 'grey',
-  'vi-VN': 'grey'
+  'it-IT': 'purple',
+  'es-ES': 'purple',
+  'de-DE': 'purple',
+  'fr-FR': 'purple',
+  'tr-TR': 'purple',
+  'nl-nl': 'purple',
+  'ru-RU': 'purple',
+  'id-ID': 'purple',
+  'vi-VN': 'purple'
 }
 
 /** Hex colors for language types. */
