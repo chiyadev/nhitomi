@@ -36,6 +36,7 @@
     "probe-image-size": "^5.0.0",
     "qs": "^6.9.4",
     "react-app-rewired": "^2.1.6",
+    "react-flag-kit": "^0.3.1",
     "react-google-recaptcha": "^2.1.0",
     "react-intl": "^4.6.9",
     "react-router-dom": "^5.2.0",
