@@ -8,6 +8,7 @@ import { ClientContext } from '../ClientContext'
 import { LayoutContent } from '../Layout'
 import { SearchManager, SearchState } from './searchManager'
 import { Header } from './Header'
+import { LocaleContext } from '../LocaleProvider'
 
 export function getBookListingPrefetch(): Prefetch<SearchState> {
   return {
@@ -42,22 +43,27 @@ const Loaded = ({ state, dispatch }: { state: SearchState, dispatch: Dispatch<Se
 
   const client = useContext(ClientContext)
   const { start, stop } = useContext(ProgressContext)
+  const { locale, setLocale } = useContext(LocaleContext)
 
   const manager = useRef(new SearchManager(client)).current
   manager.setState(state)
 
   useLayoutEffect(() => {
-    const onloading = (v: boolean) => { if (v) start(); else stop() }
+    const onloading = (loading: boolean) => { if (loading) start(); else stop() }
     const onstate = () => dispatch(manager.state)
+
+    manager.language = locale
 
     manager.on('loading', onloading)
     manager.on('state', onstate)
+    manager.on('language', setLocale)
 
     return () => {
       manager.off('loading', onloading)
       manager.off('state', onstate)
+      manager.off('language', setLocale)
     }
-  }, [dispatch, manager, start, stop])
+  }, [dispatch, locale, manager, setLocale, start, stop])
 
   const [selected, setSelected] = useState<string>()
 
