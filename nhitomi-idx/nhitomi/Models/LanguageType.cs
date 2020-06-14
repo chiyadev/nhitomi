@@ -23,7 +23,7 @@ namespace nhitomi.Models
         [EnumMember(Value = "de-DE")] German = 6,
         [EnumMember(Value = "fr-FR")] French = 7,
         [EnumMember(Value = "tr-TR")] Turkish = 8,
-        [EnumMember(Value = "nl-nl")] Dutch = 9,
+        [EnumMember(Value = "nl-NL")] Dutch = 9,
         [EnumMember(Value = "ru-RU")] Russian = 10,
         [EnumMember(Value = "id-ID")] Indonesian = 11,
         [EnumMember(Value = "vi-VN")] Vietnamese = 12
