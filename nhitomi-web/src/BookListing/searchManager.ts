@@ -2,6 +2,14 @@ import { EventEmitter } from 'events'
 import StrictEventEmitter from 'strict-event-emitter-types'
 import { BookTag, Book, BookQuery, BookSort, SortDirection, BookQueryTags, QueryMatchMode, Client, LanguageType } from '../Client'
 
+export type SearchQuery = {
+  type: 'simple'
+  value: string
+} | {
+  type: 'tag'
+  items: TagQueryItem[]
+}
+
 export type TagQueryItem = {
   type: BookTag
   value: string
@@ -12,8 +20,7 @@ export type SearchState = {
   items: Book[]
   total: number
   end: boolean
-  simpleQuery?: string
-  tagQuery: TagQueryItem[]
+  query: SearchQuery
   language: LanguageType
 }
 
@@ -21,13 +28,17 @@ export class SearchManager extends (EventEmitter as new () => StrictEventEmitter
   loading: (loading: boolean) => void
   state: (state: SearchState) => void
   refresh: () => void
+  failed: (error: Error) => void
 }>) {
   state: SearchState = {
     id: Math.random(),
     items: [],
     end: true,
     total: 0,
-    tagQuery: [],
+    query: {
+      type: 'tag',
+      items: []
+    },
     language: LanguageType.EnUS
   }
 
@@ -43,11 +54,8 @@ export class SearchManager extends (EventEmitter as new () => StrictEventEmitter
   get end(): boolean { return this.state.end }
   set end(v: boolean) { this.emit('state', { ...this.state, end: v }) }
 
-  get simpleQuery(): string | undefined { return this.state.simpleQuery }
-  set simpleQuery(v: string | undefined) { this.emit('state', { ...this.state, simpleQuery: v }); this.emit('refresh') }
-
-  get tagQuery(): TagQueryItem[] { return this.state.tagQuery }
-  set tagQuery(v: TagQueryItem[]) { this.emit('state', { ...this.state, tagQuery: v }); this.emit('refresh') }
+  get query(): SearchQuery { return this.state.query }
+  set query(v: SearchQuery) { this.emit('state', { ...this.state, query: v }); this.emit('refresh') }
 
   get language(): LanguageType { return this.state.language }
   set language(v: LanguageType) { this.emit('state', { ...this.state, language: v }); this.emit('refresh') }
@@ -60,25 +68,35 @@ export class SearchManager extends (EventEmitter as new () => StrictEventEmitter
   }
 
   toggleTag({ type, value }: TagQueryItem) {
-    for (const item of this.tagQuery) {
+    if (this.query.type !== 'tag')
+      return
+
+    for (const item of this.query.items) {
       if (item.type === type && item.value === value) {
-        this.tagQuery = this.tagQuery.filter(v => v !== item)
+        this.query = {
+          ...this.query,
+          items: this.query.items.filter(v => v !== item)
+        }
         return
       }
     }
 
-    this.tagQuery = [...this.tagQuery, { type, value }]
+    this.query = {
+      ...this.query,
+      items: [...this.query.items, { type, value }]
+    }
   }
 
   createQuery(offset?: number): BookQuery {
     return {
-      all: !this.simpleQuery ? undefined : {
-        values: [this.simpleQuery]
+      all: this.query.type !== 'simple' || !this.query.value ? undefined : {
+        values: [this.query.value],
+        mode: QueryMatchMode.All
       },
       language: {
         values: [this.language]
       },
-      tags: this.tagQuery.reduce((tags, { type, value }) => {
+      tags: this.query.type !== 'tag' ? undefined : this.query.items.reduce((tags, { type, value }) => {
         const tag = tags[type] || (tags[type] = { values: [], mode: QueryMatchMode.All })
 
         tag.values.push(value)
@@ -116,6 +134,10 @@ export class SearchManager extends (EventEmitter as new () => StrictEventEmitter
 
       return this.items
     }
+    catch (e) {
+      this.end = true
+      this.emit('failed', e)
+    }
     finally {
       this.emit('loading', false)
     }
@@ -149,6 +171,10 @@ export class SearchManager extends (EventEmitter as new () => StrictEventEmitter
       }
 
       return this.items
+    }
+    catch (e) {
+      this.end = true
+      this.emit('failed', e)
     }
     finally {
       this.emit('loading', false)
