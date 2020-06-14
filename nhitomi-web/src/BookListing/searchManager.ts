@@ -31,7 +31,7 @@ export class SearchManager extends (EventEmitter as new () => StrictEventEmitter
   state: (state: SearchState) => void
 }>) {
   state: SearchState = {
-    id: 1,
+    id: Math.random(),
     items: [],
     end: false,
     total: 0,
@@ -49,28 +49,24 @@ export class SearchManager extends (EventEmitter as new () => StrictEventEmitter
   set end(v: boolean) { this.emit('end', this.state.end = v); this.emit('state', this.state) }
 
   get simpleQuery(): string | undefined { return this.state.simpleQuery }
-  set simpleQuery(v: string | undefined) { this.emit('simpleQuery', this.state.simpleQuery = v); this.emit('state', this.state) }
+  set simpleQuery(v: string | undefined) { this.emit('simpleQuery', this.state.simpleQuery = v); this.emit('state', this.state); this.refresh() }
 
   get tagQuery(): TagQueryItem[] { return this.state.tagQuery }
-  set tagQuery(v: TagQueryItem[]) { this.emit('tagQuery', this.state.tagQuery = v); this.emit('state', this.state) }
+  set tagQuery(v: TagQueryItem[]) { this.emit('tagQuery', this.state.tagQuery = v); this.emit('state', this.state); this.refresh() }
 
   get language(): LanguageType { return this.state.language }
-  set language(v: LanguageType) { this.emit('language', this.state.language = v); this.emit('state', this.state) }
+  set language(v: LanguageType) { this.emit('language', this.state.language = v); this.emit('state', this.state); this.refresh() }
 
-  constructor(readonly client: Client) {
-    super()
-
-    this.on('simpleQuery', () => this.refresh())
-    this.on('tagQuery', () => this.refresh())
-    this.on('language', () => this.refresh())
-  }
+  constructor(readonly client: Client) { super() }
 
   setState(state: SearchState) {
     if (this.state.id === state.id)
       return
 
+    this.emit('state', this.state = state)
+
     for (const key in state)
-      (this as any)[key] = (state as any)[key]
+      this.emit(key as any, (state as any)[key])
   }
 
   toggleTag({ type, value }: TagQueryItem) {
