@@ -17,6 +17,10 @@ export function getBookListingPrefetch(): Prefetch<SearchState> {
     func: async client => {
       const manager = new SearchManager(client)
 
+      if (client.currentInfo.authenticated) {
+        manager.language = client.currentInfo.user.language
+      }
+
       await manager.refresh()
 
       return manager.state
@@ -51,8 +55,6 @@ const Loaded = ({ state, dispatch }: { state: SearchState, dispatch: Dispatch<Se
   useLayoutEffect(() => {
     const onloading = (loading: boolean) => { if (loading) start(); else stop() }
     const onstate = () => dispatch(manager.state)
-
-    manager.language = locale
 
     manager.on('loading', onloading)
     manager.on('state', onstate)
