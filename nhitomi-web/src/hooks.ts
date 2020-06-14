@@ -1,4 +1,7 @@
-import { useTitle } from 'react-use'
+import { useTitle, useUpdate } from 'react-use'
+import StrictEventEmitter from 'strict-event-emitter-types'
+import { EventEmitter } from 'events'
+import { useLayoutEffect } from 'react'
 
 /**
  * Sets the name of the current tab.
@@ -11,4 +14,19 @@ export function useTabTitle(...titleParts: (string | undefined)[]) {
   return useTitle(title, {
     restoreOnUnmount: false
   })
+}
+
+/**
+ * Rerenders a component when the given emitter emits an event of a specific name.
+ * @param emitter emitter to listen to the events of
+ * @param event event name
+ */
+export function useUpdateOnEvent<TEmitter extends StrictEventEmitter<EventEmitter, TEventRecord>, TEventRecord extends {}>(emitter: TEmitter, event: keyof TEventRecord) {
+  const rerender = useUpdate()
+
+  useLayoutEffect(() => {
+    emitter.on(event, rerender)
+
+    return () => { emitter.off(event as string, rerender) }
+  }, [emitter, event, rerender])
 }
