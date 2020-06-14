@@ -21,6 +21,7 @@ export function getBookListingPrefetch(): Prefetch<SearchState> {
         manager.language = client.currentInfo.user.language
       }
 
+      manager.canRefresh = true
       await manager.refresh()
 
       return manager.state
@@ -50,20 +51,24 @@ const Loaded = ({ state, dispatch }: { state: SearchState, dispatch: Dispatch<Se
   const { locale, setLocale } = useContext(LocaleContext)
 
   const manager = useRef(new SearchManager(client)).current
-  manager.setState(state)
+  manager.canRefresh = true
+
+  if (manager.id !== state.id)
+    manager.emit('state', state)
 
   useLayoutEffect(() => {
     const onloading = (loading: boolean) => { if (loading) start(); else stop() }
-    const onstate = () => dispatch(manager.state)
+    const onstate = () => {
+      setLocale(manager.language)
+      dispatch(manager.state)
+    }
 
     manager.on('loading', onloading)
     manager.on('state', onstate)
-    manager.on('language', setLocale)
 
     return () => {
       manager.off('loading', onloading)
       manager.off('state', onstate)
-      manager.off('language', setLocale)
     }
   }, [dispatch, locale, manager, setLocale, start, stop])
 

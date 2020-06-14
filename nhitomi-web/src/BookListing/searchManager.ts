@@ -1,5 +1,5 @@
 import { EventEmitter } from 'events'
-import StrictEventEmitter from 'strict-event-emitter-types/types/src'
+import StrictEventEmitter from 'strict-event-emitter-types'
 import { BookTag, Book, BookQuery, BookSort, SortDirection, BookQueryTags, QueryMatchMode, Client, LanguageType } from '../Client'
 
 export type TagQueryItem = {
@@ -19,54 +19,44 @@ export type SearchState = {
 
 export class SearchManager extends (EventEmitter as new () => StrictEventEmitter<EventEmitter, {
   loading: (loading: boolean) => void
-
-  items: (items: Book[]) => void
-  total: (total: number) => void
-  end: (end: boolean) => void
-
-  simpleQuery: (query?: string) => void
-  tagQuery: (items: TagQueryItem[]) => void
-  language: (language: LanguageType) => void
-
   state: (state: SearchState) => void
+  refresh: () => void
 }>) {
   state: SearchState = {
     id: Math.random(),
     items: [],
-    end: false,
+    end: true,
     total: 0,
     tagQuery: [],
     language: LanguageType.EnUS
   }
 
+  get id(): number { return this.state.id }
+  set id(v: number) { this.emit('state', { ...this.state, id: v }) }
+
   get items(): Book[] { return this.state.items }
-  set items(v: Book[]) { this.emit('items', this.state.items = v); this.emit('state', this.state) }
+  set items(v: Book[]) { this.emit('state', { ...this.state, items: v }) }
 
   get total(): number { return this.state.total }
-  set total(v: number) { this.emit('total', this.state.total = v); this.emit('state', this.state) }
+  set total(v: number) { this.emit('state', { ...this.state, total: v }) }
 
   get end(): boolean { return this.state.end }
-  set end(v: boolean) { this.emit('end', this.state.end = v); this.emit('state', this.state) }
+  set end(v: boolean) { this.emit('state', { ...this.state, end: v }) }
 
   get simpleQuery(): string | undefined { return this.state.simpleQuery }
-  set simpleQuery(v: string | undefined) { if (v === this.simpleQuery) return; this.emit('simpleQuery', this.state.simpleQuery = v); this.emit('state', this.state); this.refresh() }
+  set simpleQuery(v: string | undefined) { this.emit('state', { ...this.state, simpleQuery: v }); this.emit('refresh') }
 
   get tagQuery(): TagQueryItem[] { return this.state.tagQuery }
-  set tagQuery(v: TagQueryItem[]) { if (v === this.tagQuery) return; this.emit('tagQuery', this.state.tagQuery = v); this.emit('state', this.state); this.refresh() }
+  set tagQuery(v: TagQueryItem[]) { this.emit('state', { ...this.state, tagQuery: v }); this.emit('refresh') }
 
   get language(): LanguageType { return this.state.language }
-  set language(v: LanguageType) { if (v === this.language) return; this.emit('language', this.state.language = v); this.emit('state', this.state); this.refresh() }
+  set language(v: LanguageType) { this.emit('state', { ...this.state, language: v }); this.emit('refresh') }
 
-  constructor(readonly client: Client) { super() }
+  constructor(readonly client: Client) {
+    super()
 
-  setState(state: SearchState) {
-    if (this.state.id === state.id)
-      return
-
-    this.emit('state', this.state = state)
-
-    for (const key in state)
-      this.emit(key as any, (state as any)[key])
+    this.on('state', s => this.state = s)
+    this.on('refresh', () => this.refreshOnce())
   }
 
   toggleTag({ type, value }: TagQueryItem) {
@@ -104,16 +94,21 @@ export class SearchManager extends (EventEmitter as new () => StrictEventEmitter
     }
   }
 
+  canRefresh = false
+
   /** Searches from the start. */
   async refresh() {
+    if (!this.canRefresh)
+      return this.items
+
     this.emit('loading', true)
 
     try {
-      const id = ++this.state.id
+      const id = ++this.id
 
       const { items, total } = await this.client.book.searchBooks({ bookQuery: this.createQuery() })
 
-      if (this.state.id === id) {
+      if (this.id === id) {
         this.items = items
         this.total = total
         this.end = items.length >= total
@@ -126,16 +121,28 @@ export class SearchManager extends (EventEmitter as new () => StrictEventEmitter
     }
   }
 
+  private refreshTask?: number
+
+  refreshOnce() {
+    if (this.refreshTask || !this.canRefresh)
+      return
+
+    this.refreshTask = setTimeout(() => {
+      this.refreshTask = undefined
+      this.refresh()
+    })
+  }
+
   /** Loads more results after the current page. */
   async further() {
     this.emit('loading', true)
 
     try {
-      const id = ++this.state.id
+      const id = ++this.id
 
       const { items, total } = await this.client.book.searchBooks({ bookQuery: this.createQuery(this.state.items.length) })
 
-      if (this.state.id === id) {
+      if (this.id === id) {
         this.items = [...this.items, ...items]
         this.total = total
         this.end = this.items.length >= total

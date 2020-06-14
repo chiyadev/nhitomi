@@ -1,7 +1,7 @@
 import { CloseOutlined } from '@ant-design/icons'
 import { Card, List, Popover, Typography, Spin, Empty } from 'antd'
 import { ListGridType } from 'antd/lib/list'
-import React, { useContext, useMemo, useRef, useState, useLayoutEffect, CSSProperties } from 'react'
+import React, { useContext, useMemo, useRef, useLayoutEffect, CSSProperties } from 'react'
 import { useIntl } from 'react-intl'
 import { useMouseHovered } from 'react-use'
 import { BookTagList, CategoryDisplay, LanguageTypeDisplay, MaterialRatingDisplay, TagDisplay } from '../Tags'
@@ -12,6 +12,7 @@ import { AsyncImage } from '../AsyncImage'
 import { BookReaderLink } from '../BookReader'
 import VisibilitySensor from 'react-visibility-sensor'
 import { BookListingContext } from '.'
+import { useUpdateOnEvent } from '../hooks'
 
 const gridGutter = 2
 const gridLayout: ListGridType = {
@@ -29,22 +30,16 @@ export const GridListing = ({ selected, setSelected }: {
   setSelected: (id?: string) => void
 }) => {
   const { manager } = useContext(BookListingContext)
-  const [items, setItems] = useState<Book[]>(manager.items)
 
-  useLayoutEffect(() => {
-    const set = (items: Book[]) => setItems(items.slice())
-
-    manager.on('items', set)
-    return () => { manager.off('items', set) }
-  }, [manager])
+  useUpdateOnEvent(manager, 'state')
 
   // optimization
-  const setSelectedFuncs = useMemo(() => items.map(book => (v: boolean) => setSelected(v ? book.id : undefined)), [items, setSelected])
+  const setSelectedFuncs = useMemo(() => manager.items.map(book => (v: boolean) => setSelected(v ? book.id : undefined)), [manager.items, setSelected])
 
   const list = useMemo(() =>
     <List
       grid={gridLayout}
-      dataSource={items}
+      dataSource={manager.items}
       rowKey={book => book.id}
       renderItem={(book, i) => (
         <Item
@@ -52,13 +47,9 @@ export const GridListing = ({ selected, setSelected }: {
           selected={book.id === selected}
           setSelected={setSelectedFuncs[i]} />
       )} />,
-    [
-      items,
-      selected,
-      setSelectedFuncs
-    ])
+    [manager.items, selected, setSelectedFuncs])
 
-  if (!items.length)
+  if (!manager.items.length)
     return <Empty description='No results' />
 
   return <>
@@ -69,23 +60,16 @@ export const GridListing = ({ selected, setSelected }: {
 }
 
 const FurtherLoader = () => {
-  const { manager } = useContext(BookListingContext)
   const loading = useRef(false)
+  const { manager } = useContext(BookListingContext)
 
-  const [end, setEnd] = useState(manager.end)
+  useUpdateOnEvent(manager, 'state')
 
-  useLayoutEffect(() => {
-    const onend = (end: boolean) => {
-      setEnd(end)
-      loading.current = loading.current && !end
-    }
+  if (manager.end) {
+    loading.current = false
 
-    manager.on('end', onend)
-    return () => { manager.off('end', onend) }
-  }, [manager])
-
-  if (end)
     return null
+  }
 
   return <VisibilitySensor partialVisibility onChange={async value => {
     const beginLoad = !loading.current && value
