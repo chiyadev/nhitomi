@@ -9,6 +9,7 @@ import { LayoutContent } from '../Layout'
 import { SearchManager, SearchState } from './searchManager'
 import { Header } from './Header'
 import { LocaleContext } from '../LocaleProvider'
+import { NotificationContext } from '../NotificationContext'
 
 export function getBookListingPrefetch(): Prefetch<SearchState> {
   return {
@@ -49,6 +50,7 @@ const Loaded = ({ state, dispatch }: { state: SearchState, dispatch: Dispatch<Se
   const client = useContext(ClientContext)
   const { start, stop } = useContext(ProgressContext)
   const { locale, setLocale } = useContext(LocaleContext)
+  const { notification: { error } } = useContext(NotificationContext)
 
   const manager = useRef(new SearchManager(client)).current
   manager.canRefresh = true
@@ -65,12 +67,14 @@ const Loaded = ({ state, dispatch }: { state: SearchState, dispatch: Dispatch<Se
 
     manager.on('loading', onloading)
     manager.on('state', onstate)
+    manager.on('failed', error)
 
     return () => {
       manager.off('loading', onloading)
       manager.off('state', onstate)
+      manager.off('failed', error)
     }
-  }, [dispatch, locale, manager, setLocale, start, stop])
+  }, [dispatch, error, locale, manager, setLocale, start, stop])
 
   const [selected, setSelected] = useState<string>()
 
