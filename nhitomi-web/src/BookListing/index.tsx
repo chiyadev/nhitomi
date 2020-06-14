@@ -1,8 +1,6 @@
 import { BookOutlined } from '@ant-design/icons'
-import { Empty, PageHeader } from 'antd'
-import React, { Dispatch, useCallback, useContext, useRef, useState, createContext, useMemo } from 'react'
-import { useAsync } from 'react-use'
-import { Book, BookQuery, BookSort, SortDirection } from '../Client'
+import { PageHeader } from 'antd'
+import React, { Dispatch, useContext, useRef, useState, createContext, useMemo, useLayoutEffect } from 'react'
 import { useTabTitle } from '../hooks'
 import { Prefetch, PrefetchLink, PrefetchLinkProps, usePrefetch } from '../Prefetch'
 import { ProgressContext } from '../Progress'
@@ -11,38 +9,18 @@ import { GridListing } from './Grid'
 import { Search } from './Search'
 import { ClientContext } from '../ClientContext'
 import { LayoutContent } from '../Layout'
+import { SearchManager, SearchState } from './searchManager'
 
-type Fetched = {
-  query: BookQuery
-  pending: boolean
-
-  /** this contains all items including ones loaded by infinite-scroll */
-  items: Book[]
-  total: number
-}
-
-export function getBookListingPrefetch(): Prefetch<Fetched> {
+export function getBookListingPrefetch(): Prefetch<SearchState> {
   return {
     path: '/books',
 
     func: async client => {
-      const query: BookQuery = {
-        offset: 0,
-        limit: 50,
-        sorting: [{
-          value: BookSort.CreatedTime,
-          direction: SortDirection.Descending
-        }]
-      }
+      const manager = new SearchManager(client)
 
-      const result = await client.book.searchBooks({ bookQuery: query })
+      await manager.refresh()
 
-      return {
-        query,
-        pending: false,
-        items: result.items,
-        total: result.total
-      }
+      return manager.state
     }
   }
 }
@@ -51,90 +29,63 @@ export const BookListing = () => {
   const { result, dispatch } = usePrefetch(getBookListingPrefetch())
 
   if (result)
-    return <Loaded fetched={result} dispatch={dispatch} />
+    return <Loaded state={result} dispatch={dispatch} />
 
   return null
 }
 
 export const BookListingLink = (props: PrefetchLinkProps) => <PrefetchLink fetch={getBookListingPrefetch()} {...props} />
 
-export const BookQueryContext = createContext<{
-  query: BookQuery
-  setQuery: (q: BookQuery) => void
-}>(undefined as any)
+export const BookListingContext = createContext<{ manager: SearchManager }>(undefined as any)
 
-const Loaded = ({ fetched, dispatch }: { fetched: Fetched, dispatch: Dispatch<Fetched> }) => {
-  const { query, pending, items, total } = fetched
-
+const Loaded = ({ state, dispatch }: { state: SearchState, dispatch: Dispatch<SearchState> }) => {
   useTabTitle('Books')
   useScrollShortcut()
 
   const client = useContext(ClientContext)
   const { start, stop } = useContext(ProgressContext)
 
-  const queryId = useRef(0)
+  const manager = useRef(new SearchManager(client)).current
+  manager.setState(state)
 
-  // search handler
-  useAsync(async () => {
-    if (!pending)
-      return
+  useLayoutEffect(() => {
+    const loading = (v: boolean) => { if (v) start(); else stop() }
+    const dispatchState = () => dispatch(manager.state)
 
-    start()
+    manager.on('loading', loading)
 
-    try {
-      const id = ++queryId.current
+    manager.on('items', dispatchState)
+    manager.on('total', dispatchState)
 
-      const result = await client.book.searchBooks({
-        bookQuery: {
-          ...query,
-          offset: 0,
-          limit: 50
-        }
-      })
+    manager.on('simpleQuery', dispatchState)
+    manager.on('tagQuery', dispatchState)
+    manager.on('language', dispatchState)
 
-      // query may have changed while we were pending response
-      if (id !== queryId.current)
-        return
+    return () => {
+      manager.off('loading', loading)
 
-      dispatch({
-        query,
-        pending: false,
-        items: result.items,
-        total: result.total
-      })
+      manager.off('items', dispatchState)
+      manager.off('total', dispatchState)
+
+      manager.off('simpleQuery', dispatchState)
+      manager.off('tagQuery', dispatchState)
+      manager.off('language', dispatchState)
     }
-    finally {
-      stop()
-    }
-  }, [query, pending])
+  }, [dispatch, manager, start, stop])
 
   const [selected, setSelected] = useState<string>()
-  const setQuery = useCallback((v: BookQuery) => dispatch({ ...fetched, query: v, pending: true }), [dispatch, fetched])
-  const setItems = useCallback((v: Book[]) => dispatch({ ...fetched, items: v }), [dispatch, fetched])
 
-  return <BookQueryContext.Provider value={useMemo(() => ({
-    query,
-    setQuery
-  }), [
-    query,
-    setQuery
-  ])}>
-
+  return <BookListingContext.Provider value={useMemo(() => ({ manager }), [manager])}>
     <PageHeader
       avatar={{ icon: <BookOutlined />, shape: 'square' }}
       title='Books'
       subTitle='List of all books'
-      extra={<Search query={query} setQuery={setQuery} total={total} />} />
+      extra={<Search />} />
 
     <LayoutContent>
-      {items.length
-        ? <GridListing
-          items={items}
-          setItems={setItems}
-          selected={selected}
-          setSelected={setSelected} />
-
-        : <Empty description='No results' />}
+      <GridListing
+        selected={selected}
+        setSelected={setSelected} />
     </LayoutContent>
-  </BookQueryContext.Provider>
+  </BookListingContext.Provider>
 }

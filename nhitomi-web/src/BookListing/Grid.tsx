@@ -1,7 +1,7 @@
 import { CloseOutlined } from '@ant-design/icons'
-import { Card, List, Popover, Typography } from 'antd'
+import { Card, List, Popover, Typography, Spin, Empty } from 'antd'
 import { ListGridType } from 'antd/lib/list'
-import React, { useContext, useEffect, useMemo, useRef } from 'react'
+import React, { useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { useIntl } from 'react-intl'
 import { useMouseHovered } from 'react-use'
 import { BookTagList, CategoryDisplay, LanguageTypeDisplay, MaterialRatingDisplay, TagDisplay } from '../Tags'
@@ -10,8 +10,8 @@ import { LayoutContext } from '../LayoutContext'
 import { ClientContext } from '../ClientContext'
 import { AsyncImage } from '../AsyncImage'
 import { BookReaderLink } from '../BookReader'
-import { toggleQueryTag } from './queryHelper'
-import { BookQueryContext } from '.'
+import VisibilitySensor from 'react-visibility-sensor'
+import { BookListingContext } from '.'
 
 const gridGutter = 2
 const gridLayout: ListGridType = {
@@ -24,17 +24,26 @@ const gridLayout: ListGridType = {
   xxl: 8
 }
 
-export const GridListing = ({ items, selected, setSelected }: {
-  items: Book[]
-  setItems: (items: Book[]) => void
-
+export const GridListing = ({ selected, setSelected }: {
   selected?: string
   setSelected: (id?: string) => void
 }) => {
+  const { manager } = useContext(BookListingContext)
+  const [items, setItems] = useState<Book[]>([])
+
+  useEffect(() => {
+    const set = (items: Book[]) => setItems(items.slice())
+
+    set(manager.items)
+
+    manager.on('items', set)
+    return () => { manager.off('items', set) }
+  }, [manager])
+
   // optimization
   const setSelectedFuncs = useMemo(() => items.map(book => (v: boolean) => setSelected(v ? book.id : undefined)), [items, setSelected])
 
-  return useMemo(() =>
+  const list = useMemo(() =>
     <List<Book>
       grid={gridLayout}
       dataSource={items}
@@ -49,6 +58,50 @@ export const GridListing = ({ items, selected, setSelected }: {
       selected,
       setSelectedFuncs
     ])
+
+  const loader = useMemo(() =>
+    <FurtherLoader items={items} setItems={setItems} />,
+    [
+      items,
+      setItems
+    ])
+
+  if (!items.length)
+    return <Empty description='No results' />
+
+  return <>
+    {list}
+    {loader}
+  </>
+}
+
+const FurtherLoader = ({ items, setItems }: {
+  items: Book[]
+  setItems: (items: Book[]) => void
+}) => {
+  const loading = useRef(false)
+
+  return <VisibilitySensor onChange={async value => {
+    const beginLoad = !loading.current && value
+
+    loading.current = value
+
+    if (!beginLoad)
+      return
+
+    try {
+    }
+    finally {
+      loading.current = false
+    }
+  }}>
+    <Spin>
+      <div style={{
+        width: '100%',
+        height: '10em'
+      }} />
+    </Spin>
+  </VisibilitySensor>
 }
 
 const Item = ({ book, selected, setSelected }: {
@@ -181,7 +234,7 @@ const OverlayTitle = ({ book, content, onClose }: { book: Book, content: BookCon
 
 const Overlay = ({ book: { createdTime, updatedTime, tags, category, rating }, content: { language } }: { book: Book, content: BookContent }) => {
   const { formatDate, formatTime } = useIntl()
-  const { query, setQuery } = useContext(BookQueryContext)
+  const { manager } = useContext(BookListingContext)
 
   return <>
     <h4>Information</h4>
@@ -198,12 +251,12 @@ const Overlay = ({ book: { createdTime, updatedTime, tags, category, rating }, c
 
     <h4>Tags</h4>
     <p>
-      {BookTagList.flatMap(tag => tags[tag]?.map(value =>
+      {BookTagList.flatMap(type => tags[type]?.map(value =>
         <TagDisplay
-          key={`${tag}:${value}`}
-          tag={tag}
+          key={`${type}:${value}`}
+          tag={type}
           value={value}
-          onClick={() => setQuery(toggleQueryTag(query, tag, value))} />))}
+          onClick={() => manager.toggleTag({ type, value })} />))}
     </p>
   </>
 }
