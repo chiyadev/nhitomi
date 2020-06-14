@@ -104,7 +104,10 @@ const Item = ({ book, selected, setSelected, colStyle }: {
   // this is a hack for https://github.com/ant-design/ant-design/issues/24553 until the merged fix is released
   colStyle?: CSSProperties
 }) => {
-  const content = book.contents[0]
+  const client = useContext(ClientContext)
+
+  // use content of user language
+  const content = book.contents.find(c => client.currentInfo.authenticated && c.language === client.currentInfo.user.language) || book.contents[0]
 
   const { width: windowWidth, height: windowHeight, breakpoint } = useContext(LayoutContext)
   const ref = useRef<HTMLDivElement>(null)
@@ -220,7 +223,7 @@ const OverlayTitle = ({ book, content, onClose }: { book: Book, content: BookCon
   </>}
 </>
 
-const Overlay = ({ book: { createdTime, updatedTime, tags, category, rating }, content: { language } }: { book: Book, content: BookContent }) => {
+const Overlay = ({ book: { createdTime, updatedTime, tags, category, rating, contents } }: { book: Book, content: BookContent }) => {
   const { formatDate, formatTime } = useIntl()
   const { manager } = useContext(BookListingContext)
 
@@ -232,7 +235,8 @@ const Overlay = ({ book: { createdTime, updatedTime, tags, category, rating }, c
       <span>Updated: {formatDate(updatedTime)} {formatTime(updatedTime)}</span>
     </p>
     <p>
-      <LanguageTypeDisplay language={language} />
+      {contents.map(c => c.language).filter((v, i, a) => a.indexOf(v) === i).map(v => <LanguageTypeDisplay language={v} />)}
+
       <CategoryDisplay category={category} />
       <MaterialRatingDisplay rating={rating} />
     </p>
