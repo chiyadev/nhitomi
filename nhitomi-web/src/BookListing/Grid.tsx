@@ -20,8 +20,8 @@ const gridLayout: ListGridType = {
   sm: 3,
   md: 3,
   lg: 4,
-  xl: 6,
-  xxl: 8
+  xl: 5,
+  xxl: 7
 }
 
 export const GridListing = ({ selected, setSelected }: {
