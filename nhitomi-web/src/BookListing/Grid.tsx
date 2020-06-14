@@ -1,7 +1,7 @@
 import { CloseOutlined } from '@ant-design/icons'
 import { Card, List, Popover, Typography, Spin, Empty } from 'antd'
 import { ListGridType } from 'antd/lib/list'
-import React, { useContext, useMemo, useRef, useState, useLayoutEffect } from 'react'
+import React, { useContext, useMemo, useRef, useState, useLayoutEffect, CSSProperties } from 'react'
 import { useIntl } from 'react-intl'
 import { useMouseHovered } from 'react-use'
 import { BookTagList, CategoryDisplay, LanguageTypeDisplay, MaterialRatingDisplay, TagDisplay } from '../Tags'
@@ -44,15 +44,16 @@ export const GridListing = ({ selected, setSelected }: {
   const setSelectedFuncs = useMemo(() => items.map(book => (v: boolean) => setSelected(v ? book.id : undefined)), [items, setSelected])
 
   const list = useMemo(() =>
-    <List<Book>
+    <List
       grid={gridLayout}
       dataSource={items}
       rowKey={book => book.id}
-      renderItem={(book, i) =>
+      renderItem={(book, i) => (
         <Item
           book={book}
           selected={book.id === selected}
-          setSelected={setSelectedFuncs[i]} />} />,
+          setSelected={setSelectedFuncs[i]} />
+      )} />,
     [
       items,
       selected,
@@ -113,10 +114,13 @@ const FurtherLoader = () => {
   </VisibilitySensor>
 }
 
-const Item = ({ book, selected, setSelected }: {
+const Item = ({ book, selected, setSelected, colStyle }: {
   book: Book
   selected: boolean
   setSelected: (selected: boolean) => void
+
+  // this is a hack for https://github.com/ant-design/ant-design/issues/24553 until the merged fix is released
+  colStyle?: CSSProperties
 }) => {
   const content = book.contents[0]
 
@@ -134,7 +138,7 @@ const Item = ({ book, selected, setSelected }: {
   }, [selected, mobile, windowWidth, windowHeight])
 
   return useMemo(() =>
-    <List.Item style={{
+    <List.Item colStyle={colStyle} style={{
       marginTop: 0,
       marginBottom: gridGutter
     }}>
@@ -174,14 +178,7 @@ const Item = ({ book, selected, setSelected }: {
         </div>
       </Popover>
     </List.Item>,
-    [
-      book,
-      content,
-      mobile,
-      selected,
-      setSelected,
-      windowWidth
-    ])
+    [book, colStyle, content, mobile, selected, setSelected, windowWidth])
 }
 
 const Cover = ({ book: { id }, content: { id: contentId }, selected }: { book: Book, content: BookContent, selected: boolean }) => {
@@ -208,7 +205,7 @@ const Cover = ({ book: { id }, content: { id: contentId }, selected }: { book: B
       height={7}
       resize='fill'
       fluid
-      preloadScale={0}
+      preloadScale={0.5}
       src={() => client.book.getBookImage({ id, contentId, index: -1 })}
       style={{
         transition: 'left 0.1s, top 0.1s, width 0.1s, height 0.1s',

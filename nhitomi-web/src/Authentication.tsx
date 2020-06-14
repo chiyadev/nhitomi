@@ -73,7 +73,7 @@ export const AuthenticationRoute = ({ service }: { service: 'discord' }) => {
   const { start, stop } = useContext(ProgressContext)
 
   const { location: { search }, replace } = useHistory()
-  const { code, state } = qs.parse(search.slice(1))
+  const { code, state } = qs.parse(search.slice(1)) as { state: string, code: string }
 
   useAsync(async () => {
     start()
