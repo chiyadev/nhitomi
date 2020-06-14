@@ -4,12 +4,12 @@ import { LayoutContext } from './LayoutContext'
 
 /** Shorthand for Layout.Content with some styling. */
 export const LayoutContent = ({ style, ...props }: ComponentProps<typeof Layout.Content>) => {
-  const { mobile } = useContext(LayoutContext)
+  const { breakpoint } = useContext(LayoutContext)
 
   return <Layout.Content
     style={{
-      marginLeft: mobile ? undefined : '1em',
-      marginRight: mobile ? undefined : '1em',
+      marginLeft: breakpoint ? undefined : '1em',
+      marginRight: breakpoint ? undefined : '1em',
       padding: '1em',
       ...style
     }}

@@ -124,7 +124,7 @@ const Item = ({ book, selected, setSelected, colStyle }: {
 }) => {
   const content = book.contents[0]
 
-  const { width: windowWidth, height: windowHeight, mobile } = useContext(LayoutContext)
+  const { width: windowWidth, height: windowHeight, breakpoint } = useContext(LayoutContext)
   const ref = useRef<HTMLDivElement>(null)
 
   // scroll into view on when selected
@@ -132,10 +132,10 @@ const Item = ({ book, selected, setSelected, colStyle }: {
     if (selected)
       ref.current?.scrollIntoView({
         behavior: 'smooth',
-        block: mobile ? 'start' : 'nearest',
-        inline: mobile ? 'start' : 'nearest'
+        block: breakpoint ? 'start' : 'nearest',
+        inline: breakpoint ? 'start' : 'nearest'
       })
-  }, [selected, mobile, windowWidth, windowHeight])
+  }, [selected, breakpoint, windowWidth, windowHeight])
 
   return useMemo(() =>
     <List.Item colStyle={colStyle} style={{
@@ -144,14 +144,14 @@ const Item = ({ book, selected, setSelected, colStyle }: {
     }}>
       <Popover
         trigger='click'
-        placement={mobile ? 'bottom' : 'rightTop'}
+        placement={breakpoint ? 'bottom' : 'rightTop'}
         visible={selected || false}
         onVisibleChange={setSelected}
         title={<OverlayTitle book={book} content={content} onClose={() => setSelected(false)} />}
         content={<Overlay book={book} content={content} />}
         overlayStyle={{
-          width: mobile ? '100%' : undefined,
-          maxWidth: mobile ? undefined : windowWidth / 2
+          width: breakpoint ? '100%' : undefined,
+          maxWidth: breakpoint ? undefined : windowWidth / 2
         }}>
 
         <div ref={ref} style={{ scrollMargin: '2em' }}>
@@ -178,7 +178,7 @@ const Item = ({ book, selected, setSelected, colStyle }: {
         </div>
       </Popover>
     </List.Item>,
-    [book, colStyle, content, mobile, selected, setSelected, windowWidth])
+    [book, colStyle, content, breakpoint, selected, setSelected, windowWidth])
 }
 
 const Cover = ({ book: { id }, content: { id: contentId }, selected }: { book: Book, content: BookContent, selected: boolean }) => {
