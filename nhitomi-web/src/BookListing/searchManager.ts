@@ -68,22 +68,42 @@ export class SearchManager extends (EventEmitter as new () => StrictEventEmitter
   }
 
   toggleTag({ type, value }: TagQueryItem) {
-    if (this.query.type !== 'tag')
-      return
+    switch (this.query.type) {
+      case 'simple': {
+        // wrap around quotes for phrase match
+        if (value.indexOf(' ') !== -1)
+          value = `"${value}"`
 
-    for (const item of this.query.items) {
-      if (item.type === type && item.value === value) {
+        const exists = this.query.value.indexOf(value)
+
         this.query = {
-          ...this.query,
-          items: this.query.items.filter(v => v !== item)
+          type: 'simple',
+          value: exists === -1
+            ? `${this.query.value} ${value}`
+            : this.query.value.substring(0, exists) + this.query.value.substring(exists + value.length)
         }
-        return
-      }
-    }
 
-    this.query = {
-      ...this.query,
-      items: [...this.query.items, { type, value }]
+        break
+      }
+
+      case 'tag': {
+        for (const item of this.query.items) {
+          if (item.type === type && item.value === value) {
+            this.query = {
+              ...this.query,
+              items: this.query.items.filter(v => v !== item)
+            }
+            return
+          }
+        }
+
+        this.query = {
+          type: 'tag',
+          items: [...this.query.items, { type, value }]
+        }
+
+        break
+      }
     }
   }
 
