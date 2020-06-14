@@ -14,7 +14,7 @@ export const languageNames: { [lang in LanguageType]: string } = {
   'de-DE': 'Deutsch',
   'fr-FR': 'français',
   'tr-TR': 'Türkçe',
-  'nl-nl': 'Nederlands',
+  'nl-NL': 'Nederlands',
   'ru-RU': 'русский',
   'id-ID': 'Bahasa Indonesia',
   'vi-VN': 'Tiếng Việt'

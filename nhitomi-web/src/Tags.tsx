@@ -92,7 +92,7 @@ export const LanguageTypeLabels: { [key in LanguageType]: string } = {
   'de-DE': 'German',
   'fr-FR': 'French',
   'tr-TR': 'Turkish',
-  'nl-nl': 'Dutch',
+  'nl-NL': 'Dutch',
   'ru-RU': 'Russian',
   'id-ID': 'Indonesian',
   'vi-VN': 'Vietnamese'
@@ -112,7 +112,7 @@ export const LanguageTypeColorPresets: typeof LanguageTypeLabels = {
   'de-DE': 'purple',
   'fr-FR': 'purple',
   'tr-TR': 'purple',
-  'nl-nl': 'purple',
+  'nl-NL': 'purple',
   'ru-RU': 'purple',
   'id-ID': 'purple',
   'vi-VN': 'purple'
