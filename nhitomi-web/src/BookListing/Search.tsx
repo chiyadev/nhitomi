@@ -1,12 +1,13 @@
-import { Select, Typography } from 'antd'
+import { Select, Typography, Input } from 'antd'
 import { SelectProps } from 'antd/lib/select'
 import React, { useContext, useState, useMemo, useLayoutEffect } from 'react'
 import { useAsync } from 'react-use'
-import { BookTag, BookSuggestResultTags } from '../Client'
+import { BookTag, BookSuggestResultTags, LanguageType } from '../Client'
 import { ClientContext } from '../ClientContext'
 import { TagColors, TagDisplay, TagLabels } from '../Tags'
 import { BookListingContext } from '.'
 import { TagQueryItem } from './searchManager'
+import { LanguageSelect } from '../LanguageSelect'
 
 export const Search = () => {
   const client = useContext(ClientContext)
@@ -50,7 +51,7 @@ export const Search = () => {
     setSuggestions(tags)
   }, [search, selected])
 
-  return (
+  const select = (
     <Select
       // no autoFocus because scroll position will be lost on navigation when it's enabled
       allowClear
@@ -71,7 +72,7 @@ export const Search = () => {
       onSearch={setSearch}
       placeholder={`Search ${total} books...`}
       style={{
-        width: '100%',
+        flex: 1,
         minWidth: '20em'
       }}
       options={useMemo(() =>
@@ -90,6 +91,32 @@ export const Search = () => {
           })),
         [suggestions, selected])} />
   )
+
+  const [language, setLanguage] = useState(manager.language)
+
+  useLayoutEffect(() => {
+    manager.on('language', setLanguage)
+    return () => { manager.off('language', setLanguage) }
+  }, [manager])
+
+  const languageSelect = (
+    <LanguageSelect
+      value={language}
+      setValue={v => manager.language = v}
+      style={{
+        display: 'inline-block',
+        height: '100%'
+      }} />
+  )
+
+  return <Input.Group compact style={{
+    display: 'flex',
+    flexDirection: 'row',
+    width: '100%'
+  }}>
+    {select}
+    {languageSelect}
+  </Input.Group>
 }
 
 const Tag: SelectProps<string>['tagRender'] = ({ value: value2, ...props }) => {
