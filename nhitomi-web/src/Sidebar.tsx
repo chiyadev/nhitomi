@@ -1,5 +1,5 @@
 import { Divider, Layout, Menu, PageHeader, Tooltip } from 'antd'
-import React, { useContext, useEffect } from 'react'
+import React, { useContext, useLayoutEffect } from 'react'
 import { useLocation } from 'react-router-dom'
 import { useShortcut, useShortcutKeyName } from './shortcuts'
 import { NotificationContext } from './NotificationContext'
@@ -19,7 +19,7 @@ export const SideBar = () => {
 
   // collapse on url change if mobile
   // we use setTimeout to avoid a bug in antd where menu shows a tooltip that can't be disabled
-  useEffect(() => { mobile && sidebar && setTimeout(() => setSidebar(false), 100) }, [pathname]) // eslint-disable-line
+  useLayoutEffect(() => { mobile && sidebar && setTimeout(() => setSidebar(false), 100) }, [pathname]) // eslint-disable-line
 
   // collapse on shortcut
   useShortcut('sidebarKey', () => {

@@ -1,6 +1,6 @@
 import { MessageApi, ArgsProps } from 'antd/lib/message'
 import { NotificationInstance } from 'antd/lib/notification'
-import { createContext, ReactNode, useMemo, useContext, useCallback, useEffect } from 'react'
+import { createContext, ReactNode, useMemo, useContext, useCallback, useLayoutEffect } from 'react'
 import React from 'react'
 import { ValidationError } from './Client/validationError'
 import { FormattedMessage, useIntl, IntlProvider } from 'react-intl'
@@ -14,7 +14,7 @@ export const NotificationContext = createContext<{
 
 export type NotificationApi = {
   success: (title: ReactNode, description: ReactNode) => void
-  warning: (title: ReactNode, description: ReactNode) => void,
+  warning: (title: ReactNode, description: ReactNode) => void
   error: (error: Error, title?: ReactNode) => void
 }
 
@@ -67,11 +67,7 @@ export const NotificationProvider = ({ notif, alert, children }: { notif: Notifi
     intl
   ])
 
-  useEffect(() => {
-    alert.config({
-      maxCount: 1
-    })
-  }, [alert])
+  useLayoutEffect(() => alert.config({ maxCount: 1 }), [alert])
 
   return <NotificationContext.Provider
     value={useMemo(() => ({

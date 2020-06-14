@@ -1,4 +1,4 @@
-import React, { useContext, ReactNode, useMemo, useEffect } from 'react'
+import React, { useContext, ReactNode, useMemo, useLayoutEffect } from 'react'
 import { Modal, Typography, Button } from 'antd'
 import { ClientContext } from './ClientContext'
 import { HeartOutlined } from '@ant-design/icons'
@@ -26,7 +26,7 @@ export const AuthenticationManager = ({ children }: { children?: ReactNode }) =>
   const discordUrl = `${client.currentInfo.discordOAuthUrl}&state=${state}`
 
   // transition to oauth authorization page immediately if auth query is specified
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!auth)
       return
 

@@ -1,4 +1,4 @@
-import React, { ComponentProps, Dispatch, useCallback, useContext, useEffect, useRef } from 'react'
+import React, { ComponentProps, Dispatch, useCallback, useContext, useRef, useLayoutEffect } from 'react'
 import { Link, useHistory } from 'react-router-dom'
 import { useAsync, useUpdate } from 'react-use'
 import { Client } from './Client'
@@ -39,7 +39,7 @@ export function usePageState(defaultValue?: any) {
   const { location: { pathname, search, hash, state }, replace, listen } = useHistory<HistoryLocationState>()
 
   // rerender on state change
-  useEffect(() => listen(rerender), [listen, rerender])
+  useLayoutEffect(() => listen(rerender), [listen, rerender])
 
   const initialPathname = useRef(pathname)
 

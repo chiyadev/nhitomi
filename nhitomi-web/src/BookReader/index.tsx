@@ -1,4 +1,4 @@
-import React, { useContext, useLayoutEffect, useState, useMemo, useEffect } from 'react'
+import React, { useContext, useLayoutEffect, useState, useMemo } from 'react'
 import { Book, BookContent } from '../Client'
 import { useTabTitle } from '../hooks'
 import { Prefetch, PrefetchLink, PrefetchLinkProps, usePrefetch } from '../Prefetch'
@@ -58,7 +58,7 @@ const Loaded = ({ book, content }: Fetched) => {
   const [fetched, setFetched] = useState<(FetchImage | undefined)[]>([])
   const fetch = useMemo(() => new FetchManager(client, book, content, 5, setFetched), []) // eslint-disable-line
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     fetch.start()
     return () => fetch.destroy()
   }, [fetch])

@@ -1,5 +1,5 @@
 import composeRefs from '@seznam/compose-react-refs'
-import React, { CSSProperties, forwardRef, ReactNode, Ref, useContext, useEffect, useRef, useState } from 'react'
+import React, { CSSProperties, forwardRef, ReactNode, Ref, useContext, useRef, useState, useLayoutEffect } from 'react'
 import { useAsync, useInterval, useUpdate } from 'react-use'
 import VisibilitySensor from 'react-visibility-sensor'
 import { LayoutContext } from './LayoutContext'
@@ -104,7 +104,7 @@ export const AsyncImage = forwardRef(({ onVisibleChange, wrapperRef, src, onLoad
   }, [shouldLoad])
 
   // revoke image reference on unmount
-  useEffect(() => () => { result && URL.revokeObjectURL(result) }, [result])
+  useLayoutEffect(() => () => { result && URL.revokeObjectURL(result) }, [result])
 
   const imageRef = useRef<HTMLImageElement>(null)
 

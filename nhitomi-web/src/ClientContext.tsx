@@ -1,4 +1,4 @@
-import { createContext, ReactNode, useState, useMemo, useEffect, useContext } from 'react'
+import { createContext, ReactNode, useState, useMemo, useContext, useLayoutEffect } from 'react'
 import { Client } from './Client'
 import { useAsync } from 'react-use'
 import React from 'react'
@@ -19,7 +19,7 @@ export const ClientProvider = ({ children }: { children?: ReactNode }) => {
   // reset app completely when token changes
   const [reset, setReset] = useState(0)
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const handle = () => setReset(reset + 1)
 
     client.config.on('token', handle)
@@ -42,7 +42,7 @@ export const ClientProvider = ({ children }: { children?: ReactNode }) => {
     }
   }, [reset])
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (initialized)
       stop()
     else

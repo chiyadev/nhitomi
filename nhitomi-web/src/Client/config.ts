@@ -1,5 +1,5 @@
 import { EventEmitter } from 'events'
-import { useContext, useEffect } from 'react'
+import { useContext, useLayoutEffect } from 'react'
 import { useUpdate } from 'react-use'
 import StrictEventEmitter from 'strict-event-emitter-types/types/src'
 import { Client } from '.'
@@ -12,7 +12,7 @@ export function useConfig<TKey extends keyof ConfigStore>(key: TKey): [ConfigSto
 
   const { config } = useContext(ClientContext)
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     // refresh component on key config change
     config.on(key, rerender)
 
@@ -175,7 +175,9 @@ export class ConfigManager extends (EventEmitter as new () => StrictEventEmitter
       if (value)
         return [true, JSON.parse(value)]
     }
-    catch { }
+    catch {
+      // ignored
+    }
 
     return [false, undefined]
   }

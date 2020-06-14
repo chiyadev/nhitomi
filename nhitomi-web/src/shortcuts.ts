@@ -1,4 +1,4 @@
-import { useContext, useEffect, useRef } from 'react'
+import { useContext, useLayoutEffect, useRef } from 'react'
 import { useKey, useKeyPress, useRafLoop } from 'react-use'
 import { ShortcutConfig, ConfigStore, useConfig } from './Client/config'
 import { LayoutContext } from './LayoutContext'
@@ -82,7 +82,7 @@ export function useScrollShortcut() {
     timestamp.current = time
   })
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     timestamp.current = performance.now()
 
     if (scrollDown === scrollUp)
