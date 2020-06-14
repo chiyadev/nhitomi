@@ -1,23 +1,16 @@
 import { EventEmitter } from 'events'
-import { useContext, useLayoutEffect } from 'react'
-import { useUpdate } from 'react-use'
+import { useContext } from 'react'
 import StrictEventEmitter from 'strict-event-emitter-types'
 import { Client } from '.'
 import { ClientContext } from '../ClientContext'
 import { ModifierKey } from '../shortcuts'
+import { useUpdateOnEvent } from '../hooks'
 
 /** Returns a configuration value, and a function to update it. */
 export function useConfig<TKey extends keyof ConfigStore>(key: TKey): [ConfigStore[TKey], (value: ConfigStore[TKey]) => void] {
-  const rerender = useUpdate()
-
   const { config } = useContext(ClientContext)
 
-  useLayoutEffect(() => {
-    // refresh component on key config change
-    config.on(key, rerender)
-
-    return () => { config.off(key, rerender) }
-  }, [config, key, rerender])
+  useUpdateOnEvent(config, key)
 
   return [config.get(key), v => config.set(key, v)]
 }
