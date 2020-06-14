@@ -1,15 +1,13 @@
-import { BookOutlined } from '@ant-design/icons'
-import { PageHeader } from 'antd'
 import React, { Dispatch, useContext, useRef, useState, createContext, useMemo, useLayoutEffect } from 'react'
 import { useTabTitle } from '../hooks'
 import { Prefetch, PrefetchLink, PrefetchLinkProps, usePrefetch } from '../Prefetch'
 import { ProgressContext } from '../Progress'
 import { useScrollShortcut } from '../shortcuts'
 import { GridListing } from './Grid'
-import { Search } from './Search'
 import { ClientContext } from '../ClientContext'
 import { LayoutContent } from '../Layout'
 import { SearchManager, SearchState } from './searchManager'
+import { Header } from './Header'
 
 export function getBookListingPrefetch(): Prefetch<SearchState> {
   return {
@@ -64,11 +62,7 @@ const Loaded = ({ state, dispatch }: { state: SearchState, dispatch: Dispatch<Se
   const [selected, setSelected] = useState<string>()
 
   return <BookListingContext.Provider value={useMemo(() => ({ manager }), [manager])}>
-    <PageHeader
-      avatar={{ icon: <BookOutlined />, shape: 'square' }}
-      title='Books'
-      subTitle='List of all books'
-      extra={<Search />} />
+    <Header />
 
     <LayoutContent>
       <GridListing
