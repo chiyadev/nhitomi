@@ -1,7 +1,7 @@
 import { CloseOutlined } from '@ant-design/icons'
 import { Card, List, Popover, Typography, Spin, Empty } from 'antd'
 import { ListGridType } from 'antd/lib/list'
-import React, { useContext, useEffect, useMemo, useRef, useState } from 'react'
+import React, { useContext, useMemo, useRef, useState, useLayoutEffect } from 'react'
 import { useIntl } from 'react-intl'
 import { useMouseHovered } from 'react-use'
 import { BookTagList, CategoryDisplay, LanguageTypeDisplay, MaterialRatingDisplay, TagDisplay } from '../Tags'
@@ -31,7 +31,7 @@ export const GridListing = ({ selected, setSelected }: {
   const { manager } = useContext(BookListingContext)
   const [items, setItems] = useState<Book[]>([])
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const set = (items: Book[]) => setItems(items.slice())
 
     set(manager.items)
@@ -59,27 +59,34 @@ export const GridListing = ({ selected, setSelected }: {
       setSelectedFuncs
     ])
 
-  const loader = useMemo(() =>
-    <FurtherLoader items={items} setItems={setItems} />,
-    [
-      items,
-      setItems
-    ])
-
   if (!items.length)
     return <Empty description='No results' />
 
   return <>
     {list}
-    {loader}
+
+    <FurtherLoader />
   </>
 }
 
-const FurtherLoader = ({ items, setItems }: {
-  items: Book[]
-  setItems: (items: Book[]) => void
-}) => {
+const FurtherLoader = () => {
+  const { manager } = useContext(BookListingContext)
   const loading = useRef(false)
+
+  const [end, setEnd] = useState(false)
+
+  useLayoutEffect(() => {
+    const onend = (end: boolean) => {
+      setEnd(end)
+      loading.current = loading.current && !end
+    }
+
+    manager.on('end', onend)
+    return () => { manager.off('end', onend) }
+  }, [manager])
+
+  if (end)
+    return null
 
   return <VisibilitySensor onChange={async value => {
     const beginLoad = !loading.current && value
@@ -90,6 +97,8 @@ const FurtherLoader = ({ items, setItems }: {
       return
 
     try {
+      while (loading.current)
+        await manager.further()
     }
     finally {
       loading.current = false
@@ -115,7 +124,7 @@ const Item = ({ book, selected, setSelected }: {
   const ref = useRef<HTMLDivElement>(null)
 
   // scroll into view on when selected
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (selected)
       ref.current?.scrollIntoView({
         behavior: 'smooth',

@@ -49,27 +49,15 @@ const Loaded = ({ state, dispatch }: { state: SearchState, dispatch: Dispatch<Se
   manager.setState(state)
 
   useLayoutEffect(() => {
-    const loading = (v: boolean) => { if (v) start(); else stop() }
-    const dispatchState = () => dispatch(manager.state)
+    const onloading = (v: boolean) => { if (v) start(); else stop() }
+    const onstate = () => dispatch(manager.state)
 
-    manager.on('loading', loading)
-
-    manager.on('items', dispatchState)
-    manager.on('total', dispatchState)
-
-    manager.on('simpleQuery', dispatchState)
-    manager.on('tagQuery', dispatchState)
-    manager.on('language', dispatchState)
+    manager.on('loading', onloading)
+    manager.on('state', onstate)
 
     return () => {
-      manager.off('loading', loading)
-
-      manager.off('items', dispatchState)
-      manager.off('total', dispatchState)
-
-      manager.off('simpleQuery', dispatchState)
-      manager.off('tagQuery', dispatchState)
-      manager.off('language', dispatchState)
+      manager.off('loading', onloading)
+      manager.off('state', onstate)
     }
   }, [dispatch, manager, start, stop])
 
