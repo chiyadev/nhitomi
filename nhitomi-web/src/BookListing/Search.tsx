@@ -1,6 +1,6 @@
 import { Select, Typography, Input } from 'antd'
 import { SelectProps } from 'antd/lib/select'
-import React, { useContext, useState, useMemo, CSSProperties } from 'react'
+import React, { useContext, useState, useMemo, CSSProperties, useLayoutEffect } from 'react'
 import { useAsync } from 'react-use'
 import { BookTag, BookSuggestResultTags } from '../Client'
 import { ClientContext } from '../ClientContext'
@@ -171,7 +171,11 @@ export const SimpleSearch = ({ style }: {
 }) => {
   const { manager } = useContext(BookListingContext)
 
+  useUpdateOnEvent(manager, 'state')
+
   const [value, setValue] = useState(manager.query.type === 'simple' ? manager.query.value : '')
+
+  useLayoutEffect(() => setValue(manager.query.type === 'simple' ? manager.query.value : ''), [manager.query])
 
   return (
     <Input
