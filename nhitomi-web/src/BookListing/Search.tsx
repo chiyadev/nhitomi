@@ -4,17 +4,16 @@ import React, { useContext, useState, useMemo, useLayoutEffect } from 'react'
 import { useAsync } from 'react-use'
 import { BookTag, BookSuggestResultTags } from '../Client'
 import { ClientContext } from '../ClientContext'
-import { LayoutContext } from '../LayoutContext'
 import { TagColors, TagDisplay, TagLabels } from '../Tags'
 import { BookListingContext } from '.'
 import { TagQueryItem } from './searchManager'
 
 export const Search = () => {
   const client = useContext(ClientContext)
-  const { width: windowWidth } = useContext(LayoutContext)
   const { manager } = useContext(BookListingContext)
 
   const [selected, setSelected] = useState<string[]>([])
+  const [total, setTotal] = useState(0)
   const [search, setSearch] = useState('')
   const [suggestions, setSuggestions] = useState<BookSuggestResultTags>({})
 
@@ -25,6 +24,13 @@ export const Search = () => {
 
     manager.on('tagQuery', set)
     return () => { manager.off('tagQuery', set) }
+  }, [manager])
+
+  useLayoutEffect(() => {
+    setTotal(manager.total)
+
+    manager.on('total', setTotal)
+    return () => { manager.off('total', setTotal) }
   }, [manager])
 
   const { loading } = useAsync(async () => {
@@ -63,11 +69,10 @@ export const Search = () => {
       }}
       searchValue={search}
       onSearch={setSearch}
-      placeholder={`Search ${manager.total} books...`}
+      placeholder={`Search ${total} books...`}
       style={{
         width: '100%',
-        minWidth: '20em',
-        maxWidth: windowWidth / 2
+        minWidth: '20em'
       }}
       options={useMemo(() =>
         (Object.keys(suggestions) as BookTag[])
