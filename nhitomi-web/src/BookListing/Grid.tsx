@@ -88,7 +88,7 @@ const FurtherLoader = () => {
   if (end)
     return null
 
-  return <VisibilitySensor onChange={async value => {
+  return <VisibilitySensor partialVisibility onChange={async value => {
     const beginLoad = !loading.current && value
 
     loading.current = value
