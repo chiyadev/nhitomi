@@ -1,5 +1,5 @@
 import React, { CSSProperties, useMemo } from 'react'
-import { Dropdown, Menu, Tag, Button } from 'antd'
+import { Dropdown, Menu, Button } from 'antd'
 import { LanguageType } from './Client'
 import { languageNames } from './LocaleProvider'
 import { FlagIcon, FlagIconCode } from 'react-flag-kit'
