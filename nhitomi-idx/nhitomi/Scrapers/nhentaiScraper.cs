@@ -102,15 +102,25 @@ namespace nhitomi.Scrapers
             // find additional books on top of new books
             if (state.LastLower != null)
             {
+                var count = options.AdditionalScrapeItems;
                 var start = state.LastLower.Value - options.AdditionalScrapeItems;
 
-                // individually retrieve books in parallel
-                var books = await Task.WhenAll(Enumerable.Range(start, options.AdditionalScrapeItems).Select(id => GetAsync(id, cancellationToken)));
-
-                foreach (var book in books)
+                if (start < 0)
                 {
-                    if (book != null)
-                        yield return new nhentaiBookAdaptor(book);
+                    count += start;
+                    start =  0;
+                }
+
+                if (count >= 0)
+                {
+                    // individually retrieve books in parallel
+                    var books = await Task.WhenAll(Enumerable.Range(start, count).Select(id => GetAsync(id, cancellationToken)));
+
+                    foreach (var book in books)
+                    {
+                        if (book != null)
+                            yield return new nhentaiBookAdaptor(book);
+                    }
                 }
 
                 // set lower as oldest book
