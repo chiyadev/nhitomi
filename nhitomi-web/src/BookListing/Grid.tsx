@@ -29,12 +29,10 @@ export const GridListing = ({ selected, setSelected }: {
   setSelected: (id?: string) => void
 }) => {
   const { manager } = useContext(BookListingContext)
-  const [items, setItems] = useState<Book[]>([])
+  const [items, setItems] = useState<Book[]>(manager.items)
 
   useLayoutEffect(() => {
     const set = (items: Book[]) => setItems(items.slice())
-
-    set(manager.items)
 
     manager.on('items', set)
     return () => { manager.off('items', set) }
@@ -74,7 +72,7 @@ const FurtherLoader = () => {
   const { manager } = useContext(BookListingContext)
   const loading = useRef(false)
 
-  const [end, setEnd] = useState(false)
+  const [end, setEnd] = useState(manager.end)
 
   useLayoutEffect(() => {
     const onend = (end: boolean) => {
