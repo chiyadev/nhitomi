@@ -43,4 +43,13 @@
         <PackageReference Include="System.Linq.Async" Version="4.1.1" />
     </ItemGroup>
 
+    <ItemGroup>
+      <None Update="English.bin">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="version.txt">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+    </ItemGroup>
+
 </Project>
