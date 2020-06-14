@@ -1,7 +1,7 @@
 import { EventEmitter } from 'events'
 import { useContext, useLayoutEffect } from 'react'
 import { useUpdate } from 'react-use'
-import StrictEventEmitter from 'strict-event-emitter-types/types/src'
+import StrictEventEmitter from 'strict-event-emitter-types'
 import { Client } from '.'
 import { ClientContext } from '../ClientContext'
 import { ModifierKey } from '../shortcuts'
