@@ -49,13 +49,13 @@ export class SearchManager extends (EventEmitter as new () => StrictEventEmitter
   set end(v: boolean) { this.emit('end', this.state.end = v); this.emit('state', this.state) }
 
   get simpleQuery(): string | undefined { return this.state.simpleQuery }
-  set simpleQuery(v: string | undefined) { this.emit('simpleQuery', this.state.simpleQuery = v); this.emit('state', this.state); this.refresh() }
+  set simpleQuery(v: string | undefined) { if (v === this.simpleQuery) return; this.emit('simpleQuery', this.state.simpleQuery = v); this.emit('state', this.state); this.refresh() }
 
   get tagQuery(): TagQueryItem[] { return this.state.tagQuery }
-  set tagQuery(v: TagQueryItem[]) { this.emit('tagQuery', this.state.tagQuery = v); this.emit('state', this.state); this.refresh() }
+  set tagQuery(v: TagQueryItem[]) { if (v === this.tagQuery) return; this.emit('tagQuery', this.state.tagQuery = v); this.emit('state', this.state); this.refresh() }
 
   get language(): LanguageType { return this.state.language }
-  set language(v: LanguageType) { this.emit('language', this.state.language = v); this.emit('state', this.state); this.refresh() }
+  set language(v: LanguageType) { if (v === this.language) return; this.emit('language', this.state.language = v); this.emit('state', this.state); this.refresh() }
 
   constructor(readonly client: Client) { super() }
 
@@ -85,6 +85,9 @@ export class SearchManager extends (EventEmitter as new () => StrictEventEmitter
       all: !this.simpleQuery ? undefined : {
         values: [this.simpleQuery]
       },
+      language: {
+        values: [this.language]
+      },
       tags: this.tagQuery.reduce((tags, { type, value }) => {
         const tag = tags[type] || (tags[type] = { values: [], mode: QueryMatchMode.All })
 
@@ -113,7 +116,7 @@ export class SearchManager extends (EventEmitter as new () => StrictEventEmitter
       if (this.state.id === id) {
         this.items = items
         this.total = total
-        this.end = items.length === total
+        this.end = items.length >= total
       }
 
       return this.items
@@ -135,7 +138,7 @@ export class SearchManager extends (EventEmitter as new () => StrictEventEmitter
       if (this.state.id === id) {
         this.items = [...this.items, ...items]
         this.total = total
-        this.end = this.items.length === total
+        this.end = this.items.length >= total
       }
 
       return this.items
