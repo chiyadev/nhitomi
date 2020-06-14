@@ -4,6 +4,22 @@ import { useAsync } from 'react-use'
 import { ProgressContext } from './Progress'
 import { LanguageType } from './Client'
 
+export const languageNames: { [lang in LanguageType]: string } = {
+  'ja-JP': '日本語',
+  'en-US': 'English',
+  'zh-CN': '中文',
+  'ko-KR': '한국어',
+  'it-IT': 'Italiano',
+  'es-ES': 'Español',
+  'de-DE': 'Deutsch',
+  'fr-FR': 'français',
+  'tr-TR': 'Türkçe',
+  'nl-nl': 'Nederlands',
+  'ru-RU': 'русский',
+  'id-ID': 'Bahasa Indonesia',
+  'vi-VN': 'Tiếng Việt'
+}
+
 const defaultLocale = LanguageType.EnUS
 
 export const LocaleContext = createContext<{
