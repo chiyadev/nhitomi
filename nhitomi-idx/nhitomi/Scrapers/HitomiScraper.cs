@@ -189,6 +189,9 @@ namespace nhitomi.Scrapers
             // load gallery html
             using (var response = await _http.GetAsync($"https://hitomi.la/{GetCombinedId(galleryInfo)}.html", cancellationToken))
             {
+                if (response.StatusCode == HttpStatusCode.NotFound)
+                    return null;
+
                 response.EnsureSuccessStatusCode();
 
                 var doc = new HtmlDocument();
