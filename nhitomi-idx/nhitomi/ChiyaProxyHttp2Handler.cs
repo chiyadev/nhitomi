@@ -64,8 +64,8 @@ namespace nhitomi
 
                     // use retry-after header
                     var retry = response.Headers.RetryAfter;
-                    var date  = retry.Date?.UtcDateTime;
-                    var delta = retry.Delta;
+                    var date  = retry?.Date?.UtcDateTime;
+                    var delta = retry?.Delta;
 
                     if (date > DateTime.UtcNow)
                     {
