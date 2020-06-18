@@ -29,7 +29,7 @@ export class MessageContext {
     this.reply = message.channel.send.bind(message.channel)
   }
 
-  private refCount = 1
+  refCount = 1
 
   /**
    * Increments the ref count of this context.
