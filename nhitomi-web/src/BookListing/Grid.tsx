@@ -104,10 +104,10 @@ const Item = ({ book, selected, setSelected, colStyle }: {
   // this is a hack for https://github.com/ant-design/ant-design/issues/24553 until the merged fix is released
   colStyle?: CSSProperties
 }) => {
-  const client = useContext(ClientContext)
+  const { manager } = useContext(BookListingContext)
 
   // use content of user language
-  const content = book.contents.find(c => client.currentInfo.authenticated && c.language === client.currentInfo.user.language) || book.contents[0]
+  const content = book.contents.find(c => c.language === manager.language) || book.contents[0]
 
   const { width: windowWidth, height: windowHeight, breakpoint } = useContext(LayoutContext)
   const ref = useRef<HTMLDivElement>(null)
