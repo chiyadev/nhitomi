@@ -264,7 +264,7 @@ namespace nhitomi
             cancellationToken.ThrowIfCancellationRequested();
 
             var connection = await InitializeConnectionAsync(cancellationToken);
-            var stream     = await connection.CreateStreamAsync(requestHeaders, requestBody == null);
+            var stream     = await CreateStreamAsync(connection, requestHeaders, requestBody == null, cancellationToken);
 
             try
             {
@@ -309,7 +309,7 @@ namespace nhitomi
                         var responseStream = new Http2ResponseStream(stream, response);
                         response.Content = new StreamContent(responseStream);
 
-                        foreach (var header in await stream.ReadHeadersAsync())
+                        foreach (var header in await ReadHeadersAsync(stream, cancellationToken))
                         {
                             response.Headers.TryAddWithoutValidation(header.Name, header.Value);
                             response.Content.Headers.TryAddWithoutValidation(header.Name, header.Value);
@@ -340,6 +340,50 @@ namespace nhitomi
                 stream.Dispose();
                 throw;
             }
+        }
+
+        // adds cancellation-like support
+        static async Task<IStream> CreateStreamAsync(Connection connection, IEnumerable<HeaderField> headers, bool endOfStream = false, CancellationToken cancellationToken = default)
+        {
+            var completion = new TaskCompletionSource<IStream>();
+
+            var _ = Task.Run(async () =>
+            {
+                try
+                {
+                    var stream = await connection.CreateStreamAsync(headers, endOfStream);
+
+                    if (!completion.TrySetResult(stream))
+                        stream.Dispose();
+                }
+                catch (Exception e)
+                {
+                    completion.TrySetException(e);
+                }
+            }, cancellationToken);
+
+            await using (cancellationToken.Register(() => completion.TrySetCanceled(cancellationToken)))
+                return await completion.Task;
+        }
+
+        static async Task<IEnumerable<HeaderField>> ReadHeadersAsync(IStream stream, CancellationToken cancellationToken = default)
+        {
+            var completion = new TaskCompletionSource<IEnumerable<HeaderField>>();
+
+            var _ = Task.Run(async () =>
+            {
+                try
+                {
+                    completion.TrySetResult(await stream.ReadHeadersAsync());
+                }
+                catch (Exception e)
+                {
+                    completion.TrySetException(e);
+                }
+            }, cancellationToken);
+
+            await using (cancellationToken.Register(() => completion.TrySetCanceled(cancellationToken)))
+                return await completion.Task;
         }
 
         sealed class Http2ResponseStream : Stream
