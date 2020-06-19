@@ -1,4 +1,5 @@
 import React, { ComponentProps, Dispatch, useCallback, useContext, useRef, useLayoutEffect } from 'react'
+import { History } from 'history'
 import { Link, useHistory } from 'react-router-dom'
 import { useAsync, useUpdate } from 'react-use'
 import { Client } from './Client'
@@ -23,7 +24,7 @@ export type Prefetch<T> = {
   scroll?: boolean
 
   /** function to do fetching */
-  func: (client: Client) => Promise<T>
+  func: (client: Client, history: History<HistoryLocationState>) => Promise<T>
 }
 
 type HistoryLocationState = { [key: string]: unknown }
@@ -62,6 +63,7 @@ export function usePrefetch<T>({ progress = true, scroll = true, func: prefetch 
   const { start, stop } = useContext(ProgressContext)
   const { notification } = useContext(NotificationContext)
 
+  const history = useHistory<HistoryLocationState>()
   const [state, setState] = usePageState<T>()
 
   const { error, loading } = useAsync(async () => {
@@ -73,7 +75,7 @@ export function usePrefetch<T>({ progress = true, scroll = true, func: prefetch 
       start()
 
     try {
-      const value = await prefetch(client)
+      const value = await prefetch(client, history)
 
       setState(value)
 
@@ -109,16 +111,16 @@ export function usePrefetchExecutor() {
   const { start, stop } = useContext(ProgressContext)
   const { notification } = useContext(NotificationContext)
 
-  const { push } = useHistory<HistoryLocationState>()
+  const history = useHistory<HistoryLocationState>()
 
   return async <T extends {}>({ path, progress = true, scroll = true, func: prefetch }: Prefetch<T>) => {
     if (progress)
       start()
 
     try {
-      const value = await prefetch(client)
+      const value = await prefetch(client, history)
 
-      push(path, value)
+      history.push(path, value)
 
       if (scroll)
         window.scrollTo({ top: 0 })
