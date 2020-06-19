@@ -8,6 +8,7 @@ import { TagColors, TagDisplay, TagLabels } from '../Tags'
 import { BookListingContext } from '.'
 import { LanguageSelect } from '../LanguageSelect'
 import { useUpdateOnEvent } from '../hooks'
+import { FormattedMessage, useIntl } from 'react-intl'
 
 export const Search = () => {
   const { manager } = useContext(BookListingContext)
@@ -119,7 +120,7 @@ const TagSearch = ({ style }: {
       }}
       searchValue={search}
       onSearch={setSearch}
-      placeholder={`Search ${manager.result.total} books...`}
+      placeholder={<FormattedMessage id='bookListing.search.total' values={{ total: manager.result.total }} />}
       options={[
         // suggestions
         ...useMemo(() => (
@@ -178,6 +179,7 @@ export const SimpleSearch = ({ style }: {
   style?: CSSProperties
 }) => {
   const { manager } = useContext(BookListingContext)
+  const { formatMessage } = useIntl()
 
   useUpdateOnEvent(manager, 'query')
   useUpdateOnEvent(manager, 'result')
@@ -191,7 +193,7 @@ export const SimpleSearch = ({ style }: {
       style={style}
       value={value}
       onChange={({ target: { value } }) => setValue(value)}
-      placeholder={`Search ${manager.result.total} books...`}
+      placeholder={formatMessage({ id: 'bookListing.search.total' }, { total: manager.result.total })}
       onKeyDown={e => {
         switch (e.keyCode) {
           case 13:

@@ -1,10 +1,11 @@
 import { Tag } from 'antd'
-import { ComponentProps, useState } from 'react'
+import { ComponentProps, useState, ReactNode } from 'react'
 import React from 'react'
 import { BookCategory, BookTag, LanguageType, MaterialRating } from './Client'
 import { presetPrimaryColors } from '@ant-design/colors'
 
 import colorOverrides from './colors.json'
+import { FormattedMessage } from 'react-intl'
 
 // override preset with colors from colors.json
 Object
@@ -12,22 +13,22 @@ Object
   .forEach(k => presetPrimaryColors[k] = colorOverrides[k as keyof typeof colorOverrides] || presetPrimaryColors[k])
 
 /** Display names of tags. */
-export const TagLabels: { [key in BookTag]: string } = {
-  artist: 'Artist',
-  circle: 'Circle',
-  character: 'Character',
-  parody: 'Parody',
-  series: 'Series',
-  convention: 'Convention',
-  metadata: 'Metadata',
-  tag: 'Tag'
+export const TagLabels: { [tag in BookTag]: ReactNode } = {
+  artist: <FormattedMessage id='bookTags.artist' />,
+  circle: <FormattedMessage id='bookTags.circle' />,
+  character: <FormattedMessage id='bookTags.character' />,
+  parody: <FormattedMessage id='bookTags.parody' />,
+  series: <FormattedMessage id='bookTags.series' />,
+  convention: <FormattedMessage id='bookTags.convention' />,
+  metadata: <FormattedMessage id='bookTags.metadata' />,
+  tag: <FormattedMessage id='bookTags.tag' />
 }
 
 /** List of all book tags in correct display order. */
-export const BookTagList = Object.values(BookTag).sort((a, b) => Object.keys(TagLabels).indexOf(a) - Object.keys(TagLabels).indexOf(b))
+export const BookTagList = Object.keys(TagLabels) as BookTag[]
 
 /** Preset colors for tags. */
-export const TagColorPresets: typeof TagLabels = {
+export const TagColorPresets: { [tag in BookTag]: string } = {
   artist: 'volcano',
   circle: 'orange',
   character: 'gold',
@@ -47,27 +48,27 @@ export const TagDisplay = ({ tag, value, ...props }: { tag: keyof typeof TagLabe
   <ExpandableTag type={tag} value={value} color={TagColorPresets[tag]} {...props} />
 
 /** Display names of categories. */
-export const CategoryLabels: { [key in BookCategory]: string } = {
-  doujinshi: 'Doujinshi',
-  manga: 'Manga',
-  artistCg: 'Artist CG',
-  gameCg: 'Game CG',
-  lightNovel: 'Light novel'
+export const CategoryLabels: { [category in BookCategory]: ReactNode } = {
+  doujinshi: <FormattedMessage id='bookCategories.doujinshi' />,
+  manga: <FormattedMessage id='bookCategories.manga' />,
+  artistCg: <FormattedMessage id='bookCategories.artistCg' />,
+  gameCg: <FormattedMessage id='bookCategories.gameCg' />,
+  lightNovel: <FormattedMessage id='bookCategories.lightNovel' />
 }
 
 export const CategoryDescriptions: typeof CategoryLabels = {
-  doujinshi: 'Self-published or self-distributed hentai manga or pornographic comic involving recognizable characters or mascots from other anime, manga or video games.',
-  manga: 'Officially published pornographic comic, typically featuring original content.',
-  artistCg: 'Artwork sets without panels, often made digitally, typically in full color.',
-  gameCg: 'Images extracted from erotic games ("eroge").',
-  lightNovel: 'High-quality scanned images of light novels.'
+  doujinshi: <FormattedMessage id='bookCategories.descriptions.doujinshi' />,
+  manga: <FormattedMessage id='bookCategories.descriptions.manga' />,
+  artistCg: <FormattedMessage id='bookCategories.descriptions.artistCg' />,
+  gameCg: <FormattedMessage id='bookCategories.descriptions.gameCg' />,
+  lightNovel: <FormattedMessage id='bookCategories.descriptions.lightNovel' />
 }
 
 /** List of all book tags in correct display order. */
-export const BookCategoryList = Object.values(BookCategory).sort((a, b) => Object.keys(CategoryLabels).indexOf(a) - Object.keys(CategoryLabels).indexOf(b))
+export const BookCategoryList = Object.keys(CategoryLabels) as BookCategory[]
 
 /** Preset colors for categories. */
-export const CategoryColorPresets: typeof CategoryLabels = {
+export const CategoryColorPresets: { [category in BookCategory]: string } = {
   doujinshi: 'volcano',
   manga: 'yellow',
   artistCg: 'cyan',
@@ -82,7 +83,7 @@ export const CategoryDisplay = ({ category, ...props }: { category: keyof typeof
   <ExpandableTag type='category' value={category} color={CategoryColorPresets[category]} {...props} />
 
 /** Display names of language types. */
-export const LanguageTypeLabels: { [key in LanguageType]: string } = {
+export const LanguageTypeLabels: { [language in LanguageType]: string } = {
   'ja-JP': 'Japanese',
   'en-US': 'English', // English (US)
   'zh-CN': 'Chinese', // Chinese (PRC)
@@ -102,7 +103,7 @@ export const LanguageTypeLabels: { [key in LanguageType]: string } = {
 export const LanguageTypeList = Object.keys(LanguageTypeLabels) as LanguageType[]
 
 /** Preset colors for language types. */
-export const LanguageTypeColorPresets: typeof LanguageTypeLabels = {
+export const LanguageTypeColorPresets: { [language in LanguageType]: string } = {
   'ja-JP': 'cyan',
   'en-US': 'yellow',
   'zh-CN': 'orange',
@@ -125,23 +126,23 @@ export const LanguageTypeDisplay = ({ language, ...props }: { language: Language
   <ExpandableTag type='language' value={LanguageTypeLabels[language]} color={LanguageTypeColorPresets[language]} {...props} />
 
 /** Display names of material ratings. */
-export const MaterialRatingLabels: { [key in MaterialRating]: string } = {
-  safe: 'Safe',
-  questionable: 'Questionable',
-  explicit: 'Explicit'
+export const MaterialRatingLabels: { [rating in MaterialRating]: ReactNode } = {
+  safe: <FormattedMessage id='materialRatings.safe' />,
+  questionable: <FormattedMessage id='materialRatings.questionable' />,
+  explicit: <FormattedMessage id='materialRatings.explicit' />
 }
 
 export const MaterialRatingDescriptions: typeof MaterialRatingLabels = {
-  safe: 'Clearly lacking any sexual content.',
-  questionable: 'Containing non-genital nudity, sexually suggestive acts, or something that is not generically considered pornographic.',
-  explicit: 'Containing exposed genitals, openly and unambiguously portrayed sex acts, or visible sexual fluids.'
+  safe: <FormattedMessage id='materialRatings.descriptions.safe' />,
+  questionable: <FormattedMessage id='materialRatings.descriptions.questionable' />,
+  explicit: <FormattedMessage id='materialRatings.descriptions.explicit' />
 }
 
 /** List of all material ratings in correct display order. */
 export const MaterialRatingList = Object.keys(MaterialRatingLabels) as MaterialRating[]
 
 /** Preset colors for material ratings. */
-export const MaterialRatingColorPresets: typeof MaterialRatingLabels = {
+export const MaterialRatingColorPresets: { [rating in MaterialRating]: string } = {
   safe: 'green',
   questionable: 'volcano',
   explicit: 'magenta'

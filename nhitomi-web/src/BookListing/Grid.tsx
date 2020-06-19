@@ -12,6 +12,7 @@ import { BookListingContext } from '.'
 import { useUpdateOnEvent } from '../hooks'
 import { presetPrimaryColors } from '@ant-design/colors'
 import { Panel } from './Panel'
+import { FormattedMessage } from 'react-intl'
 
 const gridGutter = 8
 const gridLayout: ListGridType = {
@@ -38,7 +39,7 @@ export const GridListing = () => {
 
   const list = useMemo(() => {
     if (!manager.result.items.length)
-      return <Empty description='No results' />
+      return <Empty description={<FormattedMessage id='bookListing.empty' />} />
 
     return <>
       <List

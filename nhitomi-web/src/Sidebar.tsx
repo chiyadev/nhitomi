@@ -31,7 +31,7 @@ export const SideBar = () => {
       alert.info(<FormattedMessage id='sidebar.opened' />)
   })
 
-  const sidebarKey = useShortcutKeyName('sidebarKey')
+  const toggleKey = useShortcutKeyName('sidebarKey')
 
   return <Layout.Sider
     breakpoint='md'
@@ -53,7 +53,7 @@ export const SideBar = () => {
 
     <Tooltip
       className='ant-layout-sider-zero-width-trigger ant-layout-sider-zero-width-trigger-left'
-      title={`Press '${sidebarKey}' to toggle.`}
+      title={<FormattedMessage id='sidebar.pressToToggle' values={{ key: toggleKey }} />}
       placement={sidebar ? 'left' : 'right'}
       mouseEnterDelay={0.5}
       mouseLeaveDelay={0}>
@@ -88,7 +88,7 @@ export const SideBar = () => {
         <Menu.Item key='books'>
           <BookListingLink>
             <ReadOutlined />
-            <span>Books</span>
+            <FormattedMessage id='sidebar.menu.books' />
           </BookListingLink>
         </Menu.Item>
 

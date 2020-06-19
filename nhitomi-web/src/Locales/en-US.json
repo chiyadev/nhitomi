@@ -15,7 +15,31 @@
   },
   "sidebar": {
     "opened": "Sidebar opened.",
-    "collapsed": "Sidebar collapsed."
+    "collapsed": "Sidebar collapsed.",
+    "pressToToggle": "Press ''{key}'' to toggle.",
+    "menu": {
+      "books": "Books"
+    }
+  },
+  "bookListing": {
+    "empty": "No results",
+    "header": {
+      "title": "Books",
+      "sub": "List of all books"
+    },
+    "time": {
+      "uploaded": "Uploaded on {time}",
+      "updated": "Updated on {time}"
+    },
+    "tags": {
+      "heading": "Tags"
+    },
+    "sources": {
+      "heading": "View on"
+    },
+    "search": {
+      "total": "Search {total, plural, =1 {one book} other {{total} books}}..."
+    }
   },
   "bookReader": {
     "pageError": {
@@ -32,6 +56,40 @@
       "rightToLeft": "Pages are ordered right to left.",
       "singleCoverEnabled": "Cover page is displayed separately.",
       "singleCoverDisabled": "Cover page is grouped with other pages."
+    }
+  },
+  "bookTags": {
+    "artist": "Artist",
+    "circle": "Circle",
+    "character": "Character",
+    "parody": "Parody",
+    "series": "Series",
+    "convention": "Convention",
+    "metadata": "Metadata",
+    "tag": "Tag"
+  },
+  "bookCategories": {
+    "doujinshi": "Doujinshi",
+    "manga": "Manga",
+    "artistCg": "Artist CG",
+    "gameCg": "Game CG",
+    "lightNovel": "Light novel",
+    "descriptions": {
+      "doujinshi": "Self-published or self-distributed hentai manga or pornographic comic involving recognizable characters or mascots from other anime, manga or video games.",
+      "manga": "Officially published pornographic comic, typically featuring original content.",
+      "artistCg": "Artwork sets without panels, often made digitally, typically in full color.",
+      "gameCg": "Images extracted from erotic games (\"eroge\").",
+      "lightNovel": "High-quality scanned images of light novels."
+    }
+  },
+  "materialRatings": {
+    "safe": "Safe",
+    "questionable": "Questionable",
+    "explicit": "Explicit",
+    "descriptions": {
+      "safe": "Clearly lacking any sexual content.",
+      "questionable": "Containing non-genital nudity, sexually suggestive acts, or something that is not generically considered pornographic.",
+      "explicit": "Containing exposed genitals, openly and unambiguously portrayed sex acts, or visible sexual fluids."
     }
   }
 }

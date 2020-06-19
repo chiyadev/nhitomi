@@ -3,6 +3,7 @@ import { Affix, PageHeader } from 'antd'
 import { BookOutlined } from '@ant-design/icons'
 import { Search } from './Search'
 import { LayoutContext } from '../LayoutContext'
+import { FormattedMessage } from 'react-intl'
 
 export const Header = () => {
   const { breakpoint } = useContext(LayoutContext)
@@ -28,8 +29,8 @@ export const Header = () => {
           <PageHeader
             style={{ paddingBottom: breakpoint ? 0 : undefined }}
             avatar={{ icon: <BookOutlined />, shape: 'square' }}
-            title='Books'
-            subTitle='List of all books'
+            title={<FormattedMessage id='bookListing.header.title' />}
+            subTitle={<FormattedMessage id='bookListing.header.sub' />}
             extra={!breakpoint && search} />
 
           {breakpoint && (

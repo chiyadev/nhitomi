@@ -12,6 +12,7 @@ import { TimeDisplay } from '../TimeDisplay'
 import { ScraperType, BookContent, LanguageType } from '../Client'
 import { SourceButton } from '../SourceButton'
 import { languageNames } from '../LocaleProvider'
+import { FormattedMessage } from 'react-intl'
 
 export const Panel = () => {
   const client = useContext(ClientContext)
@@ -68,9 +69,9 @@ export const Panel = () => {
           )}
 
           <p>
-            <span>Uploaded on <TimeDisplay time={book.createdTime} /></span>
+            <FormattedMessage id='bookListing.time.uploaded' values={{ time: <TimeDisplay time={book.createdTime} /> }} />
             <br />
-            <span>Updated on <TimeDisplay time={book.updatedTime} /></span>
+            <FormattedMessage id='bookListing.time.updated' values={{ time: <TimeDisplay time={book.updatedTime} /> }} />
           </p>
 
           <p>
@@ -98,7 +99,7 @@ export const Panel = () => {
             <ExpandableTag type='pages' value={`${content.pageCount} pages`} />
           </p>
 
-          <h5>Tags</h5>
+          <h5><FormattedMessage id='bookListing.tags.heading' /></h5>
           <p>
             {BookTagList.flatMap(type => book.tags[type]?.map(value =>
               <TagDisplay
@@ -108,7 +109,7 @@ export const Panel = () => {
                 onClick={() => manager.toggleTag({ type, value })} />))}
           </p>
 
-          <h5>View on</h5>
+          <h5><FormattedMessage id='bookListing.sources.heading' /></h5>
           <p>
             {(() => {
               const groups: { [source in ScraperType]?: { [language in LanguageType]?: BookContent[] } } = {}
