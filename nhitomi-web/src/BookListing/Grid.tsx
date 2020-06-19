@@ -1,7 +1,7 @@
 import { CloseOutlined } from '@ant-design/icons'
 import { Card, List, Popover, Typography, Spin, Empty } from 'antd'
 import { ListGridType } from 'antd/lib/list'
-import React, { useContext, useMemo, useRef, useLayoutEffect, CSSProperties } from 'react'
+import React, { useContext, useMemo, useRef, useLayoutEffect } from 'react'
 import { useIntl } from 'react-intl'
 import { useMouseHovered } from 'react-use'
 import { BookTagList, CategoryDisplay, LanguageTypeDisplay, MaterialRatingDisplay, TagDisplay } from '../Tags'
