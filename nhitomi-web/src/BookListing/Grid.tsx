@@ -171,7 +171,7 @@ const Item = ({ book }: { book: Book }) => {
         </BookReaderLink>
       </div>
     </List.Item>
-  ), [book, content, selected]) // eslint-disable-line react-hooks/exhaustive-deps
+  ), [book, content, selected, breakpoint]) // eslint-disable-line react-hooks/exhaustive-deps
 }
 
 const Cover = ({ book: { id }, content: { id: contentId }, selected }: { book: Book, content: BookContent, selected: boolean }) => {
