@@ -194,6 +194,7 @@ const Cover = ({ book: { id }, content: { id: contentId }, selected }: { book: B
 
   return useMemo(() =>
     <AsyncImage
+      key={`${id}/${contentId}`}
       ref={imageRef}
       width={5}
       height={7}
