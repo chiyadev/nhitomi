@@ -81,28 +81,28 @@ const TagSearch = ({ style }: {
       onChange={newValues => {
         setSearch('')
 
-        // if there are any values with no type prefix, switch to simple query
-        if (newValues.some(v => v.indexOf(':') === -1)) {
+        // if there are any values with no type prefix or if there is a link, switch to simple query
+        if (newValues.some(v => {
+          const delimiter = v.indexOf(':')
+          return delimiter === -1 || v.substring(delimiter + 1).startsWith('//')
+        })) {
           manager.query = {
             type: 'simple',
             language: manager.query.language,
             value: newValues.map(v => {
-              const delimiter = v.indexOf(':')
+              let value = v.substring(v.indexOf(':') + 1)
 
-              if (delimiter === -1)
-                return v
-
-              // remove type prefix
-              v = v.substring(delimiter + 1)
+              if (value.startsWith('//'))
+                value = v
 
               // booru style spaces
-              v = v.replace('_', ' ')
+              value = value.replace('_', ' ')
 
               // wrap around quotes for phrase match
-              if (v.indexOf(' ') !== -1)
-                v = `"${v}"`
+              if (value.indexOf(' ') !== -1)
+                value = `"${value}"`
 
-              return v
+              return value
             }).join(' ')
           }
         }
@@ -144,8 +144,13 @@ const TagSearch = ({ style }: {
           options: [{
             label: ((s: string) => {
               const delimiter = s.indexOf(':')
-              const type = delimiter === -1 ? undefined : s.substring(0, delimiter)
-              const value = s.substring(delimiter + 1)
+              let type = delimiter === -1 ? undefined : s.substring(0, delimiter)
+              let value = s.substring(delimiter + 1)
+
+              if (value.startsWith('//')) {
+                type = 'metadata'
+                value = s
+              }
 
               return <Typography.Text style={{ color: TagColors[type as BookTag] }}>{value || s}</Typography.Text>
             })(search),

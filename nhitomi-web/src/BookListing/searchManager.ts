@@ -1,4 +1,4 @@
-import { BookTag, Book, LanguageType, Client, BookQuery, QueryMatchMode, BookQueryTags, BookSort, SortDirection, BookContent } from '../Client'
+import { BookTag, Book, LanguageType, Client, BookQuery, QueryMatchMode, BookQueryTags, BookSort, SortDirection, BookContent, BookSearchResult } from '../Client'
 import qs from 'qs'
 import { EventEmitter } from 'events'
 import StrictEventEmitter from 'strict-event-emitter-types'
@@ -215,6 +215,23 @@ export class SearchManager extends (EventEmitter as new () => StrictEventEmitter
     }
   }
 
+  async search(query: SearchQuery, offset?: number): Promise<BookSearchResult> {
+    // if simple query, try finding links first
+    if (query.type === 'simple' && query.value) {
+      const { matches } = await this.client.book.getBooksByLink({ strict: false, getBookByLinkRequest: { link: query.value } })
+
+      if (matches.length) {
+        return {
+          took: '', // temp
+          total: matches.length,
+          items: matches.map(m => m.book)
+        }
+      }
+    }
+
+    return await this.client.book.searchBooks({ bookQuery: convertQuery(query, offset) })
+  }
+
   canRefresh = true
 
   /** Searches from the start. */
@@ -227,7 +244,7 @@ export class SearchManager extends (EventEmitter as new () => StrictEventEmitter
     const query = this.query
 
     try {
-      const { items, total } = await this.client.book.searchBooks({ bookQuery: convertQuery(query) })
+      const { items, total } = await this.search(query)
 
       if (queriesEqual(this.query, query)) {
         this.result = {
@@ -263,7 +280,7 @@ export class SearchManager extends (EventEmitter as new () => StrictEventEmitter
     const query = this.result.query
 
     try {
-      const { items, total } = await this.client.book.searchBooks({ bookQuery: convertQuery(this.query, this.result.items.length) })
+      const { items, total } = await this.search(this.query, this.result.items.length)
 
       if (queriesEqual(this.query, query)) {
         const totalItems = [
