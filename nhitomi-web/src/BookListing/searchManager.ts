@@ -1,4 +1,4 @@
-import { BookTag, Book, LanguageType, Client, BookQuery, QueryMatchMode, BookQueryTags, BookSort, SortDirection } from '../Client'
+import { BookTag, Book, LanguageType, Client, BookQuery, QueryMatchMode, BookQueryTags, BookSort, SortDirection, BookContent } from '../Client'
 import qs from 'qs'
 import { EventEmitter } from 'events'
 import StrictEventEmitter from 'strict-event-emitter-types'
@@ -23,6 +23,10 @@ export type SearchResult = {
   items: Book[]
   total: number
   end: boolean
+  selected?: {
+    book: Book
+    content: BookContent
+  }
 }
 
 export function serializeQuery(query: SearchQuery): string {
@@ -116,9 +120,21 @@ export function queriesEqual(a: SearchQuery, b: SearchQuery) {
   return a === b || serializeQuery(a) === serializeQuery(b)
 }
 
+// selects a book with the same id from the given list of books
+function selectBook(books: Book[], selected: SearchResult['selected']): SearchResult['selected'] {
+  for (const book of books) {
+    if (book.id === selected?.book.id) {
+      for (const content of book.contents) {
+        if (content.id === selected.content.id)
+          return { book, content }
+      }
+    }
+  }
+}
+
 export class SearchManager extends (EventEmitter as new () => StrictEventEmitter<EventEmitter, {
   loading: (loading: boolean) => void
-  query: (query: SearchQuery, push: boolean) => void
+  query: (query: SearchQuery, push: boolean) => void // push means query was performed by the user and new history entry will be created
   result: (result: SearchResult) => void
   failed: (error: Error) => void
 }>) {
@@ -215,10 +231,12 @@ export class SearchManager extends (EventEmitter as new () => StrictEventEmitter
 
       if (queriesEqual(this.query, query)) {
         this.result = {
+          ...this.result,
           query,
           items,
           total,
-          end: items.length >= total
+          end: items.length >= total,
+          selected: selectBook(items, this.result.selected)
         }
       }
     }
@@ -254,10 +272,12 @@ export class SearchManager extends (EventEmitter as new () => StrictEventEmitter
         ]
 
         this.result = {
+          ...this.result,
           query,
           items: totalItems,
           total,
-          end: totalItems.length >= total
+          end: totalItems.length >= total,
+          selected: selectBook(totalItems, this.result.selected)
         }
       }
     }

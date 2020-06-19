@@ -1,10 +1,7 @@
-import { CloseOutlined } from '@ant-design/icons'
-import { Card, List, Popover, Typography, Spin, Empty } from 'antd'
+import { Card, List, Typography, Spin, Empty } from 'antd'
 import { ListGridType } from 'antd/lib/list'
-import React, { useContext, useMemo, useRef, useLayoutEffect } from 'react'
-import { useIntl } from 'react-intl'
+import React, { useContext, useMemo, useRef, useLayoutEffect, useState } from 'react'
 import { useMouseHovered } from 'react-use'
-import { BookTagList, CategoryDisplay, LanguageTypeDisplay, MaterialRatingDisplay, TagDisplay } from '../Tags'
 import { Book, BookContent } from '../Client'
 import { LayoutContext } from '../LayoutContext'
 import { ClientContext } from '../ClientContext'
@@ -13,10 +10,11 @@ import { BookReaderLink } from '../BookReader'
 import VisibilitySensor from 'react-visibility-sensor'
 import { BookListingContext } from '.'
 import { useUpdateOnEvent } from '../hooks'
+import { presetPrimaryColors } from '@ant-design/colors'
+import { Panel } from './Panel'
 
-const gridGutter = 2
+const gridGutter = 8
 const gridLayout: ListGridType = {
-  gutter: gridGutter,
   xs: 2,
   sm: 3,
   md: 3,
@@ -25,37 +23,51 @@ const gridLayout: ListGridType = {
   xxl: 7
 }
 
-export const GridListing = ({ selected, setSelected }: {
-  selected?: string
-  setSelected: (id?: string) => void
-}) => {
+export const GridListing = () => {
   const { manager } = useContext(BookListingContext)
+  const { width, getBreakpoint } = useContext(LayoutContext)
+  const listWidth = manager.result.selected ? width * 0.6 : width
+
+  const listRef = useRef<HTMLDivElement>(null)
+  const [panelPos, setPanelPos] = useState(0)
+
+  const selected = manager.result.selected?.book.id
 
   useUpdateOnEvent(manager, 'result')
+  useLayoutEffect(() => { requestAnimationFrame(() => setPanelPos(Math.max(0, window.scrollY - (listRef.current?.offsetTop || 0)))) }, [selected, width])
 
-  // optimization
-  const setSelectedFuncs = useMemo(() => manager.result.items.map(book => (v: boolean) => setSelected(v ? book.id : undefined)), [manager.result.items, setSelected])
+  const list = useMemo(() => {
+    if (!manager.result.items.length)
+      return <Empty description='No results' />
 
-  const list = useMemo(() =>
-    <List
-      grid={gridLayout}
-      dataSource={manager.result.items}
-      rowKey={book => book.id}
-      renderItem={(book, i) => (
-        <Item
-          book={book}
-          selected={book.id === selected}
-          setSelected={setSelectedFuncs[i]} />
-      )} />,
-    [manager.result.items, selected, setSelectedFuncs])
+    return <>
+      <List
+        grid={{
+          gutter: gridGutter,
+          column: gridLayout[getBreakpoint(listWidth)]
+        }}
+        dataSource={manager.result.items}
+        rowKey={book => book.id}
+        renderItem={book => <Item book={book} />} />
 
-  if (!manager.result.items.length)
-    return <Empty description='No results' />
+      <FurtherLoader />
+    </>
+  }, [getBreakpoint, listWidth, manager.result.items])
 
   return <>
-    {list}
+    <div ref={listRef} children={list} style={{
+      display: 'inline-block',
+      width: (listWidth / width) * 100 + '%'
+    }} />
 
-    <FurtherLoader />
+    {manager.result.selected && <div style={{
+      marginTop: panelPos,
+      width: (1 - listWidth / width) * 100 + '%',
+      float: 'right',
+      paddingLeft: gridGutter
+    }}>
+      <Panel />
+    </div>}
   </>
 }
 
@@ -96,77 +108,75 @@ const FurtherLoader = () => {
   </VisibilitySensor>
 }
 
-const Item = ({ book, selected, setSelected }: {
-  book: Book
-  selected: boolean
-  setSelected: (selected: boolean) => void
-}) => {
+const Item = ({ book }: { book: Book }) => {
   const { manager } = useContext(BookListingContext)
+  const { width } = useContext(LayoutContext)
 
   useUpdateOnEvent(manager, 'query')
+  useUpdateOnEvent(manager, 'result')
 
   // use content of user language
-  const content = book.contents.find(c => c.language === manager.query.language) || book.contents[0]
+  const selected = manager.result.selected?.book.id === book.id
+  const content = (selected && book.contents.find(c => c.id === manager.result.selected?.content.id)) || book.contents.find(c => c.language === manager.query.language) || book.contents[0]
 
-  const { width: windowWidth, height: windowHeight, breakpoint } = useContext(LayoutContext)
   const ref = useRef<HTMLDivElement>(null)
 
   // scroll into view on when selected
   useLayoutEffect(() => {
     if (selected)
       ref.current?.scrollIntoView({
-        behavior: 'smooth',
-        block: breakpoint ? 'start' : 'nearest',
-        inline: breakpoint ? 'start' : 'nearest'
+        block: 'nearest',
+        inline: 'nearest'
       })
-  }, [selected, breakpoint, windowWidth, windowHeight])
+  }, [selected, width])
 
-  return useMemo(() =>
+  return useMemo(() => (
     <List.Item style={{
       marginTop: 0,
       marginBottom: gridGutter
     }}>
-      <Popover
-        trigger='click'
-        placement={breakpoint ? 'bottom' : 'rightTop'}
-        visible={selected || false}
-        onVisibleChange={setSelected}
-        title={<OverlayTitle book={book} content={content} onClose={() => setSelected(false)} />}
-        content={<Overlay book={book} content={content} />}
-        overlayStyle={{
-          width: breakpoint ? '100%' : undefined,
-          maxWidth: breakpoint ? undefined : windowWidth / 2
-        }}>
+      <div ref={ref} style={{ scrollMargin: '1em' }}>
+        <BookReaderLink
+          id={book.id}
+          contentId={content.id}
+          disabled={!selected}
+          onClick={() => manager.result = { ...manager.result, selected: { book, content } }}>
 
-        <div ref={ref} style={{ scrollMargin: '2em' }}>
-          <BookReaderLink
-            id={book.id}
-            contentId={content.id}
-            disabled={!selected}>
+          <Card
+            size='small'
+            style={{
+              ...(!selected ? undefined : {
+                border: 'solid',
+                borderColor: presetPrimaryColors.blue,
+                borderWidth: gridGutter / 2,
+                borderRadius: gridGutter / 2,
+                margin: 1 - gridGutter / 2,
+                zIndex: 1
+              }),
+              transition: 'border-color 0.2s',
+              overflow: 'hidden'
+            }}
+            cover={<Cover book={book} content={content} selected={selected} />}>
 
-            <Card
-              bordered
-              hoverable
-              size='small'
-              cover={<Cover book={book} content={content} selected={selected} />}>
-
-              <Card.Meta description={<div style={{
+            <Card.Meta description={(
+              <div style={{
                 textOverflow: 'ellipsis',
                 whiteSpace: 'nowrap',
                 overflow: 'hidden'
               }}>
                 <Typography.Text strong>{book.primaryName}</Typography.Text>
-              </div>} />
-            </Card>
-          </BookReaderLink>
-        </div>
-      </Popover>
-    </List.Item>,
-    [book, content, breakpoint, selected, setSelected, windowWidth])
+              </div>
+            )} />
+          </Card>
+        </BookReaderLink>
+      </div>
+    </List.Item>
+  ), [book, content, selected]) // eslint-disable-line react-hooks/exhaustive-deps
 }
 
 const Cover = ({ book: { id }, content: { id: contentId }, selected }: { book: Book, content: BookContent, selected: boolean }) => {
   const client = useContext(ClientContext)
+  const { breakpoint } = useContext(LayoutContext)
 
   const ref = useRef<HTMLDivElement>(null)
   const imageRef = useRef<HTMLImageElement>(null)
@@ -174,7 +184,7 @@ const Cover = ({ book: { id }, content: { id: contentId }, selected }: { book: B
   let { elX, elY } = useMouseHovered(ref, { whenHovered: true, bound: true })
   let scale = 1
 
-  if (selected) {
+  if (selected && !breakpoint) {
     scale = 1.1
   }
   else {
@@ -207,47 +217,4 @@ const Cover = ({ book: { id }, content: { id: contentId }, selected }: { book: B
       elY,
       scale
     ])
-}
-
-const OverlayTitle = ({ book, content, onClose }: { book: Book, content: BookContent, onClose: () => void }) => <>
-  <BookReaderLink id={book.id} contentId={content.id}><strong>{book.primaryName}</strong></BookReaderLink>
-
-  <Typography.Text style={{ float: 'right', marginLeft: '1em' }} type='secondary'>
-    <CloseOutlined style={{ cursor: 'pointer' }} onClick={onClose} />
-  </Typography.Text>
-
-  {book.englishName && <>
-    <br />
-    <Typography.Text type='secondary'><small> {book.englishName}</small></Typography.Text>
-  </>}
-</>
-
-const Overlay = ({ book: { createdTime, updatedTime, tags, category, rating, contents } }: { book: Book, content: BookContent }) => {
-  const { formatDate, formatTime } = useIntl()
-  const { manager } = useContext(BookListingContext)
-
-  return <>
-    <h4>Information</h4>
-    <p>
-      <span>Uploaded: {formatDate(createdTime)} {formatTime(createdTime)}</span>
-      <br />
-      <span>Updated: {formatDate(updatedTime)} {formatTime(updatedTime)}</span>
-    </p>
-    <p>
-      {contents.map(c => c.language).filter((v, i, a) => a.indexOf(v) === i).map(v => <LanguageTypeDisplay language={v} />)}
-
-      <CategoryDisplay category={category} />
-      <MaterialRatingDisplay rating={rating} />
-    </p>
-
-    <h4>Tags</h4>
-    <p>
-      {BookTagList.flatMap(type => tags[type]?.map(value =>
-        <TagDisplay
-          key={`${type}:${value}`}
-          tag={type}
-          value={value}
-          onClick={() => manager.toggleTag({ type, value })} />))}
-    </p>
-  </>
 }

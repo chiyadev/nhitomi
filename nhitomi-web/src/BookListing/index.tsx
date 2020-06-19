@@ -1,4 +1,4 @@
-import React, { Dispatch, useContext, useRef, useState, createContext, useMemo, useLayoutEffect } from 'react'
+import React, { Dispatch, useContext, useRef, createContext, useMemo, useLayoutEffect } from 'react'
 import { useTabTitle } from '../hooks'
 import { Prefetch, PrefetchLink, PrefetchLinkProps, usePrefetch } from '../Prefetch'
 import { ProgressContext } from '../Progress'
@@ -89,15 +89,11 @@ const Loaded = ({ result, dispatch }: { result: SearchResult, dispatch: Dispatch
     }
   }, [dispatch, error, locale, location, manager, push, replace, setLocale, start, stop])
 
-  const [selected, setSelected] = useState<string>()
-
   return <BookListingContext.Provider value={useMemo(() => ({ manager }), [manager])}>
     <Header />
 
     <LayoutContent>
-      <GridListing
-        selected={selected}
-        setSelected={setSelected} />
+      <GridListing />
     </LayoutContent>
   </BookListingContext.Provider>
 }
