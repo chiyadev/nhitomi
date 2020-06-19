@@ -38,7 +38,8 @@
       "heading": "View on"
     },
     "search": {
-      "total": "Search {total, plural, =1 {one book} other {{total} books}}..."
+      "total": "Search {total, plural, =1 {one book} other {{total} books}}...",
+      "otherTag": "Other"
     }
   },
   "bookReader": {

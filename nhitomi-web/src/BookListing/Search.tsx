@@ -141,7 +141,7 @@ const TagSearch = ({ style }: {
 
         // custom input suggestion
         ...(!search || (Object.keys(suggestions) as BookTag[]).some(t => suggestions[t]?.some(x => x.text === search)) ? [] : [{
-          label: 'Other',
+          label: <FormattedMessage id='bookListing.search.otherTag' />,
           options: [{
             label: ((s: string) => {
               const delimiter = s.indexOf(':')
