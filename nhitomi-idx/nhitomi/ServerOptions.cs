@@ -13,18 +13,18 @@ namespace nhitomi
         /// <summary>
         /// HTTP port to be used in non-development environment.
         /// </summary>
-        public int HttpPort { get; set; } = 80;
+        public int? HttpPort { get; set; }
 
         /// <summary>
         /// HTTP port to be used in development environment.
         /// <see cref="HttpPort"/> and <see cref="HttpsPort"/> will be ignored.
         /// </summary>
-        public int HttpPortDev { get; set; } = 5000;
+        public int? HttpPortDev { get; set; }
 
         /// <summary>
         /// HTTPS port to be used in non-development environment.
         /// </summary>
-        public int HttpsPort { get; set; } = 443;
+        public int? HttpsPort { get; set; }
 
         /// <summary>
         /// Path to SSL certificate for HTTPS connections.

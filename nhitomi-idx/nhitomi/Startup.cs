@@ -61,17 +61,14 @@ namespace nhitomi
                      {
                          var server = o.ApplicationServices.GetService<IOptionsMonitor<ServerOptions>>().CurrentValue;
 
-                         if (_environment.IsDevelopment())
-                         {
-                             o.ListenLocalhost(server.HttpPortDev);
-                         }
-                         else
-                         {
-                             o.ListenAnyIP(server.HttpPort);
+                         if (server.HttpPortDev != null)
+                             o.ListenLocalhost(server.HttpPortDev.Value);
 
-                             if (server.CertificatePath != null)
-                                 o.ListenAnyIP(server.HttpsPort, l => l.UseHttps(server.CertificatePath, server.CertificatePassword));
-                         }
+                         if (server.HttpPort != null)
+                             o.ListenAnyIP(server.HttpPort.Value);
+
+                         if (server.HttpsPort != null && server.CertificatePath != null)
+                             o.ListenAnyIP(server.HttpsPort.Value, l => l.UseHttps(server.CertificatePath, server.CertificatePassword));
 
                          o.Limits.MaxRequestBufferSize       = 1024 * 64;  // 16 KiB
                          o.Limits.MaxRequestLineSize         = 1024 * 8;   // 8 KiB
