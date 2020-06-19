@@ -1,6 +1,9 @@
 import React, { createContext, ReactNode, useMemo, useState, useRef } from 'react'
 import { useWindowSize } from 'react-use'
 import { SideBarWidth } from './Sidebar'
+import { Breakpoint } from './LayoutContext'
+
+export type { Breakpoint } from 'antd/lib/_util/responsiveObserve'
 
 /** Layout information context. */
 export const LayoutContext = createContext<{
@@ -10,9 +13,31 @@ export const LayoutContext = createContext<{
   breakpoint: boolean
   sidebar: boolean
   setSidebar: (v: boolean) => void
+
+  getBreakpoint: (width: number) => Breakpoint
 }>(undefined as any)
 
-const mdBreakpoint = 768
+const breakpoints: { [key in Breakpoint]: number } = {
+  xs: 480,
+  sm: 576,
+  md: 768,
+  lg: 992,
+  xl: 1200,
+  xxl: 1600
+}
+
+function getBreakpoint(width: number) {
+  let breakpoint: Breakpoint = 'xxl'
+
+  for (const key in breakpoints) {
+    if (width < breakpoints[key as Breakpoint]) {
+      breakpoint = key as Breakpoint
+      break
+    }
+  }
+
+  return breakpoint
+}
 
 export const LayoutProvider = ({ children }: { children?: ReactNode }) => {
   let { width: windowWidth, height: windowHeight } = useWindowSize()
@@ -26,7 +51,7 @@ export const LayoutProvider = ({ children }: { children?: ReactNode }) => {
     windowHeight = ref.current.clientHeight
   }
 
-  const breakpoint = windowWidth < mdBreakpoint
+  const breakpoint = Object.keys(breakpoints).indexOf(getBreakpoint(windowWidth)) < 3
   const [sidebar, setSidebar] = useState(!breakpoint)
 
   // mobile is determined by window orientation rather than resolution
@@ -52,7 +77,8 @@ export const LayoutProvider = ({ children }: { children?: ReactNode }) => {
       mobile,
       breakpoint,
       sidebar,
-      setSidebar
+      setSidebar,
+      getBreakpoint
     }), [
       width,
       height,
