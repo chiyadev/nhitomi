@@ -36,7 +36,7 @@ export const TagColorPresets: typeof TagLabels = {
   series: 'magenta',
   // pool: 'cyan',
   convention: 'yellow',
-  metadata: 'purple',
+  metadata: 'lime',
   tag: 'blue'
 }
 
