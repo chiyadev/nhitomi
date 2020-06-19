@@ -66,6 +66,9 @@ namespace nhitomi.Database
             model.DiscordConnection      = DiscordConnection?.Convert(services);
             model.AllowSharedCollections = AllowSharedCollections;
             model.SpecialCollections     = SpecialCollections;
+
+            if (model.Restrictions != null)
+                Array.Sort(model.Restrictions, (a, b) => a.StartTime.CompareTo(b.StartTime));
         }
 
         public override void MapFrom(User model, IServiceProvider services)

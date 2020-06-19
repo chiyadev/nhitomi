@@ -97,6 +97,12 @@ namespace nhitomi.Database
             model.Tags        = _tags.DictClone();
             model.Rating      = Rating;
             model.Source      = Source;
+
+            foreach (var tags in model.Tags.Values)
+            {
+                if (tags != null)
+                    Array.Sort(tags);
+            }
         }
 
         public override void MapFrom(Image model, IServiceProvider services)

@@ -112,6 +112,28 @@ namespace nhitomi.Database
             model.Category    = Category;
             model.Rating      = Rating;
             model.Contents    = Contents?.ToArray(c => c.Convert(services));
+
+            // ensure all tags are displayed sorted
+            foreach (var tags in model.Tags.Values)
+            {
+                if (tags != null)
+                    Array.Sort(tags);
+            }
+
+            if (model.Contents != null)
+                Array.Sort(model.Contents, (a, b) =>
+                {
+                    // sort by source first
+                    var source = a.Source.CompareTo(b.Source);
+
+                    if (source != 0)
+                        return source;
+
+                    // then by id descending (i.e. latest contents first)
+                    var id = -string.Compare(a.Id, b.Id, StringComparison.Ordinal);
+
+                    return id;
+                });
         }
 
         public override void MapFrom(Book model, IServiceProvider services)
