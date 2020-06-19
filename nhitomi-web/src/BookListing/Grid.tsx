@@ -31,15 +31,15 @@ export const GridListing = ({ selected, setSelected }: {
 }) => {
   const { manager } = useContext(BookListingContext)
 
-  useUpdateOnEvent(manager, 'state')
+  useUpdateOnEvent(manager, 'result')
 
   // optimization
-  const setSelectedFuncs = useMemo(() => manager.items.map(book => (v: boolean) => setSelected(v ? book.id : undefined)), [manager.items, setSelected])
+  const setSelectedFuncs = useMemo(() => manager.result.items.map(book => (v: boolean) => setSelected(v ? book.id : undefined)), [manager.result.items, setSelected])
 
   const list = useMemo(() =>
     <List
       grid={gridLayout}
-      dataSource={manager.items}
+      dataSource={manager.result.items}
       rowKey={book => book.id}
       renderItem={(book, i) => (
         <Item
@@ -47,9 +47,9 @@ export const GridListing = ({ selected, setSelected }: {
           selected={book.id === selected}
           setSelected={setSelectedFuncs[i]} />
       )} />,
-    [manager.items, selected, setSelectedFuncs])
+    [manager.result.items, selected, setSelectedFuncs])
 
-  if (!manager.items.length)
+  if (!manager.result.items.length)
     return <Empty description='No results' />
 
   return <>
@@ -63,9 +63,9 @@ const FurtherLoader = () => {
   const loading = useRef(false)
   const { manager } = useContext(BookListingContext)
 
-  useUpdateOnEvent(manager, 'state')
+  useUpdateOnEvent(manager, 'result')
 
-  if (manager.end) {
+  if (manager.result.end) {
     loading.current = false
 
     return null
@@ -106,8 +106,10 @@ const Item = ({ book, selected, setSelected, colStyle }: {
 }) => {
   const { manager } = useContext(BookListingContext)
 
+  useUpdateOnEvent(manager, 'query')
+
   // use content of user language
-  const content = book.contents.find(c => c.language === manager.language) || book.contents[0]
+  const content = book.contents.find(c => c.language === manager.query.language) || book.contents[0]
 
   const { width: windowWidth, height: windowHeight, breakpoint } = useContext(LayoutContext)
   const ref = useRef<HTMLDivElement>(null)

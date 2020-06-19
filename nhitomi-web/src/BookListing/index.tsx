@@ -6,26 +6,32 @@ import { useScrollShortcut } from '../shortcuts'
 import { GridListing } from './Grid'
 import { ClientContext } from '../ClientContext'
 import { LayoutContent } from '../Layout'
-import { SearchManager, SearchState } from './searchManager'
+import { SearchManager, SearchQuery, SearchResult, serializeQuery, deserializeQuery } from './searchManager'
 import { Header } from './Header'
 import { LocaleContext } from '../LocaleProvider'
 import { NotificationContext } from '../NotificationContext'
+import { useHistory } from 'react-router-dom'
 
-export function getBookListingPrefetch(): Prefetch<SearchState> {
+export function getBookListingPrefetch(): Prefetch<SearchResult> {
   return {
     path: '/books',
 
-    func: async client => {
+    func: async (client, mode, { location: { search } }) => {
       const manager = new SearchManager(client)
+      manager.canRefresh = false
 
       if (client.currentInfo.authenticated) {
-        manager.language = client.currentInfo.user.language
+        manager.query = {
+          ...manager.query,
+          language: client.currentInfo.user.language
+        }
       }
 
-      manager.canRefresh = true
-      await manager.refresh()
+      if (mode === 'initial' && search)
+        manager.query = deserializeQuery(search)
 
-      return manager.state
+      manager.canRefresh = true
+      return await manager.refresh()
     }
   }
 }
@@ -34,7 +40,7 @@ export const BookListing = () => {
   const { result, dispatch } = usePrefetch(getBookListingPrefetch())
 
   if (result)
-    return <Loaded state={result} dispatch={dispatch} />
+    return <Loaded result={result} dispatch={dispatch} />
 
   return null
 }
@@ -43,7 +49,7 @@ export const BookListingLink = (props: PrefetchLinkProps) => <PrefetchLink fetch
 
 export const BookListingContext = createContext<{ manager: SearchManager }>(undefined as any)
 
-const Loaded = ({ state, dispatch }: { state: SearchState, dispatch: Dispatch<SearchState> }) => {
+const Loaded = ({ result, dispatch }: { result: SearchResult, dispatch: Dispatch<SearchResult> }) => {
   useTabTitle('Books')
   useScrollShortcut()
 
@@ -51,30 +57,37 @@ const Loaded = ({ state, dispatch }: { state: SearchState, dispatch: Dispatch<Se
   const { start, stop } = useContext(ProgressContext)
   const { locale, setLocale } = useContext(LocaleContext)
   const { notification: { error } } = useContext(NotificationContext)
+  const { location, push, replace } = useHistory()
 
   const manager = useRef(new SearchManager(client)).current
-  manager.canRefresh = true
 
-  if (manager.id !== state.id)
-    manager.emit('state', state)
+  useLayoutEffect(() => {
+    manager.replace(location.search ? deserializeQuery(location.search) : result.query, result)
+  }, [location.search, manager, result])
 
   useLayoutEffect(() => {
     const onloading = (loading: boolean) => { if (loading) start(); else stop() }
-    const onstate = () => {
-      setLocale(manager.language)
-      dispatch(manager.state)
+    const onquery = (query: SearchQuery, shouldPush: boolean) => {
+      setLocale(query.language);
+
+      (shouldPush ? push : replace)({
+        ...location,
+        search: serializeQuery(query)
+      })
     }
 
     manager.on('loading', onloading)
-    manager.on('state', onstate)
+    manager.on('query', onquery)
+    manager.on('result', dispatch)
     manager.on('failed', error)
 
     return () => {
       manager.off('loading', onloading)
-      manager.off('state', onstate)
+      manager.off('query', onquery)
+      manager.off('result', dispatch)
       manager.off('failed', error)
     }
-  }, [dispatch, error, locale, manager, setLocale, start, stop])
+  }, [dispatch, error, locale, location, manager, push, replace, setLocale, start, stop])
 
   const [selected, setSelected] = useState<string>()
 

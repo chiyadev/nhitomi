@@ -12,7 +12,7 @@ import { useUpdateOnEvent } from '../hooks'
 export const Search = () => {
   const { manager } = useContext(BookListingContext)
 
-  useUpdateOnEvent(manager, 'state')
+  useUpdateOnEvent(manager, 'query')
 
   const style: CSSProperties = {
     flex: 1,
@@ -38,7 +38,8 @@ const TagSearch = ({ style }: {
   const client = useContext(ClientContext)
   const { manager } = useContext(BookListingContext)
 
-  useUpdateOnEvent(manager, 'state')
+  useUpdateOnEvent(manager, 'query')
+  useUpdateOnEvent(manager, 'result')
 
   const selected = useMemo(() => {
     if (manager.query.type === 'tag')
@@ -84,6 +85,7 @@ const TagSearch = ({ style }: {
         if (newValues.some(v => v.indexOf(':') === -1)) {
           manager.query = {
             type: 'simple',
+            language: manager.query.language,
             value: newValues.map(v => {
               const delimiter = v.indexOf(':')
 
@@ -107,6 +109,7 @@ const TagSearch = ({ style }: {
         else {
           manager.query = {
             type: 'tag',
+            language: manager.query.language,
             items: newValues.map(v => {
               const delimiter = v.indexOf(':')
               return { type: v.substring(0, delimiter) as BookTag, value: v.substring(delimiter + 1) }
@@ -116,7 +119,7 @@ const TagSearch = ({ style }: {
       }}
       searchValue={search}
       onSearch={setSearch}
-      placeholder={`Search ${manager.total} books...`}
+      placeholder={`Search ${manager.result.total} books...`}
       options={[
         // suggestions
         ...useMemo(() => (
@@ -171,7 +174,8 @@ export const SimpleSearch = ({ style }: {
 }) => {
   const { manager } = useContext(BookListingContext)
 
-  useUpdateOnEvent(manager, 'state')
+  useUpdateOnEvent(manager, 'query')
+  useUpdateOnEvent(manager, 'result')
 
   const [value, setValue] = useState(manager.query.type === 'simple' ? manager.query.value : '')
 
@@ -182,11 +186,15 @@ export const SimpleSearch = ({ style }: {
       style={style}
       value={value}
       onChange={({ target: { value } }) => setValue(value)}
-      placeholder={`Search ${manager.total} books...`}
+      placeholder={`Search ${manager.result.total} books...`}
       onKeyDown={e => {
         switch (e.keyCode) {
           case 13:
-            manager.query = { type: 'simple', value }
+            manager.query = {
+              type: 'simple',
+              language: manager.query.language,
+              value
+            }
             break
         }
       }} />
@@ -196,12 +204,12 @@ export const SimpleSearch = ({ style }: {
 const LangSelect = () => {
   const { manager } = useContext(BookListingContext)
 
-  useUpdateOnEvent(manager, 'state')
+  useUpdateOnEvent(manager, 'query')
 
   return (
     <LanguageSelect
-      value={manager.language}
-      setValue={v => manager.language = v}
+      value={manager.query.language}
+      setValue={v => manager.query = { ...manager.query, language: v }}
       style={{
         display: 'inline-block',
         height: '100%'

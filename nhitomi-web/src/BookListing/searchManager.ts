@@ -1,70 +1,162 @@
+import { BookTag, Book, LanguageType, Client, BookQuery, QueryMatchMode, BookQueryTags, BookSort, SortDirection } from '../Client'
+import qs from 'qs'
 import { EventEmitter } from 'events'
 import StrictEventEmitter from 'strict-event-emitter-types'
-import { BookTag, Book, BookQuery, BookSort, SortDirection, BookQueryTags, QueryMatchMode, Client, LanguageType } from '../Client'
 
 export type SearchQuery = {
+  language: LanguageType
+} & ({
   type: 'simple'
   value: string
 } | {
   type: 'tag'
   items: TagQueryItem[]
-}
+})
 
 export type TagQueryItem = {
   type: BookTag
   value: string
 }
 
-export type SearchState = {
-  id: number
+export type SearchResult = {
+  query: SearchQuery
   items: Book[]
   total: number
   end: boolean
-  query: SearchQuery
-  language: LanguageType
+}
+
+export function serializeQuery(query: SearchQuery): string {
+  const language = query.language.split('-')[0] || 'en'
+
+  switch (query.type) {
+    case 'tag':
+      return qs.stringify({
+        t: 't',
+        l: language,
+        q: query.items.map(v => `${v.type}:${v.value}`).join(',') || undefined
+      })
+
+    case 'simple':
+      return qs.stringify({
+        t: 's',
+        l: language,
+        q: query.value || undefined
+      })
+  }
+}
+
+export function deserializeQuery(query: string): SearchQuery {
+  const { t, l, q } = qs.parse(query, { ignoreQueryPrefix: true }) as {
+    t?: string
+    l?: string
+    q?: string
+  }
+
+  const language = Object.values(LanguageType).find(v => v.split('-')[0] === l) || LanguageType.EnUS
+
+  switch (t) {
+    case 't':
+      return {
+        type: 'tag',
+        language: language,
+        items: q?.split(',').map(v => {
+          const delimiter = v.indexOf(':')
+
+          if (delimiter === -1)
+            return { type: BookTag.Tag, value: '' }
+
+          return {
+            type: v.substring(0, delimiter) as BookTag,
+            value: v.substring(delimiter + 1)
+          }
+        }).filter(v => v.value) || []
+      }
+
+    case 's':
+      return {
+        type: 'simple',
+        language: language,
+        value: q || ''
+      }
+  }
+
+  return {
+    type: 'tag',
+    language: LanguageType.EnUS,
+    items: []
+  }
+}
+
+export function convertQuery(query: SearchQuery, offset?: number): BookQuery {
+  return {
+    all: query.type !== 'simple' || !query.value ? undefined : {
+      values: [query.value],
+      mode: QueryMatchMode.All
+    },
+    language: {
+      values: [query.language]
+    },
+    tags: query.type !== 'tag' ? undefined : query.items.reduce((tags, { type, value }) => {
+      const tag = tags[type] || (tags[type] = { values: [], mode: QueryMatchMode.All })
+
+      tag.values.push(value)
+
+      return tags
+    }, {} as BookQueryTags),
+    offset,
+    limit: 50,
+    sorting: [{
+      value: BookSort.CreatedTime,
+      direction: SortDirection.Descending
+    }]
+  }
+}
+
+export function queriesEqual(a: SearchQuery, b: SearchQuery) {
+  return a === b || serializeQuery(a) === serializeQuery(b)
 }
 
 export class SearchManager extends (EventEmitter as new () => StrictEventEmitter<EventEmitter, {
   loading: (loading: boolean) => void
-  state: (state: SearchState) => void
-  refresh: () => void
+  query: (query: SearchQuery, push: boolean) => void
+  result: (result: SearchResult) => void
   failed: (error: Error) => void
 }>) {
-  state: SearchState = {
-    id: Math.random(),
-    items: [],
-    end: true,
-    total: 0,
-    query: {
-      type: 'tag',
-      items: []
-    },
-    language: LanguageType.EnUS
-  }
+  private _query: SearchQuery
+  private _result: SearchResult
 
-  get id(): number { return this.state.id }
-  set id(v: number) { this.emit('state', { ...this.state, id: v }) }
+  get query(): SearchQuery { return this._query }
+  set query(v: SearchQuery) { this.emit('query', this._query = v, true) }
 
-  get items(): Book[] { return this.state.items }
-  set items(v: Book[]) { this.emit('state', { ...this.state, items: v }) }
-
-  get total(): number { return this.state.total }
-  set total(v: number) { this.emit('state', { ...this.state, total: v }) }
-
-  get end(): boolean { return this.state.end }
-  set end(v: boolean) { this.emit('state', { ...this.state, end: v }) }
-
-  get query(): SearchQuery { return this.state.query }
-  set query(v: SearchQuery) { this.emit('state', { ...this.state, query: v }); this.emit('refresh') }
-
-  get language(): LanguageType { return this.state.language }
-  set language(v: LanguageType) { this.emit('state', { ...this.state, language: v }); this.emit('refresh') }
+  get result(): SearchResult { return this._result }
+  set result(v: SearchResult) { this.emit('result', this._result = v) }
 
   constructor(readonly client: Client) {
     super()
 
-    this.on('state', s => this.state = s)
-    this.on('refresh', () => this.refreshOnce())
+    this._query = {
+      language: LanguageType.EnUS,
+      type: 'tag',
+      items: []
+    }
+
+    this._result = {
+      query: this.query,
+      items: [],
+      total: 0,
+      end: true
+    }
+  }
+
+  replace(query: SearchQuery, result: SearchResult) {
+    if (!queriesEqual(this.query, query))
+      this.emit('query', this._query = query, false)
+
+    if (this.result !== result)
+      this.emit('result', this._result = result)
+
+    if (!queriesEqual(result.query, query))
+      this.refresh()
   }
 
   toggleTag({ type, value }: TagQueryItem) {
@@ -77,7 +169,7 @@ export class SearchManager extends (EventEmitter as new () => StrictEventEmitter
         const exists = this.query.value.indexOf(value)
 
         this.query = {
-          type: 'simple',
+          ...this.query,
           value: exists === -1
             ? `${this.query.value} ${value}`
             : this.query.value.substring(0, exists) + this.query.value.substring(exists + value.length)
@@ -98,7 +190,7 @@ export class SearchManager extends (EventEmitter as new () => StrictEventEmitter
         }
 
         this.query = {
-          type: 'tag',
+          ...this.query,
           items: [...this.query.items, { type, value }]
         }
 
@@ -107,97 +199,78 @@ export class SearchManager extends (EventEmitter as new () => StrictEventEmitter
     }
   }
 
-  createQuery(offset?: number): BookQuery {
-    return {
-      all: this.query.type !== 'simple' || !this.query.value ? undefined : {
-        values: [this.query.value],
-        mode: QueryMatchMode.All
-      },
-      language: {
-        values: [this.language]
-      },
-      tags: this.query.type !== 'tag' ? undefined : this.query.items.reduce((tags, { type, value }) => {
-        const tag = tags[type] || (tags[type] = { values: [], mode: QueryMatchMode.All })
-
-        tag.values.push(value)
-
-        return tags
-      }, {} as BookQueryTags),
-      offset,
-      limit: 50,
-      sorting: [{
-        value: BookSort.CreatedTime,
-        direction: SortDirection.Descending
-      }]
-    }
-  }
-
-  canRefresh = false
+  canRefresh = true
 
   /** Searches from the start. */
   async refresh() {
     if (!this.canRefresh)
-      return this.items
+      return this.result
 
     this.emit('loading', true)
 
+    const query = this.query
+
     try {
-      const id = ++this.id
+      const { items, total } = await this.client.book.searchBooks({ bookQuery: convertQuery(query) })
 
-      const { items, total } = await this.client.book.searchBooks({ bookQuery: this.createQuery() })
-
-      if (this.id === id) {
-        this.items = items
-        this.total = total
-        this.end = items.length >= total
+      if (queriesEqual(this.query, query)) {
+        this.result = {
+          query,
+          items,
+          total,
+          end: items.length >= total
+        }
       }
-
-      return this.items
     }
     catch (e) {
-      this.end = true
-      this.emit('failed', e)
+      if (queriesEqual(this.query, query)) {
+        this.result = { ...this.result, end: true }
+        this.emit('failed', e)
+      }
     }
     finally {
       this.emit('loading', false)
     }
-  }
 
-  private refreshTask?: number
-
-  refreshOnce() {
-    if (this.refreshTask || !this.canRefresh)
-      return
-
-    this.refreshTask = setTimeout(() => {
-      this.refreshTask = undefined
-      this.refresh()
-    })
+    return this.result
   }
 
   /** Loads more results after the current page. */
   async further() {
+    if (!this.canRefresh)
+      return this.result
+
     this.emit('loading', true)
 
+    const query = this.result.query
+
     try {
-      const id = ++this.id
+      const { items, total } = await this.client.book.searchBooks({ bookQuery: convertQuery(this.query, this.result.items.length) })
 
-      const { items, total } = await this.client.book.searchBooks({ bookQuery: this.createQuery(this.state.items.length) })
+      if (queriesEqual(this.query, query)) {
+        const totalItems = [
+          ...this.result.items,
+          ...items
+        ]
 
-      if (this.id === id) {
-        this.items = [...this.items, ...items]
-        this.total = total
-        this.end = this.items.length >= total
+        this.result = {
+          query,
+          items: totalItems,
+          total,
+          end: totalItems.length >= total
+        }
       }
-
-      return this.items
     }
     catch (e) {
-      this.end = true
-      this.emit('failed', e)
+      if (queriesEqual(this.query, query)) {
+        this.result = { ...this.result, end: true }
+        this.emit('failed', e)
+      }
     }
     finally {
       this.emit('loading', false)
     }
+
+    return this.result
   }
 }
