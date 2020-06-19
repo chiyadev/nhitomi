@@ -2,6 +2,7 @@ import React, { createContext, ReactNode, useMemo, useState, useRef } from 'reac
 import { useWindowSize } from 'react-use'
 import { SideBarWidth } from './Sidebar'
 import { Breakpoint } from './LayoutContext'
+import { useConfig } from './Client/config'
 
 export type { Breakpoint } from 'antd/lib/_util/responsiveObserve'
 
@@ -52,7 +53,7 @@ export const LayoutProvider = ({ children }: { children?: ReactNode }) => {
   }
 
   const breakpoint = Object.keys(breakpoints).indexOf(getBreakpoint(windowWidth)) < 3
-  const [sidebar, setSidebar] = useState(!breakpoint)
+  const [sidebar, setSidebar] = useConfig('sidebar')
 
   // mobile is determined by window orientation rather than resolution
   // this allows the reader UI to be displayed as desktop mode in landscape

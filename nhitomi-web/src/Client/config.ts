@@ -22,6 +22,7 @@ interface IStore {
   token: string | undefined
   baseUrl: string | undefined
   workerConcurrency: number
+  sidebar: boolean
 
   // global settings
   cancelKey: ShortcutConfig
@@ -54,6 +55,7 @@ const DefaultStore: IStore = {
   token: undefined,
   baseUrl: undefined,
   workerConcurrency: navigator.hardwareConcurrency || 2,
+  sidebar: false,
 
   cancelKey: { keys: [27] },                // esc
   sidebarKey: { keys: [81] },               // q
@@ -90,6 +92,7 @@ export class ConfigManager extends (EventEmitter as new () => StrictEventEmitter
   token!: string | undefined
   baseUrl!: string | undefined
   workerConcurrency!: number
+  sidebar!: boolean
 
   cancelKey!: ShortcutConfig
   sidebarKey!: ShortcutConfig
