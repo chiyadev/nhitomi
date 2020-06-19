@@ -17,7 +17,7 @@ export const AuthenticationManager = ({ children }: { children?: ReactNode }) =>
   const { location, replace } = useHistory()
   let { pathname, search } = location
 
-  const { auth, ...q } = qs.parse(search.slice(1))
+  const { auth, ...q } = qs.parse(search, { ignoreQueryPrefix: true })
   search = qs.stringify(q)
 
   // use oauth state query to save current location
@@ -73,7 +73,7 @@ export const AuthenticationRoute = ({ service }: { service: 'discord' }) => {
   const { start, stop } = useContext(ProgressContext)
 
   const { location: { search }, replace } = useHistory()
-  const { code, state } = qs.parse(search.slice(1)) as { state: string, code: string }
+  const { code, state } = qs.parse(search, { ignoreQueryPrefix: true }) as { state: string, code: string }
 
   useAsync(async () => {
     start()
