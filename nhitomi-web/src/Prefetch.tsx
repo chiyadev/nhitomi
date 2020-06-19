@@ -10,8 +10,10 @@ import { NotificationContext } from './NotificationContext'
 
 // "Prefetch" is a convenient utility that allows data to be fetched on clicking a link, without transitioning to the target page immediately.
 // Fetched data is saved to window's history entry, becoming available to the page component through usePageState hook.
-// This is used to immitate traditional browsers, like showing a loading progress bar at the top of the page while fetching, and retaining page data across navigations.
-// By using prefetch, we do not have to render ugly and meaningless placeholders.
+// This is used to imitate traditional browsers, like showing a loading progress bar at the top of the page while fetching, and retaining page data across navigations.
+// By using prefetch, we can avoid having to render ugly placeholders or transitioning pages.
+
+export type PrefetchMode = 'initial' | 'navigate'
 
 export type Prefetch<T> = {
   /** path to navigate to after prefetch */
@@ -24,7 +26,7 @@ export type Prefetch<T> = {
   scroll?: boolean
 
   /** function to do fetching */
-  func: (client: Client, history: History<HistoryLocationState>) => Promise<T>
+  func: (client: Client, mode: PrefetchMode, history: History<HistoryLocationState>) => Promise<T>
 }
 
 type HistoryLocationState = { [key: string]: unknown }
@@ -75,7 +77,7 @@ export function usePrefetch<T>({ progress = true, scroll = true, func: prefetch 
       start()
 
     try {
-      const value = await prefetch(client, history)
+      const value = await prefetch(client, 'initial', history)
 
       setState(value)
 
@@ -118,7 +120,7 @@ export function usePrefetchExecutor() {
       start()
 
     try {
-      const value = await prefetch(client, history)
+      const value = await prefetch(client, 'navigate', history)
 
       history.push(path, value)
 
