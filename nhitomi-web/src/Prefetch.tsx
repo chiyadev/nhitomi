@@ -159,6 +159,8 @@ export const PrefetchLink = <T extends {}>({ fetch, disabled, onClick, ...props 
   return <Link
     to={fetch.path}
     onClick={e => {
+      onClick?.(e)
+
       // don't handle modifiers
       if (eventHasAnyModifier(e))
         return
@@ -169,7 +171,6 @@ export const PrefetchLink = <T extends {}>({ fetch, disabled, onClick, ...props 
       if (disabled)
         return
 
-      onClick?.(e)
       executor(fetch)
     }}
     {...props} />
