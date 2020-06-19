@@ -96,13 +96,10 @@ const FurtherLoader = () => {
   </VisibilitySensor>
 }
 
-const Item = ({ book, selected, setSelected, colStyle }: {
+const Item = ({ book, selected, setSelected }: {
   book: Book
   selected: boolean
   setSelected: (selected: boolean) => void
-
-  // this is a hack for https://github.com/ant-design/ant-design/issues/24553 until the merged fix is released
-  colStyle?: CSSProperties
 }) => {
   const { manager } = useContext(BookListingContext)
 
@@ -125,7 +122,7 @@ const Item = ({ book, selected, setSelected, colStyle }: {
   }, [selected, breakpoint, windowWidth, windowHeight])
 
   return useMemo(() =>
-    <List.Item colStyle={colStyle} style={{
+    <List.Item style={{
       marginTop: 0,
       marginBottom: gridGutter
     }}>
@@ -165,7 +162,7 @@ const Item = ({ book, selected, setSelected, colStyle }: {
         </div>
       </Popover>
     </List.Item>,
-    [book, colStyle, content, breakpoint, selected, setSelected, windowWidth])
+    [book, content, breakpoint, selected, setSelected, windowWidth])
 }
 
 const Cover = ({ book: { id }, content: { id: contentId }, selected }: { book: Book, content: BookContent, selected: boolean }) => {
