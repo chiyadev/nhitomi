@@ -110,7 +110,7 @@ const FurtherLoader = () => {
 
 const Item = ({ book }: { book: Book }) => {
   const { manager } = useContext(BookListingContext)
-  const { width } = useContext(LayoutContext)
+  const { width, breakpoint } = useContext(LayoutContext)
 
   useUpdateOnEvent(manager, 'query')
   useUpdateOnEvent(manager, 'result')
@@ -139,8 +139,8 @@ const Item = ({ book }: { book: Book }) => {
         <BookReaderLink
           id={book.id}
           contentId={content.id}
-          disabled={!selected}
-          onClick={() => manager.result = { ...manager.result, selected: { book, content } }}>
+          disabled={!breakpoint && !selected} // on mobile, don't show information panel
+          onClick={breakpoint ? undefined : () => manager.result = { ...manager.result, selected: { book, content } }}>
 
           <Card
             size='small'
