@@ -1,0 +1,85 @@
+{
+  "notification": {
+    "error": {
+      "unknownReason": "理由不明"
+    }
+  },
+  "auth": {
+    "title": "nhitomiへようこそ",
+    "tagline": "同人誌ミラー",
+    "description": "ログインしてください。",
+    "connect": {
+      "discord": "Discordでログイン"
+    },
+    "failed": "ログイン失敗"
+  },
+  "sidebar": {
+    "opened": "サイドバーを開けました。",
+    "collapsed": "サイドバーを閉めました。",
+    "pressToToggle": "''{key}''キーでサイドバー開閉。",
+    "menu": {
+      "books": "ブックス"
+    }
+  },
+  "bookListing": {
+    "empty": "結果なし",
+    "header": {
+      "title": "ブックス",
+      "sub": "本を検索します。"
+    },
+    "time": {
+      "uploaded": "{time}にアップロード。",
+      "updated": "{time}に更新。"
+    },
+    "tags": {
+      "heading": "タグ"
+    },
+    "sources": {
+      "heading": "サイト"
+    },
+    "search": {
+      "total": "{total}個の本を検索...",
+      "otherTag": "その他"
+    }
+  },
+  "bookReader": {
+    "pageError": {
+      "title": "Error",
+      "description": "この画像のダウンロード中にエラーが発生しました。"
+    },
+    "alerts": {
+      "imagesPerRow": "{value, plural, =1 {シングル} =2 {ダブル} other {{value}}}ページモードに変更しました。",
+      "viewportBound": "ページを画面サイズに固定しました。",
+      "viewportUnbound": "もうページを画面サイズに固定しません。",
+      "snappingEnabled": "スクロールスナップを点けました。",
+      "snappingDisabled": "スクロールスナップを消しました。",
+      "leftToRight": "ページを左から読みます。",
+      "rightToLeft": "ページを右から読みます。",
+      "singleCoverEnabled": "初ページを別に表示します。",
+      "singleCoverDisabled": "初ページを別に表示しません。"
+    }
+  },
+  "bookTags": {
+    "artist": "アーティスト",
+    "parody": "パロディ",
+    "character": "キャラ",
+    "convention": "イベント",
+    "series": "シリーズ",
+    "circle": "サークル",
+    "metadata": "メタ",
+    "tag": "タグ"
+  },
+  "bookCategories": {
+    "doujinshi": "同人誌",
+    "manga": "漫画",
+    "artistCg": "アーティストCG",
+    "gameCg": "ゲームCG",
+    "lightNovel": "ライトノベル"
+  },
+  "materialRatings": {
+    "explicit": "成人向け",
+    "description": {
+      "safe": "性的な要素が全く見えない。"
+    }
+  }
+}
