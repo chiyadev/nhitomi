@@ -20,7 +20,15 @@ function rentCore(token: string): ApiClientCore {
   if (!core) {
     const cfg: ConfigurationParameters = {
       basePath: config.get<string>('api.baseUrl') || BASE_PATH,
-      fetchApi: fetch
+      fetchApi: fetch,
+      middleware: [{
+        post: async (context): Promise<void> => {
+          const { response } = context
+
+          if (!response.ok)
+            throw Error((await response.json())?.message || response.statusText)
+        }
+      }]
     }
     const cfg2 = new Configuration(cfg)
 
