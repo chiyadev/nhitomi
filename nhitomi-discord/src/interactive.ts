@@ -4,6 +4,8 @@ import deepEqual from 'fast-deep-equal'
 import config from 'config'
 import { MessageContext } from './context'
 import { Locale } from './locales'
+import { Gauge, Histogram, Counter } from 'prom-client'
+import { measureHistogram, getBuckets } from './metrics'
 
 type InteractiveInput = {
   userId: string
@@ -17,6 +19,18 @@ const pendingInputs: InteractiveInput[] = []
 
 const interactives: { [id: string]: InteractiveMessage } = {}
 export function getInteractive(message: Message | PartialMessage): InteractiveMessage | undefined { return interactives[message.id] }
+
+const interactiveCount = new Gauge({
+  name: 'discord_interactives',
+  help: 'Number of active interactive messages.'
+})
+
+const interactiveRenderTime = new Histogram({
+  name: 'discord_interactive_render_milliseconds',
+  help: 'Time spent on rendering interactive messages.',
+  buckets: getBuckets(50, 2000, 5),
+  labelNames: ['type']
+})
 
 export type RenderResult = {
   message?: string
@@ -60,12 +74,17 @@ export abstract class InteractiveMessage {
       this.rendered = undefined
     }
 
+    interactiveCount.inc()
+
     return this.update()
   }
 
   /** Renders this interactive immediately. */
   async update(): Promise<boolean> {
     await this.lock.wait()
+
+    const measure = measureHistogram(interactiveRenderTime, { type: this.constructor.name })
+
     try {
       this.timeout.refresh()
 
@@ -119,6 +138,8 @@ export abstract class InteractiveMessage {
     }
     finally {
       this.lock.signal()
+
+      measure()
     }
   }
 
@@ -183,6 +204,7 @@ export abstract class InteractiveMessage {
     for (const input of this.ownedInputs) input.reject()
 
     await this.lock.wait()
+
     try {
       if (this.rendered) console.debug('destroying interactive', this.constructor.name, this.rendered.id, 'expiring', expiring || false)
 
@@ -194,8 +216,11 @@ export abstract class InteractiveMessage {
 
       if (this.context) {
         delete interactives[this.context.message.id]
+
         this.context.destroy()
         this.context = undefined
+
+        interactiveCount.dec()
       }
 
       try { if (!expiring && this.rendered?.deletable) await this.rendered.delete() }
@@ -214,7 +239,7 @@ export abstract class InteractiveMessage {
   }
 }
 
-/** Implements InteractiveMessage without any GUI. */
+/** Implements InteractiveMessage without any visible interface. */
 export class HeadlessInteractiveMessage extends InteractiveMessage {
   protected async render(): Promise<RenderResult> { return {} }
 }
@@ -264,6 +289,11 @@ export async function handleInteractiveReaction(reaction: MessageReaction, user:
   return await trigger.invoke()
 }
 
+const reactionTriggerInvokeCount = new Counter({
+  name: 'discord_interactive_trigger_invocations',
+  help: 'Number of times interactive reaction triggers were invoked.'
+})
+
 /** Represents an interactive trigger that is invoked via reactions. */
 export abstract class ReactionTrigger {
   abstract readonly emoji: string
@@ -275,7 +305,8 @@ export abstract class ReactionTrigger {
   async invoke(): Promise<boolean> {
     const interactive = this.interactive
 
-    if (!interactive) return false
+    if (!interactive)
+      return false
 
     let result: boolean
 
@@ -285,6 +316,8 @@ export abstract class ReactionTrigger {
         return false
 
       console.debug('invoking trigger', this.emoji, 'for interactive', interactive.constructor.name, interactive.rendered.id)
+
+      reactionTriggerInvokeCount.inc()
 
       result = await this.run(interactive.context)
     }
