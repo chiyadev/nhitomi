@@ -84,7 +84,8 @@ const commandTime = new Histogram({
 
 const commandErrorCount = new Counter({
   name: 'discord_command_errors',
-  help: 'Number of errors while executing commands.'
+  help: 'Number of errors while executing commands.',
+  labelNames: ['command']
 })
 
 Discord.on('message', wrapHandler('message', async message => {
@@ -147,7 +148,7 @@ ${stack}
             })
           }
 
-          commandErrorCount.inc()
+          commandErrorCount.inc({ command: name })
         }
         finally {
           context.destroy()
@@ -155,7 +156,7 @@ ${stack}
       })
     }
     catch (e) {
-      commandErrorCount.inc()
+      commandErrorCount.inc({ command: name })
       throw e
     }
     finally {
