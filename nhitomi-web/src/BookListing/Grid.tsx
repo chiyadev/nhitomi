@@ -14,7 +14,7 @@ import { presetPrimaryColors } from '@ant-design/colors'
 import { Panel } from './Panel'
 import { FormattedMessage } from 'react-intl'
 
-const gridGutter = 8
+const gridGutter = 6
 const gridLayout: ListGridType = {
   xs: 2,
   sm: 3,
