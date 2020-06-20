@@ -189,7 +189,7 @@ export abstract class InteractiveMessage {
       for (const input of this.ownedInputs)
         input.reject()
 
-      try { if (!expiring && this.context?.refCount === 1 && this.context.message.deletable) await this.context.message.delete() }
+      try { if (!expiring && this.context && this.context.refCount <= 1 && this.context.message.deletable) await this.context.message.delete() }
       catch { /* ignored */ }
 
       if (this.context) {
