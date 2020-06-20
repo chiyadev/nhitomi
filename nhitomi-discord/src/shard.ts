@@ -10,6 +10,9 @@ import { beginPresenceRotation } from './status'
 import { BookListMessage } from './Commands/search'
 import { AsyncArray } from './asyncArray'
 import { BookMessage } from './Commands/get'
+import { register, collectDefaultMetrics } from 'prom-client'
+
+collectDefaultMetrics({ register })
 
 export const Discord = new Client({
   fetchAllMembers: false,
