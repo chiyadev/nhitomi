@@ -2,6 +2,7 @@ import { BASE_PATH, InfoApi, BookApi, UserApi, CollectionApi, InternalApi, GetIn
 import config from 'config'
 import fetch from 'node-fetch'
 import { URL } from 'url'
+import { Counter, Gauge } from 'prom-client'
 
 type ApiClientCore = {
   readonly config: ConfigurationParameters
@@ -11,6 +12,21 @@ type ApiClientCore = {
   readonly collection: CollectionApi
   readonly internal: InternalApi
 }
+
+const rentedCores = new Gauge({
+  name: 'api_rented_cores',
+  help: 'Currently rented API clients.'
+})
+
+const requestCount = new Counter({
+  name: 'api_requests',
+  help: 'Number of API requests.'
+})
+
+const responseErrorCount = new Counter({
+  name: 'api_response_errors',
+  help: 'Number of API error responses.'
+})
 
 const cores: ApiClientCore[] = []
 
@@ -22,11 +38,17 @@ function rentCore(token: string): ApiClientCore {
       basePath: config.get<string>('api.baseUrl') || BASE_PATH,
       fetchApi: fetch,
       middleware: [{
+        pre: async () => {
+          requestCount.inc()
+        },
         post: async (context): Promise<void> => {
           const { response } = context
 
-          if (!response.ok)
+          if (!response.ok) {
+            responseErrorCount.inc()
+
             throw Error((await response.json())?.message || response.statusText)
+          }
         }
       }]
     }
@@ -43,11 +65,15 @@ function rentCore(token: string): ApiClientCore {
   }
 
   core.config.accessToken = token
+
+  rentedCores.inc()
   return core
 }
 
 function returnCore(core: ApiClientCore): void {
   cores.push(core)
+
+  rentedCores.dec()
 }
 
 /** Represents an nhitomi API client. */
@@ -74,9 +100,8 @@ export class ApiClient implements ApiClientCore {
 
   /** Destroys this API client, making it unusable. */
   destroy(): void {
-    if (this._core) {
+    if (this._core)
       returnCore(this._core)
-    }
 
     this._core = undefined
   }
