@@ -184,6 +184,9 @@ namespace nhitomi.Scrapers
                 galleryInfo = JsonConvert.DeserializeObject<HitomiGalleryInfo>(json);
             }
 
+            if (galleryInfo.Type?.Equals("anime", StringComparison.OrdinalIgnoreCase) == true)
+                return null;
+
             HtmlNode node;
 
             // load gallery html
