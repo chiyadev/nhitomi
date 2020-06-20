@@ -73,6 +73,13 @@ namespace nhitomi.Scrapers
 
         static void ParseName(string name, out string primaryName, out string englishName)
         {
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                primaryName = null;
+                englishName = null;
+                return;
+            }
+
             // replace stuff in brackets with nothing
             name = _bracketsRegex.Replace(name, "").Trim();
 
