@@ -11,6 +11,7 @@ import { LocaleProvider } from './LocaleProvider'
 import { BookListing } from './BookListing'
 import { BookReader } from './BookReader'
 import { ExperimentalBanner } from './ExperimentalBanner'
+import { NotFound } from './NotFound'
 
 import './App.css'
 
@@ -56,6 +57,8 @@ const Routing = () => {
 
           <Route path='/books' exact component={BookListing} />
           <Route path='/books/:id/contents/:contentId' exact render={({ match: { params } }) => <BookReader {...params} />} />
+
+          <Route><NotFound /></Route>
         </AuthenticationManager>
       </Route>
     </Switch>

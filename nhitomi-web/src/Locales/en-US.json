@@ -92,5 +92,10 @@
       "questionable": "Containing non-genital nudity, sexually suggestive acts, or something that is not generically considered pornographic.",
       "explicit": "Containing exposed genitals, openly and unambiguously portrayed sex acts, or visible sexual fluids."
     }
+  },
+  "notFound": {
+    "title": "404 Not Found",
+    "sub": "Sorry, the request page {path} does not exist.",
+    "home": "Home"
   }
 }
