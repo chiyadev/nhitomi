@@ -5,6 +5,10 @@ import config from 'config'
 
 export function beginPresenceRotation(): void {
   Discord.on('ready', async () => {
+    // only set status on the first shard
+    if (Discord.shard?.ids.indexOf(0) === -1)
+      return
+
     const update = async (): Promise<void> => {
       const adjs = config.get<string>('status.adjectives').split(';')
       const adj = adjs[Math.floor(Math.random() * adjs.length)]
