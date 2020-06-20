@@ -10,7 +10,7 @@ import { beginPresenceRotation } from './status'
 import { BookListMessage } from './Commands/search'
 import { AsyncArray } from './asyncArray'
 import { BookMessage } from './Commands/get'
-import { register, collectDefaultMetrics, Histogram } from 'prom-client'
+import { register, collectDefaultMetrics, Histogram, Counter } from 'prom-client'
 import { getBuckets, measureHistogram } from './metrics'
 
 collectDefaultMetrics({ register })
@@ -41,6 +41,8 @@ Discord.on('debug', console.debug)
 Discord.on('warn', console.warn)
 Discord.on('error', console.error)
 
+Discord.on('ready', () => register.setDefaultLabels({ shard: Discord.shard?.ids[0]?.toString() }))
+
 function wrapHandler<T extends Function>(name: string, func: T): T {
   return (async (...args: unknown[]) => {
     try {
@@ -68,14 +70,26 @@ async function whileTyping<T>(channel: Message['channel'], action: () => Promise
   }
 }
 
+const messageCount = new Counter({
+  name: 'discord_messages',
+  help: 'Number of messages received.'
+})
+
 const commandTime = new Histogram({
   name: 'discord_command_milliseconds',
-  help: 'Time spent on handling commands.',
+  help: 'Time spent on executing commands.',
   buckets: getBuckets(50, 5000, 10),
   labelNames: ['command']
 })
 
+const commandErrorCount = new Counter({
+  name: 'discord_command_errors',
+  help: 'Number of errors while executing commands.'
+})
+
 Discord.on('message', wrapHandler('message', async message => {
+  messageCount.inc()
+
   if (!await shouldHandleMessage(message)) return
   if (await handleInteractiveMessage(message)) return
 
@@ -132,11 +146,17 @@ ${stack}
               }
             })
           }
+
+          commandErrorCount.inc()
         }
         finally {
           context.destroy()
         }
       })
+    }
+    catch (e) {
+      commandErrorCount.inc()
+      throw e
     }
     finally {
       measure()
