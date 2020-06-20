@@ -20,47 +20,59 @@ export const App = () => {
   const [notif, notifNode] = antd_notif.useNotification()
 
   // note: order matters!!!!!
-  return <React.StrictMode>
-    <BrowserRouter>
-      <ProgressBarProvider>
-        <LocaleProvider>
-          <NotificationProvider notif={notif} alert={antd_alert}>
-            <ClientProvider>
-              <LayoutProvider>
-                {notifNode}
+  return (
+    <React.StrictMode>
+      <BrowserRouter>
+        <ProgressBarProvider>
+          <LocaleProvider>
+            <NotificationProvider notif={notif} alert={antd_alert}>
+              <ClientProvider>
+                <LayoutProvider>
+                  {notifNode}
 
-                <Layout style={{ minHeight: '100vh' }}>
-                  <SideBar />
-                  <Routing />
-                </Layout>
-              </LayoutProvider>
-            </ClientProvider>
-          </NotificationProvider>
-        </LocaleProvider>
-      </ProgressBarProvider>
-    </BrowserRouter>
-  </React.StrictMode>
+                  <Layout style={{ minHeight: '100vh' }}>
+                    <SideBar />
+                    <Routing />
+                  </Layout>
+                </LayoutProvider>
+              </ClientProvider>
+            </NotificationProvider>
+          </LocaleProvider>
+        </ProgressBarProvider>
+      </BrowserRouter>
+    </React.StrictMode>
+  )
 }
 
 const Routing = () => {
   const { sidebar, breakpoint } = useContext(LayoutContext)
 
-  return <Layout style={{ marginLeft: sidebar && !breakpoint ? SideBarWidth : 0 }}>
-    <ExperimentalBanner />
+  return (
+    <Layout style={{ marginLeft: sidebar && !breakpoint ? SideBarWidth : 0 }}>
+      <ExperimentalBanner />
 
-    <Switch>
-      <Route path='/oauth/:service' exact render={({ match: { params } }) => <AuthenticationRoute {...params} />} />
+      <Switch>
+        <Route path='/oauth/:service' exact render={({ match: { params } }) => <AuthenticationRoute {...params} />} />
 
-      <Route>
-        <AuthenticationManager>
-          <Route path='/' exact><Redirect to='/books' /></Route>
+        <Route>
+          <RoutingAuth />
+        </Route>
+      </Switch>
+    </Layout>
+  )
+}
 
-          <Route path='/books' exact component={BookListing} />
-          <Route path='/books/:id/contents/:contentId' exact render={({ match: { params } }) => <BookReader {...params} />} />
+const RoutingAuth = () => {
+  return (
+    <AuthenticationManager>
+      <Switch>
+        <Route path='/' exact><Redirect to='/books' /></Route>
 
-          <Route><NotFound /></Route>
-        </AuthenticationManager>
-      </Route>
-    </Switch>
-  </Layout>
+        <Route path='/books' exact component={BookListing} />
+        <Route path='/books/:id/contents/:contentId' exact render={({ match: { params } }) => <BookReader {...params} />} />
+
+        <Route><NotFound /></Route>
+      </Switch>
+    </AuthenticationManager>
+  )
 }
