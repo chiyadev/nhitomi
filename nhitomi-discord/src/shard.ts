@@ -94,6 +94,11 @@ Discord.on('message', wrapHandler('message', async message => {
         if (e instanceof Error) {
           const l = context.locale.section('error')
 
+          let stack = e.stack
+
+          if (stack && stack.length > 1920)
+            stack = stack.substring(0, 1920) + '...'
+
           await context.reply({
             embed: {
               title: l.get('title'),
@@ -102,7 +107,7 @@ Discord.on('message', wrapHandler('message', async message => {
 ${l.get('description')}
 
 \`\`\`
-${e.stack}
+${stack}
 \`\`\`
 `.trim(),
               footer: {
