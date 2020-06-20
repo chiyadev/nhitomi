@@ -291,7 +291,8 @@ export async function handleInteractiveReaction(reaction: MessageReaction, user:
 
 const reactionTriggerInvokeCount = new Counter({
   name: 'discord_interactive_trigger_invocations',
-  help: 'Number of times interactive reaction triggers were invoked.'
+  help: 'Number of times interactive reaction triggers were invoked.',
+  labelNames: ['type']
 })
 
 /** Represents an interactive trigger that is invoked via reactions. */
@@ -317,7 +318,7 @@ export abstract class ReactionTrigger {
 
       console.debug('invoking trigger', this.emoji, 'for interactive', interactive.constructor.name, interactive.rendered.id)
 
-      reactionTriggerInvokeCount.inc()
+      reactionTriggerInvokeCount.inc({ type: this.constructor.name })
 
       result = await this.run(interactive.context)
     }
