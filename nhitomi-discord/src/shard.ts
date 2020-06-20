@@ -10,7 +10,8 @@ import { beginPresenceRotation } from './status'
 import { BookListMessage } from './Commands/search'
 import { AsyncArray } from './asyncArray'
 import { BookMessage } from './Commands/get'
-import { register, collectDefaultMetrics } from 'prom-client'
+import { register, collectDefaultMetrics, Histogram } from 'prom-client'
+import { getBuckets, measureHistogram } from './metrics'
 
 collectDefaultMetrics({ register })
 
@@ -67,6 +68,13 @@ async function whileTyping<T>(channel: Message['channel'], action: () => Promise
   }
 }
 
+const commandTime = new Histogram({
+  name: 'discord_command_milliseconds',
+  help: 'Time spent on handling commands.',
+  buckets: getBuckets(50, 5000, 10),
+  labelNames: ['command']
+})
+
 Discord.on('message', wrapHandler('message', async message => {
   if (!await shouldHandleMessage(message)) return
   if (await handleInteractiveMessage(message)) return
@@ -80,50 +88,59 @@ Discord.on('message', wrapHandler('message', async message => {
     const command = space === -1 ? content : content.substring(0, space)
     const arg = space === -1 ? undefined : content.substring(space + 1).trim()
 
-    const func = matchCommand(command)
+    const module = matchCommand(command)
 
-    if (!func)
+    if (!module)
       return
 
-    await whileTyping(message.channel, async () => {
-      const context = await MessageContext.create(message)
+    const { name, run } = module
 
-      try {
-        console.debug(`user ${context.user.id} '${context.user.username}' executing command '${command}' with args '${arg || ''}'`)
+    const measure = measureHistogram(commandTime, { command: name })
 
-        await func(context, arg)
-      }
-      catch (e) {
-        if (e instanceof Error) {
-          const l = context.locale.section('error')
+    try {
+      await whileTyping(message.channel, async () => {
+        const context = await MessageContext.create(message)
 
-          let stack = e.stack
+        try {
+          console.debug(`user ${context.user.id} '${context.user.username}' executing command '${command}' with args '${arg || ''}'`)
 
-          if (stack && stack.length > 1920)
-            stack = stack.substring(0, 1920) + '...'
+          await run(context, arg)
+        }
+        catch (e) {
+          if (e instanceof Error) {
+            const l = context.locale.section('error')
 
-          await context.reply({
-            embed: {
-              title: l.get('title'),
-              color: 'RED',
-              description: `
+            let stack = e.stack
+
+            if (stack && stack.length > 1920)
+              stack = stack.substring(0, 1920) + '...'
+
+            await context.reply({
+              embed: {
+                title: l.get('title'),
+                color: 'RED',
+                description: `
 ${l.get('description')}
 
 \`\`\`
 ${stack}
 \`\`\`
 `.trim(),
-              footer: {
-                text: `${context.user.username} (${context.user.id})`
+                footer: {
+                  text: `${context.user.username} (${context.user.id})`
+                }
               }
-            }
-          })
+            })
+          }
         }
-      }
-      finally {
-        context.destroy()
-      }
-    })
+        finally {
+          context.destroy()
+        }
+      })
+    }
+    finally {
+      measure()
+    }
   }
 
   // scan message for links (this is slightly different from n!get command because strict=false; allows multiple links)

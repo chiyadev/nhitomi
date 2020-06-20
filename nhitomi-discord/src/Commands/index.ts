@@ -3,17 +3,15 @@ import { promisify } from 'util'
 import fs from 'fs'
 import path from 'path'
 
-const readdir = promisify(fs.readdir)
-
 export type CommandFunc = (context: MessageContext, arg?: string) => Promise<boolean>
 export type CommandModule = { name: string, run: CommandFunc }
 
-const modules: CommandModule[] = []
+export const modules: CommandModule[] = []
 
-export async function loadCommands(): Promise<void> {
+export async function loadCommands() {
   modules.length = 0
 
-  for (const x of await readdir('Commands')) {
+  for (const x of await promisify(fs.readdir)('Commands')) {
     const xp = path.parse(x)
 
     if (xp.ext !== '.js')
@@ -35,6 +33,6 @@ export async function loadCommands(): Promise<void> {
   }
 }
 
-export function matchCommand(command: string): CommandFunc | undefined {
-  return modules.find(m => m.name.startsWith(command.toLowerCase()))?.run
+export function matchCommand(command: string) {
+  return modules.find(m => m.name.startsWith(command.toLowerCase()))
 }
