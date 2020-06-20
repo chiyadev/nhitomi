@@ -772,7 +772,7 @@ namespace nhitomi.Database
         {
             var index = await GetIndexAsync<T>(cancellationToken);
 
-            var response = await Request(c => c.MultiGetAsync(x => x.GetMany<T>(ids).Index(index.IndexName).Realtime(), cancellationToken)); // index name must be specified after GetMany
+            var response = await Request(c => c.MultiGetAsync(x => x.GetMany<T>(ids, (d, _) => d.Index(index.IndexName)).Realtime(), cancellationToken));
 
             var indexes = new Dictionary<string, int>(ids.Length);
 
