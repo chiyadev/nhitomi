@@ -4,6 +4,7 @@ using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using Prometheus;
 
 namespace nhitomi.Scrapers
 {
@@ -29,6 +30,8 @@ namespace nhitomi.Scrapers
                 Expiry = expiry;
             }
         }
+
+        static readonly Gauge _count = Metrics.CreateGauge("scraper_hitomi_index_items", "Number of items in Hitomi's book index.");
 
         Cache _cache;
 
@@ -58,6 +61,7 @@ namespace nhitomi.Scrapers
             var result = Process(memory.GetBuffer(), (int) memory.Length);
 
             _cache = new Cache(result, DateTime.UtcNow + CacheExpiry);
+            _count.Set(result.Length);
 
             return result;
         }
