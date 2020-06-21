@@ -449,7 +449,11 @@ namespace nhitomi.Database
             public override string ToString() => IndexName;
         }
 
-        static readonly Counter _indexAccesses = Metrics.CreateCounter("elastic_index_accesses", "Number of Elasticsearch index accesses.", "index");
+        static readonly Counter _indexAccesses = Metrics.CreateCounter("elastic_index_accesses", "Number of Elasticsearch index accesses.", new CounterConfiguration
+        {
+            LabelNames = new[] { "index" }
+        });
+
         readonly ConcurrentDictionary<Type, IndexInfo> _indexes = new ConcurrentDictionary<Type, IndexInfo>();
 
         async ValueTask<IndexInfo> GetIndexAsync<T>(CancellationToken cancellationToken = default) where T : class
