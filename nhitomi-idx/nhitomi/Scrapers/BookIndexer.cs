@@ -8,8 +8,10 @@ using Microsoft.Extensions.Logging;
 using Nest;
 using nhitomi.Database;
 using nhitomi.Models.Queries;
+using Prometheus;
 using IElasticClient = nhitomi.Database.IElasticClient;
 using LogLevel = Microsoft.Extensions.Logging.LogLevel;
+using Metrics = Prometheus.Metrics;
 
 namespace nhitomi.Scrapers
 {
@@ -35,7 +37,7 @@ namespace nhitomi.Scrapers
         {
             books = DryMerge(books);
 
-            // prevent concurrent book indexing to allow efficient merging
+            // must prevent concurrent book indexing because unique books are created in bulk
             await using (await _locker.EnterAsync("index:book", cancellationToken))
             {
                 // refresh immediately to speed up indexing
@@ -53,6 +55,11 @@ namespace nhitomi.Scrapers
 
             return s;
         }
+
+        static readonly Counter _count = Metrics.CreateCounter("scraper_book_merges", "Number of books that were merged into another book.", new CounterConfiguration
+        {
+            LabelNames = new[] { "type" }
+        });
 
         /// <summary>
         /// Efficiently merges books in-memory without making search requests.
@@ -126,6 +133,7 @@ namespace nhitomi.Scrapers
                 }
             }
 
+            _count.Labels("dry").Inc(books.Length - results.Count);
             _logger.LogDebug($"Dry merging {books.Length} -> {results.Count} books took {measure}.");
 
             return results.ToArray();
@@ -181,6 +189,8 @@ namespace nhitomi.Scrapers
                     }
                     while (!await entry.TryUpdateAsync(cancellationToken));
 
+                    _count.Labels("dynamic").Inc();
+
                     if (_logger.IsEnabled(LogLevel.Information))
                         _logger.LogInformation($"Merged book {FormatBook(book)} into similar book {FormatBook(entry.Value)}.");
 
@@ -189,6 +199,8 @@ namespace nhitomi.Scrapers
 
                 add:
                 list.Add(book);
+
+                _count.Labels("skipped").Inc();
 
                 if (_logger.IsEnabled(LogLevel.Information))
                     _logger.LogInformation($"Merge skipping for book {FormatBook(book)}.");
