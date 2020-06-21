@@ -48,6 +48,23 @@ namespace nhitomi
         }
     }
 
+    public static class HistogramEx
+    {
+        /// <summary>
+        /// Similar to <see cref="Histogram.ExponentialBuckets"/> but takes a max value instead of the common ratio.
+        /// </summary>
+        public static double[] ExponentialBuckets(double min, double max, int count, int round = 2)
+        {
+            var r = Math.Pow(max / min, 1.0 / (count - 1));
+            var a = new double[count];
+
+            for (var i = 0; i < count; i++)
+                a[i] = Math.Round(min * Math.Pow(r, i), round);
+
+            return a;
+        }
+    }
+
     public enum ObservationUnits
     {
         Milliseconds = 0,
