@@ -207,7 +207,7 @@ namespace nhitomi
 
             // storage
             services.Configure<StorageOptions>(_configuration.GetSection("Storage"))
-                    .AddSingleton<IStorage, DefaultStorage>();
+                    .AddSingleton<IStorage, RootStorage>();
 
             // database
             services.Configure<ElasticOptions>(_configuration.GetSection("Elastic"))

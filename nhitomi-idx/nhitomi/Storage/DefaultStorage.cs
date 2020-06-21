@@ -3,7 +3,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using OneOf;
 using OneOf.Types;
 
@@ -118,8 +117,6 @@ namespace nhitomi.Storage
     {
         readonly IStorage _impl;
 
-        public DefaultStorage(IServiceProvider services, IOptionsMonitor<StorageOptions> options) : this(services, options.CurrentValue) { }
-
         public DefaultStorage(IServiceProvider services, StorageOptions options)
         {
             if (options.Memory != null)
@@ -139,10 +136,10 @@ namespace nhitomi.Storage
             services.GetService<ILogger<DefaultStorage>>().LogWarning($"Created storage implementation: {_impl.GetType().Name}");
         }
 
-        public Task InitializeAsync(CancellationToken cancellationToken = default) => _impl.InitializeAsync(cancellationToken);
-        public Task<OneOf<StorageFile, NotFound, Exception>> ReadAsync(string name, CancellationToken cancellationToken = default) => _impl.ReadAsync(name, cancellationToken);
-        public Task<OneOf<Success, Exception>> WriteAsync(StorageFile file, CancellationToken cancellationToken = default) => _impl.WriteAsync(file, cancellationToken);
-        public Task DeleteAsync(string[] names, CancellationToken cancellationToken = default) => _impl.DeleteAsync(names, cancellationToken);
+        public virtual Task InitializeAsync(CancellationToken cancellationToken = default) => _impl.InitializeAsync(cancellationToken);
+        public virtual Task<OneOf<StorageFile, NotFound, Exception>> ReadAsync(string name, CancellationToken cancellationToken = default) => _impl.ReadAsync(name, cancellationToken);
+        public virtual Task<OneOf<Success, Exception>> WriteAsync(StorageFile file, CancellationToken cancellationToken = default) => _impl.WriteAsync(file, cancellationToken);
+        public virtual Task DeleteAsync(string[] names, CancellationToken cancellationToken = default) => _impl.DeleteAsync(names, cancellationToken);
 
         public void Dispose() => _impl.Dispose();
     }
