@@ -34,6 +34,8 @@
         <PackageReference Include="NEST" Version="7.7.1" />
         <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
         <PackageReference Include="OneOf" Version="2.1.151" />
+        <PackageReference Include="prometheus-net.AspNetCore" Version="3.6.0" />
+        <PackageReference Include="prometheus-net.DotNetRuntime" Version="3.3.1" />
         <PackageReference Include="StackExchange.Redis" Version="2.1.55" />
         <PackageReference Include="Swashbuckle.AspNetCore.Newtonsoft" Version="5.4.1" />
         <PackageReference Include="Swashbuckle.AspNetCore.ReDoc" Version="5.4.1" />

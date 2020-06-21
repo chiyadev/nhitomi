@@ -25,6 +25,7 @@ using nhitomi.Documentation;
 using nhitomi.Models;
 using nhitomi.Scrapers;
 using nhitomi.Storage;
+using Prometheus;
 using Swashbuckle.AspNetCore.ReDoc;
 
 namespace nhitomi
@@ -149,6 +150,10 @@ namespace nhitomi
                     return ResultUtilities.UnprocessableEntity(problems);
                 };
             });
+
+            // metrics
+            services.AddSingleton<IMetricsService, MetricsService>()
+                    .AddTransient<IHostedService>(s => s.GetService<IMetricsService>());
 
             // authentication
             services.AddSingleton<IAuthService, AuthService>()
@@ -309,6 +314,12 @@ namespace nhitomi
             // authentication
             app.UseAuthentication();
 
+            // routing
+            app.UseRouting();
+
+            // http metrics
+            app.UseHttpMetrics();
+
             // exception handling
             app.UseExceptionHandler("/error") // base path is not prepended here because we are using router
                .UseStatusCodePagesWithReExecute("/error/{0}");
@@ -335,9 +346,6 @@ namespace nhitomi
                 r.ConfigObject  = new ConfigObject { RequiredPropsFirst = true };
                 r.DocumentTitle = "nhitomi API Documentation";
             });
-
-            // routing
-            app.UseRouting();
 
             // authorization
             app.UseAuthorization();

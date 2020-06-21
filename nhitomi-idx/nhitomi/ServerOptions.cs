@@ -27,6 +27,11 @@ namespace nhitomi
         public int? HttpsPort { get; set; }
 
         /// <summary>
+        /// HTTP port to be used for publishing Prometheus metrics.
+        /// </summary>
+        public int? MetricsPort { get; set; }
+
+        /// <summary>
         /// Path to SSL certificate for HTTPS connections.
         /// The certificate format must be compatible with <see cref="X509Certificate2"/> which is a PFX or PKCS12.
         /// </summary>
