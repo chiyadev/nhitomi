@@ -42,14 +42,20 @@ namespace nhitomi
 
             _server.Start();
 
-            await Task.Delay(-1, stoppingToken);
+            try
+            {
+                await Task.Delay(-1, stoppingToken);
+            }
+            finally
+            {
+                await _server.StopAsync();
+            }
         }
 
         public override void Dispose()
         {
             base.Dispose();
 
-            _server.Stop();
             _runtimeStatsRegistration.Dispose();
         }
     }
