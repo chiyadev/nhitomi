@@ -46,7 +46,7 @@ namespace nhitomi
 
         public override string Name { get; set; }
         public override HttpMessageHandler PrimaryHandler { get; set; }
-        public override IList<DelegatingHandler> AdditionalHandlers { get; } = new List<DelegatingHandler>();
+        public override IList<DelegatingHandler> AdditionalHandlers { get; } = new List<DelegatingHandler> { new MetricsHttpMessageHandler() };
 
         public ChiyaProxyHttp2HandlerBuilder(IServiceProvider services, IOptionsMonitor<ProxyOptions> options, ILogger<ChiyaProxyHttp2HandlerBuilder> logger)
         {
