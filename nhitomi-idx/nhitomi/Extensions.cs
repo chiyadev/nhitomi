@@ -16,6 +16,7 @@ using Microsoft.AspNetCore.Mvc.Abstractions;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
+using Prometheus;
 
 namespace nhitomi
 {
@@ -47,8 +48,48 @@ namespace nhitomi
         }
     }
 
+    public enum ObservationUnits
+    {
+        Milliseconds = 0,
+        Seconds = 1
+    }
+
     public static class Extensions
     {
+        sealed class HistogramMeasureContext : IDisposable
+        {
+            readonly MeasureContext _measure = new MeasureContext();
+            readonly IObserver _observer;
+            readonly ObservationUnits _units;
+
+            public HistogramMeasureContext(IObserver observer, ObservationUnits units)
+            {
+                _observer = observer;
+                _units    = units;
+            }
+
+            public void Dispose()
+            {
+                _measure.Dispose();
+
+                switch (_units)
+                {
+                    case ObservationUnits.Milliseconds:
+                        _observer.Observe(_measure.Milliseconds);
+                        break;
+
+                    case ObservationUnits.Seconds:
+                        _observer.Observe(_measure.Seconds);
+                        break;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Similar to <see cref="TimerExtensions.NewTimer(Prometheus.IObserver)"/> but observes the time in the specified unit.
+        /// </summary>
+        public static IDisposable Measure(this IObserver observer, ObservationUnits units = ObservationUnits.Milliseconds) => new HistogramMeasureContext(observer, units);
+
         sealed class DisposableStackContext<T> : IDisposable
         {
             readonly Stack<T> _stack;
