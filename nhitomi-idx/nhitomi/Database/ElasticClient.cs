@@ -14,8 +14,10 @@ using Microsoft.Extensions.Options;
 using Nest;
 using nhitomi.Models;
 using nhitomi.Models.Queries;
+using Prometheus;
 using StackExchange.Redis;
 using LogLevel = Microsoft.Extensions.Logging.LogLevel;
+using Metrics = Prometheus.Metrics;
 
 namespace nhitomi.Database
 {
@@ -386,9 +388,17 @@ namespace nhitomi.Database
             }
         }
 
+        static readonly Histogram _requestTime = Metrics.CreateHistogram("elastic_request_time_milliseconds", "Time spent on making Elasticsearch requests.", new HistogramConfiguration
+        {
+            Buckets = HistogramEx.ExponentialBuckets(20, 2000, 10)
+        });
+
         async Task<T> Request<T>(Func<Nest.ElasticClient, Task<T>> request) where T : IResponse
         {
-            var response = await request(_client);
+            T response;
+
+            using (_requestTime.Measure())
+                response = await request(_client);
 
             if (!response.IsValid)
             {
@@ -420,7 +430,7 @@ namespace nhitomi.Database
 
 #region Index management
 
-        readonly struct IndexInfo
+        sealed class IndexInfo
         {
             public readonly string Name;
             public readonly string IndexName;
@@ -439,18 +449,28 @@ namespace nhitomi.Database
             public override string ToString() => IndexName;
         }
 
+        static readonly Counter _indexAccesses = Metrics.CreateCounter("elastic_index_accesses", "Number of Elasticsearch index accesses.", "index");
         readonly ConcurrentDictionary<Type, IndexInfo> _indexes = new ConcurrentDictionary<Type, IndexInfo>();
 
         async ValueTask<IndexInfo> GetIndexAsync<T>(CancellationToken cancellationToken = default) where T : class
         {
             var options = _options.CurrentValue;
 
-            var type = typeof(T);
+            var type  = typeof(T);
+            var index = null as IndexInfo;
 
-            if (_indexes.TryGetValue(type, out var index))
-                return index;
+            try
+            {
+                if (_indexes.TryGetValue(type, out index))
+                    return index;
 
-            index = new IndexInfo(type, options);
+                index = new IndexInfo(type, options);
+            }
+            finally
+            {
+                if (index != null)
+                    _indexAccesses.Labels(index.IndexName).Inc();
+            }
 
             var measure = new MeasureContext();
 
