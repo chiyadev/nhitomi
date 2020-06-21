@@ -7,6 +7,7 @@ using MessagePack.Resolvers;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Prometheus;
 using StackExchange.Redis;
 
 namespace nhitomi.Database
@@ -86,11 +87,17 @@ namespace nhitomi.Database
             _database   = _connection.GetDatabase();
         }
 
+        static readonly Histogram _requestTime = Metrics.CreateHistogram("redis_request_time_milliseconds", "Time spent on making Redis requests.", new HistogramConfiguration
+        {
+            Buckets = HistogramEx.ExponentialBuckets(1, 100, 15)
+        });
+
         public async Task<byte[]> GetAsync(RedisKey key, CancellationToken cancellationToken = default)
         {
             _keyMemory?.Add(key);
 
-            return await _database.StringGetAsync(key.Prepend(_keyPrefix));
+            using (_requestTime.Measure())
+                return await _database.StringGetAsync(key.Prepend(_keyPrefix));
         }
 
         public async Task<byte[][]> GetManyAsync(RedisKey[] keys, CancellationToken cancellationToken = default)
@@ -102,7 +109,11 @@ namespace nhitomi.Database
             for (var i = 0; i < keys.Length; i++)
                 keys2[i] = keys[i].Prepend(_keyPrefix);
 
-            var values  = await _database.StringGetAsync(keys2);
+            RedisValue[] values;
+
+            using (_requestTime.Measure())
+                values = await _database.StringGetAsync(keys2);
+
             var values2 = new byte[values.Length][];
 
             for (var i = 0; i < values.Length; i++)
@@ -143,17 +154,19 @@ namespace nhitomi.Database
         {
             _keyMemory?.Add(key);
 
-            return (long) await _database.StringGetAsync(key.Prepend(_keyPrefix));
+            using (_requestTime.Measure())
+                return (long) await _database.StringGetAsync(key.Prepend(_keyPrefix));
         }
 
-        public Task<bool> SetAsync(RedisKey key, RedisValue value, TimeSpan? expiry = null, When when = When.Always, CancellationToken cancellationToken = default)
+        public async Task<bool> SetAsync(RedisKey key, RedisValue value, TimeSpan? expiry = null, When when = When.Always, CancellationToken cancellationToken = default)
         {
             _keyMemory?.Add(key);
 
-            return _database.StringSetAsync(key.Prepend(_keyPrefix), value, expiry, when);
+            using (_requestTime.Measure())
+                return await _database.StringSetAsync(key.Prepend(_keyPrefix), value, expiry, when);
         }
 
-        public Task<bool> SetManyAsync(RedisKey[] keys, RedisValue[] values, When when = When.Always, CancellationToken cancellationToken = default)
+        public async Task<bool> SetManyAsync(RedisKey[] keys, RedisValue[] values, When when = When.Always, CancellationToken cancellationToken = default)
         {
             _keyMemory?.Add(keys);
 
@@ -162,7 +175,8 @@ namespace nhitomi.Database
             for (var i = 0; i < keys.Length; i++)
                 pairs[i] = new KeyValuePair<RedisKey, RedisValue>(keys[i].Prepend(_keyPrefix), values[i]);
 
-            return _database.StringSetAsync(pairs, when);
+            using (_requestTime.Measure())
+                return await _database.StringSetAsync(pairs, when);
         }
 
         public Task<bool> SetObjectAsync<T>(RedisKey key, T value, TimeSpan? expiry = null, When when = When.Always, CancellationToken cancellationToken = default)
@@ -187,7 +201,8 @@ namespace nhitomi.Database
                     var _ = transaction.KeyExpireAsync(pair.Key, expiry);
                 }
 
-            return await transaction.ExecuteAsync() && await set;
+            using (_requestTime.Measure())
+                return await transaction.ExecuteAsync() && await set;
         }
 
         public async Task<bool> SetIfEqualAsync(RedisKey key, RedisValue value, RedisValue comparand, TimeSpan? expiry = null, When when = When.Always, CancellationToken cancellationToken = default)
@@ -201,21 +216,24 @@ namespace nhitomi.Database
 
             var set = transaction.StringSetAsync(key, value, expiry, when);
 
-            return await transaction.ExecuteAsync() && await set;
+            using (_requestTime.Measure())
+                return await transaction.ExecuteAsync() && await set;
         }
 
         public async Task<long> IncrementIntegerAsync(RedisKey key, long delta, CancellationToken cancellationToken = default)
         {
             _keyMemory?.Add(key);
 
-            return await _database.StringIncrementAsync(key.Prepend(_keyPrefix), delta);
+            using (_requestTime.Measure())
+                return await _database.StringIncrementAsync(key.Prepend(_keyPrefix), delta);
         }
 
-        public Task<bool> DeleteAsync(RedisKey key, CancellationToken cancellationToken = default)
+        public async Task<bool> DeleteAsync(RedisKey key, CancellationToken cancellationToken = default)
         {
             _keyMemory?.Add(key);
 
-            return _database.KeyDeleteAsync(key.Prepend(_keyPrefix));
+            using (_requestTime.Measure())
+                return await _database.KeyDeleteAsync(key.Prepend(_keyPrefix));
         }
 
         public async Task ResetAsync(CancellationToken cancellationToken = default)
@@ -228,7 +246,8 @@ namespace nhitomi.Database
             if (keys.Length == 0)
                 return;
 
-            await _database.KeyDeleteAsync(keys);
+            using (_requestTime.Measure())
+                await _database.KeyDeleteAsync(keys);
 
             _logger.LogDebug($"Deleted all known {keys.Length} keys.");
         }
