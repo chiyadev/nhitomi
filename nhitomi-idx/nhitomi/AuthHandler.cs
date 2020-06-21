@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using OneOf;
+using Prometheus;
 
 namespace nhitomi
 {
@@ -25,22 +27,42 @@ namespace nhitomi
             _auth = auth;
         }
 
+        static readonly Counter _results = Metrics.CreateCounter("server_authentication_results", "Authentication results of requests.", new CounterConfiguration
+        {
+            LabelNames = new[] { "result" }
+        });
+
+        static readonly Histogram _time = Metrics.CreateHistogram("server_authentication_time_milliseconds", "Time spent on validating authenticated requests.", new HistogramConfiguration
+        {
+            Buckets = HistogramEx.ExponentialBuckets(1, 100, 10)
+        });
+
         protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
         {
             try
             {
                 // get header
                 if (!AuthenticationHeaderValue.TryParse(Request.Headers["Authorization"], out var authorization) || authorization.Scheme != Scheme.Name)
+                {
+                    _results.Labels("none").Inc();
                     return AuthenticateResult.NoResult();
+                }
 
-                var result = await _auth.ValidateTokenAsync(authorization.Parameter);
+                OneOf<AuthTokenPayload, TokenValidationError> result;
+
+                using (_time.Measure())
+                    result = await _auth.ValidateTokenAsync(authorization.Parameter);
 
                 if (!result.TryPickT0(out var payload, out var error))
+                {
+                    _results.Labels("fail").Inc();
                     return AuthenticateResult.Fail(error.ToString());
+                }
 
                 // pass payload down the pipeline
                 Context.Items[PayloadItemKey] = payload;
 
+                _results.Labels("success").Inc();
                 return AuthenticateResult.Success(_successTicket);
             }
             catch (Exception e)
