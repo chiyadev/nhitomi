@@ -89,7 +89,7 @@ namespace nhitomi.Database
 
         static readonly Histogram _requestTime = Metrics.CreateHistogram("redis_request_time_milliseconds", "Time spent on making Redis requests.", new HistogramConfiguration
         {
-            Buckets = HistogramEx.ExponentialBuckets(1, 100, 15)
+            Buckets = HistogramEx.ExponentialBuckets(0.1, 100, 15)
         });
 
         public async Task<byte[]> GetAsync(RedisKey key, CancellationToken cancellationToken = default)

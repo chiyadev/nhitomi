@@ -58,7 +58,7 @@ namespace nhitomi.Database
 
             static readonly Histogram _time = Metrics.CreateHistogram("locker_time_milliseconds", "Time spent between lock acquire and release.", new HistogramConfiguration
             {
-                Buckets = HistogramEx.ExponentialBuckets(1, 60000, 20)
+                Buckets = HistogramEx.ExponentialBuckets(10, 60000, 20)
             });
 
             volatile IDisposable _acquired;

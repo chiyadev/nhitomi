@@ -390,7 +390,7 @@ namespace nhitomi.Database
 
         static readonly Histogram _requestTime = Metrics.CreateHistogram("elastic_request_time_milliseconds", "Time spent on making Elasticsearch requests.", new HistogramConfiguration
         {
-            Buckets = HistogramEx.ExponentialBuckets(20, 2000, 10)
+            Buckets = HistogramEx.ExponentialBuckets(10, 5000, 10)
         });
 
         async Task<T> Request<T>(Func<Nest.ElasticClient, Task<T>> request) where T : IResponse
@@ -449,7 +449,7 @@ namespace nhitomi.Database
             public override string ToString() => IndexName;
         }
 
-        static readonly Counter _indexAccesses = Metrics.CreateCounter("elastic_index_accesses", "Number of Elasticsearch index accesses.", new CounterConfiguration
+        static readonly Counter _indexAccesses = Metrics.CreateCounter("elastic_index_accesses", "Number of Elasticsearch index accesses. (Note: does not indicate index requests)", new CounterConfiguration
         {
             LabelNames = new[] { "index" }
         });
