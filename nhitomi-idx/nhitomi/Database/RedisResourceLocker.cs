@@ -3,6 +3,7 @@ using System.Runtime.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
+using Prometheus;
 using StackExchange.Redis;
 
 namespace nhitomi.Database
@@ -22,11 +23,17 @@ namespace nhitomi.Database
             _options = options;
         }
 
+        static readonly Gauge _acquireOngoing = Metrics.CreateGauge("locker_acquire_ongoing", "Number of locks in the process of being acquired.");
+        static readonly Counter _acquires = Metrics.CreateCounter("locker_acquires", "Number of locks successfully acquired.");
+
         public async Task<IAsyncDisposable> EnterAsync(string key, CancellationToken cancellationToken = default)
         {
             var locker = new Locker($"lock:{key}", _client, _options.CurrentValue.LockExpiry);
 
-            await locker.AcquireAsync(cancellationToken);
+            using (_acquireOngoing.TrackInProgress())
+                await locker.AcquireAsync(cancellationToken);
+
+            _acquires.Inc();
 
             return locker;
         }
@@ -47,14 +54,25 @@ namespace nhitomi.Database
                 _expire = expire;
             }
 
-            volatile int _acquired;
+            static readonly Counter _contention = Metrics.CreateCounter("locker_contention", "Number of failed attempts to acquire a lock.");
+
+            static readonly Histogram _time = Metrics.CreateHistogram("locker_time", "Time spent between lock acquire and release.", new HistogramConfiguration
+            {
+                Buckets = HistogramEx.ExponentialBuckets(1, 60000, 20)
+            });
+
+            volatile IDisposable _acquired;
 
             public async Task AcquireAsync(CancellationToken cancellationToken = default)
             {
                 for (var i = 1; !await _client.SetAsync(_key, _id, _expire, When.NotExists, cancellationToken); i++)
-                    await Task.Delay(TimeSpan.FromMilliseconds(10 * Math.Clamp(i, 1, 10)), cancellationToken);
+                {
+                    _contention.Inc();
 
-                Interlocked.Exchange(ref _acquired, 1);
+                    await Task.Delay(TimeSpan.FromMilliseconds(10 * Math.Clamp(i, 1, 10)), cancellationToken);
+                }
+
+                Interlocked.Exchange(ref _acquired, _time.Measure());
 
                 StartExtension(_cts.Token);
             }
@@ -70,15 +88,19 @@ namespace nhitomi.Database
                 }
             }, cancellationToken);
 
-            public async ValueTask DisposeAsync()
+            public ValueTask DisposeAsync()
             {
-                if (Interlocked.CompareExchange(ref _acquired, 0, 1) == 0)
-                    return;
+                var acquired = Interlocked.Exchange(ref _acquired, null);
 
-                await _client.DeleteAsync(_key);
+                if (acquired == null)
+                    return default;
+
+                acquired.Dispose();
 
                 _cts.Cancel();
                 _cts.Dispose();
+
+                return new ValueTask(_client.DeleteAsync(_key));
             }
         }
 
