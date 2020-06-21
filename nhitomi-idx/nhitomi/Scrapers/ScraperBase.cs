@@ -11,6 +11,7 @@ using Newtonsoft.Json;
 using nhitomi.Models;
 using nhitomi.Scrapers.Tests;
 using nhitomi.Storage;
+using Prometheus;
 
 namespace nhitomi.Scrapers
 {
@@ -87,6 +88,17 @@ namespace nhitomi.Scrapers
             _logger  = logger;
         }
 
+        static readonly Histogram _scrapingTime = Metrics.CreateHistogram("scraper_scraping_time_seconds", "Time spent on scraping a source.", new HistogramConfiguration
+        {
+            Buckets    = HistogramEx.ExponentialBuckets(1, 30, 10),
+            LabelNames = new[] { "type" }
+        });
+
+        static readonly Counter _scrapeErrors = Metrics.CreateCounter("scraper_errors", "Number of errors occurred that terminated a scrape.", new CounterConfiguration
+        {
+            LabelNames = new[] { "type" }
+        });
+
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             while (!stoppingToken.IsCancellationRequested)
@@ -101,13 +113,17 @@ namespace nhitomi.Scrapers
                         _logger.LogDebug($"Begin {Type} scrape.");
 
                         await TestAsync(stoppingToken);
-                        await RunAsync(stoppingToken);
+
+                        using (_scrapingTime.Labels(Type.ToString()).Measure(ObservationUnits.Seconds))
+                            await RunAsync(stoppingToken);
 
                         _logger.LogDebug($"End {Type} scrape.");
                     }
                 }
                 catch (Exception e)
                 {
+                    _scrapeErrors.Labels(Type.ToString()).Inc();
+
                     _logger.LogWarning(e, $"Exception while scraping {Type}.");
                 }
 
@@ -115,6 +131,12 @@ namespace nhitomi.Scrapers
                 await Task.Delay(_options.CurrentValue.Interval, stoppingToken);
             }
         }
+
+        static readonly Histogram _testingTime = Metrics.CreateHistogram("scraper_testing_time_seconds", "Time spent on testing a source.", new HistogramConfiguration
+        {
+            Buckets    = HistogramEx.ExponentialBuckets(1, 30, 10),
+            LabelNames = new[] { "type" }
+        });
 
         /// <summary>
         /// Tests this scraper and throws an exception if this scraper is broken.
@@ -125,7 +147,10 @@ namespace nhitomi.Scrapers
         {
             var manager = TestManager;
 
-            if (manager != null)
+            if (manager == null)
+                return;
+
+            using (_scrapingTime.Labels(Type.ToString()).Measure(ObservationUnits.Seconds))
                 await manager.RunAsync(cancellationToken);
         }
 
