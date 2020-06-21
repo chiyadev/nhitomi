@@ -20,17 +20,20 @@ namespace nhitomi
 
         static readonly Counter _statuses = Metrics.CreateCounter("http_handler_responses", "Number of HTTP responses.", new CounterConfiguration
         {
-            LabelNames = new[] { "status" }
+            LabelNames = new[] { "host", "status" }
         });
 
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
+            var host   = request.RequestUri.Host;
+            var method = request.Method.Method;
+
             HttpResponseMessage response;
 
-            using (_time.Labels(request.RequestUri.Host, request.Method.Method).Measure())
+            using (_time.Labels(host, method).Measure())
                 response = await base.SendAsync(request, cancellationToken);
 
-            _statuses.Labels(((int) response.StatusCode).ToString()).Inc();
+            _statuses.Labels(host, ((int) response.StatusCode).ToString()).Inc();
 
             return response;
         }
