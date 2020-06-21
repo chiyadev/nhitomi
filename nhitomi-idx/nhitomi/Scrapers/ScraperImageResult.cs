@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using nhitomi.Storage;
+using Prometheus;
 
 namespace nhitomi.Scrapers
 {
@@ -14,34 +15,65 @@ namespace nhitomi.Scrapers
     {
         public abstract string Name { get; }
 
-        /// <summary>
-        /// Retrieves an image using a scraper when retrieval from storage failed.
-        /// </summary>
-        protected abstract Task<StorageFile> GetImageAsync(ActionContext context);
+        static readonly Histogram _responseTime = Metrics.CreateHistogram("scraper_image_response_time_milliseconds", "Time spent on writing scraper image result to response body.", new HistogramConfiguration
+        {
+            Buckets    = HistogramEx.ExponentialBuckets(10, 30000, 20),
+            LabelNames = new[] { "source" }
+        });
+
+        static readonly Histogram _retrieveTime = Metrics.CreateHistogram("scraper_image_retrieve_time_milliseconds", "Time spent on retrieving a scraper image.", new HistogramConfiguration
+        {
+            Buckets    = HistogramEx.ExponentialBuckets(10, 30000, 20),
+            LabelNames = new[] { "source" }
+        });
+
+        static readonly Counter _resultSize = Metrics.CreateCounter("scraper_image_result_size_bytes", "Size of scraper image results that were downloaded.", new CounterConfiguration
+        {
+            LabelNames = new[] { "source" }
+        });
+
+        static readonly Counter _errors = Metrics.CreateCounter("scraper_image_errors", "Number of errors while returning a scraper image.", new CounterConfiguration
+        {
+            LabelNames = new[] { "source" }
+        });
 
         const int _bufferSize = 32768;
         static readonly ArrayPool<byte> _bufferPool = ArrayPool<byte>.Shared;
 
         public override async Task ExecuteResultAsync(ActionContext context)
         {
-            var name = Name;
-
             var cancellationToken = context.HttpContext.RequestAborted;
             var storage           = context.HttpContext.RequestServices.GetService<IStorage>();
 
-            var result = await storage.ReadAsync(name, cancellationToken);
+            var result = await storage.ReadAsync(Name, cancellationToken);
 
             determineResult:
+
+            var source = nameof(Storage);
 
             // file is already saved in storage
             if (result.TryPickT0(out var file, out var error))
             {
-                await using (file)
+                try
                 {
-                    StorageFileResult.SetHeaders(context, file);
+                    await using (file)
+                    {
+                        StorageFileResult.SetHeaders(context, file);
 
-                    // write to response stream
-                    await file.Stream.CopyToAsync(context.HttpContext.Response.Body, cancellationToken);
+                        var response = context.HttpContext.Response;
+
+                        // write to response stream
+                        using (_responseTime.Labels(source).Measure())
+                        {
+                            await file.Stream.CopyToAsync(response.Body, cancellationToken);
+                            await response.CompleteAsync();
+                        }
+                    }
+                }
+                catch
+                {
+                    _errors.Labels(source).Inc();
+                    throw;
                 }
             }
 
@@ -51,65 +83,85 @@ namespace nhitomi.Scrapers
                 var locker = context.HttpContext.RequestServices.GetService<IResourceLocker>();
 
                 // prevent concurrent downloads
-                await using (await locker.EnterAsync($"scraper:image:{name}", cancellationToken))
+                await using (await locker.EnterAsync($"scraper:image:{Name}", cancellationToken))
                 {
                     // file may have been saved to storage while we were awaiting lock
-                    result = await storage.ReadAsync(name, cancellationToken);
+                    result = await storage.ReadAsync(Name, cancellationToken);
 
                     if (result.TryPickT0(out file, out error) || !error.TryPickT0(out _, out exception)) // found, or error
                         goto determineResult;
 
                     // retrieve image using scraper
-                    file = await GetImageAsync(context);
+                    var (scraper, fileTask) = GetImageAsync(context);
 
-                    if (file == null)
+                    source = scraper.Type.ToString();
+
+                    try
                     {
-                        await ResultUtilities.NotFound(name).ExecuteResultAsync(context);
-                        return;
-                    }
+                        using (_retrieveTime.Labels(source).Measure())
+                            file = await fileTask;
 
-                    await using (file)
-                    {
-                        StorageFileResult.SetHeaders(context, file);
-
-                        // pipe data to response stream while buffering in memory
-                        // buffering is required because certain storage implementations (s3) need to know stream length in advance
-                        await using var memory = new MemoryStream();
-
-                        var response = context.HttpContext.Response.BodyWriter;
-                        var buffer   = _bufferPool.Rent(_bufferSize);
-
-                        try
+                        if (file == null)
                         {
-                            while (true)
+                            await ResultUtilities.NotFound(Name).ExecuteResultAsync(context);
+                            return;
+                        }
+
+                        await using (file)
+                        {
+                            StorageFileResult.SetHeaders(context, file);
+
+                            // pipe data to response stream while buffering in memory
+                            // buffering is required because certain storage implementations (s3) need to know stream length in advance
+                            await using var memory = new MemoryStream();
+
+                            var response = context.HttpContext.Response.BodyWriter;
+                            var buffer   = _bufferPool.Rent(_bufferSize);
+
+                            try
                             {
-                                var read = await file.Stream.ReadAsync(buffer, 0, buffer.Length, CancellationToken.None);
+                                var resultSize = _resultSize.Labels(source);
 
-                                if (read == 0)
+                                using (_responseTime.Labels(source).Measure())
                                 {
-                                    await response.CompleteAsync();
-                                    break;
+                                    while (true)
+                                    {
+                                        var read = await file.Stream.ReadAsync(buffer, 0, buffer.Length, CancellationToken.None);
+
+                                        if (read == 0)
+                                        {
+                                            await response.CompleteAsync();
+                                            break;
+                                        }
+
+                                        resultSize.Inc(read);
+
+                                        memory.Write(buffer, 0, read);
+
+                                        await response.WriteAsync(((ReadOnlyMemory<byte>) buffer).Slice(0, read), CancellationToken.None);
+                                    }
                                 }
-
-                                memory.Write(buffer, 0, read);
-
-                                await response.WriteAsync(((ReadOnlyMemory<byte>) buffer).Slice(0, read), CancellationToken.None);
                             }
-                        }
-                        finally
-                        {
-                            _bufferPool.Return(buffer);
+                            finally
+                            {
+                                _bufferPool.Return(buffer);
 
-                            await file.DisposeAsync(); // opportunistic dispose
-                        }
+                                await file.DisposeAsync(); // opportunistic dispose
+                            }
 
-                        // save to storage
-                        await storage.WriteAsync(new StorageFile
-                        {
-                            Name      = name,
-                            MediaType = file.MediaType,
-                            Stream    = memory
-                        }, CancellationToken.None);
+                            // save to storage
+                            await storage.WriteAsync(new StorageFile
+                            {
+                                Name      = Name,
+                                MediaType = file.MediaType,
+                                Stream    = memory
+                            }, CancellationToken.None);
+                        }
+                    }
+                    catch
+                    {
+                        _errors.Labels(source).Inc();
+                        throw;
                     }
                 }
             }
@@ -117,8 +169,15 @@ namespace nhitomi.Scrapers
             // exception while requesting file from storage
             else
             {
+                _errors.Labels(source).Inc();
+
                 ExceptionDispatchInfo.Throw(exception);
             }
         }
+
+        /// <summary>
+        /// Retrieves an image using a scraper when retrieval from storage failed.
+        /// </summary>
+        protected abstract (IScraper, Task<StorageFile>) GetImageAsync(ActionContext context);
     }
 }

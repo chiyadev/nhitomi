@@ -13,23 +13,25 @@ namespace nhitomi.Scrapers
         readonly DbBookContent _content;
         readonly int _index;
 
-        public override string Name => $"books/{_book.Id}/contents/{_content.Id}/pages/{_index}";
+        public override string Name { get; }
 
         public BookScraperImageResult(DbBook book, DbBookContent content, int index)
         {
             _book    = book;
             _content = content;
             _index   = index;
+
+            Name = $"books/{_book.Id}/contents/{_content.Id}/pages/{_index}";
         }
 
-        protected override Task<StorageFile> GetImageAsync(ActionContext context)
+        protected override (IScraper, Task<StorageFile>) GetImageAsync(ActionContext context)
         {
             var scrapers = context.HttpContext.RequestServices.GetService<IScraperService>();
 
             if (!scrapers.GetBook(_content.Source, out var scraper))
                 throw new NotSupportedException($"Scraper {scraper} is not supported.");
 
-            return scraper.GetImageAsync(_book, _content, _index, context.HttpContext.RequestAborted);
+            return (scraper, scraper.GetImageAsync(_book, _content, _index, context.HttpContext.RequestAborted));
         }
     }
 }
