@@ -150,7 +150,7 @@ namespace nhitomi.Scrapers
             if (manager == null)
                 return;
 
-            using (_scrapingTime.Labels(Type.ToString()).Measure(ObservationUnits.Seconds))
+            using (_testingTime.Labels(Type.ToString()).Measure(ObservationUnits.Seconds))
                 await manager.RunAsync(cancellationToken);
         }
 

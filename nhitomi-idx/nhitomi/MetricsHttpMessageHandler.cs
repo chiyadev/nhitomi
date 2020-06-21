@@ -27,7 +27,7 @@ namespace nhitomi
         {
             HttpResponseMessage response;
 
-            using (_time.Measure())
+            using (_time.Labels(request.RequestUri.Host, request.Method.Method).Measure())
                 response = await base.SendAsync(request, cancellationToken);
 
             _statuses.Labels(((int) response.StatusCode).ToString()).Inc();
