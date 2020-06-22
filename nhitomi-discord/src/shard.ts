@@ -177,7 +177,12 @@ ${stack}
 
   // scan message for links (this is slightly different from n!get command because strict=false; allows multiple links)
   else {
-    const result = await Api.book.getBooksByLink({ strict: false, getBookByLinkRequest: { link: message.content } })
+    const content = message.content.trim()
+
+    if (!content)
+      return
+
+    const result = await Api.book.getBooksByLink({ strict: false, getBookByLinkRequest: { link: content } })
 
     if (!result.matches.length)
       return
