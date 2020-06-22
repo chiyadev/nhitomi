@@ -30,7 +30,7 @@ let source = process.argv[3]
 
 switch (source) {
   case undefined:
-    source = 'https://nhitomi-next.chiya.dev/api/v1/docs.json'
+    source = 'https://nhitomi.chiya.dev/api/v1/docs.json'
     break
 
   case 'local':

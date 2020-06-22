@@ -16,7 +16,7 @@ $ npm i
 $ npm run genclient
 ```
 
-`genclient` will by default generate an API client for the latest deployed version of nhitomi, which is available [here](https://nhitomi-next.chiya.dev/api/v1).
+`genclient` will by default generate an API client for the latest deployed version of nhitomi, which is available [here](https://nhitomi.chiya.dev/api/v1).
 
 `genclient` optionally accepts a path or URL to the API specification file. This can be useful when you are running your own instance of nhitomi-idx and making changes to the specification.
 
