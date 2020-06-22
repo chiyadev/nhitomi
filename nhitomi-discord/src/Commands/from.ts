@@ -27,7 +27,7 @@ export const run: CommandFunc = async (context, source) => {
         },
         limit: 0,
         sorting: [{
-          value: BookSort.CreatedTime,
+          value: BookSort.UpdatedTime,
           direction: SortDirection.Descending
         }]
       }

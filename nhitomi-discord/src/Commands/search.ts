@@ -89,7 +89,7 @@ export const run: CommandFunc = (context, query) => {
     },
     limit: 0,
     sorting: [{
-      value: BookSort.CreatedTime,
+      value: BookSort.UpdatedTime,
       direction: SortDirection.Descending
     }]
   }

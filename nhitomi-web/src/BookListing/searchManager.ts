@@ -110,7 +110,7 @@ export function convertQuery(query: SearchQuery, offset?: number): BookQuery {
     offset,
     limit: 50,
     sorting: [{
-      value: BookSort.CreatedTime,
+      value: BookSort.UpdatedTime,
       direction: SortDirection.Descending
     }]
   }
