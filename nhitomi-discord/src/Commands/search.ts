@@ -84,6 +84,9 @@ export const run: CommandFunc = (context, query) => {
       mode: QueryMatchMode.All,
       values: [query]
     },
+    language: {
+      values: [context.user.language]
+    },
     limit: 0,
     sorting: [{
       value: BookSort.CreatedTime,
