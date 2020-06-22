@@ -10,7 +10,7 @@ import { beginPresenceRotation } from './status'
 import { BookListMessage } from './Commands/search'
 import { AsyncArray } from './asyncArray'
 import { BookMessage } from './Commands/get'
-import { register, collectDefaultMetrics, Histogram, Counter } from 'prom-client'
+import { register, collectDefaultMetrics, Histogram, Counter, Gauge } from 'prom-client'
 import { getBuckets, measureHistogram } from './metrics'
 
 collectDefaultMetrics({ register })
@@ -42,6 +42,17 @@ Discord.on('warn', console.warn)
 Discord.on('error', console.error)
 
 Discord.on('ready', () => register.setDefaultLabels({ shard: Discord.shard?.ids[0]?.toString() }))
+
+const guildCount = new Gauge({
+  name: 'discord_guilds',
+  help: 'Number of guilds invited to.'
+})
+
+const updateGuildsMetric = () => guildCount.set(Discord.guilds.cache.size)
+
+Discord.on('ready', updateGuildsMetric)
+Discord.on('guildCreate', updateGuildsMetric)
+Discord.on('guildDelete', updateGuildsMetric)
 
 function wrapHandler<T extends Function>(name: string, func: T): T {
   return (async (...args: unknown[]) => {
