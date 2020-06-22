@@ -75,6 +75,7 @@ export const GridListing = () => {
 const FurtherLoader = () => {
   const loading = useRef(false)
   const { manager } = useContext(BookListingContext)
+  const { height } = useContext(LayoutContext)
 
   useUpdateOnEvent(manager, 'result')
 
@@ -84,7 +85,7 @@ const FurtherLoader = () => {
     return null
   }
 
-  return <VisibilitySensor partialVisibility onChange={async value => {
+  return <VisibilitySensor partialVisibility offset={{ top: -height / 2 }} onChange={async value => {
     const beginLoad = !loading.current && value
 
     loading.current = value
