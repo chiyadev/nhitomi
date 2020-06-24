@@ -114,12 +114,11 @@ const Item = ({ book }: { book: Book }) => {
   const { manager } = useContext(BookListingContext)
   const { width, breakpoint } = useContext(LayoutContext)
 
-  useUpdateOnEvent(manager, 'query')
   useUpdateOnEvent(manager, 'result')
 
   // use content of user language
   const selected = manager.result.selected?.book.id === book.id
-  const content = (selected && book.contents.find(c => c.id === manager.result.selected?.content.id)) || book.contents.find(c => c.language === manager.query.language) || book.contents[0]
+  const content = (selected && book.contents.find(c => c.id === manager.result.selected?.content.id)) || book.contents.find(c => c.language === manager.result.query.language) || book.contents[0]
 
   const ref = useRef<HTMLDivElement>(null)
 
