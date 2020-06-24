@@ -41,7 +41,8 @@
       "total": "Search {total, plural, =1 {one book} other {{total} books}}...",
       "otherTag": "Other",
       "more": {
-        "languages": "Languages"
+        "languages": "Languages",
+        "sources": "Sources"
       }
     }
   },

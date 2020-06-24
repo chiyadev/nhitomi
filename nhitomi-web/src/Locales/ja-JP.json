@@ -41,7 +41,8 @@
       "total": "{total}個の本を検索...",
       "otherTag": "その他",
       "more": {
-        "languages": "言語"
+        "languages": "言語",
+        "sources": "サイト"
       }
     }
   },

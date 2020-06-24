@@ -1,8 +1,8 @@
-import { Select, Typography, Input, Menu, Dropdown, Button } from 'antd'
+import { Select, Typography, Input, Menu, Dropdown, Button, Checkbox } from 'antd'
 import { SelectProps } from 'antd/lib/select'
 import React, { useContext, useState, useMemo, CSSProperties, useLayoutEffect } from 'react'
 import { useAsync } from 'react-use'
-import { BookTag, BookSuggestResultTags, LanguageType } from '../Client'
+import { BookTag, BookSuggestResultTags, LanguageType, ScraperType } from '../Client'
 import { ClientContext } from '../ClientContext'
 import { TagColors, TagDisplay, TagLabels } from '../Tags'
 import { BookListingContext } from '.'
@@ -11,6 +11,7 @@ import { FormattedMessage, useIntl } from 'react-intl'
 import { FlagIcon, FlagIconCode } from 'react-flag-kit'
 import { languageNames } from '../LocaleProvider'
 import { EllipsisOutlined } from '@ant-design/icons'
+import { SourceIcon } from '../SourceButton'
 
 export const Search = () => {
   const { manager } = useContext(BookListingContext)
@@ -250,11 +251,33 @@ const MoreQueries = () => {
         <Menu.Item
           key='more'
           icon={<EllipsisOutlined />}
-          onClick={e => setLangsExpanded(true)} />
+          onClick={() => setLangsExpanded(true)} />
       ]
 
     return <Menu.ItemGroup title={<FormattedMessage id='bookListing.search.more.languages' />} children={items} />
   }, [manager.query, langsExpanded])
+
+  const queries = useMemo(() => (
+    <Menu.ItemGroup title={<FormattedMessage id='bookListing.search.more.sources' />}>
+      {Object.values(ScraperType).filter(t => t !== ScraperType.Unknown).map(type => (
+        <Menu.Item
+          key={type}
+          onClick={() => manager.query = { ...manager.query, sources: toggleArray(manager.query.sources, type) }}>
+
+          <Checkbox checked={manager.query.sources.indexOf(type) !== -1}>
+            <SourceIcon
+              type={type}
+              style={{
+                width: 'auto',
+                height: '2em'
+              }} />
+
+            <span> {type}</span>
+          </Checkbox>
+        </Menu.Item>
+      ))}
+    </Menu.ItemGroup>
+  ), [manager.query])
 
   return (
     <Dropdown
@@ -267,10 +290,20 @@ const MoreQueries = () => {
           onClick={e => e.domEvent.preventDefault()}>
 
           {languages}
+          {queries}
         </Menu>
       )}>
 
       <Button icon={<EllipsisOutlined />} />
     </Dropdown>
   )
+}
+
+function toggleArray<T>(array: T[], value: T) {
+  const index = array.indexOf(value)
+
+  if (index === -1)
+    return [...array, value]
+
+  return array.filter((_, i) => i !== index)
 }
