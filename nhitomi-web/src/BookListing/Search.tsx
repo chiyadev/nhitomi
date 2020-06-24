@@ -1,14 +1,16 @@
-import { Select, Typography, Input } from 'antd'
+import { Select, Typography, Input, Menu, Dropdown, Button } from 'antd'
 import { SelectProps } from 'antd/lib/select'
 import React, { useContext, useState, useMemo, CSSProperties, useLayoutEffect } from 'react'
 import { useAsync } from 'react-use'
-import { BookTag, BookSuggestResultTags } from '../Client'
+import { BookTag, BookSuggestResultTags, LanguageType } from '../Client'
 import { ClientContext } from '../ClientContext'
 import { TagColors, TagDisplay, TagLabels } from '../Tags'
 import { BookListingContext } from '.'
-import { LanguageSelect } from '../LanguageSelect'
 import { useUpdateOnEvent } from '../hooks'
 import { FormattedMessage, useIntl } from 'react-intl'
+import { FlagIcon, FlagIconCode } from 'react-flag-kit'
+import { languageNames } from '../LocaleProvider'
+import { EllipsisOutlined } from '@ant-design/icons'
 
 export const Search = () => {
   const { manager } = useContext(BookListingContext)
@@ -29,7 +31,7 @@ export const Search = () => {
       : manager.query.type === 'simple' ? <SimpleSearch style={style} />
         : null}
 
-    <LangSelect />
+    <MoreQueries />
   </Input.Group>
 }
 
@@ -208,18 +210,67 @@ export const SimpleSearch = ({ style }: {
   )
 }
 
-const LangSelect = () => {
+const MoreQueries = () => {
   const { manager } = useContext(BookListingContext)
 
   useUpdateOnEvent(manager, 'query')
 
+  const [visible, setVisible] = useState(false)
+  const [langsExpanded, setLangsExpanded] = useState(false)
+
+  const languages = useMemo(() => {
+    const languages = Object.values(LanguageType)
+
+    let items = languages.map(lang => {
+      let label = <span>{languageNames[lang]}</span>
+
+      if (lang === manager.query.language)
+        label = <strong>{label}</strong>
+
+      return (
+        <Menu.Item
+          key={lang}
+          icon={<FlagIcon key={lang} code={lang.split('-')[1] as FlagIconCode} />}
+          onClick={() => manager.query = { ...manager.query, language: lang }}>
+
+          <span> {label}</span>
+        </Menu.Item>
+      )
+    })
+
+    const defaultLangs = 4
+
+    if (languages.indexOf(manager.query.language) >= defaultLangs)
+      setLangsExpanded(true)
+
+    if (!langsExpanded)
+      items = [
+        ...items.slice(0, defaultLangs),
+
+        <Menu.Item
+          key='more'
+          icon={<EllipsisOutlined />}
+          onClick={e => setLangsExpanded(true)} />
+      ]
+
+    return <Menu.ItemGroup title={<FormattedMessage id='bookListing.search.more.languages' />} children={items} />
+  }, [manager.query, langsExpanded])
+
   return (
-    <LanguageSelect
-      value={manager.query.language}
-      setValue={v => manager.query = { ...manager.query, language: v }}
-      style={{
-        display: 'inline-block',
-        height: '100%'
-      }} />
+    <Dropdown
+      visible={visible}
+      onVisibleChange={v => { setVisible(v); if (!v) { setLangsExpanded(v) } }}
+      placement='bottomRight'
+      overlay={(
+        <Menu
+          selectedKeys={[manager.query.language]}
+          onClick={e => e.domEvent.preventDefault()}>
+
+          {languages}
+        </Menu>
+      )}>
+
+      <Button icon={<EllipsisOutlined />} />
+    </Dropdown>
   )
 }

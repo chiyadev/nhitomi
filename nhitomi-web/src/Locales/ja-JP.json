@@ -39,7 +39,10 @@
     },
     "search": {
       "total": "{total}個の本を検索...",
-      "otherTag": "その他"
+      "otherTag": "その他",
+      "more": {
+        "languages": "言語"
+      }
     }
   },
   "bookReader": {

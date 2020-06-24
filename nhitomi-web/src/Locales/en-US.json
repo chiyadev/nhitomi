@@ -39,7 +39,10 @@
     },
     "search": {
       "total": "Search {total, plural, =1 {one book} other {{total} books}}...",
-      "otherTag": "Other"
+      "otherTag": "Other",
+      "more": {
+        "languages": "Languages"
+      }
     }
   },
   "bookReader": {
