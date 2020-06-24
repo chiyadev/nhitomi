@@ -88,8 +88,8 @@ const TagSearch = ({ style }: {
           return delimiter === -1 || v.substring(delimiter + 1).startsWith('//')
         })) {
           manager.query = {
+            ...manager.query,
             type: 'simple',
-            language: manager.query.language,
             value: newValues.map(v => {
               let value = v.substring(v.indexOf(':') + 1)
 
@@ -109,8 +109,8 @@ const TagSearch = ({ style }: {
         }
         else {
           manager.query = {
+            ...manager.query,
             type: 'tag',
-            language: manager.query.language,
             items: newValues.map(v => {
               const delimiter = v.indexOf(':')
               return { type: v.substring(0, delimiter) as BookTag, value: v.substring(delimiter + 1) }
@@ -198,8 +198,8 @@ export const SimpleSearch = ({ style }: {
         switch (e.keyCode) {
           case 13:
             manager.query = {
+              ...manager.query,
               type: 'simple',
-              language: manager.query.language,
               value
             }
             break

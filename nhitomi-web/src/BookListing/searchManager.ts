@@ -1,10 +1,11 @@
-import { BookTag, Book, LanguageType, Client, BookQuery, QueryMatchMode, BookQueryTags, BookSort, SortDirection, BookContent, BookSearchResult } from '../Client'
+import { BookTag, Book, LanguageType, Client, BookQuery, QueryMatchMode, BookQueryTags, BookSort, SortDirection, BookContent, BookSearchResult, ScraperType } from '../Client'
 import qs from 'qs'
 import { EventEmitter } from 'events'
 import StrictEventEmitter from 'strict-event-emitter-types'
 
 export type SearchQuery = {
   language: LanguageType
+  sources: ScraperType[]
 } & ({
   type: 'simple'
   value: string
@@ -31,12 +32,14 @@ export type SearchResult = {
 
 export function serializeQuery(query: SearchQuery): string {
   const language = query.language.split('-')[0] || 'en'
+  const sources = query.sources?.length ? query.sources.join(',') : undefined
 
   switch (query.type) {
     case 'tag':
       return qs.stringify({
         t: 't',
         l: language,
+        s: sources,
         q: query.items.map(v => `${v.type}:${v.value}`).join(',') || undefined
       })
 
@@ -44,25 +47,29 @@ export function serializeQuery(query: SearchQuery): string {
       return qs.stringify({
         t: 's',
         l: language,
+        s: sources,
         q: query.value || undefined
       })
   }
 }
 
 export function deserializeQuery(query: string): SearchQuery {
-  const { t, l, q } = qs.parse(query, { ignoreQueryPrefix: true }) as {
+  const { t, l, s, q } = qs.parse(query, { ignoreQueryPrefix: true }) as {
     t?: string
     l?: string
+    s?: string
     q?: string
   }
 
   const language = Object.values(LanguageType).find(v => v.split('-')[0] === l) || LanguageType.EnUS
+  const sources = Object.values(ScraperType).filter(t => (s || '').split(',').indexOf(t) !== -1)
 
   switch (t) {
     case 't':
       return {
         type: 'tag',
-        language: language,
+        language,
+        sources,
         items: q?.split(',').map(v => {
           const delimiter = v.indexOf(':')
 
@@ -79,7 +86,8 @@ export function deserializeQuery(query: string): SearchQuery {
     case 's':
       return {
         type: 'simple',
-        language: language,
+        language,
+        sources,
         value: q || ''
       }
   }
@@ -87,6 +95,7 @@ export function deserializeQuery(query: string): SearchQuery {
   return {
     type: 'tag',
     language: LanguageType.EnUS,
+    sources,
     items: []
   }
 }
@@ -99,6 +108,10 @@ export function convertQuery(query: SearchQuery, offset?: number): BookQuery {
     },
     language: {
       values: [query.language]
+    },
+    source: !query.sources?.length ? undefined : {
+      values: query.sources,
+      mode: QueryMatchMode.Any
     },
     tags: query.type !== 'tag' ? undefined : query.items.reduce((tags, { type, value }) => {
       const tag = tags[type] || (tags[type] = { values: [], mode: QueryMatchMode.All })
@@ -152,6 +165,7 @@ export class SearchManager extends (EventEmitter as new () => StrictEventEmitter
 
     this._query = {
       language: LanguageType.EnUS,
+      sources: [],
       type: 'tag',
       items: []
     }
