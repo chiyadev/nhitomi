@@ -1,4 +1,4 @@
-import React, { createContext, ReactNode, useMemo, useState, useRef } from 'react'
+import React, { createContext, ReactNode, useMemo, useRef } from 'react'
 import { useWindowSize } from 'react-use'
 import { SideBarWidth } from './Sidebar'
 import { Breakpoint } from './LayoutContext'
