@@ -5,9 +5,10 @@ import { useShortcut, useShortcutKeyName } from './shortcuts'
 import { NotificationContext } from './NotificationContext'
 import { ClientContext } from './ClientContext'
 import { LayoutContext } from './LayoutContext'
-import { BarsOutlined, ReadOutlined } from '@ant-design/icons'
+import { BarsOutlined, ReadOutlined, InfoCircleOutlined } from '@ant-design/icons'
 import { FormattedMessage } from 'react-intl'
 import { BookListingLink } from './BookListing'
+import { AboutLink } from './About'
 
 export const SideBarWidth = 200
 
@@ -34,6 +35,7 @@ export const SideBar = () => {
   const toggleKey = useShortcutKeyName('sidebarKey')
 
   return <Layout.Sider
+    theme='dark'
     breakpoint='md'
     onBreakpoint={v => setSidebar(!v)}
     width={SideBarWidth}
@@ -78,18 +80,19 @@ export const SideBar = () => {
 
       <Divider style={{ margin: 0 }} />
 
-      <Menu
-        mode='inline'
-        style={{
-          height: '100%' // needed to make vertical divider
-        }}
-        selectedKeys={[pathname.split('/')[1]]}>
-
+      <Menu theme='dark' mode='inline' selectedKeys={[pathname.split('/')[1]]}>
         <Menu.Item key='books'>
           <BookListingLink>
             <ReadOutlined />
-            <FormattedMessage id='sidebar.menu.books' />
+            <FormattedMessage id='bookListing.header.title' />
           </BookListingLink>
+        </Menu.Item>
+
+        <Menu.Item key='about'>
+          <AboutLink>
+            <InfoCircleOutlined />
+            <FormattedMessage id='about.title' />
+          </AboutLink>
         </Menu.Item>
 
         {/*<Menu.Item key='images'>

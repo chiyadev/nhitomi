@@ -16,10 +16,7 @@
   "sidebar": {
     "opened": "Sidebar opened.",
     "collapsed": "Sidebar collapsed.",
-    "pressToToggle": "Press ''{key}'' to toggle.",
-    "menu": {
-      "books": "Books"
-    }
+    "pressToToggle": "Press ''{key}'' to toggle."
   },
   "bookListing": {
     "empty": "No results",
@@ -101,5 +98,8 @@
     "title": "404 Not Found",
     "sub": "Sorry, the request page {path} does not exist.",
     "home": "Home"
+  },
+  "about": {
+    "title": "About"
   }
 }

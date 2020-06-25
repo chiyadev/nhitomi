@@ -16,10 +16,7 @@
   "sidebar": {
     "opened": "サイドバーを開けました。",
     "collapsed": "サイドバーを閉めました。",
-    "pressToToggle": "''{key}''キーでサイドバー開閉。",
-    "menu": {
-      "books": "ブックス"
-    }
+    "pressToToggle": "''{key}''キーでサイドバー開閉。"
   },
   "bookListing": {
     "empty": "結果なし",
@@ -90,5 +87,8 @@
     "title": "404 見つかりません",
     "sub": "{path}に該当するページが見つかりませんでした。",
     "home": "ホーム"
+  },
+  "about": {
+    "title": "情報"
   }
 }
