@@ -9,6 +9,7 @@
     "@ant-design/icons": "^4.2.1",
     "@openapitools/openapi-generator-cli": "^1.0.12-4.3.0",
     "@seznam/compose-react-refs": "^1.0.4",
+    "@types/markdown-to-jsx": "^6.11.0",
     "@types/node": "^12.12.47",
     "@types/nprogress": "^0.2.0",
     "@types/prismjs": "^1.16.1",
