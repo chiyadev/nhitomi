@@ -13,6 +13,7 @@ import { ScraperType, BookContent, LanguageType } from '../Client'
 import { SourceButton } from '../SourceButton'
 import { languageNames } from '../LocaleProvider'
 import { FormattedMessage } from 'react-intl'
+import { useShortcut } from '../shortcuts'
 
 export const Panel = () => {
   const client = useContext(ClientContext)
@@ -20,6 +21,8 @@ export const Panel = () => {
   const { width, height } = useContext(LayoutContext)
 
   useUpdateOnEvent(manager, 'result')
+
+  useShortcut('cancelKey', () => manager.result = { ...manager.result, selected: undefined })
 
   const { book, content } = manager.result.selected || {}
 
