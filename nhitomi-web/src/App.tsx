@@ -14,6 +14,7 @@ import { ExperimentalBanner } from './ExperimentalBanner'
 import { NotFound } from './NotFound'
 
 import './App.css'
+import { About } from './About'
 
 export const App = () => {
   // https://ant.design/components/notification/#FAQ
@@ -67,6 +68,7 @@ const RoutingAuth = () => {
     <AuthenticationManager>
       <Switch>
         <Route path='/' exact><Redirect to='/books' /></Route>
+        <Route path='/about' exact component={About} />
 
         <Route path='/books' exact component={BookListing} />
         <Route path='/books/:id/contents/:contentId' exact render={({ match: { params } }) => <BookReader {...params} />} />
