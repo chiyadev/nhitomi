@@ -2,7 +2,7 @@ import { Select, Typography, Input, Menu, Dropdown, Button, Checkbox } from 'ant
 import { SelectProps } from 'antd/lib/select'
 import React, { useContext, useState, useMemo, CSSProperties, useLayoutEffect } from 'react'
 import { useAsync } from 'react-use'
-import { BookTag, BookSuggestResultTags, LanguageType, ScraperType } from '../Client'
+import { BookTag, BookSuggestResultTags, LanguageType, ScraperCategory } from '../Client'
 import { ClientContext } from '../ClientContext'
 import { TagColors, TagDisplay, TagLabels } from '../Tags'
 import { BookListingContext } from '.'
@@ -212,6 +212,7 @@ export const SimpleSearch = ({ style }: {
 }
 
 const MoreQueries = () => {
+  const client = useContext(ClientContext)
   const { manager } = useContext(BookListingContext)
 
   useUpdateOnEvent(manager, 'query')
@@ -257,9 +258,9 @@ const MoreQueries = () => {
     return <Menu.ItemGroup title={<FormattedMessage id='bookListing.search.more.languages' />} children={items} />
   }, [manager.query, langsExpanded])
 
-  const queries = useMemo(() => (
+  const sources = useMemo(() => (
     <Menu.ItemGroup title={<FormattedMessage id='bookListing.search.more.sources' />}>
-      {Object.values(ScraperType).filter(t => t !== ScraperType.Unknown).map(type => (
+      {client.currentInfo.scrapers.filter(s => s.category === ScraperCategory.Book).map(({ type, name }) => (
         <Menu.Item
           key={type}
           onClick={() => manager.query = { ...manager.query, sources: toggleArray(manager.query.sources, type) }}>
@@ -272,12 +273,12 @@ const MoreQueries = () => {
                 height: '2em'
               }} />
 
-            <span> {type}</span>
+            <span> {name}</span>
           </Checkbox>
         </Menu.Item>
       ))}
     </Menu.ItemGroup>
-  ), [manager.query])
+  ), [client.currentInfo.scrapers, manager.query])
 
   return (
     <Dropdown
@@ -290,7 +291,7 @@ const MoreQueries = () => {
           onClick={e => e.domEvent.preventDefault()}>
 
           {languages}
-          {queries}
+          {sources}
         </Menu>
       )}>
 
