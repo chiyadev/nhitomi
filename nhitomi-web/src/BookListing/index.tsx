@@ -62,10 +62,6 @@ const Loaded = ({ result, dispatch }: { result: SearchResult, dispatch: Dispatch
   const manager = useRef(new SearchManager(client)).current
 
   useLayoutEffect(() => {
-    manager.replace(location.search ? deserializeQuery(location.search) : result.query, result)
-  }, [location.search, manager, result])
-
-  useLayoutEffect(() => {
     const onloading = (loading: boolean) => { if (loading) start(); else stop() }
     const onquery = (query: SearchQuery, shouldPush: boolean) => {
       setLocale(query.language);
@@ -88,6 +84,11 @@ const Loaded = ({ result, dispatch }: { result: SearchResult, dispatch: Dispatch
       manager.off('failed', error)
     }
   }, [dispatch, error, locale, location, manager, push, replace, setLocale, start, stop])
+
+  // must come after event attachments
+  useLayoutEffect(() => {
+    manager.replace(location.search ? deserializeQuery(location.search) : result.query, result)
+  }, [location.search, manager, result])
 
   return <BookListingContext.Provider value={useMemo(() => ({ manager }), [manager])}>
     <Header />
