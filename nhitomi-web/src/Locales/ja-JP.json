@@ -89,6 +89,8 @@
     "home": "ホーム"
   },
   "about": {
-    "title": "情報"
+    "title": "情報",
+    "sub": "nhitomiについて",
+    "sources": "サイト"
   }
 }
