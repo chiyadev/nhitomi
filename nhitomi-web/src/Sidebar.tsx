@@ -138,7 +138,8 @@ export const SideBar = () => {
           left: 0,
           bottom: 0,
           minWidth: SideBarWidth,
-          textAlign: 'center'
+          textAlign: 'center',
+          display: sidebar ? undefined : 'none'
         }}>
           <small>ver. <code>{client.currentInfo.version.shortHash}</code></small>
         </Button>
