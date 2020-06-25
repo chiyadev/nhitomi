@@ -116,20 +116,24 @@ const Item = ({ book }: { book: Book }) => {
 
   useUpdateOnEvent(manager, 'result')
 
-  // use content of user language
-  const selected = manager.result.selected?.book.id === book.id
-  const content = (selected && book.contents.find(c => c.id === manager.result.selected?.content.id)) || book.contents.find(c => c.language === manager.result.query.language) || book.contents[0]
-
   const ref = useRef<HTMLDivElement>(null)
 
-  // scroll into view on when selected
+  // use content of user language
+  const selected = manager.result.selected?.book.id === book.id
+  const content = book.contents.find(c => c.id === manager.result.selected?.content.id) || book.contents.find(c => c.language === manager.result.query.language) || book.contents[0]
+
+  const lastSelected = useRef<string>()
+
+  // scroll into view on when selected or selection is lost (not switched to another)
   useLayoutEffect(() => {
-    if (selected)
+    if ((!lastSelected.current && manager.result.selected?.book.id === book.id) || (lastSelected.current === book.id && !manager.result.selected))
       ref.current?.scrollIntoView({
-        block: 'nearest',
-        inline: 'nearest'
+        block: 'center',
+        inline: 'center'
       })
-  }, [selected, width])
+
+    lastSelected.current = manager.result.selected?.book.id
+  }, [book.id, manager.result.selected, width])
 
   return useMemo(() => (
     <List.Item style={{
