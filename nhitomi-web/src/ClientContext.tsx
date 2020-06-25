@@ -20,10 +20,14 @@ export const ClientProvider = ({ children }: { children?: ReactNode }) => {
   const [reset, setReset] = useState(0)
 
   useLayoutEffect(() => {
-    const handle = () => setReset(reset + 1)
+    const resetNow = () => setReset(reset + 1)
 
-    client.config.on('token', handle)
-    return () => { client.config.off('token', handle) }
+    client.config.on('token', resetNow)
+    client.config.on('baseUrl', resetNow)
+    return () => {
+      client.config.off('token', resetNow)
+      client.config.off('baseUrl', resetNow)
+    }
   }, [client, reset])
 
   useAsync(async () => {
