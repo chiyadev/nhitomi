@@ -11,7 +11,7 @@ export const ClientContext = createContext<Client>(undefined as any)
 export const ClientProvider = ({ children }: { children?: ReactNode }) => {
   const [initialized, setInitialized] = useState<boolean | Error>(false)
   const { start, stop } = useContext(ProgressContext)
-  const { setLocale } = useContext(LocaleContext)
+  const { locale, setLocale } = useContext(LocaleContext)
 
   // create client
   const client = useMemo(() => new Client(), [])
@@ -24,6 +24,7 @@ export const ClientProvider = ({ children }: { children?: ReactNode }) => {
 
     client.config.on('token', resetNow)
     client.config.on('baseUrl', resetNow)
+
     return () => {
       client.config.off('token', resetNow)
       client.config.off('baseUrl', resetNow)
@@ -46,12 +47,34 @@ export const ClientProvider = ({ children }: { children?: ReactNode }) => {
     }
   }, [reset])
 
+  // show process during client init
   useLayoutEffect(() => {
     if (initialized)
       stop()
     else
       start()
   }, [!!initialized]) // eslint-disable-line
+
+  // update user language on locale change
+  useAsync(async () => {
+    if (!client.currentInfo.authenticated || client.currentInfo.user.language === locale)
+      return
+
+    start()
+
+    try {
+      client.currentInfo.user = await client.user.updateUser({
+        id: client.currentInfo.user.id,
+        userBase: {
+          ...client.currentInfo.user,
+          language: locale
+        }
+      })
+    }
+    finally {
+      stop()
+    }
+  }, [client.currentInfo, locale])
 
   if (initialized instanceof Error)
     return <code>{initialized.stack}</code>
