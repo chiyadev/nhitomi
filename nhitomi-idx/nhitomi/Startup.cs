@@ -314,15 +314,15 @@ namespace nhitomi
             // authentication
             app.UseAuthentication();
 
+            // exception handling (must appear before routing)
+            app.UseExceptionHandler("/error") // base path is not prepended here because we are using router
+               .UseStatusCodePagesWithReExecute("/error/{0}");
+
             // routing
             app.UseRouting();
 
             // http metrics
             app.UseHttpMetrics();
-
-            // exception handling
-            app.UseExceptionHandler("/error") // base path is not prepended here because we are using router
-               .UseStatusCodePagesWithReExecute("/error/{0}");
 
             // swagger docs
             app.UseSwagger(s =>
