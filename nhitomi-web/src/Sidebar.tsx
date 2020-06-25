@@ -1,4 +1,4 @@
-import { Divider, Layout, Menu, PageHeader, Tooltip } from 'antd'
+import { Divider, Layout, Menu, PageHeader, Tooltip, Button } from 'antd'
 import React, { useContext, useLayoutEffect } from 'react'
 import { useLocation } from 'react-router-dom'
 import { useShortcut, useShortcutKeyName } from './shortcuts'
@@ -132,15 +132,17 @@ export const SideBar = () => {
         </Menu.Item>} */}
       </Menu>
 
-      <div style={{
-        position: 'absolute',
-        left: 0,
-        bottom: 0,
-        minWidth: SideBarWidth,
-        textAlign: 'center'
-      }}>
-        <label><small>ver. <code>{client.currentInfo.version.shortHash}</code></small></label>
-      </div>
+      <a target='_blank' rel="noopener noreferrer" href={`https://github.com/chiyadev/nhitomi/commit/${client.currentInfo.version.hash}`}>
+        <Button type='text' style={{
+          position: 'absolute',
+          left: 0,
+          bottom: 0,
+          minWidth: SideBarWidth,
+          textAlign: 'center'
+        }}>
+          <small>ver. <code>{client.currentInfo.version.shortHash}</code></small>
+        </Button>
+      </a>
     </div>
   </Layout.Sider>
 }
