@@ -2,6 +2,7 @@ import { useTitle, useUpdate } from 'react-use'
 import StrictEventEmitter from 'strict-event-emitter-types'
 import { EventEmitter } from 'events'
 import { useLayoutEffect } from 'react'
+import { useIntl } from 'react-intl'
 
 /**
  * Sets the name of the current tab.
@@ -14,6 +15,12 @@ export function useTabTitle(...titleParts: (string | undefined)[]) {
   return useTitle(title, {
     restoreOnUnmount: false
   })
+}
+
+export function useTabTitleFormatted(id: string, values?: Parameters<ReturnType<typeof useIntl>['formatMessage']>[1]) {
+  const { formatMessage } = useIntl()
+
+  return useTabTitle(formatMessage({ id }, values as any))
 }
 
 /**
