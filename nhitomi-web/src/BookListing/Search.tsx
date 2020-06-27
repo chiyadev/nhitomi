@@ -1,6 +1,6 @@
 import { Select, Typography, Input, Menu, Dropdown, Button, Checkbox } from 'antd'
 import { SelectProps } from 'antd/lib/select'
-import React, { useContext, useState, useMemo, CSSProperties, useLayoutEffect } from 'react'
+import React, { useContext, useState, useMemo, CSSProperties, useLayoutEffect, useRef } from 'react'
 import { useAsync } from 'react-use'
 import { BookTag, BookSuggestResultTags, LanguageType, ScraperCategory } from '../Client'
 import { ClientContext } from '../ClientContext'
@@ -55,11 +55,15 @@ const TagSearch = ({ style }: {
   const [search, setSearch] = useState('')
   const [suggestions, setSuggestions] = useState<BookSuggestResultTags>({})
 
+  const suggestionsId = useRef(0)
+
   const { loading } = useAsync(async () => {
     if (!search) {
       setSuggestions({})
       return
     }
+
+    const id = ++suggestionsId.current
 
     const { tags } = await client.book.suggestBooks({
       suggestQuery: {
@@ -69,7 +73,8 @@ const TagSearch = ({ style }: {
       }
     })
 
-    setSuggestions(tags)
+    if (id === suggestionsId.current)
+      setSuggestions(tags)
   }, [search, selected])
 
   return (
