@@ -1,8 +1,6 @@
+import React, { useMemo, useContext, CSSProperties, useState, useRef, ReactElement } from 'react'
 import { FetchImage } from './fetchManager'
-import { useMemo, useContext, CSSProperties, useState, useRef, ReactElement } from 'react'
 import { LayoutManager, LayoutImage, LayoutManagerContext } from './layoutManager'
-import { Book, BookContent } from '../Client'
-import React from 'react'
 import { LayoutContext } from '../LayoutContext'
 import { useScrollShortcut, useShortcutPress } from '../shortcuts'
 import ReactVisibilitySensor from 'react-visibility-sensor'
@@ -14,13 +12,10 @@ import { ScrollPreserver } from './ScrollPreserver'
 import { BookReaderContext } from '.'
 import { ScrollManager } from './ScrollManager'
 
-export const LayoutRenderer = ({ book, content, fetched }: {
-  book: Book
-  content: BookContent
-  fetched: (FetchImage | undefined)[]
-}) => {
+export const LayoutRenderer = ({ fetched }: { fetched: (FetchImage | undefined)[] }) => {
   useScrollShortcut()
 
+  const { book, content } = useContext(BookReaderContext)
   const layout = useMemo(() => new LayoutManager(book, content), [book, content])
 
   const { width: viewportWidth, height: viewportHeight } = useContext(LayoutContext)
