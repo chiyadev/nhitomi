@@ -4,7 +4,9 @@
 
 nhitomi — Doujinshi aggregator
 
-Join our [Discord server](https://discord.gg/JFNga7q) or [invite nhitomi](https://discordapp.com/oauth2/authorize?client_id=515386276543725568&scope=bot&permissions=347200) to your server.
+nhitomi scrapes doujinshi from various sources and displays them under a unified interface with a customizable reader, collection support and API access.
+
+Join the [Discord server](https://discord.gg/JFNga7q) or [invite the nhitomi bot](https://discordapp.com/oauth2/authorize?client_id=515386276543725568&scope=bot&permissions=347200) to your server.
 
 ## Subprojects
 
