@@ -123,16 +123,19 @@ const Item = ({ book }: { book: Book }) => {
   const content = book.contents.find(c => c.id === manager.result.selected?.content.id) || book.contents.find(c => c.language === manager.result.query.language) || book.contents[0]
 
   const lastSelected = useRef<string>()
+  const lastWidth = useRef(width)
 
-  // scroll into view on when selected or selection is lost (not switched to another)
+  // scroll into view when selected, or selection is lost (not switched to another), or when window is resized
   useLayoutEffect(() => {
-    if ((!lastSelected.current && manager.result.selected?.book.id === book.id) || (lastSelected.current === book.id && !manager.result.selected))
-      ref.current?.scrollIntoView({
-        block: 'center',
-        inline: 'center'
-      })
+    const isSelected = (!lastSelected.current && manager.result.selected?.book.id === book.id)
+    const isUnselected = (lastSelected.current === book.id && !manager.result.selected)
+    const isResized = (manager.result.selected?.book.id === book.id && width !== lastWidth.current)
+
+    if (isSelected || isUnselected || isResized)
+      ref.current?.scrollIntoView({ block: 'center', inline: 'center' })
 
     lastSelected.current = manager.result.selected?.book.id
+    lastWidth.current = width
   }, [book.id, manager.result.selected, width])
 
   return useMemo(() => (
