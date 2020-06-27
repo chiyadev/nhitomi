@@ -14,8 +14,13 @@ export type LayoutImage = {
   height: number
 }
 
+export type LayoutRow = {
+  images: LayoutImage[]
+}
+
 export type LayoutResult = {
-  layout: LayoutImage[]
+  images: LayoutImage[]
+  rows: LayoutRow[]
   width: number
   height: number
 
@@ -68,27 +73,29 @@ export class LayoutManager {
     const result = this.lastResult.slice()
     const length = result.length
 
+    const rows: LayoutRow[] = []
+
     const row: {
       width: number
       height: number
-      items: LayoutImage[]
+      images: LayoutImage[]
     } = {
       width: 0,
       height: 0,
-      items: []
+      images: []
     }
 
-    const rowAdd = (item: LayoutImage) => {
-      row.width += item.width
-      row.height = Math.max(row.height, item.height)
-      row.items.push(item)
+    const rowAdd = (image: LayoutImage) => {
+      row.width += image.width
+      row.height = Math.max(row.height, image.height)
+      row.images.push(image)
     }
 
     let y = 0
     let flushed = 0
 
     const rowFlush = () => {
-      if (!row.items.length)
+      if (!row.images.length)
         return
 
       let scale = 1
@@ -106,8 +113,8 @@ export class LayoutManager {
 
       let x = (viewportWidth - row.width) / 2
 
-      for (let i = 0; i < row.items.length; i++) {
-        const current = row.items[i]
+      for (let i = 0; i < row.images.length; i++) {
+        const current = row.images[i]
         const last = result[flushed]
 
         current.width = Math.round(current.width * scale)
@@ -131,9 +138,11 @@ export class LayoutManager {
       // overflow to next row
       y += row.height
 
+      rows.push({ images: row.images.slice() })
+
       row.width = 0
       row.height = 0
-      row.items = []
+      row.images = []
     }
 
     for (let i = 0; i < length; i++) {
@@ -171,17 +180,17 @@ export class LayoutManager {
         height *= scale
 
         // flush row if full
-        if (row.items.length >= itemsPerRow || (flushed === 0 && row.items.length >= initialRowLimit))
+        if (row.images.length >= itemsPerRow || (flushed === 0 && row.images.length >= initialRowLimit))
           rowFlush()
 
         // add to row if empty
-        if (!row.items.length) {
+        if (!row.images.length) {
           rowAdd({ x: 0, y: 0, width, height, image })
         }
 
         else {
           const aspect = width / height
-          const rowItemAspect = row.items[0].width / row.items[0].height
+          const rowItemAspect = row.images[0].width / row.images[0].height
 
           // flush row if item aspect ratios are too different
           if (Math.abs(aspect - rowItemAspect) > similarAspectMargin)
@@ -209,7 +218,8 @@ export class LayoutManager {
     return {
       width: viewportWidth,
       height: y,
-      layout: result,
+      images: result,
+      rows,
       cause
     }
   }

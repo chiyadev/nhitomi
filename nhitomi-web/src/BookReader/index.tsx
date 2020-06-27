@@ -45,8 +45,16 @@ export const BookReader = ({ id, contentId }: { id: string, contentId: string })
 export const BookReaderLink = ({ id, contentId, ...props }: PrefetchLinkProps & { id: string, contentId: string }) =>
   <PrefetchLink fetch={getBookReaderPrefetch(id, contentId)} {...props} />
 
+type CurrentRow = {
+  induced: number
+  passive: number
+}
+
 export const BookReaderContext = createContext<{
   fetch: FetchManager
+
+  currentRow: CurrentRow
+  setCurrentRow: (page: CurrentRow) => void
 }>(undefined as any)
 
 const Loaded = ({ book, content }: Fetched) => {
@@ -57,7 +65,10 @@ const Loaded = ({ book, content }: Fetched) => {
   const { alert } = useContext(NotificationContext)
 
   const [cursorHidden, setCursorHidden] = useState(false)
-  const [currentPage, setCurrentPage] = useState(0)
+  const [currentRow, setCurrentRow] = useState<CurrentRow>({ induced: 0, passive: 0 })
+
+  // hide cursor when current row changes
+  useLayoutEffect(() => setCursorHidden(true), [currentRow])
 
   const [fetched, setFetched] = useState<(FetchImage | undefined)[]>([])
   const fetch = useMemo(() => new FetchManager(client, book, content, 5, setFetched), []) // eslint-disable-line
@@ -84,10 +95,12 @@ const Loaded = ({ book, content }: Fetched) => {
     }
   }, [mobile, breakpoint]) // eslint-disable-line
 
-  // hide cursor when current page changes
-  useLayoutEffect(() => setCursorHidden(true), [currentPage])
-
   // key handling
+  useShortcut('firstPageKey', () => setCurrentRow({ ...currentRow, induced: 0 }))
+  useShortcut('lastPageKey', () => setCurrentRow({ ...currentRow, induced: fetched.length - 1 }))
+  useShortcut('previousPageKey', () => setCurrentRow({ ...currentRow, induced: currentRow.passive - 1 }))
+  useShortcut('nextPageKey', () => setCurrentRow({ ...currentRow, induced: currentRow.passive + 1 }))
+
   useShortcut('bookReaderImagesPerRowKey', () => {
     const value = imagesPerRow === 1 ? 2 : 1
     setImagesPerRow(value)
@@ -120,9 +133,13 @@ const Loaded = ({ book, content }: Fetched) => {
       style={{ cursor: cursorHidden ? 'none' : undefined }}>
 
       <BookReaderContext.Provider value={useMemo(() => ({
-        fetch
+        fetch,
+        currentRow,
+        setCurrentRow
       }), [
-        fetch
+        fetch,
+        currentRow,
+        setCurrentRow
       ])}>
         <LayoutRenderer book={book} content={content} fetched={fetched} />
       </BookReaderContext.Provider>

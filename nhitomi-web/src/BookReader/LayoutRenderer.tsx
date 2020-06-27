@@ -12,6 +12,7 @@ import { ReloadOutlined } from '@ant-design/icons'
 import { useConfig } from '../Client/config'
 import { ScrollPreserver } from './ScrollPreserver'
 import { BookReaderContext } from '.'
+import { ScrollManager } from './ScrollManager'
 
 export const LayoutRenderer = ({ book, content, fetched }: {
   book: Book
@@ -20,7 +21,7 @@ export const LayoutRenderer = ({ book, content, fetched }: {
 }) => {
   useScrollShortcut()
 
-  const manager = useMemo(() => new LayoutManager(book, content), [book, content])
+  const layout = useMemo(() => new LayoutManager(book, content), [book, content])
 
   const { width: viewportWidth, height: viewportHeight } = useContext(LayoutContext)
   const [imagesPerRow] = useConfig('bookReaderImagesPerRow')
@@ -28,7 +29,7 @@ export const LayoutRenderer = ({ book, content, fetched }: {
   const [leftToRight] = useConfig('bookReaderLeftToRight')
   const [singleCover] = useConfig('bookReaderSingleCover')
 
-  const result = useMemo(() => manager.recalculate(fetched, {
+  const result = useMemo(() => layout.recalculate(fetched, {
     viewportWidth,
     viewportHeight,
     viewportBound,
@@ -36,7 +37,7 @@ export const LayoutRenderer = ({ book, content, fetched }: {
     itemsPerRow: imagesPerRow,
     initialRowLimit: singleCover ? 1 : imagesPerRow
   }), [
-    manager,
+    layout,
     fetched,
     viewportWidth,
     viewportHeight,
@@ -46,7 +47,7 @@ export const LayoutRenderer = ({ book, content, fetched }: {
     singleCover
   ])
 
-  const { width, height, layout } = result
+  const { width, height, images } = result
 
   const ref = useRef<HTMLDivElement>(null)
 
@@ -56,9 +57,10 @@ export const LayoutRenderer = ({ book, content, fetched }: {
     height
   }}>
     <ScrollPreserver containerRef={ref} layout={result} />
+    <ScrollManager containerRef={ref} layout={result} />
 
-    <LayoutManagerContext.Provider value={manager}>
-      {useMemo(() => layout.map((image, i) => <Image key={i} layoutImage={image} />), [layout])}
+    <LayoutManagerContext.Provider value={layout}>
+      {useMemo(() => images.map((image, i) => <Image key={i} layoutImage={image} />), [images])}
     </LayoutManagerContext.Provider>
   </div>
 }
@@ -81,9 +83,7 @@ const Image = ({ layoutImage }: { layoutImage: LayoutImage }) => useMemo(() => {
     return <ErrorDisplay image={image} style={style} error={image.done} />
 
   return <Spinner style={style} />
-}, [
-  layoutImage
-])
+}, [layoutImage])
 
 const ErrorDisplay = ({ image, style, error }: { image: FetchImage, style: CSSProperties, error: Error }) => {
   const [visible, setVisible] = useState(false)
