@@ -53,8 +53,6 @@
       "imagesPerRow": "Switched to {value, plural, =1 {single} =2 {double} other {{value}}} page mode.",
       "viewportBound": "Pages are bound to window height.",
       "viewportUnbound": "Pages are unbound from window height.",
-      "snappingEnabled": "Scroll snapping is enabled.",
-      "snappingDisabled": "Scroll snapping is disabled.",
       "leftToRight": "Pages are ordered left to right.",
       "rightToLeft": "Pages are ordered right to left.",
       "singleCoverEnabled": "Cover page is displayed separately.",

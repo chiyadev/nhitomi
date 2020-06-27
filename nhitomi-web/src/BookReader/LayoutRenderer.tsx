@@ -26,7 +26,6 @@ export const LayoutRenderer = ({ book, content, fetched }: {
   const [viewportBound] = useConfig('bookReaderViewportBound')
   const [leftToRight] = useConfig('bookReaderLeftToRight')
   const [singleCover] = useConfig('bookReaderSingleCover')
-  // const [snapping] = useConfig('bookReaderSnapping')
 
   const result = useMemo(() => manager.recalculate(fetched, {
     viewportWidth,

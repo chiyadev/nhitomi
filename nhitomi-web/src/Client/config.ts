@@ -39,13 +39,11 @@ interface IStore {
   bookReaderLeftToRight: boolean
   bookReaderImagesPerRow: number
   bookReaderSingleCover: boolean
-  bookReaderSnapping: boolean
 
   bookReaderViewportBoundKey: ShortcutConfig
   bookReaderLeftToRightKey: ShortcutConfig
   bookReaderImagesPerRowKey: ShortcutConfig
   bookReaderSingleCoverKey: ShortcutConfig
-  bookReaderSnappingKey: ShortcutConfig
 
   // ocr
   ocrVisualization: boolean
@@ -70,13 +68,11 @@ const DefaultStore: IStore = {
   bookReaderLeftToRight: false,
   bookReaderImagesPerRow: 2,
   bookReaderSingleCover: true,
-  bookReaderSnapping: false,
 
   bookReaderViewportBoundKey: { keys: [67] }, // c
   bookReaderLeftToRightKey: { keys: [76] },   // l
   bookReaderImagesPerRowKey: { keys: [88] },  // x
   bookReaderSingleCoverKey: { keys: [75] },   // k
-  bookReaderSnappingKey: { keys: [77] },      // m
 
   ocrVisualization: true
 }
@@ -107,13 +103,11 @@ export class ConfigManager extends (EventEmitter as new () => StrictEventEmitter
   bookReaderLeftToRight!: boolean
   bookReaderImagesPerRow!: number
   bookReaderSingleCover!: boolean
-  bookReaderSnapping!: boolean
 
   bookReaderViewportBoundKey!: ShortcutConfig
   bookReaderLeftToRightKey!: ShortcutConfig
   bookReaderImagesPerRowKey!: ShortcutConfig
   bookReaderSingleCoverKey!: ShortcutConfig
-  bookReaderSnappingKey!: ShortcutConfig
 
   ocrVisualization!: boolean
 

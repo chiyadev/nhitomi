@@ -68,18 +68,15 @@ const Loaded = ({ book, content }: Fetched) => {
   const [viewportBound, setViewportBound] = useConfig('bookReaderViewportBound')
   const [leftToRight, setLeftToRight] = useConfig('bookReaderLeftToRight')
   const [singleCover, setSingleCover] = useConfig('bookReaderSingleCover')
-  const [snapping, setSnapping] = useConfig('bookReaderSnapping')
 
   useLayoutEffect(() => {
     if (mobile) {
       setImagesPerRow(1)
       setViewportBound(false)
-      setSnapping(true)
     }
     else {
       setImagesPerRow(2)
       setViewportBound(!breakpoint)
-      setSnapping(false)
     }
   }, [mobile, breakpoint]) // eslint-disable-line
 
@@ -97,12 +94,6 @@ const Loaded = ({ book, content }: Fetched) => {
     const value = !viewportBound
     setViewportBound(value)
     alert.info(<FormattedMessage id={`bookReader.alerts.viewport${value ? 'Bound' : 'Unbound'}`} />)
-  })
-
-  useShortcut('bookReaderSnappingKey', () => {
-    const value = !snapping
-    setSnapping(value)
-    alert.info(<FormattedMessage id={`bookReader.alerts.snapping${value ? 'Enabled' : 'Disabled'}`} />)
   })
 
   useShortcut('bookReaderLeftToRightKey', () => {

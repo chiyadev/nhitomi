@@ -53,8 +53,6 @@
       "imagesPerRow": "{value, plural, =1 {シングル} =2 {ダブル} other {{value}}}ページモードに変更しました。",
       "viewportBound": "ページを画面サイズに固定しました。",
       "viewportUnbound": "もうページを画面サイズに固定しません。",
-      "snappingEnabled": "スクロールスナップを点けました。",
-      "snappingDisabled": "スクロールスナップを消しました。",
       "leftToRight": "ページを左から読みます。",
       "rightToLeft": "ページを右から読みます。",
       "singleCoverEnabled": "初ページを別に表示します。",
