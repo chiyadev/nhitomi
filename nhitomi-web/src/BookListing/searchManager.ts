@@ -5,6 +5,10 @@ import StrictEventEmitter from 'strict-event-emitter-types'
 
 export type SearchQuery = {
   language: LanguageType
+  sort: {
+    value: BookSort
+    direction: SortDirection
+  }
   sources: ScraperType[]
 } & ({
   type: 'simple'
@@ -32,6 +36,7 @@ export type SearchResult = {
 
 export function serializeQuery(query: SearchQuery): string {
   const language = query.language.split('-')[0] || 'en'
+  const sort = `${query.sort.direction.substring(0, 3)}:${query.sort.value}`
   const sources = query.sources?.length ? query.sources.join(',') : undefined
 
   switch (query.type) {
@@ -40,6 +45,7 @@ export function serializeQuery(query: SearchQuery): string {
         t: 't',
         l: language,
         s: sources,
+        u: sort,
         q: query.items.map(v => `${v.type}:${v.value}`).join(',') || undefined
       })
 
@@ -48,27 +54,31 @@ export function serializeQuery(query: SearchQuery): string {
         t: 's',
         l: language,
         s: sources,
+        u: sort,
         q: query.value || undefined
       })
   }
 }
 
 export function deserializeQuery(query: string): SearchQuery {
-  const { t, l, s, q } = qs.parse(query, { ignoreQueryPrefix: true }) as {
+  const { t, l, u, s, q } = qs.parse(query, { ignoreQueryPrefix: true }) as {
     t?: string
     l?: string
     s?: string
+    u?: string
     q?: string
   }
 
   const language = Object.values(LanguageType).find(v => v.split('-')[0] === l) || LanguageType.EnUS
-  const sources = Object.values(ScraperType).filter(t => (s || '').split(',').indexOf(t) !== -1)
+  const sort = { value: (u && Object.values(BookSort).find(v => v === u.split(':')[1])) || BookSort.UpdatedTime, direction: (u && Object.values(SortDirection).find(v => v.startsWith(u.split(':')[0]))) || SortDirection.Descending }
+  const sources = Object.values(ScraperType).filter(v => (s || '').split(',').indexOf(v) !== -1)
 
   switch (t) {
     case 't':
       return {
         type: 'tag',
         language,
+        sort,
         sources,
         items: q?.split(',').map(v => {
           const delimiter = v.indexOf(':')
@@ -87,6 +97,7 @@ export function deserializeQuery(query: string): SearchQuery {
       return {
         type: 'simple',
         language,
+        sort,
         sources,
         value: q || ''
       }
@@ -94,7 +105,8 @@ export function deserializeQuery(query: string): SearchQuery {
 
   return {
     type: 'tag',
-    language: LanguageType.EnUS,
+    language,
+    sort,
     sources,
     items: []
   }
@@ -122,10 +134,7 @@ export function convertQuery(query: SearchQuery, offset?: number): BookQuery {
     }, {} as BookQueryTags),
     offset,
     limit: 50,
-    sorting: [{
-      value: BookSort.UpdatedTime,
-      direction: SortDirection.Descending
-    }]
+    sorting: [query.sort]
   }
 }
 
@@ -165,6 +174,10 @@ export class SearchManager extends (EventEmitter as new () => StrictEventEmitter
 
     this._query = {
       language: LanguageType.EnUS,
+      sort: {
+        value: BookSort.UpdatedTime,
+        direction: SortDirection.Descending
+      },
       sources: [],
       type: 'tag',
       items: []

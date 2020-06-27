@@ -1,8 +1,8 @@
-import { Select, Typography, Input, Menu, Dropdown, Button, Checkbox } from 'antd'
+import { Select, Typography, Input, Menu, Dropdown, Button, Checkbox, Tooltip } from 'antd'
 import { SelectProps } from 'antd/lib/select'
 import React, { useContext, useState, useMemo, CSSProperties, useLayoutEffect, useRef } from 'react'
 import { useAsync } from 'react-use'
-import { BookTag, BookSuggestResultTags, LanguageType, ScraperCategory } from '../Client'
+import { BookTag, BookSuggestResultTags, LanguageType, ScraperCategory, BookSort, SortDirection } from '../Client'
 import { ClientContext } from '../ClientContext'
 import { TagColors, TagDisplay, TagLabels } from '../Tags'
 import { BookListingContext } from '.'
@@ -10,7 +10,7 @@ import { useUpdateOnEvent } from '../hooks'
 import { FormattedMessage, useIntl } from 'react-intl'
 import { FlagIcon, FlagIconCode } from 'react-flag-kit'
 import { languageNames } from '../LocaleProvider'
-import { EllipsisOutlined } from '@ant-design/icons'
+import { EllipsisOutlined, SortAscendingOutlined, SortDescendingOutlined } from '@ant-design/icons'
 import { SourceIcon } from '../SourceButton'
 
 export const Search = () => {
@@ -263,6 +263,27 @@ const MoreQueries = () => {
     return <Menu.ItemGroup title={<FormattedMessage id='bookListing.search.more.languages' />} children={items} />
   }, [manager.query, langsExpanded])
 
+  const sorting = useMemo(() => (
+    <Menu.ItemGroup title={<>
+      <FormattedMessage id='bookListing.search.more.sorting' />
+      {' '}
+      <Tooltip title={<FormattedMessage id={`sortDirections.${manager.query.sort.direction}`} />}>
+        {manager.query.sort.direction === SortDirection.Ascending
+          ? <SortAscendingOutlined onClick={() => manager.query = { ...manager.query, sort: { ...manager.query.sort, direction: SortDirection.Descending } }} />
+          : <SortDescendingOutlined onClick={() => manager.query = { ...manager.query, sort: { ...manager.query.sort, direction: SortDirection.Ascending } }} />}
+      </Tooltip>
+    </>}>
+      {Object.values(BookSort).map(sort => (
+        <Menu.Item
+          key={sort}
+          onClick={() => manager.query = { ...manager.query, sort: { ...manager.query.sort, value: sort } }}>
+
+          <FormattedMessage id={`bookSorts.${sort}`} />
+        </Menu.Item>
+      ))}
+    </Menu.ItemGroup>
+  ), [manager.query])
+
   const sources = useMemo(() => (
     <Menu.ItemGroup title={<FormattedMessage id='bookListing.search.more.sources' />}>
       {client.currentInfo.scrapers.filter(s => s.category === ScraperCategory.Book).map(({ type, name }) => (
@@ -292,10 +313,11 @@ const MoreQueries = () => {
       placement='bottomRight'
       overlay={(
         <Menu
-          selectedKeys={[manager.query.language]}
+          selectedKeys={[manager.query.language, manager.query.sort.value]}
           onClick={e => e.domEvent.preventDefault()}>
 
           {languages}
+          {sorting}
           {sources}
         </Menu>
       )}>

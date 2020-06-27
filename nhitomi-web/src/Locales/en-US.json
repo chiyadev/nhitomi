@@ -39,6 +39,7 @@
       "otherTag": "Other",
       "more": {
         "languages": "Languages",
+        "sorting": "Sorting",
         "sources": "Sources"
       }
     }
@@ -59,6 +60,10 @@
       "singleCoverEnabled": "Cover page is displayed separately.",
       "singleCoverDisabled": "Cover page is grouped with other pages."
     }
+  },
+  "sortDirections": {
+    "ascending": "Ascending",
+    "descending": "Descending"
   },
   "bookTags": {
     "artist": "Artist",
@@ -83,6 +88,14 @@
       "gameCg": "Images extracted from erotic games (\"eroge\").",
       "lightNovel": "High-quality scanned images of light novels."
     }
+  },
+  "bookSorts": {
+    "relevance": "Relevance",
+    "createdTime": "Uploaded time",
+    "updatedTime": "Updated time",
+    "pageCount": "Page count",
+    "noteCount": "Note count",
+    "tagCount": "Tag count"
   },
   "materialRatings": {
     "safe": "Safe",

@@ -39,6 +39,7 @@
       "otherTag": "その他",
       "more": {
         "languages": "言語",
+        "sorting": "並べ替え",
         "sources": "サイト"
       }
     }
@@ -60,6 +61,10 @@
       "singleCoverDisabled": "初ページを別に表示しません。"
     }
   },
+  "sortDirections": {
+    "ascending": "昇順",
+    "descending": "降順"
+  },
   "bookTags": {
     "artist": "アーティスト",
     "parody": "パロディ",
@@ -76,6 +81,14 @@
     "artistCg": "アーティストCG",
     "gameCg": "ゲームCG",
     "lightNovel": "ライトノベル"
+  },
+  "bookSorts": {
+    "relevance": "関連性",
+    "createdTime": "アップロード時間",
+    "updatedTime": "更新時間",
+    "pageCount": "ページ数",
+    "noteCount": "ノート数",
+    "tagCount": "タグ数"
   },
   "materialRatings": {
     "explicit": "成人向け",
