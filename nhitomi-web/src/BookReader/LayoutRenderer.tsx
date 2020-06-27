@@ -1,10 +1,10 @@
 import { FetchImage } from './fetchManager'
-import { useMemo, useContext, CSSProperties, useState, useRef } from 'react'
+import { useMemo, useContext, CSSProperties, useState, useRef, ReactElement } from 'react'
 import { LayoutManager, LayoutImage, LayoutManagerContext } from './layoutManager'
 import { Book, BookContent } from '../Client'
 import React from 'react'
 import { LayoutContext } from '../LayoutContext'
-import { useScrollShortcut } from '../shortcuts'
+import { useScrollShortcut, useShortcutPress } from '../shortcuts'
 import ReactVisibilitySensor from 'react-visibility-sensor'
 import { Alert, Typography, Button, Spin } from 'antd'
 import { FormattedMessage } from 'react-intl'
@@ -60,30 +60,61 @@ export const LayoutRenderer = ({ book, content, fetched }: {
     <ScrollManager containerRef={ref} layout={result} />
 
     <LayoutManagerContext.Provider value={layout}>
-      {useMemo(() => images.map((image, i) => <Image key={i} layoutImage={image} />), [images])}
+      {useMemo(() => images.map((image, i) => <Image key={i} index={i} layoutImage={image} />), [images])}
     </LayoutManagerContext.Provider>
   </div>
 }
 
-const Image = ({ layoutImage }: { layoutImage: LayoutImage }) => useMemo(() => {
-  const { image, x, y, width, height } = layoutImage
+const Image = ({ index, layoutImage }: {
+  index: number
+  layoutImage: LayoutImage
+}) => {
+  const [showNumber] = useShortcutPress('bookReaderPageNumberKey')
 
-  const style: CSSProperties = {
-    position: 'absolute',
-    left: x,
-    top: y,
-    width,
-    height
-  }
+  return useMemo(() => {
+    const { image, x, y, width, height } = layoutImage
 
-  if (image?.done === true)
-    return <img src={image.data} alt={image.data} style={style} />
+    const style: CSSProperties = {
+      position: 'absolute',
+      left: x,
+      top: y,
+      width,
+      height
+    }
 
-  if (image?.done instanceof Error)
-    return <ErrorDisplay image={image} style={style} error={image.done} />
+    let content: ReactElement
 
-  return <Spinner style={style} />
-}, [layoutImage])
+    if (image?.done === true)
+      content = <img src={image.data} alt={image.data} style={style} />
+
+    else if (image?.done instanceof Error)
+      content = <ErrorDisplay image={image} style={style} error={image.done} />
+
+    else
+      content = <Spinner style={style} />
+
+    if (showNumber) content = <>
+      {content}
+
+      <div style={{
+        ...style,
+        backgroundColor: 'black',
+        opacity: 0.5
+      }}>
+        <div style={{
+          position: 'absolute',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)'
+        }}>
+          <strong style={{ fontSize: '6em' }}>{index + 1}</strong>
+        </div>
+      </div>
+    </>
+
+    return content
+  }, [index, layoutImage, showNumber])
+}
 
 const ErrorDisplay = ({ image, style, error }: { image: FetchImage, style: CSSProperties, error: Error }) => {
   const [visible, setVisible] = useState(false)
