@@ -1,12 +1,17 @@
-import { PageHeader } from 'antd'
-import React from 'react'
+import { PageHeader, Button, Tooltip } from 'antd'
+import React, { useContext } from 'react'
 import { useHistory } from 'react-router-dom'
-import { BookReaderLink } from '.'
+import { BookReaderLink, BookReaderContext } from '.'
 import { BookListingLink } from '../BookListing'
-import { Book, BookContent } from '../Client'
+import { EllipsisOutlined } from '@ant-design/icons'
+import { useShortcutKeyName } from '../shortcuts'
+import { FormattedMessage } from 'react-intl'
 
-export const Header = ({ book, content }: { book: Book, content: BookContent }) => {
+export const Header = () => {
+  const { book, content, setMenu } = useContext(BookReaderContext)
   const { goBack } = useHistory()
+
+  const menuKey = useShortcutKeyName('bookReaderMenuKey')
 
   return <PageHeader
     onBack={goBack}
@@ -26,5 +31,20 @@ export const Header = ({ book, content }: { book: Book, content: BookContent }) 
           case 'book': return <BookReaderLink id={book.id} contentId={content.id}>{breadcrumbName}</BookReaderLink>
         }
       }
-    }} />
+    }}
+    extra={[
+      <Tooltip
+        title={<FormattedMessage id='bookReader.menu.pressToOpen' values={{ key: menuKey }} />}
+        placement='left'
+        mouseEnterDelay={0.5}>
+
+        <Button
+          shape='circle'
+          type='text'
+          onClick={() => setMenu(true)}>
+
+          <EllipsisOutlined style={{ fontSize: 20 }} />
+        </Button>
+      </Tooltip>
+    ]} />
 }

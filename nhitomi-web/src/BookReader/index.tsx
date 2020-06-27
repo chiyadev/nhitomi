@@ -11,6 +11,7 @@ import { LayoutRenderer } from './LayoutRenderer'
 import { useConfig } from '../Client/config'
 import { useShortcut } from '../shortcuts'
 import { FormattedMessage } from 'react-intl'
+import { Menu } from './Menu'
 
 type Fetched = {
   book: Book
@@ -51,10 +52,15 @@ type CurrentRow = {
 }
 
 export const BookReaderContext = createContext<{
+  book: Book
+  content: BookContent
   fetch: FetchManager
 
   currentRow: CurrentRow
   setCurrentRow: (page: CurrentRow) => void
+
+  menu: boolean
+  setMenu: (menu: boolean) => void
 }>(undefined as any)
 
 const Loaded = ({ book, content }: Fetched) => {
@@ -66,6 +72,7 @@ const Loaded = ({ book, content }: Fetched) => {
 
   const [cursorHidden, setCursorHidden] = useState(false)
   const [currentRow, setCurrentRow] = useState<CurrentRow>({ induced: 0, passive: 0 })
+  const [menu, setMenu] = useState(false)
 
   // hide cursor when current row changes
   useLayoutEffect(() => setCursorHidden(true), [currentRow])
@@ -125,24 +132,33 @@ const Loaded = ({ book, content }: Fetched) => {
     alert.info(<FormattedMessage id={`bookReader.alerts.singleCover${value ? 'Enabled' : 'Disabled'}`} />)
   })
 
-  return <>
-    <Header book={book} content={content} />
+  return (
+    <BookReaderContext.Provider value={useMemo(() => ({
+      book,
+      content,
+      fetch,
+      currentRow,
+      setCurrentRow,
+      menu,
+      setMenu
+    }), [
+      book,
+      content,
+      fetch,
+      currentRow,
+      setCurrentRow,
+      menu,
+      setMenu
+    ])}>
+      <Header />
+      <Menu />
 
-    <div
-      onMouseMove={() => { cursorHidden && setCursorHidden(false) }}
-      style={{ cursor: cursorHidden ? 'none' : undefined }}>
+      <div
+        onMouseMove={() => { cursorHidden && setCursorHidden(false) }}
+        style={{ cursor: cursorHidden ? 'none' : undefined }}>
 
-      <BookReaderContext.Provider value={useMemo(() => ({
-        fetch,
-        currentRow,
-        setCurrentRow
-      }), [
-        fetch,
-        currentRow,
-        setCurrentRow
-      ])}>
-        <LayoutRenderer book={book} content={content} fetched={fetched} />
-      </BookReaderContext.Provider>
-    </div>
-  </>
+        <LayoutRenderer fetched={fetched} />
+      </div>
+    </BookReaderContext.Provider>
+  )
 }

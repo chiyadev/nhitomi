@@ -57,6 +57,9 @@
       "rightToLeft": "ページを右から読みます。",
       "singleCoverEnabled": "初ページを別に表示します。",
       "singleCoverDisabled": "初ページを別に表示しません。"
+    },
+    "menu": {
+      "pressToOpen": "''{key}''キーでメニューを開く。"
     }
   },
   "sortDirections": {

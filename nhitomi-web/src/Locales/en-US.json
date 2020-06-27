@@ -57,6 +57,9 @@
       "rightToLeft": "Pages are ordered right to left.",
       "singleCoverEnabled": "Cover page is displayed separately.",
       "singleCoverDisabled": "Cover page is grouped with other pages."
+    },
+    "menu": {
+      "pressToOpen": "Press ''{key}'' to open menu."
     }
   },
   "sortDirections": {

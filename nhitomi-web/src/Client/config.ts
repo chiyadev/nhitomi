@@ -45,6 +45,7 @@ interface IStore {
   bookReaderImagesPerRowKey: ShortcutConfig
   bookReaderSingleCoverKey: ShortcutConfig
   bookReaderPageNumberKey: ShortcutConfig
+  bookReaderMenuKey: ShortcutConfig
 
   // ocr
   ocrVisualization: boolean
@@ -75,6 +76,7 @@ const DefaultStore: IStore = {
   bookReaderImagesPerRowKey: { keys: [88] },  // x
   bookReaderSingleCoverKey: { keys: [75] },   // k
   bookReaderPageNumberKey: { keys: [32] },    // space
+  bookReaderMenuKey: { keys: [69] },          // e
 
   ocrVisualization: true
 }
@@ -111,6 +113,7 @@ export class ConfigManager extends (EventEmitter as new () => StrictEventEmitter
   bookReaderLeftToRightKey!: ShortcutConfig
   bookReaderImagesPerRowKey!: ShortcutConfig
   bookReaderSingleCoverKey!: ShortcutConfig
+  bookReaderMenuKey!: ShortcutConfig
 
   ocrVisualization!: boolean
 
