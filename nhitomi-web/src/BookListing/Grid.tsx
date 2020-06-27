@@ -85,7 +85,7 @@ const FurtherLoader = () => {
     return null
   }
 
-  return <VisibilitySensor partialVisibility offset={{ top: -height / 2 }} onChange={async value => {
+  return <VisibilitySensor intervalCheck scrollCheck resizeCheck partialVisibility offset={{ bottom: -height }} onChange={async value => {
     const beginLoad = !loading.current && value
 
     loading.current = value
@@ -94,8 +94,10 @@ const FurtherLoader = () => {
       return
 
     try {
-      while (loading.current)
+      while (loading.current) {
         await manager.further()
+        await new Promise(r => setTimeout(r)) // visibility sensor would move, so we wait for loading.current to update
+      }
     }
     finally {
       loading.current = false
