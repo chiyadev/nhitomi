@@ -1,11 +1,11 @@
-import React, { useContext, useLayoutEffect, useState, useMemo } from 'react'
+import React, { useContext, useLayoutEffect, useState, useMemo, createContext } from 'react'
 import { Book, BookContent } from '../Client'
 import { useTabTitle } from '../hooks'
 import { Prefetch, PrefetchLink, PrefetchLinkProps, usePrefetch } from '../Prefetch'
 import { Header } from './Header'
 import { LayoutContext } from '../LayoutContext'
 import { NotificationContext } from '../NotificationContext'
-import { FetchManager, FetchImage, FetchManagerContext } from './fetchManager'
+import { FetchManager, FetchImage } from './fetchManager'
 import { ClientContext } from '../ClientContext'
 import { LayoutRenderer } from './LayoutRenderer'
 import { useConfig } from '../Client/config'
@@ -45,6 +45,10 @@ export const BookReader = ({ id, contentId }: { id: string, contentId: string })
 export const BookReaderLink = ({ id, contentId, ...props }: PrefetchLinkProps & { id: string, contentId: string }) =>
   <PrefetchLink fetch={getBookReaderPrefetch(id, contentId)} {...props} />
 
+export const BookReaderContext = createContext<{
+  fetch: FetchManager
+}>(undefined as any)
+
 const Loaded = ({ book, content }: Fetched) => {
   useTabTitle(book.primaryName)
 
@@ -63,12 +67,12 @@ const Loaded = ({ book, content }: Fetched) => {
     return () => fetch.destroy()
   }, [fetch])
 
-  // automatically adjust layout for mobile
   const [imagesPerRow, setImagesPerRow] = useConfig('bookReaderImagesPerRow')
   const [viewportBound, setViewportBound] = useConfig('bookReaderViewportBound')
   const [leftToRight, setLeftToRight] = useConfig('bookReaderLeftToRight')
   const [singleCover, setSingleCover] = useConfig('bookReaderSingleCover')
 
+  // automatically adjust layout for mobile
   useLayoutEffect(() => {
     if (mobile) {
       setImagesPerRow(1)
@@ -113,13 +117,15 @@ const Loaded = ({ book, content }: Fetched) => {
 
     <div
       onMouseMove={() => { cursorHidden && setCursorHidden(false) }}
-      style={{
-        cursor: cursorHidden ? 'none' : undefined
-      }}>
+      style={{ cursor: cursorHidden ? 'none' : undefined }}>
 
-      <FetchManagerContext.Provider value={fetch}>
+      <BookReaderContext.Provider value={useMemo(() => ({
+        fetch
+      }), [
+        fetch
+      ])}>
         <LayoutRenderer book={book} content={content} fetched={fetched} />
-      </FetchManagerContext.Provider>
+      </BookReaderContext.Provider>
     </div>
   </>
 }

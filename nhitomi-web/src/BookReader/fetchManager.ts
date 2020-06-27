@@ -1,7 +1,4 @@
 import { BookContent, Client, Book } from '../Client'
-import { createContext } from 'react'
-
-export const FetchManagerContext = createContext<FetchManager>(undefined as any)
 
 export type FetchImage =
   { index: number } & (

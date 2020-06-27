@@ -1,4 +1,4 @@
-import { FetchImage, FetchManagerContext } from './fetchManager'
+import { FetchImage } from './fetchManager'
 import { useMemo, useContext, CSSProperties, useState, useRef } from 'react'
 import { LayoutManager, LayoutImage, LayoutManagerContext } from './layoutManager'
 import { Book, BookContent } from '../Client'
@@ -11,6 +11,7 @@ import { FormattedMessage } from 'react-intl'
 import { ReloadOutlined } from '@ant-design/icons'
 import { useConfig } from '../Client/config'
 import { ScrollPreserver } from './ScrollPreserver'
+import { BookReaderContext } from '.'
 
 export const LayoutRenderer = ({ book, content, fetched }: {
   book: Book
@@ -86,7 +87,7 @@ const Image = ({ layoutImage }: { layoutImage: LayoutImage }) => useMemo(() => {
 
 const ErrorDisplay = ({ image, style, error }: { image: FetchImage, style: CSSProperties, error: Error }) => {
   const [visible, setVisible] = useState(false)
-  const fetch = useContext(FetchManagerContext)
+  const { fetch } = useContext(BookReaderContext)
 
   return <ReactVisibilitySensor onChange={setVisible} partialVisibility>
     <div style={style}>
