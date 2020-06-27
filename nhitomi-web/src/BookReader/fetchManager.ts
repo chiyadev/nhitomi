@@ -85,17 +85,17 @@ export class FetchManager {
             return
 
           done = {
+            ...item,
             done: true,
             data: URL.createObjectURL(blob),
             width,
-            height,
-            ...item
+            height
           }
         }
         catch (e) {
           done = {
-            done: e as Error,
-            ...item
+            ...item,
+            done: e as Error
           }
         }
 
