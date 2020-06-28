@@ -80,7 +80,10 @@ export type ShortcutConfig = {
   modifiers?: ModifierKey[]
 }
 
-const StoreKeys = Object.keys(DefaultStore) as (keyof ConfigStore)[]
+export type ShortcutConfigKey = { [key in keyof ConfigStore]: ConfigStore[key] extends ShortcutConfig[] ? key : never }[keyof ConfigStore]
+
+export const ConfigKeys = Object.keys(DefaultStore) as (keyof ConfigStore)[]
+export const ShortcutConfigKeys = ConfigKeys.filter(k => k.indexOf('Key') !== -1) as ShortcutConfigKey[]
 
 export class ConfigManager extends (EventEmitter as new () => StrictEventEmitter<EventEmitter, { [key in keyof ConfigStore]: (value: ConfigStore[key]) => void }>) implements ConfigStore {
   token!: string | undefined
@@ -119,7 +122,7 @@ export class ConfigManager extends (EventEmitter as new () => StrictEventEmitter
     })
 
     // add getter and setter properties
-    for (const key of StoreKeys) {
+    for (const key of ConfigKeys) {
       Object.defineProperty(this, key, {
         get: () => this.get(key),
         set: v => this.set(key, v)
@@ -145,14 +148,14 @@ export class ConfigManager extends (EventEmitter as new () => StrictEventEmitter
   }
 
   async import(data: ConfigStore) {
-    for (const key of StoreKeys)
+    for (const key of ConfigKeys)
       this.set(key, data[key] as any)
   }
 
   export() {
     const data = { ...DefaultStore } as any
 
-    for (const key of StoreKeys)
+    for (const key of ConfigKeys)
       data[key] = this.get(key)
 
     return data as ConfigStore

@@ -1,6 +1,6 @@
 import { useContext, useRef, useEffect } from 'react'
 import { useKey, useKeyPress, useRafLoop } from 'react-use'
-import { ShortcutConfig, ConfigStore, useConfig, ModifierKey } from './Client/config'
+import { ShortcutConfig, useConfig, ModifierKey, ShortcutConfigKey } from './Client/config'
 import { LayoutContext } from './LayoutContext'
 import keycode from 'keycode'
 
@@ -46,17 +46,15 @@ function matchShortcut(shortcuts: ShortcutConfig[], event: KeyboardEvent) {
   return false
 }
 
-export type ShortcutConfigKeys = { [key in keyof ConfigStore]: ConfigStore[key] extends ShortcutConfig[] ? key : never }[keyof ConfigStore]
-
 /** Callback when a configured key is pressed. */
-export function useShortcut(key: ShortcutConfigKeys, callback: (event: KeyboardEvent) => void) {
+export function useShortcut(key: ShortcutConfigKey, callback: (event: KeyboardEvent) => void) {
   const [shortcuts] = useConfig(key)
 
   useKey(e => matchShortcut(shortcuts, e), callback)
 }
 
 /** Keyboard state when of a configured key. */
-export function useShortcutPress(key: ShortcutConfigKeys) {
+export function useShortcutPress(key: ShortcutConfigKey) {
   const [shortcuts] = useConfig(key)
 
   return useKeyPress(e => matchShortcut(shortcuts, e))
@@ -92,7 +90,7 @@ export function useScrollShortcut() {
 }
 
 /** Returns the key name of a shortcut key. */
-export function useShortcutKeyName(key: ShortcutConfigKeys) {
+export function useShortcutKeyName(key: ShortcutConfigKey) {
   const [shortcuts] = useConfig(key)
 
   return keycode(shortcuts[0].key)
