@@ -1,4 +1,4 @@
-import { useContext } from 'react'
+import { useContext, useLayoutEffect } from 'react'
 import { BookReaderContext } from '.'
 import React from 'react'
 import { Drawer, Collapse, Descriptions, Tabs, Radio } from 'antd'
@@ -19,6 +19,9 @@ export const Menu = () => {
   const { width } = useContext(LayoutContext)
 
   useShortcut('bookReaderMenuKey', () => setMenu(true))
+
+  // manually lose focus after drawer close
+  useLayoutEffect(() => { if (!menu) (document.activeElement as HTMLElement)?.blur() }, [menu])
 
   return (
     <Drawer
