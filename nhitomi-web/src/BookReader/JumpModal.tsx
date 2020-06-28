@@ -35,6 +35,8 @@ export const JumpModal = () => {
           style={{ flex: 1 }}
           size='large'
           defaultValue={currentPage.pagePassive + 1}
+          min={1}
+          max={fetch.images.length}
           placeholder={`1 ~ ${fetch.images.length}`}
           onChange={e => {
             if (typeof e === 'number')
