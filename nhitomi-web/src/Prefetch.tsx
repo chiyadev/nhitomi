@@ -1,4 +1,4 @@
-import React, { ComponentProps, Dispatch, useCallback, useContext, useRef, useLayoutEffect } from 'react'
+import React, { ComponentProps, Dispatch, useCallback, useContext, useLayoutEffect, useRef } from 'react'
 import { History } from 'history'
 import { Link, useHistory } from 'react-router-dom'
 import { useAsync, useUpdate } from 'react-use'
@@ -19,6 +19,9 @@ export type Prefetch<T> = {
   /** path to navigate to after prefetch */
   path: string
 
+  /** path to update navigation to after dispatch */
+  getPath?: (fetched: T) => string
+
   /** true to show progress while fetching */
   progress?: boolean
 
@@ -26,46 +29,38 @@ export type Prefetch<T> = {
   scroll?: boolean
 
   /** function to do fetching */
-  func: (client: Client, mode: PrefetchMode, history: History<HistoryLocationState>) => Promise<T>
+  func: (client: Client, mode: PrefetchMode, history: History<HistoryState>) => Promise<T>
 }
 
-type HistoryLocationState = { [key: string]: unknown }
+type HistoryState = { [key: string]: unknown }
 
 /** Similar to useState but backed by history.state. */
-export function usePageState<T>(): [T | undefined, Dispatch<T | undefined>]
-
-/** Similar to useState but backed by history.state. */
-export function usePageState<T>(defaultValue: T): [T, Dispatch<T>]
-
-export function usePageState(defaultValue?: any) {
+export function usePageState<T>(): [T | undefined, Dispatch<T | undefined>] {
   const rerender = useUpdate()
-  const { location: { pathname, search, hash, state }, replace, listen } = useHistory<HistoryLocationState>()
+  const history = useHistory<HistoryState>()
 
-  // rerender on state change
-  useLayoutEffect(() => listen(rerender), [listen, rerender])
+  useLayoutEffect(() => history.listen(rerender), [history, rerender])
 
-  const initialPathname = useRef(pathname)
+  // cache path in closure so that it remains consistent across navigations
+  const path = useRef(history.location.pathname).current
 
-  const value = state || defaultValue
-  const setValue = useCallback((v: any) => replace({ pathname, search, hash, state: v }), [replace, pathname, search, hash])
+  const value = history.location.state?.[path] as T | undefined
+  const setValue = useCallback((v: T | undefined) => history.replace({ ...history.location, state: { ...history.location.state, [path]: v } }), [history, path])
+  const lastValue = useRef(value)
 
-  // ensure path is the same
-  if (initialPathname.current !== pathname)
-    return []
-
-  return [value, setValue]
+  return [lastValue.current = value || lastValue.current, setValue]
 }
 
 /**
  * Fetches if not already fetched.
  * Result can be retrieved directly from the return value or from usePageState.
  */
-export function usePrefetch<T>({ progress = true, scroll = true, func: prefetch }: Prefetch<T>) {
+export function usePrefetch<T>({ getPath, progress = true, scroll = true, func: prefetch }: Prefetch<T>) {
   const client = useContext(ClientContext)
   const { start, stop } = useContext(ProgressContext)
   const { notification } = useContext(NotificationContext)
 
-  const history = useHistory<HistoryLocationState>()
+  const history = useHistory<HistoryState>()
   const [state, setState] = usePageState<T>()
 
   const { error, loading } = useAsync(async () => {
@@ -96,9 +91,19 @@ export function usePrefetch<T>({ progress = true, scroll = true, func: prefetch 
     }
   }, [state])
 
+  const dispatch = useCallback((fetched: T) => {
+    const path = getPath?.(fetched)
+
+    // path recalculation based on state
+    if (path && path !== history.location.pathname)
+      history.replace({ ...history.location, pathname: path })
+
+    setState(fetched)
+  }, [getPath, history, setState])
+
   return {
     result: state,
-    dispatch: setState,
+    dispatch,
     error,
     loading
   }
@@ -113,7 +118,7 @@ export function usePrefetchExecutor() {
   const { start, stop } = useContext(ProgressContext)
   const { notification } = useContext(NotificationContext)
 
-  const history = useHistory<HistoryLocationState>()
+  const history = useHistory<HistoryState>()
 
   return async <T extends {}>({ path, progress = true, scroll = true, func: prefetch }: Prefetch<T>) => {
     if (progress)
@@ -122,7 +127,7 @@ export function usePrefetchExecutor() {
     try {
       const value = await prefetch(client, 'navigate', history)
 
-      history.push(path, value)
+      history.push(path, { [path]: value })
 
       if (scroll)
         window.scrollTo({ top: 0 })
@@ -139,9 +144,9 @@ export function usePrefetchExecutor() {
 
 /** Returns a function that resets the prefetched data for the current page. */
 export function usePrefetchReset() {
-  const { location, replace } = useHistory<HistoryLocationState>()
+  const history = useHistory<HistoryState>()
 
-  return () => replace({ ...location, state: {} })
+  return useCallback(() => history.replace({ ...history.location, state: { ...history.location.state, [history.location.pathname]: undefined } }), [history])
 }
 
 export type PrefetchLinkProps = Omit<ComponentProps<typeof PrefetchLink>, 'fetch'>
