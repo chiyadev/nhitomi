@@ -21,6 +21,7 @@ type Fetched = {
 export function getBookReaderPrefetch(id: string, contentId: string): Prefetch<Fetched> {
   return {
     path: `/books/${id}/contents/${contentId}`,
+    getPath: ({ book, content }) => `/books/${book.id}/contents/${content.id}`,
 
     func: async client => {
       const book = await client.book.getBook({ id })
