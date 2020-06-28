@@ -74,6 +74,9 @@
         "source": "サイト",
         "tags": "タグ"
       },
+      "sources": {
+        "header": "サイト"
+      },
       "keys": {
         "header": "キー設定"
       }

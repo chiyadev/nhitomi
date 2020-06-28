@@ -74,6 +74,9 @@
         "source": "Source",
         "tags": "Tags"
       },
+      "sources": {
+        "header": "Sources"
+      },
       "keys": {
         "header": "Key settings"
       }

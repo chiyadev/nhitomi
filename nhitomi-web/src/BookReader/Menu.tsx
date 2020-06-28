@@ -1,15 +1,20 @@
 import { useContext } from 'react'
 import { BookReaderContext } from '.'
 import React from 'react'
-import { Drawer, Collapse, Descriptions } from 'antd'
+import { Drawer, Collapse, Descriptions, Tabs, Radio } from 'antd'
 import { useShortcut } from '../shortcuts'
 import { LayoutContext } from '../LayoutContext'
 import { FormattedMessage } from 'react-intl'
 import { TimeDisplay } from '../TimeDisplay'
 import { BookTagList, TagDisplay } from '../Tags'
+import { SourceIcon } from '../SourceButton'
+import { ClientContext } from '../ClientContext'
+import { languageNames } from '../LocaleProvider'
+import { LanguageType } from '../Client'
 
 export const Menu = () => {
-  const { book, content, menu, setMenu } = useContext(BookReaderContext)
+  const client = useContext(ClientContext)
+  const { book, content, setContent, menu, setMenu } = useContext(BookReaderContext)
   const { width } = useContext(LayoutContext)
 
   useShortcut('bookReaderMenuKey', () => setMenu(true))
@@ -51,6 +56,42 @@ export const Menu = () => {
               </div>
             </Descriptions.Item>
           </Descriptions>
+        </Collapse.Panel>
+
+        <Collapse.Panel
+          key='sources'
+          header={<FormattedMessage id='bookReader.menu.sources.header' />}>
+
+          <Tabs size='small' defaultActiveKey="2">
+            {book.contents.map(c => c.source).filter((s, i, a) => a.indexOf(s) === i).map(source => (
+              <Tabs.TabPane
+                key={source}
+                tab={<>
+                  <SourceIcon type={source} style={{ height: '2em', marginRight: 3 }} />
+                  <span>{client.currentInfo.scrapers.find(s => s.type === source)?.name}</span>
+                </>}>
+
+                <Radio.Group value={content} onChange={({ target: { value } }) => setContent(value)}>
+                  {book.contents
+                    .filter(c => c.source === source)
+                    .sort((a, b) => { const langs = Object.values(LanguageType); return langs.indexOf(a.language) - langs.indexOf(b.language) })
+                    .map(content => (
+                      <Radio
+                        key={content.id}
+                        value={content}
+                        style={{
+                          display: 'block',
+                          height: '30px',
+                          lineHeight: '30px'
+                        }}>
+
+                        <span>{languageNames[content.language]} — <a href={content.sourceUrl} target='_blank' rel='noopener noreferrer'>{content.sourceUrl}</a></span>
+                      </Radio>
+                    ))}
+                </Radio.Group>
+              </Tabs.TabPane>
+            ))}
+          </Tabs>
         </Collapse.Panel>
 
         <Collapse.Panel

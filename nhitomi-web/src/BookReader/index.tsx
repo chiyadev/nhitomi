@@ -1,4 +1,4 @@
-import React, { useContext, useLayoutEffect, useState, useMemo, createContext } from 'react'
+import React, { useContext, useLayoutEffect, useState, useMemo, createContext, Dispatch, useCallback } from 'react'
 import { Book, BookContent } from '../Client'
 import { useTabTitle } from '../hooks'
 import { Prefetch, PrefetchLink, PrefetchLinkProps, usePrefetch } from '../Prefetch'
@@ -35,10 +35,10 @@ export function getBookReaderPrefetch(id: string, contentId: string): Prefetch<F
 }
 
 export const BookReader = ({ id, contentId }: { id: string, contentId: string }) => {
-  const { result } = usePrefetch(getBookReaderPrefetch(id, contentId))
+  const { result, dispatch } = usePrefetch(getBookReaderPrefetch(id, contentId))
 
   if (result)
-    return <Loaded {...result} />
+    return <Loaded {...result} dispatch={dispatch} />
 
   return null
 }
@@ -54,6 +54,8 @@ type CurrentRow = {
 export const BookReaderContext = createContext<{
   book: Book
   content: BookContent
+  setContent: (content: BookContent) => void
+
   fetch: FetchManager
 
   currentRow: CurrentRow
@@ -63,7 +65,7 @@ export const BookReaderContext = createContext<{
   setMenu: (menu: boolean) => void
 }>(undefined as any)
 
-const Loaded = ({ book, content }: Fetched) => {
+const Loaded = ({ book, content, dispatch }: Fetched & { dispatch: Dispatch<Fetched> }) => {
   useTabTitle(book.primaryName)
 
   const client = useContext(ClientContext)
@@ -78,7 +80,7 @@ const Loaded = ({ book, content }: Fetched) => {
   useLayoutEffect(() => setCursorHidden(true), [currentRow])
 
   const [fetched, setFetched] = useState<(FetchImage | undefined)[]>([])
-  const fetch = useMemo(() => new FetchManager(client, book, content, 5, setFetched), []) // eslint-disable-line
+  const fetch = useMemo(() => new FetchManager(client, book, content, 5, setFetched), [book, client, content])
 
   useLayoutEffect(() => {
     fetch.start()
@@ -132,10 +134,13 @@ const Loaded = ({ book, content }: Fetched) => {
     alert.info(<FormattedMessage id={`bookReader.alerts.singleCover${value ? 'Enabled' : 'Disabled'}`} />)
   })
 
+  const setContent = useCallback((content: BookContent) => dispatch({ book, content }), [book, dispatch])
+
   return (
     <BookReaderContext.Provider value={useMemo(() => ({
       book,
       content,
+      setContent,
       fetch,
       currentRow,
       setCurrentRow,
@@ -144,6 +149,7 @@ const Loaded = ({ book, content }: Fetched) => {
     }), [
       book,
       content,
+      setContent,
       fetch,
       currentRow,
       setCurrentRow,
