@@ -80,6 +80,9 @@
       "keys": {
         "header": "キー設定"
       }
+    },
+    "jump": {
+      "header": "ページへ飛ぶ"
     }
   },
   "sortDirections": {

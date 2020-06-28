@@ -64,6 +64,7 @@ const Image = ({ index, layoutImage }: {
   index: number
   layoutImage: LayoutImage
 }) => {
+  const { jump } = useContext(BookReaderContext)
   const [showNumber] = useShortcutPress('bookReaderPageNumberKey')
 
   return useMemo(() => {
@@ -88,7 +89,7 @@ const Image = ({ index, layoutImage }: {
     else
       content = <Spinner style={style} />
 
-    if (showNumber) content = <>
+    if (jump || showNumber) content = <>
       {content}
 
       <div style={{
@@ -108,7 +109,7 @@ const Image = ({ index, layoutImage }: {
     </>
 
     return content
-  }, [index, layoutImage, showNumber])
+  }, [index, jump, layoutImage, showNumber])
 }
 
 const ErrorDisplay = ({ image, style, error }: { image: FetchImage, style: CSSProperties, error: Error }) => {

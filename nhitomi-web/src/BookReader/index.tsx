@@ -12,6 +12,7 @@ import { useConfig } from '../Client/config'
 import { useShortcut } from '../shortcuts'
 import { FormattedMessage } from 'react-intl'
 import { Menu } from './Menu'
+import { JumpModal } from './JumpModal'
 
 type Fetched = {
   book: Book
@@ -47,9 +48,12 @@ export const BookReader = ({ id, contentId }: { id: string, contentId: string })
 export const BookReaderLink = ({ id, contentId, ...props }: PrefetchLinkProps & { id: string, contentId: string }) =>
   <PrefetchLink fetch={getBookReaderPrefetch(id, contentId)} {...props} />
 
-type CurrentRow = {
-  induced: number
-  passive: number
+type CurrentPage = {
+  rowInduced: number
+  rowPassive: number
+
+  pageInduced: number
+  pagePassive: number
 }
 
 export const BookReaderContext = createContext<{
@@ -59,11 +63,14 @@ export const BookReaderContext = createContext<{
 
   fetch: FetchManager
 
-  currentRow: CurrentRow
-  setCurrentRow: (page: CurrentRow) => void
+  currentPage: CurrentPage
+  setCurrentPage: (page: CurrentPage) => void
 
   menu: boolean
   setMenu: (menu: boolean) => void
+
+  jump: boolean
+  setJump: (jump: boolean) => void
 }>(undefined as any)
 
 const Loaded = ({ book, content, dispatch }: Fetched & { dispatch: Dispatch<Fetched> }) => {
@@ -74,11 +81,12 @@ const Loaded = ({ book, content, dispatch }: Fetched & { dispatch: Dispatch<Fetc
   const { alert } = useContext(NotificationContext)
 
   const [cursorHidden, setCursorHidden] = useState(false)
-  const [currentRow, setCurrentRow] = useState<CurrentRow>({ induced: 0, passive: 0 })
+  const [currentPage, setCurrentPage] = useState<CurrentPage>({ rowInduced: 0, rowPassive: 0, pageInduced: 0, pagePassive: 0 })
   const [menu, setMenu] = useState(false)
+  const [jump, setJump] = useState(false)
 
   // hide cursor when current row changes
-  useLayoutEffect(() => setCursorHidden(true), [currentRow])
+  useLayoutEffect(() => setCursorHidden(true), [currentPage])
 
   const [fetched, setFetched] = useState<(FetchImage | undefined)[]>([])
   const fetch = useMemo(() => new FetchManager(client, book, content, 5, setFetched), [book, client, content])
@@ -105,11 +113,13 @@ const Loaded = ({ book, content, dispatch }: Fetched & { dispatch: Dispatch<Fetc
     }
   }, [mobile, breakpoint]) // eslint-disable-line
 
+  console.log('current page', currentPage)
+
   // key handling
-  useShortcut('firstPageKey', () => setCurrentRow({ ...currentRow, induced: 0 }))
-  useShortcut('lastPageKey', () => setCurrentRow({ ...currentRow, induced: fetched.length - 1 }))
-  useShortcut('previousPageKey', () => setCurrentRow({ ...currentRow, induced: currentRow.passive - 1 }))
-  useShortcut('nextPageKey', () => setCurrentRow({ ...currentRow, induced: currentRow.passive + 1 }))
+  useShortcut('firstPageKey', () => setCurrentPage({ ...currentPage, rowInduced: 0 }))
+  useShortcut('lastPageKey', () => setCurrentPage({ ...currentPage, rowInduced: fetched.length - 1 }))
+  useShortcut('previousPageKey', () => setCurrentPage({ ...currentPage, rowInduced: currentPage.rowPassive - 1 }))
+  useShortcut('nextPageKey', () => setCurrentPage({ ...currentPage, rowInduced: currentPage.rowPassive + 1 }))
 
   useShortcut('bookReaderImagesPerRowKey', () => {
     const value = imagesPerRow === 1 ? 2 : 1
@@ -140,25 +150,22 @@ const Loaded = ({ book, content, dispatch }: Fetched & { dispatch: Dispatch<Fetc
   return (
     <BookReaderContext.Provider value={useMemo(() => ({
       book,
-      content,
-      setContent,
+      content, setContent,
       fetch,
-      currentRow,
-      setCurrentRow,
-      menu,
-      setMenu
+      currentPage, setCurrentPage,
+      menu, setMenu,
+      jump, setJump
     }), [
       book,
-      content,
-      setContent,
+      content, setContent,
       fetch,
-      currentRow,
-      setCurrentRow,
-      menu,
-      setMenu
+      currentPage, setCurrentPage,
+      menu, setMenu,
+      jump, setJump
     ])}>
       <Header />
       <Menu />
+      <JumpModal />
 
       <div
         onMouseMove={() => { cursorHidden && setCursorHidden(false) }}

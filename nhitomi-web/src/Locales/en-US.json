@@ -80,6 +80,9 @@
       "keys": {
         "header": "Key settings"
       }
+    },
+    "jump": {
+      "header": "Jump to page"
     }
   },
   "sortDirections": {

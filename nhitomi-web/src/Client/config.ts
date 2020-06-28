@@ -21,7 +21,6 @@ interface IStore {
   // low-level settings
   token: string | undefined
   baseUrl: string | undefined
-  workerConcurrency: number
   sidebar: boolean
 
   // global settings
@@ -46,15 +45,12 @@ interface IStore {
   bookReaderSingleCoverKey: ShortcutConfig
   bookReaderPageNumberKey: ShortcutConfig
   bookReaderMenuKey: ShortcutConfig
-
-  // ocr
-  ocrVisualization: boolean
+  bookReaderJumpKey: ShortcutConfig
 }
 
 const DefaultStore: IStore = {
   token: undefined,
   baseUrl: undefined,
-  workerConcurrency: navigator.hardwareConcurrency || 2,
   sidebar: false,
 
   cancelKey: { keys: [27] },                // esc
@@ -77,8 +73,7 @@ const DefaultStore: IStore = {
   bookReaderSingleCoverKey: { keys: [75] },   // k
   bookReaderPageNumberKey: { keys: [32] },    // space
   bookReaderMenuKey: { keys: [69] },          // e
-
-  ocrVisualization: true
+  bookReaderJumpKey: { keys: [71] }          // g
 }
 
 export type ShortcutConfig = {
@@ -91,7 +86,6 @@ const StoreKeys = Object.keys(DefaultStore) as (keyof IStore)[]
 export class ConfigManager extends (EventEmitter as new () => StrictEventEmitter<EventEmitter, { [key in keyof IStore]: (value: IStore[key]) => void }>) implements IStore {
   token!: string | undefined
   baseUrl!: string | undefined
-  workerConcurrency!: number
   sidebar!: boolean
 
   cancelKey!: ShortcutConfig
@@ -114,8 +108,7 @@ export class ConfigManager extends (EventEmitter as new () => StrictEventEmitter
   bookReaderImagesPerRowKey!: ShortcutConfig
   bookReaderSingleCoverKey!: ShortcutConfig
   bookReaderMenuKey!: ShortcutConfig
-
-  ocrVisualization!: boolean
+  bookReaderJumpKey!: ShortcutConfig
 
   constructor(readonly client: Client) {
     super()
