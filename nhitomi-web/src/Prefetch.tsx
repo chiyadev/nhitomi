@@ -3,7 +3,7 @@ import { History } from 'history'
 import { Link, useHistory } from 'react-router-dom'
 import { useAsync, useUpdate } from 'react-use'
 import { Client } from './Client'
-import { eventHasAnyModifier } from './shortcuts'
+import { getEventModifiers } from './shortcuts'
 import { ClientContext } from './ClientContext'
 import { ProgressContext } from './Progress'
 import { NotificationContext } from './NotificationContext'
@@ -167,7 +167,7 @@ export const PrefetchLink = <T extends {}>({ fetch, disabled, onClick, ...props 
       onClick?.(e)
 
       // don't handle modifiers
-      if (eventHasAnyModifier(e))
+      if (getEventModifiers(e).length)
         return
 
       // prevent default navigation

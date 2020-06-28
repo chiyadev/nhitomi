@@ -1,67 +1,65 @@
 import { useContext, useRef, useEffect } from 'react'
 import { useKey, useKeyPress, useRafLoop } from 'react-use'
-import { ShortcutConfig, ConfigStore, useConfig } from './Client/config'
+import { ShortcutConfig, ConfigStore, useConfig, ModifierKey } from './Client/config'
 import { LayoutContext } from './LayoutContext'
 import keycode from 'keycode'
 
-export type ModifierKey = 'alt' | 'ctrl' | 'meta' | 'shift'
-export type ModifierKeyEvent = { altKey: boolean, ctrlKey: boolean, metaKey: boolean, shiftKey: boolean }
+const modifierKeys: ModifierKey[] = ['alt', 'ctrl', 'meta', 'shift']
 
-/** Returns true if any of the given modifier keys is pressed. */
-export function eventHasAnyModifier(e: ModifierKeyEvent, ...keys: ModifierKey[]) {
-  if (!keys.length)
-    keys = ['alt', 'ctrl', 'meta', 'shift']
-
-  return keys.some(key => e[key + 'Key' as keyof typeof e])
+/** Returns all modifier keys pressed in the given event. */
+export function getEventModifiers(e: { altKey: boolean, ctrlKey: boolean, metaKey: boolean, shiftKey: boolean }) {
+  return modifierKeys.filter(key => e[key + 'Key' as keyof typeof e])
 }
 
-/** Returns true if all of the given modifier keys is pressed. */
-export function eventHasAllModifiers(e: ModifierKeyEvent, ...keys: ModifierKey[]) {
-  if (!keys.length)
-    keys = ['alt', 'ctrl', 'meta', 'shift']
-
-  return keys.every(key => e[key + 'Key' as keyof typeof e])
-}
-
-const inputIgnoreElements = [HTMLInputElement, HTMLDivElement]
-
-function matchShortcut({ keys, modifiers }: ShortcutConfig, event: KeyboardEvent) {
+function matchShortcut(shortcuts: ShortcutConfig[], event: KeyboardEvent) {
   // ignore keys for some elements
-  if (inputIgnoreElements.some(e => event.target instanceof e))
+  if ([HTMLInputElement, HTMLDivElement].some(e => event.target instanceof e))
     return false
 
-  // key filter
-  if (!keys.includes(event.keyCode))
-    return false
+  const key = event.keyCode
+  const modifiers = getEventModifiers(event)
 
-  // modifier filter
-  if (modifiers?.length) {
-    if (!eventHasAllModifiers(event, ...modifiers))
-      return false
-  }
-  else {
-    if (eventHasAnyModifier(event))
-      return false
+  for (const shortcut of shortcuts) {
+    // match key
+    if (shortcut.key !== key)
+      continue
+
+    // match either all or no modifiers
+    if (shortcut.modifiers?.length) {
+      if (shortcut.modifiers.length !== modifiers.length)
+        continue
+
+      for (const modifier of shortcut.modifiers) {
+        if (modifiers.indexOf(modifier) === -1)
+          continue
+      }
+    }
+    else {
+      if (modifiers.length)
+        continue
+    }
+
+    event.preventDefault()
+    return true
   }
 
-  event.preventDefault()
-  return true
+  return false
 }
 
-export type ShortcutConfigKey = { [key in keyof ConfigStore]: ConfigStore[key] extends ShortcutConfig ? key : never }[keyof ConfigStore]
+export type ShortcutConfigKeys = { [key in keyof ConfigStore]: ConfigStore[key] extends ShortcutConfig[] ? key : never }[keyof ConfigStore]
 
 /** Callback when a configured key is pressed. */
-export function useShortcut(key: ShortcutConfigKey, callback: (event: KeyboardEvent) => void) {
-  const [config] = useConfig(key)
+export function useShortcut(key: ShortcutConfigKeys, callback: (event: KeyboardEvent) => void) {
+  const [shortcuts] = useConfig(key)
 
-  useKey(e => matchShortcut(config, e), callback)
+  useKey(e => matchShortcut(shortcuts, e), callback)
 }
 
 /** Keyboard state when of a configured key. */
-export function useShortcutPress(key: ShortcutConfigKey) {
-  const [config] = useConfig(key)
+export function useShortcutPress(key: ShortcutConfigKeys) {
+  const [shortcuts] = useConfig(key)
 
-  return useKeyPress(e => matchShortcut(config, e))
+  return useKeyPress(e => matchShortcut(shortcuts, e))
 }
 
 /** Hook to scroll window using shortcut keys. */
@@ -94,8 +92,8 @@ export function useScrollShortcut() {
 }
 
 /** Returns the key name of a shortcut key. */
-export function useShortcutKeyName(key: ShortcutConfigKey) {
-  const [config] = useConfig(key)
+export function useShortcutKeyName(key: ShortcutConfigKeys) {
+  const [shortcuts] = useConfig(key)
 
-  return keycode(config.keys[0])
+  return keycode(shortcuts[0].key)
 }
