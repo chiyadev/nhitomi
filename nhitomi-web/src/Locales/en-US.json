@@ -140,5 +140,22 @@
     "title": "About",
     "sub": "About nhitomi",
     "sources": "Sources"
+  },
+  "keyConfigNames": {
+    "cancelKey": "Cancel",
+    "sidebarKey": "Sidebar",
+    "scrollDownKey": "Scroll down",
+    "scrollUpKey": "Scroll up",
+    "nextPageKey": "Next page",
+    "previousPageKey": "Previous page",
+    "firstPageKey": "First page",
+    "lastPageKey": "Last page",
+    "bookReaderViewportBoundKey": "Bind to viewport",
+    "bookReaderLeftToRightKey": "Toggle left to right",
+    "bookReaderImagesPerRowKey": "Toggle page mode",
+    "bookReaderSingleCoverKey": "Toggle single page cover",
+    "bookReaderPageNumberKey": "Show page numbers",
+    "bookReaderMenuKey": "Show menu",
+    "bookReaderJumpKey": "Show jump dialog"
   }
 }

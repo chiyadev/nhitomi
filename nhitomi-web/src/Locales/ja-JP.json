@@ -55,8 +55,8 @@
       "viewportUnbound": "もうページを画面サイズに固定しません。",
       "leftToRight": "ページを左から読みます。",
       "rightToLeft": "ページを右から読みます。",
-      "singleCoverEnabled": "初ページを別に表示します。",
-      "singleCoverDisabled": "初ページを別に表示しません。"
+      "singleCoverEnabled": "最初のページを別で表示します。",
+      "singleCoverDisabled": "最初のページを別で表示しません。"
     },
     "menu": {
       "pressToOpen": "''{key}''キーでメニューを開く。",
@@ -129,5 +129,22 @@
     "title": "情報",
     "sub": "nhitomiについて",
     "sources": "サイト"
+  },
+  "keyConfigNames": {
+    "cancelKey": "キャンセル",
+    "sidebarKey": "サイドバー",
+    "scrollDownKey": "スクロールダウン",
+    "scrollUpKey": "スクロールアップ",
+    "nextPageKey": "次のページ",
+    "previousPageKey": "前のページ",
+    "firstPageKey": "最初のページ",
+    "lastPageKey": "最後のページ",
+    "bookReaderViewportBoundKey": "ウィンドウサイズに固定",
+    "bookReaderLeftToRightKey": "左から右へ並べ",
+    "bookReaderImagesPerRowKey": "ページモードを変更",
+    "bookReaderSingleCoverKey": "最初のページを別表示",
+    "bookReaderPageNumberKey": "ページ数を表示",
+    "bookReaderMenuKey": "メニューを表示",
+    "bookReaderJumpKey": "ページへ飛び"
   }
 }

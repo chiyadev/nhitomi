@@ -11,6 +11,7 @@ import { SourceIcon } from '../SourceButton'
 import { ClientContext } from '../ClientContext'
 import { languageNames } from '../LocaleProvider'
 import { LanguageType } from '../Client'
+import { KeySettings } from '../Settings/KeySettings'
 
 export const Menu = () => {
   const client = useContext(ClientContext)
@@ -98,6 +99,7 @@ export const Menu = () => {
           key='scrapers'
           header={<FormattedMessage id='bookReader.menu.keys.header' />}>
 
+          <KeySettings prefix='bookReader' />
         </Collapse.Panel>
       </Collapse>
     </Drawer>
