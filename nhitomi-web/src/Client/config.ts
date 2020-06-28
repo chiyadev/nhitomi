@@ -14,9 +14,7 @@ export function useConfig<TKey extends keyof ConfigStore>(key: TKey): [ConfigSto
   return [config.get(key), v => config.set(key, v)]
 }
 
-export type ConfigStore = IStore
-
-interface IStore {
+export type ConfigStore = {
   // low-level settings
   token: string | undefined
   baseUrl: string | undefined
@@ -47,7 +45,7 @@ interface IStore {
   bookReaderJumpKey: ShortcutConfig[]
 }
 
-const DefaultStore: IStore = {
+const DefaultStore: ConfigStore = {
   token: undefined,
   baseUrl: undefined,
   sidebar: false,
@@ -82,9 +80,9 @@ export type ShortcutConfig = {
   modifiers?: ModifierKey[]
 }
 
-const StoreKeys = Object.keys(DefaultStore) as (keyof IStore)[]
+const StoreKeys = Object.keys(DefaultStore) as (keyof ConfigStore)[]
 
-export class ConfigManager extends (EventEmitter as new () => StrictEventEmitter<EventEmitter, { [key in keyof IStore]: (value: IStore[key]) => void }>) implements IStore {
+export class ConfigManager extends (EventEmitter as new () => StrictEventEmitter<EventEmitter, { [key in keyof ConfigStore]: (value: ConfigStore[key]) => void }>) implements ConfigStore {
   token!: string | undefined
   baseUrl!: string | undefined
   sidebar!: boolean
@@ -117,7 +115,7 @@ export class ConfigManager extends (EventEmitter as new () => StrictEventEmitter
     window.addEventListener('storage', ({ key, newValue }) => {
       const [success, value] = this.parse(newValue)
 
-      this.emit(key as any, success ? value : DefaultStore[key as keyof IStore])
+      this.emit(key as any, success ? value : DefaultStore[key as keyof ConfigStore])
     })
 
     // add getter and setter properties
@@ -131,13 +129,13 @@ export class ConfigManager extends (EventEmitter as new () => StrictEventEmitter
     }
   }
 
-  get<TKey extends keyof IStore>(key: TKey) {
+  get<TKey extends keyof ConfigStore>(key: TKey) {
     const [success, value] = this.parse(localStorage.getItem(key))
 
-    return success ? value as IStore[TKey] : DefaultStore[key]
+    return success ? value as ConfigStore[TKey] : DefaultStore[key]
   }
 
-  set<TKey extends keyof IStore>(key: TKey, value: IStore[TKey]) {
+  set<TKey extends keyof ConfigStore>(key: TKey, value: ConfigStore[TKey]) {
     if (typeof value === 'undefined')
       localStorage.removeItem(key)
     else
@@ -146,7 +144,7 @@ export class ConfigManager extends (EventEmitter as new () => StrictEventEmitter
     this.emit(key as any, value)
   }
 
-  async import(data: IStore) {
+  async import(data: ConfigStore) {
     for (const key of StoreKeys)
       this.set(key, data[key] as any)
   }
@@ -157,7 +155,7 @@ export class ConfigManager extends (EventEmitter as new () => StrictEventEmitter
     for (const key of StoreKeys)
       data[key] = this.get(key)
 
-    return data as IStore
+    return data as ConfigStore
   }
 
   private parse(value: string | null | undefined): [boolean, unknown] {
