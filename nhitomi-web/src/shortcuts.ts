@@ -93,5 +93,5 @@ export function useScrollShortcut() {
 export function useShortcutKeyName(key: ShortcutConfigKey) {
   const [shortcuts] = useConfig(key)
 
-  return keycode(shortcuts[0].key)
+  return keycode(shortcuts[0]?.key)
 }
