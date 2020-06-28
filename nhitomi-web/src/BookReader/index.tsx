@@ -113,8 +113,6 @@ const Loaded = ({ book, content, dispatch }: Fetched & { dispatch: Dispatch<Fetc
     }
   }, [mobile, breakpoint]) // eslint-disable-line
 
-  console.log('current page', currentPage)
-
   // key handling
   useShortcut('firstPageKey', () => setCurrentPage({ ...currentPage, rowInduced: 0 }))
   useShortcut('lastPageKey', () => setCurrentPage({ ...currentPage, rowInduced: fetched.length - 1 }))
