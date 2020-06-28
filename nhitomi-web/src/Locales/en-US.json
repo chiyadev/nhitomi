@@ -59,7 +59,24 @@
       "singleCoverDisabled": "Cover page is grouped with other pages."
     },
     "menu": {
-      "pressToOpen": "Press ''{key}'' to open menu."
+      "pressToOpen": "Press ''{key}'' to open menu.",
+      "info": {
+        "header": "Information",
+        "id": "ID",
+        "uploadedTime": "Uploaded time",
+        "updatedTime": "Updated time",
+        "primaryName": "Primary name",
+        "englishName": "English name",
+        "category": "Category",
+        "rating": "Rating",
+        "pages": "Pages",
+        "notes": "Notes",
+        "source": "Source",
+        "tags": "Tags"
+      },
+      "keys": {
+        "header": "Key settings"
+      }
     }
   },
   "sortDirections": {

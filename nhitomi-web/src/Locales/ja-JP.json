@@ -59,7 +59,24 @@
       "singleCoverDisabled": "初ページを別に表示しません。"
     },
     "menu": {
-      "pressToOpen": "''{key}''キーでメニューを開く。"
+      "pressToOpen": "''{key}''キーでメニューを開く。",
+      "info": {
+        "header": "情報",
+        "id": "ID",
+        "uploadedTime": "アップロード時間",
+        "updatedTime": "更新時間",
+        "primaryName": "名前",
+        "englishName": "名前（英語）",
+        "category": "カテゴリー",
+        "rating": "レイティング",
+        "pages": "ページ数",
+        "notes": "ノート数",
+        "source": "サイト",
+        "tags": "タグ"
+      },
+      "keys": {
+        "header": "キー設定"
+      }
     }
   },
   "sortDirections": {
