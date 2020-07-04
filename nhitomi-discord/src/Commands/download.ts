@@ -7,7 +7,7 @@ import { Api } from '../api'
 export const run: CommandFunc = async (context, arg) => {
   await context.reply(`
 **Notice**: nhitomi\\'s Discord download command has been deprecated. You can use the web interface instead!
->${Api.getWebLink('/')}>
+>${Api.getWebLink('/')}
 ---
 `.trim())
 
