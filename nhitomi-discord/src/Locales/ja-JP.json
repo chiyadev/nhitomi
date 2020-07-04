@@ -42,7 +42,7 @@
   },
   "get": {
     "book": {
-      "pageCount": "{count}枚のページ",
+      "pageCount": "{count}ページ",
       "tags": {
         "artist": "アーティスト",
         "parody": "パロディ",
@@ -65,6 +65,9 @@
       "message": "`{input}`という項目が探せませんでした。",
       "usageLink": "`{example}`のようにリンクを入力してみてください。",
       "usageSource": "`{example}`のようにサイト名とIDを入力してみてください。"
+    },
+    "sources": {
+      "footer": "{count}サイト"
     }
   },
   "from": {
@@ -74,7 +77,7 @@
     }
   },
   "read": {
-    "pagination": "{total}枚のページ中{current}"
+    "pagination": "{total}ページ中{current}"
   },
   "list": {
     "empty": {
@@ -101,7 +104,7 @@
       "success": "コレクション`{collection}`が削除されました。"
     },
     "list": {
-      "itemCount": "{count}個の項目"
+      "itemCount": "{count}項目"
     }
   }
 }

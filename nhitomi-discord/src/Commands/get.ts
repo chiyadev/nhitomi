@@ -8,6 +8,7 @@ import { MessageContext } from '../context'
 import { Message } from 'discord.js'
 import { ReadTrigger } from '../Triggers/read'
 import { FavoriteTrigger, FavoriteTriggerTarget } from '../Triggers/favorite'
+import { SourcesTrigger } from '../Triggers/sources'
 
 export class BookMessage extends InteractiveMessage {
   constructor(
@@ -25,21 +26,6 @@ export class BookMessage extends InteractiveMessage {
     l = l.section('get.book')
 
     return {
-      message: Object.values(book.contents.reduce((a, b) => {
-        const k = `${b.source}/${b.language}`;
-        (a[k] = a[k] || []).push(b)
-        return a
-      }, {} as Record<string, BookContent[]>)).map(x => {
-        const { source, language } = x[0]
-
-        const urls = x.map(c => c.sourceUrl).sort()
-
-        for (let i = 0; i < urls.length; i++)
-          if (urls[i] === content.sourceUrl)
-            urls[i] = `**${urls[i]}**`
-
-        return `${source} (${language.split('-')[0]}): ${urls.join(' ')}`
-      }).sort().join('\n'),
       embed: {
         title: book.primaryName,
         description: book.englishName === book.primaryName ? undefined : book.englishName,
@@ -77,6 +63,7 @@ export class BookMessage extends InteractiveMessage {
 
       new FavoriteTrigger(this, ObjectType.Book, SpecialCollection.Favorites),
       new ReadTrigger(this),
+      new SourcesTrigger(this),
       new DestroyTrigger()
     ]
   }

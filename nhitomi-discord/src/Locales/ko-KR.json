@@ -65,6 +65,9 @@
       "message": "`{input}`이라는 항목을 찾을 수 없었습니다.",
       "usageLink": "`{example}`처럼 링크를 삽입해 보세요.",
       "usageSource": "`{example}`처럼 사이트 이름과 아이디를 입력해 보세요."
+    },
+    "sources": {
+      "footer": "{count} 사이트"
     }
   },
   "from": {

@@ -9,6 +9,7 @@ import { DestroyTrigger } from '../Triggers/destroy'
 import { ListTrigger } from '../Triggers/list'
 import { FavoriteTrigger, FavoriteTriggerTarget } from '../Triggers/favorite'
 import config from 'config'
+import { SourcesTrigger } from '../Triggers/sources'
 
 export class BookListMessage extends InteractiveMessage {
   constructor(readonly items: AsyncArray<Book>) { super() }
@@ -53,6 +54,7 @@ export class BookListMessage extends InteractiveMessage {
 
       new FavoriteTrigger(this, ObjectType.Book, SpecialCollection.Favorites),
       new ReadTrigger(this),
+      new SourcesTrigger(this),
       new ListTrigger(this, 'left'),
       new ListTrigger(this, 'right'),
       new DestroyTrigger()
