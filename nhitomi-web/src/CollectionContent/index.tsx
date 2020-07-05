@@ -1,7 +1,7 @@
 import React from 'react'
 import { Prefetch, usePrefetch, PrefetchLinkProps, PrefetchLink } from '../Prefetch'
 import { Collection, ObjectType } from '../Client'
-import { CollectionContentBookView, BookCollectionManager, BookCollectionLoadResult } from './Book'
+import { CollectionContentBookView, BookCollectionManager, BookCollectionLoadResult } from './BookView'
 
 export type Fetched = {
   type: ObjectType.Book
