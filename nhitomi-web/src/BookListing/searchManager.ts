@@ -173,7 +173,7 @@ export class SearchManager extends (EventEmitter as new () => StrictEventEmitter
     super()
 
     this._query = {
-      language: LanguageType.EnUS,
+      language: client.currentInfo.authenticated ? client.currentInfo.user.language : LanguageType.EnUS,
       sort: {
         value: BookSort.UpdatedTime,
         direction: SortDirection.Descending

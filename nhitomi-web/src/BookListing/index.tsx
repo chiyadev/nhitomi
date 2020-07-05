@@ -21,13 +21,6 @@ export function getBookListingPrefetch(): Prefetch<SearchResult> {
       const manager = new SearchManager(client)
       manager.canRefresh = false
 
-      if (client.currentInfo.authenticated) {
-        manager.query = {
-          ...manager.query,
-          language: client.currentInfo.user.language
-        }
-      }
-
       if (mode === 'initial' && search)
         manager.query = deserializeQuery(search)
 
