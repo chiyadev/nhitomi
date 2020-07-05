@@ -3,9 +3,9 @@ import { useTabTitle } from '../hooks'
 import { LayoutContent } from '../Layout'
 import { Fetched } from '.'
 import { AffixGradientPageHeader } from '../BookListing/AffixGradientPageHeader'
-import { PageHeader, Typography } from 'antd'
+import { PageHeader, Dropdown, Button, Menu, Modal } from 'antd'
 import { FormattedMessage } from 'react-intl'
-import { FolderOpenOutlined } from '@ant-design/icons'
+import { FolderOpenOutlined, EllipsisOutlined, DeleteOutlined, ExclamationCircleOutlined } from '@ant-design/icons'
 import { SearchQuery, SearchResult, SearchManager } from '../BookListing/searchManager'
 import { Client, Collection, Book } from '../Client'
 import { ClientContext } from '../ClientContext'
@@ -17,6 +17,8 @@ import { Grid as BookGrid } from '../BookListing/Grid'
 import { useScrollShortcut } from '../shortcuts'
 import { getCollectionSpecialType, SpecialCollectionIcon } from '../CollectionListing/BookGrid'
 import { AsyncEditableText } from '../AsyncEditableText'
+import { usePrefetchExecutor } from '../Prefetch'
+import { getCollectionListingPrefetch } from '../CollectionListing'
 
 export const CollectionContentBookView = ({ fetched, dispatch }: { fetched: Fetched, dispatch: Dispatch<Fetched> }) => {
   const client = useContext(ClientContext)
@@ -45,7 +47,8 @@ export const CollectionContentBookView = ({ fetched, dispatch }: { fetched: Fetc
             ignoreOffsets
             value={collection.description || (special && <FormattedMessage id={`specialCollections.${special}`} />) || <FormattedMessage id='collectionContent.nodesc' />}
             onChange={async description => dispatch({ ...fetched, collection: await client.collection.updateCollection({ id: collection.id, collectionBase: { ...collection, description } }) })} />
-        )} />
+        )}
+        extra={<MenuButton collection={collection} />} />
     </AffixGradientPageHeader>
 
     <LayoutContent>
@@ -107,4 +110,53 @@ const Grid = ({ collection, result, dispatch }: { collection: Collection, result
       <BookGrid />
     </BookListingContext.Provider>
   )
+}
+
+const MenuButton = ({ collection }: { collection: Collection }) => {
+  const client = useContext(ClientContext)
+  const push = usePrefetchExecutor()
+  const [modal, modalContexts] = Modal.useModal()
+  const { notification: { error } } = useContext(NotificationContext)
+
+  return <>
+    <Dropdown placement='bottomRight' overlay={(
+      <Menu>
+        <Menu.Item
+          danger
+          icon={<DeleteOutlined />}
+          onClick={() => modal.confirm({
+            title: <FormattedMessage id='collectionContent.menu.delete.title' values={{ collection: collection.name }} />,
+            icon: <ExclamationCircleOutlined />,
+            content: <FormattedMessage id='collectionContent.menu.delete.description' />,
+            okType: 'danger',
+            okText: <span><FormattedMessage id='collectionContent.menu.delete.yes' /></span>,
+            cancelText: <span><FormattedMessage id='collectionContent.menu.delete.no' /></span>,
+            onOk: async () => {
+              try {
+                await client.collection.deleteCollection({ id: collection.id })
+                await push(getCollectionListingPrefetch())
+              }
+              catch (e) {
+                error(e)
+              }
+            },
+            onCancel() {
+              console.log('Cancel')
+            }
+          })}>
+
+          <FormattedMessage id='collectionContent.menu.delete.text' />
+        </Menu.Item>
+      </Menu>
+    )}>
+      <Button
+        shape='circle'
+        type='text'>
+
+        <EllipsisOutlined style={{ fontSize: '1rem' }} />
+      </Button>
+    </Dropdown>
+
+    {modalContexts}
+  </>
 }

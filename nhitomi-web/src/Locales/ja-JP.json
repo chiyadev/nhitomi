@@ -149,7 +149,16 @@
     "bookReaderJumpKey": "ページへ飛び"
   },
   "collectionContent": {
-    "nodesc": "<説明なし>"
+    "nodesc": "<説明なし>",
+    "menu": {
+      "delete": {
+        "text": "削除",
+        "title": "{collection}を削除しますか?",
+        "description": "このコレクションを永遠に見れなくなります。",
+        "yes": "はい",
+        "no": "いいえ"
+      }
+    }
   },
   "collectionListing": {
     "header": {

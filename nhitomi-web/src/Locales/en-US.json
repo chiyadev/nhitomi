@@ -160,7 +160,16 @@
     "bookReaderJumpKey": "Show jump dialog"
   },
   "collectionContent": {
-    "nodesc": "<no description>"
+    "nodesc": "<no description>",
+    "menu": {
+      "delete": {
+        "text": "Delete",
+        "title": "Delete {collection}?",
+        "description": "This collection will be deleted permanently.",
+        "yes": "Yes",
+        "no": "No"
+      }
+    }
   },
   "collectionListing": {
     "header": {
