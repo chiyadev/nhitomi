@@ -1,5 +1,4 @@
 import { useContext, useLayoutEffect } from 'react'
-import { BookReaderContext } from '.'
 import React from 'react'
 import { Drawer, Collapse, Descriptions, Tabs, Radio } from 'antd'
 import { useShortcut } from '../shortcuts'
@@ -10,15 +9,25 @@ import { BookTagList, TagDisplay } from '../Tags'
 import { SourceIcon } from '../SourceButton'
 import { ClientContext } from '../ClientContext'
 import { languageNames } from '../LocaleProvider'
-import { LanguageType } from '../Client'
+import { LanguageType, Book, BookContent } from '../Client'
 import { KeySettings } from '../Settings/KeySettings'
+import { BookReaderContext } from '.'
 
-export const Details = ({ open, setOpen }: { open: boolean, setOpen: (open: boolean) => void }) => {
+export const Details = ({ open, setOpen, book, content, setContent }: {
+  open: boolean
+  setOpen: (open: boolean) => void
+
+  book: Book
+  content: BookContent
+  setContent: (content: BookContent) => void
+}) => {
   const client = useContext(ClientContext)
-  const { book, content, setContent } = useContext(BookReaderContext)
   const { width } = useContext(LayoutContext)
 
-  useShortcut('bookReaderDetailsKey', () => setOpen(true))
+  // reader context may not be available if the details panel is opened from book listing
+  const readerContext = useContext(BookReaderContext)
+
+  useShortcut('bookReaderDetailsKey', () => readerContext && setOpen(true)) // only listen for shortcut in reader
 
   // manually lose focus after drawer close
   useLayoutEffect(() => { if (!open) (document.activeElement as HTMLElement)?.blur() }, [open])

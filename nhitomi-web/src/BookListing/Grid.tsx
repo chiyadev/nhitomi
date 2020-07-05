@@ -1,6 +1,6 @@
-import { Card, List, Typography, Spin, Empty } from 'antd'
+import { Card, List, Typography, Spin, Empty, Dropdown } from 'antd'
 import { ListGridType } from 'antd/lib/list'
-import React, { useContext, useMemo, useRef, useLayoutEffect, useState } from 'react'
+import React, { useContext, useMemo, useRef, useLayoutEffect, useState, useCallback } from 'react'
 import { Book } from '../Client'
 import { LayoutContext } from '../LayoutContext'
 import { ClientContext } from '../ClientContext'
@@ -13,6 +13,7 @@ import { presetPrimaryColors } from '@ant-design/colors'
 import { Panel } from './Panel'
 import { FormattedMessage } from 'react-intl'
 import { getEventModifiers } from '../shortcuts'
+import { ReaderMenu } from '../BookReader/Menu'
 
 const gridGutter = 6
 const gridLayout: ListGridType = {
@@ -141,6 +142,11 @@ const Item = ({ book }: { book: Book }) => {
     lastWidth.current = width
   }, [book.id, manager.result.selected, width])
 
+  const menu = ReaderMenu({
+    book, content,
+    setContent: useCallback(content => manager.result = { ...manager.result, selected: { book, content } }, [book, manager])
+  })
+
   return useMemo(() => (
     <List.Item style={{
       marginTop: 0,
@@ -156,43 +162,45 @@ const Item = ({ book }: { book: Book }) => {
               manager.result = { ...manager.result, selected: { book, content } }
           }}>
 
-          <Card
-            size='small'
-            style={{
-              ...(!selected ? undefined : {
-                border: 'solid',
-                borderColor: presetPrimaryColors.blue,
-                borderWidth: gridGutter / 2,
-                borderRadius: gridGutter / 2,
-                margin: 1 - gridGutter / 2,
-                zIndex: 1
-              }),
-              transition: 'border-color 0.2s',
-              overflow: 'hidden'
-            }}
-            cover={(
-              <AsyncImage
-                key={`${book.id}/${content.id}`}
-                width={5}
-                height={7}
-                resize='fill'
-                fluid
-                preloadScale={0.5}
-                src={() => client.book.getBookImage({ id: book.id, contentId: content.id, index: -1 })} />
-            )}>
-
-            <Card.Meta description={(
-              <div style={{
-                textOverflow: 'ellipsis',
-                whiteSpace: 'nowrap',
+          <Dropdown trigger={['contextMenu']} overlay={menu}>
+            <Card
+              size='small'
+              style={{
+                ...(!selected ? undefined : {
+                  border: 'solid',
+                  borderColor: presetPrimaryColors.blue,
+                  borderWidth: gridGutter / 2,
+                  borderRadius: gridGutter / 2,
+                  margin: 1 - gridGutter / 2,
+                  zIndex: 1
+                }),
+                transition: 'border-color 0.2s',
                 overflow: 'hidden'
-              }}>
-                <Typography.Text strong>{book.primaryName}</Typography.Text>
-              </div>
-            )} />
-          </Card>
+              }}
+              cover={(
+                <AsyncImage
+                  key={`${book.id}/${content.id}`}
+                  width={5}
+                  height={7}
+                  resize='fill'
+                  fluid
+                  preloadScale={0.5}
+                  src={() => client.book.getBookImage({ id: book.id, contentId: content.id, index: -1 })} />
+              )}>
+
+              <Card.Meta description={(
+                <div style={{
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap',
+                  overflow: 'hidden'
+                }}>
+                  <Typography.Text strong>{book.primaryName}</Typography.Text>
+                </div>
+              )} />
+            </Card>
+          </Dropdown>
         </BookReaderLink>
       </div>
     </List.Item>
-  ), [book, content, client, selected, breakpoint]) // eslint-disable-line react-hooks/exhaustive-deps
+  ), [menu, book, content, breakpoint, selected, manager, client])
 }

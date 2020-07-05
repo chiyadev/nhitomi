@@ -10,11 +10,11 @@ import { ReaderMenu } from './Menu'
 
 export const Header = () => {
   const { formatMessage } = useIntl()
-  const { book, content } = useContext(BookReaderContext)
+  const { book, content, setContent } = useContext(BookReaderContext)
   const { goBack } = useHistory()
 
   const detailsKey = useShortcutKeyName('bookReaderDetailsKey')
-  const menu = ReaderMenu({ book })
+  const menu = ReaderMenu({ book, content, setContent })
 
   return (
     <PageHeader
