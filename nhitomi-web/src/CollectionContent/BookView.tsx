@@ -3,7 +3,7 @@ import { useTabTitle } from '../hooks'
 import { LayoutContent } from '../Layout'
 import { Fetched } from '.'
 import { AffixGradientPageHeader } from '../BookListing/AffixGradientPageHeader'
-import { PageHeader } from 'antd'
+import { PageHeader, Typography } from 'antd'
 import { FormattedMessage } from 'react-intl'
 import { FolderOpenOutlined } from '@ant-design/icons'
 import { SearchQuery, SearchResult, SearchManager } from '../BookListing/searchManager'
@@ -16,6 +16,7 @@ import { BookListingContext } from '../BookListing'
 import { Grid as BookGrid } from '../BookListing/Grid'
 import { useScrollShortcut } from '../shortcuts'
 import { getCollectionSpecialType, SpecialCollectionIcon } from '../CollectionListing/BookGrid'
+import { AsyncEditableText } from '../AsyncEditableText'
 
 export const CollectionContentBookView = ({ fetched, dispatch }: { fetched: Fetched, dispatch: Dispatch<Fetched> }) => {
   const client = useContext(ClientContext)
@@ -29,9 +30,22 @@ export const CollectionContentBookView = ({ fetched, dispatch }: { fetched: Fetc
   return <>
     <AffixGradientPageHeader>
       <PageHeader
-        avatar={{ icon: (special && <SpecialCollectionIcon type={special} />) || <FolderOpenOutlined />, shape: 'square' }}
-        title={collection.name}
-        subTitle={collection.description || (special && <FormattedMessage id={`specialCollections.${special}`} />) || <FormattedMessage id='collectionContent.nodesc' />} />
+        avatar={{
+          icon: (special && <SpecialCollectionIcon type={special} />) || <FolderOpenOutlined />,
+          shape: 'square'
+        }}
+        title={(
+          <AsyncEditableText
+            ignoreOffsets
+            value={collection.name}
+            onChange={async name => dispatch({ ...fetched, collection: await client.collection.updateCollection({ id: collection.id, collectionBase: { ...collection, name } }) })} />
+        )}
+        subTitle={(
+          <AsyncEditableText
+            ignoreOffsets
+            value={collection.description || (special && <FormattedMessage id={`specialCollections.${special}`} />) || <FormattedMessage id='collectionContent.nodesc' />}
+            onChange={async description => dispatch({ ...fetched, collection: await client.collection.updateCollection({ id: collection.id, collectionBase: { ...collection, description } }) })} />
+        )} />
     </AffixGradientPageHeader>
 
     <LayoutContent>
