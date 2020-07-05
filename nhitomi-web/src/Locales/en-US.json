@@ -159,10 +159,13 @@
     "bookReaderMenuKey": "Show menu",
     "bookReaderJumpKey": "Show jump dialog"
   },
+  "collectionContent": {
+    "nodesc": "<no description>"
+  },
   "collectionListing": {
     "header": {
       "title": "Collections",
-      "sub": "List of my collections"
+      "sub": "List of your collections"
     },
     "headerUser": {
       "title": "{user}'s Collections",

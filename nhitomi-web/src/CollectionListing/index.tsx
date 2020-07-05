@@ -3,7 +3,7 @@ import { User, ObjectType, Book, Collection } from '../Client'
 import { Prefetch, usePrefetch, PrefetchLinkProps, PrefetchLink } from '../Prefetch'
 import { useScrollShortcut } from '../shortcuts'
 import { useTabTitle } from '../hooks'
-import { useIntl, FormattedMessage } from 'react-intl'
+import { useIntl } from 'react-intl'
 import { PageHeader } from 'antd'
 import { FolderOutlined } from '@ant-design/icons'
 import { BookGrid } from './BookGrid'
@@ -49,14 +49,14 @@ export const CollectionListing = ({ id }: { id?: string }) => {
   const { result } = usePrefetch(getCollectionListingPrefetch(id))
 
   if (result)
-    return <Loaded result={result} />
+    return <Loaded fetched={result} />
 
   return null
 }
 
 export const CollectionListingLink = (props: PrefetchLinkProps) => <PrefetchLink fetch={getCollectionListingPrefetch()} {...props} />
 
-const Loaded = ({ result: { my, user, books } }: { result: Fetched }) => {
+const Loaded = ({ fetched: { my, user, books } }: { fetched: Fetched }) => {
   const { formatMessage } = useIntl()
   const title = formatMessage({ id: my ? 'collectionListing.header.title' : 'collectionListing.headerUser.title' }, { user: user.username })
   const sub = formatMessage({ id: my ? 'collectionListing.header.sub' : 'collectionListing.headerUser.sub' }, { user: user.username })

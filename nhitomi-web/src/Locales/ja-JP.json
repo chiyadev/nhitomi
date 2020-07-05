@@ -148,6 +148,9 @@
     "bookReaderMenuKey": "メニューを表示",
     "bookReaderJumpKey": "ページへ飛び"
   },
+  "collectionContent": {
+    "nodesc": "<説明なし>"
+  },
   "collectionListing": {
     "header": {
       "title": "コレクション",

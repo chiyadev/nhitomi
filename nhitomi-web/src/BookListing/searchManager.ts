@@ -1,4 +1,4 @@
-import { BookTag, Book, LanguageType, Client, BookQuery, QueryMatchMode, BookQueryTags, BookSort, SortDirection, BookContent, BookSearchResult, ScraperType } from '../Client'
+import { BookTag, Book, LanguageType, Client, BookQuery, QueryMatchMode, BookQueryTags, BookSort, SortDirection, BookContent, ScraperType } from '../Client'
 import qs from 'qs'
 import { EventEmitter } from 'events'
 import StrictEventEmitter from 'strict-event-emitter-types'
@@ -242,16 +242,15 @@ export class SearchManager extends (EventEmitter as new () => StrictEventEmitter
     }
   }
 
-  async search(query: SearchQuery, offset?: number): Promise<BookSearchResult> {
+  async search(query: SearchQuery, offset?: number): Promise<{ items: Book[], total: number }> {
     // if simple query, try finding links first
     if (query.type === 'simple' && query.value) {
       const { matches } = await this.client.book.getBooksByLink({ strict: false, getBookByLinkRequest: { link: query.value } })
 
       if (matches.length) {
         return {
-          took: '', // temp
-          total: matches.length,
-          items: matches.map(m => m.book)
+          items: matches.map(m => m.book),
+          total: matches.length
         }
       }
     }
@@ -289,7 +288,7 @@ export class SearchManager extends (EventEmitter as new () => StrictEventEmitter
           query,
           items,
           total,
-          end: items.length >= total,
+          end: !items.length || items.length >= total,
           selected: selectBook(items, this.result.selected)
         }
       }
@@ -330,7 +329,7 @@ export class SearchManager extends (EventEmitter as new () => StrictEventEmitter
           query,
           items: totalItems,
           total,
-          end: totalItems.length >= total,
+          end: !items.length || totalItems.length >= total,
           selected: selectBook(totalItems, this.result.selected)
         }
       }
