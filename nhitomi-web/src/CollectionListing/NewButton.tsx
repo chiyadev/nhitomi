@@ -58,7 +58,7 @@ export const NewButton = () => {
       }}
       closable={false}
       footer={<>
-        <Button onClick={cancel} disabled={loading}>
+        <Button onClick={cancel}>
           <span><FormattedMessage id='collectionListing.new.cancel' /></span>
         </Button>
         <Button type='primary' loading={loading} onClick={submit}>
