@@ -13,7 +13,7 @@ import { NotificationContext } from '../NotificationContext'
 import { useHistory } from 'react-router-dom'
 import { useIntl } from 'react-intl'
 
-export function getBookListingPrefetch(): Prefetch<SearchResult> {
+export function getBookListingPrefetch(query?: Partial<SearchQuery>): Prefetch<SearchResult> {
   return {
     path: '/books',
 
@@ -23,6 +23,11 @@ export function getBookListingPrefetch(): Prefetch<SearchResult> {
 
       if (mode === 'initial' && search)
         manager.query = deserializeQuery(search)
+
+      manager.query = {
+        ...manager.query,
+        ...query as any
+      }
 
       manager.canRefresh = true
       return await manager.refresh()
@@ -39,7 +44,7 @@ export const BookListing = () => {
   return null
 }
 
-export const BookListingLink = (props: PrefetchLinkProps) => <PrefetchLink fetch={getBookListingPrefetch()} {...props} />
+export const BookListingLink = ({ query, ...props }: PrefetchLinkProps & { query?: Partial<SearchQuery> }) => <PrefetchLink fetch={getBookListingPrefetch(query)} {...props} />
 
 export const BookListingContext = createContext<{ manager: SearchManager }>(undefined as any)
 

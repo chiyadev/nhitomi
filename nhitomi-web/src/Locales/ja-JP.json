@@ -59,6 +59,15 @@
       "singleCoverDisabled": "最初のページを別で表示しません。"
     },
     "menu": {
+      "openNewTab": "新規タブで開く",
+      "searchBy": {
+        "title": "検索",
+        "name": "名前で",
+        "artist": "アーティストで",
+        "tags": "タグで"
+      },
+      "copyId": "IDをコピー",
+      "copySource": "サイトリンクをコピー",
       "details": "詳細"
     },
     "details": {

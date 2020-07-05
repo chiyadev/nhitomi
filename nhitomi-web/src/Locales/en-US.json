@@ -59,6 +59,15 @@
       "singleCoverDisabled": "Cover page is grouped with other pages."
     },
     "menu": {
+      "openNewTab": "Open in new tab",
+      "searchBy": {
+        "title": "Search by",
+        "name": "Name",
+        "artist": "Artist",
+        "tags": "Tags"
+      },
+      "copyId": "Copy ID",
+      "copySource": "Copy source link",
       "details": "Details"
     },
     "details": {
