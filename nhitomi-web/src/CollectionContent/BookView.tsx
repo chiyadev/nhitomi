@@ -93,7 +93,13 @@ export class BookCollectionManager extends SearchManager {
   constructor(client: Client, readonly collection: Collection) { super(client) }
 
   async search(query: BookCollectionLoadQuery, offset?: number): Promise<{ items: Book[], total: number }> {
-    const ids = this.collection.items.slice(offset, 50)
+    const ids = this.collection.items.slice(offset, (offset || 0) + 50)
+
+    if (!ids.length)
+      return {
+        items: [],
+        total: this.collection.items.length
+      }
 
     return {
       items: await this.client.book.getBooks({ getBookManyRequest: { ids } }),
