@@ -23,7 +23,8 @@ export const JumpModal = () => {
       onOk={() => setJump(false)}
       onCancel={() => setJump(false)}
       footer={null}
-      width={400}>
+      width={400}
+      destroyOnClose>
 
       <Input.Group compact style={{
         display: 'flex',
