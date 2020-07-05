@@ -1,10 +1,10 @@
 import React, { Dispatch, useCallback, useContext, useRef, useLayoutEffect, useMemo } from 'react'
 import { useTabTitle } from '../hooks'
 import { LayoutContent } from '../Layout'
-import { Fetched, getCollectionContentPrefetch } from '.'
+import { Fetched, getCollectionContentPrefetch, CollectionContentLink } from '.'
 import { AffixGradientPageHeader } from '../BookListing/AffixGradientPageHeader'
 import { PageHeader, Dropdown, Button, Menu, Modal } from 'antd'
-import { FormattedMessage } from 'react-intl'
+import { FormattedMessage, useIntl } from 'react-intl'
 import { FolderOpenOutlined, EllipsisOutlined, DeleteOutlined, ExclamationCircleOutlined, SnippetsOutlined } from '@ant-design/icons'
 import { SearchQuery, SearchResult, SearchManager } from '../BookListing/searchManager'
 import { Client, Collection, Book, CollectionInsertPosition } from '../Client'
@@ -18,10 +18,11 @@ import { useScrollShortcut } from '../shortcuts'
 import { getCollectionSpecialType, SpecialCollectionIcon } from '../CollectionListing/BookGrid'
 import { AsyncEditableText } from '../AsyncEditableText'
 import { usePrefetchExecutor } from '../Prefetch'
-import { getCollectionListingPrefetch } from '../CollectionListing'
+import { getCollectionListingPrefetch, CollectionListingLink } from '../CollectionListing'
 
 export const CollectionContentBookView = ({ fetched, dispatch }: { fetched: Fetched, dispatch: Dispatch<Fetched> }) => {
   const client = useContext(ClientContext)
+  const { formatMessage } = useIntl()
   const { collection, result } = fetched
 
   const special = client.currentInfo.authenticated && getCollectionSpecialType(client.currentInfo.user, collection)
@@ -50,6 +51,21 @@ export const CollectionContentBookView = ({ fetched, dispatch }: { fetched: Fetc
             value={collection.description || (special && <FormattedMessage id={`specialCollections.${special}`} />) || <FormattedMessage id='collectionContent.nodesc' />}
             onChange={async description => dispatch({ ...fetched, collection: await client.collection.updateCollection({ id: collection.id, collectionBase: { ...collection, description } }) })} />
         )}
+        breadcrumb={{
+          routes: [{
+            path: 'listing',
+            breadcrumbName: formatMessage({ id: 'collectionListing.header.title' })
+          }, {
+            path: 'collection',
+            breadcrumbName: collection.name
+          }],
+          itemRender: ({ path, breadcrumbName }) => {
+            switch (path) {
+              case 'listing': return <CollectionListingLink>{breadcrumbName}</CollectionListingLink>
+              case 'collection': return <CollectionContentLink id={collection.id}>{breadcrumbName}</CollectionContentLink>
+            }
+          }
+        }}
         extra={(
           <Dropdown placement='bottomRight' overlay={menu}>
             <Button
