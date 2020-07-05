@@ -13,7 +13,7 @@ export function getEventModifiers(e: { altKey: boolean, ctrlKey: boolean, metaKe
 
 function matchShortcut(shortcuts: ShortcutConfig[], event: KeyboardEvent) {
   // ignore keys for some elements
-  if ([HTMLInputElement, HTMLDivElement].some(e => event.target instanceof e))
+  if ([HTMLInputElement, HTMLTextAreaElement, HTMLDivElement].some(e => event.target instanceof e))
     return false
 
   const key = event.keyCode
