@@ -90,7 +90,8 @@ namespace nhitomi.Controllers
 
             public SearchDescriptor<DbCollection> Process(SearchDescriptor<DbCollection> descriptor)
                 => descriptor.Take(1000)
-                             .MultiQuery(q => q.Filter((FilterQuery<string>) _userId, c => c.OwnerIds));
+                             .MultiQuery(q => q.Filter((FilterQuery<string>) _userId, c => c.OwnerIds))
+                             .MultiSort(() => (SortDirection.Descending, c => c.UpdatedTime));
         }
 
         public Task<SearchResult<DbCollection>> GetUserCollectionsAsync(string id, CancellationToken cancellationToken = default)
