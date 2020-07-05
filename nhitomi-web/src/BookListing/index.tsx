@@ -1,4 +1,4 @@
-import React, { Dispatch, useContext, useRef, createContext, useMemo, useLayoutEffect } from 'react'
+import React, { Dispatch, useContext, useRef, createContext, useMemo, useLayoutEffect, ReactNode } from 'react'
 import { useTabTitle } from '../hooks'
 import { Prefetch, PrefetchLink, PrefetchLinkProps, usePrefetch } from '../Prefetch'
 import { ProgressContext } from '../Progress'
@@ -12,6 +12,7 @@ import { LocaleContext } from '../LocaleProvider'
 import { NotificationContext } from '../NotificationContext'
 import { useHistory } from 'react-router-dom'
 import { useIntl } from 'react-intl'
+import { Book, BookContent } from '../Client'
 
 export function getBookListingPrefetch(query?: Partial<SearchQuery>): Prefetch<SearchResult> {
   return {
@@ -46,7 +47,11 @@ export const BookListing = () => {
 
 export const BookListingLink = ({ query, ...props }: PrefetchLinkProps & { query?: Partial<SearchQuery> }) => <PrefetchLink fetch={getBookListingPrefetch(query)} {...props} />
 
-export const BookListingContext = createContext<{ manager: SearchManager }>(undefined as any)
+export const BookListingContext = createContext<{
+  manager: SearchManager
+
+  additionalMenus?: (book: Book, content: BookContent) => ReactNode
+}>(undefined as any)
 
 const Loaded = ({ result, dispatch }: { result: SearchResult, dispatch: Dispatch<SearchResult> }) => {
   const { formatMessage } = useIntl()

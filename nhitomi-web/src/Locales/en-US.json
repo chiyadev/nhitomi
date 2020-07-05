@@ -203,6 +203,12 @@
         "no": "No",
         "success": "Collection successfully deleted."
       }
+    },
+    "bookMenu": {
+      "remove": {
+        "text": "Remove from collection",
+        "success": "Successfully removed from this collection."
+      }
     }
   },
   "collectionListing": {

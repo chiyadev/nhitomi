@@ -192,6 +192,12 @@
         "no": "いいえ",
         "success": "コレクションが削除されました。"
       }
+    },
+    "bookMenu": {
+      "remove": {
+        "text": "コレクションから削除",
+        "success": "コレクションから項目が削除されました。"
+      }
     }
   },
   "collectionListing": {

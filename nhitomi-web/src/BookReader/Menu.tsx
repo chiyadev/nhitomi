@@ -6,7 +6,7 @@ import { FormattedMessage } from 'react-intl'
 import { BookReaderLink } from '.'
 import { useCopyToClipboard } from 'react-use'
 import { NotificationContext } from '../NotificationContext'
-import { BookListingLink } from '../BookListing'
+import { BookListingLink, BookListingContext } from '../BookListing'
 import { SearchQuery } from '../BookListing/searchManager'
 import { ProgressContext } from '../Progress'
 import { ClientContext } from '../ClientContext'
@@ -19,6 +19,9 @@ export const ReaderMenu = ({ book, content, setDetails }: {
 }) => {
   const { alert: { info } } = useContext(NotificationContext)
   const [, setClipboard] = useCopyToClipboard()
+
+  // listing context may not be available
+  const listingContext = useContext(BookListingContext)
 
   return useMemo(() => (
     <Menu>
@@ -71,8 +74,10 @@ export const ReaderMenu = ({ book, content, setDetails }: {
 
         <FormattedMessage id='bookReader.menu.details' />
       </Menu.Item>
+
+      {listingContext && listingContext.additionalMenus?.(book, content)}
     </Menu>
-  ), [book, content, setClipboard, setDetails, info])
+  ), [book, content, listingContext, setClipboard, info, setDetails])
 }
 
 const OpenNewTabItem = ({ id, contentId, ...props }: { id: string, contentId: string, [key: string]: any }) => (

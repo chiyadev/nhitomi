@@ -90,7 +90,7 @@ export type BookCollectionLoadResult = SearchResult
 // book collection is similar to book listing, only without querying.
 // we simply override book listing's search manager for code reuse.
 export class BookCollectionManager extends SearchManager {
-  constructor(client: Client, readonly collection: Collection) { super(client) }
+  constructor(client: Client, public collection: Collection) { super(client) }
 
   async search(query: BookCollectionLoadQuery, offset?: number): Promise<{ items: Book[], total: number }> {
     const ids = this.collection.items.slice(offset, (offset || 0) + 50)
@@ -112,7 +112,7 @@ const Grid = ({ collection, result, dispatch }: { collection: Collection, result
   const client = useContext(ClientContext)
   const { start, stop } = useContext(ProgressContext)
   const { locale, setLocale } = useContext(LocaleContext)
-  const { notification: { error } } = useContext(NotificationContext)
+  const { notification: { error }, alert: { success } } = useContext(NotificationContext)
 
   const manager = useRef(new BookCollectionManager(client, collection)).current
 
@@ -135,8 +135,40 @@ const Grid = ({ collection, result, dispatch }: { collection: Collection, result
 
   useLayoutEffect(() => manager.replace(manager.query, result), [manager, result])
 
+  const additionalMenus = useCallback((book: Book) => {
+    return [
+      <Menu.Item
+        danger
+        icon={<DeleteOutlined />}
+        onClick={async () => {
+          start()
+
+          try {
+            manager.collection = await client.collection.removeCollectionItems({ id: collection.id, collectionItemsRequest: { items: [book.id] } })
+
+            manager.result = {
+              ...manager.result,
+              items: manager.result.items.filter(b => b.id !== book.id),
+              total: manager.collection.items.length
+            }
+
+            success(<FormattedMessage id='collectionContent.bookMenu.remove.success' />)
+          }
+          catch (e) {
+            error(e)
+          }
+          finally {
+            stop()
+          }
+        }}>
+
+        <FormattedMessage id='collectionContent.bookMenu.remove.text' />
+      </Menu.Item>
+    ]
+  }, [start, manager.collection, manager.result, client.collection, collection.id, success, error, stop])
+
   return (
-    <BookListingContext.Provider value={useMemo(() => ({ manager }), [manager])}>
+    <BookListingContext.Provider value={useMemo(() => ({ manager, additionalMenus }), [manager, additionalMenus])}>
       <BookGrid />
     </BookListingContext.Provider>
   )
