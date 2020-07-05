@@ -1,7 +1,7 @@
 import { ReactionTrigger, InteractiveMessage, RenderResult } from '../interactive'
 import { MessageContext } from '../context'
 import { Locale } from '../locales'
-import { Book, BookContent, LanguageType } from 'nhitomi-api'
+import { Book, BookContent } from 'nhitomi-api'
 import { DestroyTrigger } from './destroy'
 import { Api } from '../api'
 
