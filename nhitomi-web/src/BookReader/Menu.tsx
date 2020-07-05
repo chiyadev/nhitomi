@@ -1,7 +1,7 @@
-import React, { useMemo, useContext } from 'react'
+import React, { useMemo, useContext, ReactNode } from 'react'
 import { Menu, Typography } from 'antd'
 import { Book, BookContent, BookTag, SpecialCollection, ObjectType, CollectionInsertPosition } from '../Client'
-import { FileTextOutlined, ExpandAltOutlined, LinkOutlined, SearchOutlined, HeartOutlined } from '@ant-design/icons'
+import { FileTextOutlined, ExpandAltOutlined, LinkOutlined, SearchOutlined, HeartOutlined, EyeOutlined } from '@ant-design/icons'
 import { FormattedMessage } from 'react-intl'
 import { BookReaderLink } from '.'
 import { useCopyToClipboard } from 'react-use'
@@ -17,9 +17,7 @@ export const ReaderMenu = ({ book, content, setDetails }: {
 
   setDetails: (details: boolean) => void
 }) => {
-  const client = useContext(ClientContext)
-  const { start, stop } = useContext(ProgressContext)
-  const { notification: { error }, alert: { success } } = useContext(NotificationContext)
+  const { alert: { info } } = useContext(NotificationContext)
   const [, setClipboard] = useCopyToClipboard()
 
   return useMemo(() => (
@@ -48,45 +46,22 @@ export const ReaderMenu = ({ book, content, setDetails }: {
 
       <Menu.Item
         icon={<LinkOutlined />}
-        onClick={() => { setClipboard(book.id); success(<code>{book.id}</code>) }}>
+        onClick={() => { setClipboard(book.id); info(<code>{book.id}</code>) }}>
 
         <FormattedMessage id='bookReader.menu.copyId' />
       </Menu.Item>
 
       <Menu.Item
         icon={<LinkOutlined />}
-        onClick={() => { setClipboard(content.sourceUrl); success(<a href={content.sourceUrl} target='_blank' rel='noopener noreferrer'>{content.sourceUrl}</a>) }}>
+        onClick={() => { setClipboard(content.sourceUrl); info(<a href={content.sourceUrl} target='_blank' rel='noopener noreferrer'>{content.sourceUrl}</a>) }}>
 
         <FormattedMessage id='bookReader.menu.copySource' />
       </Menu.Item>
 
       <Menu.Divider />
 
-      <Menu.Item
-        icon={<HeartOutlined />}
-        onClick={async () => {
-          if (!client.currentInfo.authenticated) return
-
-          start()
-
-          try {
-            const collection = client.currentInfo.user.specialCollections?.book?.favorites || (await client.user.getUserSpecialCollection({ id: client.currentInfo.user.id, collection: SpecialCollection.Favorites, type: ObjectType.Book })).id
-            await client.collection.addCollectionItems({ id: collection, addCollectionItemsRequest: { items: [book.id], position: CollectionInsertPosition.Start } })
-
-            // todo: add link to fav collection here
-            // not possible at the moment due to missing contexts in notification provider
-            success(<FormattedMessage id='bookReader.menu.favorite.success' />)
-          }
-          catch (e) {
-            error(e)
-          }
-          finally {
-            stop()
-          }
-        }}>
-
-        <FormattedMessage id='bookReader.menu.favorite.title' />
-      </Menu.Item>
+      <CollectionAddItem book={book} type={SpecialCollection.Favorites} />
+      <CollectionAddItem book={book} type={SpecialCollection.Later} />
 
       <Menu.Divider />
 
@@ -97,7 +72,7 @@ export const ReaderMenu = ({ book, content, setDetails }: {
         <FormattedMessage id='bookReader.menu.details' />
       </Menu.Item>
     </Menu>
-  ), [client, book, content, setClipboard, setDetails, error, success, start, stop])
+  ), [book, content, setClipboard, setDetails, info])
 }
 
 const OpenNewTabItem = ({ id, contentId, ...props }: { id: string, contentId: string, [key: string]: any }) => (
@@ -158,5 +133,56 @@ const SearchByItem = ({ book, type, ...props }: { book: Book, type: 'name' | 'ar
         <small style={{ opacity: 0.5 }}> {hint}</small>
       </Menu.Item>
     </BookListingLink >
+  )
+}
+
+const CollectionAddItem = ({ book, type, onClick, ...props }: { book: Book, type: SpecialCollection, [key: string]: any }) => {
+  const client = useContext(ClientContext)
+  const { start, stop } = useContext(ProgressContext)
+  const { notification: { error }, alert: { success } } = useContext(NotificationContext)
+
+  let icon: ReactNode
+
+  switch (type) {
+    case SpecialCollection.Favorites:
+      icon = <HeartOutlined />
+      break
+
+    case SpecialCollection.Later:
+      icon = <EyeOutlined />
+      break
+  }
+
+  return (
+    <Menu.Item
+      {...props}
+      icon={icon}
+      onClick={async () => {
+        onClick?.()
+
+        if (!client.currentInfo.authenticated) return
+
+        start()
+
+        try {
+          const collection = client.currentInfo.user.specialCollections?.book?.[type] || (await client.user.getUserSpecialCollection({ id: client.currentInfo.user.id, collection: type, type: ObjectType.Book })).id
+          await client.collection.addCollectionItems({ id: collection, addCollectionItemsRequest: { items: [book.id], position: CollectionInsertPosition.Start } })
+
+          client.currentInfo.user.specialCollections = { ...client.currentInfo.user.specialCollections, book: { ...client.currentInfo.user.specialCollections?.book, [type]: collection } }
+
+          // todo: add link to fav collection here
+          // not possible at the moment due to missing contexts in notification provider
+          success(<FormattedMessage id={`bookReader.menu.${type}.success`} />)
+        }
+        catch (e) {
+          error(e)
+        }
+        finally {
+          stop()
+        }
+      }}>
+
+      <FormattedMessage id={`bookReader.menu.${type}.title`} />
+    </Menu.Item>
   )
 }
