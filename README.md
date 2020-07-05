@@ -10,9 +10,9 @@ Join the [Discord server](https://discord.gg/JFNga7q) or [invite the nhitomi bot
 
 ## Subprojects
 
-- [nhitomi-idx](nhitomi-idx) - API server
-- [nhitomi-web](nhitomi-web) - Browser frontend
-- [nhitomi-discord](nhitomi-discord) - Discord frontend
+- [nhitomi-idx](https://github.com/chiyadev/nhitomi/tree/master/nhitomi-idx) — API server
+- [nhitomi-web](https://github.com/chiyadev/nhitomi/tree/master/nhitomi-web) — Browser frontend
+- [nhitomi-discord](https://github.com/chiyadev/nhitomi/tree/master/nhitomi-discord) — Discord frontend
 
 ## API
 
@@ -20,4 +20,4 @@ Please see the [API Documentation](https://nhitomi.chiya.dev/api/v1).
 
 ## License
 
-This project is licensed under the [MIT license](https://opensource.org/licenses/MIT). Please see the [license](LICENSE) for more information.
+This project is licensed under the [MIT license](https://opensource.org/licenses/MIT). Please see the [license](https://github.com/chiyadev/nhitomi/blob/master/LICENSE) for more information.
