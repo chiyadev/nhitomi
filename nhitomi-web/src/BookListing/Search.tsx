@@ -220,6 +220,7 @@ const MoreQueries = () => {
   const client = useContext(ClientContext)
   const { manager } = useContext(BookListingContext)
 
+  useUpdateOnEvent(client, 'currentInfo')
   useUpdateOnEvent(manager, 'query')
 
   const [visible, setVisible] = useState(false)

@@ -168,7 +168,19 @@ const CollectionAddItem = ({ book, type, onClick, ...props }: { book: Book, type
           const collection = client.currentInfo.user.specialCollections?.book?.[type] || (await client.user.getUserSpecialCollection({ id: client.currentInfo.user.id, collection: type, type: ObjectType.Book })).id
           await client.collection.addCollectionItems({ id: collection, addCollectionItemsRequest: { items: [book.id], position: CollectionInsertPosition.Start } })
 
-          client.currentInfo.user.specialCollections = { ...client.currentInfo.user.specialCollections, book: { ...client.currentInfo.user.specialCollections?.book, [type]: collection } }
+          client.currentInfo = {
+            ...client.currentInfo,
+            user: {
+              ...client.currentInfo.user,
+              specialCollections: {
+                ...client.currentInfo.user.specialCollections,
+                book: {
+                  ...client.currentInfo.user.specialCollections?.book,
+                  [type]: collection
+                }
+              }
+            }
+          }
 
           // todo: add link to fav collection here
           // not possible at the moment due to missing contexts in notification provider

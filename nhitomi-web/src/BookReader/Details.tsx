@@ -12,6 +12,7 @@ import { languageNames } from '../LocaleProvider'
 import { LanguageType, Book, BookContent } from '../Client'
 import { KeySettings } from '../Settings/KeySettings'
 import { BookReaderContext } from '.'
+import { useUpdateOnEvent } from '../hooks'
 
 export const Details = ({ open, setOpen, book, content, setContent }: {
   open: boolean
@@ -23,6 +24,8 @@ export const Details = ({ open, setOpen, book, content, setContent }: {
 }) => {
   const client = useContext(ClientContext)
   const { width } = useContext(LayoutContext)
+
+  useUpdateOnEvent(client, 'currentInfo')
 
   // reader context may not be available if the details panel is opened from book listing
   const readerContext = useContext(BookReaderContext)

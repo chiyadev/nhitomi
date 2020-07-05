@@ -2,6 +2,7 @@ import React, { CSSProperties, useContext, ComponentProps } from 'react'
 import { ScraperType } from './Client'
 import { ClientContext } from './ClientContext'
 import { Button } from 'antd'
+import { useUpdateOnEvent } from './hooks'
 
 export const SourceIcon = ({ type, style }: {
   type: ScraperType
@@ -24,6 +25,9 @@ export const SourceButton = ({ type, ...props }: Omit<ComponentProps<typeof Butt
   type: ScraperType
 }) => {
   const client = useContext(ClientContext)
+
+  useUpdateOnEvent(client, 'currentInfo')
+
   const scraper = client.currentInfo.scrapers.find(s => s.type === type)
 
   return (

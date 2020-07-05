@@ -161,9 +161,23 @@ export const CollectionContentBookMenu = ({ collection, onDeleteListingId }: {
     start()
 
     try {
-      const user = client.currentInfo.user
+      client.currentInfo = {
+        ...client.currentInfo,
 
-      client.currentInfo.user = await client.user.updateUser({ id: user.id, userBase: { ...user, specialCollections: { ...user.specialCollections, book: { ...user.specialCollections?.book, [type]: collection.id } } } })
+        user: await client.user.updateUser({
+          id: client.currentInfo.user.id,
+          userBase: {
+            ...client.currentInfo.user,
+            specialCollections: {
+              ...client.currentInfo.user.specialCollections,
+              book: {
+                ...client.currentInfo.user.specialCollections?.book,
+                [type]: collection.id
+              }
+            }
+          }
+        })
+      }
 
       success(<FormattedMessage id={`collectionContent.menu.${type}Set.success`} />)
     }

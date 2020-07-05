@@ -9,6 +9,7 @@ import { CollectionContentLink } from '../CollectionContent'
 import { FormattedMessage } from 'react-intl'
 import { HeartFilled, EyeFilled, HeartOutlined, EyeOutlined } from '@ant-design/icons'
 import { CollectionContentBookMenu } from '../CollectionContent/BookView'
+import { useUpdateOnEvent } from '../hooks'
 
 const gridGutter = 6
 const gridLayout: ListGridType = {
@@ -44,6 +45,9 @@ export const BookGrid = ({ id, user, items }: { id?: string, user: User, items: 
 
 const Item = ({ id, collection, cover, special }: { id?: string, collection: Collection, cover?: Book, special?: SpecialCollection }) => {
   const client = useContext(ClientContext)
+
+  useUpdateOnEvent(client, 'currentInfo')
+
   const coverContent = cover && (cover.contents.find(c => client.currentInfo.authenticated && c.language === client.currentInfo.user.language) || cover.contents[0])
 
   const menu = CollectionContentBookMenu({ collection, onDeleteListingId: id })

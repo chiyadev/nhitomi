@@ -7,10 +7,16 @@ import { ImageWorker } from './image'
 
 export * from 'nhitomi-api'
 
+type ClientCurrentInfo =
+  GetInfoResponse & { authenticated: false } |
+  GetInfoAuthenticatedResponse & { authenticated: true }
+
 /** Implements nhitomi API client. */
 export class Client extends (EventEmitter as new () => StrictEventEmitter<EventEmitter, {
   request: (request: RequestContext) => void
   response: (response: ResponseContext) => void
+
+  currentInfo: (info: ClientCurrentInfo) => void
 }>) {
   private readonly httpConfig: ConfigurationParameters = {
     middleware: [{
@@ -66,10 +72,11 @@ export class Client extends (EventEmitter as new () => StrictEventEmitter<EventE
   /** Image worker. */
   image: ImageWorker
 
+  private _currentInfo!: ClientCurrentInfo
+
   /** Contains client and API information. */
-  currentInfo!:
-    GetInfoResponse & { authenticated: false } |
-    GetInfoAuthenticatedResponse & { authenticated: true }
+  get currentInfo(): ClientCurrentInfo { return this._currentInfo }
+  set currentInfo(v: ClientCurrentInfo) { this.emit('currentInfo', this._currentInfo = v) }
 
   /**
    * Creates a new nhitomi client.

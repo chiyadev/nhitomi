@@ -4,6 +4,7 @@ import { useAsync } from 'react-use'
 import React from 'react'
 import { ProgressContext } from './Progress'
 import { LocaleContext } from './LocaleProvider'
+import { useUpdateOnEvent } from './hooks'
 
 /** API client context. */
 export const ClientContext = createContext<Client>(undefined as any)
@@ -15,6 +16,8 @@ export const ClientProvider = ({ children }: { children?: ReactNode }) => {
 
   // create client
   const client = useMemo(() => new Client(), [])
+
+  useUpdateOnEvent(client, 'currentInfo')
 
   // reset app completely when token changes
   const [reset, setReset] = useState(0)
@@ -63,13 +66,17 @@ export const ClientProvider = ({ children }: { children?: ReactNode }) => {
     start()
 
     try {
-      client.currentInfo.user = await client.user.updateUser({
-        id: client.currentInfo.user.id,
-        userBase: {
-          ...client.currentInfo.user,
-          language: locale
-        }
-      })
+      client.currentInfo = {
+        ...client.currentInfo,
+
+        user: await client.user.updateUser({
+          id: client.currentInfo.user.id,
+          userBase: {
+            ...client.currentInfo.user,
+            language: locale
+          }
+        })
+      }
     }
     finally {
       stop()
