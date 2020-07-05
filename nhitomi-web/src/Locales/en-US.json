@@ -161,7 +161,13 @@
   },
   "collectionListing": {
     "header": {
-      "title": "Collections"
-    }
+      "title": "Collections",
+      "sub": "List of my collections"
+    },
+    "headerUser": {
+      "title": "{user}'s Collections",
+      "sub": "List of {user}'s collections"
+    },
+    "empty": "No collections"
   }
 }

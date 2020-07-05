@@ -22,7 +22,7 @@
     "empty": "結果なし",
     "header": {
       "title": "ブックス",
-      "sub": "本を検索します。"
+      "sub": "本を検索します"
     },
     "time": {
       "uploaded": "{time}にアップロード。",
@@ -150,7 +150,13 @@
   },
   "collectionListing": {
     "header": {
-      "title": "コレクション"
-    }
+      "title": "コレクション",
+      "sub": "コレクションを管理します"
+    },
+    "headerUser": {
+      "title": "{user}さんのコレクション",
+      "sub": "{user}さんのコレクションです"
+    },
+    "empty": "コレクションなし"
   }
 }
