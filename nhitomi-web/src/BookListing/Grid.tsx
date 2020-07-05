@@ -12,6 +12,7 @@ import { useUpdateOnEvent } from '../hooks'
 import { presetPrimaryColors } from '@ant-design/colors'
 import { Panel } from './Panel'
 import { FormattedMessage } from 'react-intl'
+import { getEventModifiers } from '../shortcuts'
 
 const gridGutter = 6
 const gridLayout: ListGridType = {
@@ -150,7 +151,10 @@ const Item = ({ book }: { book: Book }) => {
           id={book.id}
           contentId={content.id}
           disabled={!breakpoint && !selected} // on mobile, don't show information panel
-          onClick={breakpoint ? undefined : () => manager.result = { ...manager.result, selected: { book, content } }}>
+          onClick={breakpoint ? undefined : e => {
+            if (!getEventModifiers(e).length)
+              manager.result = { ...manager.result, selected: { book, content } }
+          }}>
 
           <Card
             size='small'
