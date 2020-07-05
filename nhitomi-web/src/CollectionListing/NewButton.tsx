@@ -43,7 +43,7 @@ export const NewButton = () => {
   }
 
   return <>
-    <Button shape='round' icon={<PlusOutlined />} onClick={() => setOpen(true)}>
+    <Button icon={<PlusOutlined />} onClick={() => setOpen(true)}>
       <span><FormattedMessage id='collectionListing.new.button' /></span>
     </Button>
 
