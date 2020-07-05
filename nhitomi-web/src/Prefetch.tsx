@@ -167,7 +167,7 @@ export function usePrefetchReset() {
 export type PrefetchLinkProps = Omit<ComponentProps<typeof PrefetchLink>, 'fetch'>
 
 /** Link that fetches some data before navigating to a page. */
-export const PrefetchLink = <T extends {}>({ fetch, disabled, onClick, ...props }: Omit<ComponentProps<typeof Link>, 'to'> & {
+export const PrefetchLink = <T extends {}>({ fetch, disabled, target, onClick, ...props }: Omit<ComponentProps<typeof Link>, 'to'> & {
   /** fetch information */
   fetch: Prefetch<T>
 
@@ -185,6 +185,10 @@ export const PrefetchLink = <T extends {}>({ fetch, disabled, onClick, ...props 
       if (getEventModifiers(e).length)
         return
 
+      // don't handle blank targets
+      if (target === '_blank')
+        return
+
       // prevent default navigation
       e.preventDefault()
 
@@ -193,5 +197,6 @@ export const PrefetchLink = <T extends {}>({ fetch, disabled, onClick, ...props 
 
       executor(fetch)
     }}
+    target={target}
     {...props} />
 }
