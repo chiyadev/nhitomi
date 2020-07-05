@@ -14,10 +14,12 @@ import { LocaleContext } from '../LocaleProvider'
 import { NotificationContext } from '../NotificationContext'
 import { BookListingContext } from '../BookListing'
 import { Grid as BookGrid } from '../BookListing/Grid'
+import { useScrollShortcut } from '../shortcuts'
 
 export const CollectionContentBookView = ({ fetched, dispatch }: { fetched: Fetched, dispatch: Dispatch<Fetched> }) => {
   const { collection, result } = fetched
 
+  useScrollShortcut()
   useTabTitle(collection.name)
 
   return <>
