@@ -9,7 +9,7 @@ nhitomi provides an OpenAPI 3.0 specification which can be used to generate an H
 
 ### Setup
 
-[nhitomi-web](nhitomi-web) and [nhitomi-discord](nhitomi-discord) subprojects leverage the generated API client. These projects must be initialized using the `genclient` npm script before the build step.
+[nhitomi-web](../nhitomi-web) and [nhitomi-discord](../nhitomi-discord) subprojects leverage the generated API client. These projects must be initialized using the `genclient` npm script before the build step.
 
 ```shell
 $ npm i
