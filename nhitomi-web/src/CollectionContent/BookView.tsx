@@ -1,13 +1,13 @@
 import React, { Dispatch, useCallback, useContext, useRef, useLayoutEffect, useMemo } from 'react'
 import { useTabTitle } from '../hooks'
 import { LayoutContent } from '../Layout'
-import { Fetched } from '.'
+import { Fetched, getCollectionContentPrefetch } from '.'
 import { AffixGradientPageHeader } from '../BookListing/AffixGradientPageHeader'
 import { PageHeader, Dropdown, Button, Menu, Modal } from 'antd'
 import { FormattedMessage } from 'react-intl'
-import { FolderOpenOutlined, EllipsisOutlined, DeleteOutlined, ExclamationCircleOutlined } from '@ant-design/icons'
+import { FolderOpenOutlined, EllipsisOutlined, DeleteOutlined, ExclamationCircleOutlined, SnippetsOutlined } from '@ant-design/icons'
 import { SearchQuery, SearchResult, SearchManager } from '../BookListing/searchManager'
-import { Client, Collection, Book } from '../Client'
+import { Client, Collection, Book, CollectionInsertPosition } from '../Client'
 import { ClientContext } from '../ClientContext'
 import { ProgressContext } from '../Progress'
 import { LocaleContext } from '../LocaleProvider'
@@ -131,10 +131,35 @@ export const CollectionContentBookMenu = ({ collection, onDeleteListingId }: {
   const client = useContext(ClientContext)
   const push = usePrefetchExecutor()
   const [modal, modalContexts] = Modal.useModal()
-  const { notification: { error } } = useContext(NotificationContext)
+  const { start, stop } = useContext(ProgressContext)
+  const { notification: { error }, alert: { success } } = useContext(NotificationContext)
 
   return (
     <Menu>
+      <Menu.Item
+        icon={<SnippetsOutlined />}
+        onClick={async () => {
+          start()
+
+          try {
+            let clone = await client.collection.createCollection({ createCollectionRequest: { type: collection.type, collection } })
+            clone = await client.collection.addCollectionItems({ id: clone.id, addCollectionItemsRequest: { items: collection.items, position: CollectionInsertPosition.End } })
+
+            await push(getCollectionContentPrefetch(clone.id))
+
+            success(<FormattedMessage id='collectionContent.menu.clone.success' />)
+          }
+          catch (e) {
+            error(e)
+          }
+          finally {
+            stop()
+          }
+        }}>
+
+        <FormattedMessage id='collectionContent.menu.clone.text' />
+      </Menu.Item>
+
       <Menu.Item
         danger
         icon={<DeleteOutlined />}
@@ -149,6 +174,8 @@ export const CollectionContentBookMenu = ({ collection, onDeleteListingId }: {
             try {
               await client.collection.deleteCollection({ id: collection.id })
               await push(getCollectionListingPrefetch(onDeleteListingId))
+
+              success(<FormattedMessage id='collectionContent.menu.delete.success' />)
             }
             catch (e) {
               error(e)

@@ -162,12 +162,17 @@
   "collectionContent": {
     "nodesc": "<no description>",
     "menu": {
+      "clone": {
+        "text": "Clone",
+        "success": "Collection successfully cloned."
+      },
       "delete": {
         "text": "Delete",
         "title": "Delete {collection}?",
         "description": "This collection will be deleted permanently.",
         "yes": "Yes",
-        "no": "No"
+        "no": "No",
+        "success": "Collection successfully deleted."
       }
     }
   },

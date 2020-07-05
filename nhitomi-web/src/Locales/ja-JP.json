@@ -151,12 +151,17 @@
   "collectionContent": {
     "nodesc": "<説明なし>",
     "menu": {
+      "clone": {
+        "text": "複製",
+        "success": "コレクションが複製されました。"
+      },
       "delete": {
         "text": "削除",
         "title": "{collection}を削除しますか?",
         "description": "このコレクションを永遠に見れなくなります。",
         "yes": "はい",
-        "no": "いいえ"
+        "no": "いいえ",
+        "success": "コレクションが削除されました。"
       }
     }
   },
