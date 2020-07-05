@@ -15,9 +15,13 @@ import { NotificationContext } from '../NotificationContext'
 import { BookListingContext } from '../BookListing'
 import { Grid as BookGrid } from '../BookListing/Grid'
 import { useScrollShortcut } from '../shortcuts'
+import { getCollectionSpecialType, SpecialCollectionIcon } from '../CollectionListing/BookGrid'
 
 export const CollectionContentBookView = ({ fetched, dispatch }: { fetched: Fetched, dispatch: Dispatch<Fetched> }) => {
+  const client = useContext(ClientContext)
   const { collection, result } = fetched
+
+  const special = client.currentInfo.authenticated && getCollectionSpecialType(client.currentInfo.user, collection)
 
   useScrollShortcut()
   useTabTitle(collection.name)
@@ -25,9 +29,9 @@ export const CollectionContentBookView = ({ fetched, dispatch }: { fetched: Fetc
   return <>
     <AffixGradientPageHeader>
       <PageHeader
-        avatar={{ icon: <FolderOpenOutlined />, shape: 'square' }}
+        avatar={{ icon: (special && <SpecialCollectionIcon type={special} />) || <FolderOpenOutlined />, shape: 'square' }}
         title={collection.name}
-        subTitle={collection.description || <FormattedMessage id='collectionContent.nodesc' />} />
+        subTitle={collection.description || (special && <FormattedMessage id={`specialCollections.${special}`} />) || <FormattedMessage id='collectionContent.nodesc' />} />
     </AffixGradientPageHeader>
 
     <LayoutContent>

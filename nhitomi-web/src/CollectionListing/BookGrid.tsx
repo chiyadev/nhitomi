@@ -1,4 +1,4 @@
-import React, { useContext, ReactElement, useState } from 'react'
+import React, { useContext, useState } from 'react'
 import { List, Card, Typography, Empty, Tooltip } from 'antd'
 import { ListGridType } from 'antd/lib/list'
 import { LayoutContext } from '../LayoutContext'
@@ -7,7 +7,7 @@ import { ClientContext } from '../ClientContext'
 import { AsyncImage } from '../AsyncImage'
 import { CollectionContentLink } from '../CollectionContent'
 import { FormattedMessage } from 'react-intl'
-import { HeartFilled, EyeFilled } from '@ant-design/icons'
+import { HeartFilled, EyeFilled, HeartOutlined, EyeOutlined } from '@ant-design/icons'
 
 const gridGutter = 6
 const gridLayout: ListGridType = {
@@ -17,6 +17,10 @@ const gridLayout: ListGridType = {
   lg: 4,
   xl: 5,
   xxl: 7
+}
+
+export function getCollectionSpecialType(user: User, collection: Collection) {
+  return Object.entries(user.specialCollections?.[collection.type] || {}).find(([, id]) => id === collection.id)?.[0] as SpecialCollection | undefined
 }
 
 export const BookGrid = ({ user, items }: { user: User, items: { collection: Collection, cover?: Book }[] }) => {
@@ -33,12 +37,7 @@ export const BookGrid = ({ user, items }: { user: User, items: { collection: Col
       }}
       dataSource={items}
       rowKey={({ collection }) => collection.id}
-      renderItem={({ collection, cover }) => (
-        <Item
-          collection={collection}
-          cover={cover}
-          special={Object.entries(user.specialCollections?.book || {}).find(([, id]) => id === collection.id)?.[0] as SpecialCollection} />
-      )} />
+      renderItem={({ collection, cover }) => <Item collection={collection} cover={cover} special={getCollectionSpecialType(user, collection)} />} />
   )
 }
 
@@ -64,7 +63,7 @@ const Item = ({ collection, cover, special }: { collection: Collection, cover?: 
               preloadScale={0.5}
               src={cover && coverContent ? (() => client.book.getBookImage({ id: cover.id, contentId: coverContent.id, index: -1 })) : undefined}>
 
-              {special && <SpecialCollectionIcon type={special} />}
+              {special && <SpecialCollectionIconOverlay type={special} />}
             </AsyncImage>
           )}>
 
@@ -83,27 +82,18 @@ const Item = ({ collection, cover, special }: { collection: Collection, cover?: 
   )
 }
 
-const SpecialCollectionIcon = ({ type }: { type: SpecialCollection }) => {
-  let icon: ReactElement
-
+export const SpecialCollectionIcon = ({ type, filled }: { type: SpecialCollection, filled?: boolean }) => {
   switch (type) {
     case SpecialCollection.Favorites:
-      icon = <HeartFilled />
-      break
+      return filled ? <HeartFilled /> : <HeartOutlined />
 
     case SpecialCollection.Later:
-      icon = <EyeFilled />
-      break
+      return filled ? <EyeFilled /> : <EyeOutlined />
   }
+}
 
+const SpecialCollectionIconOverlay = ({ type }: { type: SpecialCollection }) => {
   const [hovered, setHovered] = useState(false)
-
-  icon = (
-    <span
-      children={icon}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)} />
-  )
 
   return (
     <div style={{
@@ -118,7 +108,14 @@ const SpecialCollectionIcon = ({ type }: { type: SpecialCollection }) => {
       padding: 5,
       transition: 'opacity 0.2s'
     }}>
-      <Tooltip children={icon} title={<FormattedMessage id={`specialCollections.${type}`} />} />
+      <Tooltip title={<FormattedMessage id={`specialCollections.${type}`} />}>
+        <span
+          onMouseEnter={() => setHovered(true)}
+          onMouseLeave={() => setHovered(false)}>
+
+          <SpecialCollectionIcon type={type} filled />
+        </span>
+      </Tooltip>
     </div>
   )
 }
