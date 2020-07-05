@@ -7,6 +7,7 @@ import { BookReaderLink } from '.'
 import { useCopyToClipboard } from 'react-use'
 import { NotificationContext } from '../NotificationContext'
 import { BookListingLink } from '../BookListing'
+import { SearchQuery } from '../BookListing/searchManager'
 
 export const ReaderMenu = ({ book, content, setDetails }: {
   book: Book
@@ -29,6 +30,7 @@ export const ReaderMenu = ({ book, content, setDetails }: {
 
         <SearchByItem book={book} type='name' />
         <SearchByItem book={book} type='artist' />
+        <SearchByItem book={book} type='character' />
         <SearchByItem book={book} type='tags' />
       </Menu.SubMenu>
 
@@ -73,25 +75,50 @@ const OpenNewTabItem = ({ id, contentId, ...props }: { id: string, contentId: st
   </BookReaderLink>
 )
 
-const SearchByItem = ({ book, type, ...props }: { book: Book, type: 'name' | 'artist' | 'tags', [key: string]: any }) => (
-  <BookListingLink query={(
-    type === 'name' ? { type: 'simple', value: book.primaryName }
-      : type === 'artist' ? { type: 'tag', items: book.tags.artist?.map(value => ({ type: BookTag.Artist, value })) }
-        : type === 'tags' ? { type: 'tag', items: book.tags.tag?.map(value => ({ type: BookTag.Tag, value })) }
-          : undefined
-  )}>
-    <Menu.Item {...props}>
-      <FormattedMessage id={`bookReader.menu.searchBy.${type}`} />
+const SearchByItem = ({ book, type, ...props }: { book: Book, type: 'name' | 'artist' | 'character' | 'tags', [key: string]: any }) => {
+  let query: Partial<SearchQuery>
+  let hint: string
 
-      <small style={{ opacity: 0.5 }}>
-        {' '}
-        {(
-          type === 'name' ? book.primaryName
-            : type === 'artist' ? book.tags.artist?.[0]
-              : type === 'tags' ? `(${book.tags.tag?.length})`
-                : undefined
-        )}
-      </small>
-    </Menu.Item>
-  </BookListingLink >
-)
+  const createHint = (tags: string[]) => tags.length <= 2 ? tags.join(', ') : `(${tags.length})`
+
+  switch (type) {
+    case 'name':
+      query = { type: 'simple', value: book.primaryName }
+      hint = book.primaryName
+      break
+
+    case 'artist':
+      if (!book.tags.artist?.length)
+        return null
+
+      query = { type: 'tag', items: book.tags.artist.map(value => ({ type: BookTag.Artist, value })) }
+      hint = createHint(book.tags.artist)
+      break
+
+    case 'character':
+      if (!book.tags.character?.length)
+        return null
+
+      query = { type: 'tag', items: book.tags.character.map(value => ({ type: BookTag.Character, value })) }
+      hint = createHint(book.tags.character)
+      break
+
+    case 'tags':
+      if (!book.tags.tag?.length)
+        return null
+
+      query = { type: 'tag', items: book.tags.tag.map(value => ({ type: BookTag.Tag, value })) }
+      hint = createHint(book.tags.tag)
+      break
+  }
+
+  return (
+    <BookListingLink query={query}>
+      <Menu.Item {...props}>
+        <FormattedMessage id={`bookReader.menu.searchBy.${type}`} />
+
+        <small style={{ opacity: 0.5 }}> {hint}</small>
+      </Menu.Item>
+    </BookListingLink >
+  )
+}

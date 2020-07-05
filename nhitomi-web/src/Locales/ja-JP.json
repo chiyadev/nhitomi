@@ -64,6 +64,7 @@
         "title": "検索",
         "name": "名前で",
         "artist": "アーティストで",
+        "character": "キャラで",
         "tags": "タグで"
       },
       "copyId": "IDをコピー",

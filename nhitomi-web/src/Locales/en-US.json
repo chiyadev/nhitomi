@@ -64,6 +64,7 @@
         "title": "Search by",
         "name": "Name",
         "artist": "Artist",
+        "character": "Character",
         "tags": "Tags"
       },
       "copyId": "Copy ID",
