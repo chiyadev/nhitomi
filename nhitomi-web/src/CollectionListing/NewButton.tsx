@@ -7,9 +7,9 @@ import TextArea from 'antd/lib/input/TextArea'
 import { ClientContext } from '../ClientContext'
 import { NotificationContext } from '../NotificationContext'
 import { usePrefetchExecutor } from '../Prefetch'
-import { getCollectionListingPrefetch } from '.'
+import { getCollectionContentPrefetch } from '../CollectionContent'
 
-export const NewButton = ({ id }: { id?: string }) => {
+export const NewButton = () => {
   const client = useContext(ClientContext)
   const push = usePrefetchExecutor()
   const { notification: { error } } = useContext(NotificationContext)
@@ -33,8 +33,9 @@ export const NewButton = ({ id }: { id?: string }) => {
     setLoading(true)
 
     try {
-      await client.collection.createCollection({ createCollectionRequest: { type, collection: { name, description } } })
-      await push(getCollectionListingPrefetch(id))
+      const collection = await client.collection.createCollection({ createCollectionRequest: { type, collection: { name, description } } })
+
+      await push(getCollectionContentPrefetch(collection.id))
 
       setOpen(false)
     }
