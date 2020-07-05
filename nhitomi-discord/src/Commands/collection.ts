@@ -77,15 +77,11 @@ export class BookCollectionContentMessage extends BookListMessage {
   }
 
   protected processRenderResult(result: RenderResult): RenderResult {
-    result = super.processRenderResult(result)
+    return {
+      ...super.processRenderResult(result),
 
-    result.message = `
-> ${this.collection.name} — ${Api.getWebLink(`collections/${this.collection.id}`)}
-
-${result.message}
-`.trim()
-
-    return result
+      message: `> ${this.collection.name} — ${Api.getWebLink(`collections/${this.collection.id}`)}`
+    }
   }
 }
 
