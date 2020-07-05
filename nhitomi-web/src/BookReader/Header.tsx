@@ -5,9 +5,10 @@ import { BookReaderLink, BookReaderContext } from '.'
 import { BookListingLink } from '../BookListing'
 import { EllipsisOutlined } from '@ant-design/icons'
 import { useShortcutKeyName } from '../shortcuts'
-import { FormattedMessage } from 'react-intl'
+import { FormattedMessage, useIntl } from 'react-intl'
 
 export const Header = () => {
+  const { formatMessage } = useIntl()
   const { book, content, setMenu } = useContext(BookReaderContext)
   const { goBack } = useHistory()
 
@@ -21,7 +22,7 @@ export const Header = () => {
       breadcrumb={{
         routes: [{
           path: 'listing',
-          breadcrumbName: 'Books'
+          breadcrumbName: formatMessage({ id: 'bookListing.header.title' })
         }, {
           path: 'book',
           breadcrumbName: book.primaryName
