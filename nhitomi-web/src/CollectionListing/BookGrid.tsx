@@ -1,5 +1,5 @@
 import React, { useContext, useState } from 'react'
-import { List, Card, Typography, Empty, Tooltip } from 'antd'
+import { List, Card, Typography, Empty, Tooltip, Dropdown, Menu } from 'antd'
 import { ListGridType } from 'antd/lib/list'
 import { LayoutContext } from '../LayoutContext'
 import { Collection, Book, User, SpecialCollection } from '../Client'
@@ -8,6 +8,7 @@ import { AsyncImage } from '../AsyncImage'
 import { CollectionContentLink } from '../CollectionContent'
 import { FormattedMessage } from 'react-intl'
 import { HeartFilled, EyeFilled, HeartOutlined, EyeOutlined } from '@ant-design/icons'
+import { CollectionContentBookMenu } from '../CollectionContent/BookView'
 
 const gridGutter = 6
 const gridLayout: ListGridType = {
@@ -23,7 +24,7 @@ export function getCollectionSpecialType(user: User, collection: Collection) {
   return Object.entries(user.specialCollections?.[collection.type] || {}).find(([, id]) => id === collection.id)?.[0] as SpecialCollection | undefined
 }
 
-export const BookGrid = ({ user, items }: { user: User, items: { collection: Collection, cover?: Book }[] }) => {
+export const BookGrid = ({ id, user, items }: { id?: string, user: User, items: { collection: Collection, cover?: Book }[] }) => {
   const { width, getBreakpoint } = useContext(LayoutContext)
 
   if (!items.length)
@@ -37,48 +38,52 @@ export const BookGrid = ({ user, items }: { user: User, items: { collection: Col
       }}
       dataSource={items}
       rowKey={({ collection }) => collection.id}
-      renderItem={({ collection, cover }) => <Item collection={collection} cover={cover} special={getCollectionSpecialType(user, collection)} />} />
+      renderItem={({ collection, cover }) => <Item id={id} collection={collection} cover={cover} special={getCollectionSpecialType(user, collection)} />} />
   )
 }
 
-const Item = ({ collection, cover, special }: { collection: Collection, cover?: Book, special?: SpecialCollection }) => {
+const Item = ({ id, collection, cover, special }: { id?: string, collection: Collection, cover?: Book, special?: SpecialCollection }) => {
   const client = useContext(ClientContext)
   const coverContent = cover && (cover.contents.find(c => client.currentInfo.authenticated && c.language === client.currentInfo.user.language) || cover.contents[0])
 
+  const menu = CollectionContentBookMenu({ collection, onDeleteListingId: id })
+
   return (
-    <List.Item style={{
-      marginTop: 0,
-      marginBottom: gridGutter
-    }}>
-      <CollectionContentLink id={collection.id}>
-        <Card
-          size='small'
-          cover={(
-            <AsyncImage
-              key={`${cover?.id}/${coverContent?.id}`}
-              width={5}
-              height={7}
-              resize='fill'
-              fluid
-              preloadScale={0.5}
-              src={cover && coverContent ? (() => client.book.getBookImage({ id: cover.id, contentId: coverContent.id, index: -1 })) : undefined}>
+    <Dropdown trigger={['contextMenu']} overlay={menu}>
+      <List.Item style={{
+        marginTop: 0,
+        marginBottom: gridGutter
+      }}>
+        <CollectionContentLink id={collection.id}>
+          <Card
+            size='small'
+            cover={(
+              <AsyncImage
+                key={`${cover?.id}/${coverContent?.id}`}
+                width={5}
+                height={7}
+                resize='fill'
+                fluid
+                preloadScale={0.5}
+                src={cover && coverContent ? (() => client.book.getBookImage({ id: cover.id, contentId: coverContent.id, index: -1 })) : undefined}>
 
-              {special && <SpecialCollectionIconOverlay type={special} />}
-            </AsyncImage>
-          )}>
+                {special && <SpecialCollectionIconOverlay type={special} />}
+              </AsyncImage>
+            )}>
 
-          <Card.Meta description={(
-            <div style={{
-              textOverflow: 'ellipsis',
-              whiteSpace: 'nowrap',
-              overflow: 'hidden'
-            }}>
-              <Typography.Text strong>{collection.name}</Typography.Text>
-            </div>
-          )} />
-        </Card>
-      </CollectionContentLink>
-    </List.Item>
+            <Card.Meta description={(
+              <div style={{
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+                overflow: 'hidden'
+              }}>
+                <Typography.Text strong>{collection.name}</Typography.Text>
+              </div>
+            )} />
+          </Card>
+        </CollectionContentLink>
+      </List.Item>
+    </Dropdown>
   )
 }
 

@@ -50,14 +50,14 @@ export const CollectionListing = ({ id }: { id?: string }) => {
   const { result } = usePrefetch(getCollectionListingPrefetch(id))
 
   if (result)
-    return <Loaded fetched={result} />
+    return <Loaded id={id} fetched={result} />
 
   return null
 }
 
 export const CollectionListingLink = (props: PrefetchLinkProps) => <PrefetchLink fetch={getCollectionListingPrefetch()} {...props} />
 
-const Loaded = ({ fetched: { my, user, books } }: { fetched: Fetched }) => {
+const Loaded = ({ id, fetched: { my, user, books } }: { id?: string, fetched: Fetched }) => {
   const { formatMessage } = useIntl()
   const title = formatMessage({ id: my ? 'collectionListing.header.title' : 'collectionListing.headerUser.title' }, { user: user.username })
   const sub = formatMessage({ id: my ? 'collectionListing.header.sub' : 'collectionListing.headerUser.sub' }, { user: user.username })
@@ -73,7 +73,7 @@ const Loaded = ({ fetched: { my, user, books } }: { fetched: Fetched }) => {
       extra={<NewButton />} />
 
     <LayoutContent>
-      <BookGrid user={user} items={books} />
+      <BookGrid id={id} user={user} items={books} />
     </LayoutContent>
   </>
 }

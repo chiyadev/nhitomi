@@ -29,6 +29,8 @@ export const CollectionContentBookView = ({ fetched, dispatch }: { fetched: Fetc
   useScrollShortcut()
   useTabTitle(collection.name)
 
+  const menu = CollectionContentBookMenu({ collection })
+
   return <>
     <AffixGradientPageHeader>
       <PageHeader
@@ -48,7 +50,16 @@ export const CollectionContentBookView = ({ fetched, dispatch }: { fetched: Fetc
             value={collection.description || (special && <FormattedMessage id={`specialCollections.${special}`} />) || <FormattedMessage id='collectionContent.nodesc' />}
             onChange={async description => dispatch({ ...fetched, collection: await client.collection.updateCollection({ id: collection.id, collectionBase: { ...collection, description } }) })} />
         )}
-        extra={<MenuButton collection={collection} />} />
+        extra={(
+          <Dropdown placement='bottomRight' overlay={menu}>
+            <Button
+              shape='circle'
+              type='text'>
+
+              <EllipsisOutlined style={{ fontSize: '1rem' }} />
+            </Button>
+          </Dropdown>
+        )} />
     </AffixGradientPageHeader>
 
     <LayoutContent>
@@ -112,51 +123,46 @@ const Grid = ({ collection, result, dispatch }: { collection: Collection, result
   )
 }
 
-const MenuButton = ({ collection }: { collection: Collection }) => {
+export const CollectionContentBookMenu = ({ collection, onDeleteListingId }: {
+  collection: Collection
+
+  onDeleteListingId?: string
+}) => {
   const client = useContext(ClientContext)
   const push = usePrefetchExecutor()
   const [modal, modalContexts] = Modal.useModal()
   const { notification: { error } } = useContext(NotificationContext)
 
-  return <>
-    <Dropdown placement='bottomRight' overlay={(
-      <Menu>
-        <Menu.Item
-          danger
-          icon={<DeleteOutlined />}
-          onClick={() => modal.confirm({
-            title: <FormattedMessage id='collectionContent.menu.delete.title' values={{ collection: collection.name }} />,
-            icon: <ExclamationCircleOutlined />,
-            content: <FormattedMessage id='collectionContent.menu.delete.description' />,
-            okType: 'danger',
-            okText: <span><FormattedMessage id='collectionContent.menu.delete.yes' /></span>,
-            cancelText: <span><FormattedMessage id='collectionContent.menu.delete.no' /></span>,
-            onOk: async () => {
-              try {
-                await client.collection.deleteCollection({ id: collection.id })
-                await push(getCollectionListingPrefetch())
-              }
-              catch (e) {
-                error(e)
-              }
-            },
-            onCancel() {
-              console.log('Cancel')
+  return (
+    <Menu>
+      <Menu.Item
+        danger
+        icon={<DeleteOutlined />}
+        onClick={() => modal.confirm({
+          title: <FormattedMessage id='collectionContent.menu.delete.title' values={{ collection: collection.name }} />,
+          icon: <ExclamationCircleOutlined />,
+          content: <FormattedMessage id='collectionContent.menu.delete.description' />,
+          okType: 'danger',
+          okText: <span><FormattedMessage id='collectionContent.menu.delete.yes' /></span>,
+          cancelText: <span><FormattedMessage id='collectionContent.menu.delete.no' /></span>,
+          onOk: async () => {
+            try {
+              await client.collection.deleteCollection({ id: collection.id })
+              await push(getCollectionListingPrefetch(onDeleteListingId))
             }
-          })}>
+            catch (e) {
+              error(e)
+            }
+          },
+          onCancel() {
+            console.log('Cancel')
+          }
+        })}>
 
-          <FormattedMessage id='collectionContent.menu.delete.text' />
-        </Menu.Item>
-      </Menu>
-    )}>
-      <Button
-        shape='circle'
-        type='text'>
+        <FormattedMessage id='collectionContent.menu.delete.text' />
+      </Menu.Item>
 
-        <EllipsisOutlined style={{ fontSize: '1rem' }} />
-      </Button>
-    </Dropdown>
-
-    {modalContexts}
-  </>
+      {modalContexts}
+    </Menu >
+  )
 }
