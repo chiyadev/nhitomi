@@ -11,7 +11,6 @@ import { LayoutRenderer } from './LayoutRenderer'
 import { useConfig } from '../Client/config'
 import { useShortcut } from '../shortcuts'
 import { FormattedMessage } from 'react-intl'
-import { Details } from './Details'
 import { JumpModal } from './JumpModal'
 
 type Fetched = {
@@ -66,9 +65,6 @@ export const BookReaderContext = createContext<{
   currentPage: CurrentPage
   setCurrentPage: (page: CurrentPage) => void
 
-  details: boolean
-  setDetails: (details: boolean) => void
-
   jump: boolean
   setJump: (jump: boolean) => void
 }>(undefined as any)
@@ -82,7 +78,6 @@ const Loaded = ({ book, content, dispatch }: Fetched & { dispatch: Dispatch<Fetc
 
   const [cursorHidden, setCursorHidden] = useState(false)
   const [currentPage, setCurrentPage] = useState<CurrentPage>({ rowInduced: 0, rowPassive: 0, pageInduced: 0, pagePassive: 0 })
-  const [details, setDetails] = useState(false)
   const [jump, setJump] = useState(false)
 
   // hide cursor when current row changes
@@ -151,18 +146,15 @@ const Loaded = ({ book, content, dispatch }: Fetched & { dispatch: Dispatch<Fetc
       content, setContent,
       fetch,
       currentPage, setCurrentPage,
-      details, setDetails,
       jump, setJump
     }), [
       book,
       content, setContent,
       fetch,
       currentPage, setCurrentPage,
-      details, setDetails,
       jump, setJump
     ])}>
       <Header />
-      <Details />
       <JumpModal />
 
       <div

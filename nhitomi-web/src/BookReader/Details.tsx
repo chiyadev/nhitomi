@@ -13,22 +13,22 @@ import { languageNames } from '../LocaleProvider'
 import { LanguageType } from '../Client'
 import { KeySettings } from '../Settings/KeySettings'
 
-export const Details = () => {
+export const Details = ({ open, setOpen }: { open: boolean, setOpen: (open: boolean) => void }) => {
   const client = useContext(ClientContext)
-  const { book, content, setContent, details, setDetails } = useContext(BookReaderContext)
+  const { book, content, setContent } = useContext(BookReaderContext)
   const { width } = useContext(LayoutContext)
 
-  useShortcut('bookReaderDetailsKey', () => setDetails(true))
+  useShortcut('bookReaderDetailsKey', () => setOpen(true))
 
   // manually lose focus after drawer close
-  useLayoutEffect(() => { if (!details) (document.activeElement as HTMLElement)?.blur() }, [details])
+  useLayoutEffect(() => { if (!open) (document.activeElement as HTMLElement)?.blur() }, [open])
 
   return (
     <Drawer
       title={<div style={{ width: '100%', whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}>{book.primaryName}</div>}
       placement='right'
-      visible={details}
-      onClose={() => setDetails(false)}
+      visible={open}
+      onClose={() => setOpen(false)}
       width={Math.min(600, width)}>
 
       <Collapse defaultActiveKey={['info']}>

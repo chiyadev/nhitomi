@@ -58,6 +58,9 @@
       "singleCoverEnabled": "最初のページを別で表示します。",
       "singleCoverDisabled": "最初のページを別で表示しません。"
     },
+    "menu": {
+      "details": "詳細"
+    },
     "details": {
       "pressToOpen": "''{key}''キーで詳細を開く。",
       "info": {

@@ -58,6 +58,9 @@
       "singleCoverEnabled": "Cover page is displayed separately.",
       "singleCoverDisabled": "Cover page is grouped with other pages."
     },
+    "menu": {
+      "details": "Details"
+    },
     "details": {
       "pressToOpen": "Press ''{key}'' to open details.",
       "info": {
