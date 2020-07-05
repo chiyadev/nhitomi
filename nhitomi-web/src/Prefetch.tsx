@@ -13,6 +13,21 @@ import { NotificationContext } from './NotificationContext'
 // This is used to imitate traditional browsers, like showing a loading progress bar at the top of the page while fetching, and retaining page data across navigations.
 // By using prefetch, we can avoid having to render ugly placeholders or transitioning pages.
 
+try {
+  // clear history state on refresh https://stackoverflow.com/a/53307588/13160620
+  const entry = performance.getEntriesByType('navigation')[0]
+
+  if (entry instanceof PerformanceNavigationTiming && entry.type === 'reload')
+    window.history.replaceState(undefined, document.title)
+}
+catch {
+  try {
+    if (performance.navigation.type === 1)
+      window.history.replaceState(undefined, document.title)
+  }
+  catch { /* ignored */ }
+}
+
 export type PrefetchMode = 'initial' | 'navigate'
 
 export type Prefetch<T> = {
