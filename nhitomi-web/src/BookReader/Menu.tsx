@@ -1,5 +1,5 @@
 import React, { useMemo, useContext } from 'react'
-import { Menu } from 'antd'
+import { Menu, Typography } from 'antd'
 import { Book, BookContent, BookTag } from '../Client'
 import { FileTextOutlined, ExpandAltOutlined, LinkOutlined, SearchOutlined } from '@ant-design/icons'
 import { FormattedMessage } from 'react-intl'
@@ -20,7 +20,13 @@ export const ReaderMenu = ({ book, content, setDetails }: {
 
   return useMemo(() => (
     <Menu>
-      <Menu.Item disabled><small>{book.primaryName}</small></Menu.Item>
+      <Menu.Item disabled>
+        <small>
+          <Typography.Text copyable style={{ color: 'inherit' }}>
+            {book.primaryName}
+          </Typography.Text>
+        </small>
+      </Menu.Item>
 
       <OpenNewTabItem id={book.id} contentId={content.id} />
 
