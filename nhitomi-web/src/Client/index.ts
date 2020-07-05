@@ -1,4 +1,4 @@
-import { BASE_PATH, RequestContext, ResponseContext, GetInfoResponse, ConfigurationParameters, ValidationProblemArrayResult, InfoApi, BookApi, UserApi, Configuration, GetInfoAuthenticatedResponse } from 'nhitomi-api'
+import { BASE_PATH, RequestContext, ResponseContext, GetInfoResponse, ConfigurationParameters, ValidationProblemArrayResult, InfoApi, BookApi, UserApi, Configuration, GetInfoAuthenticatedResponse, CollectionApi } from 'nhitomi-api'
 import { EventEmitter } from 'events'
 import StrictEventEmitter from 'strict-event-emitter-types'
 import { ValidationError } from './validationError'
@@ -57,6 +57,9 @@ export class Client extends (EventEmitter as new () => StrictEventEmitter<EventE
   /** Book API. */
   book: BookApi
 
+  /** Collection API. */
+  collection: CollectionApi
+
   /** Configuration manager. */
   config: ConfigManager
 
@@ -80,6 +83,7 @@ export class Client extends (EventEmitter as new () => StrictEventEmitter<EventE
     this.user = new UserApi(new Configuration(this.httpConfig))
     this.info = new InfoApi(new Configuration(this.httpConfig))
     this.book = new BookApi(new Configuration(this.httpConfig))
+    this.collection = new CollectionApi(new Configuration(this.httpConfig))
 
     this.config = new ConfigManager(this)
     this.image = new ImageWorker(this)
