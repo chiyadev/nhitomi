@@ -1,8 +1,10 @@
-# [nhitomi](https://nhitomi.chiya.dev)
+# nhitomi
 
 ![nhitomi](https://github.com/chiyadev/nhitomi/raw/master/nhitomi.png)
 
 nhitomi — Doujinshi aggregator
+
+[https://nhitomi.chiya.dev](https://nhitomi.chiya.dev)
 
 nhitomi scrapes doujinshi from various sources and displays them under a unified interface with a customizable reader, collection support and API access.
 
