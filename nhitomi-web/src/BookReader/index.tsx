@@ -110,10 +110,10 @@ const Loaded = ({ book, content, dispatch }: Fetched & { dispatch: Dispatch<Fetc
   }, [mobile, breakpoint]) // eslint-disable-line
 
   // key handling
-  useShortcut('firstPageKey', () => setCurrentPage({ ...currentPage, rowInduced: 0 }))
-  useShortcut('lastPageKey', () => setCurrentPage({ ...currentPage, rowInduced: fetched.length - 1 }))
-  useShortcut('previousPageKey', () => setCurrentPage({ ...currentPage, rowInduced: currentPage.rowPassive - 1 }))
-  useShortcut('nextPageKey', () => setCurrentPage({ ...currentPage, rowInduced: currentPage.rowPassive + 1 }))
+  useShortcut('bookReaderFirstPageKey', () => setCurrentPage({ ...currentPage, rowInduced: 0 }))
+  useShortcut('bookReaderLastPageKey', () => setCurrentPage({ ...currentPage, rowInduced: fetched.length - 1 }))
+  useShortcut('bookReaderPreviousPageKey', () => setCurrentPage({ ...currentPage, rowInduced: currentPage.rowPassive - 1 }))
+  useShortcut('bookReaderNextPageKey', () => setCurrentPage({ ...currentPage, rowInduced: currentPage.rowPassive + 1 }))
 
   useShortcut('bookReaderImagesPerRowKey', () => {
     const value = imagesPerRow === 1 ? 2 : 1

@@ -25,10 +25,6 @@ export type ConfigStore = {
   sidebarKey: ShortcutConfig[]
   scrollDownKey: ShortcutConfig[]
   scrollUpKey: ShortcutConfig[]
-  nextPageKey: ShortcutConfig[]
-  previousPageKey: ShortcutConfig[]
-  firstPageKey: ShortcutConfig[]
-  lastPageKey: ShortcutConfig[]
 
   // book reader
   bookReaderViewportBound: boolean
@@ -36,6 +32,10 @@ export type ConfigStore = {
   bookReaderImagesPerRow: number
   bookReaderSingleCover: boolean
 
+  bookReaderNextPageKey: ShortcutConfig[]
+  bookReaderPreviousPageKey: ShortcutConfig[]
+  bookReaderFirstPageKey: ShortcutConfig[]
+  bookReaderLastPageKey: ShortcutConfig[]
   bookReaderViewportBoundKey: ShortcutConfig[]
   bookReaderLeftToRightKey: ShortcutConfig[]
   bookReaderImagesPerRowKey: ShortcutConfig[]
@@ -54,23 +54,23 @@ const DefaultStore: ConfigStore = {
   sidebarKey: [{ key: 81 }],                                // q
   scrollDownKey: [{ key: 83 }, { key: 40 }],                // s down
   scrollUpKey: [{ key: 87 }, { key: 38 }],                  // w up
-  nextPageKey: [{ key: 65 }, { key: 37 }, { key: 34 }],     // a left pageDown
-  previousPageKey: [{ key: 68 }, { key: 39 }, { key: 33 }], // d right pageUp
-  firstPageKey: [{ key: 36 }],                              // home
-  lastPageKey: [{ key: 35 }],                               // end
 
   bookReaderViewportBound: true,
   bookReaderLeftToRight: false,
   bookReaderImagesPerRow: 2,
   bookReaderSingleCover: true,
 
-  bookReaderViewportBoundKey: [{ key: 67 }],  // c
-  bookReaderLeftToRightKey: [{ key: 76 }],    // l
-  bookReaderImagesPerRowKey: [{ key: 88 }],   // x
-  bookReaderSingleCoverKey: [{ key: 75 }],    // k
-  bookReaderPageNumberKey: [{ key: 32 }],     // space
-  bookReaderDetailsKey: [{ key: 69 }],           // e
-  bookReaderJumpKey: [{ key: 71 }]            // g
+  bookReaderNextPageKey: [{ key: 65 }, { key: 37 }, { key: 34 }],     // a left pageDown
+  bookReaderPreviousPageKey: [{ key: 68 }, { key: 39 }, { key: 33 }], // d right pageUp
+  bookReaderFirstPageKey: [{ key: 36 }],                              // home
+  bookReaderLastPageKey: [{ key: 35 }],                               // end
+  bookReaderViewportBoundKey: [{ key: 67 }],                          // c
+  bookReaderLeftToRightKey: [{ key: 76 }],                            // l
+  bookReaderImagesPerRowKey: [{ key: 88 }],                           // x
+  bookReaderSingleCoverKey: [{ key: 75 }],                            // k
+  bookReaderPageNumberKey: [{ key: 32 }],                             // space
+  bookReaderDetailsKey: [{ key: 69 }],                                // e
+  bookReaderJumpKey: [{ key: 71 }]                                    // g
 }
 
 export type ModifierKey = 'alt' | 'ctrl' | 'meta' | 'shift'
@@ -94,16 +94,16 @@ export class ConfigManager extends (EventEmitter as new () => StrictEventEmitter
   sidebarKey!: ShortcutConfig[]
   scrollDownKey!: ShortcutConfig[]
   scrollUpKey!: ShortcutConfig[]
-  nextPageKey!: ShortcutConfig[]
-  previousPageKey!: ShortcutConfig[]
-  firstPageKey!: ShortcutConfig[]
-  lastPageKey!: ShortcutConfig[]
 
   bookReaderViewportBound!: boolean
   bookReaderLeftToRight!: boolean
   bookReaderImagesPerRow!: number
   bookReaderSingleCover!: boolean
 
+  bookReaderNextPageKey!: ShortcutConfig[]
+  bookReaderPreviousPageKey!: ShortcutConfig[]
+  bookReaderFirstPageKey!: ShortcutConfig[]
+  bookReaderLastPageKey!: ShortcutConfig[]
   bookReaderViewportBoundKey!: ShortcutConfig[]
   bookReaderLeftToRightKey!: ShortcutConfig[]
   bookReaderImagesPerRowKey!: ShortcutConfig[]
