@@ -68,10 +68,7 @@ export const CollectionContentBookView = ({ fetched, dispatch }: { fetched: Fetc
         }}
         extra={(
           <Dropdown placement='bottomRight' overlay={menu}>
-            <Button
-              shape='circle'
-              type='text'>
-
+            <Button shape='circle' type='text'>
               <EllipsisOutlined style={{ fontSize: '1rem' }} />
             </Button>
           </Dropdown>
