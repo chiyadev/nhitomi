@@ -14,6 +14,7 @@ import { ExperimentalBanner } from './ExperimentalBanner'
 import { NotFound } from './NotFound'
 import { About } from './About'
 import { CollectionListing } from './CollectionListing'
+import { CollectionContent } from './CollectionContent'
 
 import './App.css'
 
@@ -75,6 +76,7 @@ const RoutingAuth = () => {
         <Route path='/books/:id/contents/:contentId' exact render={({ match: { params } }) => <BookReader {...params} />} />
 
         <Route path='/collections' exact component={CollectionListing} />
+        <Route path='/collections/:id' exact render={({ match: { params } }) => <CollectionContent {...params} />} />
 
         <Route path='/users/:id/collections' exact render={({ match: { params } }) => <CollectionListing {...params} />} />
 
