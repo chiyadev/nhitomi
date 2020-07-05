@@ -10,7 +10,7 @@ namespace nhitomi.Models
     public class Collection : CollectionBase, IHasId
     {
         /// <summary>
-        /// Book ID.
+        /// Collection ID.
         /// </summary>
         [Required, nhitomiId]
         public string Id { get; set; }
