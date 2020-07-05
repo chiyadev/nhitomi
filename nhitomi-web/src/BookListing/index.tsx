@@ -3,7 +3,7 @@ import { useTabTitle } from '../hooks'
 import { Prefetch, PrefetchLink, PrefetchLinkProps, usePrefetch } from '../Prefetch'
 import { ProgressContext } from '../Progress'
 import { useScrollShortcut } from '../shortcuts'
-import { GridListing } from './Grid'
+import { Grid } from './Grid'
 import { ClientContext } from '../ClientContext'
 import { LayoutContent } from '../Layout'
 import { SearchManager, SearchQuery, SearchResult, serializeQuery, deserializeQuery } from './searchManager'
@@ -97,7 +97,7 @@ const Loaded = ({ result, dispatch }: { result: SearchResult, dispatch: Dispatch
     <Header />
 
     <LayoutContent>
-      <GridListing />
+      <Grid />
     </LayoutContent>
   </BookListingContext.Provider>
 }

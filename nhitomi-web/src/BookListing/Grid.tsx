@@ -23,7 +23,7 @@ const gridLayout: ListGridType = {
   xxl: 7
 }
 
-export const GridListing = () => {
+export const Grid = () => {
   const { manager } = useContext(BookListingContext)
   const { width, getBreakpoint } = useContext(LayoutContext)
   const listWidth = manager.result.selected ? width * 0.6 : width
