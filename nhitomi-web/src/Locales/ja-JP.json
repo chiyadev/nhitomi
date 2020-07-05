@@ -160,10 +160,26 @@
       "title": "{user}さんのコレクション",
       "sub": "{user}さんのコレクションです"
     },
-    "empty": "コレクションなし"
+    "empty": "コレクションなし",
+    "new": {
+      "button": "新規",
+      "title": "新規コレクション",
+      "type": "タイプ",
+      "name": "名前",
+      "description": "説明",
+      "cancel": "キャンセル",
+      "ok": "作成"
+    }
   },
   "specialCollections": {
     "favorites": "お気に入り",
     "later": "後で読む"
+  },
+  "objectTypes": {
+    "user": "ユーザー",
+    "book": "本",
+    "image": "画像",
+    "snapshot": "スナップショット",
+    "collection": "コレクション"
   }
 }

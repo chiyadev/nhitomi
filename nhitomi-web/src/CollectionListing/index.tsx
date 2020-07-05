@@ -8,6 +8,7 @@ import { PageHeader } from 'antd'
 import { FolderOutlined } from '@ant-design/icons'
 import { BookGrid } from './BookGrid'
 import { LayoutContent } from '../Layout'
+import { NewButton } from './NewButton'
 
 type Fetched = {
   my: boolean
@@ -68,10 +69,11 @@ const Loaded = ({ fetched: { my, user, books } }: { fetched: Fetched }) => {
     <PageHeader
       avatar={{ icon: <FolderOutlined />, shape: 'square' }}
       title={title}
-      subTitle={sub} />
+      subTitle={sub}
+      extra={<NewButton />} />
 
     <LayoutContent>
-      <BookGrid items={books} />
+      <BookGrid user={user} items={books} />
     </LayoutContent>
   </>
 }

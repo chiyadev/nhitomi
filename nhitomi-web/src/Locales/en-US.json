@@ -171,10 +171,26 @@
       "title": "{user}'s Collections",
       "sub": "List of {user}'s collections"
     },
-    "empty": "No collections"
+    "empty": "No collections",
+    "new": {
+      "button": "New",
+      "title": "New collection",
+      "type": "Type",
+      "name": "Name",
+      "description": "Description",
+      "cancel": "Cancel",
+      "ok": "Create"
+    }
   },
   "specialCollections": {
     "favorites": "Favorites",
     "later": "Read later"
+  },
+  "objectTypes": {
+    "user": "User",
+    "book": "Book",
+    "image": "Image",
+    "snapshot": "Snapshot",
+    "collection": "Collection"
   }
 }
