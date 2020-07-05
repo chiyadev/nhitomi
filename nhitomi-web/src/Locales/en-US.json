@@ -158,5 +158,10 @@
     "bookReaderPageNumberKey": "Show page numbers",
     "bookReaderMenuKey": "Show menu",
     "bookReaderJumpKey": "Show jump dialog"
+  },
+  "collectionListing": {
+    "header": {
+      "title": "Collections"
+    }
   }
 }

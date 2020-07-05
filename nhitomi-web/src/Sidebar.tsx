@@ -5,10 +5,11 @@ import { useShortcut, useShortcutKeyName } from './shortcuts'
 import { NotificationContext } from './NotificationContext'
 import { ClientContext } from './ClientContext'
 import { LayoutContext } from './LayoutContext'
-import { BarsOutlined, ReadOutlined, InfoCircleOutlined } from '@ant-design/icons'
+import { BarsOutlined, ReadOutlined, InfoCircleOutlined, FolderOpenOutlined, BookOutlined, FolderOutlined } from '@ant-design/icons'
 import { FormattedMessage } from 'react-intl'
 import { BookListingLink } from './BookListing'
 import { AboutLink } from './About'
+import { CollectionListingLink } from './CollectionListing'
 
 export const SideBarWidth = 200
 
@@ -32,6 +33,7 @@ export const SideBar = () => {
       alert.info(<FormattedMessage id='sidebar.opened' />)
   })
 
+  const selected = pathname.split('/')[1]
   const toggleKey = useShortcutKeyName('sidebarKey')
 
   return <Layout.Sider
@@ -80,12 +82,19 @@ export const SideBar = () => {
 
       <Divider style={{ margin: 0 }} />
 
-      <Menu theme='dark' mode='inline' selectedKeys={[pathname.split('/')[1]]}>
+      <Menu theme='dark' mode='inline' selectedKeys={[selected]}>
         <Menu.Item key='books'>
           <BookListingLink>
-            <ReadOutlined />
+            {selected === 'books' ? <ReadOutlined /> : <BookOutlined />}
             <FormattedMessage id='bookListing.header.title' />
           </BookListingLink>
+        </Menu.Item>
+
+        <Menu.Item key='collections'>
+          <CollectionListingLink>
+            {selected === 'collections' ? <FolderOpenOutlined /> : <FolderOutlined />}
+            <FormattedMessage id='collectionListing.header.title' />
+          </CollectionListingLink>
         </Menu.Item>
 
         <Menu.Item key='about'>

@@ -12,9 +12,10 @@ import { BookListing } from './BookListing'
 import { BookReader } from './BookReader'
 import { ExperimentalBanner } from './ExperimentalBanner'
 import { NotFound } from './NotFound'
+import { About } from './About'
+import { CollectionListing } from './CollectionListing'
 
 import './App.css'
-import { About } from './About'
 
 export const App = () => {
   // https://ant.design/components/notification/#FAQ
@@ -72,6 +73,10 @@ const RoutingAuth = () => {
 
         <Route path='/books' exact component={BookListing} />
         <Route path='/books/:id/contents/:contentId' exact render={({ match: { params } }) => <BookReader {...params} />} />
+
+        <Route path='/collections' exact component={CollectionListing} />
+
+        <Route path='/user/:id/collections' exact render={({ match: { params } }) => <CollectionListing {...params} />} />
 
         <Route><NotFound /></Route>
       </Switch>

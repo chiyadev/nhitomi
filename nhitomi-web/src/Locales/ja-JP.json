@@ -147,5 +147,10 @@
     "bookReaderPageNumberKey": "ページ数を表示",
     "bookReaderMenuKey": "メニューを表示",
     "bookReaderJumpKey": "ページへ飛び"
+  },
+  "collectionListing": {
+    "header": {
+      "title": "コレクション"
+    }
   }
 }
