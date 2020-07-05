@@ -5,9 +5,9 @@ import { Fetched, getCollectionContentPrefetch, CollectionContentLink } from '.'
 import { AffixGradientPageHeader } from '../BookListing/AffixGradientPageHeader'
 import { PageHeader, Dropdown, Button, Menu, Modal } from 'antd'
 import { FormattedMessage, useIntl } from 'react-intl'
-import { FolderOpenOutlined, EllipsisOutlined, DeleteOutlined, ExclamationCircleOutlined, SnippetsOutlined } from '@ant-design/icons'
+import { FolderOpenOutlined, EllipsisOutlined, DeleteOutlined, ExclamationCircleOutlined, SnippetsOutlined, HeartOutlined, EyeOutlined } from '@ant-design/icons'
 import { SearchQuery, SearchResult, SearchManager } from '../BookListing/searchManager'
-import { Client, Collection, Book, CollectionInsertPosition } from '../Client'
+import { Client, Collection, Book, CollectionInsertPosition, SpecialCollection } from '../Client'
 import { ClientContext } from '../ClientContext'
 import { ProgressContext } from '../Progress'
 import { LocaleContext } from '../LocaleProvider'
@@ -153,8 +153,48 @@ export const CollectionContentBookMenu = ({ collection, onDeleteListingId }: {
   const { start, stop } = useContext(ProgressContext)
   const { notification: { error }, alert: { success } } = useContext(NotificationContext)
 
+  const special = client.currentInfo.authenticated && getCollectionSpecialType(client.currentInfo.user, collection)
+
+  const setAsSpecial = async (type: SpecialCollection) => {
+    if (!client.currentInfo.authenticated) return
+
+    start()
+
+    try {
+      const user = client.currentInfo.user
+
+      client.currentInfo.user = await client.user.updateUser({ id: user.id, userBase: { ...user, specialCollections: { ...user.specialCollections, book: { ...user.specialCollections?.book, [type]: collection.id } } } })
+
+      success(<FormattedMessage id={`collectionContent.menu.${type}Set.success`} />)
+    }
+    catch (e) {
+      error(e)
+    }
+    finally {
+      stop()
+    }
+  }
+
   return (
     <Menu>
+      <Menu.Item
+        icon={<HeartOutlined />}
+        disabled={!!special}
+        onClick={() => setAsSpecial(SpecialCollection.Favorites)}>
+
+        <FormattedMessage id='collectionContent.menu.favoritesSet.text' />
+      </Menu.Item>
+
+      <Menu.Item
+        icon={<EyeOutlined />}
+        disabled={!!special}
+        onClick={() => setAsSpecial(SpecialCollection.Later)}>
+
+        <FormattedMessage id='collectionContent.menu.laterSet.text' />
+      </Menu.Item>
+
+      <Menu.Divider />
+
       <Menu.Item
         icon={<SnippetsOutlined />}
         onClick={async () => {

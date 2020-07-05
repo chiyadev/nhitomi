@@ -183,6 +183,14 @@
   "collectionContent": {
     "nodesc": "<no description>",
     "menu": {
+      "favoritesSet": {
+        "text": "Set as favorites",
+        "success": "Favorite books will be added to this collection."
+      },
+      "laterSet": {
+        "text": "Set as read later",
+        "success": "Read later books will be added to this collection."
+      },
       "clone": {
         "text": "Clone",
         "success": "Collection successfully cloned."

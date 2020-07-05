@@ -172,6 +172,14 @@
   "collectionContent": {
     "nodesc": "<説明なし>",
     "menu": {
+      "favoritesSet": {
+        "text": "お気に入りに設定",
+        "success": "お気に入りの本はこのコレクションに追加されます。"
+      },
+      "laterSet": {
+        "text": "後で読みに設定",
+        "success": "後で読む本はこのコレクションに追加されます。"
+      },
       "clone": {
         "text": "複製",
         "success": "コレクションが複製されました。"
