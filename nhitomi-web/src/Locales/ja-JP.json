@@ -161,5 +161,9 @@
       "sub": "{user}さんのコレクションです"
     },
     "empty": "コレクションなし"
+  },
+  "specialCollections": {
+    "favorites": "お気に入り",
+    "later": "後で読む"
   }
 }
