@@ -1,4 +1,4 @@
-# nhitomi
+# [nhitomi](https://nhitomi.chiya.dev)
 
 ![nhitomi](https://github.com/chiyadev/nhitomi/raw/master/nhitomi.png)
 
