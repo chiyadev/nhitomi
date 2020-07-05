@@ -12,6 +12,8 @@ import { Sources } from './Sources'
 type Fetched = {
   info: GetInfoAuthenticatedResponse
   readme: string
+  api: string
+  token: string | undefined
 }
 
 export function getAboutPrefetch(): Prefetch<Fetched> {
@@ -21,10 +23,11 @@ export function getAboutPrefetch(): Prefetch<Fetched> {
     func: async client => {
       const info = await client.info.getInfoAuthenticated()
       const readme = await fetch('https://raw.githubusercontent.com/chiyadev/nhitomi/master/README.md', { cache: 'no-cache' }).then(r => r.text())
+      const api = await fetch('https://raw.githubusercontent.com/phosphene47/nhitomiii/master/docs/api.md', { cache: 'no-cache' }).then(r => r.text())
 
       client.currentInfo = { ...info, authenticated: true }
 
-      return { info, readme }
+      return { info, readme, api, token: client.config.token }
     }
   }
 }
@@ -40,9 +43,7 @@ export const About = () => {
 
 export const AboutLink = (props: PrefetchLinkProps) => <PrefetchLink fetch={getAboutPrefetch()} {...props} />
 
-export const Loaded = ({ fetched }: {
-  fetched: Fetched
-}) => {
+export const Loaded = ({ fetched: { info, readme, api, token } }: { fetched: Fetched }) => {
   useTabTitleFormatted('about.title')
 
   return <>
@@ -58,16 +59,26 @@ export const Loaded = ({ fetched }: {
           header={<FormattedMessage id='about.sub' />}
           extra={<a href='https://github.com/chiyadev/nhitomi' target='_blank' rel='noopener noreferrer'><LinkOutlined /></a>}>
 
-          <Markdown>{fetched.readme}</Markdown>
+          <Markdown>{readme}</Markdown>
         </Collapse.Panel>
 
         <Collapse.Panel
           key='scrapers'
           header={<FormattedMessage id='about.sources' />}>
 
-          <Sources sources={fetched.info.scrapers} />
+          <Sources sources={info.scrapers} />
+        </Collapse.Panel>
+
+        <Collapse.Panel
+          key='api'
+          header={<FormattedMessage id='about.api' />}
+          extra={<a href='https://github.com/chiyadev/nhitomi/tree/master/docs/api.md' target='_blank' rel='noopener noreferrer'><LinkOutlined /></a>}>
+
+          <Markdown options={{ overrides: { TokenDisplay } }}>{api.replace('{token}', token || '')}</Markdown>
         </Collapse.Panel>
       </Collapse>
     </LayoutContent>
   </>
 }
+
+const TokenDisplay = ({ children }: { children: string }) => <p>{children}</p>

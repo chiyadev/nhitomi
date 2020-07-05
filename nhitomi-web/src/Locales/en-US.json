@@ -139,7 +139,8 @@
   "about": {
     "title": "About",
     "sub": "About nhitomi",
-    "sources": "Sources"
+    "sources": "Sources",
+    "api": "API"
   },
   "keyConfigNames": {
     "cancelKey": "Cancel",

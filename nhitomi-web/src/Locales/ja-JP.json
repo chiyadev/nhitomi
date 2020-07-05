@@ -128,7 +128,8 @@
   "about": {
     "title": "情報",
     "sub": "nhitomiについて",
-    "sources": "サイト"
+    "sources": "サイト",
+    "api": "API"
   },
   "keyConfigNames": {
     "cancelKey": "キャンセル",

@@ -1,12 +1,12 @@
 # API
 
-nhitomi provides an [HTTP API](https://nhitomi.chiya.dev/api/v1) that can be used to automate the retrieval of data. An OpenAPI 3.0 specification is available which can be used to generate the API client in any language using [openapi-generator](https://github.com/OpenAPITools/openapi-generator).
+nhitomi provides an [HTTP API](https://nhitomi.chiya.dev/api/v1) that can be used to automate access to the database. An OpenAPI 3.0 specification is available which can be used to generate the API client in any language using [openapi-generator](https://github.com/OpenAPITools/openapi-generator).
 
 ## Authentication
 
 Most endpoints require bearer token authentication. The token can be obtained from `localStorage.token` (quotes excluded) after signing into [nhitomi](https://nhitomi.chiya.dev).
 
-<TokenDisplay />
+<TokenDisplay>Your API token is: `{token}`</TokenDisplay>
 
 ## Limits
 
