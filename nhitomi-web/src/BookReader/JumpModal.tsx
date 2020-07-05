@@ -1,4 +1,4 @@
-import React, { useContext, useRef, useEffect } from 'react'
+import React, { useContext } from 'react'
 import { Modal, Button, Input, InputNumber } from 'antd'
 import { BookReaderContext } from '.'
 import { useShortcut } from '../shortcuts'
@@ -10,11 +10,6 @@ export const JumpModal = () => {
 
   useShortcut('bookReaderJumpKey', () => setJump(true))
 
-  const ref = useRef<HTMLDivElement>(null)
-
-  // autofocus doesn't work because we are using modal
-  useEffect(() => { if (jump) ref.current?.focus(); else ref.current?.blur() }, [jump])
-
   return (
     <Modal
       title={<FormattedMessage id='bookReader.jump.header' />}
@@ -23,8 +18,7 @@ export const JumpModal = () => {
       onOk={() => setJump(false)}
       onCancel={() => setJump(false)}
       footer={null}
-      width={400}
-      destroyOnClose>
+      width={400}>
 
       <Input.Group compact style={{
         display: 'flex',
@@ -32,7 +26,7 @@ export const JumpModal = () => {
         width: '100%'
       }}>
         <InputNumber
-          ref={ref}
+          ref={(r?: HTMLElement) => requestAnimationFrame(() => jump && r?.focus())}
           style={{ flex: 1 }}
           size='large'
           defaultValue={currentPage.pagePassive + 1}
