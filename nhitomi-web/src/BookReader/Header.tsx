@@ -13,38 +13,40 @@ export const Header = () => {
 
   const menuKey = useShortcutKeyName('bookReaderMenuKey')
 
-  return <PageHeader
-    onBack={goBack}
-    title={book.primaryName}
-    subTitle={book.englishName}
-    breadcrumb={{
-      routes: [{
-        path: 'listing',
-        breadcrumbName: 'Books'
-      }, {
-        path: 'book',
-        breadcrumbName: book.primaryName
-      }],
-      itemRender: ({ path, breadcrumbName }) => {
-        switch (path) {
-          case 'listing': return <BookListingLink>{breadcrumbName}</BookListingLink>
-          case 'book': return <BookReaderLink id={book.id} contentId={content.id}>{breadcrumbName}</BookReaderLink>
+  return (
+    <PageHeader
+      onBack={goBack}
+      title={book.primaryName}
+      subTitle={book.englishName}
+      breadcrumb={{
+        routes: [{
+          path: 'listing',
+          breadcrumbName: 'Books'
+        }, {
+          path: 'book',
+          breadcrumbName: book.primaryName
+        }],
+        itemRender: ({ path, breadcrumbName }) => {
+          switch (path) {
+            case 'listing': return <BookListingLink>{breadcrumbName}</BookListingLink>
+            case 'book': return <BookReaderLink id={book.id} contentId={content.id}>{breadcrumbName}</BookReaderLink>
+          }
         }
-      }
-    }}
-    extra={[
-      <Tooltip
-        title={<FormattedMessage id='bookReader.menu.pressToOpen' values={{ key: menuKey }} />}
-        placement='left'
-        mouseEnterDelay={0.5}>
+      }}
+      extra={(
+        <Tooltip
+          title={<FormattedMessage id='bookReader.menu.pressToOpen' values={{ key: menuKey }} />}
+          placement='left'
+          mouseEnterDelay={0.5}>
 
-        <Button
-          shape='circle'
-          type='text'
-          onClick={() => setMenu(true)}>
+          <Button
+            shape='circle'
+            type='text'
+            onClick={() => setMenu(true)}>
 
-          <EllipsisOutlined style={{ fontSize: 20 }} />
-        </Button>
-      </Tooltip>
-    ]} />
+            <EllipsisOutlined style={{ fontSize: 20 }} />
+          </Button>
+        </Tooltip>
+      )} />
+  )
 }
