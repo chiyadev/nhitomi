@@ -259,6 +259,16 @@ export class SearchManager extends (EventEmitter as new () => StrictEventEmitter
     return await this.client.book.searchBooks({ bookQuery: convertQuery(query, offset) })
   }
 
+  getReadableQuery() {
+    switch (this.query.type) {
+      case 'simple':
+        return this.query.value
+
+      case 'tag':
+        return this.query.items.map(x => x.value).join(', ')
+    }
+  }
+
   canRefresh = true
 
   /** Searches from the start. */

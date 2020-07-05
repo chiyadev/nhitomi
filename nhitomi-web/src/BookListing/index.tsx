@@ -1,5 +1,5 @@
 import React, { Dispatch, useContext, useRef, createContext, useMemo, useLayoutEffect } from 'react'
-import { useTabTitleFormatted } from '../hooks'
+import { useTabTitle } from '../hooks'
 import { Prefetch, PrefetchLink, PrefetchLinkProps, usePrefetch } from '../Prefetch'
 import { ProgressContext } from '../Progress'
 import { useScrollShortcut } from '../shortcuts'
@@ -11,6 +11,7 @@ import { Header } from './Header'
 import { LocaleContext } from '../LocaleProvider'
 import { NotificationContext } from '../NotificationContext'
 import { useHistory } from 'react-router-dom'
+import { useIntl } from 'react-intl'
 
 export function getBookListingPrefetch(): Prefetch<SearchResult> {
   return {
@@ -50,8 +51,7 @@ export const BookListingLink = (props: PrefetchLinkProps) => <PrefetchLink fetch
 export const BookListingContext = createContext<{ manager: SearchManager }>(undefined as any)
 
 const Loaded = ({ result, dispatch }: { result: SearchResult, dispatch: Dispatch<SearchResult> }) => {
-  useTabTitleFormatted('bookListing.header.title')
-  useScrollShortcut()
+  const { formatMessage } = useIntl()
 
   const client = useContext(ClientContext)
   const { start, stop } = useContext(ProgressContext)
@@ -60,6 +60,9 @@ const Loaded = ({ result, dispatch }: { result: SearchResult, dispatch: Dispatch
   const { location, push, replace } = useHistory()
 
   const manager = useRef(new SearchManager(client)).current
+
+  useScrollShortcut()
+  useTabTitle(manager.getReadableQuery(), formatMessage({ id: 'bookListing.header.title' }))
 
   useLayoutEffect(() => {
     const onloading = (loading: boolean) => { if (loading) start(); else stop() }
