@@ -76,7 +76,7 @@ const RoutingAuth = () => {
 
         <Route path='/collections' exact component={CollectionListing} />
 
-        <Route path='/user/:id/collections' exact render={({ match: { params } }) => <CollectionListing {...params} />} />
+        <Route path='/users/:id/collections' exact render={({ match: { params } }) => <CollectionListing {...params} />} />
 
         <Route><NotFound /></Route>
       </Switch>
