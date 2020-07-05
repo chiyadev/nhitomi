@@ -14,7 +14,7 @@ export const AsyncImage = forwardRef(({ onVisibleChange, wrapperRef, src, onLoad
   wrapperRef?: Ref<HTMLDivElement>
 
   /** Image data source. */
-  src: (() => Promise<Blob>) | Blob
+  src?: (() => Promise<Blob>) | Blob
 
   /** Called when src finished loading. */
   onLoad?: (blob: Blob) => void | Promise<void>
@@ -79,7 +79,7 @@ export const AsyncImage = forwardRef(({ onVisibleChange, wrapperRef, src, onLoad
 
   visible = visible && !disabled
 
-  const { value: result, error } = useAsync(async () => {
+  const { loading, value: result, error } = useAsync(async () => {
     if (!shouldLoad) {
       visible && setShouldLoad(true)
       return
@@ -90,8 +90,10 @@ export const AsyncImage = forwardRef(({ onVisibleChange, wrapperRef, src, onLoad
 
       if (typeof src === 'function')
         blob = await src()
-      else
+      else if (src instanceof Blob)
         blob = src
+      else
+        return
 
       await onLoad?.(blob)
 
@@ -182,7 +184,7 @@ export const AsyncImage = forwardRef(({ onVisibleChange, wrapperRef, src, onLoad
           alt={result}
           style={style} />}
 
-      {visible && !result && !error && !loadingDisabled &&
+      {visible && loading && !result && !error && !loadingDisabled &&
         <Spin style={{
           position: 'absolute',
           left: '50%',
