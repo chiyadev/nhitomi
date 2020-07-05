@@ -41,7 +41,7 @@ export type ConfigStore = {
   bookReaderImagesPerRowKey: ShortcutConfig[]
   bookReaderSingleCoverKey: ShortcutConfig[]
   bookReaderPageNumberKey: ShortcutConfig[]
-  bookReaderMenuKey: ShortcutConfig[]
+  bookReaderDetailsKey: ShortcutConfig[]
   bookReaderJumpKey: ShortcutConfig[]
 }
 
@@ -69,7 +69,7 @@ const DefaultStore: ConfigStore = {
   bookReaderImagesPerRowKey: [{ key: 88 }],   // x
   bookReaderSingleCoverKey: [{ key: 75 }],    // k
   bookReaderPageNumberKey: [{ key: 32 }],     // space
-  bookReaderMenuKey: [{ key: 69 }],           // e
+  bookReaderDetailsKey: [{ key: 69 }],           // e
   bookReaderJumpKey: [{ key: 71 }]            // g
 }
 
@@ -109,7 +109,7 @@ export class ConfigManager extends (EventEmitter as new () => StrictEventEmitter
   bookReaderImagesPerRowKey!: ShortcutConfig[]
   bookReaderSingleCoverKey!: ShortcutConfig[]
   bookReaderPageNumberKey!: ShortcutConfig[]
-  bookReaderMenuKey!: ShortcutConfig[]
+  bookReaderDetailsKey!: ShortcutConfig[]
   bookReaderJumpKey!: ShortcutConfig[]
 
   constructor(readonly client: Client) {

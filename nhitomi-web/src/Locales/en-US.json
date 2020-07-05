@@ -58,8 +58,8 @@
       "singleCoverEnabled": "Cover page is displayed separately.",
       "singleCoverDisabled": "Cover page is grouped with other pages."
     },
-    "menu": {
-      "pressToOpen": "Press ''{key}'' to open menu.",
+    "details": {
+      "pressToOpen": "Press ''{key}'' to open details.",
       "info": {
         "header": "Information",
         "id": "ID",
@@ -156,7 +156,7 @@
     "bookReaderImagesPerRowKey": "Toggle page mode",
     "bookReaderSingleCoverKey": "Toggle single page cover",
     "bookReaderPageNumberKey": "Show page numbers",
-    "bookReaderMenuKey": "Show menu",
+    "bookReaderDetailsKey": "Show details",
     "bookReaderJumpKey": "Show jump dialog"
   },
   "collectionContent": {

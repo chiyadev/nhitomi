@@ -58,10 +58,10 @@
       "singleCoverEnabled": "最初のページを別で表示します。",
       "singleCoverDisabled": "最初のページを別で表示しません。"
     },
-    "menu": {
-      "pressToOpen": "''{key}''キーでメニューを開く。",
+    "details": {
+      "pressToOpen": "''{key}''キーで詳細を開く。",
       "info": {
-        "header": "情報",
+        "header": "詳細",
         "id": "ID",
         "uploadedTime": "アップロード時間",
         "updatedTime": "更新時間",
@@ -145,7 +145,7 @@
     "bookReaderImagesPerRowKey": "ページモードを変更",
     "bookReaderSingleCoverKey": "最初のページを別表示",
     "bookReaderPageNumberKey": "ページ数を表示",
-    "bookReaderMenuKey": "メニューを表示",
+    "bookReaderDetailsKey": "詳細を表示",
     "bookReaderJumpKey": "ページへ飛び"
   },
   "collectionContent": {

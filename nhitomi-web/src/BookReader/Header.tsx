@@ -9,10 +9,10 @@ import { FormattedMessage, useIntl } from 'react-intl'
 
 export const Header = () => {
   const { formatMessage } = useIntl()
-  const { book, content, setMenu } = useContext(BookReaderContext)
+  const { book, content, setDetails } = useContext(BookReaderContext)
   const { goBack } = useHistory()
 
-  const menuKey = useShortcutKeyName('bookReaderMenuKey')
+  const detailsKey = useShortcutKeyName('bookReaderDetailsKey')
 
   return (
     <PageHeader
@@ -36,14 +36,14 @@ export const Header = () => {
       }}
       extra={(
         <Tooltip
-          title={<FormattedMessage id='bookReader.menu.pressToOpen' values={{ key: menuKey }} />}
+          title={<FormattedMessage id='bookReader.details.pressToOpen' values={{ key: detailsKey }} />}
           placement='left'
           mouseEnterDelay={0.5}>
 
           <Button
             shape='circle'
             type='text'
-            onClick={() => setMenu(true)}>
+            onClick={() => setDetails(true)}>
 
             <EllipsisOutlined style={{ fontSize: '1rem' }} />
           </Button>

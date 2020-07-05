@@ -11,7 +11,7 @@ import { LayoutRenderer } from './LayoutRenderer'
 import { useConfig } from '../Client/config'
 import { useShortcut } from '../shortcuts'
 import { FormattedMessage } from 'react-intl'
-import { Menu } from './Menu'
+import { Details } from './Details'
 import { JumpModal } from './JumpModal'
 
 type Fetched = {
@@ -66,8 +66,8 @@ export const BookReaderContext = createContext<{
   currentPage: CurrentPage
   setCurrentPage: (page: CurrentPage) => void
 
-  menu: boolean
-  setMenu: (menu: boolean) => void
+  details: boolean
+  setDetails: (details: boolean) => void
 
   jump: boolean
   setJump: (jump: boolean) => void
@@ -82,7 +82,7 @@ const Loaded = ({ book, content, dispatch }: Fetched & { dispatch: Dispatch<Fetc
 
   const [cursorHidden, setCursorHidden] = useState(false)
   const [currentPage, setCurrentPage] = useState<CurrentPage>({ rowInduced: 0, rowPassive: 0, pageInduced: 0, pagePassive: 0 })
-  const [menu, setMenu] = useState(false)
+  const [details, setDetails] = useState(false)
   const [jump, setJump] = useState(false)
 
   // hide cursor when current row changes
@@ -151,18 +151,18 @@ const Loaded = ({ book, content, dispatch }: Fetched & { dispatch: Dispatch<Fetc
       content, setContent,
       fetch,
       currentPage, setCurrentPage,
-      menu, setMenu,
+      details, setDetails,
       jump, setJump
     }), [
       book,
       content, setContent,
       fetch,
       currentPage, setCurrentPage,
-      menu, setMenu,
+      details, setDetails,
       jump, setJump
     ])}>
       <Header />
-      <Menu />
+      <Details />
       <JumpModal />
 
       <div
