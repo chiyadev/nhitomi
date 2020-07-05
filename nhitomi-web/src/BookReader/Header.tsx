@@ -44,7 +44,7 @@ export const Header = () => {
             type='text'
             onClick={() => setMenu(true)}>
 
-            <EllipsisOutlined style={{ fontSize: 20 }} />
+            <EllipsisOutlined style={{ fontSize: '1rem' }} />
           </Button>
         </Tooltip>
       )} />
