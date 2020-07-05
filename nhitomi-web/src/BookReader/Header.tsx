@@ -1,20 +1,20 @@
-import { PageHeader, Button, Tooltip, Dropdown } from 'antd'
+import { PageHeader, Button, Dropdown } from 'antd'
 import React, { useContext } from 'react'
 import { useHistory } from 'react-router-dom'
 import { BookReaderLink, BookReaderContext } from '.'
 import { BookListingLink } from '../BookListing'
 import { EllipsisOutlined } from '@ant-design/icons'
-import { useShortcutKeyName } from '../shortcuts'
-import { FormattedMessage, useIntl } from 'react-intl'
+import { useIntl } from 'react-intl'
 import { ReaderMenu } from './Menu'
 
-export const Header = () => {
+export const Header = ({ setDetails }: {
+  setDetails: (details: boolean) => void
+}) => {
   const { formatMessage } = useIntl()
-  const { book, content, setContent } = useContext(BookReaderContext)
+  const { book, content } = useContext(BookReaderContext)
   const { goBack } = useHistory()
 
-  const detailsKey = useShortcutKeyName('bookReaderDetailsKey')
-  const menu = ReaderMenu({ book, content, setContent })
+  const menu = ReaderMenu({ book, content, setDetails })
 
   return (
     <PageHeader
@@ -37,17 +37,11 @@ export const Header = () => {
         }
       }}
       extra={(
-        <Tooltip
-          title={<FormattedMessage id='bookReader.details.pressToOpen' values={{ key: detailsKey }} />}
-          placement='left'
-          mouseEnterDelay={0.5}>
-
-          <Dropdown overlay={menu}>
-            <Button shape='circle' type='text'>
-              <EllipsisOutlined style={{ fontSize: '1rem' }} />
-            </Button>
-          </Dropdown>
-        </Tooltip>
+        <Dropdown overlay={menu}>
+          <Button shape='circle' type='text'>
+            <EllipsisOutlined style={{ fontSize: '1rem' }} />
+          </Button>
+        </Dropdown>
       )} />
   )
 }

@@ -1,6 +1,6 @@
 import { Card, List, Typography, Spin, Empty, Dropdown } from 'antd'
 import { ListGridType } from 'antd/lib/list'
-import React, { useContext, useMemo, useRef, useLayoutEffect, useState, useCallback } from 'react'
+import React, { useContext, useMemo, useRef, useLayoutEffect, useState } from 'react'
 import { Book } from '../Client'
 import { LayoutContext } from '../LayoutContext'
 import { ClientContext } from '../ClientContext'
@@ -14,6 +14,7 @@ import { Panel } from './Panel'
 import { FormattedMessage } from 'react-intl'
 import { getEventModifiers } from '../shortcuts'
 import { ReaderMenu } from '../BookReader/Menu'
+import { Details } from '../BookReader/Details'
 
 const gridGutter = 6
 const gridLayout: ListGridType = {
@@ -142,16 +143,18 @@ const Item = ({ book }: { book: Book }) => {
     lastWidth.current = width
   }, [book.id, manager.result.selected, width])
 
-  const menu = ReaderMenu({
-    book, content,
-    setContent: useCallback(content => manager.result = { ...manager.result, selected: { book, content } }, [book, manager])
-  })
+  const [details, setDetails] = useState(false)
+  const detailsPanel = useMemo(() => <Details open={details} setOpen={setDetails} book={book} content={content} setContent={content => manager.result = { ...manager.result, selected: { book, content } }} />, [book, content, details, manager.result])
+
+  const menu = ReaderMenu({ book, content, setDetails })
 
   return useMemo(() => (
     <List.Item style={{
       marginTop: 0,
       marginBottom: gridGutter
     }}>
+      {detailsPanel}
+
       <div ref={ref} style={{ scrollMargin: '1em' }}>
         <BookReaderLink
           id={book.id}
@@ -202,5 +205,5 @@ const Item = ({ book }: { book: Book }) => {
         </BookReaderLink>
       </div>
     </List.Item>
-  ), [menu, book, content, breakpoint, selected, manager, client])
+  ), [detailsPanel, book, content, breakpoint, selected, menu, manager.result, client.book])
 }

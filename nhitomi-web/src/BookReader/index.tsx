@@ -12,6 +12,7 @@ import { useConfig } from '../Client/config'
 import { useShortcut } from '../shortcuts'
 import { FormattedMessage } from 'react-intl'
 import { JumpModal } from './JumpModal'
+import { Details } from './Details'
 
 type Fetched = {
   book: Book
@@ -138,6 +139,7 @@ const Loaded = ({ book, content, dispatch }: Fetched & { dispatch: Dispatch<Fetc
     alert.info(<FormattedMessage id={`bookReader.alerts.singleCover${value ? 'Enabled' : 'Disabled'}`} />)
   })
 
+  const [details, setDetails] = useState(false)
   const setContent = useCallback((content: BookContent) => dispatch({ book, content }), [book, dispatch])
 
   return (
@@ -154,7 +156,8 @@ const Loaded = ({ book, content, dispatch }: Fetched & { dispatch: Dispatch<Fetc
       currentPage, setCurrentPage,
       jump, setJump
     ])}>
-      <Header />
+      <Details open={details} setOpen={setDetails} book={book} content={content} setContent={setContent} />
+      <Header setDetails={setDetails} />
       <JumpModal />
 
       <div
