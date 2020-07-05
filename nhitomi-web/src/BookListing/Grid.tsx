@@ -1,8 +1,7 @@
 import { Card, List, Typography, Spin, Empty } from 'antd'
 import { ListGridType } from 'antd/lib/list'
 import React, { useContext, useMemo, useRef, useLayoutEffect, useState } from 'react'
-import { useMouseHovered } from 'react-use'
-import { Book, BookContent } from '../Client'
+import { Book } from '../Client'
 import { LayoutContext } from '../LayoutContext'
 import { ClientContext } from '../ClientContext'
 import { AsyncImage } from '../AsyncImage'
@@ -113,6 +112,7 @@ const FurtherLoader = () => {
 }
 
 const Item = ({ book }: { book: Book }) => {
+  const client = useContext(ClientContext)
   const { manager } = useContext(BookListingContext)
   const { width, breakpoint } = useContext(LayoutContext)
 
@@ -166,7 +166,16 @@ const Item = ({ book }: { book: Book }) => {
               transition: 'border-color 0.2s',
               overflow: 'hidden'
             }}
-            cover={<Cover book={book} content={content} selected={selected} />}>
+            cover={(
+              <AsyncImage
+                key={`${book.id}/${content.id}`}
+                width={5}
+                height={7}
+                resize='fill'
+                fluid
+                preloadScale={0.5}
+                src={() => client.book.getBookImage({ id: book.id, contentId: content.id, index: -1 })} />
+            )}>
 
             <Card.Meta description={(
               <div style={{
@@ -181,51 +190,5 @@ const Item = ({ book }: { book: Book }) => {
         </BookReaderLink>
       </div>
     </List.Item>
-  ), [book, content, selected, breakpoint]) // eslint-disable-line react-hooks/exhaustive-deps
-}
-
-const Cover = ({ book: { id }, content: { id: contentId }, selected }: { book: Book, content: BookContent, selected: boolean }) => {
-  const client = useContext(ClientContext)
-  const { breakpoint } = useContext(LayoutContext)
-
-  const ref = useRef<HTMLDivElement>(null)
-  const imageRef = useRef<HTMLImageElement>(null)
-
-  let { elX, elY } = useMouseHovered(ref, { whenHovered: true, bound: true })
-  let scale = 1
-
-  if (selected && !breakpoint) {
-    scale = 1.1
-  }
-  else {
-    elX = 0
-    elY = 0
-  }
-
-  return useMemo(() =>
-    <AsyncImage
-      key={`${id}/${contentId}`}
-      ref={imageRef}
-      width={5}
-      height={7}
-      resize='fill'
-      fluid
-      preloadScale={0.5}
-      src={() => client.book.getBookImage({ id, contentId, index: -1 })}
-      style={{
-        transition: 'left 0.1s, top 0.1s, width 0.1s, height 0.1s',
-        width: scale * 100 + '%',
-        height: scale * 100 + '%',
-        left: elX * (1 - scale),
-        top: elY * (1 - scale)
-      }}
-      wrapperRef={ref} />,
-    [
-      client.book,
-      id,
-      contentId,
-      elX,
-      elY,
-      scale
-    ])
+  ), [book, content, client, selected, breakpoint]) // eslint-disable-line react-hooks/exhaustive-deps
 }
