@@ -21,9 +21,15 @@ export function getAboutPrefetch(): Prefetch<Fetched> {
     path: '/about',
 
     func: async client => {
-      const info = await client.info.getInfoAuthenticated()
-      const readme = await fetch('https://raw.githubusercontent.com/chiyadev/nhitomi/master/README.md', { cache: 'no-cache' }).then(r => r.text())
-      const api = await fetch('https://raw.githubusercontent.com/phosphene47/nhitomiii/master/docs/api.md', { cache: 'no-cache' }).then(r => r.text())
+      const [
+        info,
+        readme,
+        api
+      ] = await Promise.all([
+        client.info.getInfoAuthenticated(),
+        fetch('https://raw.githubusercontent.com/chiyadev/nhitomi/master/README.md', { cache: 'no-cache' }).then(r => r.text()),
+        fetch('https://raw.githubusercontent.com/chiyadev/nhitomi/master/docs/api.md', { cache: 'no-cache' }).then(r => r.text())
+      ])
 
       client.currentInfo = { ...info, authenticated: true }
 
