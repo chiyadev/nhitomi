@@ -69,6 +69,10 @@
       },
       "copyId": "Copy ID",
       "copySource": "Copy source link",
+      "favorite": {
+        "title": "Add to favorites",
+        "success": "Successfully added to favorites collection."
+      },
       "details": "Details"
     },
     "details": {

@@ -69,6 +69,10 @@
       },
       "copyId": "IDをコピー",
       "copySource": "サイトリンクをコピー",
+      "favorite": {
+        "title": "お気に入りに追加",
+        "success": "お気に入りに追加されました。"
+      },
       "details": "詳細"
     },
     "details": {
