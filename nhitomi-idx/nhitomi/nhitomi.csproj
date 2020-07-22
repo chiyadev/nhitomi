@@ -23,24 +23,24 @@
     </Target>
 
     <ItemGroup>
-        <PackageReference Include="AWSSDK.S3" Version="3.3.111.5" />
+        <PackageReference Include="AWSSDK.S3" Version="3.3.111.28" />
         <PackageReference Include="CompareNETObjects" Version="4.66.0" />
         <PackageReference Include="DeepCloner" Version="0.10.2" />
         <PackageReference Include="Fastenshtein" Version="1.0.0.5" />
         <PackageReference Include="FastExpressionCompiler" Version="2.0.0" />
         <PackageReference Include="HtmlAgilityPack" Version="1.11.24" />
         <PackageReference Include="http2dotnet" Version="0.8.0" />
-        <PackageReference Include="MessagePack" Version="2.1.115" />
-        <PackageReference Include="NEST" Version="7.7.1" />
+        <PackageReference Include="MessagePack" Version="2.1.152" />
+        <PackageReference Include="NEST" Version="7.8.1" />
         <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
-        <PackageReference Include="OneOf" Version="2.1.151" />
+        <PackageReference Include="OneOf" Version="2.1.155" />
         <PackageReference Include="prometheus-net.AspNetCore" Version="3.6.0" />
         <PackageReference Include="prometheus-net.DotNetRuntime" Version="3.3.1" />
-        <PackageReference Include="StackExchange.Redis" Version="2.1.55" />
-        <PackageReference Include="Swashbuckle.AspNetCore.Newtonsoft" Version="5.4.1" />
-        <PackageReference Include="Swashbuckle.AspNetCore.ReDoc" Version="5.4.1" />
-        <PackageReference Include="Swashbuckle.AspNetCore.Swagger" Version="5.4.1" />
-        <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="5.4.1" />
+        <PackageReference Include="StackExchange.Redis" Version="2.1.58" />
+        <PackageReference Include="Swashbuckle.AspNetCore.Newtonsoft" Version="5.5.1" />
+        <PackageReference Include="Swashbuckle.AspNetCore.ReDoc" Version="5.5.1" />
+        <PackageReference Include="Swashbuckle.AspNetCore.Swagger" Version="5.5.1" />
+        <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="5.5.1" />
         <PackageReference Include="System.ComponentModel.Annotations" Version="4.7.0" />
         <PackageReference Include="System.Linq.Async" Version="4.1.1" />
     </ItemGroup>
