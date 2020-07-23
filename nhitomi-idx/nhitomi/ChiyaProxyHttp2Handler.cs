@@ -167,7 +167,15 @@ namespace nhitomi
 
                     connection = new Connection(
                         new ConnectionConfigurationBuilder(false)
-                           .UseSettings(Settings.Max)
+                           .UseSettings(new Settings // max settings
+                            {
+                                HeaderTableSize      = 4096,
+                                EnablePush           = true,
+                                MaxConcurrentStreams = uint.MaxValue,
+                                InitialWindowSize    = int.MaxValue,
+                                MaxFrameSize         = 16777215,
+                                MaxHeaderListSize    = uint.MaxValue
+                            })
                            .Build(),
                         streams.ReadableStream,
                         streams.WriteableStream,
