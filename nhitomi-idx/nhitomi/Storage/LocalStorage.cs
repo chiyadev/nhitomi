@@ -68,6 +68,10 @@ namespace nhitomi.Storage
 
                     return FileEx.OpenAsync(path, mode, access, share);
                 }
+                catch (FileNotFoundException)
+                {
+                    throw;
+                }
                 catch (IOException)
                 {
                     if (++retry >= _fileRetryCount)
