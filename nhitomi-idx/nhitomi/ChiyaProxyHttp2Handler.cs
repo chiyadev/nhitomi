@@ -207,7 +207,7 @@ namespace nhitomi
             }
         }
 
-        const int _bodyBufferSize = 32768;
+        const int _bodyBufferSize = 65536;
         static readonly ArrayPool<byte> _bufferPool = ArrayPool<byte>.Shared;
 
         async Task<HttpResponseMessage> SendAsyncInternal(HttpRequestMessage request, CancellationToken cancellationToken)

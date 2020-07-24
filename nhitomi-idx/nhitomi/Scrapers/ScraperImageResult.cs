@@ -37,7 +37,7 @@ namespace nhitomi.Scrapers
             LabelNames = new[] { "source" }
         });
 
-        const int _bufferSize = 32768;
+        const int _bufferSize = 65536;
         static readonly ArrayPool<byte> _bufferPool = ArrayPool<byte>.Shared;
 
         public override async Task ExecuteResultAsync(ActionContext context)
