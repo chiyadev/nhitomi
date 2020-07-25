@@ -19,10 +19,12 @@ module.exports = override(
 
   // theme configuration
   addLessLoader({
-    javascriptEnabled: true,
-    modifyVars: {
-      ...theme.default,
-      ...colors
+    lessOptions: {
+      javascriptEnabled: true,
+      modifyVars: {
+        ...theme.default,
+        ...colors
+      }
     }
   })
 )
