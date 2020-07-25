@@ -36,7 +36,8 @@ COPY nhitomi-web ./
 RUN npm run build
 
 # build final image
-FROM mcr.microsoft.com/dotnet/core/aspnet:latest as app
+FROM mcr.microsoft.com/dotnet/core/sdk:latest as app
+# FROM mcr.microsoft.com/dotnet/core/aspnet:latest as app
 WORKDIR /app
 
 # fontconfig required by SkiaSharp
