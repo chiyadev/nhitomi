@@ -4,6 +4,5 @@ import { App } from './App'
 
 import './localStorage'
 import './logging'
-import './colors'
 
 ReactDOM.render(<App />, document.getElementById('root'))

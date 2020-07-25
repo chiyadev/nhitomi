@@ -1,4 +1,4 @@
-import { Divider, Layout, Menu, PageHeader, Tooltip, Button } from 'antd'
+import { Layout, Menu, PageHeader, Tooltip, Button } from 'antd'
 import React, { useContext, useLayoutEffect } from 'react'
 import { useLocation } from 'react-router-dom'
 import { useShortcut, useShortcutKeyName } from './shortcuts'
@@ -77,10 +77,11 @@ export const SideBar = () => {
         <PageHeader
           backIcon={false}
           style={{ minWidth: SideBarWidth }}
-          title='nhitomi' />
+          title={<span style={{ display: 'flex' }}>
+            <img alt='logo' src='/favicon-32x32.png' style={{ flex: 1, marginRight: 6 }} />
+            <span>nhitomi</span>
+          </span>} />
       </BookListingLink>
-
-      <Divider style={{ margin: 0 }} />
 
       <Menu theme='dark' mode='inline' selectedKeys={[selected]}>
         <Menu.Item key='books'>

@@ -5,7 +5,6 @@
   "proxy": "http://localhost:5000",
   "dependencies": {
     "@ant-design/colors": "^4.0.4",
-    "@ant-design/dark-theme": "^2.0.2",
     "@ant-design/icons": "^4.2.1",
     "@openapitools/openapi-generator-cli": "^1.0.15-4.3.1",
     "@seznam/compose-react-refs": "^1.0.4",

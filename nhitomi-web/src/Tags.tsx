@@ -4,13 +4,13 @@ import React from 'react'
 import { BookCategory, BookTag, LanguageType, MaterialRating } from './Client'
 import { presetPrimaryColors } from '@ant-design/colors'
 
-import colorOverrides from './colors.json'
+import theme from './theme.json'
 import { FormattedMessage } from 'react-intl'
 
-// override preset with colors from colors.json
+// override preset with colors from theme.json
 Object
-  .keys(colorOverrides)
-  .forEach(k => presetPrimaryColors[k] = colorOverrides[k as keyof typeof colorOverrides] || presetPrimaryColors[k])
+  .keys(theme)
+  .forEach(k => presetPrimaryColors[k] = theme[k as keyof typeof theme] || presetPrimaryColors[k])
 
 /** Display names of tags. */
 export const TagLabels: { [tag in BookTag]: ReactNode } = {

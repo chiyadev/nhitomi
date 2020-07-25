@@ -1,7 +1,7 @@
 const { override, fixBabelImports, addLessLoader, addWebpackAlias } = require('customize-cra')
 
-const theme = require('@ant-design/dark-theme')
-const colors = require('./src/colors.json')
+const theme = require('antd/dist/dark-theme')
+const colors = require('./src/theme.json')
 
 module.exports = override(
   // replace react with preact
@@ -22,7 +22,7 @@ module.exports = override(
     lessOptions: {
       javascriptEnabled: true,
       modifyVars: {
-        ...theme.default,
+        ...theme,
         ...colors
       }
     }
