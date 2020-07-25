@@ -76,7 +76,7 @@ export const SideBar = () => {
       <BookListingLink>
         <PageHeader
           backIcon={false}
-          style={{ minWidth: SideBarWidth }}
+          style={{ minWidth: SideBarWidth, marginLeft: -8 }}
           title={<span style={{ display: 'flex' }}>
             <img alt='logo' src='/favicon-32x32.png' style={{ flex: 1, marginRight: 6 }} />
             <span>nhitomi</span>
