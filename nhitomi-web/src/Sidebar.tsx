@@ -1,7 +1,7 @@
-import { Layout, Menu, PageHeader, Tooltip, Button } from 'antd'
+import { Layout, Menu, PageHeader, Button } from 'antd'
 import React, { useContext, useLayoutEffect } from 'react'
 import { useLocation } from 'react-router-dom'
-import { useShortcut, useShortcutKeyName } from './shortcuts'
+import { useShortcut } from './shortcuts'
 import { NotificationContext } from './NotificationContext'
 import { ClientContext } from './ClientContext'
 import { LayoutContext } from './LayoutContext'
@@ -10,6 +10,7 @@ import { FormattedMessage } from 'react-intl'
 import { BookListingLink } from './BookListing'
 import { AboutLink } from './About'
 import { CollectionListingLink } from './CollectionListing'
+import { ShortcutKeyTooltip } from './ShortcutKeyTooltip'
 
 export const SideBarWidth = 200
 
@@ -34,7 +35,6 @@ export const SideBar = () => {
   })
 
   const selected = pathname.split('/')[1]
-  const toggleKey = useShortcutKeyName('sidebarKey')
 
   return <Layout.Sider
     theme='dark'
@@ -55,19 +55,17 @@ export const SideBar = () => {
       boxShadow: sidebar ? '-3px 0 6px 0 #555' : undefined
     }}>
 
-    <Tooltip
+    <ShortcutKeyTooltip
+      shortcut='sidebarKey'
       className='ant-layout-sider-zero-width-trigger ant-layout-sider-zero-width-trigger-left'
-      title={<FormattedMessage id='sidebar.pressToToggle' values={{ key: toggleKey }} />}
-      placement={sidebar ? 'left' : 'right'}
-      mouseEnterDelay={0.5}
-      mouseLeaveDelay={0}>
+      placement={sidebar ? 'left' : 'right'}>
 
       <BarsOutlined
         style={{
           lineHeight: '46px' // this is a hack
         }}
         onClick={() => setSidebar(!sidebar)} />
-    </Tooltip>
+    </ShortcutKeyTooltip>
 
     <div style={{
       opacity: sidebar ? 1 : 0,
