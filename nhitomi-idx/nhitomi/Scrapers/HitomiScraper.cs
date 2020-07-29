@@ -42,7 +42,7 @@ namespace nhitomi.Scrapers
         public HitomiScraper(IServiceProvider services, IOptionsMonitor<HitomiScraperOptions> options, ILogger<BookScraperBase> logger, IHttpClientFactory http) : base(services, options, logger)
         {
             _http    = http.CreateClient(nameof(HitomiScraper));
-            _index   = services.GetService<HitomiNozomiIndexReader>();
+            _index   = ActivatorUtilities.CreateInstance<HitomiNozomiIndexReader>(services);
             _options = options;
 
             _http.DefaultRequestHeaders.TryAddWithoutValidation("Accept", "*/*");
