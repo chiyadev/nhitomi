@@ -1,20 +1,22 @@
 using System;
-using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.IO;
 using Prometheus;
 
 namespace nhitomi.Scrapers
 {
     public class HitomiNozomiIndexReader
     {
-        readonly HttpClient _client;
+        readonly HttpClient _http;
+        readonly RecyclableMemoryStreamManager _memory;
 
-        public HitomiNozomiIndexReader(HttpClient client)
+        public HitomiNozomiIndexReader(IHttpClientFactory http, RecyclableMemoryStreamManager memory)
         {
-            _client = client;
+            _http   = http.CreateClient(nameof(HitomiNozomiIndexReader));
+            _memory = memory;
         }
 
         public TimeSpan CacheExpiry { get; set; } = TimeSpan.FromMinutes(10);
@@ -45,9 +47,9 @@ namespace nhitomi.Scrapers
             if (DateTime.UtcNow < cache.Expiry)
                 return cache.Result;
 
-            await using var memory = new MemoryStream();
+            await using var memory = _memory.GetStream();
 
-            using (var response = await _client.GetAsync("https://ltn.hitomi.la/index-all.nozomi", HttpCompletionOption.ResponseHeadersRead, cancellationToken))
+            using (var response = await _http.GetAsync("https://ltn.hitomi.la/index-all.nozomi", HttpCompletionOption.ResponseHeadersRead, cancellationToken))
             {
                 if (!response.IsSuccessStatusCode)
                     return Array.Empty<int>();

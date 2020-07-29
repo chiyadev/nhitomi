@@ -16,6 +16,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Http;
 using Microsoft.Extensions.Options;
+using Microsoft.IO;
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
@@ -49,6 +50,8 @@ namespace nhitomi
             ProcessDictionaryKeys  = true,
             OverrideSpecifiedNames = true
         };
+
+        public static RecyclableMemoryStreamManager MemoryStreamManager = new RecyclableMemoryStreamManager();
 
         public void ConfigureServices(IServiceCollection services)
         {
@@ -152,8 +155,11 @@ namespace nhitomi
             });
 
             // metrics
-            services.AddSingleton<IMetricsService, MetricsService>()
-                    .AddTransient<IHostedService>(s => s.GetService<IMetricsService>());
+            if (_environment.IsProduction())
+            {
+                services.AddSingleton<IMetricsService, MetricsService>()
+                        .AddTransient<IHostedService>(s => s.GetService<IMetricsService>());
+            }
 
             // authentication
             services.AddSingleton<IAuthService, AuthService>()
@@ -240,7 +246,8 @@ namespace nhitomi
 
             // other
             services.AddSingleton<StartupInitializer>()
-                    .AddSingleton<ILinkGenerator, LinkGenerator>();
+                    .AddSingleton<ILinkGenerator, LinkGenerator>()
+                    .AddSingleton(MemoryStreamManager);
 
             services.Configure<ProxyOptions>(_configuration.GetSection("Proxy"))
                     .AddHttpClient()

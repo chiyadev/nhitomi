@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using MessagePack;
 using Microsoft.Extensions.Logging;
+using Microsoft.IO;
 using nhitomi.Database;
 using OneOf;
 using OneOf.Types;
@@ -45,13 +46,15 @@ namespace nhitomi.Storage
         readonly CachedStorageOptions _options;
         readonly IRedisClient _redis;
         readonly ILogger<CachedStorage> _logger;
+        readonly RecyclableMemoryStreamManager _memory;
 
-        public CachedStorage(IServiceProvider services, CachedStorageOptions options, IRedisClient redis, ILogger<CachedStorage> logger)
+        public CachedStorage(IServiceProvider services, CachedStorageOptions options, IRedisClient redis, ILogger<CachedStorage> logger, RecyclableMemoryStreamManager memory)
         {
             _impl    = new DefaultStorage(services, options.Inner);
             _options = options;
             _redis   = redis;
             _logger  = logger;
+            _memory  = memory;
         }
 
         public Task InitializeAsync(CancellationToken cancellationToken = default) => _impl.InitializeAsync(cancellationToken);
@@ -86,7 +89,7 @@ namespace nhitomi.Storage
                 {
                     Name      = name,
                     MediaType = cache.MediaType,
-                    Stream    = new MemoryStream(cache.Data)
+                    Stream    = _memory.GetStream(cache.Data)
                 };
             }
             catch (Exception e)
@@ -109,7 +112,7 @@ namespace nhitomi.Storage
                 data = await file.Stream.ToArrayAsync(cancellationToken);
 
                 file.Stream.Dispose();
-                file.Stream = new MemoryStream(data);
+                file.Stream = _memory.GetStream(data);
             }
 
             var result = await _impl.WriteAsync(file, cancellationToken);

@@ -1,11 +1,11 @@
 using System;
 using System.Buffers;
-using System.IO;
 using System.Runtime.ExceptionServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IO;
 using nhitomi.Storage;
 using Prometheus;
 
@@ -44,6 +44,7 @@ namespace nhitomi.Scrapers
         {
             var cancellationToken = context.HttpContext.RequestAborted;
             var storage           = context.HttpContext.RequestServices.GetService<IStorage>();
+            var memoryManager     = context.HttpContext.RequestServices.GetService<RecyclableMemoryStreamManager>();
 
             var result = await storage.ReadAsync(Name, cancellationToken);
 
@@ -113,7 +114,7 @@ namespace nhitomi.Scrapers
 
                             // pipe data to response stream while buffering in memory
                             // buffering is required because certain storage implementations (s3) need to know stream length in advance
-                            await using var memory = new MemoryStream();
+                            await using var memory = memoryManager.GetStream();
 
                             var response = context.HttpContext.Response.BodyWriter;
                             var buffer   = _bufferPool.Rent(_bufferSize);

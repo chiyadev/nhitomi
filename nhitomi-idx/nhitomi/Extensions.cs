@@ -321,7 +321,7 @@ namespace nhitomi
 
         public static async Task<MemoryStream> ToMemoryAsync(this Stream stream, CancellationToken cancellationToken = default)
         {
-            var memory = stream.CanSeek ? new MemoryStream((int) stream.Length) : new MemoryStream();
+            var memory = Startup.MemoryStreamManager.GetStream();
 
             try
             {
@@ -341,6 +341,8 @@ namespace nhitomi
             if (stream is MemoryStream memory)
                 return memory.ToArray();
 
+            // todo: this ends up calling recyclable memory stream's ToArray which is considered a bug
+            // this is ok for now because ToArrayAsync is seldom used
             await using (memory = await stream.ToMemoryAsync(cancellationToken))
                 return memory.ToArray();
         }

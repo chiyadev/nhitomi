@@ -12,6 +12,7 @@ using Http2;
 using Http2.Hpack;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Microsoft.IO;
 
 namespace nhitomi
 {
@@ -27,12 +28,14 @@ namespace nhitomi
         readonly IPEndPoint _endPoint;
         readonly IOptionsMonitor<ProxyOptions> _options;
         readonly ILogger<ChiyaProxyHttp2Handler> _logger;
+        readonly RecyclableMemoryStreamManager _memory;
 
-        public ChiyaProxyHttp2Handler(IPEndPoint endPoint, IOptionsMonitor<ProxyOptions> options, ILogger<ChiyaProxyHttp2Handler> logger)
+        public ChiyaProxyHttp2Handler(IPEndPoint endPoint, IOptionsMonitor<ProxyOptions> options, ILogger<ChiyaProxyHttp2Handler> logger, RecyclableMemoryStreamManager memory)
         {
             _endPoint = endPoint;
             _options  = options;
             _logger   = logger;
+            _memory   = memory;
         }
 
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
@@ -104,7 +107,7 @@ namespace nhitomi
             return response;
         }
 
-        static async Task<HttpRequestMessage> CloneAsync(HttpRequestMessage request)
+        async Task<HttpRequestMessage> CloneAsync(HttpRequestMessage request)
         {
             var clone = new HttpRequestMessage(request.Method, request.RequestUri)
             {
@@ -119,7 +122,7 @@ namespace nhitomi
 
             if (request.Content != null)
             {
-                var memory = new MemoryStream();
+                var memory = _memory.GetStream();
 
                 await request.Content.CopyToAsync(memory);
 

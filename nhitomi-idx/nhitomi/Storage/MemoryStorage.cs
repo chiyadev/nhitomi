@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Concurrent;
-using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.IO;
 using OneOf;
 using OneOf.Types;
 
@@ -20,7 +20,12 @@ namespace nhitomi.Storage
             public string MediaType;
         }
 
-        public MemoryStorage(MemoryStorageOptions _) { }
+        readonly RecyclableMemoryStreamManager _memory;
+
+        public MemoryStorage(MemoryStorageOptions _, RecyclableMemoryStreamManager memory)
+        {
+            _memory = memory;
+        }
 
         Task IStorage.InitializeAsync(CancellationToken cancellationToken) => Task.CompletedTask;
 
@@ -34,7 +39,7 @@ namespace nhitomi.Storage
             return new StorageFile
             {
                 Name      = name,
-                Stream    = new MemoryStream(file.Buffer),
+                Stream    = _memory.GetStream(file.Buffer),
                 MediaType = file.MediaType
             };
         }

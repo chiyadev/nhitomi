@@ -110,7 +110,7 @@ namespace nhitomi
                 address = Dns.GetHostEntry(host).AddressList[0];
 
             var endPoint = new IPEndPoint(address, port);
-            var handler  = new ChiyaProxyHttp2Handler(endPoint, _options, services.GetService<ILogger<ChiyaProxyHttp2Handler>>());
+            var handler  = ActivatorUtilities.CreateInstance<ChiyaProxyHttp2Handler>(_services, endPoint);
 
             return handler;
         }

@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using MessagePack;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.IO;
 using OneOf;
 using OneOf.Types;
 
@@ -34,11 +35,15 @@ namespace nhitomi.Storage
         }
 
         readonly ILogger<LocalStorage> _logger;
+        readonly RecyclableMemoryStreamManager _memory;
+
         readonly string _basePath;
 
-        public LocalStorage(IHostEnvironment environment, LocalStorageOptions options, IResourceLocker locker, ILogger<LocalStorage> logger)
+        public LocalStorage(IHostEnvironment environment, LocalStorageOptions options, ILogger<LocalStorage> logger, RecyclableMemoryStreamManager memory)
         {
-            _logger   = logger;
+            _logger = logger;
+            _memory = memory;
+
             _basePath = Path.Combine(environment.ContentRootPath, options.Path);
         }
 
@@ -100,7 +105,7 @@ namespace nhitomi.Storage
                 return new StorageFile
                 {
                     Name      = name,
-                    Stream    = new MemoryStream(container.Data),
+                    Stream    = _memory.GetStream(container.Data),
                     MediaType = container.MediaType
                 };
             }

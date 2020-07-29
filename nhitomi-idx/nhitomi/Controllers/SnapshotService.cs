@@ -1,9 +1,9 @@
 using System;
-using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using MessagePack;
 using Microsoft.Extensions.Options;
+using Microsoft.IO;
 using nhitomi.Database;
 using nhitomi.Models;
 using nhitomi.Models.Queries;
@@ -85,12 +85,14 @@ namespace nhitomi.Controllers
         readonly IElasticClient _client;
         readonly IStorage _storage;
         readonly IOptionsMonitor<SnapshotServiceOptions> _options;
+        readonly RecyclableMemoryStreamManager _memory;
 
-        public SnapshotService(IElasticClient client, IStorage storage, IOptionsMonitor<SnapshotServiceOptions> options)
+        public SnapshotService(IElasticClient client, IStorage storage, IOptionsMonitor<SnapshotServiceOptions> options, RecyclableMemoryStreamManager memory)
         {
             _client  = client;
             _storage = storage;
             _options = options;
+            _memory  = memory;
         }
 
         public async Task<OneOf<DbSnapshot, NotFound>> GetAsync(ObjectType type, string id, CancellationToken cancellationToken = default)
@@ -226,7 +228,7 @@ namespace nhitomi.Controllers
                 await using var file = new StorageFile
                 {
                     Name   = $"snapshots/{entry.Id}",
-                    Stream = new MemoryStream(data)
+                    Stream = _memory.GetStream(data)
                 };
 
                 await _storage.WriteAsync(file, cancellationToken);

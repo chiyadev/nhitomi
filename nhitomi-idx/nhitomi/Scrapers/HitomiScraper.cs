@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using HtmlAgilityPack;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
@@ -41,7 +42,7 @@ namespace nhitomi.Scrapers
         public HitomiScraper(IServiceProvider services, IOptionsMonitor<HitomiScraperOptions> options, ILogger<BookScraperBase> logger, IHttpClientFactory http) : base(services, options, logger)
         {
             _http    = http.CreateClient(nameof(HitomiScraper));
-            _index   = new HitomiNozomiIndexReader(_http);
+            _index   = services.GetService<HitomiNozomiIndexReader>();
             _options = options;
 
             _http.DefaultRequestHeaders.TryAddWithoutValidation("Accept", "*/*");

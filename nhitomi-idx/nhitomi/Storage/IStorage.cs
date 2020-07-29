@@ -1,5 +1,4 @@
 using System;
-using System.IO;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -58,7 +57,7 @@ namespace nhitomi.Storage
             {
                 Name      = name,
                 MediaType = mediaType,
-                Stream    = new MemoryStream((encoding ?? Encoding.UTF8).GetBytes(data))
+                Stream    = Startup.MemoryStreamManager.GetStream((encoding ?? Encoding.UTF8).GetBytes(data))
             };
 
             await WriteAsync(file, cancellationToken);
