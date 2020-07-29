@@ -33,15 +33,6 @@ namespace nhitomi
 {
     public class Startup
     {
-        readonly IConfigurationRoot _configuration;
-        readonly IWebHostEnvironment _environment;
-
-        public Startup(IConfiguration configuration, IWebHostEnvironment environment)
-        {
-            _configuration = (IConfigurationRoot) configuration;
-            _environment   = environment;
-        }
-
         /// <summary>
         /// Naming strategy of model properties.
         /// </summary>
@@ -51,7 +42,30 @@ namespace nhitomi
             OverrideSpecifiedNames = true
         };
 
-        public static RecyclableMemoryStreamManager MemoryStreamManager = new RecyclableMemoryStreamManager();
+        /// <summary>
+        /// Global singleton <see cref="RecyclableMemoryStreamManager"/>.
+        /// </summary>
+        public static readonly RecyclableMemoryStreamManager MemoryStreamManager = new RecyclableMemoryStreamManager(
+            RecyclableMemoryStreamManager.DefaultBlockSize,
+            RecyclableMemoryStreamManager.DefaultLargeBufferMultiple,
+            RecyclableMemoryStreamManager.DefaultLargeBufferMultiple * 16,
+            true);
+
+        static Startup()
+        {
+            MemoryStreamManager.AggressiveBufferReturn    = true;
+            MemoryStreamManager.MaximumFreeSmallPoolBytes = RecyclableMemoryStreamManager.DefaultBlockSize * 128;
+            MemoryStreamManager.MaximumFreeLargePoolBytes = RecyclableMemoryStreamManager.DefaultLargeBufferMultiple * 32;
+        }
+
+        readonly IConfigurationRoot _configuration;
+        readonly IWebHostEnvironment _environment;
+
+        public Startup(IConfiguration configuration, IWebHostEnvironment environment)
+        {
+            _configuration = (IConfigurationRoot) configuration;
+            _environment   = environment;
+        }
 
         public void ConfigureServices(IServiceCollection services)
         {
