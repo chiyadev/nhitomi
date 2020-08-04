@@ -1312,6 +1312,11 @@
   resolved "https://registry.yarnpkg.com/@nodelib/fs.stat/-/fs.stat-1.1.3.tgz#2b5a3ab3f918cca48a8c754c08168e3f03eba61b"
   integrity sha512-shAmDyaQC4H92APFoIaVDHCx5bStIocgvbwQyxPRrbUY20V1EYTbSDchWbuwlMG3V17cprZhA6+78JfB+3DTPw==
 
+"@openapitools/openapi-generator-cli@^1.0.15-4.3.1":
+  version "1.0.15-4.3.1"
+  resolved "https://registry.yarnpkg.com/@openapitools/openapi-generator-cli/-/openapi-generator-cli-1.0.15-4.3.1.tgz#25ef943eba3c82e82379b30f858bb05ed97dae0b"
+  integrity sha512-U+sanspDmeBElVNjYHQ4U7BbSEJUQzjNKmiTzXpcEw/r93sgxmzS2Sew5t+Zj6kyN1YTvjhRjJikNcW9/bmTKA==
+
 "@svgr/babel-plugin-add-jsx-attribute@^4.2.0":
   version "4.2.0"
   resolved "https://registry.yarnpkg.com/@svgr/babel-plugin-add-jsx-attribute/-/babel-plugin-add-jsx-attribute-4.2.0.tgz#dadcb6218503532d6884b210e7f3c502caaa44b1"
@@ -7022,6 +7027,10 @@ next-tick@~1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/next-tick/-/next-tick-1.0.0.tgz#ca86d1fe8828169b0120208e3dc8424b9db8342c"
   integrity sha1-yobR/ogoFpsBICCOPchCS524NCw=
+
+"nhitomi-api@link:nhitomi-api":
+  version "0.0.0"
+  uid ""
 
 nice-try@^1.0.4:
   version "1.0.5"
