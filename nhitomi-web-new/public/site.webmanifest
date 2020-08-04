@@ -1,0 +1,14 @@
+{
+  "name": "nhitomi",
+  "short_name": "nhitomi",
+  "icons": [
+    {
+      "src": "/android-chrome-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    }
+  ],
+  "theme_color": "#5DA2D5",
+  "background_color": "#18171A",
+  "display": "standalone"
+}
