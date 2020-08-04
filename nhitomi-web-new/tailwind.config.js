@@ -4,13 +4,16 @@ const theme = require('tailwindcss/defaultTheme')
 const colors = palx('#5da2d5')
 
 module.exports = {
-  purge: [],
   theme: {
+    screens: {
+      sm: { max: '767px' },
+      lg: { min: '768px' }
+    },
     colors: Object.keys(colors).reduce((hues, hue) => {
       if (typeof colors[hue] === 'object') {
         hues[hue] = colors[hue].reduce((lums, lum, i) => {
-          if (0 <= i && i < 9) {
-            lums[(i + 1) * 100] = lum
+          if (1 <= i && i <= 9) {
+            lums[i * 100] = lum
           }
 
           return lums
@@ -19,8 +22,8 @@ module.exports = {
 
       return hues
     }, {}),
-    backgroundColor: colors => ({
-      ...colors,
+    backgroundColor: theme => ({
+      ...theme('colors'),
       default: '#18171a'
     }),
     fontFamily: {
@@ -30,7 +33,5 @@ module.exports = {
         ...theme.fontFamily.sans
       ]
     }
-  },
-  variants: {},
-  plugins: []
+  }
 }
