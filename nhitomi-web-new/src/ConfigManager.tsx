@@ -3,6 +3,7 @@ import { useContext, useLayoutEffect, useCallback } from 'react'
 import StrictEventEmitter from 'strict-event-emitter-types'
 import { useUpdate } from 'react-use'
 import { ClientContext } from './ClientManager'
+import { LanguageType } from 'nhitomi-api'
 
 export function useUpdateOnEvent<TEmitter extends StrictEventEmitter<EventEmitter, TEventRecord>, TEventRecord extends {}>(emitter: TEmitter, event: keyof TEventRecord) {
   const update = useUpdate()
@@ -24,7 +25,7 @@ export function useConfig<TKey extends keyof ConfigStore>(key: TKey): [ConfigSto
 export type ConfigStore = {
   token: string | undefined
   baseUrl: string | undefined
-  sidebar: boolean
+  language: LanguageType
 
   cancelKey: ShortcutConfig[]
   sidebarKey: ShortcutConfig[]
@@ -52,7 +53,7 @@ export type ConfigStore = {
 const DefaultStore: ConfigStore = {
   token: undefined,
   baseUrl: undefined,
-  sidebar: false,
+  language: LanguageType.EnUS,
 
   cancelKey: [{ key: 27 }],                   // esc
   sidebarKey: [{ key: 81 }],                  // q
@@ -95,6 +96,7 @@ export class ConfigManager extends (EventEmitter as new () => StrictEventEmitter
   token!: string | undefined
   baseUrl!: string | undefined
   sidebar!: boolean
+  language!: LanguageType
 
   cancelKey!: ShortcutConfig[]
   sidebarKey!: ShortcutConfig[]

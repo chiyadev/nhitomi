@@ -1,0 +1,16 @@
+{
+  "pages": {
+    "home": {
+      "title": "nhitomi"
+    },
+    "bookListing": {
+      "title": "Books"
+    },
+    "collectionListing": {
+      "title": "Collections"
+    },
+    "about": {
+      "title": "About"
+    }
+  }
+}

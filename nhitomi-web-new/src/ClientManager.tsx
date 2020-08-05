@@ -117,7 +117,8 @@ export const ClientContext = createContext<{
   client: Client
 
   info: ClientInfo
-  updateInfo: () => Promise<ClientInfo>
+  setInfo: (info: ClientInfo) => void
+  fetchInfo: () => Promise<ClientInfo>
 }>(undefined as any)
 
 export const ClientManager = ({ children }: { children?: ReactNode }) => {
@@ -143,8 +144,8 @@ export const ClientManager = ({ children }: { children?: ReactNode }) => {
     }
   }, [])
 
-  const updateInfo = useCallback(async () => { const info = await client.getInfo(); setInfo(info); return info }, [client])
-  const context = useMemo(() => ({ config, client, info, updateInfo }), [config, client, info, updateInfo])
+  const fetchInfo = useCallback(async () => { const info = await client.getInfo(); setInfo(info); return info }, [client])
+  const context = useMemo(() => ({ config, client, info, setInfo, fetchInfo }), [config, client, info, setInfo, fetchInfo])
 
   if (!info) {
     return null
