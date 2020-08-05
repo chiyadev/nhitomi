@@ -5,19 +5,22 @@ import { ProgressManager } from './ProgressManager'
 import { PrefetchScrollPreserver } from './Prefetch'
 import { ClientManager } from './ClientManager'
 import { LocaleManager } from './LocaleManager'
+import { NotificationManager } from './NotificationManager'
 
 export const App = () => {
-  return <>
+  return (
     <LayoutManager>
       <ProgressManager>
         <ClientManager>
           <LocaleManager>
-            <PrefetchScrollPreserver />
+            <NotificationManager>
+              <PrefetchScrollPreserver />
 
-            <Sidebar />
+              <Sidebar />
+            </NotificationManager>
           </LocaleManager>
         </ClientManager>
       </ProgressManager>
     </LayoutManager>
-  </>
+  )
 }
