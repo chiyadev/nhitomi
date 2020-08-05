@@ -21,10 +21,9 @@ module.exports = {
       }
 
       return hues
-    }, {}),
-    backgroundColor: theme => ({
-      ...theme('colors'),
-      default: '#18171a'
+    }, {
+      white: '#fcfcfc',
+      black: '#18171a'
     }),
     fontFamily: {
       sans: [
