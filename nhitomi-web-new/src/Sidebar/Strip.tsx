@@ -13,32 +13,36 @@ const Container = styled.div`
 
 export const Strip = () => {
   return (
-    <Container className='h-screen pt-4 pb-4 text-center'>
+    <Container className='h-screen pt-4 pb-4 flex flex-col items-center'>
       <ul>
-        <li>
-          <span className='mx-auto mb-4 inline-block'>
-            <Tooltip overlay={<FormattedMessage id='pages.home.title' />} placement='right'>
-              <img alt='logo' className='w-10 h-10' src='/logo-40x40.png' />
-            </Tooltip>
-          </span>
+        <li className='mb-4'>
+          <Tooltip overlay={<FormattedMessage id='pages.home.title' />} placement='right'>
+            <img alt='logo' className='w-10 h-10' src='/logo-40x40.png' />
+          </Tooltip>
         </li>
 
         <li>
-          <RoundIconButton className='mx-auto' tooltip={{ overlay: <FormattedMessage id='pages.bookListing.title' />, placement: 'right' }}>
-            <ReadFilled />
-          </RoundIconButton>
+          <Tooltip overlay={<FormattedMessage id='pages.bookListing.title' />} placement='right'>
+            <RoundIconButton>
+              <ReadFilled />
+            </RoundIconButton>
+          </Tooltip>
         </li>
 
         <li>
-          <RoundIconButton className='mx-auto' tooltip={{ overlay: <FormattedMessage id='pages.collectionListing.title' />, placement: 'right' }}>
-            <FolderOutlined />
-          </RoundIconButton>
+          <Tooltip overlay={<FormattedMessage id='pages.collectionListing.title' />} placement='right'>
+            <RoundIconButton>
+              <FolderOutlined />
+            </RoundIconButton>
+          </Tooltip>
         </li>
 
         <li>
-          <RoundIconButton className='mx-auto' tooltip={{ overlay: <FormattedMessage id='pages.about.title' />, placement: 'right' }}>
-            <InfoCircleOutlined />
-          </RoundIconButton>
+          <Tooltip overlay={<FormattedMessage id='pages.about.title' />} placement='right'>
+            <RoundIconButton>
+              <InfoCircleOutlined />
+            </RoundIconButton>
+          </Tooltip>
         </li>
       </ul>
     </Container>

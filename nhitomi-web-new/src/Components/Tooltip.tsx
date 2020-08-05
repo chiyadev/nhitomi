@@ -4,8 +4,6 @@ import classNames from 'classnames'
 
 import 'tippy.js/dist/tippy.css'
 
-export type TooltipProps = ComponentProps<typeof Tooltip>
-
 export const Tooltip = ({ className, overlay, children, animation = 'fade', hideOnClick = false, ignoreAttributes = true, touch = false, duration = 200, ...props }: {
   overlay?: ReactNode
   children?: ReactNode
