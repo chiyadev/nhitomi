@@ -23,7 +23,9 @@
     "react-app-rewired": "^2.1.6",
     "react-scripts": "3.4.1",
     "react-use": "^15.3.3",
+    "strict-event-emitter-types": "^2.0.0",
     "tailwindcss": "^1.6.2",
+    "ts-custom-error": "^3.1.1",
     "typescript": "~3.7.2",
     "wouter-preact": "^2.5.1"
   },
