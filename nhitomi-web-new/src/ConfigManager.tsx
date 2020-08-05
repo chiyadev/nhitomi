@@ -78,6 +78,7 @@ const DefaultStore: ConfigStore = {
 }
 
 export type KeyModifier = 'alt' | 'ctrl' | 'meta' | 'shift'
+export const KeyModifiers: KeyModifier[] = ['alt', 'ctrl', 'meta', 'shift']
 
 export type ShortcutConfig = {
   key: number

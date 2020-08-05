@@ -17,6 +17,7 @@
     "@types/react-dom": "^16.9.0",
     "classnames": "^2.2.6",
     "customize-cra": "^1.0.0",
+    "keycode": "^2.2.0",
     "nprogress": "^0.2.0",
     "palx": "^1.0.3",
     "preact": "^10.4.6",
