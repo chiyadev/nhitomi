@@ -12,7 +12,7 @@ export const Tooltip = ({ className, overlay, children, animation = 'fade', hide
     <Tippy
       content={(
         <span
-          className={classNames(className, 'rounded', 'overflow-hidden')}
+          className={classNames(className, 'rounded overflow-hidden')}
           children={overlay} />
       )}
       animation={animation}
