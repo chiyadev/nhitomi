@@ -1,12 +1,16 @@
-import React, { createContext, ReactNode, useRef, useLayoutEffect, useMemo } from 'react'
+import React, { createContext, ReactNode, useRef, useLayoutEffect, useMemo, useContext } from 'react'
 import nprogress from 'nprogress'
 
 import './Progress.css'
 
-export const ProgressContext = createContext<{
+const ProgressContext = createContext<{
   begin: () => void
   end: () => void
 }>(undefined as any)
+
+export function useProgress() {
+  return useContext(ProgressContext)
+}
 
 export const ProgressManager = ({ children }: { children?: ReactNode }) => {
   const count = useRef(0)

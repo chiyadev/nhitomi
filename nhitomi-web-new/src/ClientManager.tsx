@@ -2,7 +2,7 @@ import React, { ReactNode, useMemo, createContext, useState, useCallback, useCon
 import { ConfigurationParameters, ValidationProblemArrayResult, ValidationProblem, UserApi, InfoApi, BookApi, CollectionApi, Configuration, GetInfoResponse, GetInfoAuthenticatedResponse, BASE_PATH } from 'nhitomi-api'
 import { CustomError } from 'ts-custom-error'
 import { useAsync } from 'react-use'
-import { ProgressContext } from './ProgressManager'
+import { useProgress } from './ProgressManager'
 import { ConfigManager } from './ConfigManager'
 
 export class Client {
@@ -112,7 +112,7 @@ type ClientInfo =
   GetInfoResponse & { authenticated: false } |
   GetInfoAuthenticatedResponse & { authenticated: true }
 
-export const ClientContext = createContext<{
+const ClientContext = createContext<{
   config: ConfigManager
   client: Client
 
@@ -121,11 +121,20 @@ export const ClientContext = createContext<{
   fetchInfo: () => Promise<ClientInfo>
 }>(undefined as any)
 
+export function useClient() {
+  return useContext(ClientContext).client
+}
+
+export function useClientInfo() {
+  const { info, setInfo, fetchInfo } = useContext(ClientContext)
+  return { info, setInfo, fetchInfo }
+}
+
 export const ClientManager = ({ children }: { children?: ReactNode }) => {
   const config = useMemo(() => new ConfigManager(), [])
   const client = useMemo(() => new Client(config), [config])
   const [info, setInfo] = useState<ClientInfo | Error>()
-  const { begin, end } = useContext(ProgressContext)
+  const { begin, end } = useProgress()
 
   useAsync(async () => {
     begin()

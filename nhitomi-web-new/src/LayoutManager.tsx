@@ -1,13 +1,17 @@
-import React, { ReactNode, createContext, useMemo } from 'react'
+import React, { ReactNode, createContext, useMemo, useContext } from 'react'
 import { useWindowSize } from 'react-use'
 import { StripWidth } from './Sidebar/Strip'
 
 /** Layout information context. */
-export const LayoutContext = createContext<{
+const LayoutContext = createContext<{
   width: number
   height: number
   screen: 'sm' | 'lg'
 }>(undefined as any)
+
+export function useLayout() {
+  return useContext(LayoutContext)
+}
 
 export const Breakpoint = 768
 

@@ -1,8 +1,8 @@
 import { EventEmitter } from 'events'
-import { useContext, useLayoutEffect, useCallback } from 'react'
+import { useLayoutEffect, useCallback } from 'react'
 import StrictEventEmitter from 'strict-event-emitter-types'
 import { useUpdate } from 'react-use'
-import { ClientContext } from './ClientManager'
+import { useClient } from './ClientManager'
 import { LanguageType } from 'nhitomi-api'
 
 export function useUpdateOnEvent<TEmitter extends StrictEventEmitter<EventEmitter, TEventRecord>, TEventRecord extends {}>(emitter: TEmitter, event: keyof TEventRecord) {
@@ -15,7 +15,7 @@ export function useUpdateOnEvent<TEmitter extends StrictEventEmitter<EventEmitte
 }
 
 export function useConfig<TKey extends keyof ConfigStore>(key: TKey): [ConfigStore[TKey], (value: ConfigStore[TKey]) => void] {
-  const { config } = useContext(ClientContext)
+  const { config } = useClient()
 
   useUpdateOnEvent(config, key)
 

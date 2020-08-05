@@ -1,8 +1,8 @@
-import { useContext, useRef, useEffect } from 'react'
+import { useRef, useEffect } from 'react'
 import { useKey, useKeyPress, useRafLoop } from 'react-use'
 import keycode from 'keycode'
 import { ShortcutConfig, KeyModifiers, ShortcutConfigKey, useConfig } from './ConfigManager'
-import { LayoutContext } from './LayoutManager'
+import { useLayout } from './LayoutManager'
 
 /** Returns all modifier keys pressed in the given event. */
 export function getEventModifiers(e: { altKey: boolean, ctrlKey: boolean, metaKey: boolean, shiftKey: boolean }) {
@@ -60,7 +60,7 @@ export function useShortcutPress(key: ShortcutConfigKey) {
 
 /** Hook to scroll window using shortcut keys. */
 export function useScrollShortcut() {
-  const { height } = useContext(LayoutContext)
+  const { height } = useLayout()
 
   const timestamp = useRef(0)
   const [scrollDown] = useShortcutPress('scrollDownKey')

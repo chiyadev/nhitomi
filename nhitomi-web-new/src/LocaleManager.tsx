@@ -1,10 +1,10 @@
-import React, { createContext, ReactNode, useState, useMemo, useContext, useRef } from 'react'
+import React, { createContext, ReactNode, useState, useMemo, useRef, useContext } from 'react'
 import { IntlProvider } from 'react-intl'
 import { useAsync } from 'react-use'
-import { ProgressContext } from './ProgressManager'
+import { useProgress } from './ProgressManager'
 import { LanguageType } from 'nhitomi-api'
 import { useConfig } from './ConfigManager'
-import { ClientContext } from './ClientManager'
+import { useClient, useClientInfo } from './ClientManager'
 
 export const LanguageNames: { [lang in LanguageType]: string } = {
   'ja-JP': '日本語',
@@ -22,16 +22,21 @@ export const LanguageNames: { [lang in LanguageType]: string } = {
   'vi-VN': 'Tiếng Việt'
 }
 
-export const LocaleContext = createContext<{
+const LocaleContext = createContext<{
   language: LanguageType
   setLanguage: (language: LanguageType) => void
 }>(undefined as any)
 
+export function useLocale() {
+  return useContext(LocaleContext)
+}
+
 export const LocaleManager = ({ children }: { children?: ReactNode }) => {
-  const { client, setInfo, fetchInfo } = useContext(ClientContext)
+  const client = useClient()
+  const { setInfo, fetchInfo } = useClientInfo()
   const [language, setLanguage] = useConfig('language')
   const [messages, setMessages] = useState<Record<string, string>>()
-  const { begin, end } = useContext(ProgressContext)
+  const { begin, end } = useProgress()
 
   const initial = useRef(true)
 

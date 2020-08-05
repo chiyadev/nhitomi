@@ -1,7 +1,7 @@
-import React, { Dispatch, useCallback, useLayoutEffect, useRef, useContext, ComponentProps } from 'react'
+import React, { Dispatch, useCallback, useLayoutEffect, useRef, ComponentProps } from 'react'
 import { useUpdate, useAsync } from 'react-use'
-import { Client, ClientContext } from './ClientManager'
-import { ProgressContext } from './ProgressManager'
+import { Client, useClient } from './ClientManager'
+import { useProgress } from './ProgressManager'
 import { Link, LinkProps } from 'wouter-preact'
 import { getEventModifiers } from './shortcut'
 
@@ -92,8 +92,8 @@ export type Prefetch<T> = {
 
 /** Returns a function that will fetch data and navigate to a page. */
 export function usePrefetch() {
-  const { client } = useContext(ClientContext)
-  const { begin, end } = useContext(ProgressContext)
+  const client = useClient()
+  const { begin, end } = useProgress()
   // const { notification } = useContext(NotificationContext)
 
   return async <T extends {}>({ path, showProgress = true, restoreScroll = true, fetch }: Prefetch<T>) => {
@@ -120,8 +120,8 @@ export function usePrefetch() {
 
 /** Fetches data for the current page if not already fetched. Prefetch object should be memoized. */
 export function usePostfetch<T>(prefetch: Prefetch<T>) {
-  const { client } = useContext(ClientContext)
-  const { begin, end } = useContext(ProgressContext)
+  const client = useClient()
+  const { begin, end } = useProgress()
   // const { notification } = useContext(NotificationContext)
 
   const [state, setState] = usePageState<T>('data')
