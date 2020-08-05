@@ -60,6 +60,9 @@ export const LocaleManager = ({ children }: { children?: ReactNode }) => {
 
       console.log('loaded language', language, loaded)
     }
+    catch (e) {
+      console.error('could not load language', e)
+    }
     finally {
       end()
     }
