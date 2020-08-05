@@ -4,6 +4,7 @@ import { Client, useClient } from './ClientManager'
 import { useProgress } from './ProgressManager'
 import { Link, LinkProps } from 'wouter-preact'
 import { getEventModifiers } from './shortcut'
+import { useNotify } from './NotificationManager'
 
 // https://stackoverflow.com/a/53307588/13160620
 let refreshed = false
@@ -94,7 +95,7 @@ export type Prefetch<T> = {
 export function usePrefetch() {
   const client = useClient()
   const { begin, end } = useProgress()
-  // const { notification } = useContext(NotificationContext)
+  const { notifyError } = useNotify()
 
   return async <T extends {}>({ path, showProgress = true, restoreScroll = true, fetch }: Prefetch<T>) => {
     if (showProgress)
@@ -108,9 +109,9 @@ export function usePrefetch() {
       if (restoreScroll)
         window.scrollTo({ top: 0 })
     }
-    // catch (e) {
-    //   notification.error(e)
-    // }
+    catch (e) {
+      notifyError(e)
+    }
     finally {
       if (showProgress)
         end()
@@ -122,7 +123,7 @@ export function usePrefetch() {
 export function usePostfetch<T>(prefetch: Prefetch<T>) {
   const client = useClient()
   const { begin, end } = useProgress()
-  // const { notification } = useContext(NotificationContext)
+  const { notifyError } = useNotify()
 
   const [state, setState] = usePageState<T>('data')
   const [scroll] = usePageState<number>('scroll')
@@ -143,10 +144,10 @@ export function usePostfetch<T>(prefetch: Prefetch<T>) {
 
       return value
     }
-    // catch (e) {
-    //   notification.error(e)
-    //   throw e
-    // }
+    catch (e) {
+      notifyError(e)
+      throw e
+    }
     finally {
       if (showProgress)
         end()
