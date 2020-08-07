@@ -7,12 +7,13 @@ import { ClientManager } from './ClientManager'
 import { LocaleManager } from './LocaleManager'
 import { NotificationManager } from './NotificationManager'
 import { cx, css } from 'emotion'
-import { Route, Redirect, Switch, BrowserRouter } from 'react-router-dom'
+import { Route, Redirect, Switch, Router } from 'react-router-dom'
 import { BookListingPage } from './BookListing'
+import { History } from './history'
 
 export const App = () => {
   return (
-    <BrowserRouter>
+    <Router history={History}>
       <LayoutManager>
         <ProgressManager>
           <ClientManager>
@@ -27,7 +28,7 @@ export const App = () => {
           </ClientManager>
         </ProgressManager>
       </LayoutManager>
-    </BrowserRouter>
+    </Router>
   )
 }
 

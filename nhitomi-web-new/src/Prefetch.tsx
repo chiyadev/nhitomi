@@ -5,6 +5,7 @@ import { useProgress } from './ProgressManager'
 import { getEventModifiers } from './shortcut'
 import { useNotify } from './NotificationManager'
 import { Link, LinkProps } from 'react-router-dom'
+import { History, navigate } from './history'
 
 // https://stackoverflow.com/a/53307588/13160620
 let refreshed = false
@@ -21,44 +22,29 @@ catch {
 
 if (refreshed) {
   // on refresh, clear all page states except scroll to allow refetching (causes usePostfetch to be triggered)
-  window.history.replaceState({ scroll: window.history.state?.scroll }, document.title)
-}
-
-type PageState<T> = {
-  value: T | undefined
-  version: number
+  navigate('replace', { state: s => ({ scroll: s.scroll }) })
 }
 
 /** Similar to useState but stores the data in window.history.state. */
 export function usePageState<T>(key: string): [T | undefined, Dispatch<T | undefined>] {
   const update = useUpdate()
-  const state = window.history.state?.[key] as PageState<T> | undefined
+  const state = History.location.state?.[key]
   const version = useRef(state?.version || Math.random()) // versioning is used for equality instead of state value, allowing objects to be compared correctly
 
-  useLayoutEffect(() => {
-    const handler = (e: PopStateEvent) => {
-      const newState = e.state?.[key] as PageState<T> | undefined
+  useLayoutEffect(() => History.listen(location => {
+    const newState = location.state?.[key]
 
-      if (newState?.version !== version.current)
-        update()
+    if (newState?.version !== version.current)
+      update()
 
-      version.current = newState?.version || Math.random()
-    }
-
-    window.addEventListener('popstate', handler)
-    return () => window.removeEventListener('popstate', handler)
-  }, [key, update])
+    version.current = newState?.version || Math.random()
+  }), [key, update])
 
   const setState = useCallback((value: T | undefined) => {
-    window.history.replaceState(getModifiedHistoryState(key, value), document.title)
-    update()
-  }, [key, update])
+    navigate('replace', { state: s => ({ ...s, [key]: { value, version: Math.random() } }) })
+  }, [key])
 
-  return [state?.value, setState]
-}
-
-function getModifiedHistoryState<T>(key: string, value: T): { [key: string]: PageState<unknown> } {
-  return { ...window.history.state, [key]: { value, version: Math.random() } }
+  return [state?.value as T, setState]
 }
 
 /** Stores window scroll position in the page state for retainment between navigations. */
@@ -117,7 +103,7 @@ export function usePrefetch<T>(prefetch: Prefetch<T, any>) {
     try {
       const value = await fetch(client, 'prefetch', data || {})
 
-      window.history.pushState(getModifiedHistoryState('data', value), document.title, path)
+      navigate('push', { path, state: s => ({ ...s, 'fetch': { value, version: Math.random() } }) })
 
       if (restoreScroll)
         window.scrollTo({ top: 0 })
@@ -140,13 +126,16 @@ export function usePostfetch<T>(prefetch: Prefetch<T, any>) {
   const { begin, end } = useProgress()
   const { notifyError } = useNotify()
 
-  const [state, setState] = usePageState<T>('data')
+  const [state, setState] = usePageState<T>('fetch')
   const [scroll] = usePageState<number>('scroll')
 
   // retrieve data from memoized custom hook function
   const data = useRef(prefetch.useData).current?.('postfetch')
 
   const { error, loading } = useAsync(async () => {
+    // ignore if already loaded
+    if (state) return
+
     const { showProgress = true, restoreScroll = true, fetch, done } = prefetch
 
     if (showProgress)
@@ -158,7 +147,7 @@ export function usePostfetch<T>(prefetch: Prefetch<T, any>) {
       setState(value)
 
       if (restoreScroll)
-        window.scrollTo({ top: scroll })
+        window.scrollTo({ top: scroll || 0 })
 
       await done?.(value, client, 'postfetch', data || {})
 

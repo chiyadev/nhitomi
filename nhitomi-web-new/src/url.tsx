@@ -1,50 +1,38 @@
 import { Dispatch, useLayoutEffect, useCallback } from 'react'
 import { useUpdate } from 'react-use'
 import { parse, stringify } from 'qs'
+import { History, navigate, NavigationMode } from './history'
 
 /** Similar to useState but stores data in the query part of window.location. */
-export function useUrlState<T>(mode: 'push' | 'replace' = 'replace', name?: string): [T, Dispatch<T>] {
+export function useUrlState<T extends (N extends string ? any : object), N extends string | undefined = undefined>(mode: NavigationMode = 'replace', name?: N): [T | undefined, Dispatch<T | undefined>] {
   const update = useUpdate()
-  const state = getSelfOrField(deserializeUrlState<T>(window.location.search), name)
+  const state = getSelfOrField<T>(deserialize(History.location.search), name)
 
-  useLayoutEffect(() => {
-    const handler = () => {
-      const newState = getSelfOrField(deserializeUrlState<T>(window.location.search), name)
+  useLayoutEffect(() => History.listen(location => {
+    const newState = getSelfOrField<T>(deserialize(location.search), name)
 
-      if (state !== newState)
-        update()
+    if (state !== newState)
+      update()
+  }), [name, state, update])
+
+  const setState = useCallback((value: T | undefined) => {
+    // combine this state with other url states depending on whether name is specified
+    let combined: any
+
+    if (name) {
+      combined = { ...deserialize(History.location.search), [name!]: value }
+    } else {
+      combined = { ...deserialize(History.location.search), ...value }
     }
 
-    window.addEventListener('popstate', handler)
-    return () => window.removeEventListener('popstate', handler)
-  }, [name, state, update])
-
-  const setState = useCallback((value: T) => {
-    const url = new URL(window.location.href)
-    url.search = serializeUrlState(value)
-
-    switch (mode) {
-      case 'push':
-        window.history.pushState(window.history.state, document.title, url.href)
-        break
-      case 'replace':
-        window.history.replaceState(window.history.state, document.title, url.href)
-        break
-    }
-  }, [mode])
+    navigate(mode, { search: serialize(combined) })
+  }, [mode, name])
 
   return [state, setState]
 }
 
-function getSelfOrField<T>(value: T, name?: string) {
-  if (name && typeof value === 'object')
-    return (value as any)[name] as T
-  else
-    return value
-}
-
-function serializeUrlState<T extends {}>(value: T) {
-  return stringify(value, {
+function serialize(data: unknown) {
+  return stringify(data, {
     addQueryPrefix: true,
     allowDots: true,
     arrayFormat: 'brackets',
@@ -53,11 +41,16 @@ function serializeUrlState<T extends {}>(value: T) {
   })
 }
 
-function deserializeUrlState<T extends {}>(value: string) {
+function deserialize(value: string) {
   return parse(value, {
     ignoreQueryPrefix: true,
     allowDots: true,
     arrayLimit: 100,
     depth: 10
-  }) as T
+  }) as any
+}
+
+function getSelfOrField<T>(value: any, key?: string): T | undefined {
+  if (key) return value?.[key]
+  else return value
 }
