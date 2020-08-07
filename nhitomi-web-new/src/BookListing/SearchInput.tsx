@@ -92,7 +92,7 @@ export function assemble(tokens: QueryToken[]): string {
 
 export const SearchInput = () => {
   const [result] = usePageState<PrefetchResult>('fetch')
-  const [query, setQuery] = useUrlState<SearchQuery>('replace')
+  const [query, setQuery] = useUrlState<SearchQuery>('push')
 
   const [text, setText] = useState('')
   const tokens = useMemo(() => tokenize(text), [text])
@@ -100,13 +100,15 @@ export const SearchInput = () => {
 
   useLayoutEffect(() => setText(query.query || ''), [query.query])
 
+  const setTextWithSearch = useCallback((text: string) => { setText(text); setQuery({ ...query, query: text }) }, [query, setQuery])
+
   return (
     <div className='mx-auto p-4 w-full max-w-xl'>
       <div className='shadow-lg w-full flex flex-row bg-white text-black border-none rounded overflow-hidden'>
         <Suggestor
           tokens={tokens}
           inputRef={inputRef}
-          setText={setText}>
+          setText={setTextWithSearch}>
 
           <div className='flex-grow text-sm relative overflow-hidden'>
             <input
@@ -195,10 +197,14 @@ const Suggestor = ({ tokens, setText, inputRef, children }: { tokens: QueryToken
   }, [index, tokens])
 
   const complete = useCallback(() => {
-    if (!selected || !token) return
+    let text = assemble(tokens)
+
+    if (!selected || !token) {
+      setText(text) // can trigger search in 'other' tokens
+      return
+    }
 
     const tag = suggestions?.find(s => s.items.indexOf(selected) !== -1)?.tag
-    let text = assemble(tokens)
 
     const remove = (s: string, start: number, end: number) => s.substring(0, start) + s.substring(end)
     const insert = (s: string, index: number, value: string) => s.substring(0, index) + value + s.substring(index)
@@ -350,7 +356,7 @@ const Suggestor = ({ tokens, setText, inputRef, children }: { tokens: QueryToken
       content={(
         <div className={css`width: ${inputRef.current?.clientWidth}px; max-width: 100%;`}>
           {token && <>
-            <span className='text-xs opacity-50'>"{token.display}"</span>
+            <span className='text-xs opacity-50'>"{token.display}" ({suggestions ? suggestions.flatMap(s => s.items).length : '*'})</span>
           </>}
 
           {suggestions && suggestions.map(({ tag, items }) => (
