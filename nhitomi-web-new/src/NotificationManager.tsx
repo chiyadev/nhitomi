@@ -35,7 +35,7 @@ export const NotificationManager = ({ children }: { children?: ReactNode }) => {
   )
 }
 
-const ToastContainer = ({ children, placement }: ToastContainerProps) => (
+const ToastContainer = ({ children, placement, hasToasts }: ToastContainerProps) => !hasToasts ? null : (
   <div
     className={(
       cx('w-screen lg:max-w-md fixed p-4 z-10 text-center', placement
