@@ -45,7 +45,7 @@ const Body = () => {
 
   return (
     <div className={css`padding-left: ${sidebar}px;`}>
-      <div className={cx('mx-auto w-full', { [css`max-width: ${width}px;`]: !!width })}>
+      <div className={cx('relative mx-auto w-full', { [css`max-width: ${width}px;`]: !!width })}>
         <Routing />
       </div>
     </div>
