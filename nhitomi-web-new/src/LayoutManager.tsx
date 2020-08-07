@@ -6,6 +6,7 @@ import { StripWidth } from './Sidebar/Strip'
 const LayoutContext = createContext<{
   width: number
   height: number
+  sidebar: number
   screen: 'sm' | 'lg'
 }>(undefined as any)
 
@@ -23,6 +24,7 @@ export const LayoutManager = ({ children }: { children?: ReactNode }) => {
       value={useMemo(() => ({
         width: width >= Breakpoint ? width - StripWidth : width,
         height,
+        sidebar: width >= Breakpoint ? StripWidth : 0,
         screen: width >= Breakpoint ? 'lg' : 'sm'
       }), [
         width,
