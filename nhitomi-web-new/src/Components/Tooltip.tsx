@@ -22,7 +22,7 @@ export const Tooltip = ({ className, overlay, children, animation = 'fade', hide
       duration={duration}
       {...props}>
 
-      <span>{children}</span>
+      <span className='block'>{children}</span>
     </Tippy>
   )
 }
