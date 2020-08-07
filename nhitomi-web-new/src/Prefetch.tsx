@@ -1,4 +1,4 @@
-import React, { Dispatch, useCallback, useLayoutEffect, useRef, ComponentProps } from 'react'
+import React, { Dispatch, useCallback, useLayoutEffect, useRef, ComponentProps, useMemo } from 'react'
 import { useUpdate, useAsync } from 'react-use'
 import { Client, useClient } from './ClientManager'
 import { useProgress } from './ProgressManager'
@@ -82,27 +82,33 @@ export const PrefetchScrollPreserver = () => {
 
 export type PrefetchMode = 'prefetch' | 'postfetch'
 
-export type Prefetch<T> = {
+export type Prefetch<T, U = {}> = {
   path: string
 
   showProgress?: boolean
   restoreScroll?: boolean
 
-  fetch: (client: Client, mode: PrefetchMode) => Promise<T>
+  useData?: (mode: PrefetchMode) => U
+  fetch: (client: Client, mode: PrefetchMode, data: U) => Promise<T>
 }
 
-/** Returns a function that will fetch data and navigate to a page. */
-export function usePrefetch() {
+/** Returns a function that will fetch data and navigate to a page. Prefetch object should be memoized. */
+export function usePrefetch<T>(prefetch: Prefetch<T>) {
   const client = useClient()
   const { begin, end } = useProgress()
   const { notifyError } = useNotify()
 
-  return async <T extends {}>({ path, showProgress = true, restoreScroll = true, fetch }: Prefetch<T>) => {
+  // retrieve data from memoized custom hook function
+  const data = useRef(prefetch.useData).current?.('prefetch')
+
+  return useCallback(async () => {
+    const { path, showProgress, restoreScroll, fetch } = prefetch
+
     if (showProgress)
       begin()
 
     try {
-      const value = await fetch(client, 'prefetch')
+      const value = await fetch(client, 'prefetch', data || {})
 
       window.history.pushState(getModifiedHistoryState('data', value), document.title, path)
 
@@ -116,7 +122,7 @@ export function usePrefetch() {
       if (showProgress)
         end()
     }
-  }
+  }, [prefetch, client, begin, end, notifyError, data])
 }
 
 /** Fetches data for the current page if not already fetched. Prefetch object should be memoized. */
@@ -128,6 +134,9 @@ export function usePostfetch<T>(prefetch: Prefetch<T>) {
   const [state, setState] = usePageState<T>('data')
   const [scroll] = usePageState<number>('scroll')
 
+  // retrieve data from memoized custom hook function
+  const data = useRef(prefetch.useData).current?.('postfetch')
+
   const { error, loading } = useAsync(async () => {
     const { showProgress, restoreScroll, fetch } = prefetch
 
@@ -135,7 +144,7 @@ export function usePostfetch<T>(prefetch: Prefetch<T>) {
       begin()
 
     try {
-      const value = await fetch(client, 'postfetch')
+      const value = await fetch(client, 'postfetch', data || {})
 
       setState(value)
 
@@ -152,7 +161,7 @@ export function usePostfetch<T>(prefetch: Prefetch<T>) {
       if (showProgress)
         end()
     }
-  }, [prefetch])
+  }, [prefetch]) // refetch only if prefetch object changes
 
   return {
     result: state,
@@ -172,7 +181,7 @@ export const PrefetchLink = <T extends {}>({ fetch, disabled, target, onClick, .
   /** if true, prevents navigation when clicking this link. */
   disabled?: boolean
 }) => {
-  const go = usePrefetch()
+  const go = usePrefetch(fetch)
 
   return (
     <Link
@@ -194,7 +203,7 @@ export const PrefetchLink = <T extends {}>({ fetch, disabled, target, onClick, .
         if (disabled)
           return
 
-        go(fetch)
+        go()
       }}
       target={target}
       {...props as any} />
