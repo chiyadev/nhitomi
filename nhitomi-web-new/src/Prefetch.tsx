@@ -100,7 +100,7 @@ export type Prefetch<T, U = {}> = {
 }
 
 /** Returns a function that will fetch data and navigate to a page. Prefetch object should be memoized. */
-export function usePrefetch<T>(prefetch: Prefetch<T>) {
+export function usePrefetch<T>(prefetch: Prefetch<T, any>) {
   const client = useClient()
   const { begin, end } = useProgress()
   const { notifyError } = useNotify()
@@ -135,7 +135,7 @@ export function usePrefetch<T>(prefetch: Prefetch<T>) {
 }
 
 /** Fetches data for the current page if not already fetched. Prefetch object should be memoized. */
-export function usePostfetch<T>(prefetch: Prefetch<T>) {
+export function usePostfetch<T>(prefetch: Prefetch<T, any>) {
   const client = useClient()
   const { begin, end } = useProgress()
   const { notifyError } = useNotify()
@@ -187,7 +187,7 @@ export type PrefetchLinkProps = ComponentProps<typeof PrefetchLink>
 /** Link that fetches some data before navigating to a page. */
 export const PrefetchLink = <T extends {}>({ fetch, disabled, target, onClick, ...props }: Omit<LinkProps, 'to'> & {
   /** fetch information */
-  fetch: Prefetch<T>
+  fetch: Prefetch<T, any>
 
   /** if true, prevents navigation when clicking this link. */
   disabled?: boolean
