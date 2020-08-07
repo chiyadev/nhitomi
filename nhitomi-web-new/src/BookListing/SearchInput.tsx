@@ -47,7 +47,7 @@ export function tokenize(text: string): QueryToken[] {
       begin: start + (s.length - s.trimStart().length),
       end: start + s.trimEnd().length,
       text: s,
-      display: s.trim().replace('_', ' ')
+      display: s.replace(/_/g, ' ').trim()
     })
   }
 
@@ -60,7 +60,7 @@ export function tokenize(text: string): QueryToken[] {
       text: text.substring(start, end),
       tag,
       value,
-      display: value.replace('_', ' ')
+      display: value.replace(/_/g, ' ').trim()
     })
   }
 
@@ -97,6 +97,8 @@ export const SearchInput = () => {
   const [text, setText] = useState('')
   const tokens = useMemo(() => tokenize(text), [text])
   const inputRef = useRef<HTMLInputElement>(null)
+
+  useLayoutEffect(() => setText(query.query || ''), [query.query])
 
   return (
     <div className='mx-auto p-4 w-full max-w-xl'>
@@ -201,7 +203,7 @@ const Suggestor = ({ tokens, setText, inputRef, children }: { tokens: QueryToken
     const remove = (s: string, start: number, end: number) => s.substring(0, start) + s.substring(end)
     const insert = (s: string, index: number, value: string) => s.substring(0, index) + value + s.substring(index)
 
-    const replacement = `${tag}:${selected.text.replace(' ', '_')}`
+    const replacement = `${tag}:${selected.text.replace(/\s/g, '_')}`
 
     text = remove(text, token.begin, token.end)
     text = insert(text, token.begin, replacement)
