@@ -1,4 +1,4 @@
-import React, { useState, useRef, useLayoutEffect, RefObject, useMemo, ReactElement } from 'react'
+import React, { useState, useRef, useLayoutEffect, RefObject, useMemo, ReactElement, useCallback, Dispatch } from 'react'
 import { useUrlState } from '../url'
 import { SearchQuery } from './search'
 import { SearchOutlined } from '@ant-design/icons'
@@ -6,18 +6,24 @@ import { usePageState } from '../Prefetch'
 import { PrefetchResult } from '.'
 import { cx, css } from 'emotion'
 import { colors } from '../theme.json'
-import { BookTag } from 'nhitomi-api'
+import { BookTag, SuggestItem } from 'nhitomi-api'
 import { BookTagColors } from '../Components/colors'
 import Tippy from '@tippyjs/react'
+import { useClient } from '../ClientManager'
+import { useNotify } from '../NotificationManager'
 
-type QueryToken = {
-  index: number
+export type QueryToken = {
   type: 'other'
+  index: number
+  begin: number
+  end: number
   text: string
   display: string
 } | {
-  index: number
   type: 'tag'
+  index: number
+  begin: number // same as index
+  end: number
   text: string
   tag: BookTag
   value: string
@@ -27,10 +33,36 @@ type QueryToken = {
 const tagRegex = /(?<tag>\w+):(?<value>\S+)/gsi
 const allTags = Object.values(BookTag)
 
-function tokenize(text: string): QueryToken[] {
+export function tokenize(text: string): QueryToken[] {
   const results: ReturnType<typeof tokenize> = []
   let match: RegExpExecArray | null
   let start = 0
+
+  const addOther = (start: number, end: number) => {
+    const s = text.substring(start, end)
+
+    results.push({
+      type: 'other',
+      index: start,
+      begin: start + (s.length - s.trimStart().length),
+      end: start + s.trimEnd().length,
+      text: s,
+      display: s.trim().replace('_', ' ')
+    })
+  }
+
+  const addTag = (start: number, end: number, tag: BookTag, value: string) => {
+    results.push({
+      type: 'tag',
+      index: start,
+      begin: start,
+      end,
+      text: text.substring(start, end),
+      tag,
+      value,
+      display: value.replace('_', ' ')
+    })
+  }
 
   while ((match = tagRegex.exec(text))) {
     const tag = (match.groups?.tag || '') as BookTag
@@ -40,40 +72,22 @@ function tokenize(text: string): QueryToken[] {
       continue
 
     if (start < match.index) {
-      const s = text.substring(start, match.index)
-
-      results.push({
-        index: start,
-        type: 'other',
-        text: s,
-        display: s.trim().replace('_', ' ')
-      })
+      addOther(start, match.index)
     }
 
-    results.push({
-      index: match.index,
-      type: 'tag',
-      text: text.substring(match.index, tagRegex.lastIndex),
-      tag,
-      value,
-      display: value.trim().replace('_', ' ')
-    })
-
+    addTag(match.index, tagRegex.lastIndex, tag, value)
     start = tagRegex.lastIndex
   }
 
   if (start < text.length) {
-    const s = text.substring(start, text.length)
-
-    results.push({
-      index: start,
-      type: 'other',
-      text: s,
-      display: s.trim().replace('_', ' ')
-    })
+    addOther(start, text.length)
   }
 
   return results
+}
+
+export function assemble(tokens: QueryToken[]): string {
+  return tokens.map(token => token.text).join('')
 }
 
 export const SearchInput = () => {
@@ -87,9 +101,10 @@ export const SearchInput = () => {
   return (
     <div className='mx-auto p-4 w-full max-w-xl'>
       <div className='shadow-lg w-full flex flex-row bg-white text-black border-none rounded overflow-hidden'>
-        <Autocompleter
+        <Suggestor
           tokens={tokens}
-          inputRef={inputRef}>
+          inputRef={inputRef}
+          setText={setText}>
 
           <div className='flex-grow text-sm relative overflow-hidden'>
             <input
@@ -117,7 +132,7 @@ export const SearchInput = () => {
               inputRef={inputRef}
               className='pl-4 w-full h-full absolute top-0 left-0' />
           </div>
-        </Autocompleter>
+        </Suggestor>
 
         <div className='text-white px-3 py-2 bg-blue-600 text-lg'>
           <SearchOutlined className='align-middle' />
@@ -159,64 +174,169 @@ const Highlighter = ({ tokens, inputRef, className }: { tokens: QueryToken[], in
               </span>
             )
         }
+
+        return null
       })}
     </div>
   )
 }
 
-const Autocompleter = ({ tokens, inputRef, children }: { tokens: QueryToken[], inputRef: RefObject<HTMLInputElement>, children?: ReactElement<any> }) => {
+const Suggestor = ({ tokens, setText, inputRef, children }: { tokens: QueryToken[], setText: Dispatch<string>, inputRef: RefObject<HTMLInputElement>, children?: ReactElement<any> }) => {
   const [index, setIndex] = useState<number>()
   const [focused, setFocused] = useState(false)
+  const [suggestions, setSuggestions] = useState<{ tag: BookTag, items: SuggestItem[] }[]>()
+  const [selected, setSelected] = useState<SuggestItem>()
+
+  const token = useMemo(() => {
+    if (typeof index === 'number')
+      return tokens.slice().reverse().find(token => token.display && token.begin <= index)
+  }, [index, tokens])
+
+  const complete = useCallback(() => {
+    if (!selected || !token) return
+
+    const tag = suggestions?.find(s => s.items.indexOf(selected) !== -1)?.tag
+    let text = assemble(tokens)
+
+    const remove = (s: string, start: number, end: number) => s.substring(0, start) + s.substring(end)
+    const insert = (s: string, index: number, value: string) => s.substring(0, index) + value + s.substring(index)
+
+    const replacement = `${tag}:${selected.text.replace(' ', '_')}`
+
+    text = remove(text, token.begin, token.end)
+    text = insert(text, token.begin, replacement)
+
+    const caret = token.begin + replacement.length + 1
+
+    if (text[caret] !== ' ')
+      text = insert(text, caret, ' ')
+
+    setText(text)
+
+    setTimeout(() => {
+      const input = inputRef.current
+
+      if (input) {
+        input.selectionStart = input.selectionEnd = caret
+        input.focus()
+      }
+    })
+  }, [inputRef, selected, setText, suggestions, token, tokens])
 
   useLayoutEffect(() => {
     const input = inputRef.current
+    if (!input) return
 
-    if (!input)
-      return
-
-    const caretHandler = () => {
+    const handler = () => {
       const index = input.selectionEnd || input.selectionStart
       setIndex(typeof index === 'number' ? index : undefined)
     }
 
-    const focusHandler = () => {
-      setFocused(document.activeElement === input)
-    }
-
     // unfortunately input doesn't have a caret event
-    input.addEventListener('mousedown', caretHandler)
-    input.addEventListener('mouseup', caretHandler)
-    input.addEventListener('keydown', caretHandler)
-    input.addEventListener('keyup', caretHandler)
-
-    input.addEventListener('focus', focusHandler)
-    input.addEventListener('blur', focusHandler)
+    input.addEventListener('mousedown', handler)
+    input.addEventListener('mouseup', handler)
+    input.addEventListener('keydown', handler)
+    input.addEventListener('keyup', handler)
 
     return () => {
-      input.removeEventListener('mousedown', caretHandler)
-      input.removeEventListener('mouseup', caretHandler)
-      input.removeEventListener('keydown', caretHandler)
-      input.removeEventListener('keyup', caretHandler)
-
-      input.removeEventListener('focus', focusHandler)
-      input.removeEventListener('blur', focusHandler)
+      input.removeEventListener('mousedown', handler)
+      input.removeEventListener('mouseup', handler)
+      input.removeEventListener('keydown', handler)
+      input.removeEventListener('keyup', handler)
     }
   }, [inputRef])
 
-  const token = useMemo(() => {
-    if (typeof index !== 'number')
-      return
+  useLayoutEffect(() => {
+    const input = inputRef.current
+    if (!input) return
 
-    let match = tokens[tokens.length - 1]
-
-    for (const token of tokens.slice().reverse()) {
-      if (token.display && token.index <= index && index <= token.index + token.text.length)
-        match = token
+    const handler = () => {
+      setFocused(document.activeElement === input)
     }
 
-    if (match?.display)
-      return match
-  }, [index, tokens])
+    input.addEventListener('focus', handler)
+    input.addEventListener('blur', handler)
+
+    return () => {
+      input.removeEventListener('focus', handler)
+      input.removeEventListener('blur', handler)
+    }
+  }, [inputRef])
+
+  useLayoutEffect(() => {
+    const input = inputRef.current
+    if (!input) return
+
+    const handler = (e: KeyboardEvent) => {
+      const moveSelected = (move: number) => {
+        const items = suggestions?.flatMap(({ items }) => items) || []
+        setSelected(items[(items.length + (selected ? items.indexOf(selected) : 0) + move) % items.length])
+      }
+
+      switch (e.keyCode) {
+        case 38: moveSelected(-1); break  // up
+        case 40: moveSelected(1); break   // down
+        case 13: complete(); break        // enter
+
+        default: return
+      }
+
+      e.preventDefault()
+    }
+
+    input.addEventListener('keydown', handler)
+    return () => input.removeEventListener('keydown', handler)
+  }, [complete, inputRef, selected, suggestions])
+
+  const client = useClient()
+  const { notifyError } = useNotify()
+  const suggestionId = useRef(0)
+  const suggestPrefix = token?.display
+
+  useLayoutEffect(() => {
+    if (!suggestPrefix) {
+      suggestionId.current++
+      setSuggestions(undefined)
+      setSelected(undefined)
+      return
+    }
+
+    let id = ++suggestionId.current
+
+    setTimeout(async () => {
+      if (id !== suggestionId.current)
+        return
+
+      id = ++suggestionId.current
+
+      try {
+        const result = await client.book.suggestBooks({
+          suggestQuery: {
+            prefix: suggestPrefix,
+            limit: 50
+          }
+        })
+
+        if (id !== suggestionId.current)
+          return
+
+        const suggestions = Object
+          .keys(result.tags)
+          .sort((a, b) => (result.tags[b as BookTag]?.[0]?.score || 0) - (result.tags[a as BookTag]?.[0]?.score || 0))
+          .map(key => ({
+            tag: key as BookTag,
+            items: result.tags[key as BookTag] || []
+          }))
+          .filter(x => x.items.length)
+
+        setSuggestions(suggestions)
+        setSelected(suggestions[0]?.items[0])
+      }
+      catch (e) {
+        notifyError(e)
+      }
+    }, 100)
+  }, [client.book, notifyError, suggestPrefix])
 
   return (
     <Tippy
@@ -226,10 +346,31 @@ const Autocompleter = ({ tokens, inputRef, children }: { tokens: QueryToken[], i
       placement='bottom-start'
       maxWidth={inputRef.current?.clientWidth}
       content={(
-        <div className={css`width: ${inputRef.current?.clientWidth}px;`}>
+        <div className={css`width: ${inputRef.current?.clientWidth}px; max-width: 100%;`}>
           {token && <>
-            <span className='text-xs'>{token.display}</span>
+            <span className='text-xs opacity-50'>"{token.display}"</span>
           </>}
+
+          {suggestions && suggestions.map(({ tag, items }) => (
+            <ul key={tag} className='my-2'>
+              <li>
+                <span className={cx('text-xs', css`color: ${BookTagColors[tag]};`)}>{tag}</span>
+              </li>
+
+              {items.map(item => (
+                <li>
+                  <span
+                    key={item.id}
+                    className={cx('block bg-opacity-25 rounded-sm cursor-pointer', { 'bg-gray-100': selected === item })}
+                    onMouseDown={complete}
+                    onMouseEnter={() => setSelected(item)}>
+
+                    {item.text}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          ))}
         </div>
       )}
       children={children} />
