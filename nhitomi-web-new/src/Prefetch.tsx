@@ -83,13 +83,20 @@ export const PrefetchScrollPreserver = () => {
 export type PrefetchMode = 'prefetch' | 'postfetch'
 
 export type Prefetch<T, U = {}> = {
+  /** Path to navigate to after fetch. */
   path: string
 
   showProgress?: boolean
   restoreScroll?: boolean
 
+  /** Calls hooks and passes the result to the fetch function. */
   useData?: (mode: PrefetchMode) => U
+
+  /** Fetches the data. */
   fetch: (client: Client, mode: PrefetchMode, data: U) => Promise<T>
+
+  /** Called after the fetch succeeded and the page navigated. */
+  done?: (fetched: T, client: Client, mode: PrefetchMode, data: U) => Promise<void> | void
 }
 
 /** Returns a function that will fetch data and navigate to a page. Prefetch object should be memoized. */
@@ -102,7 +109,7 @@ export function usePrefetch<T>(prefetch: Prefetch<T>) {
   const data = useRef(prefetch.useData).current?.('prefetch')
 
   return useCallback(async () => {
-    const { path, showProgress, restoreScroll, fetch } = prefetch
+    const { path, showProgress, restoreScroll, fetch, done } = prefetch
 
     if (showProgress)
       begin()
@@ -114,6 +121,8 @@ export function usePrefetch<T>(prefetch: Prefetch<T>) {
 
       if (restoreScroll)
         window.scrollTo({ top: 0 })
+
+      await done?.(value, client, 'prefetch', data || {})
     }
     catch (e) {
       notifyError(e)
@@ -138,7 +147,7 @@ export function usePostfetch<T>(prefetch: Prefetch<T>) {
   const data = useRef(prefetch.useData).current?.('postfetch')
 
   const { error, loading } = useAsync(async () => {
-    const { showProgress, restoreScroll, fetch } = prefetch
+    const { showProgress, restoreScroll, fetch, done } = prefetch
 
     if (showProgress)
       begin()
@@ -150,6 +159,8 @@ export function usePostfetch<T>(prefetch: Prefetch<T>) {
 
       if (restoreScroll)
         window.scrollTo({ top: scroll })
+
+      await done?.(value, client, 'postfetch', data || {})
 
       return value
     }
