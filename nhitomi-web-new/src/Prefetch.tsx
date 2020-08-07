@@ -7,24 +7,6 @@ import { useNotify } from './NotificationManager'
 import { Link, LinkProps } from 'react-router-dom'
 import { History, navigate } from './history'
 
-// https://stackoverflow.com/a/53307588/13160620
-let refreshed = false
-
-try {
-  const entry = performance.getEntriesByType('navigation')[0]
-
-  refreshed = entry instanceof PerformanceNavigationTiming && entry.type === 'reload'
-}
-catch {
-  try { refreshed = performance.navigation.type === 1 }
-  catch { /* ignored */ }
-}
-
-if (refreshed) {
-  // on refresh, clear all page states except scroll to allow refetching (causes usePostfetch to be triggered)
-  navigate('replace', { state: s => ({ scroll: s.scroll }) })
-}
-
 /** Similar to useState but stores the data in window.history.state. */
 export function usePageState<T>(key: string): [T | undefined, Dispatch<T | undefined>] {
   const update = useUpdate()
@@ -45,25 +27,6 @@ export function usePageState<T>(key: string): [T | undefined, Dispatch<T | undef
   }, [key])
 
   return [state?.value as T, setState]
-}
-
-/** Stores window scroll position in the page state for retainment between navigations. */
-export const PrefetchScrollPreserver = () => {
-  const [, setScroll] = usePageState<number>('scroll')
-
-  const flush = useRef<number>()
-
-  useLayoutEffect(() => {
-    const handler = () => {
-      clearTimeout(flush.current)
-      flush.current = window.setTimeout(() => setScroll(window.scrollY), 100)
-    }
-
-    window.addEventListener('scroll', handler)
-    return () => window.removeEventListener('scroll', handler)
-  }, [setScroll])
-
-  return null
 }
 
 export type PrefetchMode = 'prefetch' | 'postfetch'
@@ -209,4 +172,23 @@ export const PrefetchLink = <T extends {}>({ fetch, disabled, target, onClick, .
 
       {...props as any} />
   )
+}
+
+/** Stores window scroll position in the page state for retainment between navigations. */
+export const PrefetchScrollPreserver = () => {
+  const [, setScroll] = usePageState<number>('scroll')
+
+  const flush = useRef<number>()
+
+  useLayoutEffect(() => {
+    const handler = () => {
+      clearTimeout(flush.current)
+      flush.current = window.setTimeout(() => setScroll(window.scrollY), 100)
+    }
+
+    window.addEventListener('scroll', handler)
+    return () => window.removeEventListener('scroll', handler)
+  }, [setScroll])
+
+  return null
 }
