@@ -1,9 +1,8 @@
 import React, { ReactNode, createContext, useContext, useMemo } from 'react'
 import { ToastProvider, useToasts, ToastProps, ToastContainerProps, AppearanceTypes } from 'react-toast-notifications'
-import classNames from 'classnames'
-import { ClassNames } from '@emotion/core'
 import { CloseOutlined, CheckCircleTwoTone, InfoCircleTwoTone, CloseCircleTwoTone, WarningTwoTone } from '@ant-design/icons'
 import { colors } from './theme.json'
+import { cx, css } from 'emotion'
 
 export const NotifyContext = createContext<{
   notify: (type: AppearanceTypes, title: ReactNode, description: ReactNode) => void
@@ -37,40 +36,32 @@ export const NotificationManager = ({ children }: { children?: ReactNode }) => {
 }
 
 const ToastContainer = ({ children, placement }: ToastContainerProps) => (
-  <ClassNames>
-    {({ css }) => (
-      <div
-        className={(
-          classNames('lg:w-screen lg:max-w-md sm:w-screen fixed p-4 z-10 text-center', placement
-            .replace('-', ' ')
-            .replace('top', 'top-0')
-            .replace('bottom', 'bottom-0')
-            .replace('left', 'left-0')
-            .replace('right', 'right-0')
-            .replace('center', css`transform: translateX(-50%); left: 50%;`))
-        )}
-        children={children} />
+  <div
+    className={(
+      cx('w-screen lg:max-w-md fixed p-4 z-10 text-center', placement
+        .replace('-', ' ')
+        .replace('top', 'top-0')
+        .replace('bottom', 'bottom-0')
+        .replace('left', 'left-0')
+        .replace('right', 'right-0')
+        .replace('center', css`transform: translateX(-50%); left: 50%;`))
     )}
-  </ClassNames>
+    children={children} />
 )
 
 const NotifyToast = ({ children, onMouseEnter, onMouseLeave, transitionState, transitionDuration, onDismiss }: ToastProps) => {
   const opacity = transitionState === 'entered' ? 'opacity-100' : 'opacity-0'
 
   return (
-    <ClassNames>
-      {({ css }) => (
-        <div
-          className={classNames('relative w-full rounded bg-white text-left text-black shadow-lg p-3 mb-3 transition', opacity, css`transition-duration: ${transitionDuration}ms;`)}
-          onMouseEnter={onMouseEnter}
-          onMouseLeave={onMouseLeave}>
+    <div
+      className={cx('relative w-full rounded bg-white text-left text-black shadow-lg p-3 mb-3 transition', opacity, css`transition-duration: ${transitionDuration}ms;`)}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}>
 
-          {children}
+      {children}
 
-          <CloseOutlined className='absolute top-0 right-0 p-3 text-gray-800 text-sm cursor-pointer' onClick={() => onDismiss()} />
-        </div>
-      )}
-    </ClassNames>
+      <CloseOutlined className='absolute top-0 right-0 p-3 text-gray-800 text-sm cursor-pointer' onClick={() => onDismiss()} />
+    </div>
   )
 }
 
@@ -113,21 +104,17 @@ const NotifyManager = ({ children }: { children?: ReactNode }) => {
   )
 }
 
-const AlertToast = ({ children, onMouseEnter, onMouseLeave, transitionState, transitionDuration, onDismiss }: ToastProps) => {
+const AlertToast = ({ children, onMouseEnter, onMouseLeave, transitionState, transitionDuration }: ToastProps) => {
   const opacity = transitionState === 'entered' ? 'opacity-100' : 'opacity-0'
 
   return (
-    <ClassNames>
-      {({ css }) => (
-        <div
-          className={classNames('inline-block rounded bg-black text-white text-sm shadow-lg p-3 transition', opacity, css`transition-duration: ${transitionDuration}ms;`)}
-          onMouseEnter={onMouseEnter}
-          onMouseLeave={onMouseLeave}>
+    <div
+      className={cx('inline-block rounded bg-black text-white text-sm shadow-lg p-3 transition', opacity, css`transition-duration: ${transitionDuration}ms;`)}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}>
 
-          {children}
-        </div>
-      )}
-    </ClassNames >
+      {children}
+    </div>
   )
 }
 

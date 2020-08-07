@@ -1,6 +1,6 @@
 import React, { ReactNode, ComponentProps } from 'react'
 import Tippy from '@tippyjs/react'
-import classNames from 'classnames'
+import { cx } from 'emotion'
 
 import 'tippy.js/dist/tippy.css'
 
@@ -12,7 +12,7 @@ export const Tooltip = ({ className, overlay, children, animation = 'fade', hide
     <Tippy
       content={(
         <span
-          className={classNames(className, 'rounded overflow-hidden')}
+          className={cx(className, 'rounded overflow-hidden')}
           children={overlay} />
       )}
       animation={animation}

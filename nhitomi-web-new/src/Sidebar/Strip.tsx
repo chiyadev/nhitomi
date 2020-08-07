@@ -1,5 +1,5 @@
 import React from 'react'
-import styled from '@emotion/styled'
+import { cx, css } from 'emotion'
 import { ReadFilled, FolderOutlined, InfoCircleOutlined } from '@ant-design/icons'
 import { RoundIconButton } from '../Components/RoundIconButton'
 import { Tooltip } from '../Components/Tooltip'
@@ -7,13 +7,9 @@ import { FormattedMessage } from 'react-intl'
 
 export const StripWidth = 64
 
-const Container = styled.div`
-  width: ${StripWidth}px;
-`
-
 export const Strip = () => {
   return (
-    <Container className='fixed top-0 left-0 bottom-0 z-10 bg-black text-white py-4 flex flex-col items-center'>
+    <div className={cx('fixed top-0 left-0 bottom-0 z-10 bg-black text-white py-4 flex flex-col items-center', css`width: ${StripWidth}px;`)}>
       <ul>
         <li className='mb-4'>
           <Tooltip overlay={<FormattedMessage id='pages.home.title' />} placement='right'>
@@ -45,6 +41,6 @@ export const Strip = () => {
           </Tooltip>
         </li>
       </ul>
-    </Container>
+    </div>
   )
 }
