@@ -13,7 +13,7 @@ const Container = styled.div`
 
 export const Strip = () => {
   return (
-    <Container className='h-screen pt-4 pb-4 flex flex-col items-center'>
+    <Container className='fixed top-0 left-0 bottom-0 z-10 bg-black text-white py-4 flex flex-col items-center'>
       <ul>
         <li className='mb-4'>
           <Tooltip overlay={<FormattedMessage id='pages.home.title' />} placement='right'>
