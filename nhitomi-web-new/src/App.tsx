@@ -7,25 +7,27 @@ import { ClientManager } from './ClientManager'
 import { LocaleManager } from './LocaleManager'
 import { NotificationManager } from './NotificationManager'
 import { cx, css } from 'emotion'
-import { Route, Redirect } from 'wouter-preact'
+import { Route, Redirect, Switch, BrowserRouter } from 'react-router-dom'
 import { BookListingPage } from './BookListing'
 
 export const App = () => {
   return (
-    <LayoutManager>
-      <ProgressManager>
-        <ClientManager>
-          <LocaleManager>
-            <NotificationManager>
-              <PrefetchScrollPreserver />
+    <BrowserRouter>
+      <LayoutManager>
+        <ProgressManager>
+          <ClientManager>
+            <LocaleManager>
+              <NotificationManager>
+                <PrefetchScrollPreserver />
 
-              <Sidebar />
-              <Body />
-            </NotificationManager>
-          </LocaleManager>
-        </ClientManager>
-      </ProgressManager>
-    </LayoutManager>
+                <Sidebar />
+                <Body />
+              </NotificationManager>
+            </LocaleManager>
+          </ClientManager>
+        </ProgressManager>
+      </LayoutManager>
+    </BrowserRouter>
   )
 }
 
@@ -49,8 +51,10 @@ const Body = () => {
   )
 }
 
-const Routing = () => <>
-  <Route path='/'><Redirect to='/books' /></Route>
+const Routing = () => (
+  <Switch>
+    <Route path='/' exact><Redirect to='/books' /></Route>
 
-  <Route path='/books'><BookListingPage /></Route>
-</>
+    <Route path='/books' exact><BookListingPage /></Route>
+  </Switch>
+)

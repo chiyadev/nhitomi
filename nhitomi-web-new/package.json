@@ -13,6 +13,7 @@
     "@types/qs": "^6.9.4",
     "@types/react": "^16.9.0",
     "@types/react-dom": "^16.9.0",
+    "@types/react-router-dom": "^5.1.5",
     "@types/react-toast-notifications": "^2.4.0",
     "customize-cra": "^1.0.0",
     "emotion": "^10.0.27",
@@ -23,14 +24,14 @@
     "qs": "^6.9.4",
     "react-app-rewired": "^2.1.6",
     "react-intl": "^5.4.5",
+    "react-router-dom": "^5.2.0",
     "react-scripts": "3.4.1",
     "react-toast-notifications": "^2.4.0",
     "react-use": "^15.3.3",
     "strict-event-emitter-types": "^2.0.0",
     "tailwindcss": "^1.6.2",
     "ts-custom-error": "^3.1.1",
-    "typescript": "~3.7.2",
-    "wouter-preact": "^2.5.1"
+    "typescript": "~3.7.2"
   },
   "scripts": {
     "start": "react-app-rewired start",

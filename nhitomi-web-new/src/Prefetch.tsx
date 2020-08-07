@@ -1,10 +1,10 @@
-import React, { Dispatch, useCallback, useLayoutEffect, useRef, ComponentProps, useMemo } from 'react'
+import React, { Dispatch, useCallback, useLayoutEffect, useRef, ComponentProps } from 'react'
 import { useUpdate, useAsync } from 'react-use'
 import { Client, useClient } from './ClientManager'
 import { useProgress } from './ProgressManager'
-import { Link, LinkProps } from 'wouter-preact'
 import { getEventModifiers } from './shortcut'
 import { useNotify } from './NotificationManager'
+import { Link, LinkProps } from 'react-router-dom'
 
 // https://stackoverflow.com/a/53307588/13160620
 let refreshed = false
@@ -185,7 +185,7 @@ export function usePostfetch<T>(prefetch: Prefetch<T, any>) {
 export type PrefetchLinkProps = ComponentProps<typeof PrefetchLink>
 
 /** Link that fetches some data before navigating to a page. */
-export const PrefetchLink = <T extends {}>({ fetch, disabled, target, onClick, ...props }: Omit<LinkProps, 'to'> & {
+export const PrefetchLink = <T extends {}>({ fetch, disabled, target, onClick, ...props }: Omit<LinkProps, 'to' | 'href'> & {
   /** fetch information */
   fetch: Prefetch<T, any>
 
@@ -217,6 +217,7 @@ export const PrefetchLink = <T extends {}>({ fetch, disabled, target, onClick, .
         go()
       }}
       target={target}
+
       {...props as any} />
   )
 }
