@@ -4,7 +4,7 @@ import { parse, stringify } from 'qs'
 import { History, navigate, NavigationMode } from './history'
 
 /** Similar to useState but stores data in the query part of window.location. */
-export function useUrlState<T extends (N extends string ? any : object), N extends string | undefined = undefined>(mode: NavigationMode = 'replace', name?: N): [T | undefined, Dispatch<T | undefined>] {
+export function useUrlState<T extends (N extends string ? any : object), N extends string | undefined = undefined>(mode: NavigationMode = 'replace', name?: N): [N extends string ? T | undefined : T, Dispatch<T>] {
   const update = useUpdate()
   const state = getSelfOrField<T>(deserialize(History.location.search), name)
 
@@ -28,7 +28,7 @@ export function useUrlState<T extends (N extends string ? any : object), N exten
     navigate(mode, { search: serialize(combined) })
   }, [mode, name])
 
-  return [state, setState]
+  return [state as any, setState]
 }
 
 function serialize(data: unknown) {
