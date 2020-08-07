@@ -138,7 +138,10 @@ export const SearchInput = () => {
           </div>
         </Suggestor>
 
-        <div className='text-white px-3 py-2 bg-blue-600 text-lg'>
+        <div
+          className='text-white px-3 py-2 bg-blue-600 text-lg cursor-pointer'
+          onMouseDown={() => setTextWithSearch(text)}>
+
           <SearchOutlined className='align-middle' />
         </div>
       </div>
@@ -278,13 +281,27 @@ const Suggestor = ({ tokens, setText, inputRef, children }: { tokens: QueryToken
     const handler = (e: KeyboardEvent) => {
       const moveSelected = (move: number) => {
         const items = suggestions?.flatMap(({ items }) => items) || []
-        setSelected(items[(items.length + (selected ? items.indexOf(selected) : 0) + move) % items.length])
+        const newItem = items[(items.length + (selected ? items.indexOf(selected) : 0) + move) % items.length]
+
+        setSelected(newItem)
+      }
+
+      const moveTokenSelected = (move: number) => {
+        const toknes = tokens.filter(token => token.display)
+        const newToken = toknes[(toknes.length + (token ? toknes.indexOf(token) : 0) + move) % toknes.length]
+
+        input.selectionStart = newToken.begin
+        input.selectionEnd = newToken.end
       }
 
       switch (e.keyCode) {
         case 38: moveSelected(-1); break  // up
         case 40: moveSelected(1); break   // down
         case 13: complete(); break        // enter
+        case 27: input.blur(); break      // escape
+
+        // tab
+        case 9: moveTokenSelected(e.shiftKey ? -1 : 1); break
 
         default: return
       }
@@ -294,7 +311,7 @@ const Suggestor = ({ tokens, setText, inputRef, children }: { tokens: QueryToken
 
     input.addEventListener('keydown', handler)
     return () => input.removeEventListener('keydown', handler)
-  }, [complete, inputRef, selected, suggestions])
+  }, [complete, inputRef, selected, suggestions, token, tokens])
 
   const client = useClient()
   const { notifyError } = useNotify()
