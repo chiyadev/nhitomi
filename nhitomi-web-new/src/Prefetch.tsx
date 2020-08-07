@@ -69,7 +69,7 @@ export function usePrefetch<T>(prefetch: Prefetch<T, any>) {
       navigate('push', { path, state: s => ({ ...s, 'fetch': { value, version: Math.random() } }) })
 
       if (restoreScroll)
-        window.scrollTo({ top: 0 })
+        requestAnimationFrame(() => window.scrollTo({ top: 0 }))
 
       await done?.(value, client, 'prefetch', data || {})
     }
@@ -110,7 +110,7 @@ export function usePostfetch<T>(prefetch: Prefetch<T, any>) {
       setState(value)
 
       if (restoreScroll)
-        window.scrollTo({ top: scroll || 0 })
+        requestAnimationFrame(() => window.scrollTo({ top: scroll || 0 }))
 
       await done?.(value, client, 'postfetch', data || {})
 

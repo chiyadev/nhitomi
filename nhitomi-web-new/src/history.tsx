@@ -15,7 +15,7 @@ catch {
 
 if (refreshed) {
   // clear all stale states except scroll position
-  window.history.replaceState({ scroll: window.history.state?.scroll }, document.title)
+  window.history.replaceState({ state: { scroll: window.history.state?.state?.scroll } }, document.title)
 }
 
 export const History: Hisotry<null | HistoryState> = createBrowserHistory() as any
@@ -41,6 +41,8 @@ export function navigate(mode: NavigationMode, { path, search, hash, state }: { 
 
   if (typeof state === 'function')
     state = state(current.state || {})
+
+  // console.log('navigate', mode, path, search, hash, state)
 
   run({
     pathname: path,
