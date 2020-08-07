@@ -161,7 +161,7 @@ export const ClientManager = ({ children }: { children?: ReactNode }) => {
   }
 
   if (info instanceof Error) {
-    return <small><code>{info.stack}</code></small>
+    return <code className='text-sm'>{info.stack}</code>
   }
 
   return (
