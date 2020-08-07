@@ -49,15 +49,15 @@ export function usePageState<T>(key: string): [T | undefined, Dispatch<T | undef
     return () => window.removeEventListener('popstate', handler)
   }, [key, update])
 
-  const setValue = useCallback((value: T | undefined) => {
+  const setState = useCallback((value: T | undefined) => {
     window.history.replaceState(getModifiedHistoryState(key, value), document.title)
     update()
   }, [key, update])
 
-  return [state?.value, setValue]
+  return [state?.value, setState]
 }
 
-export function getModifiedHistoryState<T>(key: string, value: T): { [key: string]: PageState<unknown> } {
+function getModifiedHistoryState<T>(key: string, value: T): { [key: string]: PageState<unknown> } {
   return { ...window.history.state, [key]: { value, version: Math.random() } }
 }
 
