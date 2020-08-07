@@ -109,7 +109,7 @@ export function usePrefetch<T>(prefetch: Prefetch<T, any>) {
   const data = useRef(prefetch.useData).current?.('prefetch')
 
   return useCallback(async () => {
-    const { path, showProgress, restoreScroll, fetch, done } = prefetch
+    const { path, showProgress = true, restoreScroll = true, fetch, done } = prefetch
 
     if (showProgress)
       begin()
@@ -147,7 +147,7 @@ export function usePostfetch<T>(prefetch: Prefetch<T, any>) {
   const data = useRef(prefetch.useData).current?.('postfetch')
 
   const { error, loading } = useAsync(async () => {
-    const { showProgress, restoreScroll, fetch, done } = prefetch
+    const { showProgress = true, restoreScroll = true, fetch, done } = prefetch
 
     if (showProgress)
       begin()
