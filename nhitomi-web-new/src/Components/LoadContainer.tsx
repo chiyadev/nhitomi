@@ -1,9 +1,10 @@
 import React, { ReactNode, useState } from 'react'
 import VisibilitySensor from 'react-visibility-sensor'
 import { useAsync } from 'react-use'
-import { cx, css } from 'emotion'
+import { cx } from 'emotion'
 import { useSpring, animated } from 'react-spring'
 import { Loading3QuartersOutlined } from '@ant-design/icons'
+import { AbsoluteCenter } from './AbsoluteCenter'
 
 export const LoadContainer = ({ onLoad, children, className }: { onLoad: () => Promise<void> | void, children?: ReactNode, className?: string }) => {
   const [load, setLoad] = useState(false)
@@ -27,13 +28,7 @@ export const LoadContainer = ({ onLoad, children, className }: { onLoad: () => P
       <div className={cx('relative', className)}>
         {children}
 
-        <animated.div style={loadingStyle} className={css`
-          position: absolute;
-          left: 50%;
-          top: 50%;
-          transform: translate(-50%, -50%);
-        `}>
-
+        <animated.div style={loadingStyle} className={AbsoluteCenter}>
           <Loading3QuartersOutlined className='animate-spin align-middle' />
         </animated.div>
       </div>
