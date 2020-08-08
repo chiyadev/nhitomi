@@ -3,6 +3,7 @@ import { ToastProvider, useToasts, ToastProps, ToastContainerProps, AppearanceTy
 import { CloseOutlined, CheckCircleTwoTone, InfoCircleTwoTone, CloseCircleTwoTone, WarningTwoTone } from '@ant-design/icons'
 import { colors } from './theme.json'
 import { cx, css } from 'emotion'
+import { useSpring, animated } from 'react-spring'
 
 export const NotifyContext = createContext<{
   notify: (type: AppearanceTypes, title: ReactNode, description: ReactNode) => void
@@ -35,10 +36,10 @@ export const NotificationManager = ({ children }: { children?: ReactNode }) => {
   )
 }
 
-const ToastContainer = ({ children, placement, hasToasts }: ToastContainerProps) => !hasToasts ? null : (
-  <div
+const ToastContainer = ({ children, placement, hasToasts }: ToastContainerProps) => (
+  <animated.div
     className={(
-      cx('w-screen lg:max-w-md fixed p-4 z-10 text-center', placement
+      cx('w-screen lg:max-w-md fixed m-4 z-50 text-center', { 'pointer-events-none': !hasToasts }, placement
         .replace('-', ' ')
         .replace('top', 'top-0')
         .replace('bottom', 'bottom-0')
@@ -50,18 +51,23 @@ const ToastContainer = ({ children, placement, hasToasts }: ToastContainerProps)
 )
 
 const NotifyToast = ({ children, onMouseEnter, onMouseLeave, transitionState, transitionDuration, onDismiss }: ToastProps) => {
-  const opacity = transitionState === 'entered' ? 'opacity-100' : 'opacity-0'
+  const style = useSpring({
+    config: { duration: transitionDuration },
+    opacity: transitionState === 'entered' ? 1 : 0,
+    transform: transitionState === 'entered' ? 'translateX(0)' : 'translateX(1em)'
+  })
 
   return (
-    <div
-      className={cx('relative w-full rounded overflow-hidden bg-white text-left text-black shadow-lg p-3 mb-3 transition', opacity, css`transition-duration: ${transitionDuration}ms;`)}
+    <animated.div
+      style={style}
+      className='relative w-full rounded overflow-hidden bg-white text-left text-black shadow-lg p-3 mb-3'
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}>
 
       {children}
 
       <CloseOutlined className='absolute top-0 right-0 p-3 text-gray-800 text-sm cursor-pointer' onClick={() => onDismiss()} />
-    </div>
+    </animated.div>
   )
 }
 
@@ -105,16 +111,21 @@ const NotifyManager = ({ children }: { children?: ReactNode }) => {
 }
 
 const AlertToast = ({ children, onMouseEnter, onMouseLeave, transitionState, transitionDuration }: ToastProps) => {
-  const opacity = transitionState === 'entered' ? 'opacity-100' : 'opacity-0'
+  const style = useSpring({
+    config: { duration: transitionDuration },
+    opacity: transitionState === 'entered' ? 1 : 0,
+    transform: transitionState === 'entered' ? 'translateY(0)' : 'translateY(-1em)'
+  })
 
   return (
-    <div
-      className={cx('inline-block rounded overflow-hidden bg-black text-white text-sm shadow-lg p-3 transition', opacity, css`transition-duration: ${transitionDuration}ms;`)}
+    <animated.div
+      style={style}
+      className='inline-block rounded overflow-hidden bg-black bg-blur text-white text-sm shadow-lg p-3'
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}>
 
       {children}
-    </div>
+    </animated.div>
   )
 }
 
