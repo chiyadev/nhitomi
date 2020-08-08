@@ -1,10 +1,11 @@
-import React, { useMemo, useState } from 'react'
+import React, { useMemo, useState, useRef } from 'react'
 import { Book } from 'nhitomi-api'
 import { useLayout, SmallBreakpoints, LargeBreakpoints, getBreakpoint } from '../../LayoutManager'
 import { cx, css } from 'emotion'
 import { CoverImage } from '../CoverImage'
 import { useClient } from '../../ClientManager'
 import { useSpring, animated } from 'react-spring'
+import VisibilitySensor from 'react-visibility-sensor'
 
 export const Grid = ({ items, width }: { items: Book[], width: number }) => {
   const { screen } = useLayout()
@@ -61,36 +62,50 @@ export const Grid = ({ items, width }: { items: Book[], width: number }) => {
 
 const Item = ({ book, width, height, className }: { book: Book, width: number, height: number, className?: string }) => {
   const client = useClient()
+
   const [hovered, setHovered] = useState(false)
+  const [visible, setVisible] = useState(false)
+  const visibleEver = useRef(false)
+
   const overlayStyle = useSpring({
     opacity: hovered ? 1 : 0,
     marginBottom: hovered ? 0 : -5
   })
 
   return (
-    <div
-      style={{ width, height }}
-      className={cx('rounded overflow-hidden relative cursor-pointer', className)}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}>
+    <VisibilitySensor
+      partialVisibility
+      offset={{ top: -100, bottom: -100 }}
+      onChange={v => { setVisible(v); v && (visibleEver.current = v) }}>
 
-      <CoverImage
-        className='w-full h-full rounded overflow-hidden'
-        onLoad={async () => await client.book.getBookImage({
-          id: book.id,
-          contentId: book.contents[0].id,
-          index: -1
-        })} />
+      <div
+        style={{ width, height }}
+        className={cx('rounded overflow-hidden relative cursor-pointer', className)}
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}>
 
-      <animated.div style={overlayStyle} className='absolute bottom-0 left-0 w-full'>
-        <div className='p-1 bg-white bg-blur text-black rounded-b'>
-          <span className='block text-sm truncate font-bold'>{book.primaryName}</span>
+        {visibleEver.current && (
+          <CoverImage
+            className='w-full h-full rounded overflow-hidden'
+            onLoad={async () => await client.book.getBookImage({
+              id: book.id,
+              contentId: book.contents[0].id,
+              index: -1
+            })} />
+        )}
 
-          {book.primaryName !== book.englishName && (
-            <span className='block text-xs truncate'>{book.englishName}</span>
-          )}
-        </div>
-      </animated.div>
-    </div>
+        {visible && (
+          <animated.div style={overlayStyle} className='absolute bottom-0 left-0 w-full'>
+            <div className='p-1 bg-white bg-blur text-black rounded-b'>
+              <span className='block text-sm truncate font-bold'>{book.primaryName}</span>
+
+              {book.primaryName !== book.englishName && (
+                <span className='block text-xs truncate'>{book.englishName}</span>
+              )}
+            </div>
+          </animated.div>
+        )}
+      </div>
+    </VisibilitySensor>
   )
 }
