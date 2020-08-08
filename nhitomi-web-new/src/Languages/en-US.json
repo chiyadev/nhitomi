@@ -4,7 +4,8 @@
       "title": "nhitomi"
     },
     "bookListing": {
-      "title": "Books"
+      "title": "Books",
+      "search": "Search {total} books on nhitomi"
     },
     "collectionListing": {
       "title": "Collections"

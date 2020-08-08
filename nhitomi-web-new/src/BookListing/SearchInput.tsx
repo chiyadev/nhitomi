@@ -13,6 +13,7 @@ import { useClient } from '../ClientManager'
 import { useNotify } from '../NotificationManager'
 import { useSpring, animated, useTransition } from 'react-spring'
 import useResizeObserver from '@react-hook/resize-observer'
+import { useLocalized } from '../LocaleManager'
 
 export type QueryToken = {
   type: 'other'
@@ -103,6 +104,7 @@ export const SearchInput = () => {
   useLayoutEffect(() => setText(query.query || ''), [query.query])
 
   const setTextWithSearch = useCallback((text: string) => { setText(text); setQuery({ ...query, query: text }) }, [query, setQuery])
+  const placeholder = useLocalized('pages.bookListing.search', { total: result?.total })
 
   return (
     <div className='mx-auto p-4 w-full max-w-xl'>
@@ -131,7 +133,7 @@ export const SearchInput = () => {
               `)}
               value={text}
               onChange={({ target: { value } }) => setText(value)}
-              placeholder={`Search ${result?.total} books`} />
+              placeholder={placeholder} />
 
             <Highlighter
               tokens={tokens}

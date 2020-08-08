@@ -1,5 +1,5 @@
 import React, { createContext, ReactNode, useState, useMemo, useRef, useContext } from 'react'
-import { IntlProvider } from 'react-intl'
+import { IntlProvider, useIntl } from 'react-intl'
 import { useAsync } from 'react-use'
 import { useProgress } from './ProgressManager'
 import { LanguageType } from 'nhitomi-api'
@@ -29,6 +29,14 @@ const LocaleContext = createContext<{
 
 export function useLocale() {
   return useContext(LocaleContext)
+}
+
+export function useLocalized(id: string, values?: Record<string, string | number | boolean | null | undefined | Date>): string
+export function useLocalized(id: string, values?: Record<string, string | number | boolean | null | undefined | Date | ReactNode>): ReactNode
+export function useLocalized(id: string, values: any) {
+  const { formatMessage } = useIntl()
+
+  return formatMessage({ id }, values)
 }
 
 export const LocaleManager = ({ children }: { children?: ReactNode }) => {
