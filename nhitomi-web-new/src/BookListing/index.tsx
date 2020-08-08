@@ -4,6 +4,7 @@ import { useUrlState } from '../url'
 import { Prefetch, PrefetchLinkProps, PrefetchLink, usePostfetch } from '../Prefetch'
 import { Book, BookSearchResult } from 'nhitomi-api'
 import { SearchInput } from './SearchInput'
+import { BookList } from '../Components/BookList'
 
 export type PrefetchResult = BookSearchResult
 
@@ -44,11 +45,10 @@ export const BookListingPage = () => {
 
 export const BookListing = ({ items }: { items: Book[] }) => {
   return <>
-    <SearchInput />
+    <div className='mx-auto p-4 w-full max-w-xl sticky top-0 z-20'>
+      <SearchInput className='shadow-lg w-full' />
+    </div>
 
-    {items.map(x => <>
-      <p>{x.englishName}</p>
-      <p>{x.primaryName}</p>
-    </>)}
+    <BookList items={items} />
   </>
 }
