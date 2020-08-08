@@ -1,4 +1,4 @@
-import { Dispatch, useLayoutEffect, useCallback } from 'react'
+import { Dispatch, useLayoutEffect, useCallback, useRef } from 'react'
 import { useUpdate } from 'react-use'
 import { parse, stringify } from 'qs'
 import { History, navigate, NavigationMode } from './history'
@@ -10,8 +10,12 @@ export function useUrlState<T>(mode?: NavigationMode, name?: string): [T | undef
 export function useUrlState<T>(mode: NavigationMode = 'replace', name?: string): [T, Dispatch<T>] {
   const update = useUpdate()
   const state = getSelfOrField<T>(deserialize(History.location.search), name)
+  const validPath = useRef(History.location.pathname)
 
   useLayoutEffect(() => History.listen(location => {
+    if (location.pathname !== validPath.current)
+      return
+
     const newState = getSelfOrField<T>(deserialize(location.search), name)
 
     if (state !== newState)

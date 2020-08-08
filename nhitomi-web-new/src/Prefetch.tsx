@@ -12,8 +12,12 @@ export function usePageState<T>(key: string): [T | undefined, Dispatch<T | undef
   const update = useUpdate()
   const state = History.location.state?.[key]
   const version = useRef(state?.version || Math.random()) // versioning is used for equality instead of state value, allowing objects to be compared correctly
+  const validPath = useRef(History.location.pathname)
 
   useLayoutEffect(() => History.listen(location => {
+    if (location.pathname !== validPath.current)
+      return
+
     const newState = location.state?.[key]
 
     if (newState?.version !== version.current)
@@ -106,10 +110,15 @@ export function usePostfetch<T>(prefetch: Prefetch<T, any>) {
   const data = useRef(prefetch.useData).current?.('postfetch')
 
   const { error, loading } = useAsync(async () => {
-    // ignore if already loaded
-    if (state) return
-
     const { showProgress = true, restoreScroll = true, fetch, done } = prefetch
+
+    // display immediately if already loaded
+    if (state) {
+      if (restoreScroll)
+        beginScrollTo(scroll || 0)
+
+      return
+    }
 
     if (showProgress)
       begin()
