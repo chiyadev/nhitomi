@@ -29,6 +29,16 @@ export function usePageState<T>(key: string): [T | undefined, Dispatch<T | undef
   return [state?.value as T, setState]
 }
 
+function beginScrollTo(scroll: number, retry = 0) {
+  requestAnimationFrame(() => {
+    window.scrollTo({ top: scroll })
+
+    // components may not render immediately after prefetch, so retry scroll if destination not reached
+    if (Math.floor(window.scrollY) !== Math.floor(scroll) && retry < 30)
+      beginScrollTo(scroll, retry + 1)
+  })
+}
+
 export type PrefetchMode = 'prefetch' | 'postfetch'
 
 export type Prefetch<T, U = {}> = {
@@ -69,7 +79,7 @@ export function usePrefetch<T>(prefetch: Prefetch<T, any>) {
       navigate('push', { path, search: '', hash: '', state: s => ({ ...s, 'fetch': { value, version: Math.random() } }) })
 
       if (restoreScroll)
-        requestAnimationFrame(() => window.scrollTo({ top: 0 }))
+        beginScrollTo(0)
 
       await done?.(value, client, 'prefetch', data || {})
     }
@@ -110,7 +120,7 @@ export function usePostfetch<T>(prefetch: Prefetch<T, any>) {
       setState(value)
 
       if (restoreScroll)
-        requestAnimationFrame(() => window.scrollTo({ top: scroll || 0 }))
+        beginScrollTo(scroll || 0)
 
       await done?.(value, client, 'postfetch', data || {})
 
