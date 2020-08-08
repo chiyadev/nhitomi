@@ -423,7 +423,7 @@ const SuggestorSection = ({ items, complete, selected, setSelected }: { items: S
     <animated.li
       key={key}
       style={props}
-      className={cx('block bg-opacity-50 rounded-sm cursor-pointer', { 'bg-gray-900': selected === item })}
+      className={cx('block bg-opacity-50 rounded-sm overflow-hidden cursor-pointer', { 'bg-gray-900': selected === item })}
       onMouseDown={complete}
       onMouseEnter={() => setSelected(item)}>
 

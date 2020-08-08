@@ -54,7 +54,7 @@ const NotifyToast = ({ children, onMouseEnter, onMouseLeave, transitionState, tr
 
   return (
     <div
-      className={cx('relative w-full rounded bg-white text-left text-black shadow-lg p-3 mb-3 transition', opacity, css`transition-duration: ${transitionDuration}ms;`)}
+      className={cx('relative w-full rounded overflow-hidden bg-white text-left text-black shadow-lg p-3 mb-3 transition', opacity, css`transition-duration: ${transitionDuration}ms;`)}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}>
 
@@ -109,7 +109,7 @@ const AlertToast = ({ children, onMouseEnter, onMouseLeave, transitionState, tra
 
   return (
     <div
-      className={cx('inline-block rounded bg-black text-white text-sm shadow-lg p-3 transition', opacity, css`transition-duration: ${transitionDuration}ms;`)}
+      className={cx('inline-block rounded overflow-hidden bg-black text-white text-sm shadow-lg p-3 transition', opacity, css`transition-duration: ${transitionDuration}ms;`)}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}>
 
