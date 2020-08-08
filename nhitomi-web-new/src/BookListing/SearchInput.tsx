@@ -93,7 +93,7 @@ export function assemble(tokens: QueryToken[]): string {
   return tokens.map(token => token.text).join('')
 }
 
-export const SearchInput = () => {
+export const SearchInput = ({ className }: { className?: string }) => {
   const [result] = usePageState<PrefetchResult>('fetch')
   const [query, setQuery] = useUrlState<SearchQuery>('push')
 
@@ -107,48 +107,60 @@ export const SearchInput = () => {
   const placeholder = useLocalized('pages.bookListing.search', { total: result?.total })
 
   return (
-    <div className='mx-auto p-4 w-full max-w-xl'>
-      <div className='shadow-lg w-full flex flex-row bg-white text-black border-none rounded overflow-hidden'>
-        <Suggestor
-          tokens={tokens}
-          inputRef={inputRef}
-          setText={setTextWithSearch}>
+    <div className={cx('flex flex-row bg-white text-black rounded overflow-hidden', className)}>
+      <Suggestor
+        tokens={tokens}
+        inputRef={inputRef}
+        setText={setTextWithSearch}>
 
-          <div className='flex-grow text-sm relative overflow-hidden'>
-            <input
-              ref={inputRef}
-              className={cx('pl-4 w-full h-full absolute top-0 left-0 border-none', css`
-                background: none;
-                color: transparent;
-                caret-color: black;
-                z-index: 1;
+        <div className='flex-grow text-sm relative overflow-hidden'>
+          <input
+            ref={inputRef}
+            className={cx('pl-4 w-full h-full absolute top-0 left-0 border-none', css`
+              background: none;
+              color: transparent;
+              caret-color: black;
+              z-index: 1;
 
-                &::placeholder {
-                  color: ${colors.gray[800]};
-                }
-                &::selection {
-                  color: white;
-                  background: ${colors.blue[600]};
-                }
-              `)}
-              value={text}
-              onChange={({ target: { value } }) => setText(value)}
-              placeholder={placeholder} />
+              &::placeholder {
+                color: ${colors.gray[800]};
+              }
+              &::selection {
+                color: white;
+                background: ${colors.blue[600]};
+              }
+            `)}
+            value={text}
+            onChange={({ target: { value } }) => setText(value)}
+            placeholder={placeholder} />
 
-            <Highlighter
-              tokens={tokens}
-              inputRef={inputRef}
-              className='pl-4 w-full h-full absolute top-0 left-0' />
-          </div>
-        </Suggestor>
-
-        <div
-          className='text-white px-3 py-2 bg-blue-600 text-lg cursor-pointer'
-          onMouseDown={() => setTextWithSearch(text)}>
-
-          <SearchOutlined className='align-middle' />
+          <Highlighter
+            tokens={tokens}
+            inputRef={inputRef}
+            className='pl-4 w-full h-full absolute top-0 left-0' />
         </div>
-      </div>
+      </Suggestor>
+
+      <SearchButton onClick={() => setTextWithSearch(text)} />
+    </div>
+  )
+}
+
+const SearchButton = ({ onClick }: { onClick?: () => void }) => {
+  const [hover, setHover] = useState(false)
+  const hoverStyle = useSpring({ opacity: hover ? 0.2 : 0 })
+  const iconStyle = useSpring({ transform: hover ? 'scale(1.1)' : 'scale(1)' })
+
+  return (
+    <div
+      className='relative text-white px-3 py-2 bg-blue-600 text-lg cursor-pointer'
+      onMouseDown={onClick}
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}>
+
+      <animated.div style={iconStyle}><SearchOutlined className='align-middle' /></animated.div>
+
+      <animated.span style={hoverStyle} className='absolute top-0 left-0 w-full h-full bg-white' />
     </div>
   )
 }
