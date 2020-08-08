@@ -27,10 +27,10 @@ export function navigate(mode: NavigationMode, { path, search, hash, state }: { 
   // console.log('navigate', mode, path, search, hash, state)
 
   run({
-    pathname: path || current.pathname,
-    search: search || current.search,
-    hash: hash || current.hash,
-    state: state || current.state
+    pathname: typeof path === 'undefined' ? current.pathname : path,
+    search: typeof search === 'undefined' ? current.search : search,
+    hash: typeof hash === 'undefined' ? current.hash : hash,
+    state: typeof state === 'undefined' ? current.state : state
   })
 }
 

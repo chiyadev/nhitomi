@@ -66,7 +66,7 @@ export function usePrefetch<T>(prefetch: Prefetch<T, any>) {
     try {
       const value = await fetch(client, 'prefetch', data || {})
 
-      navigate('push', { path, state: s => ({ ...s, 'fetch': { value, version: Math.random() } }) })
+      navigate('push', { path, search: '', hash: '', state: s => ({ ...s, 'fetch': { value, version: Math.random() } }) })
 
       if (restoreScroll)
         requestAnimationFrame(() => window.scrollTo({ top: 0 }))
