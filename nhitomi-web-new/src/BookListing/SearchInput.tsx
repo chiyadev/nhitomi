@@ -315,26 +315,29 @@ const Suggestor = ({ tokens, setText, inputRef, children }: { tokens: QueryToken
 
   const client = useClient()
   const { notifyError } = useNotify()
-  const suggestionId = useRef(0)
+  const suggestId = useRef(0)
+  const [suggestLoading, setSuggestLoading] = useState(true)
   const suggestPrefix = token?.display
 
   useLayoutEffect(() => {
     if (!suggestPrefix) {
-      suggestionId.current++
+      suggestId.current++
       setSuggestions(undefined)
       setSelected(undefined)
       return
     }
 
-    let id = ++suggestionId.current
+    let id = ++suggestId.current
+
+    setSuggestLoading(true)
 
     setTimeout(async () => {
-      if (id !== suggestionId.current)
-        return
-
-      id = ++suggestionId.current
-
       try {
+        if (id !== suggestId.current)
+          return
+
+        id = ++suggestId.current
+
         const result = await client.book.suggestBooks({
           suggestQuery: {
             prefix: suggestPrefix,
@@ -342,7 +345,7 @@ const Suggestor = ({ tokens, setText, inputRef, children }: { tokens: QueryToken
           }
         })
 
-        if (id !== suggestionId.current)
+        if (id !== suggestId.current)
           return
 
         const suggestions = Object
@@ -356,6 +359,7 @@ const Suggestor = ({ tokens, setText, inputRef, children }: { tokens: QueryToken
 
         setSuggestions(suggestions)
         setSelected(suggestions[0]?.items[0])
+        setSuggestLoading(false)
       }
       catch (e) {
         notifyError(e)
@@ -373,7 +377,7 @@ const Suggestor = ({ tokens, setText, inputRef, children }: { tokens: QueryToken
       content={(
         <div className={css`width: ${inputRef.current?.clientWidth}px; max-width: 100%;`}>
           {token && <>
-            <span className='text-xs opacity-50'>"{token.display}" ({suggestions ? suggestions.flatMap(s => s.items).length : '*'})</span>
+            <span className='text-xs opacity-50'>"{token.display}" ({suggestions && !suggestLoading ? suggestions.flatMap(s => s.items).length : '*'})</span>
           </>}
 
           {suggestions && suggestions.map(({ tag, items }) => (
@@ -386,7 +390,7 @@ const Suggestor = ({ tokens, setText, inputRef, children }: { tokens: QueryToken
                 <li>
                   <span
                     key={item.id}
-                    className={cx('block bg-opacity-25 rounded-sm cursor-pointer', { 'bg-gray-100': selected === item })}
+                    className={cx('block bg-opacity-25 rounded-sm cursor-pointer', { 'bg-gray-800': selected === item })}
                     onMouseDown={complete}
                     onMouseEnter={() => setSelected(item)}>
 
