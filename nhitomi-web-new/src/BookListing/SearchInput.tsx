@@ -2,11 +2,9 @@ import React, { useState, useRef, useLayoutEffect, RefObject, useMemo, ReactElem
 import { useUrlState } from '../url'
 import { SearchQuery } from './search'
 import { SearchOutlined } from '@ant-design/icons'
-import { usePageState } from '../Prefetch'
-import { PrefetchResult } from '.'
 import { cx, css } from 'emotion'
 import { colors } from '../theme.json'
-import { BookTag, SuggestItem } from 'nhitomi-api'
+import { BookTag, SuggestItem, BookSearchResult } from 'nhitomi-api'
 import { BookTagColors } from '../Components/colors'
 import Tippy from '@tippyjs/react'
 import { useClient } from '../ClientManager'
@@ -94,8 +92,7 @@ export function assemble(tokens: QueryToken[]): string {
   return tokens.map(token => token.text).join('')
 }
 
-export const SearchInput = ({ className }: { className?: string }) => {
-  const [result] = usePageState<PrefetchResult>('fetch')
+export const SearchInput = ({ result, className }: { result: BookSearchResult, className?: string }) => {
   const [query, setQuery] = useUrlState<SearchQuery>('push')
 
   const [text, setText] = useState('')

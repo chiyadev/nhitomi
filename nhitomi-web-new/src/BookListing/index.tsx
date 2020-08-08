@@ -11,9 +11,7 @@ import { useClient } from '../ClientManager'
 import { LoadContainer } from '../Components/LoadContainer'
 import { useProgress } from '../ProgressManager'
 
-export type PrefetchResult = BookSearchResult
-
-export function getBookListingPrefetch(query?: SearchQuery): Prefetch<PrefetchResult, { query: SearchQuery, setQuery: Dispatch<SearchQuery> }> {
+export function getBookListingPrefetch(query?: SearchQuery): Prefetch<BookSearchResult, { query: SearchQuery, setQuery: Dispatch<SearchQuery> }> {
   return {
     path: '/books',
 
@@ -60,7 +58,7 @@ export const BookListing = () => {
   )
 }
 
-const Loaded = ({ result, setResult }: { result: PrefetchResult, setResult: Dispatch<PrefetchResult> }) => {
+const Loaded = ({ result, setResult }: { result: BookSearchResult, setResult: Dispatch<BookSearchResult> }) => {
   const client = useClient()
   const { notifyError } = useNotify()
   const { begin, end } = useProgress()
@@ -101,7 +99,7 @@ const Loaded = ({ result, setResult }: { result: PrefetchResult, setResult: Disp
 
   return <>
     <div className='mx-auto p-4 w-full max-w-xl sticky top-0 z-20'>
-      <SearchInput className='shadow-lg w-full' />
+      <SearchInput result={result} className='shadow-lg w-full' />
     </div>
 
     <BookList items={result.items} />
@@ -109,7 +107,7 @@ const Loaded = ({ result, setResult }: { result: PrefetchResult, setResult: Disp
   </>
 }
 
-const Loader = ({ query, result, setResult }: { query: SearchQuery, result: PrefetchResult, setResult: Dispatch<PrefetchResult> }) => {
+const Loader = ({ query, result, setResult }: { query: SearchQuery, result: BookSearchResult, setResult: Dispatch<BookSearchResult> }) => {
   const client = useClient()
   const { notifyError } = useNotify()
   const { begin, end: endProgress } = useProgress()
