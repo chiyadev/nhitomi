@@ -32,6 +32,7 @@
     "react-spring": "^8.0.27",
     "react-toast-notifications": "^2.4.0",
     "react-use": "^15.3.3",
+    "react-visibility-sensor": "^5.1.1",
     "strict-event-emitter-types": "^2.0.0",
     "tailwindcss": "^1.6.2",
     "ts-custom-error": "^3.1.1",

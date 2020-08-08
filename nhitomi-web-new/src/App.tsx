@@ -8,7 +8,7 @@ import { LocaleManager } from './LocaleManager'
 import { NotificationManager } from './NotificationManager'
 import { css } from 'emotion'
 import { Route, Redirect, Switch, Router } from 'react-router-dom'
-import { BookListingPage } from './BookListing'
+import { BookListing } from './BookListing'
 import { History } from './history'
 
 export const App = () => {
@@ -46,6 +46,6 @@ const Routing = () => (
   <Switch>
     <Route path='/' exact><Redirect to='/books' /></Route>
 
-    <Route path='/books' exact><BookListingPage /></Route>
+    <Route path='/books' exact><BookListing /></Route>
   </Switch>
 )
