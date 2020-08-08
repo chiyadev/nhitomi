@@ -10,6 +10,7 @@ import { useNotify } from '../NotificationManager'
 import { useClient } from '../ClientManager'
 import { LoadContainer } from '../Components/LoadContainer'
 import { useProgress } from '../ProgressManager'
+import { Menu } from './Menu'
 
 export function getBookListingPrefetch(query?: SearchQuery): Prefetch<BookSearchResult, { query: SearchQuery, setQuery: Dispatch<SearchQuery> }> {
   return {
@@ -102,7 +103,10 @@ const Loaded = ({ result, setResult }: { result: BookSearchResult, setResult: Di
       <SearchInput result={result} className='shadow-lg w-full' />
     </div>
 
-    <BookList items={result.items} />
+    <BookList items={result.items}>
+      <Menu />
+    </BookList>
+
     <Loader key={queryCmp} query={query} result={result} setResult={setResult} />
   </>
 }

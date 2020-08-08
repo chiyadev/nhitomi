@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useRef } from 'react'
+import React, { useMemo, useState, useRef, ReactNode } from 'react'
 import { Book } from 'nhitomi-api'
 import { useLayout, SmallBreakpoints, LargeBreakpoints, getBreakpoint } from '../../LayoutManager'
 import { cx, css } from 'emotion'
@@ -7,7 +7,7 @@ import { useClient } from '../../ClientManager'
 import { useSpring, animated } from 'react-spring'
 import VisibilitySensor from 'react-visibility-sensor'
 
-export const Grid = ({ items, width }: { items: Book[], width: number }) => {
+export const Grid = ({ items, width, children }: { items: Book[], width: number, children?: ReactNode }) => {
   const { screen } = useLayout()
 
   const { spacing, rowWidth, itemWidth, itemHeight } = useMemo(() => {
@@ -42,20 +42,22 @@ export const Grid = ({ items, width }: { items: Book[], width: number }) => {
   }, [screen, width])
 
   return (
-    <div
-      style={{ maxWidth: rowWidth }}
-      className={cx('mx-auto w-full flex flex-row flex-wrap justify-center', css`
+    <div style={{ maxWidth: rowWidth }} className='mx-auto w-full'>
+      {children}
+
+      <div className={cx('flex flex-row flex-wrap justify-center', css`
         padding: ${spacing / 2}px;
       `)}>
 
-      {items.map(item => (
-        <Item
-          key={item.id}
-          book={item}
-          width={itemWidth}
-          height={itemHeight}
-          className={css`margin: ${spacing / 2}px;`} />
-      ))}
+        {items.map(item => (
+          <Item
+            key={item.id}
+            book={item}
+            width={itemWidth}
+            height={itemHeight}
+            className={css`margin: ${spacing / 2}px;`} />
+        ))}
+      </div>
     </div>
   )
 }
