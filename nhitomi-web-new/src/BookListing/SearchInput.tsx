@@ -14,6 +14,7 @@ import { useNotify } from '../NotificationManager'
 import { useSpring, animated, useTransition } from 'react-spring'
 import useResizeObserver from '@react-hook/resize-observer'
 import { useLocalized } from '../LocaleManager'
+import { FormattedMessage } from 'react-intl'
 
 export type QueryToken = {
   type: 'other'
@@ -415,7 +416,9 @@ const Suggestor = ({ tokens, setText, inputRef, children }: { tokens: QueryToken
 
           {suggestionsTransitions.map(({ item: { tag, items }, props, key }) => (
             <animated.ul key={key} style={props}>
-              <li className={cx('text-xs', css`color: ${BookTagColors[tag]};`)}>{tag}</li>
+              <li className={cx('text-xs', css`color: ${BookTagColors[tag]};`)}>
+                <FormattedMessage id={`types.bookTag.${tag}`} />
+              </li>
 
               <SuggestorSection items={items} complete={complete} selected={selected} setSelected={setSelected} />
             </animated.ul>
@@ -437,11 +440,12 @@ const SuggestorSection = ({ items, complete, selected, setSelected }: { items: S
     <animated.li
       key={key}
       style={props}
-      className={cx('block bg-opacity-50 rounded-sm overflow-hidden cursor-pointer', { 'bg-gray-900': selected === item })}
       onMouseDown={complete}
       onMouseEnter={() => setSelected(item)}>
 
-      {item.text}
+      <span className={cx('block bg-opacity-50 rounded-sm overflow-hidden cursor-pointer px-10 -mx-10', { 'bg-black': selected === item })}>
+        {item.text}
+      </span>
     </animated.li>
   ))}</>
 }

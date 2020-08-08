@@ -13,5 +13,64 @@
     "about": {
       "title": "About"
     }
+  },
+  "types": {
+    "sortDirection": {
+      "ascending": "Ascending",
+      "descending": "Descending"
+    },
+    "bookTag": {
+      "artist": "Artist",
+      "circle": "Circle",
+      "character": "Character",
+      "parody": "Parody",
+      "series": "Series",
+      "convention": "Convention",
+      "metadata": "Metadata",
+      "tag": "Tag"
+    },
+    "bookCategory": {
+      "doujinshi": "Doujinshi",
+      "manga": "Manga",
+      "artistCg": "Artist CG",
+      "gameCg": "Game CG",
+      "lightNovel": "Light novel",
+      "description": {
+        "doujinshi": "Self-published or self-distributed hentai manga or pornographic comic involving recognizable characters or mascots from other anime, manga or video games.",
+        "manga": "Officially published pornographic comic, typically featuring original content.",
+        "artistCg": "Artwork sets without panels, often made digitally, typically in full color.",
+        "gameCg": "Images extracted from erotic games (\"eroge\").",
+        "lightNovel": "High-quality scanned images of light novels."
+      }
+    },
+    "bookSort": {
+      "relevance": "Relevance",
+      "createdTime": "Uploaded time",
+      "updatedTime": "Updated time",
+      "pageCount": "Page count",
+      "noteCount": "Note count",
+      "tagCount": "Tag count"
+    },
+    "materialRating": {
+      "safe": "Safe",
+      "questionable": "Questionable",
+      "explicit": "Explicit",
+      "description": {
+        "safe": "Clearly lacking any sexual content.",
+        "questionable": "Containing non-genital nudity, sexually suggestive acts, or something that is not generically considered pornographic.",
+        "explicit": "Containing exposed genitals, openly and unambiguously portrayed sex acts, or visible sexual fluids."
+      }
+    },
+    "specialCollection": {
+      "favorites": "Favorites",
+      "later": "Read later"
+    },
+    "objectType": {
+      "user": "User",
+      "book": "Book",
+      "image": "Image",
+      "snapshot": "Snapshot",
+      "collection": "Collection"
+    }
   }
 }
