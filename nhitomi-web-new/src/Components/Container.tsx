@@ -1,5 +1,5 @@
 import React, { ReactNode, useState, useRef } from 'react'
-import { cx, css } from 'emotion'
+import { cx } from 'emotion'
 import useResizeObserver from '@react-hook/resize-observer'
 import { StripWidth } from '../Sidebar/Strip'
 
@@ -22,7 +22,7 @@ export const Container = ({ children, className }: { children?: ReactNode, class
 
   return (
     <div ref={measureRef} className='w-full'>
-      <div className={cx('relative mx-auto w-full', { [css`max-width: ${width}px;`]: !!width }, className)} children={children} />
+      <div style={{ maxWidth: width }} className={cx('relative mx-auto w-full', className)} children={children} />
     </div>
   )
 }

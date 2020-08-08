@@ -12,6 +12,7 @@ import Tippy from '@tippyjs/react'
 import { useClient } from '../ClientManager'
 import { useNotify } from '../NotificationManager'
 import { useSpring, animated, useTransition } from 'react-spring'
+import useResizeObserver from '@react-hook/resize-observer'
 
 export type QueryToken = {
   type: 'other'
@@ -374,6 +375,10 @@ const Suggestor = ({ tokens, setText, inputRef, children }: { tokens: QueryToken
     marginTop: dropdownVisible ? 0 : -5
   })
 
+  const [dropdownWidth, setDropdownWidth] = useState(inputRef.current?.clientWidth)
+
+  useResizeObserver(inputRef, ({ contentRect: { width } }) => setDropdownWidth(width))
+
   const suggestionsTransitions = useTransition(suggestions || [], s => s.tag, {
     from: { opacity: 0 },
     enter: { opacity: 1 },
@@ -385,15 +390,12 @@ const Suggestor = ({ tokens, setText, inputRef, children }: { tokens: QueryToken
       visible={dropdownVisible}
       interactive
       placement='bottom-start'
-      maxWidth={inputRef.current?.clientWidth}
+      maxWidth={dropdownWidth}
       render={props => (
         <animated.div
           {...props}
-          style={dropdownStyle}
-          className={cx('bg-gray-900 text-white text-sm px-2 py-1 rounded overflow-hidden flex flex-col space-y-2', css`
-            width: ${inputRef.current?.clientWidth}px;
-            max-width: 100%;
-          `)}>
+          style={{ ...dropdownStyle, width: inputRef.current?.clientWidth }}
+          className='bg-gray-900 text-white text-sm px-2 py-1 rounded overflow-hidden flex flex-col space-y-2'>
 
           {token && <span className='text-xs opacity-50'>"{token.display}" ({suggestions && !suggestLoading ? suggestions.flatMap(s => s.items).length : '*'})</span>}
 
