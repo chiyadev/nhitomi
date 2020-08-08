@@ -10,7 +10,6 @@ import { css } from 'emotion'
 import { Route, Redirect, Switch, Router } from 'react-router-dom'
 import { BookListingPage } from './BookListing'
 import { History } from './history'
-import { Container } from './Components/Container'
 
 export const App = () => {
   return (

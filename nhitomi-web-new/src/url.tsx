@@ -3,8 +3,11 @@ import { useUpdate } from 'react-use'
 import { parse, stringify } from 'qs'
 import { History, navigate, NavigationMode } from './history'
 
+export function useUrlState<T extends {}>(mode?: NavigationMode): [T, Dispatch<T>]
+export function useUrlState<T>(mode?: NavigationMode, name?: string): [T | undefined, Dispatch<T | undefined>]
+
 /** Similar to useState but stores data in the query part of window.location. */
-export function useUrlState<T extends (N extends string ? any : object), N extends string | undefined = undefined>(mode: NavigationMode = 'replace', name?: N): [N extends string ? T | undefined : T, Dispatch<T>] {
+export function useUrlState<T>(mode: NavigationMode = 'replace', name?: string): [T, Dispatch<T>] {
   const update = useUpdate()
   const state = getSelfOrField<T>(deserialize(History.location.search), name)
 
