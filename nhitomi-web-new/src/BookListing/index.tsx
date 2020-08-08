@@ -9,6 +9,7 @@ import { useAsync } from 'react-use'
 import { useNotify } from '../NotificationManager'
 import { useClient } from '../ClientManager'
 import { LoadContainer } from '../Components/LoadContainer'
+import { useProgress } from '../ProgressManager'
 
 export type PrefetchResult = BookSearchResult
 
@@ -62,6 +63,7 @@ export const BookListing = () => {
 const Loaded = ({ result, setResult }: { result: PrefetchResult, setResult: Dispatch<PrefetchResult> }) => {
   const client = useClient()
   const { notifyError } = useNotify()
+  const { begin, end } = useProgress()
 
   const [query] = useUrlState<SearchQuery>()
   const queryId = useRef(0)
@@ -77,6 +79,8 @@ const Loaded = ({ result, setResult }: { result: PrefetchResult, setResult: Disp
     if (queryCmp === effectiveQueryCmp)
       return
 
+    begin()
+
     const id = ++queryId.current
 
     try {
@@ -89,6 +93,9 @@ const Loaded = ({ result, setResult }: { result: PrefetchResult, setResult: Disp
     }
     catch (e) {
       notifyError(e)
+    }
+    finally {
+      end()
     }
   }, [queryCmp, effectiveQueryCmp])
 
@@ -105,6 +112,7 @@ const Loaded = ({ result, setResult }: { result: PrefetchResult, setResult: Disp
 const Loader = ({ query, result, setResult }: { query: SearchQuery, result: PrefetchResult, setResult: Dispatch<PrefetchResult> }) => {
   const client = useClient()
   const { notifyError } = useNotify()
+  const { begin, end: endProgress } = useProgress()
 
   const [end, setEnd] = usePageState<boolean>('end')
   const count = useRef(0)
@@ -120,6 +128,8 @@ const Loader = ({ query, result, setResult }: { query: SearchQuery, result: Pref
       key={count.current} // recreate load container for each load
       className='w-full h-20'
       onLoad={async () => {
+        begin()
+
         try {
           const moreResult = await client.book.searchBooks({ bookQuery: { ...convertQuery(query), offset: result.items.length } })
 
@@ -142,6 +152,9 @@ const Loader = ({ query, result, setResult }: { query: SearchQuery, result: Pref
         }
         catch (e) {
           notifyError(e)
+        }
+        finally {
+          endProgress()
         }
       }} />
   )
