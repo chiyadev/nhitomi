@@ -6,10 +6,11 @@ import { PrefetchScrollPreserver } from './Prefetch'
 import { ClientManager } from './ClientManager'
 import { LocaleManager } from './LocaleManager'
 import { NotificationManager } from './NotificationManager'
-import { cx, css } from 'emotion'
+import { css } from 'emotion'
 import { Route, Redirect, Switch, Router } from 'react-router-dom'
 import { BookListingPage } from './BookListing'
 import { History } from './history'
+import { Container } from './Components/Container'
 
 export const App = () => {
   return (
@@ -33,21 +34,11 @@ export const App = () => {
 }
 
 const Body = () => {
-  const { width: windowWidth, sidebar } = useLayout()
-  let width: number | undefined
-
-  for (const breakpoint of [640, 768, 1024, 1280]) {
-    if (windowWidth >= breakpoint - sidebar)
-      width = breakpoint - sidebar
-
-    else break
-  }
+  const { sidebar } = useLayout()
 
   return (
     <div className={css`padding-left: ${sidebar}px;`}>
-      <div className={cx('relative mx-auto w-full', { [css`max-width: ${width}px;`]: !!width })}>
-        <Routing />
-      </div>
+      <Routing />
     </div>
   )
 }
