@@ -19,6 +19,7 @@ export const LoadContainer = ({ onLoad, children, className }: { onLoad: () => P
 
   return (
     <VisibilitySensor
+      delayedCall
       partialVisibility
       onChange={v => v && setLoad(true)}
       offset={{ top: -100, left: -100, bottom: -100, right: -100 }}>

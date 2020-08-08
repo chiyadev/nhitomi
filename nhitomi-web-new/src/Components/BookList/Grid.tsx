@@ -74,6 +74,7 @@ const Item = ({ book, width, height, className }: { book: Book, width: number, h
 
   return (
     <VisibilitySensor
+      delayedCall
       partialVisibility
       offset={{ top: -100, bottom: -100 }}
       onChange={v => { setVisible(v); v && (visibleEver.current = v) }}>
