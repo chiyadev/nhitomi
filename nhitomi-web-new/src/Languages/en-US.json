@@ -14,6 +14,12 @@
       "title": "About"
     }
   },
+  "components": {
+    "coverImage": {
+      "error": "Failed to download this image.",
+      "errorUnknown": "<unknown error>"
+    }
+  },
   "types": {
     "sortDirection": {
       "ascending": "Ascending",
