@@ -45,9 +45,7 @@ export class Client {
     this.info = new InfoApi(new Configuration(this.httpConfig))
     this.book = new BookApi(new Configuration(this.httpConfig))
     this.collection = new CollectionApi(new Configuration(this.httpConfig))
-  }
 
-  async getInfo(): Promise<ClientInfo> {
     const url = new URL(BASE_PATH)
 
     // use current hostname if default hostname is localhost
@@ -56,11 +54,13 @@ export class Client {
       url.protocol = window.location.protocol
     }
 
-    this.httpConfig.accessToken = this.config.token
+    this.httpConfig.accessToken = () => this.config.token || ''
     this.httpConfig.basePath = this.config.baseUrl || url.href
 
     console.log('api base path', this.httpConfig.basePath)
+  }
 
+  async getInfo(): Promise<ClientInfo> {
     if (this.httpConfig.accessToken)
       return {
         ...await this.info.getInfoAuthenticated(),
@@ -108,7 +108,7 @@ export class ValidationError extends CustomError {
   }
 }
 
-type ClientInfo =
+export type ClientInfo =
   GetInfoResponse & { authenticated: false } |
   GetInfoAuthenticatedResponse & { authenticated: true }
 
