@@ -6,6 +6,7 @@
   "dependencies": {
     "@ant-design/icons": "^4.2.2",
     "@openapitools/openapi-generator-cli": "^1.0.15-4.3.1",
+    "@react-hook/resize-observer": "^1.1.0",
     "@tippyjs/react": "^4.1.0",
     "@types/history": "^4.7.7",
     "@types/jest": "^24.0.0",
@@ -28,6 +29,7 @@
     "react-intl": "^5.4.5",
     "react-router-dom": "^5.2.0",
     "react-scripts": "3.4.1",
+    "react-spring": "^8.0.27",
     "react-toast-notifications": "^2.4.0",
     "react-use": "^15.3.3",
     "strict-event-emitter-types": "^2.0.0",
