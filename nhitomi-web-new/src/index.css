@@ -2,3 +2,8 @@
   backdrop-filter: blur(0.5em);
   --bg-opacity: 85%;
 }
+
+*:focus {
+  /* https://stackoverflow.com/questions/61971404/how-to-remove-black-border-from-option-when-hover-in-chrome-83 */
+  outline: none;
+}
