@@ -12,8 +12,8 @@ function css(s: TemplateStringsArray) {
 if (CSS.supports('backdrop-filter', 'blur(0)')) {
   css`
     .bg-blur {
-      backdrop-filter: blur(0.5em);
-      --bg-opacity: 80%;
+      backdrop-filter: blur(1em);
+      --bg-opacity: 75%;
     }
   `
 }
