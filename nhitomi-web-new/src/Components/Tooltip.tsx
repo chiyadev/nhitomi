@@ -23,7 +23,7 @@ export const Tooltip = ({ className, overlay, children, hideOnClick = false, ign
         <animated.span
           {...props}
           style={style}
-          className={cx(className, 'rounded overflow-hidden text-xs px-2 py-1 bg-gray-900 text-white')}>
+          className={cx(className, 'rounded overflow-hidden text-xs px-2 py-1 bg-gray-900 bg-blur text-white')}>
 
           {overlay}
         </animated.span>

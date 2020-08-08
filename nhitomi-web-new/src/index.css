@@ -1,0 +1,4 @@
+.bg-blur {
+  backdrop-filter: blur(0.5em);
+  --bg-opacity: 85%;
+}

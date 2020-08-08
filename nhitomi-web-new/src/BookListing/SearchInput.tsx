@@ -395,7 +395,7 @@ const Suggestor = ({ tokens, setText, inputRef, children }: { tokens: QueryToken
         <animated.div
           {...props}
           style={{ ...dropdownStyle, width: inputRef.current?.clientWidth }}
-          className='bg-gray-900 text-white text-sm px-2 py-1 rounded overflow-hidden flex flex-col space-y-2'>
+          className='bg-gray-900 bg-blur text-white text-sm px-2 py-1 rounded overflow-hidden flex flex-col space-y-2'>
 
           {token && <span className='text-xs opacity-50'>"{token.display}" ({suggestions && !suggestLoading ? suggestions.flatMap(s => s.items).length : '*'})</span>}
 
@@ -423,7 +423,7 @@ const SuggestorSection = ({ items, complete, selected, setSelected }: { items: S
     <animated.li
       key={key}
       style={props}
-      className={cx('block bg-opacity-25 rounded-sm cursor-pointer', { 'bg-gray-800': selected === item })}
+      className={cx('block bg-opacity-50 rounded-sm cursor-pointer', { 'bg-gray-900': selected === item })}
       onMouseDown={complete}
       onMouseEnter={() => setSelected(item)}>
 
