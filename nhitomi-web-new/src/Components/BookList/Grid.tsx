@@ -84,7 +84,7 @@ const Item = ({ book, width, height, className }: { book: Book, width: number, h
 
       <animated.div style={overlayStyle} className='absolute bottom-0 left-0 w-full'>
         <div className='p-1 bg-white bg-blur text-black rounded-b'>
-          <span className='block text-sm truncate'>{book.primaryName}</span>
+          <span className='block text-sm truncate font-bold'>{book.primaryName}</span>
 
           {book.primaryName !== book.englishName && (
             <span className='block text-xs truncate'>{book.englishName}</span>
