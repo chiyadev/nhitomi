@@ -11,6 +11,7 @@ import { BookTagColors } from '../Components/colors'
 import Tippy from '@tippyjs/react'
 import { useClient } from '../ClientManager'
 import { useNotify } from '../NotificationManager'
+import { useSpring, animated, useTransition } from 'react-spring'
 
 export type QueryToken = {
   type: 'other'
@@ -358,50 +359,73 @@ const Suggestor = ({ tokens, setText, inputRef, children }: { tokens: QueryToken
           .filter(x => x.items.length)
 
         setSuggestions(suggestions)
-        setSelected(suggestions[0]?.items[0])
+        setSelected(suggestions.flatMap(s => s.items).find(s => s.id === selected?.id) || suggestions[0]?.items[0])
         setSuggestLoading(false)
       }
       catch (e) {
         notifyError(e)
       }
     }, 100)
-  }, [client.book, notifyError, suggestPrefix])
+  }, [suggestPrefix]) // eslint-disable-line
+
+  const dropdownVisible = focused && !!token
+  const dropdownStyle = useSpring({
+    opacity: dropdownVisible ? 1 : 0,
+    marginTop: dropdownVisible ? 0 : -5
+  })
+
+  const suggestionsTransitions = useTransition(suggestions || [], s => s.tag, {
+    from: { opacity: 0 },
+    enter: { opacity: 1 },
+    leave: { display: 'none' }
+  })
 
   return (
     <Tippy
-      visible={focused && !!token}
+      visible={dropdownVisible}
       interactive
-      arrow={false}
       placement='bottom-start'
       maxWidth={inputRef.current?.clientWidth}
-      content={(
-        <div className={css`width: ${inputRef.current?.clientWidth}px; max-width: 100%;`}>
-          {token && <>
-            <span className='text-xs opacity-50'>"{token.display}" ({suggestions && !suggestLoading ? suggestions.flatMap(s => s.items).length : '*'})</span>
-          </>}
+      render={props => (
+        <animated.div
+          {...props}
+          style={dropdownStyle}
+          className={cx('bg-gray-900 text-white text-sm px-2 py-1 rounded overflow-hidden flex flex-col space-y-2', css`
+            width: ${inputRef.current?.clientWidth}px;
+            max-width: 100%;
+          `)}>
 
-          {suggestions && suggestions.map(({ tag, items }) => (
-            <ul key={tag} className='my-2'>
-              <li>
-                <span className={cx('text-xs', css`color: ${BookTagColors[tag]};`)}>{tag}</span>
-              </li>
+          {token && <span className='text-xs opacity-50'>"{token.display}" ({suggestions && !suggestLoading ? suggestions.flatMap(s => s.items).length : '*'})</span>}
 
-              {items.map(item => (
-                <li>
-                  <span
-                    key={item.id}
-                    className={cx('block bg-opacity-25 rounded-sm cursor-pointer', { 'bg-gray-800': selected === item })}
-                    onMouseDown={complete}
-                    onMouseEnter={() => setSelected(item)}>
+          {suggestionsTransitions.map(({ item: { tag, items }, props, key }) => (
+            <animated.ul key={key} style={props}>
+              <li className={cx('text-xs', css`color: ${BookTagColors[tag]};`)}>{tag}</li>
 
-                    {item.text}
-                  </span>
-                </li>
-              ))}
-            </ul>
+              <SuggestorSection items={items} complete={complete} selected={selected} setSelected={setSelected} />
+            </animated.ul>
           ))}
-        </div>
+        </animated.div>
       )}
       children={children} />
   )
+}
+
+const SuggestorSection = ({ items, complete, selected, setSelected }: { items: SuggestItem[], complete: () => void, selected?: SuggestItem, setSelected: Dispatch<SuggestItem> }) => {
+  const transitions = useTransition(items, x => x.id, {
+    from: { marginLeft: -5, opacity: 0, display: 'none' },
+    enter: { marginLeft: 0, opacity: 1, display: 'block' },
+    leave: { display: 'none' }
+  })
+
+  return <>{transitions.map(({ item, key, props }) => (
+    <animated.li
+      key={key}
+      style={props}
+      className={cx('block bg-opacity-25 rounded-sm cursor-pointer', { 'bg-gray-800': selected === item })}
+      onMouseDown={complete}
+      onMouseEnter={() => setSelected(item)}>
+
+      {item.text}
+    </animated.li>
+  ))}</>
 }
