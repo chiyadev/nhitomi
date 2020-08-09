@@ -11,6 +11,7 @@ import { useClient } from '../ClientManager'
 import { LoadContainer } from '../Components/LoadContainer'
 import { useProgress } from '../ProgressManager'
 import { Menu } from './Menu'
+import { useScrollShortcut } from '../shortcut'
 
 export function getBookListingPrefetch(query?: SearchQuery): Prefetch<BookSearchResult, { query: SearchQuery, setQuery: Dispatch<SearchQuery> }> {
   return {
@@ -50,6 +51,8 @@ export const BookListingLink = ({ query, ...props }: Omit<PrefetchLinkProps, 'fe
 
 export const BookListing = () => {
   const { result, dispatch } = usePostfetch(useMemo(() => getBookListingPrefetch(), []))
+
+  useScrollShortcut()
 
   if (!result)
     return null
