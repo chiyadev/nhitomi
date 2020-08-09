@@ -5,6 +5,7 @@ import { useProgress } from './ProgressManager'
 import { LanguageType } from 'nhitomi-api'
 import { useConfig } from './ConfigManager'
 import { useClient, useClientInfo } from './ClientManager'
+import { AvailableLocalizations } from './Languages/languages'
 
 export const LanguageNames: { [lang in LanguageType]: string } = {
   'ja-JP': '日本語',
@@ -91,11 +92,11 @@ export const LocaleManager = ({ children }: { children?: ReactNode }) => {
   )
 }
 
-async function loadLanguage(language: string): Promise<Record<string, string>> {
+async function loadLanguage(language: LanguageType): Promise<Record<string, string>> {
   let data = JSON.parse(JSON.stringify((await import(`./Languages/${LanguageType.EnUS}.json`)).default))
 
   // layer other languages on top of the default English
-  if (language !== LanguageType.EnUS) {
+  if (language !== LanguageType.EnUS && AvailableLocalizations.indexOf(language) !== -1) {
     try {
       const overlay = (await import(`./Languages/${language}.json`)).default
 

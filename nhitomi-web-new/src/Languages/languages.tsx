@@ -1,5 +1,6 @@
 import { LanguageType } from 'nhitomi-api'
 
-export const SupportedLocalizations: LanguageType[] = [
-  LanguageType.EnUS
+export const AvailableLocalizations: LanguageType[] = [
+  LanguageType.EnUS,
+  LanguageType.JaJP
 ]

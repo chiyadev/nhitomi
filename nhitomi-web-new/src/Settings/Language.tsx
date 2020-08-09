@@ -2,7 +2,7 @@ import React from 'react'
 import { FormattedMessage } from 'react-intl'
 import { SettingsFocusContainer } from './common'
 import { CheckBox } from '../Components/Checkbox'
-import { SupportedLocalizations } from '../Languages/languages'
+import { AvailableLocalizations } from '../Languages/languages'
 import { LanguageNames } from '../LocaleManager'
 import { LanguageType } from 'nhitomi-api'
 import { useConfig } from '../ConfigManager'
@@ -21,9 +21,8 @@ export const Language = () => {
       <div>
         <div><FormattedMessage id='pages.settings.appearance.language.interface' /></div>
 
-        {(Object.keys(LanguageNames) as LanguageType[]).filter(l => SupportedLocalizations.indexOf(l) !== -1).map(language => (
+        {(Object.keys(LanguageNames) as LanguageType[]).filter(l => AvailableLocalizations.indexOf(l) !== -1).map(language => (
           <CheckBox
-            disabled
             type='radio'
             value={language === interfaceLanguage}
             setValue={v => {

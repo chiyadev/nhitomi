@@ -1,0 +1,100 @@
+{
+  "pages": {
+    "home": {
+      "title": "nhitomi"
+    },
+    "bookListing": {
+      "title": "ブックス",
+      "search": "nhitomiで {total}本を検索"
+    },
+    "settings": {
+      "title": "設定",
+      "subtitle": "nhitomiの外見や行動が変更できます。",
+      "appearance": {
+        "header": "外見",
+        "language": {
+          "name": "言語",
+          "description": "言語設定は表示言語、コンテンツ言語、検索結果を変更します。",
+          "interface": "表示言語",
+          "search": "検索言語"
+        },
+        "animation": {
+          "name": "アニメーション",
+          "description": "アニメーションの再生速度を変更します。",
+          "normal": {
+            "name": "普通",
+            "description": "普通の速度で再生"
+          },
+          "faster": {
+            "name": "速く",
+            "description": "4倍速で再生"
+          },
+          "none": {
+            "name": "オフ",
+            "description": "光の速度で再生"
+          }
+        }
+      },
+      "keyboard": {
+        "header": "キーボード"
+      }
+    },
+    "collectionListing": {
+      "title": "コレクション"
+    },
+    "about": {
+      "title": "情報"
+    }
+  },
+  "components": {
+    "coverImage": {
+      "error": "この画像をダウンロードできませんでした。",
+      "errorUnknown": "<理由不明>"
+    }
+  },
+  "types": {
+    "sortDirection": {
+      "ascending": "昇順",
+      "descending": "降順"
+    },
+    "bookTag": {
+      "artist": "アーティスト",
+      "parody": "パロディ",
+      "character": "キャラ",
+      "convention": "イベント",
+      "series": "シリーズ",
+      "circle": "サークル",
+      "metadata": "メタ",
+      "tag": "タグ"
+    },
+    "bookCategory": {
+      "doujinshi": "同人誌",
+      "manga": "漫画",
+      "artistCg": "アーティスト CG",
+      "gameCg": "ゲーム CG",
+      "lightNovel": "ライトノベル"
+    },
+    "bookSort": {
+      "relevance": "関連性",
+      "createdTime": "アップロード時間",
+      "updatedTime": "更新時間",
+      "pageCount": "ページ数",
+      "noteCount": "ノート数",
+      "tagCount": "タグ数"
+    },
+    "materialRating": {
+      "explicit": "成人向け"
+    },
+    "specialCollection": {
+      "favorites": "お気に入り",
+      "later": "後で読む"
+    },
+    "objectType": {
+      "user": "ユーザー",
+      "book": "本",
+      "image": "画像",
+      "snapshot": "スナップショット",
+      "collection": "コレクション"
+    }
+  }
+}
