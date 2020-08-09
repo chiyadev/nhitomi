@@ -9,7 +9,7 @@ import { BookTagColors } from '../Components/colors'
 import Tippy from '@tippyjs/react'
 import { useClient } from '../ClientManager'
 import { useNotify } from '../NotificationManager'
-import { useSpring, animated, useTransition, config } from 'react-spring'
+import { useSpring, animated, useTransition } from 'react-spring'
 import useResizeObserver from '@react-hook/resize-observer'
 import { useLocalized } from '../LocaleManager'
 import { FormattedMessage } from 'react-intl'
@@ -170,7 +170,6 @@ const SearchButton = ({ onClick }: { onClick?: () => void }) => {
 const ClearButton = ({ visible = true, onClick, className }: { visible?: boolean, onClick?: () => void, className?: string }) => {
   const [hover, setHover] = useState(false)
   const style = useSpring({
-    config: config.stiff,
     opacity: visible ? hover ? 1 : 0.5 : 0,
     transform: hover ? 'scale(1.1)' : 'scale(1)',
     display: visible ? 'block' : 'none'
@@ -419,7 +418,7 @@ const Suggestor = ({ tokens, setText, inputRef, children }: { tokens: QueryToken
 
   useResizeObserver(inputRef, ({ contentRect: { width } }) => setDropdownWidth(width))
 
-  const suggestionsTransitions = useTransition(suggestions || [], s => s.tag, {
+  const suggestionsTransitions = useTransition(suggestions || [], {
     from: { opacity: 0 },
     enter: { opacity: 1 },
     leave: { display: 'none' }
@@ -439,8 +438,8 @@ const Suggestor = ({ tokens, setText, inputRef, children }: { tokens: QueryToken
 
           {token && <span className='text-xs opacity-50'>"{token.display}" ({suggestions && !suggestLoading ? suggestions.flatMap(s => s.items).length : '*'})</span>}
 
-          {suggestionsTransitions.map(({ item: { tag, items }, props, key }) => (
-            <animated.ul key={key} style={props}>
+          {suggestionsTransitions((style, { tag, items }) => (
+            <animated.ul key={tag} style={style}>
               <li className={cx('text-xs', css`color: ${BookTagColors[tag]};`)}>
                 <FormattedMessage id={`types.bookTag.${tag}`} />
               </li>
@@ -455,16 +454,16 @@ const Suggestor = ({ tokens, setText, inputRef, children }: { tokens: QueryToken
 }
 
 const SuggestorSection = ({ items, complete, selected, setSelected }: { items: SuggestItem[], complete: () => void, selected?: SuggestItem, setSelected: Dispatch<SuggestItem> }) => {
-  const transitions = useTransition(items, x => x.id, {
+  const transitions = useTransition(items, {
     from: { marginLeft: -5, opacity: 0, display: 'none' },
     enter: { marginLeft: 0, opacity: 1, display: 'block' },
     leave: { display: 'none' }
   })
 
-  return <>{transitions.map(({ item, key, props }) => (
+  return <>{transitions((style, item) => (
     <animated.li
-      key={key}
-      style={props}
+      key={item.id}
+      style={style}
       onMouseDown={complete}
       onMouseEnter={() => setSelected(item)}>
 
