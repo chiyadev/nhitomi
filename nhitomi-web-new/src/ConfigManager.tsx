@@ -62,7 +62,7 @@ const DefaultStore: ConfigStore = {
   token: undefined,
   baseUrl: undefined,
   language: LanguageType.EnUS,
-  searchLanguages: [LanguageType.EnUS],
+  searchLanguages: [LanguageType.JaJP, LanguageType.EnUS],
   animation: 'normal',
 
   cancelKey: [{ key: 27 }],                   // esc

@@ -128,7 +128,7 @@ export function useNavigator() {
   const [navigator, setNavigator] = useState(Navigator)
 
   // always return the same navigator but rerender when location changes
-  useNavigated(() => setNavigator(Navigator))
+  useNavigated(useCallback(() => setNavigator(Navigator), []))
 
   return navigator
 }
