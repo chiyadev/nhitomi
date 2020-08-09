@@ -26,6 +26,7 @@ export type ConfigStore = {
   token: string | undefined
   baseUrl: string | undefined
   language: LanguageType
+  searchLanguages: LanguageType[]
 
   cancelKey: ShortcutConfig[]
   sidebarKey: ShortcutConfig[]
@@ -54,6 +55,7 @@ const DefaultStore: ConfigStore = {
   token: undefined,
   baseUrl: undefined,
   language: LanguageType.EnUS,
+  searchLanguages: [LanguageType.EnUS],
 
   cancelKey: [{ key: 27 }],                   // esc
   sidebarKey: [{ key: 81 }],                  // q
@@ -97,6 +99,7 @@ export class ConfigManager extends (EventEmitter as new () => StrictEventEmitter
   baseUrl!: string | undefined
   sidebar!: boolean
   language!: LanguageType
+  searchLanguages!: LanguageType[]
 
   cancelKey!: ShortcutConfig[]
   sidebarKey!: ShortcutConfig[]

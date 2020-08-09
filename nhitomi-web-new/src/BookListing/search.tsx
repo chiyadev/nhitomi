@@ -1,17 +1,22 @@
-import { SortDirection, BookSort, BookQuery, QueryMatchMode } from 'nhitomi-api'
+import { SortDirection, BookSort, BookQuery, QueryMatchMode, LanguageType } from 'nhitomi-api'
 import { tokenize } from './SearchInput'
 
 export type SearchQuery = {
   query?: string
   sort?: BookSort
   order?: SortDirection
+  langs?: LanguageType[]
 }
 
-export function convertQuery({ query, order, sort }: SearchQuery): BookQuery {
+export function convertQuery({ query, order, sort, langs }: SearchQuery): BookQuery {
   const result: BookQuery = {
     limit: 50,
     mode: QueryMatchMode.All,
     tags: {},
+    language: !langs?.length ? undefined : {
+      values: langs,
+      mode: QueryMatchMode.Any
+    },
     sorting: [{
       value: sort || BookSort.UpdatedTime,
       direction: order || SortDirection.Descending

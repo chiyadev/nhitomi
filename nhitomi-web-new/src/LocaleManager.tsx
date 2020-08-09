@@ -1,4 +1,4 @@
-import React, { createContext, ReactNode, useState, useMemo, useRef, useContext } from 'react'
+import React, { createContext, ReactNode, useState, useMemo, useRef, useContext, useLayoutEffect } from 'react'
 import { IntlProvider, useIntl } from 'react-intl'
 import { useAsync } from 'react-use'
 import { useProgress } from './ProgressManager'
@@ -43,10 +43,18 @@ export const LocaleManager = ({ children }: { children?: ReactNode }) => {
   const client = useClient()
   const { setInfo, fetchInfo } = useClientInfo()
   const [language, setLanguage] = useConfig('language')
+  const [searchLanguages, setSearchLanguages] = useConfig('searchLanguages')
   const [messages, setMessages] = useState<Record<string, string>>()
   const { begin, end } = useProgress()
 
   const initial = useRef(true)
+
+  // search languages should not be empty
+  useLayoutEffect(() => {
+    if (!searchLanguages.length) {
+      setSearchLanguages([language])
+    }
+  }, [language, searchLanguages, setSearchLanguages])
 
   useAsync(async () => {
     begin()

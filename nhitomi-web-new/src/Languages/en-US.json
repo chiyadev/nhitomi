@@ -14,7 +14,9 @@
         "header": "Appearance",
         "language": {
           "name": "Language",
-          "description": "Language setting affects the interface language, content display language and search results."
+          "description": "Language setting affects the interface language, content display language and search results.",
+          "interface": "Interface language",
+          "search": "Search languages"
         },
         "animation": {
           "name": "Animations",

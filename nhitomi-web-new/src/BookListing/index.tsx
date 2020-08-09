@@ -12,15 +12,20 @@ import { LoadContainer } from '../Components/LoadContainer'
 import { useProgress } from '../ProgressManager'
 import { Menu } from './Menu'
 import { useScrollShortcut } from '../shortcut'
+import { useConfig } from '../ConfigManager'
 
 export type PrefetchResult = BookSearchResult
 export type PrefetchOptions = { query?: SearchQuery }
 
 export const useBookListingPrefetch: PrefetchGenerator<PrefetchResult, PrefetchOptions> = ({ mode, query: targetQuery }) => {
   const client = useClient()
+  const [languages] = useConfig('searchLanguages')
   const [currentQuery] = useQueryState<SearchQuery>()
 
   const query = targetQuery || (mode === 'postfetch' && currentQuery) || {}
+
+  // use configured languages if unspecified
+  query.langs = query.langs || languages
 
   return {
     destination: {
