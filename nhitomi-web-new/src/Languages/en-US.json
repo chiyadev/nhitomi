@@ -20,7 +20,19 @@
         },
         "animation": {
           "name": "Animations",
-          "description": "Toggle interface animations."
+          "description": "Configure the speed of interface animations.",
+          "normal": {
+            "name": "Normal",
+            "description": "Play animations at normal speed."
+          },
+          "faster": {
+            "name": "Faster",
+            "description": "Play animations at 4 times faster."
+          },
+          "none": {
+            "name": "Disabled",
+            "description": "Completely disable all animations."
+          }
         }
       },
       "keyboard": {

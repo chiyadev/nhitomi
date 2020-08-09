@@ -11,6 +11,7 @@ import { Route, Redirect, Switch, Router } from 'react-router-dom'
 import { BookListing } from './BookListing'
 import { Settings } from './Settings'
 import { Navigator } from './state'
+import { AnimationSetter } from './AnimationSetter'
 
 export const App = () => {
   return (
@@ -21,6 +22,7 @@ export const App = () => {
             <LocaleManager>
               <NotificationManager>
                 <PrefetchScrollPreserver />
+                <AnimationSetter />
 
                 <Sidebar />
                 <Body />

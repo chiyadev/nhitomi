@@ -22,11 +22,19 @@ export function useConfig<TKey extends keyof ConfigStore>(key: TKey): [ConfigSto
   return [config.get(key), useCallback(v => config.set(key, v), [config, key])]
 }
 
+export type AnimationMode = 'normal' | 'faster' | 'none'
+export type KeyModifier = 'alt' | 'ctrl' | 'meta' | 'shift'
+export type ShortcutConfig = {
+  key: number
+  modifiers?: KeyModifier[]
+}
+
 export type ConfigStore = {
   token: string | undefined
   baseUrl: string | undefined
   language: LanguageType
   searchLanguages: LanguageType[]
+  animation: AnimationMode
 
   cancelKey: ShortcutConfig[]
   sidebarKey: ShortcutConfig[]
@@ -56,6 +64,7 @@ const DefaultStore: ConfigStore = {
   baseUrl: undefined,
   language: LanguageType.EnUS,
   searchLanguages: [LanguageType.EnUS],
+  animation: 'normal',
 
   cancelKey: [{ key: 27 }],                   // esc
   sidebarKey: [{ key: 81 }],                  // q
@@ -80,16 +89,10 @@ const DefaultStore: ConfigStore = {
   bookReaderJumpKey: [{ key: 71 }]            // g
 }
 
-export type KeyModifier = 'alt' | 'ctrl' | 'meta' | 'shift'
-export const KeyModifiers: KeyModifier[] = ['alt', 'ctrl', 'meta', 'shift']
-
-export type ShortcutConfig = {
-  key: number
-  modifiers?: KeyModifier[]
-}
-
 export type ConfigKey = keyof ConfigStore
 export type ShortcutConfigKey = { [key in keyof ConfigStore]: ConfigStore[key] extends ShortcutConfig[] ? key : never }[keyof ConfigStore]
+
+export const KeyModifiers: KeyModifier[] = ['alt', 'ctrl', 'meta', 'shift']
 
 export const ConfigKeys = Object.keys(DefaultStore) as ConfigKey[]
 export const ShortcutConfigKeys = ConfigKeys.filter(k => k.endsWith('key')) as ShortcutConfigKey[]
@@ -100,6 +103,7 @@ export class ConfigManager extends (EventEmitter as new () => StrictEventEmitter
   sidebar!: boolean
   language!: LanguageType
   searchLanguages!: LanguageType[]
+  animation!: AnimationMode
 
   cancelKey!: ShortcutConfig[]
   sidebarKey!: ShortcutConfig[]
