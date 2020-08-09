@@ -14,6 +14,7 @@ import { Menu } from './Menu'
 import { useScrollShortcut } from '../shortcut'
 import { useConfig } from '../ConfigManager'
 import { useSpring, animated } from 'react-spring'
+import { PageContainer } from '../Components/PageContainer'
 
 export type PrefetchResult = BookSearchResult
 export type PrefetchOptions = { query?: SearchQuery }
@@ -57,7 +58,9 @@ export const BookListing = () => {
     return null
 
   return (
-    <Loaded result={result} setResult={setResult} />
+    <PageContainer>
+      <Loaded result={result} setResult={setResult} />
+    </PageContainer>
   )
 }
 

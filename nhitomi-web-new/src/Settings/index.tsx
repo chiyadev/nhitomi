@@ -11,6 +11,7 @@ import { useScrollShortcut } from '../shortcut'
 import { SettingsFocusContainer } from './common'
 import { useQueryState } from '../state'
 import { PictureFilled, MacCommandFilled } from '@ant-design/icons'
+import { PageContainer } from '../Components/PageContainer'
 
 export type PrefetchResult = ClientInfo
 export type PrefetchOptions = { focus?: SettingsFocus }
@@ -57,7 +58,9 @@ export const Settings = () => {
     return null
 
   return (
-    <Loaded />
+    <PageContainer>
+      <Loaded />
+    </PageContainer>
   )
 }
 
