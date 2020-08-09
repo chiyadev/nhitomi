@@ -9,6 +9,7 @@ import { Language } from './Language'
 import { Animation } from './Animation'
 import { useScrollShortcut } from '../shortcut'
 import { SettingsFocusContainer } from './common'
+import { useQueryState } from '../state'
 
 export type PrefetchResult = ClientInfo
 export type PrefetchOptions = { focus?: SettingsFocus }
@@ -17,13 +18,19 @@ export type SettingsSection = 'appearance' | 'keyboard'
 export type SettingsItem = 'language' | 'animation'
 export type SettingsFocus = SettingsSection | SettingsItem
 
-export const useSettingsPrefetch: PrefetchGenerator<PrefetchResult, PrefetchOptions> = ({ mode, focus }) => {
+export const useSettingsPrefetch: PrefetchGenerator<PrefetchResult, PrefetchOptions> = ({ mode, focus: targetFocus }) => {
   const { fetchInfo } = useClientInfo()
+  const [currentFocus] = useQueryState<SettingsFocus>('replace', 'focus')
+
+  const focus = targetFocus || (mode === 'postfetch' && currentFocus) || undefined
 
   return {
     destination: {
       path: '/settings',
-      query: q => ({ ...q, focus: focus || q.focus })
+      query: q => ({
+        ...q,
+        focus
+      })
     },
 
     restoreScroll: !focus,
@@ -64,7 +71,7 @@ const Loaded = () => {
         <p className='text-xs text-gray-800'><FormattedMessage id='pages.settings.subtitle' /></p>
       </div>
 
-      <div className='p-2 space-y-4'>
+      <div className='p-2 space-y-8'>
         <Section type='appearance'>
           <Language />
           <Animation />
@@ -96,7 +103,7 @@ const Section = ({ type, children, className }: { type: SettingsSection, childre
       </animated.div>
 
       <div className='text-sm divide-y divide-gray-900'>
-        {children?.map(child => <div className='py-2' children={child} />)}
+        {children?.map(child => <div className='py-4' children={child} />)}
       </div>
     </SettingsFocusContainer>
   )
