@@ -17,9 +17,14 @@ export const CheckBox = ({ value, setValue, type = 'check', children, className,
 }) => {
   const [hover, setHover] = useState(false)
 
+  const style = useSpring({
+    opacity: disabled ? 0.5 : 1
+  })
+
   return (
-    <div
-      className={cx('flex flex-row items-center cursor-pointer', { 'opacity-50 cursor-not-allowed': disabled }, className)}
+    <animated.div
+      style={style}
+      className={cx('flex flex-row items-center cursor-pointer', { 'cursor-not-allowed': disabled }, className)}
       onClick={() => { if (!disabled) setValue?.(!value) }}
       onMouseEnter={() => { !disabled && setHover(true) }}
       onMouseLeave={() => { !disabled && setHover(false) }}>
@@ -31,7 +36,7 @@ export const CheckBox = ({ value, setValue, type = 'check', children, className,
       </div>
 
       <div className='flex-1' children={children} />
-    </div>
+    </animated.div>
   )
 }
 
@@ -43,7 +48,8 @@ const Check = ({ value, hover }: { value?: boolean, hover?: boolean }) => {
 
   const checkStyle = useSpring({
     opacity: value ? 1 : 0,
-    marginBottom: value ? 0 : -2
+    marginBottom: value ? 0 : -2,
+    transform: value ? 'scale(1)' : 'scale(0.8)'
   })
 
   return (
