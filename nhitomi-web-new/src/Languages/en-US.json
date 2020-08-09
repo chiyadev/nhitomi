@@ -7,6 +7,24 @@
       "title": "Books",
       "search": "Search {total} books on nhitomi"
     },
+    "settings": {
+      "title": "Settings",
+      "subtitle": "Customize nhitomi's appearance and behavior",
+      "appearance": {
+        "header": "Appearance",
+        "language": {
+          "name": "Language",
+          "description": "Language setting affects the interface language, content display language and search results."
+        },
+        "animation": {
+          "name": "Animations",
+          "description": "Toggle interface animations."
+        }
+      },
+      "keyboard": {
+        "header": "Keyboard"
+      }
+    },
     "collectionListing": {
       "title": "Collections"
     },

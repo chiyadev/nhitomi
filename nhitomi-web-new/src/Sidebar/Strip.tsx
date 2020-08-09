@@ -1,10 +1,12 @@
 import React from 'react'
 import { cx, css } from 'emotion'
-import { ReadFilled, FolderOutlined, InfoCircleOutlined, HeartOutlined } from '@ant-design/icons'
+import { ReadFilled, FolderOutlined, InfoCircleOutlined, HeartOutlined, SettingOutlined, BookOutlined, SettingFilled, FolderOpenFilled, InfoCircleFilled } from '@ant-design/icons'
 import { RoundIconButton } from '../Components/RoundIconButton'
 import { Tooltip } from '../Components/Tooltip'
 import { FormattedMessage } from 'react-intl'
 import { BookListingLink } from '../BookListing'
+import { SettingsLink } from '../Settings'
+import { Route, Switch } from 'react-router-dom'
 
 export const StripWidth = 64
 
@@ -24,7 +26,10 @@ export const Strip = () => {
           <Tooltip overlay={<FormattedMessage id='pages.bookListing.title' />} placement='right'>
             <BookListingLink>
               <RoundIconButton>
-                <ReadFilled />
+                <Switch>
+                  <Route path='/books'><ReadFilled /></Route>
+                  <Route><BookOutlined /></Route>
+                </Switch>
               </RoundIconButton>
             </BookListingLink>
           </Tooltip>
@@ -33,15 +38,34 @@ export const Strip = () => {
         <li>
           <Tooltip overlay={<FormattedMessage id='pages.collectionListing.title' />} placement='right'>
             <RoundIconButton>
-              <FolderOutlined />
+              <Switch>
+                <Route path='/collections'><FolderOpenFilled /></Route>
+                <Route><FolderOutlined /></Route>
+              </Switch>
             </RoundIconButton>
+          </Tooltip>
+        </li>
+
+        <li>
+          <Tooltip overlay={<FormattedMessage id='pages.settings.title' />} placement='right'>
+            <SettingsLink>
+              <RoundIconButton>
+                <Switch>
+                  <Route path='/settings'><SettingFilled /></Route>
+                  <Route><SettingOutlined /></Route>
+                </Switch>
+              </RoundIconButton>
+            </SettingsLink>
           </Tooltip>
         </li>
 
         <li>
           <Tooltip overlay={<FormattedMessage id='pages.about.title' />} placement='right'>
             <RoundIconButton>
-              <InfoCircleOutlined />
+              <Switch>
+                <Route path='/about'><InfoCircleFilled /></Route>
+                <Route><InfoCircleOutlined /></Route>
+              </Switch>
             </RoundIconButton>
           </Tooltip>
         </li>

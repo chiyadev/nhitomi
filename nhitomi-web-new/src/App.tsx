@@ -10,6 +10,7 @@ import { css } from 'emotion'
 import { Route, Redirect, Switch, Router } from 'react-router-dom'
 import { BookListing } from './BookListing'
 import { History } from './history'
+import { Settings } from './Settings'
 
 export const App = () => {
   return (
@@ -47,5 +48,7 @@ const Routing = () => (
     <Route path='/' exact><Redirect to='/books' /></Route>
 
     <Route path='/books' exact><BookListing /></Route>
+
+    <Route path='/settings' exact><Settings /></Route>
   </Switch>
 )
