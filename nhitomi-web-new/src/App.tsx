@@ -9,12 +9,12 @@ import { NotificationManager } from './NotificationManager'
 import { css } from 'emotion'
 import { Route, Redirect, Switch, Router } from 'react-router-dom'
 import { BookListing } from './BookListing'
-import { History } from './history'
 import { Settings } from './Settings'
+import { Navigator } from './state'
 
 export const App = () => {
   return (
-    <Router history={History}>
+    <Router history={Navigator.history}>
       <LayoutManager>
         <ProgressManager>
           <ClientManager>

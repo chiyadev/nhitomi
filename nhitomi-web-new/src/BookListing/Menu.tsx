@@ -2,13 +2,13 @@ import React from 'react'
 import { RoundIconButton } from '../Components/RoundIconButton'
 import { CurrentLocaleFlag } from '../Components/LocaleFlag'
 import { SortDescendingOutlined, SortAscendingOutlined } from '@ant-design/icons'
-import { useUrlState } from '../url'
+import { useQueryState } from '../state'
 import { SearchQuery } from './search'
 import { SortDirection } from 'nhitomi-api'
 import { SettingsLink } from '../Settings'
 
 export const Menu = () => {
-  const [query] = useUrlState<SearchQuery>()
+  const [query] = useQueryState<SearchQuery>()
 
   return (
     <div className='clearfix'>

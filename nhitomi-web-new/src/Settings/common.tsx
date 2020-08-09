@@ -1,11 +1,11 @@
 import React, { useLayoutEffect, useRef, ComponentProps } from 'react'
 import { SettingsFocus } from '.'
-import { useUrlState } from '../url'
+import { useQueryState } from '../state'
 import { cx, css } from 'emotion'
 
 export const SettingsFocusContainer = ({ focus, className, ...props }: ComponentProps<'div'> & { focus: SettingsFocus }) => {
   const ref = useRef<HTMLDivElement>(null)
-  const [currentFocus] = useUrlState<SettingsFocus>('replace', 'focus')
+  const [currentFocus] = useQueryState<SettingsFocus>('replace', 'focus')
 
   useLayoutEffect(() => {
     if (currentFocus === focus) {

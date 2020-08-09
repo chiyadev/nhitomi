@@ -1,7 +1,7 @@
 import React, { Dispatch, useMemo, useRef, useLayoutEffect } from 'react'
 import { SearchQuery, convertQuery } from './search'
-import { useUrlState } from '../url'
-import { Prefetch, PrefetchLinkProps, PrefetchLink, usePostfetch, usePageState } from '../Prefetch'
+import { useQueryState, usePageState } from '../state'
+import { TypedPrefetchLinkProps, PrefetchLink, usePostfetch, PrefetchGenerator } from '../Prefetch'
 import { BookSearchResult } from 'nhitomi-api'
 import { SearchInput } from './SearchInput'
 import { BookList } from '../Components/BookList'
@@ -13,44 +13,37 @@ import { useProgress } from '../ProgressManager'
 import { Menu } from './Menu'
 import { useScrollShortcut } from '../shortcut'
 
-export function getBookListingPrefetch(query?: SearchQuery): Prefetch<BookSearchResult, { query: SearchQuery, setQuery: Dispatch<SearchQuery> }> {
+export type PrefetchResult = BookSearchResult
+export type PrefetchOptions = { query?: SearchQuery }
+
+export const useBookListingPrefetch: PrefetchGenerator<PrefetchResult, PrefetchOptions> = ({ mode, query: targetQuery }) => {
+  const client = useClient()
+  const [currentQuery] = useQueryState<SearchQuery>()
+
+  const query = targetQuery || (mode === 'postfetch' && currentQuery) || {}
+
   return {
-    path: '/books',
-
-    useData: mode => {
-      const [currentQuery, setQuery] = useUrlState<SearchQuery>()
-      const [, setEffectiveQuery] = usePageState<SearchQuery>('query')
-
-      return {
-        // use query specified by caller, or the current query in url if refreshing, or an empty query if coming from another page
-        query: query || (mode === 'postfetch' && currentQuery) || {},
-
-        setQuery: q => {
-          // set query in url because prefetch will navigate to /books and clear the query part
-          setQuery(q)
-
-          // synchronize effective query since we are immediately displaying the results after load
-          setEffectiveQuery(q)
-        }
-      }
+    destination: {
+      path: '/books',
+      query,
+      state: s => ({
+        ...s,
+        query: { value: query, version: Math.random() } // synchronize effective query immediately
+      })
     },
 
-    fetch: async (client, _, { query }) => {
+    fetch: async () => {
       return await client.book.searchBooks({ bookQuery: convertQuery(query) })
-    },
-
-    done: (_, __, ___, { query, setQuery }) => {
-      setQuery(query)
     }
   }
 }
 
-export const BookListingLink = ({ query, ...props }: Omit<PrefetchLinkProps, 'fetch'> & { query?: SearchQuery }) => (
-  <PrefetchLink fetch={getBookListingPrefetch(query)} {...props} />
+export const BookListingLink = ({ query, ...props }: TypedPrefetchLinkProps & PrefetchOptions) => (
+  <PrefetchLink fetch={useBookListingPrefetch} options={{ query }} {...props} />
 )
 
 export const BookListing = () => {
-  const { result, dispatch } = usePostfetch(useMemo(() => getBookListingPrefetch(), []))
+  const { result, setResult } = usePostfetch(useBookListingPrefetch, {})
 
   useScrollShortcut()
 
@@ -58,7 +51,7 @@ export const BookListing = () => {
     return null
 
   return (
-    <Loaded result={result} setResult={dispatch} />
+    <Loaded result={result} setResult={setResult} />
   )
 }
 
@@ -67,10 +60,11 @@ const Loaded = ({ result, setResult }: { result: BookSearchResult, setResult: Di
   const { notifyError } = useNotify()
   const { begin, end } = useProgress()
 
-  const [query] = useUrlState<SearchQuery>()
+  const [query] = useQueryState<SearchQuery>()
   const queryId = useRef(0)
 
-  const [effectiveQuery, setEffectiveQuery] = usePageState<SearchQuery>('query') // displayed results may not represent the current query if we navigated before storing the results
+  // displayed results may not represent the current query if we navigated before storing the results
+  const [effectiveQuery, setEffectiveQuery] = usePageState<SearchQuery>('query')
 
   // serialized query string is used for comparison
   const queryCmp = useMemo(() => JSON.stringify(query), [query])

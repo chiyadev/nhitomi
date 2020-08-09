@@ -1,52 +1,50 @@
-import React, { useMemo, Dispatch, ReactNode, useState } from 'react'
-import { Prefetch, PrefetchLinkProps, PrefetchLink, usePostfetch } from '../Prefetch'
+import React, { ReactNode, useState } from 'react'
+import { TypedPrefetchLinkProps, PrefetchLink, usePostfetch, PrefetchGenerator } from '../Prefetch'
 import { useClientInfo, ClientInfo } from '../ClientManager'
 import { Container } from '../Components/Container'
 import { FormattedMessage } from 'react-intl'
 import { colors } from '../theme.json'
 import { useSpring, animated } from 'react-spring'
-import { useUrlState } from '../url'
 import { Language } from './Language'
 import { Animation } from './Animation'
 import { useScrollShortcut } from '../shortcut'
 import { SettingsFocusContainer } from './common'
 
+export type PrefetchResult = ClientInfo
+export type PrefetchOptions = { focus?: SettingsFocus }
+
 export type SettingsSection = 'appearance' | 'keyboard'
 export type SettingsItem = 'language' | 'animation'
 export type SettingsFocus = SettingsSection | SettingsItem
 
-export function getSettingsPrefetch(focus?: SettingsFocus): Prefetch<ClientInfo, { fetchInfo: () => Promise<ClientInfo>, focus?: SettingsFocus, setFocus: Dispatch<SettingsFocus | undefined> }> {
+export const useSettingsPrefetch: PrefetchGenerator<PrefetchResult, PrefetchOptions> = ({ mode, focus }) => {
+  const { fetchInfo } = useClientInfo()
+
   return {
-    path: '/settings',
-
-    useData: () => {
-      const { fetchInfo } = useClientInfo()
-      const [currentFocus, setFocus] = useUrlState<SettingsFocus>('replace', 'focus')
-
-      return { fetchInfo, focus: focus || currentFocus, setFocus }
+    destination: {
+      path: '/settings',
+      query: q => ({ ...q, focus: focus || q.focus })
     },
 
-    fetch: async (_, __, { fetchInfo }) => {
+    restoreScroll: !focus,
+
+    fetch: async () => {
       const info = await fetchInfo()
 
       if (!info.authenticated)
         throw Error('Unauthorized.')
 
       return info
-    },
-
-    done: (_, __, ___, { focus, setFocus }) => {
-      setFocus(focus)
     }
   }
 }
 
-export const SettingsLink = ({ focus, ...props }: Omit<PrefetchLinkProps, 'fetch'> & { focus?: SettingsFocus }) => (
-  <PrefetchLink fetch={getSettingsPrefetch(focus)} {...props} />
+export const SettingsLink = ({ focus, ...props }: TypedPrefetchLinkProps & PrefetchOptions) => (
+  <PrefetchLink fetch={useSettingsPrefetch} options={{ focus }} {...props} />
 )
 
 export const Settings = () => {
-  const { result } = usePostfetch(useMemo(() => getSettingsPrefetch(), []))
+  const { result } = usePostfetch(useSettingsPrefetch, {})
 
   useScrollShortcut()
 

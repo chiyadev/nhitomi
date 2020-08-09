@@ -1,5 +1,5 @@
 import React, { useState, useRef, useLayoutEffect, RefObject, useMemo, ReactElement, useCallback, Dispatch } from 'react'
-import { useUrlState } from '../url'
+import { useQueryState } from '../state'
 import { SearchQuery } from './search'
 import { SearchOutlined, CloseOutlined } from '@ant-design/icons'
 import { cx, css } from 'emotion'
@@ -93,7 +93,7 @@ export function assemble(tokens: QueryToken[]): string {
 }
 
 export const SearchInput = ({ result, className }: { result: BookSearchResult, className?: string }) => {
-  const [query, setQuery] = useUrlState<SearchQuery>('push')
+  const [query, setQuery] = useQueryState<SearchQuery>('push')
   const [text, setText] = useState('')
   const [focused, setFocused] = useState(false)
 
