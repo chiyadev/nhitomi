@@ -13,6 +13,7 @@ import { useProgress } from '../ProgressManager'
 import { Menu } from './Menu'
 import { useScrollShortcut } from '../shortcut'
 import { useConfig } from '../ConfigManager'
+import { useSpring, animated } from 'react-spring'
 
 export type PrefetchResult = BookSearchResult
 export type PrefetchOptions = { query?: SearchQuery }
@@ -101,9 +102,7 @@ const Loaded = ({ result, setResult }: { result: BookSearchResult, setResult: Di
   }, [queryCmp, effectiveQueryCmp])
 
   return <>
-    <div className='mx-auto p-4 w-full max-w-xl sticky top-0 z-20'>
-      <SearchInput result={result} className='shadow-lg w-full' />
-    </div>
+    <Input result={result} />
 
     <BookList items={result.items}>
       <Menu />
@@ -111,6 +110,21 @@ const Loaded = ({ result, setResult }: { result: BookSearchResult, setResult: Di
 
     <Loader key={queryCmp} query={query} result={result} setResult={setResult} />
   </>
+}
+
+const Input = ({ result }: { result: BookSearchResult }) => {
+  const style = useSpring({
+    from: { opacity: 0, marginTop: -5 },
+    to: { opacity: 1, marginTop: 0 }
+  })
+
+  return (
+    <div className='mx-auto p-4 w-full max-w-xl sticky top-0 z-20'>
+      <animated.div style={style} className='w-full'>
+        <SearchInput result={result} className='shadow-lg w-full' />
+      </animated.div>
+    </div>
+  )
 }
 
 const Loader = ({ query, result, setResult }: { query: SearchQuery, result: BookSearchResult, setResult: Dispatch<BookSearchResult> }) => {
