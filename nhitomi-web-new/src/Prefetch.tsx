@@ -80,7 +80,13 @@ export function usePrefetch<T>(prefetch: Prefetch<T, any>) {
     try {
       const value = await fetch(client, 'prefetch', data || {})
 
-      navigate('push', { path, search: '', hash: '', state: s => ({ ...s, 'fetch': { value, version: Math.random() } }) })
+      navigate('push', {
+        path, search: '', hash: '', state: s => ({
+          ...s,
+          scroll: { value: restoreScroll ? 0 : (s.scroll?.value || 0), version: Math.random() }, // restoreScroll for prefetch is top
+          fetch: { value, version: Math.random() }
+        })
+      })
 
       if (restoreScroll)
         beginScrollTo(0)
@@ -114,8 +120,8 @@ export function usePostfetch<T>(prefetch: Prefetch<T, any>) {
 
     // display immediately if already loaded
     if (state) {
-      if (restoreScroll)
-        beginScrollTo(scroll || 0)
+      if (restoreScroll && scroll)
+        beginScrollTo(scroll)
 
       return
     }
@@ -128,8 +134,8 @@ export function usePostfetch<T>(prefetch: Prefetch<T, any>) {
 
       setState(value)
 
-      if (restoreScroll)
-        beginScrollTo(scroll || 0)
+      if (restoreScroll && scroll)
+        beginScrollTo(scroll)
 
       await done?.(value, client, 'postfetch', data || {})
 
