@@ -3,7 +3,7 @@ import { ConfigurationParameters, ValidationProblemArrayResult, ValidationProble
 import { CustomError } from 'ts-custom-error'
 import { useAsync } from 'react-use'
 import { useProgress } from './ProgressManager'
-import { ConfigManager } from './ConfigManager'
+import { ConfigSource, useConfigManager } from './ConfigManager'
 
 export class Client {
   private readonly httpConfig: ConfigurationParameters = {
@@ -40,7 +40,7 @@ export class Client {
   readonly book: BookApi
   readonly collection: CollectionApi
 
-  constructor(readonly config: ConfigManager) {
+  constructor(private readonly config: ConfigSource) {
     this.user = new UserApi(new Configuration(this.httpConfig))
     this.info = new InfoApi(new Configuration(this.httpConfig))
     this.book = new BookApi(new Configuration(this.httpConfig))
@@ -113,9 +113,7 @@ export type ClientInfo =
   GetInfoAuthenticatedResponse & { authenticated: true }
 
 const ClientContext = createContext<{
-  config: ConfigManager
   client: Client
-
   info: ClientInfo
   setInfo: (info: ClientInfo) => void
   fetchInfo: () => Promise<ClientInfo>
@@ -131,7 +129,8 @@ export function useClientInfo() {
 }
 
 export const ClientManager = ({ children }: { children?: ReactNode }) => {
-  const config = useMemo(() => new ConfigManager(), [])
+  const config = useConfigManager()
+
   const client = useMemo(() => new Client(config), [config])
   const [info, setInfo] = useState<ClientInfo | Error>()
   const { begin, end } = useProgress()
@@ -154,7 +153,7 @@ export const ClientManager = ({ children }: { children?: ReactNode }) => {
   }, [])
 
   const fetchInfo = useCallback(async () => { const info = await client.getInfo(); setInfo(info); return info }, [client])
-  const context = useMemo(() => ({ config, client, info, setInfo, fetchInfo }), [config, client, info, setInfo, fetchInfo])
+  const context = useMemo(() => ({ config, client, info, setInfo, fetchInfo }), [config, client, info, fetchInfo])
 
   if (!info) {
     return null

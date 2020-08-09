@@ -1,8 +1,7 @@
+import React, { useLayoutEffect, useCallback, ReactNode, createContext, useContext, useMemo } from 'react'
 import { EventEmitter } from 'events'
-import { useLayoutEffect, useCallback } from 'react'
 import StrictEventEmitter from 'strict-event-emitter-types'
 import { useUpdate } from 'react-use'
-import { useClient } from './ClientManager'
 import { LanguageType } from 'nhitomi-api'
 
 export function useUpdateOnEvent<TEmitter extends StrictEventEmitter<EventEmitter, TEventRecord>, TEventRecord extends {}>(emitter: TEmitter, event: keyof TEventRecord) {
@@ -15,7 +14,7 @@ export function useUpdateOnEvent<TEmitter extends StrictEventEmitter<EventEmitte
 }
 
 export function useConfig<TKey extends keyof ConfigStore>(key: TKey): [ConfigStore[TKey], (value: ConfigStore[TKey]) => void] {
-  const { config } = useClient()
+  const config = useConfigManager()
 
   useUpdateOnEvent(config, key)
 
@@ -97,7 +96,7 @@ export const KeyModifiers: KeyModifier[] = ['alt', 'ctrl', 'meta', 'shift']
 export const ConfigKeys = Object.keys(DefaultStore) as ConfigKey[]
 export const ShortcutConfigKeys = ConfigKeys.filter(k => k.endsWith('key')) as ShortcutConfigKey[]
 
-export class ConfigManager extends (EventEmitter as new () => StrictEventEmitter<EventEmitter, { [key in keyof ConfigStore]: (value: ConfigStore[key]) => void }>) implements ConfigStore {
+export class ConfigSource extends (EventEmitter as new () => StrictEventEmitter<EventEmitter, { [key in keyof ConfigStore]: (value: ConfigStore[key]) => void }>) implements ConfigStore {
   token!: string | undefined
   baseUrl!: string | undefined
   sidebar!: boolean
@@ -185,4 +184,18 @@ export class ConfigManager extends (EventEmitter as new () => StrictEventEmitter
 
     return [false, undefined]
   }
+}
+
+const ConfigContext = createContext<ConfigSource>(undefined as any)
+
+export function useConfigManager() {
+  return useContext(ConfigContext)
+}
+
+export const ConfigManager = ({ children }: { children?: ReactNode }) => {
+  const config = useMemo(() => new ConfigSource(), [])
+
+  return (
+    <ConfigContext.Provider value={config} children={children} />
+  )
 }

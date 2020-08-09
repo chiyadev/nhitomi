@@ -12,25 +12,28 @@ import { BookListing } from './BookListing'
 import { Settings } from './Settings'
 import { Navigator } from './state'
 import { AnimationSetter } from './AnimationSetter'
+import { ConfigManager } from './ConfigManager'
 
 export const App = () => {
   return (
     <Router history={Navigator.history}>
-      <LayoutManager>
-        <ProgressManager>
-          <ClientManager>
-            <LocaleManager>
-              <NotificationManager>
-                <PrefetchScrollPreserver />
-                <AnimationSetter />
+      <ConfigManager>
+        <LayoutManager>
+          <ProgressManager>
+            <ClientManager>
+              <LocaleManager>
+                <NotificationManager>
+                  <PrefetchScrollPreserver />
+                  <AnimationSetter />
 
-                <Sidebar />
-                <Body />
-              </NotificationManager>
-            </LocaleManager>
-          </ClientManager>
-        </ProgressManager>
-      </LayoutManager>
+                  <Sidebar />
+                  <Body />
+                </NotificationManager>
+              </LocaleManager>
+            </ClientManager>
+          </ProgressManager>
+        </LayoutManager>
+      </ConfigManager>
     </Router>
   )
 }
