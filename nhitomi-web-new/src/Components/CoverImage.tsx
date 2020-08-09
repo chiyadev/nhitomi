@@ -43,11 +43,12 @@ export const CoverImage = ({ onLoad, className }: { onLoad: () => Promise<Blob> 
     <div className={cx('relative', className)}>
       {loaded && (
         <animated.div
-          style={imageStyle}
-          className={cx('absolute top-0 left-0 w-full h-full', css`
-            background-image: ${loaded ? `url(${loaded})` : 'none'};
-            background-size: cover;
-          `)} />
+          style={{
+            ...imageStyle,
+            backgroundImage: loaded ? `url(${loaded})` : undefined, // don't use emotion for perf
+            backgroundSize: 'cover'
+          }}
+          className='absolute top-0 left-0 w-full h-full' />
       )}
 
       {prolongedLoad && (
