@@ -27,10 +27,7 @@ export const useSettingsPrefetch: PrefetchGenerator<PrefetchResult, PrefetchOpti
   return {
     destination: {
       path: '/settings',
-      query: q => ({
-        ...q,
-        focus
-      })
+      query: { focus }
     },
 
     restoreScroll: !focus,
