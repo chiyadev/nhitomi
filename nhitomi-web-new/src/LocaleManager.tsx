@@ -48,7 +48,7 @@ export const LocaleManager = ({ children }: { children?: ReactNode }) => {
   const [messages, setMessages] = useState<Record<string, string>>()
   const { begin, end } = useProgress()
 
-  const initial = useRef(true)
+  const loadId = useRef(0)
 
   // search languages should not be empty
   useLayoutEffect(() => {
@@ -58,10 +58,12 @@ export const LocaleManager = ({ children }: { children?: ReactNode }) => {
   }, [language, searchLanguages, setSearchLanguages])
 
   useAsync(async () => {
+    const id = ++loadId.current
+
     begin()
 
     try {
-      if (!initial.current) {
+      if (id > 1) {
         // synchronize language setting
         const info = await fetchInfo()
 
@@ -69,13 +71,14 @@ export const LocaleManager = ({ children }: { children?: ReactNode }) => {
           setInfo({ ...info, user: await client.user.updateUser({ id: info.user.id, userBase: { ...info.user, language } }) })
         }
       }
-      initial.current = false
 
-      const loaded = await loadLanguage(language)
+      const messages = await loadLanguage(language)
 
-      setMessages(loaded)
+      if (loadId.current === id) {
+        setMessages(messages)
 
-      console.log('loaded language', language, loaded)
+        console.log('loaded language', language, messages)
+      }
     }
     catch (e) {
       console.error('could not load language', e)
