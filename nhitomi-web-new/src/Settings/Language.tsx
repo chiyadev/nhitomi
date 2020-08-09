@@ -6,6 +6,7 @@ import { SupportedLocalizations } from '../Languages/languages'
 import { LanguageNames } from '../LocaleManager'
 import { LanguageType } from 'nhitomi-api'
 import { useConfig } from '../ConfigManager'
+import { LocaleFlag } from '../Components/LocaleFlag'
 
 export const Language = () => {
   const [interfaceLanguage, setInterfaceLanguage] = useConfig('language')
@@ -29,7 +30,7 @@ export const Language = () => {
               if (v) setInterfaceLanguage(language)
             }}>
 
-            {LanguageNames[language]}
+            <span><LocaleFlag language={language} size={20} /> {LanguageNames[language]}</span>
           </CheckBox>
         ))}
       </div>
@@ -47,7 +48,7 @@ export const Language = () => {
             }}
             disabled={searchLanguages.length === 1 && searchLanguages[0] === language}>
 
-            {LanguageNames[language]}
+            <span><LocaleFlag language={language} size={20} /> {LanguageNames[language]}</span>
           </CheckBox>
         ))}
       </div>

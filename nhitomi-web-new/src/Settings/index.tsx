@@ -10,6 +10,7 @@ import { Animation } from './Animation'
 import { useScrollShortcut } from '../shortcut'
 import { SettingsFocusContainer } from './common'
 import { useQueryState } from '../state'
+import { PictureFilled, MacCommandFilled } from '@ant-design/icons'
 
 export type PrefetchResult = ClientInfo
 export type PrefetchOptions = { focus?: SettingsFocus }
@@ -69,12 +70,18 @@ const Loaded = () => {
       </div>
 
       <div className='p-2 space-y-8'>
-        <Section type='appearance'>
+        <Section
+          type='appearance'
+          name={<span><PictureFilled /> <FormattedMessage id='pages.settings.appearance.header' /></span>}>
+
           <Language />
           <Animation />
         </Section>
 
-        <Section type='keyboard'>
+        <Section
+          type='keyboard'
+          name={<span><MacCommandFilled /> <FormattedMessage id='pages.settings.keyboard.header' /></span>}>
+
           {[<div style={{ height: 10000 }} />]}
         </Section>
       </div>
@@ -82,7 +89,7 @@ const Loaded = () => {
   )
 }
 
-const Section = ({ type, children, className }: { type: SettingsSection, children?: ReactNode[], className?: string }) => {
+const Section = ({ name, type, children, className }: { name?: ReactNode, type: SettingsSection, children?: ReactNode[], className?: string }) => {
   const [hovered, setHovered] = useState(false)
   const headerStyle = useSpring({
     color: hovered ? colors.gray[500] : colors.gray[800]
@@ -95,9 +102,7 @@ const Section = ({ type, children, className }: { type: SettingsSection, childre
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}>
 
-      <animated.div style={headerStyle} className='text-xs'>
-        <FormattedMessage id={`pages.settings.${type}.header`} />
-      </animated.div>
+      <animated.div style={headerStyle} className='text-xs' children={name} />
 
       <div className='text-sm divide-y divide-gray-900'>
         {children?.map(child => <div className='py-4' children={child} />)}
