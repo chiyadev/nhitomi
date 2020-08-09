@@ -52,7 +52,7 @@ export const CoverImage = ({ onLoad, className }: { onLoad: () => Promise<Blob> 
 
       {prolongedLoad && (
         <animated.div style={loadingStyle} className={AbsoluteCenter}>
-          <Loading3QuartersOutlined className='animate-spin align-middle' />
+          <Loading3QuartersOutlined className='animate-spin' />
         </animated.div>
       )}
 
@@ -65,7 +65,7 @@ export const CoverImage = ({ onLoad, className }: { onLoad: () => Promise<Blob> 
               <p><code>{error.message || <FormattedMessage id='components.coverImage.errorUnknown' />}</code></p>
             </>}>
 
-            <WarningTwoTone className='align-middle' twoToneColor={colors.red[500]} />
+            <WarningTwoTone twoToneColor={colors.red[500]} />
           </Tooltip>
         </animated.div>
       )}

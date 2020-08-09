@@ -29,7 +29,7 @@ export const LoadContainer = ({ onLoad, children, className }: { onLoad: () => P
         {children}
 
         <animated.div style={loadingStyle} className={AbsoluteCenter}>
-          <Loading3QuartersOutlined className='animate-spin align-middle' />
+          <Loading3QuartersOutlined className='animate-spin' />
         </animated.div>
       </div>
     </VisibilitySensor>

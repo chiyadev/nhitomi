@@ -160,7 +160,7 @@ const SearchButton = ({ onClick }: { onClick?: () => void }) => {
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}>
 
-      <animated.div style={iconStyle}><SearchOutlined className='align-middle' /></animated.div>
+      <animated.div style={iconStyle}><SearchOutlined /></animated.div>
 
       <animated.span style={hoverStyle} className='absolute top-0 left-0 w-full h-full bg-white' />
     </div>
@@ -184,7 +184,7 @@ const ClearButton = ({ visible = true, onClick, className }: { visible?: boolean
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}>
 
-      <CloseOutlined className='text-sm align-middle' />
+      <CloseOutlined className='text-sm' />
     </animated.div>
   )
 }

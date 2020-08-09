@@ -82,7 +82,7 @@ function convertTypeToIcon(type: AppearanceTypes) {
     case 'warning': Icon = WarningTwoTone; color = colors.orange[500]; break
   }
 
-  return <Icon className='align-middle text-lg w-6' twoToneColor={color} />
+  return <Icon className='text-lg w-6' twoToneColor={color} />
 }
 
 const NotifyToastContent = ({ type, title, description }: { type: AppearanceTypes, title?: ReactNode, description?: ReactNode }) => {
