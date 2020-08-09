@@ -1,7 +1,7 @@
 import React, { useState, useRef, useLayoutEffect, RefObject, useMemo, ReactElement, useCallback, Dispatch } from 'react'
 import { useUrlState } from '../url'
 import { SearchQuery } from './search'
-import { SearchOutlined } from '@ant-design/icons'
+import { SearchOutlined, CloseOutlined } from '@ant-design/icons'
 import { cx, css } from 'emotion'
 import { colors } from '../theme.json'
 import { BookTag, SuggestItem, BookSearchResult } from 'nhitomi-api'
@@ -9,7 +9,7 @@ import { BookTagColors } from '../Components/colors'
 import Tippy from '@tippyjs/react'
 import { useClient } from '../ClientManager'
 import { useNotify } from '../NotificationManager'
-import { useSpring, animated, useTransition } from 'react-spring'
+import { useSpring, animated, useTransition, config } from 'react-spring'
 import useResizeObserver from '@react-hook/resize-observer'
 import { useLocalized } from '../LocaleManager'
 import { FormattedMessage } from 'react-intl'
@@ -94,8 +94,9 @@ export function assemble(tokens: QueryToken[]): string {
 
 export const SearchInput = ({ result, className }: { result: BookSearchResult, className?: string }) => {
   const [query, setQuery] = useUrlState<SearchQuery>('push')
-
   const [text, setText] = useState('')
+  const [focused, setFocused] = useState(false)
+
   const tokens = useMemo(() => tokenize(text), [text])
   const inputRef = useRef<HTMLInputElement>(null)
 
@@ -130,6 +131,8 @@ export const SearchInput = ({ result, className }: { result: BookSearchResult, c
             `)}
             value={text}
             onChange={({ target: { value } }) => setText(value)}
+            onFocus={() => setFocused(true)}
+            onBlur={() => setFocused(false)}
             placeholder={placeholder} />
 
           <Highlighter
@@ -139,6 +142,7 @@ export const SearchInput = ({ result, className }: { result: BookSearchResult, c
         </div>
       </Suggestor>
 
+      <ClearButton onClick={() => setTextWithSearch('')} visible={!!text && !focused} className='right-0' />
       <SearchButton onClick={() => setTextWithSearch(text)} />
     </div>
   )
@@ -163,8 +167,31 @@ const SearchButton = ({ onClick }: { onClick?: () => void }) => {
   )
 }
 
+const ClearButton = ({ visible = true, onClick, className }: { visible?: boolean, onClick?: () => void, className?: string }) => {
+  const [hover, setHover] = useState(false)
+  const style = useSpring({
+    config: config.stiff,
+    opacity: visible ? hover ? 1 : 0.5 : 0,
+    transform: hover ? 'scale(1.1)' : 'scale(1)',
+    display: visible ? 'block' : 'none'
+  })
+
+  return (
+    <animated.div
+      style={style}
+      className={cx('bg-white text-black px-3 py-2 cursor-pointer', className)}
+      onMouseDown={onClick}
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}>
+
+      <CloseOutlined className='text-sm align-middle' />
+    </animated.div>
+  )
+}
+
 const Highlighter = ({ tokens, inputRef, className }: { tokens: QueryToken[], inputRef: RefObject<HTMLInputElement>, className?: string }) => {
   const [offset, setOffset] = useState(0)
+  const style = useSpring({ marginLeft: offset })
 
   useLayoutEffect(() => {
     const input = inputRef.current
@@ -179,7 +206,7 @@ const Highlighter = ({ tokens, inputRef, className }: { tokens: QueryToken[], in
   }, [inputRef])
 
   return (
-    <div className={cx('leading-8 flex items-center whitespace-pre', css`left: ${offset}px;`, className)}>
+    <animated.div style={style} className={cx('leading-8 flex items-center whitespace-pre', className)}>
       {tokens.map(token => {
         switch (token.type) {
           case 'other':
@@ -194,11 +221,12 @@ const Highlighter = ({ tokens, inputRef, className }: { tokens: QueryToken[], in
                 <span className={css`color: ${BookTagColors[token.tag]};`}>{token.value}</span>
               </span>
             )
-        }
 
-        return null
+          default:
+            return null
+        }
       })}
-    </div>
+    </animated.div>
   )
 }
 
