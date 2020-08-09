@@ -50,7 +50,7 @@ export const CoverImage = ({ onLoad, className }: { onLoad: () => Promise<Blob> 
           `)} />
       )}
 
-      {prolongedLoad && loading && (
+      {prolongedLoad && (
         <animated.div style={loadingStyle} className={AbsoluteCenter}>
           <Loading3QuartersOutlined className='animate-spin align-middle' />
         </animated.div>
