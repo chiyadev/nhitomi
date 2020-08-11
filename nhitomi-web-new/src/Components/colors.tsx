@@ -9,7 +9,7 @@ export const BookTagColors: { [key in BookTag]: string } = {
   parody: colors.green[700],
   series: colors.fuschia[700],
   // pool: 'cyan',
-  convention: colors.teal[700],
+  convention: colors.pink[700],
   metadata: colors.lime[700],
   tag: colors.blue[700]
 }

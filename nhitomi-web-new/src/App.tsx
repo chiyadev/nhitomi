@@ -13,6 +13,7 @@ import { Settings } from './Settings'
 import { Navigator } from './state'
 import { AnimationSetter } from './AnimationSetter'
 import { ConfigManager } from './ConfigManager'
+import { BookReader } from './BookReader'
 
 export const App = () => {
   return (
@@ -43,7 +44,9 @@ const Body = () => {
 
   return (
     <div className={css`padding-left: ${sidebar}px;`}>
-      <Routing />
+      <div className='relative w-full'>
+        <Routing />
+      </div>
     </div>
   )
 }
@@ -52,8 +55,9 @@ const Routing = () => (
   <Switch>
     <Route path='/' exact><Redirect to='/books' /></Route>
 
-    <Route path='/books' exact><BookListing /></Route>
+    <Route path='/books' exact component={BookListing} />
+    <Route path='/books/:id/contents/:contentId' exact render={({ match: { params: { id, contentId } } }) => <BookReader id={id} contentId={contentId} />} />
 
-    <Route path='/settings' exact><Settings /></Route>
+    <Route path='/settings' exact component={Settings} />
   </Switch>
 )

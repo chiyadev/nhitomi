@@ -7,6 +7,11 @@
       "title": "ブックス",
       "search": "nhitomiで {total}本を検索"
     },
+    "bookReader": {
+      "uploadTime": "{time}にアップロード",
+      "updateTime": "{time}に更新",
+      "sources": "サイト"
+    },
     "settings": {
       "title": "設定",
       "subtitle": "nhitomiの外見や行動が変更できます。",

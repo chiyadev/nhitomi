@@ -7,6 +7,11 @@
       "title": "Books",
       "search": "Search {total} books on nhitomi"
     },
+    "bookReader": {
+      "uploadTime": "Uploaded on {time}",
+      "updateTime": "Updated on {time}",
+      "sources": "Sources"
+    },
     "settings": {
       "title": "Settings",
       "subtitle": "Customize nhitomi's appearance and behavior",
