@@ -19,7 +19,7 @@ export const Strip = () => {
   })))
 
   return (
-    <div className={cx('fixed top-0 left-0 bottom-0 z-10 bg-black text-white py-4 flex flex-col items-center', css`width: ${StripWidth}px;`)}>
+    <div className={cx('fixed top-0 left-0 bottom-0 z-10 text-white py-4 flex flex-col items-center', css`width: ${StripWidth}px;`)}>
       <ul>
         <animated.li className='leading-none mb-4' style={styles[0]}>
           <Tooltip overlay={<span><FormattedMessage id='pages.home.title' /> <HeartOutlined /></span>} placement='right'>
