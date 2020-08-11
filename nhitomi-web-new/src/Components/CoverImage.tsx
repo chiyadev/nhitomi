@@ -46,7 +46,8 @@ export const CoverImage = ({ onLoad, className }: { onLoad: () => Promise<Blob> 
           style={{
             ...imageStyle,
             backgroundImage: loaded ? `url(${loaded})` : undefined, // don't use emotion for perf
-            backgroundSize: 'cover'
+            backgroundSize: 'cover',
+            backgroundPosition: 'center'
           }}
           className='absolute top-0 left-0 w-full h-full' />
       )}
