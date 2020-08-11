@@ -1,8 +1,9 @@
-import { Book, BookContent, ScraperType, LanguageType } from 'nhitomi-api'
+import { Book, BookContent, LanguageType } from 'nhitomi-api'
 import React, { useRef, useState, ReactNode } from 'react'
 import { cx } from 'emotion'
 import useResizeObserver from '@react-hook/resize-observer'
 import { Grid } from './Grid'
+import { ScraperTypes } from '../../orderedConstants'
 
 export const BookList = ({ items, contentSelector, className, children }: {
   items: Book[]
@@ -31,18 +32,14 @@ export const BookList = ({ items, contentSelector, className, children }: {
   )
 }
 
-export const PreferredSources = [
-  ScraperType.Nhentai
-]
-
 export function selectContent(book: Book, languages: LanguageType[] = []) {
   return book.contents.sort((a, b) => {
     // respect language preference
     const language = indexCompare(languages, a.language, b.language)
     if (language) return language
 
-    // prefer certain sources
-    const source = indexCompare(PreferredSources, a.source, b.source)
+    // respect display scraper order
+    const source = indexCompare(ScraperTypes, a.source, b.source)
     if (source) return source
 
     // prefer newer contents

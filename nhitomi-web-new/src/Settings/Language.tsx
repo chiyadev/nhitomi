@@ -4,9 +4,9 @@ import { SettingsFocusContainer } from './common'
 import { CheckBox } from '../Components/Checkbox'
 import { AvailableLocalizations } from '../Languages/languages'
 import { LanguageNames } from '../LocaleManager'
-import { LanguageType } from 'nhitomi-api'
 import { useConfig } from '../ConfigManager'
 import { LocaleFlag } from '../Components/LocaleFlag'
+import { LanguageTypes } from '../orderedConstants'
 
 export const Language = () => {
   const [interfaceLanguage, setInterfaceLanguage] = useConfig('language')
@@ -21,7 +21,7 @@ export const Language = () => {
       <div>
         <div><FormattedMessage id='pages.settings.appearance.language.interface' /></div>
 
-        {(Object.keys(LanguageNames) as LanguageType[]).filter(l => AvailableLocalizations.indexOf(l) !== -1).map(language => (
+        {LanguageTypes.filter(l => AvailableLocalizations.indexOf(l) !== -1).map(language => (
           <CheckBox
             type='radio'
             value={language === interfaceLanguage}
@@ -38,7 +38,7 @@ export const Language = () => {
       <div>
         <div><FormattedMessage id='pages.settings.appearance.language.search' /></div>
 
-        {(Object.keys(LanguageNames) as LanguageType[]).map(language => (
+        {LanguageTypes.map(language => (
           <CheckBox
             value={searchLanguages.indexOf(language) !== -1}
             setValue={v => {

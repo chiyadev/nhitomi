@@ -13,6 +13,7 @@ import { useSpring, animated, useTransition } from 'react-spring'
 import useResizeObserver from '@react-hook/resize-observer'
 import { useLocalized } from '../LocaleManager'
 import { FormattedMessage } from 'react-intl'
+import { BookTags } from '../orderedConstants'
 
 export type QueryToken = {
   type: 'other'
@@ -33,7 +34,6 @@ export type QueryToken = {
 }
 
 const tagRegex = /(?<tag>\w+):(?<value>\S+)/gsi
-const allTags = Object.values(BookTag)
 
 export function tokenize(text: string): QueryToken[] {
   const results: ReturnType<typeof tokenize> = []
@@ -70,7 +70,7 @@ export function tokenize(text: string): QueryToken[] {
     const tag = (match.groups?.tag || '') as BookTag
     const value = match.groups?.value || ''
 
-    if (allTags.findIndex(t => t.toLowerCase() === tag.toLowerCase()) === -1)
+    if (BookTags.findIndex(t => t.toLowerCase() === tag.toLowerCase()) === -1)
       continue
 
     if (start < match.index) {
