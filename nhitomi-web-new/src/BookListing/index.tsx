@@ -90,12 +90,33 @@ const Loaded = ({ result, setResult }: { result: BookSearchResult, setResult: Di
     const id = ++queryId.current
 
     try {
+      // try scanning for links first
+      if (query.query) {
+        const { matches } = await client.book.getBooksByLink({ getBookByLinkRequest: { link: query.query } })
+
+        if (queryId.current !== id)
+          return
+
+        if (matches.length) {
+          setResult({
+            items: matches.map(match => match.book),
+            took: '',
+            total: matches.length
+          })
+          setEffectiveQuery(query)
+
+          return
+        }
+      }
+
+      // then perform actual search
       const result = await client.book.searchBooks({ bookQuery: convertQuery(query) })
 
-      if (queryId.current === id) {
-        setResult(result)
-        setEffectiveQuery(query)
-      }
+      if (queryId.current !== id)
+        return
+
+      setResult(result)
+      setEffectiveQuery(query)
     }
     catch (e) {
       notifyError(e)
@@ -139,7 +160,7 @@ const Loader = ({ query, result, setResult }: { query: SearchQuery, result: Book
   const { notifyError } = useNotify()
   const { begin, end: endProgress } = useProgress()
 
-  const loadId = useRef(0)
+  const loadId = useRef(result.items.length >= result.total ? -1 : 0)
 
   // unmount means query changed, so prevent setting irrelevant results
   useLayoutEffect(() => () => { loadId.current = -1 }, [])
