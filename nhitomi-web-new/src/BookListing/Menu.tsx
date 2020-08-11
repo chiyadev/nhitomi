@@ -7,6 +7,8 @@ import { SearchQuery } from './search'
 import { SortDirection } from 'nhitomi-api'
 import { SettingsLink } from '../Settings'
 import { useSpring, animated } from 'react-spring'
+import { Tooltip } from '../Components/Tooltip'
+import { LanguageNames } from '../LocaleManager'
 
 export const Menu = () => {
   const [query] = useQueryState<SearchQuery>()
@@ -20,11 +22,7 @@ export const Menu = () => {
     <div className='clearfix'>
       <ul className='float-right px-2'>
         <animated.li style={iconStyle} className='inline-block'>
-          <SettingsLink focus='language'>
-            <RoundIconButton>
-              <CurrentLocaleFlag />
-            </RoundIconButton>
-          </SettingsLink>
+          <LanguageButton query={query} />
         </animated.li>
 
         <animated.li style={iconStyle} className='inline-block'>
@@ -34,5 +32,24 @@ export const Menu = () => {
         </animated.li>
       </ul>
     </div >
+  )
+}
+
+const LanguageButton = ({ query }: { query: SearchQuery }) => {
+  return (
+    <SettingsLink focus='language'>
+      <Tooltip placement='bottom' overlay={(
+        <ul>
+          {query.langs?.map(language => (
+            <li>{LanguageNames[language]}</li>
+          ))}
+        </ul>
+      )}>
+
+        <RoundIconButton>
+          <CurrentLocaleFlag />
+        </RoundIconButton>
+      </Tooltip>
+    </SettingsLink>
   )
 }
