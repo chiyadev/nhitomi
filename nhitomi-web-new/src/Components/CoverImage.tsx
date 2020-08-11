@@ -84,8 +84,8 @@ export const CoverImage = ({ onLoad, className, zoomIn = true, autoSize, default
           <Tooltip
             placement='bottom'
             overlay={<>
-              <p><FormattedMessage id='components.coverImage.error' /></p>
-              <p><code>{error.message || <FormattedMessage id='components.coverImage.errorUnknown' />}</code></p>
+              <div><FormattedMessage id='components.coverImage.error' /></div>
+              <div><code>{error.message || <FormattedMessage id='components.coverImage.errorUnknown' />}</code></div>
             </>}>
 
             <WarningTwoTone twoToneColor={colors.red[500]} />

@@ -68,8 +68,8 @@ const Loaded = () => {
   return (
     <Container className='divide-y divide-gray-900'>
       <div className='p-2'>
-        <p className='text-2xl'><FormattedMessage id='pages.settings.title' /></p>
-        <p className='text-xs text-gray-800'><FormattedMessage id='pages.settings.subtitle' /></p>
+        <div className='text-2xl'><FormattedMessage id='pages.settings.title' /></div>
+        <div className='text-xs text-gray-800'><FormattedMessage id='pages.settings.subtitle' /></div>
       </div>
 
       <div className='p-2 space-y-8'>

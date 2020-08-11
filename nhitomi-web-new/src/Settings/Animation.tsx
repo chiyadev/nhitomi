@@ -7,8 +7,8 @@ import { CheckBox } from '../Components/Checkbox'
 export const Animation = () => {
   return (
     <SettingsFocusContainer focus='animation'>
-      <p className='text-md'><FormattedMessage id='pages.settings.appearance.animation.name' /></p>
-      <p className='text-xs text-gray-800'><FormattedMessage id='pages.settings.appearance.animation.description' /></p>
+      <div className='text-md'><FormattedMessage id='pages.settings.appearance.animation.name' /></div>
+      <div className='text-xs text-gray-800'><FormattedMessage id='pages.settings.appearance.animation.description' /></div>
       <br />
 
       <div className='space-y-2'>
@@ -29,8 +29,8 @@ const Item = ({ mode }: { mode: AnimationMode }) => {
       value={value === mode}
       setValue={v => { if (v) setValue(mode) }}>
 
-      <p className='text-md'><FormattedMessage id={`pages.settings.appearance.animation.${mode}.name`} /></p>
-      <p className='text-xs text-gray-800'><FormattedMessage id={`pages.settings.appearance.animation.${mode}.description`} /></p>
+      <div className='text-md'><FormattedMessage id={`pages.settings.appearance.animation.${mode}.name`} /></div>
+      <div className='text-xs text-gray-800'><FormattedMessage id={`pages.settings.appearance.animation.${mode}.description`} /></div>
     </CheckBox>
   )
 }

@@ -92,15 +92,15 @@ function convertTypeToIcon(type: AppearanceTypes) {
 
 const NotifyToastContent = ({ type, title, description }: { type: AppearanceTypes, title?: ReactNode, description?: ReactNode }) => {
   return <>
-    <p className='mb-3'>
+    <div className='mb-3'>
       {convertTypeToIcon(type)}
       {' '}
       {title}
-    </p>
+    </div>
 
-    <p className='text-xs overflow-auto'>
+    <div className='text-xs overflow-auto'>
       {description}
-    </p>
+    </div>
   </>
 }
 
