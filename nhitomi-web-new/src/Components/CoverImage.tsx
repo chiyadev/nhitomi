@@ -7,8 +7,19 @@ import { AbsoluteCenter } from './AbsoluteCenter'
 import { colors } from '../theme.json'
 import { Tooltip } from './Tooltip'
 import { FormattedMessage } from 'react-intl'
+import { getImageSize } from '../ImageUtils'
 
-export const CoverImage = ({ onLoad, className }: { onLoad: () => Promise<Blob> | Blob, className?: string }) => {
+function formatAspect(x: number) {
+  return `${x * 100}%`
+}
+
+export const CoverImage = ({ onLoad, className, zoomIn = true, autoSize, defaultAspect }: {
+  onLoad: () => Promise<Blob> | Blob
+  className?: string
+  zoomIn?: boolean
+  autoSize?: boolean
+  defaultAspect?: number
+}) => {
   const [prolongedLoad, setProlongedLoad] = useState(false) // if load is prolonged, show loading indicator
 
   const { loading, error, value: loaded } = useAsync(async () => {
@@ -16,19 +27,20 @@ export const CoverImage = ({ onLoad, className }: { onLoad: () => Promise<Blob> 
 
     try {
       const blob = await onLoad()
+      const { width, height } = await getImageSize(blob)
 
-      return URL.createObjectURL(blob)
+      return { src: URL.createObjectURL(blob), width, height }
     }
     finally {
       clearTimeout(timer)
     }
   }, [])
 
-  useLayoutEffect(() => () => { loaded && URL.revokeObjectURL(loaded) }, [loaded])
+  useLayoutEffect(() => () => { loaded && URL.revokeObjectURL(loaded.src) }, [loaded])
 
   const imageStyle = useSpring({
     opacity: loaded ? 1 : 0,
-    transform: loaded ? 'scale(1)' : 'scale(0.9)'
+    transform: loaded || !zoomIn ? 'scale(1)' : 'scale(0.9)'
   })
 
   const loadingStyle = useSpring({
@@ -40,12 +52,21 @@ export const CoverImage = ({ onLoad, className }: { onLoad: () => Promise<Blob> 
   })
 
   return (
-    <div className={cx('relative', className)}>
+    <div
+      style={{
+        paddingTop: loaded && autoSize
+          ? formatAspect(loaded.height / loaded.width)
+          : defaultAspect
+            ? formatAspect(defaultAspect)
+            : undefined
+      }}
+      className={cx('relative', className)}>
+
       {loaded && (
         <animated.div
           style={{
             ...imageStyle,
-            backgroundImage: loaded ? `url(${loaded})` : undefined, // don't use emotion for perf
+            backgroundImage: loaded ? `url(${loaded.src})` : undefined, // don't use emotion for perf
             backgroundSize: 'cover',
             backgroundPosition: 'center'
           }}
