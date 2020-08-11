@@ -115,7 +115,7 @@ const Loaded = ({ result, setResult }: { result: BookSearchResult, setResult: Di
       <Menu />
     </BookList>
 
-    <Loader key={queryCmp} query={query} result={result} setResult={setResult} />
+    <Loader key={effectiveQueryCmp} query={query} result={result} setResult={setResult} />
   </>
 }
 
