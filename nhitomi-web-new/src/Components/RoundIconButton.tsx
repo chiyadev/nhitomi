@@ -1,6 +1,7 @@
 import React, { ReactNode, useState } from 'react'
 import { cx } from 'emotion'
 import { useSpring, animated } from 'react-spring'
+import { convertHex } from '../theme'
 
 export const RoundIconButton = ({ className, backColor, children }: {
   className?: string
@@ -8,10 +9,13 @@ export const RoundIconButton = ({ className, backColor, children }: {
   children?: ReactNode
 }) => {
   const [hover, setHover] = useState(false)
-  const style = useSpring({ opacity: hover ? 0.25 : 0 })
+  const style = useSpring({
+    backgroundColor: convertHex('#fff', hover ? 0.25 : 0)
+  })
 
   return (
-    <div
+    <animated.div
+      style={style}
       className={cx('w-10 h-10 rounded-full overflow-hidden relative', className)}
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}>
@@ -19,8 +23,6 @@ export const RoundIconButton = ({ className, backColor, children }: {
       <div className='w-full h-full flex items-center justify-center'>
         {children}
       </div>
-
-      <animated.span style={style} className={cx('absolute top-0 w-full h-full', backColor || 'bg-white')} />
-    </div>
+    </animated.div>
   )
 }
