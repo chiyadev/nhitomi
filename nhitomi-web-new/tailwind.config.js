@@ -24,10 +24,7 @@ writeFileSync('src/theme.json', JSON.stringify({ colors }))
 
 module.exports = {
   theme: {
-    screens: {
-      sm: { max: '767px' },
-      lg: { min: '768px' }
-    },
+    screens: false,
     colors,
     fontFamily: {
       sans: [
