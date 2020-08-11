@@ -31,7 +31,9 @@ export const BookList = ({ items, contentSelector, className, children }: {
   )
 }
 
-export const PreferredSources = Object.values(ScraperType)
+export const PreferredSources = [
+  ScraperType.Nhentai
+]
 
 export function selectContent(book: Book, languages: LanguageType[] = []) {
   return book.contents.sort((a, b) => {
