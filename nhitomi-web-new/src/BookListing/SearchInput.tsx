@@ -405,7 +405,7 @@ const Suggestor = ({ tokens, setText, inputRef, children }: { tokens: QueryToken
       catch (e) {
         notifyError(e)
       }
-    }, 100)
+    }, 200)
   }, [suggestPrefix]) // eslint-disable-line
 
   const dropdownVisible = focused && !!token
