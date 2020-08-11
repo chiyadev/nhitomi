@@ -37,19 +37,19 @@ export const Menu = () => {
 
 const LanguageButton = ({ query }: { query: SearchQuery }) => {
   return (
-    <SettingsLink focus='language'>
-      <Tooltip placement='bottom' overlay={(
-        <ul>
-          {query.langs?.map(language => (
-            <li>{LanguageNames[language]}</li>
-          ))}
-        </ul>
-      )}>
+    <Tooltip placement='bottom' overlay={(
+      <ul>
+        {query.langs?.map(language => (
+          <li>{LanguageNames[language]}</li>
+        ))}
+      </ul>
+    )}>
 
+      <SettingsLink focus='language'>
         <RoundIconButton>
           <CurrentLocaleFlag />
         </RoundIconButton>
-      </Tooltip>
-    </SettingsLink>
+      </SettingsLink>
+    </Tooltip>
   )
 }

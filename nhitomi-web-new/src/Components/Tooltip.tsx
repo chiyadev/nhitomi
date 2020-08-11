@@ -23,7 +23,7 @@ export const Tooltip = ({ className, overlay, children, hideOnClick = false, ign
         <animated.div
           {...props}
           style={style}
-          className={cx(className, 'rounded overflow-hidden text-xs px-2 py-1 bg-gray-900 bg-blur text-white')}>
+          className='rounded overflow-hidden text-xs px-2 py-1 bg-gray-900 bg-blur text-white'>
 
           {overlay}
         </animated.div>
@@ -45,7 +45,7 @@ export const Tooltip = ({ className, overlay, children, hideOnClick = false, ign
 
       {...props}>
 
-      <span className='block'>{children}</span>
+      <div className={cx('inline-block', className)}>{children}</div>
     </Tippy>
   )
 }
