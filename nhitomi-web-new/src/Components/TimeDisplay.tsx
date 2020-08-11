@@ -9,9 +9,11 @@ export const TimeDisplay = ({ value, className }: { value: Date, className?: str
       placement='top'
       overlay={value.toUTCString()}>
 
-      <FormattedDate value={value} />
-      {' '}
-      <FormattedTime value={value} />
+      <span className='cursor-default'>
+        <FormattedDate value={value} />
+        {' '}
+        <FormattedTime value={value} />
+      </span>
     </Tooltip>
   )
 }
