@@ -3,7 +3,7 @@ import { colors } from '../theme.json'
 
 export const BookTagColors: { [key in BookTag]: string } = {
   artist: colors.orange[700],
-  circle: 'orange',
+  circle: colors.indigo[700],
   character: colors.yellow[700],
   // copyright: 'red',
   parody: colors.green[700],
