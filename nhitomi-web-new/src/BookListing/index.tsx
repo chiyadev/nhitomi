@@ -1,8 +1,8 @@
-import React, { Dispatch, useMemo, useRef, useLayoutEffect } from 'react'
+import React, { Dispatch, useMemo, useRef, useLayoutEffect, useCallback } from 'react'
 import { SearchQuery, convertQuery } from './search'
 import { useQueryState, usePageState } from '../state'
 import { TypedPrefetchLinkProps, PrefetchLink, usePostfetch, PrefetchGenerator } from '../Prefetch'
-import { BookSearchResult } from 'nhitomi-api'
+import { BookSearchResult, Book } from 'nhitomi-api'
 import { SearchInput } from './SearchInput'
 import { BookList } from '../Components/BookList'
 import { useAsync } from 'react-use'
@@ -69,6 +69,7 @@ const Loaded = ({ result, setResult }: { result: BookSearchResult, setResult: Di
   const { notifyError } = useNotify()
   const { begin, end } = useProgress()
 
+  const [language] = useConfig('language')
   const [query] = useQueryState<SearchQuery>()
   const queryId = useRef(0)
 
@@ -104,10 +105,23 @@ const Loaded = ({ result, setResult }: { result: BookSearchResult, setResult: Di
     }
   }, [queryCmp, effectiveQueryCmp])
 
+  const contentSelector = useCallback((book: Book) => {
+    const contents = book.contents.sort((a, b) => b.id.localeCompare(a.id))
+
+    for (const lang of [language, ...(query.langs || [])]) {
+      const content = contents.find(c => c.language === lang)
+
+      if (content)
+        return content
+    }
+
+    return contents[0]
+  }, [language, query.langs])
+
   return <>
     <Input result={result} />
 
-    <BookList items={result.items}>
+    <BookList items={result.items} contentSelector={contentSelector}>
       <Menu />
     </BookList>
 

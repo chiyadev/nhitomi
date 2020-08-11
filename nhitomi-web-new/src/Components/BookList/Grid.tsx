@@ -1,13 +1,19 @@
 import React, { useMemo, useState, useRef, ReactNode } from 'react'
-import { Book } from 'nhitomi-api'
+import { Book, BookContent } from 'nhitomi-api'
 import { useLayout, SmallBreakpoints, LargeBreakpoints, getBreakpoint } from '../../LayoutManager'
 import { cx, css } from 'emotion'
 import { CoverImage } from '../CoverImage'
 import { useClient } from '../../ClientManager'
 import { useSpring, animated } from 'react-spring'
 import VisibilitySensor from 'react-visibility-sensor'
+import { BookReaderLink } from '../../BookReader'
 
-export const Grid = ({ items, width, children }: { items: Book[], width: number, children?: ReactNode }) => {
+export const Grid = ({ items, contentSelector, width, children }: {
+  items: Book[]
+  contentSelector: (book: Book) => BookContent
+  width: number
+  children?: ReactNode
+}) => {
   const { screen } = useLayout()
 
   const { spacing, rowWidth, itemWidth, itemHeight } = useMemo(() => {
@@ -53,6 +59,7 @@ export const Grid = ({ items, width, children }: { items: Book[], width: number,
           <Item
             key={item.id}
             book={item}
+            content={contentSelector(item)}
             width={itemWidth}
             height={itemHeight}
             className={css`margin: ${spacing / 2}px;`} />
@@ -62,7 +69,13 @@ export const Grid = ({ items, width, children }: { items: Book[], width: number,
   )
 }
 
-const Item = ({ book, width, height, className }: { book: Book, width: number, height: number, className?: string }) => {
+const Item = ({ book, content, width, height, className }: {
+  book: Book
+  content: BookContent
+  width: number
+  height: number
+  className?: string
+}) => {
   const client = useClient()
 
   const [hovered, setHovered] = useState(false)
@@ -87,27 +100,29 @@ const Item = ({ book, width, height, className }: { book: Book, width: number, h
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}>
 
-        {visibleEver.current && (
-          <CoverImage
-            className='w-full h-full rounded overflow-hidden'
-            onLoad={async () => await client.book.getBookImage({
-              id: book.id,
-              contentId: book.contents[0].id,
-              index: -1
-            })} />
-        )}
+        <BookReaderLink id={book.id} contentId={content.id}>
+          {visibleEver.current && (
+            <CoverImage
+              className='w-full h-full rounded overflow-hidden'
+              onLoad={async () => await client.book.getBookImage({
+                id: book.id,
+                contentId: content.id,
+                index: -1
+              })} />
+          )}
 
-        {visible && (
-          <animated.div style={overlayStyle} className='absolute bottom-0 left-0 w-full'>
-            <div className='p-1 bg-white bg-blur text-black rounded-b'>
-              <span className='block text-sm truncate font-bold'>{book.primaryName}</span>
+          {visible && (
+            <animated.div style={overlayStyle} className='absolute bottom-0 left-0 w-full'>
+              <div className='p-1 bg-white bg-blur text-black rounded-b'>
+                <span className='block text-sm truncate font-bold'>{book.primaryName}</span>
 
-              {book.primaryName !== book.englishName && (
-                <span className='block text-xs truncate'>{book.englishName}</span>
-              )}
-            </div>
-          </animated.div>
-        )}
+                {book.primaryName !== book.englishName && (
+                  <span className='block text-xs truncate'>{book.englishName}</span>
+                )}
+              </div>
+            </animated.div>
+          )}
+        </BookReaderLink>
       </div>
     </VisibilitySensor>
   )

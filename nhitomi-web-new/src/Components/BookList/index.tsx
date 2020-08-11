@@ -1,10 +1,15 @@
-import { Book } from 'nhitomi-api'
+import { Book, BookContent } from 'nhitomi-api'
 import React, { useRef, useState, ReactNode } from 'react'
 import { cx } from 'emotion'
 import useResizeObserver from '@react-hook/resize-observer'
 import { Grid } from './Grid'
 
-export const BookList = ({ items, className, children }: { items: Book[], className?: string, children?: ReactNode }) => {
+export const BookList = ({ items, contentSelector, className, children }: {
+  items: Book[]
+  contentSelector: (book: Book) => BookContent
+  className?: string
+  children?: ReactNode
+}) => {
   const containerRef = useRef<HTMLDivElement>(null)
   const [width, setWidth] = useState(containerRef.current?.clientWidth)
 
@@ -16,7 +21,11 @@ export const BookList = ({ items, className, children }: { items: Book[], classN
       className={cx('w-full relative', className)}>
 
       {width && (
-        <Grid items={items} width={width} children={children} />
+        <Grid
+          items={items}
+          contentSelector={contentSelector}
+          width={width}
+          children={children} />
       )}
     </div>
   )
