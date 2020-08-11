@@ -135,28 +135,34 @@ const Loader = ({ query, result, setResult }: { query: SearchQuery, result: Book
   const { notifyError } = useNotify()
   const { begin, end: endProgress } = useProgress()
 
-  const [end, setEnd] = usePageState<boolean>('end')
-  const count = useRef(0)
+  const loadId = useRef(0)
 
   // unmount means query changed, so prevent setting irrelevant results
-  useLayoutEffect(() => () => { count.current = -1 }, [])
+  useLayoutEffect(() => () => { loadId.current = -1 }, [])
 
-  if (end)
-    return null
+  const style = useSpring({
+    opacity: loadId.current < 0 ? 0 : 1
+  })
 
   return (
-    <LoadContainer
-      key={count.current} // recreate load container for each load
-      className='w-full h-20'
-      onLoad={async () => {
-        begin()
+    <animated.div style={style}>
+      <LoadContainer
+        key={loadId.current} // recreate load container for each load
+        className='w-full h-20'
+        onLoad={async () => {
+          if (loadId.current < 0)
+            return
 
-        try {
-          const moreResult = await client.book.searchBooks({ bookQuery: { ...convertQuery(query), offset: result.items.length } })
+          begin()
 
-          if (count.current >= 0) {
+          try {
+            const moreResult = await client.book.searchBooks({ bookQuery: { ...convertQuery(query), offset: result.items.length } })
+
+            if (loadId.current < 0)
+              return
+
             if (!moreResult.items.length) {
-              setEnd(true)
+              loadId.current = -1
               return
             }
 
@@ -168,15 +174,15 @@ const Loader = ({ query, result, setResult }: { query: SearchQuery, result: Book
               ]
             })
 
-            ++count.current
+            ++loadId.current
           }
-        }
-        catch (e) {
-          notifyError(e)
-        }
-        finally {
-          endProgress()
-        }
-      }} />
+          catch (e) {
+            notifyError(e)
+          }
+          finally {
+            endProgress()
+          }
+        }} />
+    </animated.div>
   )
 }
