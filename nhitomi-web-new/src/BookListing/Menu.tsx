@@ -20,17 +20,17 @@ export const Menu = () => {
 
   return (
     <div className='clearfix'>
-      <ul className='float-right px-2'>
-        <animated.li style={iconStyle} className='inline-block'>
+      <div className='float-right px-2'>
+        <animated.div style={iconStyle} className='inline-block'>
           <LanguageButton query={query} />
-        </animated.li>
+        </animated.div>
 
-        <animated.li style={iconStyle} className='inline-block'>
+        <animated.div style={iconStyle} className='inline-block'>
           <RoundIconButton>
             {query.order === SortDirection.Ascending ? <SortAscendingOutlined /> : <SortDescendingOutlined />}
           </RoundIconButton>
-        </animated.li>
-      </ul>
+        </animated.div>
+      </div>
     </div >
   )
 }
@@ -38,11 +38,11 @@ export const Menu = () => {
 const LanguageButton = ({ query }: { query: SearchQuery }) => {
   return (
     <Tooltip placement='bottom' overlay={(
-      <ul>
+      <div>
         {query.langs?.map(language => (
-          <li>{LanguageNames[language]}</li>
+          <div>{LanguageNames[language]}</div>
         ))}
-      </ul>
+      </div>
     )}>
 
       <SettingsLink focus='language'>
