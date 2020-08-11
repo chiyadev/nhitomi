@@ -1,4 +1,4 @@
-import React, { createContext, ReactNode, useState, useMemo, useRef, useContext, useLayoutEffect } from 'react'
+import React, { ReactNode, useState, useRef, useLayoutEffect } from 'react'
 import { IntlProvider, useIntl } from 'react-intl'
 import { useAsync } from 'react-use'
 import { useProgress } from './ProgressManager'
@@ -23,15 +23,6 @@ export const LanguageNames: { [lang in LanguageType]: string } = {
   'vi-VN': 'Tiếng Việt'
 }
 
-const LocaleContext = createContext<{
-  language: LanguageType
-  setLanguage: (language: LanguageType) => void
-}>(undefined as any)
-
-export function useLocale() {
-  return useContext(LocaleContext)
-}
-
 export function useLocalized(id: string, values?: Record<string, string | number | boolean | null | undefined | Date>): string
 export function useLocalized(id: string, values?: Record<string, string | number | boolean | null | undefined | Date | ReactNode>): ReactNode
 export function useLocalized(id: string, values: any) {
@@ -43,7 +34,7 @@ export function useLocalized(id: string, values: any) {
 export const LocaleManager = ({ children }: { children?: ReactNode }) => {
   const client = useClient()
   const { setInfo, fetchInfo } = useClientInfo()
-  const [language, setLanguage] = useConfig('language')
+  const [language] = useConfig('language')
   const [searchLanguages, setSearchLanguages] = useConfig('searchLanguages')
   const [messages, setMessages] = useState<Record<string, string>>()
   const { begin, end } = useProgress()
@@ -88,10 +79,11 @@ export const LocaleManager = ({ children }: { children?: ReactNode }) => {
     }
   }, [language])
 
+  if (!messages)
+    return null
+
   return (
-    <LocaleContext.Provider value={useMemo(() => ({ language, setLanguage }), [language, setLanguage])}>
-      {messages && <IntlProvider locale={language} messages={messages} children={children} />}
-    </LocaleContext.Provider>
+    <IntlProvider locale={language} messages={messages} children={children} />
   )
 }
 

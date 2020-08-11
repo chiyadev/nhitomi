@@ -1,7 +1,7 @@
 import React, { ComponentProps } from 'react'
 import { LanguageType } from 'nhitomi-api'
 import { FlagIcon, FlagIconCode } from 'react-flag-kit'
-import { useLocale } from '../LocaleManager'
+import { useConfig } from '../ConfigManager'
 
 export const LocaleFlag = ({ language, className, size }: { language: LanguageType, className?: string, size?: number }) => {
   return (
@@ -10,7 +10,7 @@ export const LocaleFlag = ({ language, className, size }: { language: LanguageTy
 }
 
 export const CurrentLocaleFlag = (props: Omit<ComponentProps<typeof LocaleFlag>, 'language'>) => {
-  const { language } = useLocale()
+  const [language] = useConfig('language')
 
   return (
     <LocaleFlag language={language} {...props} />
