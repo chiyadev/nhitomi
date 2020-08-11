@@ -4,6 +4,7 @@ import { CloseOutlined, CheckCircleTwoTone, InfoCircleTwoTone, CloseCircleTwoTon
 import { colors } from './theme.json'
 import { cx, css } from 'emotion'
 import { useSpring, animated } from 'react-spring'
+import { useLayout } from './LayoutManager'
 
 export const NotifyContext = createContext<{
   notify: (type: AppearanceTypes, title: ReactNode, description: ReactNode) => void
@@ -36,19 +37,23 @@ export const NotificationManager = ({ children }: { children?: ReactNode }) => {
   )
 }
 
-const ToastContainer = ({ children, placement, hasToasts }: ToastContainerProps) => (
-  <animated.div
-    className={(
-      cx('w-screen lg:max-w-md fixed m-4 z-50 text-center', { 'pointer-events-none': !hasToasts }, placement
-        .replace('-', ' ')
-        .replace('top', 'top-0')
-        .replace('bottom', 'bottom-0')
-        .replace('left', 'left-0')
-        .replace('right', 'right-0')
-        .replace('center', css`transform: translateX(-50%); left: 50%;`))
-    )}
-    children={children} />
-)
+const ToastContainer = ({ children, placement, hasToasts }: ToastContainerProps) => {
+  const { screen } = useLayout()
+
+  return (
+    <animated.div
+      className={(
+        cx('w-screen fixed p-4 z-50 text-center', { 'max-w-md': screen === 'lg' }, { 'pointer-events-none': !hasToasts }, placement
+          .replace('-', ' ')
+          .replace('top', 'top-0')
+          .replace('bottom', 'bottom-0')
+          .replace('left', 'left-0')
+          .replace('right', 'right-0')
+          .replace('center', css`transform: translateX(-50%); left: 50%;`))
+      )}
+      children={children} />
+  )
+}
 
 const NotifyToast = ({ children, onMouseEnter, onMouseLeave, transitionState, transitionDuration, onDismiss }: ToastProps) => {
   const style = useSpring({
