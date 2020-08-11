@@ -1,12 +1,12 @@
 import React, { useMemo, useState, useRef, ReactNode } from 'react'
 import { Book, BookContent } from 'nhitomi-api'
-import { useLayout, SmallBreakpoints, LargeBreakpoints, getBreakpoint } from '../../LayoutManager'
+import { SmallBreakpoints, LargeBreakpoints, getBreakpoint, ScreenBreakpoint } from '../../LayoutManager'
 import { cx, css } from 'emotion'
 import { CoverImage } from '../CoverImage'
 import { useClient } from '../../ClientManager'
 import { useSpring, animated } from 'react-spring'
-import VisibilitySensor from 'react-visibility-sensor'
 import { BookReaderLink } from '../../BookReader'
+import VisibilitySensor from 'react-visibility-sensor'
 
 export const Grid = ({ items, contentSelector, width, children }: {
   items: Book[]
@@ -14,38 +14,31 @@ export const Grid = ({ items, contentSelector, width, children }: {
   width: number
   children?: ReactNode
 }) => {
-  const { screen } = useLayout()
-
   const { spacing, rowWidth, itemWidth, itemHeight } = useMemo(() => {
     let spacing: number
     let rowItems: number
     let rowWidth: number
 
-    switch (screen) {
-      case 'sm': {
-        const breakpoint = getBreakpoint(SmallBreakpoints, width) || 0
+    if (width < ScreenBreakpoint) {
+      const breakpoint = getBreakpoint(SmallBreakpoints, width) || 0
 
-        spacing = 4
-        rowItems = SmallBreakpoints.indexOf(breakpoint) + 2
-        rowWidth = width
-        break
-      }
+      spacing = 4
+      rowItems = SmallBreakpoints.indexOf(breakpoint) + 2
+      rowWidth = width
+    }
+    else {
+      const breakpoint = getBreakpoint(LargeBreakpoints, width) || 0
 
-      case 'lg': {
-        const breakpoint = getBreakpoint(LargeBreakpoints, width) || 0
-
-        spacing = 6
-        rowItems = LargeBreakpoints.indexOf(breakpoint) + 3
-        rowWidth = breakpoint
-        break
-      }
+      spacing = 6
+      rowItems = LargeBreakpoints.indexOf(breakpoint) + 3
+      rowWidth = breakpoint
     }
 
     const itemWidth = (rowWidth - spacing * (rowItems + 1)) / rowItems
     const itemHeight = itemWidth * 7 / 5
 
     return { spacing, rowItems, rowWidth, itemWidth, itemHeight }
-  }, [screen, width])
+  }, [width])
 
   return (
     <div style={{ maxWidth: rowWidth }} className='mx-auto w-full'>
@@ -55,7 +48,7 @@ export const Grid = ({ items, contentSelector, width, children }: {
         padding: ${spacing / 2}px;
       `)}>
 
-        {items.map(item => (
+        {useMemo(() => items.map(item => (
           <Item
             key={item.id}
             book={item}
@@ -63,7 +56,13 @@ export const Grid = ({ items, contentSelector, width, children }: {
             width={itemWidth}
             height={itemHeight}
             className={css`margin: ${spacing / 2}px;`} />
-        ))}
+        )), [
+          contentSelector,
+          itemHeight,
+          itemWidth,
+          items,
+          spacing
+        ])}
       </div>
     </div>
   )

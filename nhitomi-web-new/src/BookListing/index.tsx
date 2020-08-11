@@ -105,7 +105,8 @@ const Loaded = ({ result, setResult }: { result: BookSearchResult, setResult: Di
     }
   }, [queryCmp, effectiveQueryCmp])
 
-  const contentSelector = useCallback((book: Book) => selectContent(book, [language, ...(query.langs || [])]), [language, query.langs])
+  const contentLanguages = [language, ...(query.langs || [])]
+  const contentSelector = useCallback((book: Book) => selectContent(book, contentLanguages), [contentLanguages.join('')]) // eslint-disable-line
 
   return <>
     <Input result={result} />
