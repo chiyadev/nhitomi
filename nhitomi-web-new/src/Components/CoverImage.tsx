@@ -13,7 +13,7 @@ function formatAspect(x: number) {
   return `${x * 100}%`
 }
 
-export const CoverImage = ({ onLoad, className, zoomIn = true, autoSize, defaultAspect }: {
+export const CoverImage = ({ onLoad, className, zoomIn, autoSize, defaultAspect }: {
   onLoad: () => Promise<Blob> | Blob
   className?: string
   zoomIn?: boolean

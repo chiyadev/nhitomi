@@ -102,6 +102,7 @@ const Item = ({ book, content, width, height, className }: {
         <BookReaderLink id={book.id} contentId={content.id}>
           {visibleEver.current && (
             <CoverImage
+              zoomIn
               className='w-full h-full rounded overflow-hidden'
               onLoad={async () => await client.book.getBookImage({
                 id: book.id,
