@@ -14,7 +14,7 @@ export const Language = () => {
 
   return (
     <SettingsFocusContainer focus='language'>
-      <div className='text-md'><FormattedMessage id='pages.settings.appearance.language.name' /></div>
+      <div className='text-base'><FormattedMessage id='pages.settings.appearance.language.name' /></div>
       <div className='text-xs text-gray-800'><FormattedMessage id='pages.settings.appearance.language.description' /></div>
       <br />
 
