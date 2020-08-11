@@ -7,7 +7,7 @@ import { AbsoluteCenter } from './AbsoluteCenter'
 import { colors } from '../theme.json'
 import { Tooltip } from './Tooltip'
 import { FormattedMessage } from 'react-intl'
-import { getImageSize } from '../ImageUtils'
+import { getImageSize } from '../imageUtils'
 
 function formatAspect(x: number) {
   return `${x * 100}%`
