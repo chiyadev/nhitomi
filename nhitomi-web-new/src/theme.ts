@@ -11,7 +11,7 @@ if (CSS.supports('backdrop-filter', 'blur(0)')) {
   css`
     .bg-blur.bg-blur { /** double specificity to override bg-color opacities */
       backdrop-filter: blur(1em);
-      --bg-opacity: 75%;
+      --bg-opacity: 80%;
     }
   `
 }
