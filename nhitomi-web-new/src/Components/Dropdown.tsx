@@ -5,12 +5,13 @@ import { convertHex } from '../theme'
 import { cx } from 'emotion'
 import { colors } from '../theme.json'
 
-export const Dropdown = ({ interactive = true, placement = 'bottom-start', ...props }: Omit<ComponentProps<typeof Tooltip>, 'padding'>) => {
+export const Dropdown = ({ interactive = true, placement = 'bottom-start', touch = true, ...props }: Omit<ComponentProps<typeof Tooltip>, 'padding'>) => {
   return (
     <Tooltip
       hideOnClick
       interactive={interactive}
       placement={placement}
+      touch={touch}
       padding={false}
 
       {...props} />
@@ -26,7 +27,7 @@ export const DropdownItem = ({ children, className }: { children?: ReactNode, cl
 
   return (
     <animated.div
-      className={cx('cursor-pointer px-2 py-1', className)}
+      className={cx('cursor-pointer px-2 py-1 truncate', className)}
       style={style}
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}>
@@ -45,10 +46,10 @@ export const DropdownGroup = ({ name, children, className }: { name?: ReactNode,
 
   return (
     <div className={cx('pl-2', className)}>
-      <animated.div style={style} className='cursor-default py-1'>{name}</animated.div>
+      <animated.div style={style} className='cursor-default py-1 truncate'>{name}</animated.div>
 
       <div
-        className='rounded-l overflow-hidden'
+        className='rounded-l-sm overflow-hidden'
         onMouseEnter={() => setHover(true)}
         onMouseLeave={() => setHover(false)}
         children={children} />
