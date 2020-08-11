@@ -21,7 +21,7 @@ export const Strip = () => {
   return (
     <div className={cx('fixed top-0 left-0 bottom-0 z-10 bg-black text-white py-4 flex flex-col items-center', css`width: ${StripWidth}px;`)}>
       <ul>
-        <animated.li style={styles[0]} className='mb-4'>
+        <animated.li className='leading-none mb-4' style={styles[0]}>
           <Tooltip overlay={<span><FormattedMessage id='pages.home.title' /> <HeartOutlined /></span>} placement='right'>
             <BookListingLink>
               <img alt='logo' className='w-10 h-10' src='/logo-40x40.png' />
@@ -29,7 +29,7 @@ export const Strip = () => {
           </Tooltip>
         </animated.li>
 
-        <animated.li style={styles[1]}>
+        <animated.li className='leading-none' style={styles[1]}>
           <Tooltip overlay={<FormattedMessage id='pages.bookListing.title' />} placement='right'>
             <BookListingLink>
               <RoundIconButton>
@@ -42,7 +42,7 @@ export const Strip = () => {
           </Tooltip>
         </animated.li>
 
-        <animated.li style={styles[2]}>
+        <animated.li className='leading-none' style={styles[2]}>
           <Tooltip overlay={<FormattedMessage id='pages.collectionListing.title' />} placement='right'>
             <RoundIconButton>
               <Switch>
@@ -53,7 +53,7 @@ export const Strip = () => {
           </Tooltip>
         </animated.li>
 
-        <animated.li style={styles[3]}>
+        <animated.li className='leading-none' style={styles[3]}>
           <Tooltip overlay={<FormattedMessage id='pages.settings.title' />} placement='right'>
             <SettingsLink>
               <RoundIconButton>
@@ -66,7 +66,7 @@ export const Strip = () => {
           </Tooltip>
         </animated.li>
 
-        <animated.li style={styles[4]}>
+        <animated.li className='leading-none' style={styles[4]}>
           <Tooltip overlay={<FormattedMessage id='pages.about.title' />} placement='right'>
             <RoundIconButton>
               <Switch>
