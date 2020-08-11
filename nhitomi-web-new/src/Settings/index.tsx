@@ -49,8 +49,8 @@ export const SettingsLink = ({ focus, ...props }: TypedPrefetchLinkProps & Prefe
   <PrefetchLink fetch={useSettingsPrefetch} options={{ focus }} {...props} />
 )
 
-export const Settings = () => {
-  const { result } = usePostfetch(useSettingsPrefetch, {})
+export const Settings = (options: PrefetchOptions) => {
+  const { result } = usePostfetch(useSettingsPrefetch, options)
 
   useScrollShortcut()
 
