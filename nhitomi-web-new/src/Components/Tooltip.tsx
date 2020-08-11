@@ -3,9 +3,10 @@ import Tippy from '@tippyjs/react'
 import { cx } from 'emotion'
 import { animated, useSpring } from 'react-spring'
 
-export const Tooltip = ({ className, overlay, children, hideOnClick = false, ignoreAttributes = true, touch = false, duration = 200, placement = 'auto', onShow, onHide, ...props }: {
+export const Tooltip = ({ className, overlay, children, hideOnClick = false, ignoreAttributes = true, touch = false, duration = 200, placement = 'auto', padding = true, onShow, onHide, ...props }: {
   overlay?: ReactNode
   children?: ReactNode
+  padding?: boolean
 } & Omit<ComponentProps<typeof Tippy>, 'content' | 'children' | 'animation' | 'arrow'>) => {
   const [visible, setVisible] = useState(false)
 
@@ -23,7 +24,7 @@ export const Tooltip = ({ className, overlay, children, hideOnClick = false, ign
         <animated.div
           {...props}
           style={style}
-          className='rounded overflow-hidden text-xs px-2 py-1 bg-gray-900 bg-blur text-white'>
+          className={cx('rounded overflow-hidden text-xs bg-gray-900 bg-blur text-white', { 'px-2 py-1': padding })}>
 
           {overlay}
         </animated.div>
