@@ -4,7 +4,7 @@ import { useQueryState, usePageState } from '../state'
 import { TypedPrefetchLinkProps, PrefetchLink, usePostfetch, PrefetchGenerator } from '../Prefetch'
 import { BookSearchResult, Book } from 'nhitomi-api'
 import { SearchInput } from './SearchInput'
-import { BookList } from '../Components/BookList'
+import { BookList, selectContent } from '../Components/BookList'
 import { useAsync } from 'react-use'
 import { useNotify } from '../NotificationManager'
 import { useClient } from '../ClientManager'
@@ -105,18 +105,7 @@ const Loaded = ({ result, setResult }: { result: BookSearchResult, setResult: Di
     }
   }, [queryCmp, effectiveQueryCmp])
 
-  const contentSelector = useCallback((book: Book) => {
-    const contents = book.contents.sort((a, b) => b.id.localeCompare(a.id))
-
-    for (const lang of [language, ...(query.langs || [])]) {
-      const content = contents.find(c => c.language === lang)
-
-      if (content)
-        return content
-    }
-
-    return contents[0]
-  }, [language, query.langs])
+  const contentSelector = useCallback((book: Book) => selectContent(book, [language, ...(query.langs || [])]), [language, query.langs])
 
   return <>
     <Input result={result} />
