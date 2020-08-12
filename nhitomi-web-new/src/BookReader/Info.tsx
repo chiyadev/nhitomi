@@ -5,14 +5,14 @@ import { CoverImage } from '../Components/CoverImage'
 import { cx } from 'emotion'
 import { useSpring, animated } from 'react-spring'
 import { useLayout } from '../LayoutManager'
-import { UploadOutlined, HistoryOutlined } from '@ant-design/icons'
+import { UploadOutlined, HistoryOutlined, LinkOutlined } from '@ant-design/icons'
 import { FormattedMessage } from 'react-intl'
 import { TimeDisplay } from '../Components/TimeDisplay'
 import { BookTagColors } from '../Components/colors'
 import { convertHex } from '../theme'
 import { Dropdown, DropdownItem, DropdownGroup } from '../Components/Dropdown'
 import { colors } from '../theme.json'
-import { PrefetchResult } from '.'
+import { PrefetchResult, BookReaderLink } from '.'
 import { BookTags, ScraperTypes, LanguageTypes } from '../orderedConstants'
 import { LanguageNames } from '../LocaleManager'
 import { NewTabLink } from '../Components/NewTabLink'
@@ -77,12 +77,20 @@ export const Info = ({ book, content }: PrefetchResult) => {
                       if (!languageContents.length)
                         return null
 
+                      const displayContent = content
+
                       return (
                         <DropdownGroup name={LanguageNames[language]}>
                           {languageContents.map(content => (
-                            <NewTabLink href={content.sourceUrl}>
-                              <DropdownItem>{content.sourceUrl}</DropdownItem>
-                            </NewTabLink>
+                            <BookReaderLink id={book.id} contentId={content.id}>
+                              <DropdownItem disabled={content === displayContent}>
+                                <NewTabLink href={content.sourceUrl}>
+                                  <LinkOutlined className='pr-2 text-blue-600' />
+                                </NewTabLink>
+
+                                {content.sourceUrl}
+                              </DropdownItem>
+                            </BookReaderLink>
                           ))}
                         </DropdownGroup>
                       )

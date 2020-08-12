@@ -8,7 +8,6 @@ import { colors } from '../theme.json'
 export const Dropdown = ({ interactive = true, placement = 'bottom-start', touch = true, ...props }: Omit<ComponentProps<typeof Tooltip>, 'padding'>) => {
   return (
     <Tooltip
-      hideOnClick
       interactive={interactive}
       placement={placement}
       touch={touch}
@@ -18,17 +17,18 @@ export const Dropdown = ({ interactive = true, placement = 'bottom-start', touch
   )
 }
 
-export const DropdownItem = ({ children, className }: { children?: ReactNode, className?: string }) => {
+export const DropdownItem = ({ children, className, disabled }: { children?: ReactNode, className?: string, disabled?: boolean }) => {
   const [hover, setHover] = useState(false)
 
   const style = useSpring({
-    backgroundColor: convertHex('#fff', hover ? 0.1 : 0)
+    backgroundColor: convertHex('#fff', hover ? 0.1 : 0),
+    opacity: disabled ? 0.5 : 1
   })
 
   return (
     <animated.div
-      className={cx('cursor-pointer px-2 py-1 truncate', className)}
       style={style}
+      className={cx('px-2 py-1 truncate', disabled ? 'cursor-not-allowed' : 'cursor-pointer', className)}
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}>
 
