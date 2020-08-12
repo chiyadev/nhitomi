@@ -13,12 +13,14 @@ function formatAspect(x: number) {
   return `${x * 100}%`
 }
 
-export const CoverImage = ({ onLoad, className, zoomIn, autoSize, defaultAspect }: {
+export const CoverImage = ({ onLoad, onLoaded, className, zoomIn, autoSize, defaultAspect, sizing = 'cover' }: {
   onLoad: () => Promise<Blob> | Blob
+  onLoaded?: (image: { src: string, width: number, height: number }) => void
   className?: string
   zoomIn?: boolean
   autoSize?: boolean
   defaultAspect?: number
+  sizing?: 'cover' | 'contain'
 }) => {
   const [prolongedLoad, setProlongedLoad] = useState(false) // if load is prolonged, show loading indicator
 
@@ -29,7 +31,11 @@ export const CoverImage = ({ onLoad, className, zoomIn, autoSize, defaultAspect 
       const blob = await onLoad()
       const { width, height } = await probeImage(blob)
 
-      return { src: URL.createObjectURL(blob), width, height }
+      const loaded = { src: URL.createObjectURL(blob), width, height }
+
+      onLoaded?.(loaded)
+
+      return loaded
     }
     finally {
       clearTimeout(timer)
@@ -79,7 +85,7 @@ export const CoverImage = ({ onLoad, className, zoomIn, autoSize, defaultAspect 
           style={{
             ...imageStyle,
             backgroundImage: loaded ? `url(${loaded.src})` : undefined, // don't use emotion for perf
-            backgroundSize: 'cover',
+            backgroundSize: sizing,
             backgroundPosition: 'center'
           }}
           className='absolute top-0 left-0 w-full h-full' />

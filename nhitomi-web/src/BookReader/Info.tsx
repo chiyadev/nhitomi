@@ -25,7 +25,6 @@ export const Info = ({ book, content }: PrefetchResult) => {
     <div className={cx('flex p-4', screen === 'sm' ? 'flex-col space-y-4' : 'flex-row space-x-4')}>
       <div className={cx(screen === 'sm' ? 'flex-1' : 'w-1/4')}>
         <CoverImage
-          key={`${book.id}/${content.id}`}
           autoSize
           defaultAspect={7 / 5}
           className='rounded overflow-hidden'

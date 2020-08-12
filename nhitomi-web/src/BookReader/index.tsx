@@ -8,6 +8,7 @@ import { Container } from '../Components/Container'
 import useResizeObserver from '@react-hook/resize-observer'
 import { Info } from './Info'
 import { Background } from './Background'
+import { Reader } from './Reader'
 
 export type PrefetchResult = { book: Book, content: BookContent }
 export type PrefetchOptions = { id: string, contentId: string }
@@ -45,7 +46,7 @@ export const BookReader = (options: PrefetchOptions) => {
     return null
 
   return (
-    <PageContainer>
+    <PageContainer key={`${result.book.id}/${result.content.id}`}>
       <Loaded book={result.book} content={result.content} />
     </PageContainer>
   )
@@ -53,20 +54,21 @@ export const BookReader = (options: PrefetchOptions) => {
 
 const Loaded = ({ book, content }: PrefetchResult) => {
   const infoRef = useRef(null)
-  const [infoHeight, setInfoHeight] = useState(0)
+  const [{ width: infoWidth, height: infoHeight }, setInfoSize] = useState<{ width: number, height: number }>({ width: 0, height: 0 })
 
-  useResizeObserver(infoRef, ({ contentRect: { height } }) => setInfoHeight(height))
+  useResizeObserver(infoRef, ({ contentRect }) => setInfoSize(contentRect))
 
   return <>
     <Background book={book} content={content} scrollHeight={infoHeight} />
 
-    <div ref={infoRef}>
-      <Container>
-        <Info book={book} content={content} />
+    <div className='space-y-8'>
+      <div ref={infoRef}>
+        <Container>
+          <Info book={book} content={content} />
+        </Container>
+      </div>
 
-      </Container>
+      <Reader book={book} content={content} viewportWidth={infoWidth} />
     </div>
-
-    <div style={{ height: 10000 }} />
   </>
 }
