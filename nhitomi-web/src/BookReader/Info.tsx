@@ -16,6 +16,7 @@ import { PrefetchResult, BookReaderLink } from '.'
 import { BookTags, ScraperTypes, LanguageTypes } from '../orderedConstants'
 import { LanguageNames } from '../LocaleManager'
 import { NewTabLink } from '../Components/NewTabLink'
+import { BookListingLink } from '../BookListing'
 
 export const Info = ({ book, content }: PrefetchResult) => {
   const client = useClient()
@@ -53,7 +54,9 @@ export const Info = ({ book, content }: PrefetchResult) => {
                 <div className='text-xs text-gray-800 mb-1'><FormattedMessage id={`types.bookTag.${tag}`} /></div>
                 <div className='text-sm leading-tight'>
                   {tags.sort().map(value => (
-                    <Tag type={tag} value={value} />
+                    <BookListingLink query={{ query: `${tag}:${value.replace(/\s/g, '_')}` }}>
+                      <Tag type={tag} value={value} />
+                    </BookListingLink>
                   ))}
                 </div>
               </div>
@@ -64,7 +67,7 @@ export const Info = ({ book, content }: PrefetchResult) => {
             <div className='text-xs text-gray-800 mb-1'><FormattedMessage id='pages.bookReader.sources' /></div>
             <div className='space-x-1'>
               {ScraperTypes.map(type => {
-                const sourceContents = book.contents.filter(c => c.source === type)
+                const sourceContents = book.contents.filter(c => c.source === type).sort((a, b) => b.id.localeCompare(a.id))
 
                 if (!sourceContents.length)
                   return null
@@ -72,7 +75,7 @@ export const Info = ({ book, content }: PrefetchResult) => {
                 return (
                   <Dropdown overlay={(
                     LanguageTypes.map(language => {
-                      const languageContents = sourceContents.filter(c => c.language === language).sort((a, b) => b.id.localeCompare(a.id))
+                      const languageContents = sourceContents.filter(c => c.language === language)
 
                       if (!languageContents.length)
                         return null
