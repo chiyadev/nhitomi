@@ -36,19 +36,31 @@ export const CoverImage = ({ onLoad, className, zoomIn, autoSize, defaultAspect 
     }
   }, [])
 
-  useLayoutEffect(() => () => { loaded && URL.revokeObjectURL(loaded.src) }, [loaded])
+  useLayoutEffect(() => loaded ? () => URL.revokeObjectURL(loaded.src) : undefined, [loaded])
 
+  const [showImage, setShowImage] = useState(false)
   const imageStyle = useSpring({
     opacity: loaded ? 1 : 0,
-    transform: loaded || !zoomIn ? 'scale(1)' : 'scale(0.9)'
+    transform: loaded || !zoomIn ? 'scale(1)' : 'scale(0.9)',
+    onChange: {
+      opacity: v => setShowImage(v > 0)
+    }
   })
 
+  const [showLoading, setShowLoading] = useState(false)
   const loadingStyle = useSpring({
-    opacity: prolongedLoad && loading ? 1 : 0
+    opacity: prolongedLoad && loading ? 1 : 0,
+    onChange: {
+      opacity: v => setShowLoading(v > 0)
+    }
   })
 
+  const [showError, setShowError] = useState(false)
   const errorStyle = useSpring({
-    opacity: error ? 1 : 0
+    opacity: error ? 1 : 0,
+    onChange: {
+      opacity: v => setShowError(v)
+    }
   })
 
   return (
@@ -62,7 +74,7 @@ export const CoverImage = ({ onLoad, className, zoomIn, autoSize, defaultAspect 
       }}
       className={cx('relative', className)}>
 
-      {loaded && (
+      {showImage && (
         <animated.div
           style={{
             ...imageStyle,
@@ -73,19 +85,19 @@ export const CoverImage = ({ onLoad, className, zoomIn, autoSize, defaultAspect 
           className='absolute top-0 left-0 w-full h-full' />
       )}
 
-      {prolongedLoad && (
+      {showLoading && (
         <animated.div style={loadingStyle} className={AbsoluteCenter}>
           <Loading3QuartersOutlined className='animate-spin' />
         </animated.div>
       )}
 
-      {error && (
+      {showError && (
         <animated.div style={errorStyle} className={AbsoluteCenter}>
           <Tooltip
             placement='bottom'
             overlay={<>
               <div><FormattedMessage id='components.coverImage.error' /></div>
-              <div><code>{error.message || <FormattedMessage id='components.coverImage.errorUnknown' />}</code></div>
+              <div><code>{error?.message || <FormattedMessage id='components.coverImage.errorUnknown' />}</code></div>
             </>}>
 
             <WarningTwoTone twoToneColor={colors.red[500]} />

@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useRef, ReactNode } from 'react'
+import React, { useMemo, useState, ReactNode } from 'react'
 import { Book, BookContent } from 'nhitomi-api'
 import { SmallBreakpoints, LargeBreakpoints, getBreakpoint, ScreenBreakpoint } from '../../LayoutManager'
 import { cx, css } from 'emotion'
@@ -56,13 +56,7 @@ export const Grid = ({ items, contentSelector, width, children }: {
             width={itemWidth}
             height={itemHeight}
             className={css`margin: ${spacing / 2}px;`} />
-        )), [
-          contentSelector,
-          itemHeight,
-          itemWidth,
-          items,
-          spacing
-        ])}
+        )), [contentSelector, itemHeight, itemWidth, items, spacing])}
       </div>
     </div>
   )
@@ -75,55 +69,74 @@ const Item = ({ book, content, width, height, className }: {
   height: number
   className?: string
 }) => {
-  const client = useClient()
+  const [hover, setHover] = useState(false)
+  const [showImage, setShowImage] = useState(false)
 
-  const [hovered, setHovered] = useState(false)
-  const [visible, setVisible] = useState(false)
-  const visibleEver = useRef(false)
+  const overlay = useMemo(() => <ItemOverlay book={book} content={content} hover={hover} />, [book, content, hover])
+  const image = useMemo(() => showImage && <ItemCover book={book} content={content} />, [book, content, showImage])
 
-  const overlayStyle = useSpring({
-    opacity: hovered ? 1 : 0,
-    marginBottom: hovered ? 0 : -5
-  })
-
-  return (
+  return useMemo(() => (
     <VisibilitySensor
       delayedCall
       partialVisibility
       offset={{ top: -100, bottom: -100 }}
-      onChange={v => { setVisible(v); v && (visibleEver.current = v) }}>
+      onChange={v => { v && setShowImage(true) }}>
 
       <div
         style={{ width, height }}
         className={cx('rounded overflow-hidden relative cursor-pointer', className)}
-        onMouseEnter={() => setHovered(true)}
-        onMouseLeave={() => setHovered(false)}>
+        onMouseEnter={() => setHover(true)}
+        onMouseLeave={() => setHover(false)}>
 
         <BookReaderLink id={book.id} contentId={content.id}>
-          {visibleEver.current && (
-            <CoverImage
-              zoomIn
-              className='w-full h-full rounded overflow-hidden'
-              onLoad={async () => await client.book.getBookImage({
-                id: book.id,
-                contentId: content.id,
-                index: -1
-              })} />
-          )}
-
-          {visible && (
-            <animated.div style={overlayStyle} className='absolute bottom-0 left-0 w-full'>
-              <div className='p-1 bg-white bg-blur text-black rounded-b'>
-                <span className='block text-sm truncate font-bold'>{book.primaryName}</span>
-
-                {book.primaryName !== book.englishName && (
-                  <span className='block text-xs truncate'>{book.englishName}</span>
-                )}
-              </div>
-            </animated.div>
-          )}
+          {image}
+          {overlay}
         </BookReaderLink>
       </div>
     </VisibilitySensor>
+  ), [book.id, className, content.id, height, image, overlay, width])
+}
+
+const ItemCover = ({ book, content }: { book: Book, content: BookContent }) => {
+  const client = useClient()
+
+  return useMemo(() => (
+    <CoverImage
+      key={`${book.id}/${content.id}`}
+      zoomIn
+      className={cx('w-full h-full rounded overflow-hidden')}
+      onLoad={async () => await client.book.getBookImage({
+        id: book.id,
+        contentId: content.id,
+        index: -1
+      })} />
+  ), [book.id, client.book, content.id])
+}
+
+const ItemOverlay = ({ book, content, hover }: { book: Book, content: BookContent, hover?: boolean }) => {
+  const [visible, setVisible] = useState(false)
+  const style = useSpring({
+    opacity: hover ? 1 : 0,
+    marginBottom: hover ? 0 : -5,
+    onChange: {
+      opacity: v => setVisible(v > 0)
+    }
+  })
+
+  const inner = useMemo(() => visible && (
+    <div className='p-1 bg-white bg-blur text-black rounded-b'>
+      <span className='block text-sm truncate font-bold'>{book.primaryName}</span>
+
+      {book.primaryName !== book.englishName && (
+        <span className='block text-xs truncate'>{book.englishName}</span>
+      )}
+    </div>
+  ), [book.englishName, book.primaryName, visible])
+
+  if (!visible)
+    return null
+
+  return (
+    <animated.div style={style} className='absolute bottom-0 left-0 w-full' children={inner} />
   )
 }
