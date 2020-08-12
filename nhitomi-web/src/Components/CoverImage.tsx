@@ -86,7 +86,8 @@ export const CoverImage = ({ onLoad, onLoaded, className, zoomIn, autoSize, defa
             ...imageStyle,
             backgroundImage: loaded ? `url(${loaded.src})` : undefined, // don't use emotion for perf
             backgroundSize: sizing,
-            backgroundPosition: 'center'
+            backgroundPosition: 'center',
+            backgroundRepeat: 'no-repeat'
           }}
           className='absolute top-0 left-0 w-full h-full' />
       )}

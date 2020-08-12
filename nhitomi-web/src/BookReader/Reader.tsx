@@ -77,7 +77,7 @@ const Page = ({ book, content, index, image: { x, y, width, height } }: {
       partialVisibility
       offset={{ top: -500, bottom: -500 }}>
 
-      <div className='absolute rounded overflow-hidden' style={{
+      <div className='absolute' style={{
         top: y,
         left: x,
         width,
