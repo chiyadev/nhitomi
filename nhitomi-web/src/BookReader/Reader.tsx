@@ -25,7 +25,6 @@ export const Reader = ({ book, content, viewportWidth }: { book: Book, content: 
       viewportHeight
     })
   }, [images, layoutEngine, viewportHeight, viewportWidth])
-  console.log('layout update', layout)
 
   const setImage = useMemo(() => {
     const list: Dispatch<ImageBase | undefined>[] = []
