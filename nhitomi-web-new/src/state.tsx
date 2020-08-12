@@ -1,8 +1,9 @@
-import { Dispatch, useLayoutEffect, useCallback, useRef, useState } from 'react'
+import { Dispatch, useLayoutEffect, useCallback, useState } from 'react'
 import { createBrowserHistory, History as Hisotry, Hash, Pathname, Location, Search } from 'history'
 import { parse, stringify } from 'qs'
 import { EventEmitter } from 'events'
 import StrictEventEmitter from 'strict-event-emitter-types'
+import { useUpdate } from 'react-use'
 
 export type NavigationMode = 'push' | 'replace'
 export type NavigationLocation = {
@@ -125,12 +126,12 @@ if (refreshed) {
 }
 
 export function useNavigator() {
-  const [navigator, setNavigator] = useState(Navigator)
+  const update = useUpdate()
 
   // always return the same navigator but rerender when location changes
-  useNavigated(useCallback(() => setNavigator(Navigator), []))
+  useNavigated(update)
 
-  return navigator
+  return Navigator
 }
 
 export function useNavigated(handler: (location: NavigationLocation) => void) {
@@ -145,8 +146,6 @@ export function usePageState<T>(key: string): [T | undefined, Dispatch<T | undef
 export function usePageState<T>(key: string, initialState: T): [T, Dispatch<T>]
 
 export function usePageState(key: string, initialState?: any) {
-  const validPath = useRef(Navigator.path)
-
   if (initialState && !Navigator.state[key]?.value) {
     Navigator.navigate('replace', { state: s => ({ ...s, [key]: { value: initialState, version: Math.random() } }) })
   }
@@ -154,9 +153,6 @@ export function usePageState(key: string, initialState?: any) {
   const [state, setState] = useState(Navigator.state[key])
 
   useNavigated(useCallback(location => {
-    if (location.path !== validPath.current)
-      return
-
     const newState = location.state?.[key]
 
     if (newState?.version !== state?.version)
@@ -171,15 +167,12 @@ export function usePageState(key: string, initialState?: any) {
 
 /** Deserializes the query part of the current url and returns a function that can update it. */
 export function useQuery(mode: NavigationMode = 'replace'): [QueryState, Dispatch<QueryState>] {
-  const validPath = useRef(Navigator.path)
-
   const [state, setState] = useState(Navigator.query)
 
   useNavigated(useCallback(location => {
-    if (location.path !== validPath.current)
-      return
+    const newState = location.query
 
-    setState(location.query)
+    setState(newState)
   }, []))
 
   return [
