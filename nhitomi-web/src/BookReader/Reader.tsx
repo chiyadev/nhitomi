@@ -13,9 +13,10 @@ export const Reader = ({ book, content, viewportWidth }: { book: Book, content: 
   const [images, setImages] = useState<(ImageBase | undefined)[]>()
 
   useLayoutEffect(() => {
-    layoutEngine.initialize(content.pageCount)
+    const pages = content.pageCount
 
-    setImages(new Array(content.pageCount))
+    layoutEngine.initialize(pages)
+    setImages(new Array(pages))
   }, [book, content, layoutEngine])
 
   const layout = useMemo(() => {
@@ -24,18 +25,23 @@ export const Reader = ({ book, content, viewportWidth }: { book: Book, content: 
       viewportHeight
     })
   }, [images, layoutEngine, viewportHeight, viewportWidth])
+  console.log('layout update', layout)
 
   const setImage = useMemo(() => {
     const list: Dispatch<ImageBase | undefined>[] = []
 
     for (let i = 0; i < content.pageCount; i++) {
-      list.push(newImage => {
-        setImages(images => images?.map((image, index) => {
-          if (index === i)
-            return newImage
-          else
-            return image
-        }))
+      const index = i
+
+      list.push(image => {
+        setImages(images => {
+          if (!images)
+            return
+
+          const array = images.slice()
+          array[index] = image
+          return array
+        })
       })
     }
 
@@ -61,12 +67,12 @@ export const Reader = ({ book, content, viewportWidth }: { book: Book, content: 
   )
 }
 
-const Page = ({ book, content, index, image: { x, y, width, height } }: {
+const Page = ({ book, content, index, image: { x, y, width, height }, setImage }: {
   book: Book
   content: BookContent
   index: number
   image: LayoutImage
-  setImage: Dispatch<LayoutImage | undefined>
+  setImage: Dispatch<ImageBase | undefined>
 }) => {
   const client = useClient()
   const [showImage, setShowImage] = useState(false)
@@ -87,7 +93,8 @@ const Page = ({ book, content, index, image: { x, y, width, height } }: {
           <CoverImage
             className='w-full h-full'
             sizing='contain'
-            onLoad={async () => await client.book.getBookImage({ id: book.id, contentId: content.id, index })} />
+            onLoad={async () => await client.book.getBookImage({ id: book.id, contentId: content.id, index })}
+            onLoaded={setImage} />
         )}
       </div>
     </VisibilitySensor>
