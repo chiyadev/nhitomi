@@ -3,6 +3,7 @@ import { EventEmitter } from 'events'
 import StrictEventEmitter from 'strict-event-emitter-types'
 import { useUpdate } from 'react-use'
 import { LanguageType } from 'nhitomi-api'
+import stringify from 'json-stable-stringify'
 
 export function useUpdateOnEvent<TEmitter extends StrictEventEmitter<EventEmitter, TEventRecord>, TEventRecord extends {}>(emitter: TEmitter, event: keyof TEventRecord) {
   const update = useUpdate()
@@ -156,7 +157,7 @@ export class ConfigSource extends (EventEmitter as new () => StrictEventEmitter<
     if (typeof value === 'undefined')
       localStorage.removeItem(key)
     else
-      localStorage.setItem(key, JSON.stringify(value))
+      localStorage.setItem(key, stringify(value))
 
     this.emit(key as any, value)
   }
@@ -167,7 +168,7 @@ export class ConfigSource extends (EventEmitter as new () => StrictEventEmitter<
   }
 
   export() {
-    const data = JSON.parse(JSON.stringify(DefaultStore))
+    const data = JSON.parse(JSON.stringify(DefaultStore)) // clone
 
     for (const key of ConfigKeys)
       data[key] = this.get(key)

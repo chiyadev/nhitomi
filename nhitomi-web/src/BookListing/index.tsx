@@ -7,7 +7,7 @@ import { SearchInput } from './SearchInput'
 import { BookList, selectContent } from '../Components/BookList'
 import { useAsync } from 'react-use'
 import { useNotify } from '../NotificationManager'
-import { useClient } from '../ClientManager'
+import { useClient, Client } from '../ClientManager'
 import { LoadContainer } from '../Components/LoadContainer'
 import { useProgress } from '../ProgressManager'
 import { Menu } from './Menu'
@@ -15,6 +15,25 @@ import { useScrollShortcut } from '../shortcut'
 import { useConfig } from '../ConfigManager'
 import { useSpring, animated } from 'react-spring'
 import { PageContainer } from '../Components/PageContainer'
+import stringify from 'json-stable-stringify'
+
+async function performQuery(client: Client, query: SearchQuery) {
+  // try scanning for links first
+  if (query.query) {
+    const { matches } = await client.book.getBooksByLink({ getBookByLinkRequest: { link: query.query } })
+
+    if (matches.length) {
+      return {
+        items: matches.map(match => match.book),
+        took: '',
+        total: matches.length
+      }
+    }
+  }
+
+  // if not, perform an actual search
+  return await client.book.searchBooks({ bookQuery: convertQuery(query) })
+}
 
 export type PrefetchResult = BookSearchResult
 export type PrefetchOptions = { query?: SearchQuery }
@@ -40,7 +59,7 @@ export const useBookListingPrefetch: PrefetchGenerator<PrefetchResult, PrefetchO
     },
 
     fetch: async () => {
-      return await client.book.searchBooks({ bookQuery: convertQuery(query) })
+      return await performQuery(client, query)
     }
   }
 }
@@ -77,8 +96,8 @@ const Loaded = ({ result, setResult }: { result: BookSearchResult, setResult: Di
   const [effectiveQuery, setEffectiveQuery] = usePageState<SearchQuery>('query')
 
   // serialized query string is used for comparison
-  const queryCmp = useMemo(() => JSON.stringify(query), [query])
-  const effectiveQueryCmp = useMemo(() => JSON.stringify(effectiveQuery || {}), [effectiveQuery])
+  const queryCmp = useMemo(() => stringify(query), [query])
+  const effectiveQueryCmp = useMemo(() => stringify(effectiveQuery || {}), [effectiveQuery])
 
   // perform search when query changes
   useAsync(async () => {
@@ -90,33 +109,12 @@ const Loaded = ({ result, setResult }: { result: BookSearchResult, setResult: Di
     const id = ++queryId.current
 
     try {
-      // try scanning for links first
-      if (query.query) {
-        const { matches } = await client.book.getBooksByLink({ getBookByLinkRequest: { link: query.query } })
+      const result = await performQuery(client, query)
 
-        if (queryId.current !== id)
-          return
-
-        if (matches.length) {
-          setResult({
-            items: matches.map(match => match.book),
-            took: '',
-            total: matches.length
-          })
-          setEffectiveQuery(query)
-
-          return
-        }
+      if (queryId.current === id) {
+        setResult(result)
+        setEffectiveQuery(query)
       }
-
-      // then perform actual search
-      const result = await client.book.searchBooks({ bookQuery: convertQuery(query) })
-
-      if (queryId.current !== id)
-        return
-
-      setResult(result)
-      setEffectiveQuery(query)
     }
     catch (e) {
       notifyError(e)
