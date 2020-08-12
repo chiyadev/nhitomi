@@ -17,6 +17,7 @@ export const Background = ({ book, content, scrollHeight }: PrefetchResult & { s
   return (
     <animated.div style={style} className='fixed left-0 top-0 pointer-events-none'>
       <CoverImage
+        key={`${book.id}/${content.id}`}
         className={cx('rounded overflow-hidden w-screen h-screen', css`
           z-index: -1;
           opacity: 4%;
