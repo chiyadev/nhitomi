@@ -79,7 +79,7 @@ const Item = ({ book, content, width, height, className }: {
     <VisibilitySensor
       delayedCall
       partialVisibility
-      offset={{ top: -100, bottom: -100 }}
+      offset={{ top: -200, bottom: -200 }}
       onChange={v => { v && setShowImage(true) }}>
 
       <div
