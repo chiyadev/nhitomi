@@ -24,6 +24,7 @@
     "nprogress": "^0.2.0",
     "palx": "^1.0.3",
     "preact": "^10.4.6",
+    "probe-image-size": "^5.0.0",
     "qs": "^6.9.4",
     "react-app-rewired": "^2.1.6",
     "react-flag-kit": "^0.3.1",

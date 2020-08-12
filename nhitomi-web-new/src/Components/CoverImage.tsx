@@ -7,7 +7,7 @@ import { AbsoluteCenter } from './AbsoluteCenter'
 import { colors } from '../theme.json'
 import { Tooltip } from './Tooltip'
 import { FormattedMessage } from 'react-intl'
-import { getImageSize } from '../imageUtils'
+import { probeImage } from '../imageUtils'
 
 function formatAspect(x: number) {
   return `${x * 100}%`
@@ -27,7 +27,7 @@ export const CoverImage = ({ onLoad, className, zoomIn, autoSize, defaultAspect 
 
     try {
       const blob = await onLoad()
-      const { width, height } = await getImageSize(blob)
+      const { width, height } = await probeImage(blob)
 
       return { src: URL.createObjectURL(blob), width, height }
     }
