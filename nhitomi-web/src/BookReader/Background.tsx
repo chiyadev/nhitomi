@@ -19,7 +19,7 @@ export const Background = ({ book, content, scrollHeight }: PrefetchResult & { s
       <CoverImage
         className={cx('w-screen h-screen', css`
           z-index: -1;
-          opacity: 4%;
+          opacity: 10%;
           filter: blur(1em);
         `)}
         onLoad={async () => await client.book.getBookImage({
