@@ -58,7 +58,30 @@
         }
       },
       "keyboard": {
-        "header": "キーボード"
+        "header": "キーボード",
+        "shortcuts": {
+          "name": "ショートカットキー",
+          "description": "ショートカットキーを変更します。",
+          "general": {
+            "name": "一般",
+            "cancelKey": "キャンセル",
+            "scrollDownKey": "スクロールダウン",
+            "scrollUpKey": "スクロールアップ"
+          },
+          "bookReader": {
+            "name": "読み",
+            "bookReaderNextPageKey": "次のページ",
+            "bookReaderPreviousPageKey": "前のページ",
+            "bookReaderFirstPageKey": "最初のページ",
+            "bookReaderLastPageKey": "最後のページ",
+            "bookReaderViewportBoundKey": "画面サイズに固定",
+            "bookReaderLeftToRightKey": "左から右へ並べ",
+            "bookReaderImagesPerRowKey": "ページモードを変更",
+            "bookReaderSingleCoverKey": "最初のページを別表示",
+            "bookReaderPageNumberKey": "ページ数を表示",
+            "bookReaderJumpKey": "ページへ飛び"
+          }
+        }
       }
     },
     "collectionListing": {

@@ -38,7 +38,6 @@ export type ConfigStore = {
   blur: boolean
 
   cancelKey: ShortcutConfig[]
-  sidebarKey: ShortcutConfig[]
   scrollDownKey: ShortcutConfig[]
   scrollUpKey: ShortcutConfig[]
 
@@ -69,7 +68,6 @@ const DefaultStore: ConfigStore = {
   blur: CSS.supports('backdrop-filter', 'blur(0)'),
 
   cancelKey: [{ key: 27 }],                   // esc
-  sidebarKey: [{ key: 81 }],                  // q
   scrollDownKey: [{ key: 83 }, { key: 40 }],  // s down
   scrollUpKey: [{ key: 87 }, { key: 38 }],    // w up
 
@@ -109,7 +107,6 @@ export class ConfigSource extends (EventEmitter as new () => StrictEventEmitter<
   blur!: boolean
 
   cancelKey!: ShortcutConfig[]
-  sidebarKey!: ShortcutConfig[]
   scrollDownKey!: ShortcutConfig[]
   scrollUpKey!: ShortcutConfig[]
 

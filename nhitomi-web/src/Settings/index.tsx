@@ -13,12 +13,13 @@ import { useQueryState } from '../state'
 import { PictureFilled, MacCommandFilled } from '@ant-design/icons'
 import { PageContainer } from '../Components/PageContainer'
 import { Blur } from './Blur'
+import { Shortcuts } from './Shortcuts'
 
 export type PrefetchResult = ClientInfo
 export type PrefetchOptions = { focus?: SettingsFocus }
 
 export type SettingsSection = 'appearance' | 'keyboard'
-export type SettingsItem = 'language' | 'animation' | 'blur'
+export type SettingsItem = 'language' | 'animation' | 'blur' | 'shortcuts'
 export type SettingsFocus = SettingsSection | SettingsItem
 
 export const useSettingsPrefetch: PrefetchGenerator<PrefetchResult, PrefetchOptions> = ({ mode, focus: targetFocus }) => {
@@ -87,7 +88,7 @@ const Loaded = () => {
           type='keyboard'
           name={<span><MacCommandFilled /> <FormattedMessage id='pages.settings.keyboard.header' /></span>}>
 
-          {[<div style={{ height: 10000 }} />]}
+          {[<Shortcuts />]}
         </Section>
       </div>
     </Container>

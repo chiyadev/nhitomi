@@ -58,7 +58,30 @@
         }
       },
       "keyboard": {
-        "header": "Keyboard"
+        "header": "Keyboard",
+        "shortcuts": {
+          "name": "Shortcut keys",
+          "description": "Configure shortcut keys.",
+          "general": {
+            "name": "General",
+            "cancelKey": "Cancel",
+            "scrollDownKey": "Scroll down",
+            "scrollUpKey": "Scroll up"
+          },
+          "bookReader": {
+            "name": "Reader",
+            "bookReaderNextPageKey": "Next page",
+            "bookReaderPreviousPageKey": "Previous page",
+            "bookReaderFirstPageKey": "First page",
+            "bookReaderLastPageKey": "Last page",
+            "bookReaderViewportBoundKey": "Bind to viewport",
+            "bookReaderLeftToRightKey": "Toggle left to right",
+            "bookReaderImagesPerRowKey": "Toggle page mode",
+            "bookReaderSingleCoverKey": "Toggle single page cover",
+            "bookReaderPageNumberKey": "Show page numbers",
+            "bookReaderJumpKey": "Show jump dialog"
+          }
+        }
       }
     },
     "collectionListing": {
