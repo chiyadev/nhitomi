@@ -9,18 +9,22 @@ export const Tooltip = ({ className, overlay, children, hideOnClick = false, ign
   padding?: boolean
 } & Omit<ComponentProps<typeof Tippy>, 'content' | 'children' | 'animation' | 'arrow'>) => {
   const [visible, setVisible] = useState(false)
+  const [render, setRender] = useState(false)
 
   const style = useSpring({
     opacity: visible ? 1 : 0,
     marginTop: placement.indexOf('bottom') === -1 ? 0 : visible ? 0 : -5,
     marginRight: placement.indexOf('left') === -1 ? 0 : visible ? 0 : -5,
     marginBottom: placement.indexOf('top') === -1 ? 0 : visible ? 0 : -5,
-    marginLeft: placement.indexOf('right') === -1 ? 0 : visible ? 0 : -5
+    marginLeft: placement.indexOf('right') === -1 ? 0 : visible ? 0 : -5,
+    onChange: {
+      opacity: v => setRender(v > 0)
+    }
   })
 
   return (
     <Tippy
-      render={props => (
+      render={props => !render ? <span /> : (
         <animated.div
           {...props}
           style={style}
