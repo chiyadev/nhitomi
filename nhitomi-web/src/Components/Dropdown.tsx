@@ -5,10 +5,11 @@ import { convertHex } from '../theme'
 import { cx } from 'emotion'
 import { colors } from '../theme.json'
 
-export const Dropdown = ({ interactive = true, placement = 'bottom-start', touch = true, overlay, ...props }: Omit<ComponentProps<typeof Tooltip>, 'padding'>) => {
+export const Dropdown = ({ interactive = true, appendTo = document.body, placement = 'bottom-start', touch = true, overlay, ...props }: Omit<ComponentProps<typeof Tooltip>, 'padding'>) => {
   return (
     <Tooltip
       interactive={interactive}
+      appendTo={appendTo}
       placement={placement}
       touch={touch}
       padding={false}
