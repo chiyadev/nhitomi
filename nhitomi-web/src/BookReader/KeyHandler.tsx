@@ -19,25 +19,25 @@ export const KeyHandler = ({ layout }: { layout: LayoutResult }) => {
   useShortcut('bookReaderImagesPerRowKey', () => {
     const v = imagesPerRow === 1 ? 2 : 1
     setImagesPerRow(v)
-    alert(<FormattedMessage id='bookReader.alerts.imagesPerRow' values={{ value: v }} />, 'info')
+    alert(<FormattedMessage id='pages.bookReader.alerts.imagesPerRow' values={{ value: v }} />, 'info')
   })
 
   useShortcut('bookReaderViewportBoundKey', () => {
     const v = !viewportBound
     setViewportBound(v)
-    alert(<FormattedMessage id={`bookReader.alerts.viewport${v ? 'Bound' : 'Unbound'}`} />, 'info')
+    alert(<FormattedMessage id='pages.bookReader.alerts.viewportBound' values={{ value: v }} />, 'info')
   })
 
   useShortcut('bookReaderLeftToRightKey', () => {
     const v = !leftToRight
     setLeftToRight(v)
-    alert(<FormattedMessage id={`bookReader.alerts.${v ? 'leftToRight' : 'rightToLeft'}`} />, 'info')
+    alert(<FormattedMessage id='pages.bookReader.alerts.leftToRight' values={{ value: v }} />, 'info')
   })
 
   useShortcut('bookReaderSingleCoverKey', () => {
     const v = !singleCover
     setSingleCover(v)
-    alert(<FormattedMessage id={`bookReader.alerts.singleCover${v ? 'Enabled' : 'Disabled'}`} />, 'info')
+    alert(<FormattedMessage id='pages.bookReader.alerts.singleCover' values={{ value: v }} />, 'info')
   })
 
   // scroll keys

@@ -10,7 +10,13 @@
     "bookReader": {
       "uploadTime": "Uploaded on {time}",
       "updateTime": "Updated on {time}",
-      "sources": "Sources"
+      "sources": "Sources",
+      "alerts": {
+        "imagesPerRow": "Switched to {value, select, 1 {single} 2 {double} other {{value}}} page mode.",
+        "viewportBound": "Pages are {value, select, true {bound} false {unbound}} to window height.",
+        "leftToRight": "Pages are ordered {value, select, true {left to right} false {right to left}}.",
+        "singleCover": "Cover page is displayed {value, select, true {separately} false {with other pages}}"
+      }
     },
     "settings": {
       "title": "Settings",
