@@ -12,6 +12,7 @@
       }
     },
     "bookReader": {
+      "pageCount": "{count}ページ",
       "uploadTime": "{time}にアップロード",
       "updateTime": "{time}に更新",
       "sources": "サイト",

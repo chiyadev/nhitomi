@@ -5,7 +5,7 @@ import { CoverImage } from '../Components/CoverImage'
 import { cx } from 'emotion'
 import { useSpring, animated } from 'react-spring'
 import { useLayout } from '../LayoutManager'
-import { UploadOutlined, HistoryOutlined, LinkOutlined } from '@ant-design/icons'
+import { UploadOutlined, HistoryOutlined, LinkOutlined, ReadOutlined } from '@ant-design/icons'
 import { FormattedMessage } from 'react-intl'
 import { TimeDisplay } from '../Components/TimeDisplay'
 import { BookTagColors } from '../Components/colors'
@@ -109,6 +109,7 @@ export const Info = ({ book, content }: PrefetchResult) => {
         </div>
 
         <div className='text-sm text-gray-500'>
+          <div><ReadOutlined className='w-4 text-center' /> <FormattedMessage id='pages.bookReader.pageCount' values={{ count: content.pageCount }} /></div>
           <div><UploadOutlined className='w-4 text-center' /> <FormattedMessage id='pages.bookReader.uploadTime' values={{ time: <TimeDisplay value={book.createdTime} /> }} /></div>
           <div><HistoryOutlined className='w-4 text-center' /> <FormattedMessage id='pages.bookReader.updateTime' values={{ time: <TimeDisplay value={book.updatedTime} /> }} /></div>
         </div>

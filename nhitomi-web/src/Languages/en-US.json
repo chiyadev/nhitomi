@@ -12,6 +12,7 @@
       }
     },
     "bookReader": {
+      "pageCount": "{count} pages",
       "uploadTime": "Uploaded on {time}",
       "updateTime": "Updated on {time}",
       "sources": "Sources",
