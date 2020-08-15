@@ -5,6 +5,7 @@ import { useLayout } from '../LayoutManager'
 import { CoverImage } from '../Components/CoverImage'
 import { useClient } from '../ClientManager'
 import VisibilitySensor from 'react-visibility-sensor'
+import { useConfig } from '../ConfigManager'
 
 export const Reader = ({ book, content, viewportWidth }: { book: Book, content: BookContent, viewportWidth: number }) => {
   const { height: viewportHeight } = useLayout()
@@ -19,12 +20,21 @@ export const Reader = ({ book, content, viewportWidth }: { book: Book, content: 
     setImages(new Array(pages))
   }, [book, content, layoutEngine])
 
+  const [imagesPerRow] = useConfig('bookReaderImagesPerRow')
+  const [viewportBound] = useConfig('bookReaderViewportBound')
+  const [leftToRight] = useConfig('bookReaderLeftToRight')
+  const [singleCover] = useConfig('bookReaderSingleCover')
+
   const layout = useMemo(() => {
     return layoutEngine.recompute(images || [], {
       viewportWidth,
-      viewportHeight
+      viewportHeight,
+      viewportBound,
+      leftToRight,
+      itemsPerRow: imagesPerRow,
+      initialRowLimit: singleCover ? 1 : imagesPerRow
     })
-  }, [images, layoutEngine, viewportHeight, viewportWidth])
+  }, [images, imagesPerRow, layoutEngine, leftToRight, singleCover, viewportBound, viewportHeight, viewportWidth])
 
   const setImage = useMemo(() => {
     const list: Dispatch<ImageBase | undefined>[] = []

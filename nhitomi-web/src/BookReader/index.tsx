@@ -9,6 +9,7 @@ import useResizeObserver from '@react-hook/resize-observer'
 import { Info } from './Info'
 import { Background } from './Background'
 import { Reader } from './Reader'
+import { LayoutSetter } from './LayoutSetter'
 
 export type PrefetchResult = { book: Book, content: BookContent }
 export type PrefetchOptions = { id: string, contentId: string }
@@ -59,6 +60,7 @@ const Loaded = ({ book, content }: PrefetchResult) => {
   useResizeObserver(infoRef, ({ contentRect }) => setInfoSize(contentRect))
 
   return <>
+    <LayoutSetter />
     <Background book={book} content={content} scrollHeight={infoHeight} />
 
     <div className='space-y-8'>
