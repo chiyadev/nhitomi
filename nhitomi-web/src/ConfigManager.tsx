@@ -97,7 +97,7 @@ export type ShortcutConfigKey = { [key in keyof ConfigStore]: ConfigStore[key] e
 export const KeyModifiers: KeyModifier[] = ['alt', 'ctrl', 'meta', 'shift']
 
 export const ConfigKeys = Object.keys(DefaultStore) as ConfigKey[]
-export const ShortcutConfigKeys = ConfigKeys.filter(k => k.endsWith('key')) as ShortcutConfigKey[]
+export const ShortcutConfigKeys = ConfigKeys.filter(k => k.toLowerCase().endsWith('key')) as ShortcutConfigKey[]
 
 export class ConfigSource extends (EventEmitter as new () => StrictEventEmitter<EventEmitter, { [key in keyof ConfigStore]: (value: ConfigStore[key]) => void }>) implements ConfigStore {
   token!: string | undefined
