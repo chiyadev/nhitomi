@@ -5,7 +5,11 @@
     },
     "bookListing": {
       "title": "ブックス",
-      "search": "nhitomiで {total}本を検索"
+      "search": "nhitomiで {total}本を検索",
+      "menu": {
+        "sort": "並べ替え",
+        "order": "並び順"
+      }
     },
     "bookReader": {
       "uploadTime": "{time}にアップロード",

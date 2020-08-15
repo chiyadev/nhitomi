@@ -5,7 +5,11 @@
     },
     "bookListing": {
       "title": "Books",
-      "search": "Search {total} books on nhitomi"
+      "search": "Search {total} books on nhitomi",
+      "menu": {
+        "sort": "Sort",
+        "order": "Order"
+      }
     },
     "bookReader": {
       "uploadTime": "Uploaded on {time}",

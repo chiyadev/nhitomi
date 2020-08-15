@@ -21,7 +21,7 @@ export const Dropdown = ({ interactive = true, appendTo = document.body, placeme
   )
 }
 
-export const DropdownItem = ({ children, className, disabled }: { children?: ReactNode, className?: string, disabled?: boolean }) => {
+export const DropdownItem = ({ children, className, disabled, padding = true }: { children?: ReactNode, className?: string, disabled?: boolean, padding?: boolean }) => {
   const [hover, setHover] = useState(false)
 
   const style = useSpring({
@@ -32,7 +32,7 @@ export const DropdownItem = ({ children, className, disabled }: { children?: Rea
   return (
     <animated.div
       style={style}
-      className={cx('px-2 py-1 truncate', disabled ? 'cursor-not-allowed' : 'cursor-pointer', className)}
+      className={cx('truncate', { 'px-2 py-1': padding }, disabled ? 'cursor-not-allowed' : 'cursor-pointer', className)}
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}>
 

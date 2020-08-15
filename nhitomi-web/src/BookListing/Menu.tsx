@@ -4,38 +4,40 @@ import { CurrentLocaleFlag } from '../Components/LocaleFlag'
 import { SortDescendingOutlined, SortAscendingOutlined } from '@ant-design/icons'
 import { useQueryState } from '../state'
 import { SearchQuery } from './search'
-import { SortDirection } from 'nhitomi-api'
+import { SortDirection, BookSort } from 'nhitomi-api'
 import { SettingsLink } from '../Settings'
 import { useSpring, animated } from 'react-spring'
 import { Tooltip } from '../Components/Tooltip'
 import { LanguageNames } from '../LocaleManager'
+import { DropdownGroup, Dropdown, DropdownItem } from '../Components/Dropdown'
+import { BookListingLink } from '.'
+import { FormattedMessage } from 'react-intl'
+import { CheckBox } from '../Components/Checkbox'
 
 export const Menu = () => {
-  const [query] = useQueryState<SearchQuery>()
-
   const iconStyle = useSpring({
     from: { opacity: 0, transform: 'scale(0.9)' },
     to: { opacity: 1, transform: 'scale(1)' }
   })
 
   return (
-    <div className='clearfix'>
+    <div className='clearfix leading-none'>
       <div className='float-right px-2'>
         <animated.div style={iconStyle} className='inline-block'>
-          <LanguageButton query={query} />
+          <LanguageButton />
         </animated.div>
 
         <animated.div style={iconStyle} className='inline-block'>
-          <RoundIconButton>
-            {query.order === SortDirection.Ascending ? <SortAscendingOutlined /> : <SortDescendingOutlined />}
-          </RoundIconButton>
+          <SortButton />
         </animated.div>
       </div>
     </div >
   )
 }
 
-const LanguageButton = ({ query }: { query: SearchQuery }) => {
+const LanguageButton = () => {
+  const [query] = useQueryState<SearchQuery>()
+
   return (
     <Tooltip placement='bottom' overlay={(
       <div>
@@ -51,5 +53,44 @@ const LanguageButton = ({ query }: { query: SearchQuery }) => {
         </RoundIconButton>
       </SettingsLink>
     </Tooltip>
+  )
+}
+
+const SortButton = () => {
+  const [query] = useQueryState<SearchQuery>()
+
+  return (
+    <Dropdown placement='bottom' overlay={<>
+      <DropdownGroup name={<FormattedMessage id='pages.bookListing.menu.order' />}>
+        {Object.values(SortDirection).map(direction => (
+          <BookListingLink mode='replace' query={{ ...query, order: direction }}>
+            <DropdownItem padding={false}>
+              <CheckBox type='radio' value={query.order === direction}>
+                <FormattedMessage id={`types.sortDirection.${direction}`} />
+              </CheckBox>
+            </DropdownItem>
+          </BookListingLink>
+        ))}
+      </DropdownGroup>
+
+      <DropdownGroup name={<FormattedMessage id='pages.bookListing.menu.sort' />}>
+        {Object.values(BookSort).map(sort => (
+          <BookListingLink mode='replace' query={{ ...query, sort }}>
+            <DropdownItem padding={false}>
+              <CheckBox type='radio' value={query.sort === sort}>
+                <FormattedMessage id={`types.bookSort.${sort}`} />
+              </CheckBox>
+            </DropdownItem>
+          </BookListingLink>
+        ))}
+      </DropdownGroup>
+    </>}>
+
+      <RoundIconButton className='cursor-pointer'>
+        {query.order === SortDirection.Ascending
+          ? <SortAscendingOutlined />
+          : <SortDescendingOutlined />}
+      </RoundIconButton>
+    </Dropdown>
   )
 }

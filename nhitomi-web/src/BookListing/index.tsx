@@ -2,7 +2,7 @@ import React, { Dispatch, useMemo, useRef, useLayoutEffect, useCallback } from '
 import { SearchQuery, convertQuery } from './search'
 import { useQueryState, usePageState } from '../state'
 import { TypedPrefetchLinkProps, PrefetchLink, usePostfetch, PrefetchGenerator } from '../Prefetch'
-import { BookSearchResult, Book } from 'nhitomi-api'
+import { BookSearchResult, Book, BookSort, SortDirection } from 'nhitomi-api'
 import { SearchInput } from './SearchInput'
 import { BookList, selectContent } from '../Components/BookList'
 import { useAsync } from 'react-use'
@@ -44,6 +44,10 @@ export const useBookListingPrefetch: PrefetchGenerator<PrefetchResult, PrefetchO
   const [currentQuery] = useQueryState<SearchQuery>()
 
   const query = targetQuery || (mode === 'postfetch' && currentQuery) || {}
+
+  // sort by updated time
+  query.sort = query.sort || BookSort.UpdatedTime
+  query.order = query.order || SortDirection.Descending
 
   // use configured languages if unspecified
   query.langs = query.langs || languages
