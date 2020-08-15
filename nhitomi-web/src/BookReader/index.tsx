@@ -10,6 +10,7 @@ import { Info } from './Info'
 import { Background } from './Background'
 import { Reader } from './Reader'
 import { LayoutSetter } from './LayoutSetter'
+import { CursorVisibility } from './CursorVisibility'
 
 export type PrefetchResult = { book: Book, content: BookContent }
 export type PrefetchOptions = { id: string, contentId: string }
@@ -70,7 +71,9 @@ const Loaded = ({ book, content }: PrefetchResult) => {
         </Container>
       </div>
 
-      <Reader book={book} content={content} viewportWidth={infoWidth} />
+      <CursorVisibility>
+        <Reader book={book} content={content} viewportWidth={infoWidth} />
+      </CursorVisibility>
     </div>
   </>
 }
