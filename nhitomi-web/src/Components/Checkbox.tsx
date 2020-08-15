@@ -35,7 +35,7 @@ export const CheckBox = ({ value, setValue, type = 'check', children, className,
             : null}
       </div>
 
-      <div className='flex-1' children={children} />
+      <div className='flex-1 mr-2' children={children} />
     </animated.div>
   )
 }
