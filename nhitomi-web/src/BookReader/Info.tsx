@@ -143,7 +143,7 @@ const SourceButton = ({ type }: { type: ScraperType }) => {
 
   const style = useSpring({
     borderColor: convertHex(colors.gray[800], hover ? 0.3 : 0.15),
-    backgroundColor: convertHex(colors.gray[900], hover ? 0.2 : 0.1)
+    backgroundColor: convertHex(colors.gray[800], hover ? 0.2 : 0.1)
   })
 
   return (
