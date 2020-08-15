@@ -125,7 +125,7 @@ const AlertToast = ({ children, onMouseEnter, onMouseLeave, transitionState, tra
   return (
     <animated.div
       style={style}
-      className='inline-block rounded overflow-hidden bg-black bg-blur text-white text-sm shadow-lg p-3'
+      className='inline-block rounded overflow-hidden bg-gray-900 bg-blur text-white text-sm shadow-lg p-3'
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}>
 
@@ -139,7 +139,15 @@ const AlertManager = ({ children }: { children?: ReactNode }) => {
 
   return (
     <AlertContext.Provider children={children} value={useMemo(() => ({
-      alert: (message, type) => { removeAllToasts(); addToast(<span>{type && convertTypeToIcon(type)}{' '}{message}</span>) }
+      alert: (message, type) => {
+        let content = <span>{message}</span>
+
+        if (type)
+          content = <span>{convertTypeToIcon(type)} {content}</span>
+
+        removeAllToasts()
+        addToast(content)
+      }
     }), [addToast, removeAllToasts])} />
   )
 }
