@@ -7,6 +7,8 @@ import { useClient } from '../ClientManager'
 import VisibilitySensor from 'react-visibility-sensor'
 import { useConfig } from '../ConfigManager'
 import { ScrollPreserver } from './ScrollPreserver'
+import { ScrollManager } from './ScrollManager'
+import { KeyHandler } from './KeyHandler'
 
 export const Reader = ({ book, content, viewportWidth }: { book: Book, content: BookContent, viewportWidth: number }) => {
   const { height: viewportHeight } = useLayout()
@@ -69,6 +71,8 @@ export const Reader = ({ book, content, viewportWidth }: { book: Book, content: 
         height: layout.height
       }}>
 
+      <KeyHandler layout={layout} />
+      <ScrollManager containerRef={ref} layout={layout} />
       <ScrollPreserver containerRef={ref} layout={layout} />
 
       {useMemo(() => (
