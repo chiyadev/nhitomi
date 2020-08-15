@@ -4,7 +4,7 @@ import { useProgress } from './ProgressManager'
 import { getEventModifiers } from './shortcut'
 import { useNotify } from './NotificationManager'
 import { Link, LinkProps } from 'react-router-dom'
-import { usePageState, NavigationArgs, useNavigator } from './state'
+import { usePageState, NavigationArgs, useNavigator, NavigationMode } from './state'
 
 function beginScrollTo(scroll: number, retry = 0) {
   console.log('scrolling to', scroll)
@@ -35,7 +35,7 @@ export type PrefetchGenerator<T, U extends {} = {}> = (x: U & { mode: PrefetchMo
 }
 
 /** Returns a function that will fetch data and navigate to a page. */
-export function usePrefetch<T, U extends {}>(generator: PrefetchGenerator<T, U>, options: U): [string, () => Promise<T | undefined>] {
+export function usePrefetch<T, U extends {}>(generator: PrefetchGenerator<T, U>, options: U): [string, (mode?: NavigationMode) => Promise<T | undefined>] {
   const { begin, end } = useProgress()
   const { notifyError } = useNotify()
   const navigator = useNavigator()
@@ -47,7 +47,7 @@ export function usePrefetch<T, U extends {}>(generator: PrefetchGenerator<T, U>,
   destination.query = destination.query || {}
   destination.hash = destination.hash || ''
 
-  const run = useCallback(async () => {
+  const run = useCallback(async (mode: NavigationMode = 'push') => {
     if (showProgress)
       begin()
 
@@ -55,7 +55,7 @@ export function usePrefetch<T, U extends {}>(generator: PrefetchGenerator<T, U>,
       const fetched = await fetch()
       const location = navigator.evaluate(destination)
 
-      navigator.navigate('push', {
+      navigator.navigate(mode, {
         ...location,
         state: {
           ...location.state,
@@ -140,9 +140,10 @@ export type PrefetchLinkProps = ComponentProps<typeof PrefetchLink>
 export type TypedPrefetchLinkProps = Omit<ComponentProps<typeof PrefetchLink>, 'fetch' | 'options'>
 
 /** Link that fetches some data before navigating to a page. */
-export const PrefetchLink = <T extends any, U extends {} = {}>({ fetch, options, disabled, target, onClick, ...props }: Omit<LinkProps, 'to' | 'href'> & {
+export const PrefetchLink = <T extends any, U extends {} = {}>({ fetch, options, mode, disabled, target, onClick, ...props }: Omit<LinkProps, 'to' | 'href'> & {
   fetch: PrefetchGenerator<T, U>
   options: U
+  mode?: NavigationMode
   disabled?: boolean
 }) => {
   const [destination, run] = usePrefetch(fetch, options)
@@ -167,7 +168,7 @@ export const PrefetchLink = <T extends any, U extends {} = {}>({ fetch, options,
         if (disabled)
           return
 
-        run()
+        run(mode)
       }}
       target={target}
 
