@@ -1,4 +1,4 @@
-import { RefObject, useRef } from 'react'
+import { RefObject, useRef, useLayoutEffect } from 'react'
 import { useWindowScroll } from 'react-use'
 import { isSafari, safariResizeDelay } from '../fuckSafari'
 import { useLayout } from '../LayoutManager'
@@ -17,39 +17,41 @@ export const ScrollPreserver = ({ containerRef, layout }: { containerRef: RefObj
   const visible = useRef<Element>()
   const scrolling = useRef<number>()
 
-  if (!scrolling.current) {
-    if (layout.cause !== 'images' && (layout.width !== lastLayout.width || layout.height !== lastLayout.height)) {
-      const scroll = () => {
-        visible.current?.scrollIntoView({
-          block: 'center',
-          inline: 'center'
-        })
-        scrolling.current = undefined
+  useLayoutEffect(() => {
+    if (!scrolling.current) {
+      if (layout.cause !== 'images' && (layout.width !== lastLayout.width || layout.height !== lastLayout.height)) {
+        const scroll = () => {
+          visible.current?.scrollIntoView({
+            block: 'center',
+            inline: 'center'
+          })
+          scrolling.current = undefined
+        }
+
+        if (isSafari)
+          scrolling.current = window.setTimeout(scroll, safariResizeDelay)
+        else
+          scrolling.current = requestAnimationFrame(scroll)
       }
 
-      if (isSafari)
-        scrolling.current = window.setTimeout(scroll, safariResizeDelay)
-      else
-        scrolling.current = requestAnimationFrame(scroll)
-    }
+      else if (container) {
+        // tslint:disable-next-line: prefer-for-of
+        for (let i = 0; i < container.children.length; i++) {
+          const child = container.children[i]
 
-    else if (container) {
-      // tslint:disable-next-line: prefer-for-of
-      for (let i = 0; i < container.children.length; i++) {
-        const child = container.children[i]
+          // child is considered visible if they're in the middle of the window
+          const { top, bottom } = child.getBoundingClientRect()
 
-        // child is considered visible if they're in the middle of the window
-        const { top, bottom } = child.getBoundingClientRect()
-
-        if (top < height / 2 && height / 2 < bottom) {
-          visible.current = child
-          break
+          if (top < height / 2 && height / 2 < bottom) {
+            visible.current = child
+            break
+          }
         }
       }
     }
-  }
 
-  lastLayoutRef.current = layout
+    lastLayoutRef.current = layout
+  }, [container, height, lastLayout, layout])
 
   return null
 }
