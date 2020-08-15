@@ -59,7 +59,16 @@ export const LocaleManager = ({ children }: { children?: ReactNode }) => {
         const info = await fetchInfo()
 
         if (info.authenticated) {
-          setInfo({ ...info, user: await client.user.updateUser({ id: info.user.id, userBase: { ...info.user, language } }) })
+          setInfo({
+            ...info,
+            user: await client.user.updateUser({
+              id: info.user.id,
+              userBase: {
+                ...info.user,
+                language
+              }
+            })
+          })
         }
       }
 
