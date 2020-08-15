@@ -38,6 +38,12 @@
             "name": "オフ",
             "description": "光の速度で再生"
           }
+        },
+        "blur": {
+          "name": "背景ぼかし効果",
+          "description": "ぼかし効果をサポートするブラウザならオーバレイの背景をぼかします。",
+          "enabled": "オン",
+          "disabled": "オフ"
         }
       },
       "keyboard": {

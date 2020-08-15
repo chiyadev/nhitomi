@@ -35,6 +35,7 @@ export type ConfigStore = {
   language: LanguageType
   searchLanguages: LanguageType[]
   animation: AnimationMode
+  blur: boolean
 
   cancelKey: ShortcutConfig[]
   sidebarKey: ShortcutConfig[]
@@ -65,6 +66,7 @@ const DefaultStore: ConfigStore = {
   language: LanguageType.EnUS,
   searchLanguages: [LanguageType.JaJP, LanguageType.EnUS],
   animation: 'normal',
+  blur: CSS.supports('backdrop-filter', 'blur(0)'),
 
   cancelKey: [{ key: 27 }],                   // esc
   sidebarKey: [{ key: 81 }],                  // q
@@ -104,6 +106,7 @@ export class ConfigSource extends (EventEmitter as new () => StrictEventEmitter<
   language!: LanguageType
   searchLanguages!: LanguageType[]
   animation!: AnimationMode
+  blur!: boolean
 
   cancelKey!: ShortcutConfig[]
   sidebarKey!: ShortcutConfig[]

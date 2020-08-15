@@ -14,6 +14,7 @@ import { Navigator, useNavigator } from './state'
 import { AnimationSetter } from './AnimationSetter'
 import { ConfigManager } from './ConfigManager'
 import { BookReader } from './BookReader'
+import { BlurSetter } from './BlurSetter'
 
 export const App = () => {
   return (
@@ -26,6 +27,7 @@ export const App = () => {
                 <NotificationManager>
                   <PrefetchScrollPreserver />
                   <AnimationSetter />
+                  <BlurSetter />
 
                   <Sidebar />
                   <Body />

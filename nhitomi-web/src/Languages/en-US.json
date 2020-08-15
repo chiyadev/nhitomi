@@ -38,6 +38,12 @@
             "name": "Disabled",
             "description": "Completely disable all animations."
           }
+        },
+        "blur": {
+          "name": "Blur effect",
+          "description": "Make overlay backgrounds blurred on supported browsers.",
+          "enabled": "Enabled",
+          "disabled": "Disabled"
         }
       },
       "keyboard": {

@@ -5,10 +5,13 @@ import { css, cx } from 'emotion'
 import { useWindowScroll } from 'react-use'
 import { useSpring, animated } from 'react-spring'
 import { PrefetchResult } from '.'
+import { useConfig } from '../ConfigManager'
 
 export const Background = ({ book, content, scrollHeight }: PrefetchResult & { scrollHeight: number }) => {
   const client = useClient()
   const { y: scroll } = useWindowScroll()
+
+  const [blur] = useConfig('blur')
 
   const style = useSpring({
     opacity: Math.max(0, 1 - scroll / Math.max(1, scrollHeight))
@@ -19,8 +22,8 @@ export const Background = ({ book, content, scrollHeight }: PrefetchResult & { s
       <CoverImage
         className={cx('w-screen h-screen', css`
           z-index: -1;
-          opacity: 10%;
-          filter: blur(1em);
+          opacity: ${blur ? '10%' : '5%'};
+          filter: ${blur ? 'blur(1em)' : 'none'};
         `)}
         onLoad={async () => await client.book.getBookImage({
           id: book.id,

@@ -1,21 +1,3 @@
-function css(s: TemplateStringsArray) {
-  const style = document.createElement('style')
-  style.type = 'text/css'
-  style.innerText = s.toString()
-
-  document.head.appendChild(style)
-}
-
-// add beautiful frosty backgrounds for all browsers that support it! *looks with disgust at firefox*
-if (CSS.supports('backdrop-filter', 'blur(0)')) {
-  css`
-    .bg-blur.bg-blur { /** double specificity to override bg-color opacities */
-      backdrop-filter: blur(1em);
-      --bg-opacity: 80%;
-    }
-  `
-}
-
 /** Converts a hex color to CSS rgba(...) format. */
 export function convertHex(hex: string, alpha?: number) {
   hex = hex.startsWith('#') ? hex.substring(1) : hex
