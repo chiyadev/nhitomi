@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useLayoutEffect, Dispatch } from 'react'
+import React, { useMemo, useState, useLayoutEffect, Dispatch, useRef } from 'react'
 import { Book, BookContent } from 'nhitomi-api'
 import { LayoutEngine, ImageBase, LayoutImage } from './layoutEngine'
 import { useLayout } from '../LayoutManager'
@@ -6,6 +6,7 @@ import { CoverImage } from '../Components/CoverImage'
 import { useClient } from '../ClientManager'
 import VisibilitySensor from 'react-visibility-sensor'
 import { useConfig } from '../ConfigManager'
+import { ScrollPreserver } from './ScrollPreserver'
 
 export const Reader = ({ book, content, viewportWidth }: { book: Book, content: BookContent, viewportWidth: number }) => {
   const { height: viewportHeight } = useLayout()
@@ -57,11 +58,19 @@ export const Reader = ({ book, content, viewportWidth }: { book: Book, content: 
     return list
   }, [content])
 
+  const ref = useRef<HTMLDivElement>(null)
+
   return (
-    <div className='relative' style={{
-      width: layout.width,
-      height: layout.height
-    }}>
+    <div
+      ref={ref}
+      className='relative'
+      style={{
+        width: layout.width,
+        height: layout.height
+      }}>
+
+      <ScrollPreserver containerRef={ref} layout={layout} />
+
       {useMemo(() => (
         layout.images.map((image, i) => (
           <Page
@@ -71,7 +80,7 @@ export const Reader = ({ book, content, viewportWidth }: { book: Book, content: 
             image={image}
             setImage={setImage[i]} />
         ))
-      ), [book, content, layout.images, setImage])}
+      ), [book, content, layout, setImage])}
     </div>
   )
 }
@@ -86,7 +95,15 @@ const Page = ({ book, content, index, image: { x, y, width, height }, setImage }
   const client = useClient()
   const [showImage, setShowImage] = useState(false)
 
-  return (
+  const image = useMemo(() => showImage && (
+    <CoverImage
+      className='w-full h-full'
+      sizing='contain'
+      onLoad={async () => await client.book.getBookImage({ id: book.id, contentId: content.id, index })}
+      onLoaded={setImage} />
+  ), [book, client, content, index, setImage, showImage])
+
+  return useMemo(() => (
     <VisibilitySensor
       onChange={v => { v && setShowImage(true) }}
       partialVisibility
@@ -98,14 +115,8 @@ const Page = ({ book, content, index, image: { x, y, width, height }, setImage }
         width,
         height
       }}>
-        {showImage && (
-          <CoverImage
-            className='w-full h-full'
-            sizing='contain'
-            onLoad={async () => await client.book.getBookImage({ id: book.id, contentId: content.id, index })}
-            onLoaded={setImage} />
-        )}
+        {image}
       </div>
     </VisibilitySensor>
-  )
+  ), [height, image, width, x, y])
 }
