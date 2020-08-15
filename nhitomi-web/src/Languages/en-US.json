@@ -43,7 +43,7 @@
           },
           "faster": {
             "name": "Faster",
-            "description": "Play animations at 4 times faster."
+            "description": "Play animations 4 times faster."
           },
           "none": {
             "name": "Disabled",
