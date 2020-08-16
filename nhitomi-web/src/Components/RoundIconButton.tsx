@@ -15,13 +15,13 @@ export const RoundIconButton = ({ className, backColor, children }: {
 
   return (
     <div
-      className='w-10 h-10 overflow-hidden'
+      className={cx('w-10 h-10 overflow-hidden', className)}
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}>
 
       <animated.div
         style={style}
-        className={cx('w-full h-full rounded-full overflow-hidden flex items-center justify-center', className)}
+        className='w-full h-full rounded-full overflow-hidden flex items-center justify-center'
         children={children} />
     </div>
   )
