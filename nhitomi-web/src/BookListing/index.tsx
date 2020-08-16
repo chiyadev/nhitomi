@@ -2,9 +2,9 @@ import React, { Dispatch, useMemo, useRef, useLayoutEffect, useCallback } from '
 import { SearchQuery, convertQuery } from './search'
 import { useQueryState, usePageState } from '../state'
 import { TypedPrefetchLinkProps, PrefetchLink, usePostfetch, PrefetchGenerator } from '../Prefetch'
-import { BookSearchResult, Book, BookSort, SortDirection } from 'nhitomi-api'
+import { BookSearchResult, BookSort, SortDirection } from 'nhitomi-api'
 import { SearchInput } from './SearchInput'
-import { BookList, selectContent } from '../Components/BookList'
+import { BookList, selectContent, BookListItem } from '../Components/BookList'
 import { useAsync } from 'react-use'
 import { useNotify } from '../NotificationManager'
 import { useClient, Client } from '../ClientManager'
@@ -130,7 +130,7 @@ const Loaded = ({ result, setResult }: { result: BookSearchResult, setResult: Di
   }, [queryCmp, effectiveQueryCmp])
 
   const contentLanguages = [language, ...(query.langs || [])]
-  const contentSelector = useCallback((book: Book) => selectContent(book, contentLanguages), [contentLanguages.join(',')]) // eslint-disable-line
+  const contentSelector = useCallback((book: BookListItem) => selectContent(book.contents, contentLanguages), [contentLanguages.join(',')]) // eslint-disable-line
 
   return (
     <Container>

@@ -1,21 +1,31 @@
-import { Book, BookContent, LanguageType } from 'nhitomi-api'
-import React, { useRef, useState, ReactNode, createContext, useMemo, ContextType, useContext } from 'react'
+import { BookContent, LanguageType } from 'nhitomi-api'
+import React, { useRef, useState, ReactNode, createContext, useMemo, ContextType, useContext, ComponentType } from 'react'
 import { cx } from 'emotion'
 import useResizeObserver from '@react-hook/resize-observer'
 import { Grid } from './Grid'
 import { ScraperTypes } from '../../orderedConstants'
 
+export type BookListItem = {
+  id: string
+  primaryName: string
+  englishName?: string
+  contents: BookContent[]
+}
+
 const BookListContext = createContext<{
-  items: Book[]
-  contentSelector: (book: Book) => BookContent
+  items: BookListItem[]
+  contentSelector: (book: BookListItem) => BookContent | undefined
+  getItemId?: (book: BookListItem, content?: BookContent) => { id: string, contentId?: string }
   overlayVisible?: boolean
+
+  LinkComponent?: ComponentType<{ id: string, contentId?: string }>
 }>(undefined as any)
 
 export function useBookList() {
   return useContext(BookListContext)
 }
 
-export const BookList = ({ items, contentSelector, overlayVisible, className, children }: ContextType<typeof BookListContext> & {
+export const BookList = ({ items, contentSelector, getItemId, overlayVisible, LinkComponent, className, children }: ContextType<typeof BookListContext> & {
   className?: string
   children?: ReactNode
 }) => {
@@ -32,8 +42,10 @@ export const BookList = ({ items, contentSelector, overlayVisible, className, ch
       <BookListContext.Provider value={useMemo(() => ({
         items,
         contentSelector,
-        overlayVisible
-      }), [contentSelector, items, overlayVisible])}>
+        getItemId,
+        overlayVisible,
+        LinkComponent
+      }), [LinkComponent, contentSelector, getItemId, items, overlayVisible])}>
 
         {width && (
           <Grid width={width} children={children} />
@@ -43,8 +55,8 @@ export const BookList = ({ items, contentSelector, overlayVisible, className, ch
   )
 }
 
-export function selectContent(book: Book, languages: LanguageType[] = []) {
-  return book.contents.sort((a, b) => {
+export function selectContent(contents: BookContent[], languages: LanguageType[] = []): BookContent | undefined {
+  return contents.sort((a, b) => {
     // respect language preference
     const language = indexCompare(languages, a.language, b.language)
     if (language) return language
