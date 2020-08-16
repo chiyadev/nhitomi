@@ -4,6 +4,8 @@ import { convertHex } from '../theme'
 import { colors } from '../theme.json'
 import { cx, css } from 'emotion'
 
+export type InputStatus = 'none' | 'success' | 'error' | 'warning'
+
 export const Input = ({ value, setValue, type = 'input', placeholder, className, onSubmit, onKeyDown, status = { status: 'none' } }: {
   value: string
   setValue: Dispatch<string>
@@ -12,7 +14,7 @@ export const Input = ({ value, setValue, type = 'input', placeholder, className,
   className?: string
   onSubmit?: (value: string) => void
   onKeyDown?: (e: KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>) => void
-  status?: { status: 'none' | 'success' | 'error' | 'warning', help?: ReactNode }
+  status?: { status: InputStatus, help?: ReactNode }
 }) => {
   const [hover, setHover] = useState(false)
   const [focus, setFocus] = useState(false)
@@ -27,7 +29,7 @@ export const Input = ({ value, setValue, type = 'input', placeholder, className,
   }
 
   const style = useSpring({
-    borderColor: convertHex(color, focus ? 0.5 : hover ? 0.3 : 0.15),
+    borderColor: convertHex(color, focus || hover ? 0.3 : 0.15),
     backgroundColor: convertHex(color, focus ? 0.2 : 0.1)
   })
 
