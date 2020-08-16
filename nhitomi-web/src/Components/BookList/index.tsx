@@ -1,9 +1,10 @@
-import { BookContent, LanguageType } from 'nhitomi-api'
 import React, { useRef, useState, ReactNode, createContext, useMemo, ContextType, useContext, ComponentType } from 'react'
+import { BookContent, LanguageType, BookApiGetBookImageRequest } from 'nhitomi-api'
 import { cx } from 'emotion'
 import useResizeObserver from '@react-hook/resize-observer'
 import { Grid } from './Grid'
 import { ScraperTypes } from '../../orderedConstants'
+import { TypedPrefetchLinkProps } from '../../Prefetch'
 
 export type BookListItem = {
   id: string
@@ -15,17 +16,17 @@ export type BookListItem = {
 const BookListContext = createContext<{
   items: BookListItem[]
   contentSelector: (book: BookListItem) => BookContent | undefined
-  getItemId?: (book: BookListItem, content?: BookContent) => { id: string, contentId?: string }
+  getCoverRequest?: (book: BookListItem, content: BookContent) => BookApiGetBookImageRequest
   overlayVisible?: boolean
 
-  LinkComponent?: ComponentType<{ id: string, contentId?: string }>
+  LinkComponent?: ComponentType<{ id: string, contentId?: string } & TypedPrefetchLinkProps>
 }>(undefined as any)
 
 export function useBookList() {
   return useContext(BookListContext)
 }
 
-export const BookList = ({ items, contentSelector, getItemId, overlayVisible, LinkComponent, className, children }: ContextType<typeof BookListContext> & {
+export const BookList = ({ items, contentSelector, getCoverRequest, overlayVisible, LinkComponent, className, children }: ContextType<typeof BookListContext> & {
   className?: string
   children?: ReactNode
 }) => {
@@ -42,10 +43,10 @@ export const BookList = ({ items, contentSelector, getItemId, overlayVisible, Li
       <BookListContext.Provider value={useMemo(() => ({
         items,
         contentSelector,
-        getItemId,
+        getItemId: getCoverRequest,
         overlayVisible,
         LinkComponent
-      }), [LinkComponent, contentSelector, getItemId, items, overlayVisible])}>
+      }), [LinkComponent, contentSelector, getCoverRequest, items, overlayVisible])}>
 
         {width && (
           <Grid width={width} children={children} />

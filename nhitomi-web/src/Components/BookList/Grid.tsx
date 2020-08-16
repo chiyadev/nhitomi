@@ -7,6 +7,7 @@ import { useSpring, animated } from 'react-spring'
 import { BookReaderLink } from '../../BookReader'
 import VisibilitySensor from 'react-visibility-sensor'
 import { useBookList, BookListItem } from '.'
+import { BookContent } from 'nhitomi-api'
 
 export const Grid = ({ width, children }: {
   width: number
@@ -67,15 +68,14 @@ const Item = ({ book, width, height, className }: {
   height: number
   className?: string
 }) => {
-  const { contentSelector, getItemId, LinkComponent } = useBookList()
+  const { contentSelector, LinkComponent } = useBookList()
   const [hover, setHover] = useState(false)
   const [showImage, setShowImage] = useState(false)
 
   const content = useMemo(() => contentSelector(book), [book, contentSelector])
-  const { id, contentId } = getItemId?.(book, content) || { id: book.id, contentId: content?.id }
 
   const overlay = useMemo(() => <ItemOverlay book={book} hover={hover} />, [book, hover])
-  const image = useMemo(() => showImage && contentId && <ItemCover id={id} contentId={contentId} />, [contentId, id, showImage])
+  const image = useMemo(() => showImage && content && <ItemCover book={book} content={content} />, [book, content, showImage])
   const inner = useMemo(() => <>{image}{overlay}</>, [image, overlay])
 
   return useMemo(() => (
@@ -92,25 +92,26 @@ const Item = ({ book, width, height, className }: {
         onMouseLeave={() => setHover(false)}>
 
         {LinkComponent
-          ? <LinkComponent id={id} contentId={contentId} children={inner} />
-          : contentId
-            ? <BookReaderLink id={id} contentId={contentId} children={inner} />
+          ? <LinkComponent id={book.id} contentId={content?.id} children={inner} />
+          : content
+            ? <BookReaderLink id={book.id} contentId={content.id} children={inner} />
             : inner}
       </div>
     </VisibilitySensor>
-  ), [LinkComponent, className, contentId, height, id, inner, width])
+  ), [LinkComponent, book.id, className, content, height, inner, width])
 }
 
-const ItemCover = ({ id, contentId }: { id: string, contentId: string }) => {
+const ItemCover = ({ book, content }: { book: BookListItem, content: BookContent }) => {
   const client = useClient()
+  const { getCoverRequest } = useBookList()
 
   return useMemo(() => (
     <CoverImage
-      key={`${id}/${contentId}`}
+      key={`${book.id}/${content.id}`}
       zoomIn
       className={cx('w-full h-full rounded overflow-hidden')}
-      onLoad={async () => await client.book.getBookImage({ id, contentId, index: -1 })} />
-  ), [client.book, contentId, id])
+      onLoad={async () => await client.book.getBookImage(getCoverRequest?.(book, content) || { id: book.id, contentId: content?.id, index: -1 })} />
+  ), [book, client.book, content, getCoverRequest])
 }
 
 const ItemOverlay = ({ book, hover }: { book: BookListItem, hover?: boolean }) => {
