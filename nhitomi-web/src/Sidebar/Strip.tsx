@@ -47,6 +47,7 @@ export const Strip = () => {
           <SelfCollectionListingLink>
             <RoundIconButton>
               <Switch>
+                <Route path='/collections'><FolderOpenFilled /></Route>
                 <Route path='/users/:id/collections'><FolderOpenFilled /></Route>
                 <Route><FolderOutlined /></Route>
               </Switch>
