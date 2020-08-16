@@ -8,6 +8,7 @@ import { BookListingLink } from '../BookListing'
 import { SettingsLink } from '../Settings'
 import { Route, Switch } from 'react-router-dom'
 import { useSprings, animated } from 'react-spring'
+import { SelfCollectionListingLink } from '../CollectionListing'
 
 export const StripWidth = 64
 
@@ -43,12 +44,14 @@ export const Strip = () => {
 
       <animated.div className='leading-none' style={styles[2]}>
         <Tooltip overlay={<FormattedMessage id='pages.collectionListing.title' />} placement='right'>
-          <RoundIconButton>
-            <Switch>
-              <Route path='/collections'><FolderOpenFilled /></Route>
-              <Route><FolderOutlined /></Route>
-            </Switch>
-          </RoundIconButton>
+          <SelfCollectionListingLink>
+            <RoundIconButton>
+              <Switch>
+                <Route path='/users/:id/collections'><FolderOpenFilled /></Route>
+                <Route><FolderOutlined /></Route>
+              </Switch>
+            </RoundIconButton>
+          </SelfCollectionListingLink>
         </Tooltip>
       </animated.div>
 

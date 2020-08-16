@@ -15,6 +15,7 @@ import { AnimationSetter } from './AnimationSetter'
 import { ConfigManager } from './ConfigManager'
 import { BookReader } from './BookReader'
 import { BlurSetter } from './BlurSetter'
+import { CollectionListing } from './CollectionListing'
 
 export const App = () => {
   return (
@@ -62,6 +63,8 @@ const Routing = () => {
 
       <Route path='/books' exact component={BookListing} />
       <Route path='/books/:id/contents/:contentId' exact render={({ match: { params: { id, contentId } } }) => <BookReader id={id} contentId={contentId} />} />
+
+      <Route path='/users/:id/collections' exact render={({ match: { params: { id } } }) => <CollectionListing id={id} />} />
 
       <Route path='/settings' exact component={Settings} />
     </Switch>
