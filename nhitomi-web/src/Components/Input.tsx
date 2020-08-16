@@ -6,10 +6,11 @@ import { cx, css } from 'emotion'
 
 export type InputStatus = 'none' | 'success' | 'error' | 'warning'
 
-export const Input = ({ value, setValue, type = 'input', placeholder, className, onSubmit, onKeyDown, status = { status: 'none' } }: {
+export const Input = ({ value, setValue, type = 'input', autoFocus, placeholder, className, onSubmit, onKeyDown, status = { status: 'none' } }: {
   value: string
   setValue: Dispatch<string>
   type?: 'input' | 'textarea'
+  autoFocus?: boolean
   placeholder?: ReactNode
   className?: string
   onSubmit?: (value: string) => void
@@ -55,6 +56,7 @@ export const Input = ({ value, setValue, type = 'input', placeholder, className,
               }
             `)}
             value={value}
+            autoFocus={autoFocus}
             onChange={({ target: { value } }) => setValue(value)}
             onMouseEnter={() => setHover(true)}
             onMouseLeave={() => setHover(false)}
@@ -83,6 +85,7 @@ export const Input = ({ value, setValue, type = 'input', placeholder, className,
               }
             `)}
             value={value}
+            autoFocus={autoFocus}
             onChange={({ target: { value } }) => setValue(value)}
             onMouseEnter={() => setHover(true)}
             onMouseLeave={() => setHover(false)}
@@ -99,7 +102,7 @@ export const Input = ({ value, setValue, type = 'input', placeholder, className,
             }} />
         )
     }
-  }, [onKeyDown, onSubmit, setValue, type, value])
+  }, [autoFocus, onKeyDown, onSubmit, setValue, type, value])
 
   return (
     <div className={cx('inline-block text-white', className)}>
@@ -115,7 +118,7 @@ export const Input = ({ value, setValue, type = 'input', placeholder, className,
       </animated.div>
 
       {typeof status.help !== 'undefined' && (
-        <animated.div style={helpStyle} className='text-xs truncate' children={status.help} />
+        <animated.div style={helpStyle} className='text-xs truncate mt-1' children={status.help} />
       )}
     </div>
   )
