@@ -16,7 +16,7 @@ import { ConfigManager } from './ConfigManager'
 import { BookReader } from './BookReader'
 import { BlurSetter } from './BlurSetter'
 import { CollectionListing } from './CollectionListing'
-import { CollectionContent } from './CollectionContent.tsx'
+import { CollectionContent } from './CollectionContent'
 
 export const App = () => {
   return (
