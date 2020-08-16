@@ -3,9 +3,14 @@ import { TypedPrefetchLinkProps, PrefetchLink, usePostfetch, PrefetchGenerator }
 import { Book, User, Collection, ObjectType } from 'nhitomi-api'
 import { useClient, useClientInfo } from '../ClientManager'
 import { PageContainer } from '../Components/PageContainer'
+import { Container } from '../Components/Container'
+import { FormattedMessage } from 'react-intl'
+import { BookSection } from './BookSection'
 
-export type PrefetchResult = { user: User, books: { collection: Collection, cover?: Book }[] }
+export type PrefetchResult = { user: User, books: BookCollection[] }
 export type PrefetchOptions = { id: string }
+
+export type BookCollection = { collection: Collection, cover?: Book }
 
 export const useCollectionListingPrefetch: PrefetchGenerator<PrefetchResult, PrefetchOptions> = ({ id }) => {
   const client = useClient()
@@ -56,12 +61,24 @@ export const CollectionListing = (options: PrefetchOptions) => {
 
   return (
     <PageContainer>
-      <Loaded user={result.user} books={result.books} />
+      <Loaded {...result} />
     </PageContainer>
   )
 }
 
 const Loaded = ({ user, books }: PrefetchResult) => {
-  return <>
-  </>
+  const { permissions } = useClientInfo()
+
+  return (
+    <Container className='divide-y divide-gray-900'>
+      <div className='p-2'>
+        <div className='text-2xl'><FormattedMessage id='pages.collectionListing.title' /></div>
+        <div className='text-xs text-gray-800'><FormattedMessage id='pages.collectionListing.subtitle' values={{ user: user.username, mode: permissions.canManageCollections(user) ? 'manage' : 'view' }} /></div>
+      </div>
+
+      <div className='py-2 space-y-8'>
+        {books.length && <BookSection collections={books} />}
+      </div>
+    </Container>
+  )
 }

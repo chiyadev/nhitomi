@@ -25,7 +25,7 @@
     },
     "settings": {
       "title": "Settings",
-      "subtitle": "Customize nhitomi's appearance and behavior",
+      "subtitle": "Customize nhitomi's appearance and behavior.",
       "appearance": {
         "header": "Appearance",
         "language": {
@@ -86,7 +86,9 @@
       }
     },
     "collectionListing": {
-      "title": "Collections"
+      "title": "Collections",
+      "subtitle": "{mode, select, view {View} manage {Manage}} {user}'s collections.",
+      "create": "Create"
     },
     "about": {
       "title": "About"
