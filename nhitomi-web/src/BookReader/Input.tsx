@@ -4,7 +4,7 @@ import { convertHex } from '../theme'
 import { colors } from '../theme.json'
 import { cx, css } from 'emotion'
 
-export const Input = ({ value, setValue, type = 'input', placeholder, className, onSubmit, onKeyDown }: {
+export const Input = ({ value, setValue, type = 'input', placeholder, className, onSubmit, onKeyDown, status = 'none' }: {
   value: string
   setValue: Dispatch<string>
   type?: 'input' | 'textarea'
@@ -12,17 +12,27 @@ export const Input = ({ value, setValue, type = 'input', placeholder, className,
   className?: string
   onSubmit?: (value: string) => void
   onKeyDown?: (e: KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>) => void
+  status?: 'none' | 'success' | 'error' | 'warning'
 }) => {
   const [hover, setHover] = useState(false)
   const [focus, setFocus] = useState(false)
 
+  let color: string
+
+  switch (status) {
+    case 'none': color = colors.gray[500]; break
+    case 'success': color = colors.green[500]; break
+    case 'error': color = colors.red[500]; break
+    case 'warning': color = colors.orange[500]; break
+  }
+
   const style = useSpring({
-    borderColor: convertHex(colors.gray[500], focus ? 0.5 : hover ? 0.3 : 0.15),
-    backgroundColor: convertHex(colors.gray[500], focus ? 0.2 : 0.1)
+    borderColor: convertHex(color, focus ? 0.5 : hover ? 0.3 : 0.15),
+    backgroundColor: convertHex(color, focus ? 0.2 : 0.1)
   })
 
   const placeholderStyle = useSpring({
-    color: convertHex(colors.gray[500], focus ? 0.75 : 0.5)
+    color: convertHex(color, focus ? 0.75 : 0.5)
   })
 
   const input = useMemo(() => {
