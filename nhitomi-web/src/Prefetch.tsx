@@ -58,7 +58,7 @@ export function usePrefetch<T, U extends {}>(generator: PrefetchGenerator<T, U>,
       navigator.navigate(mode, {
         ...location,
         state: {
-          ...location.state,
+          ...(mode === 'push' ? {} : location.state), // clear previous states if pushing
           scroll: { value: restoreScroll ? 0 : location.state.scroll?.value, version: Math.random() },
           fetch: { value: fetched, version: Math.random() }
         }
