@@ -1,10 +1,11 @@
-import React, { useCallback, useLayoutEffect, useRef, ComponentProps } from 'react'
+import React, { useCallback, useLayoutEffect, useRef, ComponentProps, ReactNode } from 'react'
 import { useAsync } from 'react-use'
 import { useProgress } from './ProgressManager'
 import { getEventModifiers } from './shortcut'
 import { useNotify } from './NotificationManager'
 import { Link, LinkProps } from 'react-router-dom'
 import { usePageState, NavigationArgs, useNavigator, NavigationMode } from './state'
+import { cx } from 'emotion'
 
 function beginScrollTo(scroll: number, retry = 0) {
   console.log('scrolling to', scroll)
@@ -140,11 +141,10 @@ export type PrefetchLinkProps = ComponentProps<typeof PrefetchLink>
 export type TypedPrefetchLinkProps = Omit<ComponentProps<typeof PrefetchLink>, 'fetch' | 'options'>
 
 /** Link that fetches some data before navigating to a page. */
-export const PrefetchLink = <T extends any, U extends {} = {}>({ fetch, options, mode, disabled, target, onClick, ...props }: Omit<LinkProps, 'to' | 'href'> & {
+export const PrefetchLink = <T extends any, U extends {} = {}>({ fetch, options, mode, className, target, onClick, ...props }: Omit<LinkProps, 'to' | 'href'> & {
   fetch: PrefetchGenerator<T, U>
   options: U
   mode?: NavigationMode
-  disabled?: boolean
 }) => {
   const [destination, run] = usePrefetch(fetch, options)
 
@@ -165,14 +165,22 @@ export const PrefetchLink = <T extends any, U extends {} = {}>({ fetch, options,
         // prevent default navigation
         e.preventDefault()
 
-        if (disabled)
-          return
-
         run(mode)
       }}
       target={target}
 
       {...props} />
+  )
+}
+
+export const BackLink = ({ children, className }: { children?: ReactNode, className?: string }) => {
+  const { history } = useNavigator()
+
+  return (
+    <div
+      className={cx('inline-block', className)}
+      children={children}
+      onClick={() => history.goBack()} />
   )
 }
 

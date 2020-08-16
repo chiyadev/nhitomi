@@ -7,6 +7,7 @@ import { LanguageNames } from '../LocaleManager'
 import { useConfig } from '../ConfigManager'
 import { LocaleFlag } from '../Components/LocaleFlag'
 import { LanguageTypes } from '../orderedConstants'
+import { Disableable } from '../Components/Disableable'
 
 export const Language = () => {
   const [interfaceLanguage, setInterfaceLanguage] = useConfig('language')
@@ -39,16 +40,17 @@ export const Language = () => {
         <div><FormattedMessage id='pages.settings.appearance.language.search' /></div>
 
         {LanguageTypes.map(language => (
-          <CheckBox
-            value={searchLanguages.indexOf(language) !== -1}
-            setValue={v => {
-              if (v) setSearchLanguages([...searchLanguages, language].filter((v, i, a) => a.indexOf(v) === i))
-              else setSearchLanguages(searchLanguages.filter(l => l !== language))
-            }}
-            disabled={searchLanguages.length === 1 && searchLanguages[0] === language}>
+          <Disableable disabled={searchLanguages.length === 1 && searchLanguages[0] === language}>
+            <CheckBox
+              value={searchLanguages.indexOf(language) !== -1}
+              setValue={v => {
+                if (v) setSearchLanguages([...searchLanguages, language].filter((v, i, a) => a.indexOf(v) === i))
+                else setSearchLanguages(searchLanguages.filter(l => l !== language))
+              }}>
 
-            <span><LocaleFlag language={language} size={20} /> {LanguageNames[language]}</span>
-          </CheckBox>
+              <span><LocaleFlag language={language} size={20} /> {LanguageNames[language]}</span>
+            </CheckBox>
+          </Disableable>
         ))}
       </div>
     </SettingsFocusContainer>

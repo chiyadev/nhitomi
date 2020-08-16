@@ -7,27 +7,21 @@ import { convertHex } from '../theme'
 
 export type CheckBoxType = 'check' | 'radio'
 
-export const CheckBox = ({ value, setValue, type = 'check', children, className, disabled }: {
+export const CheckBox = ({ value, setValue, type = 'check', children, className }: {
   value?: boolean
   setValue?: Dispatch<boolean>
   type?: CheckBoxType
   children?: ReactNode
   className?: string
-  disabled?: boolean
 }) => {
   const [hover, setHover] = useState(false)
 
-  const style = useSpring({
-    opacity: disabled ? 0.5 : 1
-  })
-
   return (
-    <animated.div
-      style={style}
-      className={cx('flex flex-row items-center', disabled ? 'cursor-not-allowed' : 'cursor-pointer', className)}
-      onClick={() => { if (!disabled) setValue?.(!value) }}
-      onMouseEnter={() => { !disabled && setHover(true) }}
-      onMouseLeave={() => { !disabled && setHover(false) }}>
+    <div
+      className={cx('flex flex-row items-center', className)}
+      onClick={() => setValue?.(!value)}
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}>
 
       <div className='mx-2 my-1'>
         {type === 'check' ? <Check value={value} hover={hover} />
@@ -36,7 +30,7 @@ export const CheckBox = ({ value, setValue, type = 'check', children, className,
       </div>
 
       <div className='flex-1 mr-2' children={children} />
-    </animated.div>
+    </div>
   )
 }
 

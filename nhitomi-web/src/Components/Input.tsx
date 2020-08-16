@@ -33,7 +33,7 @@ export const Input = ({ value, setValue, type = 'input', autoFocus, placeholder,
     case 'warning': color = colors.orange[500]; break
   }
 
-  const style = useSpring({
+  const inputStyle = useSpring({
     borderColor: convertHex(color, focus || hover ? 0.3 : 0.15),
     backgroundColor: convertHex(color, focus ? 0.2 : 0.1)
   })
@@ -124,7 +124,7 @@ export const Input = ({ value, setValue, type = 'input', autoFocus, placeholder,
 
   return (
     <div className={cx('inline-block text-white', className)}>
-      <animated.div className='w-full relative rounded-sm overflow-hidden border' style={style}>
+      <animated.div className='w-full relative rounded-sm overflow-hidden border' style={inputStyle}>
         {input}
 
         {!value && (

@@ -38,6 +38,7 @@ export const FilledButton = ({ children, icon, className, onClick, type = 'defau
     <animated.div
       style={style}
       className={cx('inline-block text-white rounded-sm overflow-hidden cursor-pointer', className)}
+      tabIndex={0}
       onClick={onClick}
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}

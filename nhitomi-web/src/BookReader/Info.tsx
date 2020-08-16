@@ -17,6 +17,7 @@ import { BookTags, ScraperTypes, LanguageTypes } from '../orderedConstants'
 import { LanguageNames } from '../LocaleManager'
 import { NewTabLink } from '../Components/NewTabLink'
 import { BookListingLink } from '../BookListing'
+import { Disableable } from '../Components/Disableable'
 
 export const Info = ({ book, content }: PrefetchResult) => {
   const client = useClient()
@@ -85,15 +86,17 @@ export const Info = ({ book, content }: PrefetchResult) => {
                       return (
                         <DropdownGroup name={LanguageNames[language]}>
                           {languageContents.map(content => (
-                            <BookReaderLink id={book.id} contentId={content.id}>
-                              <DropdownItem disabled={content === displayContent}>
-                                <NewTabLink href={content.sourceUrl}>
-                                  <LinkOutlined className='pr-2 text-blue-600' />
-                                </NewTabLink>
+                            <Disableable disabled={content === displayContent}>
+                              <BookReaderLink id={book.id} contentId={content.id}>
+                                <DropdownItem>
+                                  <NewTabLink href={content.sourceUrl}>
+                                    <LinkOutlined className='pr-2 text-blue-600' />
+                                  </NewTabLink>
 
-                                {content.sourceUrl}
-                              </DropdownItem>
-                            </BookReaderLink>
+                                  {content.sourceUrl}
+                                </DropdownItem>
+                              </BookReaderLink>
+                            </Disableable>
                           ))}
                         </DropdownGroup>
                       )

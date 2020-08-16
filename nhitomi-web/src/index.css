@@ -6,3 +6,7 @@
 .anticon {
   vertical-align: middle;
 }
+
+.display-contents {
+  display: contents;
+}
