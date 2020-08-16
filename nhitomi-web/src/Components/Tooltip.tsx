@@ -3,11 +3,12 @@ import Tippy from '@tippyjs/react'
 import { cx } from 'emotion'
 import { animated, useSpring } from 'react-spring'
 
-export const Tooltip = ({ className, overlay, children, hideOnClick = false, ignoreAttributes = true, touch = false, duration = 200, placement = 'auto', padding = true, onShow, onHide, ...props }: {
+export const Tooltip = ({ className, overlay, children, hideOnClick = false, ignoreAttributes = true, touch = false, duration = 200, placement = 'auto', padding = true, wrapperProps, onShow, onHide, popperOptions, ...props }: {
   overlay?: ReactNode
   children?: ReactNode
   padding?: boolean
-} & Omit<ComponentProps<typeof Tippy>, 'content' | 'children' | 'animation' | 'arrow'>) => {
+  wrapperProps?: ComponentProps<'div'>
+} & Omit<ComponentProps<typeof Tippy>, 'content' | 'render' | 'children' | 'animation' | 'arrow'>) => {
   const [visible, setVisible] = useState(false)
   const [render, setRender] = useState(false)
 
@@ -48,9 +49,26 @@ export const Tooltip = ({ className, overlay, children, hideOnClick = false, ign
         return onHide?.(x)
       }}
 
+      popperOptions={{
+        modifiers: [
+          {
+            // disable scroll listeners for performance if not visible
+            name: 'eventListeners',
+            enabled: true,
+            phase: 'write',
+            options: {
+              scroll: render,
+              resize: render
+            }
+          },
+          ...(popperOptions?.modifiers || [])
+        ],
+        ...popperOptions
+      }}
+
       {...props}>
 
-      <div className={className}>{children}</div>
+      <div {...wrapperProps} className={cx(className, wrapperProps?.className)}>{children}</div>
     </Tippy>
   )
 }
