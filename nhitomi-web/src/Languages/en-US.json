@@ -88,7 +88,15 @@
     "collectionListing": {
       "title": "Collections",
       "subtitle": "{mode, select, view {View} manage {Manage}} {user}'s collections.",
-      "create": "Create"
+      "create": {
+        "title": "New collection",
+        "subtitle": "Create a new {type} collection.",
+        "name": "Name",
+        "nameTaken": "Name ''{name}'' is already taken.",
+        "description": "Description",
+        "cancel": "Back",
+        "submit": "Create"
+      }
     },
     "about": {
       "title": "About"

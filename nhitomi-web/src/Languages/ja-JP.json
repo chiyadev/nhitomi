@@ -88,7 +88,15 @@
     "collectionListing": {
       "title": "コレクション",
       "subtitle": "{user}さんのコレクション{mode, select, view {が見れます} manage {を管理します}}。",
-      "create": "新規"
+      "create": {
+        "title": "新規コレクション",
+        "subtitle": "新しい{type}コレクションを作成します。",
+        "name": "名前",
+        "nameTaken": "名前「{name}」はすでに使用されています。",
+        "description": "説明",
+        "cancel": "戻る",
+        "submit": "作成"
+      }
     },
     "about": {
       "title": "情報"

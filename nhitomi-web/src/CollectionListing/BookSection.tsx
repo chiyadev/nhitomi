@@ -46,7 +46,7 @@ export const BookSection = ({ collections }: { collections: BookCollection[] }) 
 }
 
 const NewButton = () => (
-  <Tooltip placement='bottom' overlay={<FormattedMessage id='pages.collectionListing.create' />}>
+  <Tooltip placement='bottom' overlay={<FormattedMessage id='pages.collectionListing.create.title' />}>
     <CollectionCreateLink type={ObjectType.Book}>
       <RoundIconButton>
         <PlusOutlined />
