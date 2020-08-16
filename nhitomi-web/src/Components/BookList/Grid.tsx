@@ -139,6 +139,9 @@ const ItemOverlay = ({ book, hover }: { book: BookListItem, hover?: boolean }) =
 
   const [visible, setVisible] = useState(hover)
   const style = useSpring({
+    from: {
+      opacity: 0
+    },
     opacity: hover ? 1 : 0,
     marginBottom: hover ? 0 : -5,
     onChange: {
