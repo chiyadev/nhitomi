@@ -49,12 +49,18 @@ export function usePrefetch<T, U extends {}>(generator: PrefetchGenerator<T, U>,
   destination.hash = destination.hash || ''
 
   const run = useCallback(async (mode: NavigationMode = 'push') => {
+    const startingPath = navigator.path
+
     if (showProgress)
       begin()
 
     try {
       const fetched = await fetch()
       const location = navigator.evaluate(destination)
+
+      // abort if navigated during fetch
+      if (navigator.path !== startingPath)
+        return
 
       navigator.navigate(mode, {
         ...location,
