@@ -24,7 +24,7 @@ export const CheckBox = ({ value, setValue, type = 'check', children, className,
   return (
     <animated.div
       style={style}
-      className={cx('flex flex-row items-center cursor-pointer', { 'cursor-not-allowed': disabled }, className)}
+      className={cx('flex flex-row items-center', disabled ? 'cursor-not-allowed' : 'cursor-pointer', className)}
       onClick={() => { if (!disabled) setValue?.(!value) }}
       onMouseEnter={() => { !disabled && setHover(true) }}
       onMouseLeave={() => { !disabled && setHover(false) }}>
