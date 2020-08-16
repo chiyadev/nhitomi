@@ -16,6 +16,7 @@ import { useConfig } from '../ConfigManager'
 import { useSpring, animated } from 'react-spring'
 import { PageContainer } from '../Components/PageContainer'
 import stringify from 'json-stable-stringify'
+import { Container } from '../Components/Container'
 
 async function performQuery(client: Client, query: SearchQuery) {
   // try scanning for links first
@@ -131,15 +132,17 @@ const Loaded = ({ result, setResult }: { result: BookSearchResult, setResult: Di
   const contentLanguages = [language, ...(query.langs || [])]
   const contentSelector = useCallback((book: Book) => selectContent(book, contentLanguages), [contentLanguages.join(',')]) // eslint-disable-line
 
-  return <>
-    <Input result={result} />
+  return (
+    <Container>
+      <Input result={result} />
 
-    <BookList items={result.items} contentSelector={contentSelector}>
-      <Menu />
-    </BookList>
+      <BookList items={result.items} contentSelector={contentSelector}>
+        <Menu />
+      </BookList>
 
-    <Loader key={effectiveQueryCmp} query={query} result={result} setResult={setResult} />
-  </>
+      <Loader key={effectiveQueryCmp} query={query} result={result} setResult={setResult} />
+    </Container>
+  )
 }
 
 const Input = ({ result }: { result: BookSearchResult }) => {
