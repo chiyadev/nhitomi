@@ -33,7 +33,7 @@ export const useCollectionContentPrefetch: PrefetchGenerator<PrefetchResult, Pre
           return {
             type: 'book',
             collection,
-            books: await client.book.getBooks({ getBookManyRequest: { ids: collection.items.slice(0, DefaultQueryLimit) } })
+            books: collection.items.length ? await client.book.getBooks({ getBookManyRequest: { ids: collection.items.slice(0, DefaultQueryLimit) } }) : []
           }
 
         default:
