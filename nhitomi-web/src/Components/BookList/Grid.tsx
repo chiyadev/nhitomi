@@ -43,12 +43,7 @@ export const Grid = ({ width, children }: {
 
   return (
     <div style={{ maxWidth: rowWidth }} className='mx-auto w-full'>
-      <Menu
-        children={children}
-        className={css`
-          padding-left: ${spacing / 2}px;
-          padding-right: ${spacing / 2}px;
-        `} />
+      <Menu children={children} />
 
       <div className={cx('flex flex-row flex-wrap justify-center', css`
         padding-left: ${spacing / 2}px;
@@ -68,18 +63,20 @@ export const Grid = ({ width, children }: {
   )
 }
 
-const Menu = ({ children, className }: { children?: ReactNode, className?: string }) => {
+const Menu = ({ children }: { children?: ReactNode }) => {
   const style = useSpring({
     from: { opacity: 0 },
     to: { opacity: 1 }
   })
 
-  return (
-    <animated.div
-      style={style}
-      className={cx('w-full flex flex-row justify-end', className)}
-      children={children} />
-  )
+  return <>
+    {children && (
+      <animated.div
+        style={style}
+        className='w-full flex flex-row justify-end px-1 mb-1'
+        children={children} />
+    )}
+  </>
 }
 
 const Item = ({ book, width, height, className }: {
