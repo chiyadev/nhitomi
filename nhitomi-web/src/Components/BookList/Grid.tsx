@@ -43,10 +43,16 @@ export const Grid = ({ width, children }: {
 
   return (
     <div style={{ maxWidth: rowWidth }} className='mx-auto w-full'>
-      <Menu children={children} />
+      <Menu
+        children={children}
+        className={css`
+          padding-left: ${spacing / 2}px;
+          padding-right: ${spacing / 2}px;
+        `} />
 
       <div className={cx('flex flex-row flex-wrap justify-center', css`
-        padding: ${spacing / 2}px;
+        padding-left: ${spacing / 2}px;
+        padding-right: ${spacing / 2}px;
       `)}>
 
         {useMemo(() => items.map(item => (
@@ -62,7 +68,7 @@ export const Grid = ({ width, children }: {
   )
 }
 
-const Menu = ({ children }: { children?: ReactNode }) => {
+const Menu = ({ children, className }: { children?: ReactNode, className?: string }) => {
   const style = useSpring({
     from: { opacity: 0 },
     to: { opacity: 1 }
@@ -71,7 +77,7 @@ const Menu = ({ children }: { children?: ReactNode }) => {
   return (
     <animated.div
       style={style}
-      className='w-full clearfix leading-none'>
+      className={cx('w-full clearfix leading-none', className)}>
 
       <div className='float-right' children={children} />
     </animated.div >
