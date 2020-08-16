@@ -107,7 +107,14 @@
         "submit": "作成"
       }
     },
-    "collectionContent": {},
+    "collectionContent": {
+      "book": {
+        "delete": {
+          "warning": "このコレクションを完全に削除します。",
+          "button": "削除"
+        }
+      }
+    },
     "about": {
       "title": "情報"
     }

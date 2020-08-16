@@ -1,4 +1,4 @@
-import React, { Dispatch, useRef, useCallback } from 'react'
+import React, { Dispatch, useRef, useCallback, useState } from 'react'
 import { BookPrefetchResult } from '.'
 import { Container } from '../Components/Container'
 import { useClient } from '../ClientManager'
@@ -7,10 +7,18 @@ import { useProgress } from '../ProgressManager'
 import { useSpring, animated } from 'react-spring'
 import { LoadContainer } from '../Components/LoadContainer'
 import { DefaultQueryLimit } from '../BookListing/search'
-import { Book } from 'nhitomi-api'
+import { Book, Collection } from 'nhitomi-api'
 import { BookList, BookListItem, selectContent } from '../Components/BookList'
 import { useConfig } from '../ConfigManager'
 import { useTabTitle } from '../TitleSetter'
+import { Dropdown } from '../Components/Dropdown'
+import { usePrefetch } from '../Prefetch'
+import { useCollectionListingPrefetch } from '../CollectionListing'
+import { RoundIconButton } from '../Components/RoundIconButton'
+import { DeleteOutlined } from '@ant-design/icons'
+import { FormattedMessage } from 'react-intl'
+import { FlatButton } from '../Components/FlatButton'
+import { Disableable } from '../Components/Disableable'
 
 export const BookDisplay = ({ result, setResult }: { result: BookPrefetchResult, setResult: Dispatch<BookPrefetchResult> }) => {
   const { collection, items } = result
@@ -30,11 +38,60 @@ export const BookDisplay = ({ result, setResult }: { result: BookPrefetchResult,
         <div className='text-xs text-gray-800'>{collection.description}</div>
       </div>
 
-      <div>
-        <BookList items={items} contentSelector={contentSelector} />
+      <div className='py-2'>
+        <BookList items={items} contentSelector={contentSelector}>
+          <DeleteButton collection={collection} />
+        </BookList>
+
         <Loader result={result} setResult={setResult} />
       </div>
     </Container>
+  )
+}
+
+const DeleteButton = ({ collection }: { collection: Collection }) => {
+  const client = useClient()
+  const [loading, setLoading] = useState(false)
+  const { begin, end } = useProgress()
+  const { notifyError } = useNotify()
+  const [, navigateListing] = usePrefetch(useCollectionListingPrefetch, { id: collection.ownerIds[0] })
+
+  return (
+    <Dropdown visible={loading || undefined} placement='bottom' padding overlay={(
+      <div className='flex flex-col space-y-2'>
+        <div><FormattedMessage id='pages.collectionContent.book.delete.warning' /></div>
+
+        <Disableable disabled={loading}>
+          <FlatButton onClick={async () => {
+            if (loading)
+              return
+
+            setLoading(true)
+            begin()
+
+            try {
+              await client.collection.deleteCollection({ id: collection.id })
+              await navigateListing()
+            }
+            catch (e) {
+              notifyError(e)
+            }
+            finally {
+              setLoading(false)
+              end()
+            }
+          }}>
+
+            <FormattedMessage id='pages.collectionContent.book.delete.button' />
+          </FlatButton>
+        </Disableable>
+      </div>
+    )}>
+
+      <RoundIconButton >
+        <DeleteOutlined />
+      </RoundIconButton>
+    </Dropdown>
   )
 }
 
