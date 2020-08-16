@@ -44,7 +44,7 @@ export const Input = ({ value, setValue, type = 'input', autoFocus, placeholder,
 
   const helpStyle = useSpring({
     color,
-    opacity: typeof status.help === 'undefined' ? 0 : 1
+    opacity: status.help ? 1 : 0
   })
 
   const [clearHover, setClearHover] = useState(false)
@@ -146,7 +146,7 @@ export const Input = ({ value, setValue, type = 'input', autoFocus, placeholder,
         )}
       </animated.div>
 
-      {typeof status.help !== 'undefined' && (
+      {status.help && (
         <animated.div style={helpStyle} className='text-xs truncate mt-1' children={status.help} />
       )}
     </div>

@@ -35,7 +35,7 @@ export const FilledButton = ({ children, icon, className, onClick, type = 'defau
   })
 
   const iconStyle = useSpring({
-    opacity: typeof icon === 'undefined' ? 0 : 1
+    opacity: icon ? 1 : 0
   })
 
   return (
@@ -51,13 +51,13 @@ export const FilledButton = ({ children, icon, className, onClick, type = 'defau
 
       <animated.div
         style={overlayStyle}
-        className='px-2 py-1 space-x-1'>
+        className='px-2 py-1 flex flex-row space-x-2'>
 
-        {typeof icon !== 'undefined' && (
-          <animated.div style={iconStyle} className='inline-block' children={icon} />
+        {icon && (
+          <animated.div style={iconStyle} children={icon} />
         )}
 
-        <div className='inline-block' children={children} />
+        <div children={children} />
       </animated.div>
     </animated.div>
   )
