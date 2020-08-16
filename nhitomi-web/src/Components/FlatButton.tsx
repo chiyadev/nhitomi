@@ -34,6 +34,10 @@ export const FlatButton = ({ children, icon, className, onClick, type = 'default
     backgroundColor: convertHex('#fff', click ? 0.25 : hover ? 0.125 : 0)
   })
 
+  const iconStyle = useSpring({
+    opacity: typeof icon === 'undefined' ? 0 : 1
+  })
+
   return (
     <animated.div
       style={style}
@@ -49,7 +53,10 @@ export const FlatButton = ({ children, icon, className, onClick, type = 'default
         style={overlayStyle}
         className='px-2 py-1 space-x-1'>
 
-        {icon}
+        {typeof icon !== 'undefined' && (
+          <animated.div style={iconStyle} className='inline-block' children={icon} />
+        )}
+
         <div className='inline-block' children={children} />
       </animated.div>
     </animated.div>
