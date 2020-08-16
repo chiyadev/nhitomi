@@ -57,6 +57,15 @@
           "disabled": "Disabled"
         }
       },
+      "reader": {
+        "header": "Reader",
+        "preferEnglishName": {
+          "name": "Prefer English name",
+          "description": "Prefer to display English name before primary name.",
+          "enabled": "Enabled",
+          "disabled": "Disabled"
+        }
+      },
       "keyboard": {
         "header": "Keyboard",
         "shortcuts": {

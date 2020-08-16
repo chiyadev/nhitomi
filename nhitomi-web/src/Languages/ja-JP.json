@@ -57,6 +57,15 @@
           "disabled": "オフ"
         }
       },
+      "reader": {
+        "header": "読み",
+        "preferEnglishName": {
+          "name": "英語名で表示",
+          "description": "日本語名の代わりに英語名を表示します。",
+          "enabled": "オン",
+          "disabled": "オフ"
+        }
+      },
       "keyboard": {
         "header": "キーボード",
         "shortcuts": {

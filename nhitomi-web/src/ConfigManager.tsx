@@ -41,6 +41,7 @@ export type ConfigStore = {
   scrollDownKey: ShortcutConfig[]
   scrollUpKey: ShortcutConfig[]
 
+  bookReaderPreferEnglishName: boolean
   bookReaderViewportBound: boolean
   bookReaderLeftToRight: boolean
   bookReaderImagesPerRow: number
@@ -73,6 +74,7 @@ const DefaultStore: ConfigStore = {
   scrollDownKey: [{ key: 83 }, { key: 40 }],  // s down
   scrollUpKey: [{ key: 87 }, { key: 38 }],    // w up
 
+  bookReaderPreferEnglishName: true,
   bookReaderViewportBound: true,
   bookReaderLeftToRight: false,
   bookReaderImagesPerRow: 2,
@@ -112,6 +114,7 @@ export class ConfigSource extends (EventEmitter as new () => StrictEventEmitter<
   scrollDownKey!: ShortcutConfig[]
   scrollUpKey!: ShortcutConfig[]
 
+  bookReaderPreferEnglishName!: boolean
   bookReaderViewportBound!: boolean
   bookReaderLeftToRight!: boolean
   bookReaderImagesPerRow!: number

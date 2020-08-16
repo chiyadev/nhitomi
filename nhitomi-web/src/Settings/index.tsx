@@ -1,27 +1,26 @@
-import React, { ReactNode, useState } from 'react'
+import React, { ReactNode } from 'react'
 import { TypedPrefetchLinkProps, PrefetchLink, usePostfetch, PrefetchGenerator } from '../Prefetch'
 import { useClientInfo, ClientInfo } from '../ClientManager'
 import { Container } from '../Components/Container'
 import { FormattedMessage } from 'react-intl'
-import { colors } from '../theme.json'
-import { useSpring, animated } from 'react-spring'
 import { Language } from './Language'
 import { Animation } from './Animation'
 import { useScrollShortcut } from '../shortcut'
 import { SettingsFocusContainer } from './common'
 import { useQueryState } from '../state'
-import { PictureFilled, MacCommandFilled } from '@ant-design/icons'
+import { PictureFilled, MacCommandFilled, ReadOutlined } from '@ant-design/icons'
 import { PageContainer } from '../Components/PageContainer'
 import { Blur } from './Blur'
 import { Shortcuts } from './Shortcuts'
 import { useTabTitle } from '../TitleSetter'
 import { useLocalized } from '../LocaleManager'
+import { PreferEnglishName } from './PreferEnglishName'
 
 export type PrefetchResult = ClientInfo
 export type PrefetchOptions = { focus?: SettingsFocus }
 
-export type SettingsSection = 'appearance' | 'keyboard'
-export type SettingsItem = 'language' | 'animation' | 'blur' | 'shortcuts'
+export type SettingsSection = 'appearance' | 'reader' | 'keyboard'
+export type SettingsItem = 'language' | 'animation' | 'blur' | 'preferEnglishName' | 'shortcuts'
 export type SettingsFocus = SettingsSection | SettingsItem
 
 export const useSettingsPrefetch: PrefetchGenerator<PrefetchResult, PrefetchOptions> = ({ mode, focus: targetFocus }) => {
@@ -78,7 +77,7 @@ const Loaded = () => {
         <div className='text-xs text-gray-800'><FormattedMessage id='pages.settings.subtitle' /></div>
       </div>
 
-      <div className='p-2 space-y-8'>
+      <div className='p-2 space-y-12'>
         <Section
           type='appearance'
           name={<span><PictureFilled /> <FormattedMessage id='pages.settings.appearance.header' /></span>}>
@@ -86,6 +85,13 @@ const Loaded = () => {
           <Language />
           <Animation />
           <Blur />
+        </Section>
+
+        <Section
+          type='reader'
+          name={<span><ReadOutlined /> <FormattedMessage id='pages.settings.reader.header' /></span>}>
+
+          {[<PreferEnglishName />]}
         </Section>
 
         <Section
@@ -99,24 +105,15 @@ const Loaded = () => {
   )
 }
 
-const Section = ({ name, type, children, className }: { name?: ReactNode, type: SettingsSection, children?: ReactNode[], className?: string }) => {
-  const [hovered, setHovered] = useState(false)
-  const headerStyle = useSpring({
-    color: hovered ? colors.gray[500] : colors.gray[800]
-  })
+const Section = ({ name, type, children, className }: { name?: ReactNode, type: SettingsSection, children?: ReactNode[], className?: string }) => (
+  <SettingsFocusContainer
+    focus={type}
+    className={className}>
 
-  return (
-    <SettingsFocusContainer
-      focus={type}
-      className={className}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}>
+    <div className='text-xs text-gray-800 font-bold' children={name} />
 
-      <animated.div style={headerStyle} className='text-xs' children={name} />
-
-      <div className='text-sm divide-y divide-gray-900'>
-        {children?.map(child => <div className='py-4' children={child} />)}
-      </div>
-    </SettingsFocusContainer>
-  )
-}
+    <div className='text-sm divide-y divide-gray-900'>
+      {children?.map(child => <div className='py-4' children={child} />)}
+    </div>
+  </SettingsFocusContainer>
+)

@@ -8,6 +8,7 @@ import { BookReaderLink } from '../../BookReader'
 import VisibilitySensor from 'react-visibility-sensor'
 import { useBookList, BookListItem } from '.'
 import { BookContent } from 'nhitomi-api'
+import { useConfig } from '../../ConfigManager'
 
 export const Grid = ({ width, children }: {
   width: number
@@ -135,6 +136,8 @@ const ItemCover = ({ book, content }: { book: BookListItem, content?: BookConten
 }
 
 const ItemOverlay = ({ book, hover }: { book: BookListItem, hover?: boolean }) => {
+  const [preferEnglishName] = useConfig('bookReaderPreferEnglishName')
+
   const { overlayVisible } = useBookList()
   hover = overlayVisible || hover
 
@@ -152,13 +155,13 @@ const ItemOverlay = ({ book, hover }: { book: BookListItem, hover?: boolean }) =
 
   const inner = useMemo(() => visible && (
     <div className='p-1 bg-white bg-blur text-black rounded-b'>
-      <span className='block text-sm truncate font-bold'>{book.primaryName}</span>
+      <span className='block text-sm truncate font-bold'>{(preferEnglishName && book.englishName) || book.primaryName}</span>
 
       {book.primaryName !== book.englishName && (
-        <span className='block text-xs truncate'>{book.englishName}</span>
+        <span className='block text-xs truncate'>{(!preferEnglishName && book.englishName) || book.primaryName}</span>
       )}
     </div>
-  ), [book.englishName, book.primaryName, visible])
+  ), [book.englishName, book.primaryName, preferEnglishName, visible])
 
   if (!visible)
     return null

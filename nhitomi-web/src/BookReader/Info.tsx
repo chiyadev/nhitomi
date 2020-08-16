@@ -18,10 +18,13 @@ import { LanguageNames } from '../LocaleManager'
 import { NewTabLink } from '../Components/NewTabLink'
 import { BookListingLink } from '../BookListing'
 import { Disableable } from '../Components/Disableable'
+import { useConfig } from '../ConfigManager'
 
 export const Info = ({ book, content }: PrefetchResult) => {
   const client = useClient()
   const { screen } = useLayout()
+
+  const [preferEnglishName] = useConfig('bookReaderPreferEnglishName')
 
   return (
     <div className={cx('flex p-4', screen === 'sm' ? 'flex-col space-y-4' : 'flex-row space-x-4')}>
@@ -39,8 +42,8 @@ export const Info = ({ book, content }: PrefetchResult) => {
 
       <div className='flex-1 space-y-4'>
         <div>
-          <div className='text-2xl font-bold'>{book.primaryName}</div>
-          <div className='text-sm font-bold text-gray-800'>{book.englishName}</div>
+          <div className='text-2xl font-bold'>{(preferEnglishName && book.englishName) || book.primaryName}</div>
+          <div className='text-sm font-bold text-gray-800'>{(!preferEnglishName && book.englishName) || book.primaryName}</div>
         </div>
 
         <div className='space-y-2'>

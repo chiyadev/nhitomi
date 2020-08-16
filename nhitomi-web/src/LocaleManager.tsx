@@ -23,8 +23,15 @@ export const LanguageNames: { [lang in LanguageType]: string } = {
   'vi-VN': 'Tiếng Việt'
 }
 
+export const AsianLanguages: LanguageType[] = [
+  LanguageType.JaJP,
+  LanguageType.ZhCN,
+  LanguageType.KoKR
+]
+
 export function useLocalized(id: string, values?: Record<string, string | number | boolean | null | undefined | Date>): string
 export function useLocalized(id: string, values?: Record<string, string | number | boolean | null | undefined | Date | ReactNode>): ReactNode
+
 export function useLocalized(id: string, values: any) {
   const { formatMessage } = useIntl()
 
@@ -34,10 +41,12 @@ export function useLocalized(id: string, values: any) {
 export const LocaleManager = ({ children }: { children?: ReactNode }) => {
   const client = useClient()
   const { setInfo, fetchInfo } = useClientInfo()
-  const [language] = useConfig('language')
-  const [searchLanguages, setSearchLanguages] = useConfig('searchLanguages')
   const [messages, setMessages] = useState<Record<string, string>>()
   const { begin, end } = useProgress()
+
+  const [language] = useConfig('language')
+  const [searchLanguages, setSearchLanguages] = useConfig('searchLanguages')
+  const [, setPreferEnglishName] = useConfig('bookReaderPreferEnglishName')
 
   const loadId = useRef(0)
 
@@ -54,8 +63,8 @@ export const LocaleManager = ({ children }: { children?: ReactNode }) => {
     begin()
 
     try {
+      // synchronize language setting on change
       if (id > 1) {
-        // synchronize language setting
         const info = await fetchInfo()
 
         if (info.authenticated) {
@@ -69,6 +78,8 @@ export const LocaleManager = ({ children }: { children?: ReactNode }) => {
               }
             })
           })
+
+          setPreferEnglishName(AsianLanguages.indexOf(language) === -1)
         }
       }
 
