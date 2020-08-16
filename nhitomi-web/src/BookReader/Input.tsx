@@ -4,7 +4,7 @@ import { convertHex } from '../theme'
 import { colors } from '../theme.json'
 import { cx, css } from 'emotion'
 
-export const Input = ({ value, setValue, type = 'input', placeholder, className, onSubmit, onKeyDown, status = 'none' }: {
+export const Input = ({ value, setValue, type = 'input', placeholder, className, onSubmit, onKeyDown, status = { status: 'none' } }: {
   value: string
   setValue: Dispatch<string>
   type?: 'input' | 'textarea'
@@ -12,14 +12,14 @@ export const Input = ({ value, setValue, type = 'input', placeholder, className,
   className?: string
   onSubmit?: (value: string) => void
   onKeyDown?: (e: KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>) => void
-  status?: 'none' | 'success' | 'error' | 'warning'
+  status?: { status: 'none' | 'success' | 'error' | 'warning', help?: ReactNode }
 }) => {
   const [hover, setHover] = useState(false)
   const [focus, setFocus] = useState(false)
 
   let color: string
 
-  switch (status) {
+  switch (status.status) {
     case 'none': color = colors.gray[500]; break
     case 'success': color = colors.green[500]; break
     case 'error': color = colors.red[500]; break
@@ -33,6 +33,11 @@ export const Input = ({ value, setValue, type = 'input', placeholder, className,
 
   const placeholderStyle = useSpring({
     color: convertHex(color, focus ? 0.75 : 0.5)
+  })
+
+  const helpStyle = useSpring({
+    color,
+    opacity: typeof status.help === 'undefined' ? 0 : 1
   })
 
   const input = useMemo(() => {
@@ -95,17 +100,21 @@ export const Input = ({ value, setValue, type = 'input', placeholder, className,
   }, [onKeyDown, onSubmit, setValue, type, value])
 
   return (
-    <animated.div
-      style={style}
-      className={cx('inline-block relative bg-gray-900 text-white rounded-sm overflow-hidden border', className)}>
-      {input}
+    <div className={cx('inline-block text-white', className)}>
+      <animated.div className='w-full relative rounded-sm overflow-hidden border' style={style}>
+        {input}
 
-      {!value && (
-        <animated.div
-          style={placeholderStyle}
-          className='absolute top-0 left-0 w-full h-full px-2 py-1 align-top pointer-events-none truncate'
-          children={placeholder} />
+        {!value && (
+          <animated.div
+            style={placeholderStyle}
+            className='absolute top-0 left-0 w-full h-full px-2 py-1 align-top pointer-events-none truncate'
+            children={placeholder} />
+        )}
+      </animated.div>
+
+      {typeof status.help !== 'undefined' && (
+        <animated.div style={helpStyle} className='text-xs truncate' children={status.help} />
       )}
-    </animated.div>
+    </div>
   )
 }
