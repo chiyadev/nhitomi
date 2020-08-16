@@ -64,7 +64,7 @@ export const SortButton = () => {
       </DropdownGroup>
     </>}>
 
-      <RoundIconButton className='cursor-pointer'>
+      <RoundIconButton>
         {query.order === SortDirection.Ascending
           ? <SortAscendingOutlined />
           : <SortDescendingOutlined />}
