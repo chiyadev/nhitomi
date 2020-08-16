@@ -146,7 +146,7 @@ export function usePageState<T>(key: string): [T | undefined, Dispatch<T | undef
 export function usePageState<T>(key: string, initialState: T): [T, Dispatch<T>]
 
 export function usePageState(key: string, initialState?: any) {
-  if (initialState && !Navigator.state[key]?.value) {
+  if (typeof initialState !== 'undefined' && typeof Navigator.state[key]?.value === 'undefined') {
     Navigator.navigate('replace', { state: s => ({ ...s, [key]: { value: initialState, version: Math.random() } }) })
   }
 
