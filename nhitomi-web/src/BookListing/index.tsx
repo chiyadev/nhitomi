@@ -5,7 +5,7 @@ import { TypedPrefetchLinkProps, PrefetchLink, usePostfetch, PrefetchGenerator }
 import { BookSearchResult, BookSort, SortDirection, Book } from 'nhitomi-api'
 import { SearchInput } from './SearchInput'
 import { BookList, selectContent, BookListItem } from '../Components/BookList'
-import { useAsync } from 'react-use'
+import { useAsync } from '../hooks'
 import { useNotify } from '../NotificationManager'
 import { useClient, Client } from '../ClientManager'
 import { LoadContainer } from '../Components/LoadContainer'

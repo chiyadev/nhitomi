@@ -1,5 +1,5 @@
 import { RefObject, useRef, useLayoutEffect } from 'react'
-import { useWindowScroll } from 'react-use'
+import { useWindowScroll } from '../hooks'
 import { useLayout } from '../LayoutManager'
 import { LayoutResult } from './layoutEngine'
 import { usePageState } from '../state'

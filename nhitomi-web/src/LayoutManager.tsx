@@ -1,5 +1,5 @@
 import React, { ReactNode, createContext, useMemo, useContext } from 'react'
-import { useWindowSize } from 'react-use'
+import { useWindowSize } from './hooks'
 import { StripWidth } from './Sidebar/Strip'
 
 export type ScreenType = 'sm' | 'lg'

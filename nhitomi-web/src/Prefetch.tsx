@@ -1,5 +1,5 @@
 import React, { useCallback, useLayoutEffect, useRef, ComponentProps, ReactNode } from 'react'
-import { useAsync } from 'react-use'
+import { useAsync } from './hooks'
 import { useProgress } from './ProgressManager'
 import { getEventModifiers } from './shortcut'
 import { useNotify } from './NotificationManager'

@@ -1,5 +1,5 @@
 import { RefObject, useRef } from 'react'
-import { useWindowScroll } from 'react-use'
+import { useWindowScroll } from '../hooks'
 import { isSafari, safariResizeDelay } from '../fuckSafari'
 import { useLayout } from '../LayoutManager'
 import { LayoutResult } from './layoutEngine'

@@ -1,7 +1,7 @@
 import React, { ReactNode, useMemo, createContext, useState, useCallback, useContext, Dispatch } from 'react'
 import { ConfigurationParameters, ValidationProblemArrayResult, ValidationProblem, UserApi, InfoApi, BookApi, CollectionApi, Configuration, GetInfoResponse, GetInfoAuthenticatedResponse, BASE_PATH, User, UserPermissions, Collection } from 'nhitomi-api'
 import { CustomError } from 'ts-custom-error'
-import { useAsync } from 'react-use'
+import { useAsync } from './hooks'
 import { useProgress } from './ProgressManager'
 import { ConfigSource, useConfigManager } from './ConfigManager'
 

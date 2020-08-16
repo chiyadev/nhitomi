@@ -1,6 +1,6 @@
 import React, { useLayoutEffect, useState } from 'react'
 import { useSpring, animated } from 'react-spring'
-import { useAsync } from 'react-use'
+import { useAsync } from '../hooks'
 import { cx } from 'emotion'
 import { Loading3QuartersOutlined, WarningTwoTone } from '@ant-design/icons'
 import { AbsoluteCenter } from './AbsoluteCenter'
