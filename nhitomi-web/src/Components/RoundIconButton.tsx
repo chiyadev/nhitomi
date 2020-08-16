@@ -14,15 +14,15 @@ export const RoundIconButton = ({ className, backColor, children }: {
   })
 
   return (
-    <animated.div
-      style={style}
-      className={cx('w-10 h-10 rounded-full overflow-hidden relative', className)}
+    <div
+      className='w-10 h-10 overflow-hidden'
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}>
 
-      <div className='w-full h-full flex items-center justify-center'>
-        {children}
-      </div>
-    </animated.div>
+      <animated.div
+        style={style}
+        className={cx('w-full h-full rounded-full overflow-hidden flex items-center justify-center', className)}
+        children={children} />
+    </div>
   )
 }
