@@ -6,6 +6,7 @@
     "bookListing": {
       "title": "Books",
       "search": "Search {total} books on nhitomi",
+      "empty": "No results",
       "menu": {
         "sort": "Sort",
         "order": "Order"
@@ -97,6 +98,7 @@
     "collectionListing": {
       "title": "Collections",
       "subtitle": "{mode, select, view {View} manage {Manage}} {user}'s collections.",
+      "empty": "No collections",
       "create": {
         "title": "New collection",
         "subtitle": "Create a new {type} collection.",
@@ -109,6 +111,7 @@
     },
     "collectionContent": {
       "book": {
+        "empty": "Empty collection",
         "delete": {
           "warning": "This collection will be deleted permanently.",
           "button": "Delete"

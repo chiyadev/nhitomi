@@ -9,6 +9,7 @@ import { CollectionCreateLink } from './Create'
 import { RoundIconButton } from '../Components/RoundIconButton'
 import { PlusOutlined } from '@ant-design/icons'
 import { FormattedMessage } from 'react-intl'
+import { EmptyIndicator } from '../Components/EmptyIndicator'
 
 // instead of reimplementing a new list for book collections, adapt BookList for code reuse
 export const BookSection = ({ collections }: { collections: BookCollection[] }) => {
@@ -38,10 +39,15 @@ export const BookSection = ({ collections }: { collections: BookCollection[] }) 
       contentSelector={contentSelector}
       overlayVisible
       getCoverRequest={getCoverRequest}
-      LinkComponent={CollectionContentLink}>
-
-      <NewButton />
-    </BookList>
+      LinkComponent={CollectionContentLink}
+      menu={<>
+        <NewButton />
+      </>}
+      empty={(
+        <EmptyIndicator>
+          <FormattedMessage id='pages.collectionListing.empty' />
+        </EmptyIndicator>
+      )} />
   )
 }
 

@@ -10,9 +10,10 @@ import { useBookList, BookListItem } from '.'
 import { BookContent } from 'nhitomi-api'
 import { useConfig } from '../../ConfigManager'
 
-export const Grid = ({ width, children }: {
+export const Grid = ({ width, menu, empty }: {
   width: number
-  children?: ReactNode
+  menu?: ReactNode
+  empty?: ReactNode
 }) => {
   const { items } = useBookList()
 
@@ -44,7 +45,7 @@ export const Grid = ({ width, children }: {
 
   return (
     <div style={{ maxWidth: rowWidth }} className='mx-auto w-full'>
-      <Menu children={children} />
+      <Menu children={menu} />
 
       <div className={cx('flex flex-row flex-wrap justify-center', css`
         padding-left: ${spacing / 2}px;
@@ -59,6 +60,8 @@ export const Grid = ({ width, children }: {
             height={itemHeight}
             className={css`margin: ${spacing / 2}px;`} />
         )), [itemHeight, itemWidth, items, spacing])}
+
+        {!items.length && empty}
       </div>
     </div>
   )

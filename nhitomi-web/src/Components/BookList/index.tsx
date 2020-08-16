@@ -26,9 +26,10 @@ export function useBookList() {
   return useContext(BookListContext)
 }
 
-export const BookList = ({ items, contentSelector, getCoverRequest, overlayVisible, LinkComponent, className, children }: ContextType<typeof BookListContext> & {
+export const BookList = ({ items, contentSelector, getCoverRequest, overlayVisible, LinkComponent, className, menu, empty }: ContextType<typeof BookListContext> & {
   className?: string
-  children?: ReactNode
+  menu?: ReactNode
+  empty?: ReactNode
 }) => {
   const containerRef = useRef<HTMLDivElement>(null)
   const [width, setWidth] = useState(containerRef.current?.clientWidth)
@@ -49,7 +50,7 @@ export const BookList = ({ items, contentSelector, getCoverRequest, overlayVisib
       }), [LinkComponent, contentSelector, getCoverRequest, items, overlayVisible])}>
 
         {width && (
-          <Grid width={width} children={children} />
+          <Grid width={width} menu={menu} empty={empty} />
         )}
       </BookListContext.Provider>
     </div>

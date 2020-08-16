@@ -6,6 +6,7 @@
     "bookListing": {
       "title": "ブックス",
       "search": "nhitomiで {total}本を検索",
+      "empty": "結果なし",
       "menu": {
         "sort": "並べ替え",
         "order": "並び順"
@@ -97,6 +98,7 @@
     "collectionListing": {
       "title": "コレクション",
       "subtitle": "{user}さんのコレクション{mode, select, view {が見れます} manage {を管理します}}。",
+      "empty": "コレクションがありません。",
       "create": {
         "title": "新規コレクション",
         "subtitle": "新しい{type}コレクションを作成します。",
@@ -109,6 +111,7 @@
     },
     "collectionContent": {
       "book": {
+        "empty": "コレクションが空っぽです。",
         "delete": {
           "warning": "このコレクションを完全に削除します。",
           "button": "削除"

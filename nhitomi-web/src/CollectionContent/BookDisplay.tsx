@@ -19,6 +19,7 @@ import { DeleteOutlined } from '@ant-design/icons'
 import { FormattedMessage } from 'react-intl'
 import { FlatButton } from '../Components/FlatButton'
 import { Disableable } from '../Components/Disableable'
+import { EmptyIndicator } from '../Components/EmptyIndicator'
 
 export const BookDisplay = ({ result, setResult }: { result: BookPrefetchResult, setResult: Dispatch<BookPrefetchResult> }) => {
   const { collection, items } = result
@@ -39,9 +40,17 @@ export const BookDisplay = ({ result, setResult }: { result: BookPrefetchResult,
       </div>
 
       <div className='py-2'>
-        <BookList items={items} contentSelector={contentSelector}>
-          <DeleteButton collection={collection} />
-        </BookList>
+        <BookList
+          items={items}
+          contentSelector={contentSelector}
+          menu={<>
+            <DeleteButton collection={collection} />
+          </>}
+          empty={(
+            <EmptyIndicator>
+              <FormattedMessage id='pages.collectionContent.book.empty' />
+            </EmptyIndicator>
+          )} />
 
         <Loader result={result} setResult={setResult} />
       </div>

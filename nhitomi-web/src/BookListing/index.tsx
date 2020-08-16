@@ -19,6 +19,8 @@ import { Container } from '../Components/Container'
 import { LanguageButton, SortButton } from './Menu'
 import { useTabTitle } from '../TitleSetter'
 import { useLocalized } from '../LocaleManager'
+import { EmptyIndicator } from '../Components/EmptyIndicator'
+import { FormattedMessage } from 'react-intl'
 
 async function performQuery(client: Client, query: SearchQuery) {
   // try scanning for links first
@@ -142,10 +144,18 @@ const Loaded = ({ result, setResult }: { result: PrefetchResult, setResult: Disp
     <Container>
       <Input result={result} />
 
-      <BookList items={result.items} contentSelector={contentSelector}>
-        <LanguageButton />
-        <SortButton />
-      </BookList>
+      <BookList
+        items={result.items}
+        contentSelector={contentSelector}
+        menu={<>
+          <LanguageButton />
+          <SortButton />
+        </>}
+        empty={(
+          <EmptyIndicator>
+            <FormattedMessage id='pages.bookListing.empty' />
+          </EmptyIndicator>
+        )} />
 
       <Loader key={effectiveQueryCmp} query={query} result={result} setResult={setResult} />
     </Container>
