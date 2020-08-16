@@ -62,6 +62,7 @@
         "shortcuts": {
           "name": "ショートカットキー",
           "description": "ショートカットキーを変更します。",
+          "enterKey": "ショートカットキーを入力",
           "general": {
             "name": "一般",
             "cancelKey": "キャンセル",

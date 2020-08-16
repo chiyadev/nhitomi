@@ -7,8 +7,9 @@ import { useSpring, animated } from 'react-spring'
 import { convertHex } from '../theme'
 import { colors } from '../theme.json'
 import { CloseOutlined, PlusOutlined } from '@ant-design/icons'
-import { cx } from 'emotion'
+import { cx, css } from 'emotion'
 import { getEventModifiers } from '../shortcut'
+import { useLocalized } from '../LocaleManager'
 
 export const Shortcuts = () => {
   const generalKeys: ShortcutConfigKey[] = []
@@ -72,7 +73,7 @@ const Shortcut = ({ section, shortcutKey }: { section: 'general' | 'bookReader',
         <ItemPart>
           <span>{stringifyShortcut(shortcut)}</span>
 
-          <CloseOutlined className='opacity-25 cursor-pointer' onClick={() => setShortcuts(shortcuts.filter(s => s !== shortcut))} />
+          <CloseOutlined className='text-gray-800 cursor-pointer' onClick={() => setShortcuts(shortcuts.filter(s => s !== shortcut))} />
         </ItemPart>
       ))}
 
@@ -102,11 +103,12 @@ const ItemPart = ({ children, className, onClick }: { children?: ReactNode, clas
 
 const ItemNew = ({ onAdd }: { onAdd?: (shortcut: ShortcutConfig) => void }) => {
   const [current, setCurrent] = useState<Partial<ShortcutConfig>>()
+  const placeholder = useLocalized('pages.settings.keyboard.shortcuts.enterKey')
 
   if (!current) {
     return (
       <ItemPart className='cursor-pointer' onClick={() => setCurrent({})}>
-        <PlusOutlined className='opacity-50' />
+        <PlusOutlined className='text-gray-800' />
       </ItemPart>
     )
   }
@@ -114,12 +116,17 @@ const ItemNew = ({ onAdd }: { onAdd?: (shortcut: ShortcutConfig) => void }) => {
   return (
     <input
       ref={x => x?.focus()}
-      className='inline-block align-middle text-xs px-1 border border-gray-800 rounded overflow-hidden w-32'
+      className={cx('inline-block align-middle text-xs px-1 border border-gray-800 rounded overflow-hidden w-32', css`
+        &::placeholder {
+          color: ${colors.gray[800]};
+        }
+      `)}
       style={{
         borderColor: convertHex(colors.gray[500], 0.15),
         backgroundColor: convertHex(colors.gray[500], 0.1)
       }}
       value={stringifyShortcut(current)}
+      placeholder={placeholder}
       onKeyDown={e => {
         const key = e.keyCode
         const modifiers = getEventModifiers(e)

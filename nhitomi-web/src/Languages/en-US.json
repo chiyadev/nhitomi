@@ -62,6 +62,7 @@
         "shortcuts": {
           "name": "Shortcut keys",
           "description": "Configure shortcut keys.",
+          "enterKey": "Enter shortcut key",
           "general": {
             "name": "General",
             "cancelKey": "Cancel",
