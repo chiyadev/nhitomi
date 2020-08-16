@@ -3,21 +3,25 @@ import Tippy from '@tippyjs/react'
 import { cx } from 'emotion'
 import { animated, useSpring } from 'react-spring'
 
-export const Tooltip = ({ className, overlay, children, hideOnClick = false, ignoreAttributes = true, touch = false, duration = 200, placement = 'auto', padding = true, wrapperProps, onShow, onHide, popperOptions, ...props }: {
+export const Tooltip = ({ className, overlay, children, hideOnClick = false, ignoreAttributes = true, touch = false, duration = 200, placement = 'auto', padding = true, moveTransition = true, overlayProps, wrapperProps, onShow, onHide, popperOptions, ...props }: {
   overlay?: ReactNode
   children?: ReactNode
   padding?: boolean
+  moveTransition?: boolean
+  overlayProps?: Omit<ComponentProps<'div'>, 'ref'> & Pick<ComponentProps<typeof animated.div>, 'ref'>
   wrapperProps?: ComponentProps<'div'>
-} & Omit<ComponentProps<typeof Tippy>, 'content' | 'render' | 'children' | 'animation' | 'arrow'>) => {
+} & Omit<ComponentProps<typeof Tippy>, 'content' | 'render' | 'moveTransition' | 'children' | 'animation' | 'arrow'>) => {
   const [visible, setVisible] = useState(false)
   const [render, setRender] = useState(false)
 
   const style = useSpring({
     opacity: visible ? 1 : 0,
-    marginTop: placement.indexOf('bottom') === -1 ? 0 : visible ? 0 : -5,
-    marginRight: placement.indexOf('left') === -1 ? 0 : visible ? 0 : -5,
-    marginBottom: placement.indexOf('top') === -1 ? 0 : visible ? 0 : -5,
-    marginLeft: placement.indexOf('right') === -1 ? 0 : visible ? 0 : -5,
+
+    marginTop: moveTransition && placement.indexOf('bottom') !== -1 && !visible ? -5 : 0,
+    marginRight: moveTransition && placement.indexOf('left') !== -1 && !visible ? -5 : 0,
+    marginBottom: moveTransition && placement.indexOf('top') !== -1 && !visible ? -5 : 0,
+    marginLeft: moveTransition && placement.indexOf('right') !== -1 && !visible ? -5 : 0,
+
     onChange: {
       opacity: v => setRender(v > 0)
     }
@@ -28,8 +32,13 @@ export const Tooltip = ({ className, overlay, children, hideOnClick = false, ign
       render={props => !render ? <span /> : (
         <animated.div
           {...props}
-          style={style}
-          className={cx('rounded overflow-hidden text-xs bg-gray-900 bg-blur text-white', { 'px-2 py-1': padding })}>
+          {...overlayProps}
+
+          style={{
+            ...style,
+            ...overlayProps?.style
+          }}
+          className={cx('rounded overflow-hidden text-xs bg-gray-900 bg-blur text-white', { 'px-2 py-1': padding }, overlayProps?.className)}>
 
           {overlay}
         </animated.div>
