@@ -5,6 +5,7 @@ import { useClient } from '../ClientManager'
 import { PageContainer } from '../Components/PageContainer'
 import { DefaultQueryLimit } from '../BookListing/search'
 import { BookDisplay } from './BookDisplay'
+import { useScrollShortcut } from '../shortcut'
 
 export type PrefetchResult =
   ({ type: 'book' } & BookPrefetchResult) |
@@ -12,7 +13,8 @@ export type PrefetchResult =
 
 export type BookPrefetchResult = {
   collection: Collection
-  books: Book[]
+  items: Book[]
+  nextOffset: number
 }
 
 export type PrefetchOptions = { id: string }
@@ -29,12 +31,16 @@ export const useCollectionContentPrefetch: PrefetchGenerator<PrefetchResult, Pre
       const collection = await client.collection.getCollection({ id })
 
       switch (collection.type) {
-        case ObjectType.Book:
+        case ObjectType.Book: {
+          const ids = collection.items.slice(0, DefaultQueryLimit)
+
           return {
             type: 'book',
             collection,
-            books: collection.items.length ? await client.book.getBooks({ getBookManyRequest: { ids: collection.items.slice(0, DefaultQueryLimit) } }) : []
+            items: ids.length ? await client.book.getBooks({ getBookManyRequest: { ids } }) : [],
+            nextOffset: DefaultQueryLimit
           }
+        }
 
         default:
           return { type: 'other' }
@@ -49,6 +55,8 @@ export const CollectionContentLink = ({ id, ...props }: TypedPrefetchLinkProps &
 
 export const CollectionContent = (options: PrefetchOptions) => {
   const { result, setResult } = usePostfetch(useCollectionContentPrefetch, options)
+
+  useScrollShortcut()
 
   if (!result)
     return null
