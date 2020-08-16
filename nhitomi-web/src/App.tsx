@@ -16,6 +16,7 @@ import { ConfigManager } from './ConfigManager'
 import { BookReader } from './BookReader'
 import { BlurSetter } from './BlurSetter'
 import { CollectionListing } from './CollectionListing'
+import { CollectionContent } from './CollectionContent.tsx'
 
 export const App = () => {
   return (
@@ -63,6 +64,8 @@ const Routing = () => {
 
       <Route path='/books' exact component={BookListing} />
       <Route path='/books/:id/contents/:contentId' exact render={({ match: { params: { id, contentId } } }) => <BookReader id={id} contentId={contentId} />} />
+
+      <Route path='/collections/:id' exact render={({ match: { params: { id } } }) => <CollectionContent id={id} />} />
 
       <Route path='/users/:id/collections' exact render={({ match: { params: { id } } }) => <CollectionListing id={id} />} />
 
