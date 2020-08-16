@@ -5,6 +5,7 @@ import { colors } from './theme.json'
 import { cx, css } from 'emotion'
 import { useSpring, animated } from 'react-spring'
 import { useLayout } from './LayoutManager'
+import { ValidationError } from './ClientManager'
 
 export const NotifyContext = createContext<{
   notify: (type: AppearanceTypes, title: ReactNode, description: ReactNode) => void
@@ -109,8 +110,41 @@ const NotifyManager = ({ children }: { children?: ReactNode }) => {
 
   return (
     <NotifyContext.Provider children={children} value={useMemo(() => ({
-      notify: (type, title, description) => addToast(<NotifyToastContent type={type} title={title} description={description} />),
-      notifyError: (error, title) => addToast(<NotifyToastContent type='error' title={title || error.message} description={<code>{error.stack}</code>} />)
+      notify: (type, title, description) => {
+        addToast(<NotifyToastContent type={type} title={title} description={description} />)
+      },
+      notifyError: (error, title) => {
+        if (!(error instanceof Error))
+          error = Error((error as any)?.message || 'Unknown error.')
+
+        if (error instanceof ValidationError) {
+          addToast(
+            <NotifyToastContent
+              type='error'
+              title={title || error.message}
+              description={(
+                <ul className='list-disc list-inside'>
+                  {error.list.map(problem => (
+                    <li>
+                      <code>{problem.field} </code>
+                      <span>{problem.messages.join(' ')}</span>
+                    </li>
+                  ))}
+                </ul>
+              )} />
+          )
+        }
+        else {
+          addToast(
+            <NotifyToastContent
+              type='error'
+              title={title || error.message}
+              description={(
+                <code>{error.stack}</code>
+              )} />
+          )
+        }
+      }
     }), [addToast])} />
   )
 }
