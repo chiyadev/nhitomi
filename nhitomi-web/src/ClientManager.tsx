@@ -1,5 +1,5 @@
-import React, { ReactNode, useMemo, createContext, useState, useCallback, useContext } from 'react'
-import { ConfigurationParameters, ValidationProblemArrayResult, ValidationProblem, UserApi, InfoApi, BookApi, CollectionApi, Configuration, GetInfoResponse, GetInfoAuthenticatedResponse, BASE_PATH } from 'nhitomi-api'
+import React, { ReactNode, useMemo, createContext, useState, useCallback, useContext, Dispatch } from 'react'
+import { ConfigurationParameters, ValidationProblemArrayResult, ValidationProblem, UserApi, InfoApi, BookApi, CollectionApi, Configuration, GetInfoResponse, GetInfoAuthenticatedResponse, BASE_PATH, User, UserPermissions, Collection } from 'nhitomi-api'
 import { CustomError } from 'ts-custom-error'
 import { useAsync } from 'react-use'
 import { useProgress } from './ProgressManager'
@@ -114,8 +114,9 @@ export type ClientInfo =
 
 const ClientContext = createContext<{
   client: Client
+  permissions: PermissionHelper
   info: ClientInfo
-  setInfo: (info: ClientInfo) => void
+  setInfo: Dispatch<ClientInfo>
   fetchInfo: () => Promise<ClientInfo>
 }>(undefined as any)
 
@@ -124,8 +125,8 @@ export function useClient() {
 }
 
 export function useClientInfo() {
-  const { info, setInfo, fetchInfo } = useContext(ClientContext)
-  return { info, setInfo, fetchInfo }
+  const { permissions, info, setInfo, fetchInfo } = useContext(ClientContext)
+  return { permissions, info, setInfo, fetchInfo }
 }
 
 export const ClientManager = ({ children }: { children?: ReactNode }) => {
@@ -152,18 +153,84 @@ export const ClientManager = ({ children }: { children?: ReactNode }) => {
     }
   }, [])
 
-  const fetchInfo = useCallback(async () => { const info = await client.getInfo(); setInfo(info); return info }, [client])
-  const context = useMemo(() => ({ config, client, info, setInfo, fetchInfo }), [config, client, info, fetchInfo])
-
-  if (!info) {
+  if (!info)
     return null
-  }
 
   if (info instanceof Error) {
-    return <code className='text-sm'>{info.stack}</code>
+    return (
+      <code className='text-sm'>{info.stack}</code>
+    )
   }
 
   return (
-    <ClientContext.Provider value={context as any} children={children} />
+    <Loaded client={client} info={info} setInfo={setInfo} children={children} />
   )
+}
+
+const Loaded = ({ client, info, setInfo, children }: { client: Client, info: ClientInfo, setInfo: Dispatch<ClientInfo>, children?: ReactNode }) => {
+  const fetchInfo = useCallback(async () => {
+    const info = await client.getInfo()
+    setInfo(info)
+    return info
+  }, [client, setInfo])
+
+  return (
+    <ClientContext.Provider
+      children={children}
+      value={useMemo(() => ({
+        client,
+        permissions: new PermissionHelper(info?.authenticated ? info.user : undefined),
+        info,
+        setInfo,
+        fetchInfo
+      }), [client, info, setInfo, fetchInfo])} />
+  )
+}
+
+export class PermissionHelper {
+  constructor(readonly user?: User) { }
+
+  get administrator() {
+    return this.permissions.indexOf(UserPermissions.Administrator)
+  }
+
+  get permissions() {
+    return this.user?.permissions || []
+  }
+
+  isSelf(user: User) {
+    return this.user?.id === user.id
+  }
+
+  hasPermissions(...permissions: UserPermissions[]) {
+    if (this.administrator)
+      return true
+
+    for (const permission of permissions) {
+      if (this.permissions.indexOf(permission) === -1)
+        return false
+    }
+
+    return true
+  }
+
+  hasAnyPermission(...permissions: UserPermissions[]) {
+    if (this.administrator)
+      return true
+
+    for (const permission of permissions) {
+      if (this.permissions.indexOf(permission) !== -1)
+        return true
+    }
+
+    return false
+  }
+
+  canManageCollections(user: User) {
+    return this.isSelf(user)
+  }
+
+  canManageCollection(collection: Collection) {
+    return this.hasPermissions(UserPermissions.ManageUsers) || (this.user && collection.ownerIds.indexOf(this.user.id) !== -1)
+  }
 }
