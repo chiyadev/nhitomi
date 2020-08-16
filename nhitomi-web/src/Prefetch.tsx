@@ -92,14 +92,18 @@ export function usePostfetch<T, U extends {}>(generator: PrefetchGenerator<T, U>
   const [result, setResult] = usePageState<T>('fetch')
   const [scroll] = usePageState<number>('scroll')
 
+  const shouldScroll = useRef(true)
+
   // generator can call hooks so memoize it
   const { destination, showProgress = true, restoreScroll = true, fetch, done } = useRef(generator).current(({ mode: 'postfetch', ...options }))
 
   const { error, loading } = useAsync(async () => {
     // display immediately if already loaded
     if (result) {
-      if (restoreScroll && typeof scroll === 'number' && navigator.history.action === 'POP')
+      if (shouldScroll.current && restoreScroll && typeof scroll === 'number') {
         beginScrollTo(scroll)
+        shouldScroll.current = false
+      }
 
       return
     }
@@ -126,8 +130,10 @@ export function usePostfetch<T, U extends {}>(generator: PrefetchGenerator<T, U>
         }
       })
 
-      if (restoreScroll && typeof scroll === 'number')
+      if (restoreScroll && typeof scroll === 'number') {
         beginScrollTo(scroll)
+        shouldScroll.current = false
+      }
 
       await done?.(fetched)
     }
