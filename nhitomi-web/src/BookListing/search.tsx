@@ -1,6 +1,8 @@
 import { SortDirection, BookSort, BookQuery, QueryMatchMode, LanguageType } from 'nhitomi-api'
 import { tokenize } from './SearchInput'
 
+export const DefaultQueryLimit = 50
+
 export type SearchQuery = {
   query?: string
   sort?: BookSort
@@ -10,7 +12,7 @@ export type SearchQuery = {
 
 export function convertQuery({ query, order, sort, langs }: SearchQuery): BookQuery {
   const result: BookQuery = {
-    limit: 50,
+    limit: DefaultQueryLimit,
     mode: QueryMatchMode.All,
     tags: {},
     language: !langs?.length ? undefined : {
