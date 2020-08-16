@@ -18,7 +18,7 @@ export const CheckBox = ({ value, setValue, type = 'check', children, className 
 
   return (
     <div
-      className={cx('flex flex-row items-center', className)}
+      className={cx('flex flex-row items-center cursor-pointer', className)}
       onClick={() => setValue?.(!value)}
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}>
