@@ -104,12 +104,18 @@ export function usePostfetch<T, U extends {}>(generator: PrefetchGenerator<T, U>
       return
     }
 
+    const startingPath = navigator.path
+
     if (showProgress)
       begin()
 
     try {
       const fetched = await fetch()
       const location = navigator.evaluate(destination)
+
+      // abort if navigated during fetch
+      if (navigator.path !== startingPath)
+        return
 
       navigator.navigate('replace', {
         ...location,
