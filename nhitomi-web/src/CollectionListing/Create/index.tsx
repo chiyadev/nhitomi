@@ -13,6 +13,8 @@ import { FlatButton } from '../../Components/FlatButton'
 import { Disableable } from '../../Components/Disableable'
 import { useNotify } from '../../NotificationManager'
 import { useCollectionListingPrefetch } from '..'
+import { useTabTitle } from '../../TitleSetter'
+import { useLocalized } from '../../LocaleManager'
 
 export type PrefetchResult = { type: ObjectType, user: User, collections: Collection[] }
 export type PrefetchOptions = { type?: ObjectType }
@@ -63,6 +65,8 @@ export const CollectionCreate = () => {
 }
 
 const Loaded = ({ type, user, collections }: PrefetchResult) => {
+  useTabTitle(useLocalized('pages.collectionListing.create.title'))
+
   const [loading, setLoading] = useState(false)
 
   const client = useClient()

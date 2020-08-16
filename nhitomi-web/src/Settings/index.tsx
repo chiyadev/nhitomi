@@ -14,6 +14,8 @@ import { PictureFilled, MacCommandFilled } from '@ant-design/icons'
 import { PageContainer } from '../Components/PageContainer'
 import { Blur } from './Blur'
 import { Shortcuts } from './Shortcuts'
+import { useTabTitle } from '../TitleSetter'
+import { useLocalized } from '../LocaleManager'
 
 export type PrefetchResult = ClientInfo
 export type PrefetchOptions = { focus?: SettingsFocus }
@@ -67,6 +69,8 @@ export const Settings = (options: PrefetchOptions) => {
 }
 
 const Loaded = () => {
+  useTabTitle(useLocalized('pages.settings.title'))
+
   return (
     <Container className='divide-y divide-gray-900'>
       <div className='p-2'>

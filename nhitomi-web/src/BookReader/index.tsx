@@ -11,6 +11,7 @@ import { Background } from './Background'
 import { Reader } from './Reader'
 import { LayoutSetter } from './LayoutSetter'
 import { CursorVisibility } from './CursorVisibility'
+import { useTabTitle } from '../TitleSetter'
 
 export type PrefetchResult = { book: Book, content: BookContent }
 export type PrefetchOptions = { id: string, contentId: string }
@@ -55,6 +56,8 @@ export const BookReader = (options: PrefetchOptions) => {
 }
 
 const Loaded = ({ book, content }: PrefetchResult) => {
+  useTabTitle(book.primaryName)
+
   const infoRef = useRef(null)
   const [{ width: infoWidth, height: infoHeight }, setInfoSize] = useState<{ width: number, height: number }>({ width: 0, height: 0 })
 

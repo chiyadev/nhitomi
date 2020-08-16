@@ -18,6 +18,7 @@ import { BlurSetter } from './BlurSetter'
 import { CollectionListing } from './CollectionListing'
 import { CollectionContent } from './CollectionContent'
 import { CollectionCreate } from './CollectionListing/Create'
+import { TitleSetter } from './TitleSetter'
 
 export const App = () => {
   return (
@@ -31,6 +32,7 @@ export const App = () => {
                   <PrefetchScrollPreserver />
                   <AnimationSetter />
                   <BlurSetter />
+                  <TitleSetter />
 
                   <Sidebar />
                   <Body />

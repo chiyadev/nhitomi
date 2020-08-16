@@ -17,6 +17,8 @@ import { PageContainer } from '../Components/PageContainer'
 import stringify from 'json-stable-stringify'
 import { Container } from '../Components/Container'
 import { LanguageButton, SortButton } from './Menu'
+import { useTabTitle } from '../TitleSetter'
+import { useLocalized } from '../LocaleManager'
 
 async function performQuery(client: Client, query: SearchQuery) {
   // try scanning for links first
@@ -91,6 +93,8 @@ export const BookListing = (options: PrefetchOptions) => {
 }
 
 const Loaded = ({ result, setResult }: { result: PrefetchResult, setResult: Dispatch<PrefetchResult> }) => {
+  useTabTitle(useLocalized('pages.bookListing.title'))
+
   const client = useClient()
   const { notifyError } = useNotify()
   const { begin, end } = useProgress()

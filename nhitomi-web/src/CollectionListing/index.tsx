@@ -6,6 +6,8 @@ import { PageContainer } from '../Components/PageContainer'
 import { Container } from '../Components/Container'
 import { FormattedMessage } from 'react-intl'
 import { BookSection } from './BookSection'
+import { useTabTitle } from '../TitleSetter'
+import { useLocalized } from '../LocaleManager'
 
 export type PrefetchResult = { user: User, books: BookCollection[] }
 export type PrefetchOptions = { id: string }
@@ -67,6 +69,8 @@ export const CollectionListing = (options: PrefetchOptions) => {
 }
 
 const Loaded = ({ user, books }: PrefetchResult) => {
+  useTabTitle(useLocalized('pages.collectionListing.title'))
+
   const { permissions } = useClientInfo()
 
   return (

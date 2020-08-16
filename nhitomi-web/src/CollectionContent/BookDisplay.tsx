@@ -10,9 +10,12 @@ import { DefaultQueryLimit } from '../BookListing/search'
 import { Book } from 'nhitomi-api'
 import { BookList, BookListItem, selectContent } from '../Components/BookList'
 import { useConfig } from '../ConfigManager'
+import { useTabTitle } from '../TitleSetter'
 
 export const BookDisplay = ({ result, setResult }: { result: BookPrefetchResult, setResult: Dispatch<BookPrefetchResult> }) => {
   const { collection, items } = result
+
+  useTabTitle(collection.name)
 
   const [language] = useConfig('language')
   const [searchLanguages] = useConfig('searchLanguages')
