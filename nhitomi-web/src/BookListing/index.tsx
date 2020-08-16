@@ -1,8 +1,8 @@
 import React, { Dispatch, useMemo, useRef, useLayoutEffect, useCallback } from 'react'
-import { SearchQuery, convertQuery } from './search'
+import { SearchQuery, convertQuery, DefaultQueryLimit } from './search'
 import { useQueryState, usePageState } from '../state'
 import { TypedPrefetchLinkProps, PrefetchLink, usePostfetch, PrefetchGenerator } from '../Prefetch'
-import { BookSearchResult, BookSort, SortDirection } from 'nhitomi-api'
+import { BookSearchResult, BookSort, SortDirection, Book } from 'nhitomi-api'
 import { SearchInput } from './SearchInput'
 import { BookList, selectContent, BookListItem } from '../Components/BookList'
 import { useAsync } from 'react-use'
@@ -36,7 +36,7 @@ async function performQuery(client: Client, query: SearchQuery) {
   return await client.book.searchBooks({ bookQuery: convertQuery(query) })
 }
 
-export type PrefetchResult = BookSearchResult
+export type PrefetchResult = BookSearchResult & { nextOffset: number }
 export type PrefetchOptions = { query?: SearchQuery }
 
 export const useBookListingPrefetch: PrefetchGenerator<PrefetchResult, PrefetchOptions> = ({ mode, query: targetQuery }) => {
@@ -64,7 +64,9 @@ export const useBookListingPrefetch: PrefetchGenerator<PrefetchResult, PrefetchO
     },
 
     fetch: async () => {
-      return await performQuery(client, query)
+      const result = await performQuery(client, query)
+
+      return { ...result, nextOffset: DefaultQueryLimit }
     }
   }
 }
@@ -88,7 +90,7 @@ export const BookListing = (options: PrefetchOptions) => {
   )
 }
 
-const Loaded = ({ result, setResult }: { result: BookSearchResult, setResult: Dispatch<BookSearchResult> }) => {
+const Loaded = ({ result, setResult }: { result: PrefetchResult, setResult: Dispatch<PrefetchResult> }) => {
   const client = useClient()
   const { notifyError } = useNotify()
   const { begin, end } = useProgress()
@@ -117,7 +119,7 @@ const Loaded = ({ result, setResult }: { result: BookSearchResult, setResult: Di
       const result = await performQuery(client, query)
 
       if (queryId.current === id) {
-        setResult(result)
+        setResult({ ...result, nextOffset: DefaultQueryLimit })
         setEffectiveQuery(query)
       }
     }
@@ -146,7 +148,7 @@ const Loaded = ({ result, setResult }: { result: BookSearchResult, setResult: Di
   )
 }
 
-const Input = ({ result }: { result: BookSearchResult }) => {
+const Input = ({ result }: { result: PrefetchResult }) => {
   const style = useSpring({
     from: { opacity: 0, marginTop: -5 },
     to: { opacity: 1, marginTop: 0 }
@@ -161,12 +163,12 @@ const Input = ({ result }: { result: BookSearchResult }) => {
   )
 }
 
-const Loader = ({ query, result, setResult }: { query: SearchQuery, result: BookSearchResult, setResult: Dispatch<BookSearchResult> }) => {
+const Loader = ({ query, result, setResult }: { query: SearchQuery, result: PrefetchResult, setResult: Dispatch<PrefetchResult> }) => {
   const client = useClient()
   const { notifyError } = useNotify()
   const { begin, end: endProgress } = useProgress()
 
-  const loadId = useRef(result.items.length >= result.total ? -1 : 0)
+  const loadId = useRef(result.nextOffset >= result.total ? -1 : 0)
 
   // unmount means query changed, so prevent setting irrelevant results
   useLayoutEffect(() => () => { loadId.current = -1 }, [])
@@ -187,7 +189,7 @@ const Loader = ({ query, result, setResult }: { query: SearchQuery, result: Book
           begin()
 
           try {
-            const moreResult = await client.book.searchBooks({ bookQuery: { ...convertQuery(query), offset: result.items.length } })
+            const moreResult = await client.book.searchBooks({ bookQuery: { ...convertQuery(query), offset: result.nextOffset } })
 
             if (loadId.current < 0)
               return
@@ -197,12 +199,23 @@ const Loader = ({ query, result, setResult }: { query: SearchQuery, result: Book
               return
             }
 
+            // remove duplicates
+            const items: Book[] = []
+            const exists: { [id: string]: true } = {}
+
+            for (const item of [...result.items, ...moreResult.items]) {
+              if (!exists[item.id])
+                items.push(item)
+
+              exists[item.id] = true
+            }
+
             setResult({
+              ...result,
               ...moreResult,
-              items: [
-                ...result.items,
-                ...moreResult.items
-              ]
+
+              items,
+              nextOffset: result.nextOffset + DefaultQueryLimit
             })
 
             ++loadId.current
