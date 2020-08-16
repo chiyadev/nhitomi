@@ -157,7 +157,7 @@ const ItemOverlay = ({ book, hover }: { book: BookListItem, hover?: boolean }) =
     <div className='p-1 bg-white bg-blur text-black rounded-b'>
       <span className='block text-sm truncate font-bold'>{(preferEnglishName && book.englishName) || book.primaryName}</span>
 
-      {book.primaryName !== book.englishName && (
+      {book.englishName && book.primaryName !== book.englishName && (
         <span className='block text-xs truncate'>{(!preferEnglishName && book.englishName) || book.primaryName}</span>
       )}
     </div>
