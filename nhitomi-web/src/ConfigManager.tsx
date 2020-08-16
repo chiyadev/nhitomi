@@ -59,13 +59,15 @@ export type ConfigStore = {
   bookReaderJumpKey: ShortcutConfig[]
 }
 
+export const BlurSupported = CSS.supports('backdrop-filter', 'blur(0)')
+
 const DefaultStore: ConfigStore = {
   token: undefined,
   baseUrl: undefined,
   language: LanguageType.EnUS,
   searchLanguages: [LanguageType.JaJP, LanguageType.EnUS],
   animation: 'normal',
-  blur: CSS.supports('backdrop-filter', 'blur(0)'),
+  blur: BlurSupported,
 
   cancelKey: [{ key: 27 }],                   // esc
   scrollDownKey: [{ key: 83 }, { key: 40 }],  // s down

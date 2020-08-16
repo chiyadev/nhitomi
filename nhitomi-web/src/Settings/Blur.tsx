@@ -1,8 +1,9 @@
 import React from 'react'
 import { FormattedMessage } from 'react-intl'
 import { SettingsFocusContainer } from './common'
-import { useConfig } from '../ConfigManager'
+import { useConfig, BlurSupported } from '../ConfigManager'
 import { CheckBox } from '../Components/Checkbox'
+import { Disableable } from '../Components/Disableable'
 
 export const Blur = () => {
   const [blur, setBlur] = useConfig('blur')
@@ -13,14 +14,16 @@ export const Blur = () => {
       <div className='text-xs text-gray-800'><FormattedMessage id='pages.settings.appearance.blur.description' /></div>
       <br />
 
-      <CheckBox
-        value={blur}
-        setValue={setBlur}>
+      <Disableable disabled={!BlurSupported}>
+        <CheckBox
+          value={blur}
+          setValue={setBlur}>
 
-        {blur
-          ? <FormattedMessage id='pages.settings.appearance.blur.enabled' />
-          : <FormattedMessage id='pages.settings.appearance.blur.disabled' />}
-      </CheckBox>
+          {blur
+            ? <FormattedMessage id='pages.settings.appearance.blur.enabled' />
+            : <FormattedMessage id='pages.settings.appearance.blur.disabled' />}
+        </CheckBox>
+      </Disableable>
     </SettingsFocusContainer>
   )
 }
