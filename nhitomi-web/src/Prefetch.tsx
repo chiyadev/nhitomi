@@ -8,15 +8,12 @@ import { usePageState, NavigationArgs, useNavigator, NavigationMode } from './st
 import { cx } from 'emotion'
 
 function beginScrollTo(scroll: number, retry = 0) {
-  console.log('scrolling to', scroll)
-
   requestAnimationFrame(() => {
     window.scrollTo({ top: scroll })
 
-    // components may not render immediately after prefetch, so retry scroll if destination not reached
-    if (Math.floor(window.scrollY) !== Math.floor(scroll) && retry < 30) {
+    // components may not render immediately after prefetch
+    if (retry < 5)
       beginScrollTo(scroll, retry + 1)
-    }
   })
 }
 
