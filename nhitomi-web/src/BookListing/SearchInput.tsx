@@ -14,6 +14,7 @@ import useResizeObserver from '@react-hook/resize-observer'
 import { useLocalized } from '../LocaleManager'
 import { FormattedMessage } from 'react-intl'
 import { BookTags } from '../orderedConstants'
+import { convertHex } from '../theme'
 
 export type QueryToken = {
   type: 'other'
@@ -150,41 +151,46 @@ export const SearchInput = ({ result, className }: { result: BookSearchResult, c
 
 const SearchButton = ({ onClick }: { onClick?: () => void }) => {
   const [hover, setHover] = useState(false)
-  const hoverStyle = useSpring({ opacity: hover ? 0.2 : 0 })
-  const iconStyle = useSpring({ transform: hover ? 'scale(1.1)' : 'scale(1)' })
+
+  const style = useSpring({
+    backgroundColor: convertHex('#fff', hover ? 0.2 : 0),
+    transform: hover ? 'scale(1.1)' : 'scale(1)'
+  })
 
   return (
     <div
-      className='relative text-white px-3 py-2 bg-blue-600 text-lg cursor-pointer'
+      className='text-white bg-blue-600 cursor-pointer'
       onMouseDown={onClick}
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}>
 
-      <animated.div style={iconStyle}><SearchOutlined /></animated.div>
-
-      <animated.span style={hoverStyle} className='absolute top-0 left-0 w-full h-full bg-white' />
+      <animated.div className='px-3 py-2 text-lg' style={style}>
+        <SearchOutlined />
+      </animated.div>
     </div>
   )
 }
 
-const ClearButton = ({ visible = true, onClick, className }: { visible?: boolean, onClick?: () => void, className?: string }) => {
+const ClearButton = ({ visible, onClick, className }: { visible?: boolean, onClick?: () => void, className?: string }) => {
   const [hover, setHover] = useState(false)
+
   const style = useSpring({
     opacity: visible ? hover ? 1 : 0.5 : 0,
-    transform: hover ? 'scale(1.1)' : 'scale(1)',
-    display: visible ? 'block' : 'none'
+    transform: hover ? 'scale(1.1)' : 'scale(1)'
   })
 
   return (
-    <animated.div
-      style={style}
-      className={cx('bg-white text-black px-3 py-2 cursor-pointer', className)}
-      onMouseDown={onClick}
-      onMouseEnter={() => setHover(true)}
-      onMouseLeave={() => setHover(false)}>
+    <div className='relative'>
+      <animated.div
+        style={style}
+        className={cx('absolute right-0 h-full flex items-center z-10 px-3 cursor-pointer', { 'pointer-events-none': !visible }, className)}
+        onMouseDown={onClick}
+        onMouseEnter={() => setHover(true)}
+        onMouseLeave={() => setHover(false)}>
 
-      <CloseOutlined className='text-sm' />
-    </animated.div>
+        <CloseOutlined className='text-sm' />
+      </animated.div>
+    </div>
   )
 }
 

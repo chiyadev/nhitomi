@@ -48,15 +48,14 @@ export const Input = ({ value, setValue, type = 'input', autoFocus, placeholder,
   })
 
   const [clearHover, setClearHover] = useState(false)
-  const clearStyle = useSpring(allowClear && value && !focus
+  const clearVisible = allowClear && value && !focus
+  const clearStyle = useSpring(clearVisible
     ? {
       opacity: clearHover ? 0.75 : 0.5,
-      transform: clearHover ? 'scale(1.1)' : 'scale(1)',
-      display: 'block'
+      transform: clearHover ? 'scale(1.1)' : 'scale(1)'
     } : {
       opacity: 0,
-      transform: 'scale(1)',
-      display: 'none'
+      transform: 'scale(1)'
     })
 
   const input = useMemo(() => {
@@ -137,12 +136,12 @@ export const Input = ({ value, setValue, type = 'input', autoFocus, placeholder,
         {allowClear && (
           <animated.div
             style={clearStyle}
-            className='absolute top-0 right-0 mx-2 my-1 cursor-pointer text-xs'
+            className={cx('absolute top-0 right-0 px-2 py-1 cursor-pointer h-8', { 'pointer-events-none': !clearVisible })}
             onMouseEnter={() => setClearHover(true)}
             onMouseLeave={() => setClearHover(false)}
             onMouseDown={() => { setValue(''); setTimeout(() => ref.current?.focus()) }}>
 
-            <CloseOutlined />
+            <CloseOutlined className='text-xs' />
           </animated.div>
         )}
       </animated.div>
