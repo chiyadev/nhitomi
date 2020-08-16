@@ -50,7 +50,7 @@ export const Tooltip = ({ className, overlay, children, hideOnClick = false, ign
 
       {...props}>
 
-      <div className={cx('inline-block', className)}>{children}</div>
+      <div className={className}>{children}</div>
     </Tippy>
   )
 }

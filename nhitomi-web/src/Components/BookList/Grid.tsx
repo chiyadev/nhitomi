@@ -77,10 +77,8 @@ const Menu = ({ children, className }: { children?: ReactNode, className?: strin
   return (
     <animated.div
       style={style}
-      className={cx('w-full clearfix leading-none', className)}>
-
-      <div className='float-right' children={children} />
-    </animated.div >
+      className={cx('w-full flex flex-row justify-end', className)}
+      children={children} />
   )
 }
 

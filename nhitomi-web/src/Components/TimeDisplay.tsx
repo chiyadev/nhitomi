@@ -1,11 +1,12 @@
 import React from 'react'
 import { FormattedDate, FormattedTime } from 'react-intl'
 import { Tooltip } from './Tooltip'
+import { cx } from 'emotion'
 
 export const TimeDisplay = ({ value, className }: { value: Date, className?: string }) => {
   return (
     <Tooltip
-      className={className}
+      className={cx('inline-block', className)}
       placement='top'
       overlay={value.toUTCString()}>
 

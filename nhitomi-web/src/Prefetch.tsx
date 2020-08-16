@@ -178,7 +178,7 @@ export const BackLink = ({ children, className }: { children?: ReactNode, classN
 
   return (
     <div
-      className={cx('inline-block', className)}
+      className={cx('display-contents', className)}
       children={children}
       onClick={() => history.goBack()} />
   )

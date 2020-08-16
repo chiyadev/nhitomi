@@ -74,7 +74,7 @@ export const Info = ({ book, content }: PrefetchResult) => {
                   return null
 
                 return (
-                  <Dropdown overlay={(
+                  <Dropdown className='inline-block' overlay={(
                     LanguageTypes.map(language => {
                       const languageContents = sourceContents.filter(c => c.language === language)
 
