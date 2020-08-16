@@ -1,22 +1,26 @@
-import React, { Dispatch, useState, ReactNode, useMemo, KeyboardEvent } from 'react'
+import React, { Dispatch, useState, ReactNode, useMemo, KeyboardEvent, useRef } from 'react'
 import { useSpring, animated } from 'react-spring'
 import { convertHex } from '../theme'
 import { colors } from '../theme.json'
 import { cx, css } from 'emotion'
+import { CloseOutlined } from '@ant-design/icons'
 
 export type InputStatus = 'none' | 'success' | 'error' | 'warning'
 
-export const Input = ({ value, setValue, type = 'input', autoFocus, placeholder, className, onSubmit, onKeyDown, status = { status: 'none' } }: {
+export const Input = ({ value, setValue, type = 'input', autoFocus, placeholder, allowClear, className, onSubmit, onKeyDown, status = { status: 'none' } }: {
   value: string
   setValue: Dispatch<string>
   type?: 'input' | 'textarea'
   autoFocus?: boolean
   placeholder?: ReactNode
+  allowClear?: boolean
   className?: string
   onSubmit?: (value: string) => void
   onKeyDown?: (e: KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>) => void
   status?: { status: InputStatus, help?: ReactNode }
 }) => {
+  const ref = useRef<HTMLInputElement & HTMLTextAreaElement>(null)
+
   const [hover, setHover] = useState(false)
   const [focus, setFocus] = useState(false)
 
@@ -43,11 +47,24 @@ export const Input = ({ value, setValue, type = 'input', autoFocus, placeholder,
     opacity: typeof status.help === 'undefined' ? 0 : 1
   })
 
+  const [clearHover, setClearHover] = useState(false)
+  const clearStyle = useSpring(allowClear && value && !focus
+    ? {
+      opacity: clearHover ? 0.75 : 0.5,
+      transform: clearHover ? 'scale(1.1)' : 'scale(1)',
+      display: 'block'
+    } : {
+      opacity: 0,
+      transform: 'scale(1)',
+      display: 'none'
+    })
+
   const input = useMemo(() => {
     switch (type) {
       case 'input':
         return (
           <input
+            ref={ref}
             className={cx('px-2 py-1 w-full', css`
               background: transparent;
 
@@ -76,6 +93,7 @@ export const Input = ({ value, setValue, type = 'input', autoFocus, placeholder,
       case 'textarea':
         return (
           <textarea
+            ref={ref}
             className={cx('px-2 py-1 w-full', css`
               background: transparent;
               min-height: 3em;
@@ -112,8 +130,20 @@ export const Input = ({ value, setValue, type = 'input', autoFocus, placeholder,
         {!value && (
           <animated.div
             style={placeholderStyle}
-            className='absolute top-0 left-0 w-full h-full px-2 py-1 align-top pointer-events-none truncate'
+            className='absolute top-0 left-0 w-full px-2 py-1 align-top pointer-events-none truncate'
             children={placeholder} />
+        )}
+
+        {allowClear && (
+          <animated.div
+            style={clearStyle}
+            className='absolute top-0 right-0 mx-2 my-1 cursor-pointer text-xs'
+            onMouseEnter={() => setClearHover(true)}
+            onMouseLeave={() => setClearHover(false)}
+            onMouseDown={() => { setValue(''); setTimeout(() => ref.current?.focus()) }}>
+
+            <CloseOutlined />
+          </animated.div>
         )}
       </animated.div>
 
