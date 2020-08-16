@@ -6,7 +6,6 @@ import { useQueryState } from '../state'
 import { SearchQuery } from './search'
 import { SortDirection, BookSort } from 'nhitomi-api'
 import { SettingsLink } from '../Settings'
-import { useSpring, animated } from 'react-spring'
 import { Tooltip } from '../Components/Tooltip'
 import { LanguageNames } from '../LocaleManager'
 import { DropdownGroup, Dropdown, DropdownItem } from '../Components/Dropdown'
@@ -14,28 +13,7 @@ import { BookListingLink } from '.'
 import { FormattedMessage } from 'react-intl'
 import { CheckBox } from '../Components/Checkbox'
 
-export const Menu = () => {
-  const iconStyle = useSpring({
-    from: { opacity: 0, transform: 'scale(0.9)' },
-    to: { opacity: 1, transform: 'scale(1)' }
-  })
-
-  return (
-    <div className='clearfix leading-none'>
-      <div className='float-right px-2'>
-        <animated.div style={iconStyle} className='inline-block'>
-          <LanguageButton />
-        </animated.div>
-
-        <animated.div style={iconStyle} className='inline-block'>
-          <SortButton />
-        </animated.div>
-      </div>
-    </div >
-  )
-}
-
-const LanguageButton = () => {
+export const LanguageButton = () => {
   const [query] = useQueryState<SearchQuery>()
 
   return (
@@ -56,7 +34,7 @@ const LanguageButton = () => {
   )
 }
 
-const SortButton = () => {
+export const SortButton = () => {
   const [query] = useQueryState<SearchQuery>()
 
   return (

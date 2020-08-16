@@ -10,13 +10,13 @@ import { useNotify } from '../NotificationManager'
 import { useClient, Client } from '../ClientManager'
 import { LoadContainer } from '../Components/LoadContainer'
 import { useProgress } from '../ProgressManager'
-import { Menu } from './Menu'
 import { useScrollShortcut } from '../shortcut'
 import { useConfig } from '../ConfigManager'
 import { useSpring, animated } from 'react-spring'
 import { PageContainer } from '../Components/PageContainer'
 import stringify from 'json-stable-stringify'
 import { Container } from '../Components/Container'
+import { LanguageButton, SortButton } from './Menu'
 
 async function performQuery(client: Client, query: SearchQuery) {
   // try scanning for links first
@@ -137,7 +137,8 @@ const Loaded = ({ result, setResult }: { result: BookSearchResult, setResult: Di
       <Input result={result} />
 
       <BookList items={result.items} contentSelector={contentSelector}>
-        <Menu />
+        <LanguageButton />
+        <SortButton />
       </BookList>
 
       <Loader key={effectiveQueryCmp} query={query} result={result} setResult={setResult} />

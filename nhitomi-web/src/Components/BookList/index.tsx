@@ -43,7 +43,7 @@ export const BookList = ({ items, contentSelector, getCoverRequest, overlayVisib
       <BookListContext.Provider value={useMemo(() => ({
         items,
         contentSelector,
-        getItemId: getCoverRequest,
+        getCoverRequest,
         overlayVisible,
         LinkComponent
       }), [LinkComponent, contentSelector, getCoverRequest, items, overlayVisible])}>

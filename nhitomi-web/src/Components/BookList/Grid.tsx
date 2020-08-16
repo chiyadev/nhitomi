@@ -43,7 +43,7 @@ export const Grid = ({ width, children }: {
 
   return (
     <div style={{ maxWidth: rowWidth }} className='mx-auto w-full'>
-      {children}
+      <Menu children={children} />
 
       <div className={cx('flex flex-row flex-wrap justify-center', css`
         padding: ${spacing / 2}px;
@@ -62,6 +62,22 @@ export const Grid = ({ width, children }: {
   )
 }
 
+const Menu = ({ children }: { children?: ReactNode }) => {
+  const style = useSpring({
+    from: { opacity: 0 },
+    to: { opacity: 1 }
+  })
+
+  return (
+    <animated.div
+      style={style}
+      className='w-full clearfix leading-none'>
+
+      <div className='float-right' children={children} />
+    </animated.div >
+  )
+}
+
 const Item = ({ book, width, height, className }: {
   book: BookListItem
   width: number
@@ -75,7 +91,7 @@ const Item = ({ book, width, height, className }: {
   const content = useMemo(() => contentSelector(book), [book, contentSelector])
 
   const overlay = useMemo(() => <ItemOverlay book={book} hover={hover} />, [book, hover])
-  const image = useMemo(() => showImage && content && <ItemCover book={book} content={content} />, [book, content, showImage])
+  const image = useMemo(() => showImage && <ItemCover book={book} content={content} />, [book, content, showImage])
   const inner = useMemo(() => <>{image}{overlay}</>, [image, overlay])
 
   return useMemo(() => (
@@ -101,17 +117,20 @@ const Item = ({ book, width, height, className }: {
   ), [LinkComponent, book.id, className, content, height, inner, width])
 }
 
-const ItemCover = ({ book, content }: { book: BookListItem, content: BookContent }) => {
+const ItemCover = ({ book, content }: { book: BookListItem, content?: BookContent }) => {
   const client = useClient()
   const { getCoverRequest } = useBookList()
 
-  return useMemo(() => (
-    <CoverImage
-      key={`${book.id}/${content.id}`}
-      zoomIn
-      className={cx('w-full h-full rounded overflow-hidden')}
-      onLoad={async () => await client.book.getBookImage(getCoverRequest?.(book, content) || { id: book.id, contentId: content?.id, index: -1 })} />
-  ), [book, client.book, content, getCoverRequest])
+  return useMemo(() => content
+    ? (
+      <CoverImage
+        key={`${book.id}/${content.id}`}
+        zoomIn
+        className='w-full h-full rounded overflow-hidden'
+        onLoad={async () => await client.book.getBookImage(getCoverRequest?.(book, content) || { id: book.id, contentId: content.id, index: -1 })} />
+    ) : (
+      <div className='w-full h-full' />
+    ), [book, client.book, content, getCoverRequest])
 }
 
 const ItemOverlay = ({ book, hover }: { book: BookListItem, hover?: boolean }) => {
