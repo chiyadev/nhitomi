@@ -1,13 +1,21 @@
 import { Book, BookContent, LanguageType } from 'nhitomi-api'
-import React, { useRef, useState, ReactNode } from 'react'
+import React, { useRef, useState, ReactNode, createContext, useMemo, ContextType, useContext } from 'react'
 import { cx } from 'emotion'
 import useResizeObserver from '@react-hook/resize-observer'
 import { Grid } from './Grid'
 import { ScraperTypes } from '../../orderedConstants'
 
-export const BookList = ({ items, contentSelector, className, children }: {
+const BookListContext = createContext<{
   items: Book[]
   contentSelector: (book: Book) => BookContent
+  overlayVisible?: boolean
+}>(undefined as any)
+
+export function useBookList() {
+  return useContext(BookListContext)
+}
+
+export const BookList = ({ items, contentSelector, overlayVisible, className, children }: ContextType<typeof BookListContext> & {
   className?: string
   children?: ReactNode
 }) => {
@@ -21,13 +29,16 @@ export const BookList = ({ items, contentSelector, className, children }: {
       ref={containerRef}
       className={cx('w-full relative', className)}>
 
-      {width && (
-        <Grid
-          items={items}
-          contentSelector={contentSelector}
-          width={width}
-          children={children} />
-      )}
+      <BookListContext.Provider value={useMemo(() => ({
+        items,
+        contentSelector,
+        overlayVisible
+      }), [contentSelector, items, overlayVisible])}>
+
+        {width && (
+          <Grid width={width} children={children} />
+        )}
+      </BookListContext.Provider>
     </div>
   )
 }

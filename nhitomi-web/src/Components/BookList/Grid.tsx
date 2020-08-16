@@ -7,13 +7,14 @@ import { useClient } from '../../ClientManager'
 import { useSpring, animated } from 'react-spring'
 import { BookReaderLink } from '../../BookReader'
 import VisibilitySensor from 'react-visibility-sensor'
+import { useBookList } from '.'
 
-export const Grid = ({ items, contentSelector, width, children }: {
-  items: Book[]
-  contentSelector: (book: Book) => BookContent
+export const Grid = ({ width, children }: {
   width: number
   children?: ReactNode
 }) => {
+  const { items, contentSelector } = useBookList()
+
   const { spacing, rowWidth, itemWidth, itemHeight } = useMemo(() => {
     let spacing: number
     let rowItems: number
@@ -72,7 +73,7 @@ const Item = ({ book, content, width, height, className }: {
   const [hover, setHover] = useState(false)
   const [showImage, setShowImage] = useState(false)
 
-  const overlay = useMemo(() => <ItemOverlay book={book} content={content} hover={hover} />, [book, content, hover])
+  const overlay = useMemo(() => <ItemOverlay book={book} hover={hover} />, [book, hover])
   const image = useMemo(() => showImage && <ItemCover book={book} content={content} />, [book, content, showImage])
 
   return useMemo(() => (
@@ -113,8 +114,11 @@ const ItemCover = ({ book, content }: { book: Book, content: BookContent }) => {
   ), [book.id, client.book, content.id])
 }
 
-const ItemOverlay = ({ book, content, hover }: { book: Book, content: BookContent, hover?: boolean }) => {
-  const [visible, setVisible] = useState(false)
+const ItemOverlay = ({ book, hover }: { book: Book, hover?: boolean }) => {
+  const { overlayVisible } = useBookList()
+  hover = overlayVisible || hover
+
+  const [visible, setVisible] = useState(hover)
   const style = useSpring({
     opacity: hover ? 1 : 0,
     marginBottom: hover ? 0 : -5,
