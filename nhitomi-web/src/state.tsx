@@ -1,4 +1,4 @@
-import { Dispatch, useLayoutEffect, useCallback, useState } from 'react'
+import { Dispatch, useLayoutEffect, useCallback, useState, useRef } from 'react'
 import { createBrowserHistory, History as Hisotry, Hash, Pathname, Location, Search } from 'history'
 import { parse, stringify } from 'qs'
 import { EventEmitter } from 'events'
@@ -159,9 +159,12 @@ export function usePageState(key: string, initialState?: any) {
       setState(newState)
   }, [key, state]))
 
+  const mounted = useRef(true)
+  useLayoutEffect(() => () => { mounted.current = false }, [])
+
   return [
     state?.value,
-    useCallback((value: any) => Navigator.navigate('replace', { state: s => ({ ...s, [key]: { value, version: Math.random() } }) }), [key])
+    useCallback((value: any) => { mounted.current && Navigator.navigate('replace', { state: s => ({ ...s, [key]: { value, version: Math.random() } }) }) }, [key])
   ]
 }
 
@@ -175,9 +178,12 @@ export function useQuery(mode: NavigationMode = 'replace'): [QueryState, Dispatc
     setState(newState)
   }, []))
 
+  const mounted = useRef(true)
+  useLayoutEffect(() => () => { mounted.current = false }, [])
+
   return [
     state,
-    useCallback((value: QueryState) => Navigator.navigate(mode, { query: value }), [mode])
+    useCallback((value: QueryState) => { mounted.current && Navigator.navigate(mode, { query: value }) }, [mode])
   ]
 }
 
