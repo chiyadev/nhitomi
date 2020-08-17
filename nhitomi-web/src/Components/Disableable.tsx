@@ -12,7 +12,7 @@ export const Disableable = ({ children, className, disabled }: { children?: Reac
       style={style}
       className={className}>
 
-      <div className={cx('display-contents', { 'pointer-events-none cursor-default': disabled })} children={children} />
+      <div className={cx('display-contents', { 'pointer-events-none select-none cursor-default': disabled })} children={children} />
     </animated.div>
   )
 }
