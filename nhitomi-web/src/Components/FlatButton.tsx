@@ -1,9 +1,9 @@
 import React, { ReactNode, MouseEvent, useState } from 'react'
 import { cx } from 'emotion'
 import { useSpring, animated } from 'react-spring'
-import { convertHex, Color, getColor } from '../theme'
+import { Color, getColor } from '../theme'
 
-export const FlatButton = ({ children, color = getColor('gray'), icon, className, onClick }: {
+export const FlatButton = ({ children, color = getColor('gray', 'darkest'), icon, className, onClick }: {
   children?: ReactNode
   color?: Color
   icon?: ReactNode
@@ -15,12 +15,8 @@ export const FlatButton = ({ children, color = getColor('gray'), icon, className
   const [click, setClick] = useState(false)
 
   const style = useSpring({
-    boxShadow: `inset 0 0 0 1px ${color.opacity(0.15).rgb}`,
-    backgroundColor: color.opacity(0.1).rgb
-  })
-
-  const overlayStyle = useSpring({
-    backgroundColor: convertHex('#fff', click ? 0.25 : focus || hover ? 0.125 : 0)
+    boxShadow: `inset 0 0 0 1px ${color.tint(click || focus || hover ? 0.25 : 0.125).rgb}`,
+    backgroundColor: color.tint(click ? 0.25 : focus || hover ? 0.125 : 0).rgb
   })
 
   const iconStyle = useSpring({
@@ -39,16 +35,13 @@ export const FlatButton = ({ children, color = getColor('gray'), icon, className
       onMouseDown={() => setClick(true)}
       onMouseUp={() => setClick(false)}>
 
-      <animated.div
-        style={overlayStyle}
-        className='px-2 py-1 flex flex-row space-x-2'>
-
+      <div className='px-2 py-1 flex flex-row space-x-2'>
         {icon && (
           <animated.div style={iconStyle} children={icon} />
         )}
 
         <div children={children} />
-      </animated.div>
+      </div>
     </animated.button>
   )
 }

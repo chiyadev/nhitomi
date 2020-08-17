@@ -3,13 +3,13 @@ import { ColorHue } from '../theme'
 
 export const BookTagColors: { [key in BookTag]: ColorHue } = {
   artist: 'orange',
-  circle: 'indigo',
-  character: 'yellow',
+  circle: 'yellow',
+  character: 'pink',
   // copyright: 'red',
   parody: 'green',
-  series: 'fuschia',
+  series: 'lime',
   // pool: 'cyan',
-  convention: 'pink',
-  metadata: 'lime',
+  convention: 'grape',
+  metadata: 'violet',
   tag: 'blue'
 }

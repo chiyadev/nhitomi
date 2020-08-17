@@ -38,7 +38,7 @@ export const DropdownItem = ({ children, className, padding = true }: { children
 
 export const DropdownGroup = ({ name, children, className }: { name?: ReactNode, children?: ReactNode, className?: string }) => (
   <div className={cx('pl-2', className)}>
-    <div className='text-gray-500 cursor-default py-1 truncate'>{name}</div>
+    <div className='text-gray-darker cursor-default py-1 truncate'>{name}</div>
 
     <div
       className='rounded-l-sm overflow-hidden'

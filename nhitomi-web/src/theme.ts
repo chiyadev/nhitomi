@@ -19,7 +19,7 @@ export class Color {
   get rgb() { return this.color.toRgbString() }
 
   mix(other: Color, amount = 0.5) { return new Color(this.color.mix(other.color, amount * 100)) }
-  opacity(value: number) { return new Color(this.color.setAlpha(value)) }
+  opacity(value: number) { return new Color(new TinyColor(this.color).setAlpha(this.color.getAlpha() * value)) }
 
   tint(value: number) { return this.mix(getColor('white'), value) }
   shade(value: number) { return this.mix(getColor('black'), value) }

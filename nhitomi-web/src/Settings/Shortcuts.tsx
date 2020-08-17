@@ -6,9 +6,10 @@ import keycode from 'keycode'
 import { useSpring, animated } from 'react-spring'
 import { getColor } from '../theme'
 import { CloseOutlined, PlusOutlined } from '@ant-design/icons'
-import { cx, css } from 'emotion'
+import { cx } from 'emotion'
 import { getEventModifiers } from '../shortcut'
 import { useLocalized } from '../LocaleManager'
+import { Input } from '../Components/Input'
 
 export const Shortcuts = () => {
   const generalKeys: ShortcutConfigKey[] = []
@@ -24,10 +25,10 @@ export const Shortcuts = () => {
   return (
     <SettingsFocusContainer focus='shortcuts'>
       <div className='text-base'><FormattedMessage id='pages.settings.keyboard.shortcuts.name' /></div>
-      <div className='text-xs text-gray-800'><FormattedMessage id='pages.settings.keyboard.shortcuts.description' /></div>
+      <div className='text-xs text-gray-darker'><FormattedMessage id='pages.settings.keyboard.shortcuts.description' /></div>
       <br />
 
-      <div className='divide-y divide-gray-900'>
+      <div className='divide-y divide-gray-darkest'>
         <div className='pb-4 space-y-1'>
           <div><FormattedMessage id='pages.settings.keyboard.shortcuts.general.name' /></div>
           {generalKeys.map(key => (
@@ -70,9 +71,9 @@ const Shortcut = ({ section, shortcutKey }: { section: 'general' | 'bookReader',
 
       {shortcuts.map(shortcut => (
         <ItemPart>
-          <span>{stringifyShortcut(shortcut)}</span>
+          <span className='align-middle'>{stringifyShortcut(shortcut)}</span>
 
-          <CloseOutlined className='text-gray-800 cursor-pointer' onClick={() => setShortcuts(shortcuts.filter(s => s !== shortcut))} />
+          <CloseOutlined className='ml-1 text-gray-darker cursor-pointer' onClick={() => setShortcuts(shortcuts.filter(s => s !== shortcut))} />
         </ItemPart>
       ))}
 
@@ -85,14 +86,14 @@ const ItemPart = ({ children, className, onClick }: { children?: ReactNode, clas
   const [hover, setHover] = useState(false)
 
   const style = useSpring({
-    borderColor: getColor('gray').opacity(hover ? 0.3 : 0.15).rgb,
-    backgroundColor: getColor('gray').opacity(hover ? 0.2 : 0.1).rgb
+    boxShadow: `inset 0 0 0 1px ${getColor('gray', 'darkest').tint(hover ? 0.25 : 0.125).rgb}`,
+    backgroundColor: getColor('gray', 'darkest').tint(hover ? 0.25 : 0).rgb
   })
 
   return (
     <animated.div
       style={style}
-      className={cx('inline-block align-middle text-xs px-1 space-x-1 border rounded overflow-hidden cursor-default', className)}
+      className={cx('inline-block align-middle text-xs px-1 rounded overflow-hidden cursor-default', className)}
       onClick={onClick}
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
@@ -107,23 +108,15 @@ const ItemNew = ({ onAdd }: { onAdd?: (shortcut: ShortcutConfig) => void }) => {
   if (!current) {
     return (
       <ItemPart className='cursor-pointer' onClick={() => setCurrent({})}>
-        <PlusOutlined className='text-gray-800' />
+        <PlusOutlined className='text-gray-darker' />
       </ItemPart>
     )
   }
 
   return (
-    <input
-      ref={x => x?.focus()}
-      className={cx('inline-block align-middle text-xs px-1 border border-gray-800 rounded overflow-hidden w-32', css`
-        &::placeholder {
-          color: ${getColor('gray', 800).hex};
-        }
-      `)}
-      style={{
-        borderColor: getColor('gray').opacity(0.15).rgb,
-        backgroundColor: getColor('gray').opacity(0.1).rgb
-      }}
+    <Input
+      autoFocus
+      className='text-xs rounded overflow-hidden w-32'
       value={stringifyShortcut(current)}
       placeholder={placeholder}
       onKeyDown={e => {
@@ -131,6 +124,7 @@ const ItemNew = ({ onAdd }: { onAdd?: (shortcut: ShortcutConfig) => void }) => {
         const modifiers = getEventModifiers(e)
 
         setCurrent({ key, modifiers })
+
         e.preventDefault()
       }}
       onBlur={() => {

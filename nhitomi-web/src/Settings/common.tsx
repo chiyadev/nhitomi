@@ -16,7 +16,7 @@ export const SettingsFocusContainer = ({ focus, className, ...props }: Component
   return (
     <div
       ref={ref}
-      className={cx(className, { 'rounded border border-blue-500 border-opacity-50 p-2 -m-2': currentFocus === focus }, css`scroll-margin: 0.5em;`)}
+      className={cx(className, { 'rounded border border-blue border-opacity-50 p-2 -m-2': currentFocus === focus }, css`scroll-margin: 0.5em;`)}
 
       {...props} />
   )

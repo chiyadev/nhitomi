@@ -43,78 +43,76 @@ export const Info = ({ book, content }: PrefetchResult) => {
       <div className='flex-1 space-y-4'>
         <div>
           <div className='text-2xl font-bold'>{(preferEnglishName && book.englishName) || book.primaryName}</div>
-          <div className='text-sm font-bold text-gray-800'>{(!preferEnglishName && book.englishName) || book.primaryName}</div>
+          <div className='text-sm text-gray-darker'>{(!preferEnglishName && book.englishName) || book.primaryName}</div>
         </div>
 
-        <div className='space-y-2'>
-          {BookTags.map(tag => {
-            const tags = book.tags[tag]
+        {BookTags.map(tag => {
+          const tags = book.tags[tag]
 
-            if (!tags)
-              return null
+          if (!tags)
+            return null
 
-            return (
-              <div>
-                <div className='text-xs text-gray-500 mb-1'><FormattedMessage id={`types.bookTag.${tag}`} /></div>
-                <div className='text-sm leading-tight'>
-                  {tags.sort().map(value => (
-                    <BookListingLink query={{ query: `${tag}:${value.replace(/\s/g, '_')}` }}>
-                      <Tag type={tag} value={value} />
-                    </BookListingLink>
-                  ))}
-                </div>
+          return (
+            <div>
+              <div className='text-xs text-gray-darker mb-1'><FormattedMessage id={`types.bookTag.${tag}`} /></div>
+              <div className='text-sm leading-tight'>
+                {tags.sort().map(value => (
+                  <BookListingLink query={{ query: `${tag}:${value.replace(/\s/g, '_')}` }}>
+                    <Tag type={tag} value={value} />
+                  </BookListingLink>
+                ))}
               </div>
-            )
-          })}
-
-          <div>
-            <div className='text-xs text-gray-500 mb-1'><FormattedMessage id='pages.bookReader.sources' /></div>
-            <div className='space-x-1'>
-              {ScraperTypes.map(type => {
-                const sourceContents = book.contents.filter(c => c.source === type).sort((a, b) => b.id.localeCompare(a.id))
-
-                if (!sourceContents.length)
-                  return null
-
-                return (
-                  <Dropdown className='inline-block' overlay={(
-                    LanguageTypes.map(language => {
-                      const languageContents = sourceContents.filter(c => c.language === language)
-
-                      if (!languageContents.length)
-                        return null
-
-                      const displayContent = content
-
-                      return (
-                        <DropdownGroup name={LanguageNames[language]}>
-                          {languageContents.map(content => (
-                            <Disableable disabled={content === displayContent}>
-                              <BookReaderLink id={book.id} contentId={content.id}>
-                                <DropdownItem>
-                                  <NewTabLink href={content.sourceUrl}>
-                                    <LinkOutlined className='pr-2 text-blue-500' />
-                                  </NewTabLink>
-
-                                  {content.sourceUrl}
-                                </DropdownItem>
-                              </BookReaderLink>
-                            </Disableable>
-                          ))}
-                        </DropdownGroup>
-                      )
-                    })
-                  )}>
-
-                    <SourceButton type={type} />
-                  </Dropdown>
-                )
-              })}
             </div>
+          )
+        })}
+
+        <div>
+          <div className='text-xs text-gray-darker mb-1'><FormattedMessage id='pages.bookReader.sources' /></div>
+          <div className='space-x-1'>
+            {ScraperTypes.map(type => {
+              const sourceContents = book.contents.filter(c => c.source === type).sort((a, b) => b.id.localeCompare(a.id))
+
+              if (!sourceContents.length)
+                return null
+
+              return (
+                <Dropdown className='inline-flex' overlay={(
+                  LanguageTypes.map(language => {
+                    const languageContents = sourceContents.filter(c => c.language === language)
+
+                    if (!languageContents.length)
+                      return null
+
+                    const displayContent = content
+
+                    return (
+                      <DropdownGroup name={LanguageNames[language]}>
+                        {languageContents.map(content => (
+                          <Disableable disabled={content === displayContent}>
+                            <BookReaderLink id={book.id} contentId={content.id}>
+                              <DropdownItem>
+                                <NewTabLink href={content.sourceUrl}>
+                                  <LinkOutlined className='pr-2 text-blue' />
+                                </NewTabLink>
+
+                                {content.sourceUrl}
+                              </DropdownItem>
+                            </BookReaderLink>
+                          </Disableable>
+                        ))}
+                      </DropdownGroup>
+                    )
+                  })
+                )}>
+
+                  <SourceButton type={type} />
+                </Dropdown>
+              )
+            })}
           </div>
         </div>
 
-        <div className='text-sm text-gray-500'>
+        <div className='text-xs text-gray'>
           <div><ReadOutlined className='w-4 text-center' /> <FormattedMessage id='pages.bookReader.pageCount' values={{ count: content.pageCount }} /></div>
           <div><UploadOutlined className='w-4 text-center' /> <FormattedMessage id='pages.bookReader.uploadTime' values={{ time: <TimeDisplay value={book.createdTime} /> }} /></div>
           <div><HistoryOutlined className='w-4 text-center' /> <FormattedMessage id='pages.bookReader.updateTime' values={{ time: <TimeDisplay value={book.updatedTime} /> }} /></div>
@@ -128,14 +126,15 @@ const Tag = ({ type: tag, value }: { type: BookTag, value: string }) => {
   const [hover, setHover] = useState(false)
 
   const style = useSpring({
-    borderColor: getColor(BookTagColors[tag]).tint(hover ? 0.25 : 0).rgb,
-    backgroundColor: getColor(BookTagColors[tag]).tint(hover ? 0.25 : 0).rgb
+    color: getColor(BookTagColors[tag], 'lighter').hex,
+    borderColor: getColor(BookTagColors[tag], 'darker').opacity(0.25).tint(hover ? 0.25 : 0).rgb,
+    backgroundColor: getColor(BookTagColors[tag], 'darker').opacity(0.25).tint(hover ? 0.25 : 0).rgb
   })
 
   return (
     <animated.div
-      style={{ ...style, color: getColor(BookTagColors[tag]).hex }}
-      className='inline-block px-1 mr-1 border rounded-sm overflow-hidden leading-normal cursor-pointer'
+      style={style}
+      className='inline-flex px-1 mr-1 border rounded-sm overflow-hidden leading-normal cursor-pointer'
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}>
 
@@ -148,11 +147,13 @@ const SourceButton = ({ type }: { type: ScraperType }) => {
   const { info: { scrapers } } = useClientInfo()
 
   return (
-    <FlatButton icon={(
-      <img className='inline rounded-full h-6 w-auto' alt={type} src={`/assets/icons/${type}.jpg`} />
-    )}>
+    <FlatButton
+      color={getColor('gray', 'darkest').opacity(0.5)}
+      icon={(
+        <img className='inline rounded-full h-6 w-auto' alt={type} src={`/assets/icons/${type}.jpg`} />
+      )}>
 
-      <span className='text-sm text-gray-500'>{scrapers.find(s => s.type === type)?.name}</span>
+      <span className='text-sm text-gray'>{scrapers.find(s => s.type === type)?.name}</span>
     </FlatButton>
   )
 }

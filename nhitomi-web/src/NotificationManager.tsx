@@ -72,7 +72,7 @@ const NotifyToast = ({ children, onMouseEnter, onMouseLeave, transitionState, tr
 
       {children}
 
-      <CloseOutlined className='absolute top-0 right-0 p-3 text-gray-800 text-sm cursor-pointer' onClick={() => onDismiss()} />
+      <CloseOutlined className='absolute top-0 right-0 p-3 text-gray-600 text-sm cursor-pointer' onClick={() => onDismiss()} />
     </animated.div>
   )
 }
@@ -159,7 +159,7 @@ const AlertToast = ({ children, onMouseEnter, onMouseLeave, transitionState, tra
   return (
     <animated.div
       style={style}
-      className='inline-block rounded overflow-hidden bg-gray-900 bg-blur text-white text-sm shadow-lg p-3'
+      className='table mx-auto rounded overflow-hidden bg-gray-800 bg-blur text-white text-sm shadow-lg p-3'
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}>
 

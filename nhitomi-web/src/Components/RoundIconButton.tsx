@@ -1,17 +1,18 @@
 import React, { ReactNode, useState, MouseEvent } from 'react'
 import { cx } from 'emotion'
 import { useSpring, animated } from 'react-spring'
-import { convertHex } from '../theme'
+import { Color, getColor } from '../theme'
 
-export const RoundIconButton = ({ className, backColor, children, onClick }: {
+export const RoundIconButton = ({ className, hoverColor = getColor('white').opacity(0.25), children, onClick }: {
   className?: string
-  backColor?: string
+  hoverColor?: Color
   children?: ReactNode
   onClick?: (e: MouseEvent<HTMLDivElement>) => void
 }) => {
   const [hover, setHover] = useState(false)
+
   const style = useSpring({
-    backgroundColor: convertHex('#fff', hover ? 0.25 : 0)
+    backgroundColor: hoverColor.opacity(hover ? 1 : 0).rgb
   })
 
   return (

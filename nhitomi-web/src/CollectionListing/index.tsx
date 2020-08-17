@@ -74,10 +74,10 @@ const Loaded = ({ user, books }: PrefetchResult) => {
   const { permissions } = useClientInfo()
 
   return (
-    <Container className='divide-y divide-gray-900'>
+    <Container className='divide-y divide-gray-darkest'>
       <div className='p-2'>
         <div className='text-2xl'><FormattedMessage id='pages.collectionListing.title' /></div>
-        <div className='text-xs text-gray-800'><FormattedMessage id='pages.collectionListing.subtitle' values={{ user: user.username, mode: permissions.canManageCollections(user) ? 'manage' : 'view' }} /></div>
+        <div className='text-xs text-gray-darker'><FormattedMessage id='pages.collectionListing.subtitle' values={{ user: user.username, mode: permissions.canManageCollections(user) ? 'manage' : 'view' }} /></div>
       </div>
 
       <div className='py-2 space-y-8'>

@@ -122,7 +122,7 @@ export const SearchInput = ({ result, className }: { result: BookSearchResult, c
               z-index: 1;
 
               &::placeholder {
-                color: ${getColor('gray', 800).hex};
+                color: ${getColor('gray', 'darker').hex};
               }
               &::selection {
                 color: white;
@@ -158,7 +158,7 @@ const SearchButton = ({ onClick }: { onClick?: () => void }) => {
 
   return (
     <div
-      className='text-white bg-blue-500 cursor-pointer select-none'
+      className='text-white bg-blue cursor-pointer select-none'
       onMouseDown={onClick}
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}>
@@ -174,7 +174,7 @@ const ClearButton = ({ visible, onClick, className }: { visible?: boolean, onCli
   const [hover, setHover] = useState(false)
 
   const style = useSpring({
-    opacity: visible ? hover ? 1 : 0.5 : 0,
+    opacity: visible ? 1 : 0,
     transform: hover ? 'scale(1.1)' : 'scale(1)'
   })
 
@@ -187,7 +187,7 @@ const ClearButton = ({ visible, onClick, className }: { visible?: boolean, onCli
         onMouseEnter={() => setHover(true)}
         onMouseLeave={() => setHover(false)}>
 
-        <CloseOutlined className='text-sm' />
+        <CloseOutlined className='text-sm text-gray-darker' />
       </animated.div>
     </div>
   )
@@ -221,8 +221,8 @@ const Highlighter = ({ tokens, inputRef, className }: { tokens: QueryToken[], in
           case 'tag':
             return (
               <span key={token.index}>
-                <span className={css`opacity: 30%;`}>{token.tag}:</span>
-                <span className={css`color: ${getColor(BookTagColors[token.tag]).hex};`}>{token.value}</span>
+                <span className='text-gray'>{token.tag}:</span>
+                <span className={`text-${BookTagColors[token.tag]}`}>{token.value}</span>
               </span>
             )
 
@@ -439,13 +439,13 @@ const Suggestor = ({ tokens, setText, inputRef, children }: { tokens: QueryToken
         <animated.div
           {...props}
           style={{ ...dropdownStyle, width: inputRef.current?.clientWidth }}
-          className='bg-gray-900 bg-blur text-white text-sm px-2 py-1 rounded overflow-hidden flex flex-col space-y-2'>
+          className='bg-gray-darkest bg-blur text-white text-sm px-2 py-1 rounded overflow-hidden flex flex-col space-y-2'>
 
-          {token && <span className='text-xs opacity-50'>"{token.display}" ({suggestions && !suggestLoading ? suggestions.flatMap(s => s.items).length : '*'})</span>}
+          {token && <span className='text-xs text-gray-darker'>"{token.display}" ({suggestions && !suggestLoading ? suggestions.flatMap(s => s.items).length : '*'})</span>}
 
           {suggestionsTransitions((style, { tag, items }) => (
             <animated.ul key={tag} style={style}>
-              <li className={cx('text-xs', css`color: ${getColor(BookTagColors[tag]).hex};`)}>
+              <li className={cx(`text-xs text-${BookTagColors[tag]}`)}>
                 <FormattedMessage id={`types.bookTag.${tag}`} />
               </li>
 

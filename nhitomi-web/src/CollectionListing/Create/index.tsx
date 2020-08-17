@@ -107,10 +107,10 @@ const Loaded = ({ type, user, collections }: PrefetchResult) => {
   const nameTaken = collections.findIndex(c => c.name.toLowerCase() === name.toLowerCase()) !== -1
 
   return (
-    <Container className='divide-y divide-gray-900'>
+    <Container className='divide-y divide-gray-darkest'>
       <div className='p-2'>
         <div className='text-2xl'><FormattedMessage id='pages.collectionListing.create.title' /></div>
-        <div className='text-xs text-gray-800'><FormattedMessage id='pages.collectionListing.create.subtitle' values={{ type: <FormattedMessage id={`types.objectType.${type}`} /> }} /></div>
+        <div className='text-xs text-gray-darker'><FormattedMessage id='pages.collectionListing.create.subtitle' values={{ type: <FormattedMessage id={`types.objectType.${type}`} /> }} /></div>
       </div>
 
       <Disableable disabled={loading}>

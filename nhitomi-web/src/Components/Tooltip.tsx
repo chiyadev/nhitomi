@@ -39,7 +39,7 @@ export const Tooltip = ({ className, overlay, overlayClassName, children, hideOn
             ...style,
             ...overlayProps?.style
           }}
-          className={cx('rounded overflow-hidden text-xs bg-gray-900 bg-blur text-white', { 'px-2 py-1': padding }, overlayClassName, overlayProps?.className)}>
+          className={cx('rounded overflow-hidden text-xs bg-gray-darkest bg-blur text-white', { 'px-2 py-1': padding }, overlayClassName, overlayProps?.className)}>
 
           {overlay}
         </animated.div>
@@ -79,7 +79,7 @@ export const Tooltip = ({ className, overlay, overlayClassName, children, hideOn
         return props?.onHide?.(x)
       }}>
 
-      <div {...wrapperProps} className={cx(className, wrapperProps?.className)}>{children}</div>
+      <div {...wrapperProps} className={cx('inline-flex', className, wrapperProps?.className)}>{children}</div>
     </Tippy>
   )
 }

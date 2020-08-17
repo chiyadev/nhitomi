@@ -2,14 +2,15 @@ import React, { Dispatch, ReactNode, useState } from 'react'
 import { cx } from 'emotion'
 import { CheckOutlined } from '@ant-design/icons'
 import { useSpring, animated } from 'react-spring'
-import { getColor } from '../theme'
+import { getColor, Color } from '../theme'
 
 export type CheckBoxType = 'check' | 'radio'
 
-export const CheckBox = ({ value, setValue, type = 'check', children, className }: {
+export const CheckBox = ({ value, setValue, type = 'check', color = getColor('blue'), children, className }: {
   value?: boolean
   setValue?: Dispatch<boolean>
   type?: CheckBoxType
+  color?: Color
   children?: ReactNode
   className?: string
 }) => {
@@ -23,8 +24,8 @@ export const CheckBox = ({ value, setValue, type = 'check', children, className 
       onMouseLeave={() => setHover(false)}>
 
       <div className='mx-2 my-1'>
-        {type === 'check' ? <Check value={value} hover={hover} />
-          : type === 'radio' ? <Radio value={value} hover={hover} />
+        {type === 'check' ? <Check value={value} hover={hover} color={color} />
+          : type === 'radio' ? <Radio value={value} hover={hover} color={color} />
             : null}
       </div>
 
@@ -33,10 +34,10 @@ export const CheckBox = ({ value, setValue, type = 'check', children, className 
   )
 }
 
-const Check = ({ value, hover }: { value?: boolean, hover?: boolean }) => {
+const Check = ({ value, hover, color }: { value?: boolean, hover?: boolean, color: Color }) => {
   const boxStyle = useSpring({
-    backgroundColor: getColor(value ? 'blue' : 'transparent').rgb,
-    borderColor: getColor(value ? 'transparent' : 'gray').opacity(hover ? 0.75 : 0.5).rgb
+    backgroundColor: color.opacity(value ? 1 : 0).tint(value && hover ? 0.25 : 0).rgb,
+    borderColor: (value ? color : getColor('gray', 'darkest')).tint(hover ? 0.25 : 0).rgb
   })
 
   const checkStyle = useSpring({
@@ -60,12 +61,13 @@ const Check = ({ value, hover }: { value?: boolean, hover?: boolean }) => {
   )
 }
 
-const Radio = ({ value, hover }: { value?: boolean, hover?: boolean }) => {
+const Radio = ({ value, hover, color }: { value?: boolean, hover?: boolean, color: Color }) => {
   const circleStyle = useSpring({
-    borderColor: value ? getColor('blue').rgb : getColor('gray').opacity(hover ? 0.75 : 0.5).rgb
+    borderColor: (value ? color : getColor('gray', 'darkest')).tint(hover ? 0.25 : 0).rgb
   })
 
   const dotStyle = useSpring({
+    backgroundColor: color.tint(hover ? 0.25 : 0).rgb,
     opacity: value ? 1 : 0,
     transform: value ? 'scale(0.6)' : 'scale(0)'
   })
@@ -77,7 +79,7 @@ const Radio = ({ value, hover }: { value?: boolean, hover?: boolean }) => {
 
       <animated.span
         style={dotStyle}
-        className='w-4 h-4 bg-blue-500 rounded-full' />
+        className='w-4 h-4 rounded-full' />
     </animated.div>
   )
 }

@@ -11,7 +11,7 @@ export const Blur = () => {
   return (
     <SettingsFocusContainer focus='blur'>
       <div className='text-base'><FormattedMessage id='pages.settings.appearance.blur.name' /></div>
-      <div className='text-xs text-gray-800'><FormattedMessage id='pages.settings.appearance.blur.description' /></div>
+      <div className='text-xs text-gray-darker'><FormattedMessage id='pages.settings.appearance.blur.description' /></div>
       <br />
 
       <Disableable disabled={!BlurSupported}>
