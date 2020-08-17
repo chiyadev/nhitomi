@@ -1,4 +1,4 @@
-import React, { ReactNode, createContext, useContext, useMemo } from 'react'
+import React, { ReactNode, createContext, useContext, useMemo, useState } from 'react'
 import { ToastProvider, useToasts, ToastProps, ToastContainerProps, AppearanceTypes } from 'react-toast-notifications'
 import { CloseOutlined, CheckCircleTwoTone, InfoCircleTwoTone, CloseCircleTwoTone, WarningTwoTone } from '@ant-design/icons'
 import { cx, css } from 'emotion'
@@ -63,6 +63,11 @@ const NotifyToast = ({ children, onMouseEnter, onMouseLeave, transitionState, tr
     transform: transitionState === 'entered' ? 'translateX(0)' : 'translateX(1em)'
   })
 
+  const [closeHover, setCloseHover] = useState(false)
+  const closeStyle = useSpring({
+    transform: closeHover ? 'scale(1.1)' : 'scale(1)'
+  })
+
   return (
     <animated.div
       style={style}
@@ -72,7 +77,16 @@ const NotifyToast = ({ children, onMouseEnter, onMouseLeave, transitionState, tr
 
       {children}
 
-      <CloseOutlined className='absolute top-0 right-0 p-3 text-gray-600 text-sm cursor-pointer' onClick={() => onDismiss()} />
+      <animated.span
+        style={closeStyle}
+        className='absolute top-0 right-0 p-3 text-gray-darker text-sm'>
+
+        <CloseOutlined
+          className='cursor-pointer'
+          onClick={() => onDismiss()}
+          onMouseEnter={() => setCloseHover(true)}
+          onMouseLeave={() => setCloseHover(false)} />
+      </animated.span>
     </animated.div>
   )
 }
