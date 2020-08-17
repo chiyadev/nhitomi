@@ -34,9 +34,9 @@ export const FilledButton = ({ children, color = getColor('gray').opacity(0.5), 
       onMouseDown={() => setClick(true)}
       onMouseUp={() => setClick(false)}>
 
-      <div className='px-2 py-1 flex flex-row space-x-2'>
+      <div className='px-2 py-1 flex flex-row'>
         {icon && (
-          <animated.div style={iconStyle} children={icon} />
+          <animated.div style={iconStyle} className='w-4 text-center mr-1' children={icon} />
         )}
 
         <div children={children} />
