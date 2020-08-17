@@ -32,7 +32,7 @@ export const DropdownItem = ({ children, className, padding = true }: { children
   return (
     <animated.div
       style={style}
-      className={cx('truncate', { 'px-2 py-1': padding }, className)}
+      className={cx('truncate cursor-pointer', { 'px-2 py-1': padding }, className)}
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}>
 
