@@ -10,6 +10,8 @@ export const BlurSetter = () => {
     element.type = 'text/css'
     element.innerText = css`
       .bg-blur.bg-blur { /** double specificity to override bg-color opacities */
+        -webkit-backdrop-filter: blur(1em);
+        -moz-backdrop-filter: blur(1em);
         backdrop-filter: blur(1em);
         --bg-opacity: 80%;
       }
