@@ -88,7 +88,15 @@ export const ContextMenu = ({ className, moveTransition = false, offset = [0, 0]
 
         ref: overlayProps?.ref ? mergeRefs([overlayRef, overlayProps.ref]) : overlayRef,
         onBlur: e => {
-          setVisible(false)
+          setTimeout(() => {
+            // hack: bring focus back to overlay if an overlay descendant stole focus
+            if (overlayRef.current && overlayRef.current.contains(document.activeElement))
+              overlayRef.current.focus()
+
+            else
+              setVisible(false)
+          })
+
           return overlayProps?.onBlur?.(e)
         }
       }}
