@@ -3,8 +3,9 @@ import Tippy from '@tippyjs/react'
 import { cx } from 'emotion'
 import { animated, useSpring } from 'react-spring'
 
-export const Tooltip = ({ className, overlay, children, hideOnClick = false, ignoreAttributes = true, touch = false, duration = 200, placement = 'auto', padding = true, moveTransition = true, overlayProps, wrapperProps, popperOptions, ...props }: {
+export const Tooltip = ({ className, overlay, overlayClassName, children, hideOnClick = false, ignoreAttributes = true, touch = false, duration = 200, placement = 'auto', appendTo = document.body, padding = true, moveTransition = true, overlayProps, wrapperProps, popperOptions, ...props }: {
   overlay?: ReactNode
+  overlayClassName?: string
   children?: ReactNode
   padding?: boolean
   moveTransition?: boolean
@@ -38,7 +39,7 @@ export const Tooltip = ({ className, overlay, children, hideOnClick = false, ign
             ...style,
             ...overlayProps?.style
           }}
-          className={cx('rounded overflow-hidden text-xs bg-gray-900 bg-blur text-white', { 'px-2 py-1': padding }, overlayProps?.className)}>
+          className={cx('rounded overflow-hidden text-xs bg-gray-900 bg-blur text-white', { 'px-2 py-1': padding }, overlayClassName, overlayProps?.className)}>
 
           {overlay}
         </animated.div>
@@ -48,6 +49,7 @@ export const Tooltip = ({ className, overlay, children, hideOnClick = false, ign
       touch={touch}
       duration={duration}
       placement={placement}
+      appendTo={appendTo}
 
       popperOptions={{
         modifiers: [

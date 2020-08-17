@@ -66,12 +66,16 @@ const DeleteButton = ({ collection }: { collection: Collection }) => {
   const [, navigateListing] = usePrefetch(useCollectionListingPrefetch, { id: collection.ownerIds[0] })
 
   return (
-    <Dropdown visible={loading || undefined} placement='bottom' padding overlay={(
-      <div className='flex flex-col space-y-2'>
+    <Dropdown
+      visible={loading || undefined}
+      placement='bottom'
+      padding={false}
+      overlayClassName='flex flex-col space-y-2 p-2'
+      overlay={<>
         <div><FormattedMessage id='pages.collectionContent.book.delete.warning' /></div>
 
         <Disableable disabled={loading}>
-          <FlatButton onClick={async () => {
+          <FlatButton className='w-full' onClick={async () => {
             if (loading)
               return
 
@@ -94,8 +98,7 @@ const DeleteButton = ({ collection }: { collection: Collection }) => {
             <FormattedMessage id='pages.collectionContent.book.delete.button' />
           </FlatButton>
         </Disableable>
-      </div>
-    )}>
+      </>}>
 
       <RoundIconButton >
         <DeleteOutlined />

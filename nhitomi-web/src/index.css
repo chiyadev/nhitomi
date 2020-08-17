@@ -1,4 +1,4 @@
-*:focus {
+*:focus:focus {
   /* https://stackoverflow.com/questions/61971404/how-to-remove-black-border-from-option-when-hover-in-chrome-83 */
   outline: none;
 }

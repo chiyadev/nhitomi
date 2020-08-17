@@ -10,9 +10,10 @@ export const FilledButton = ({ children, icon, className, onClick, type = 'defau
   children?: ReactNode
   icon?: ReactNode
   className?: string
-  onClick?: (e: MouseEvent<HTMLDivElement>) => void
+  onClick?: (e: MouseEvent<HTMLButtonElement>) => void
   type?: ButtonType
 }) => {
+  const [focus, setFocus] = useState(false)
   const [hover, setHover] = useState(false)
   const [click, setClick] = useState(false)
 
@@ -31,7 +32,7 @@ export const FilledButton = ({ children, icon, className, onClick, type = 'defau
   })
 
   const overlayStyle = useSpring({
-    backgroundColor: click ? convertHex('#fff', 0.25) : convertHex('#000', hover ? 0.25 : 0)
+    backgroundColor: click ? convertHex('#fff', 0.25) : convertHex('#000', focus || hover ? 0.25 : 0)
   })
 
   const iconStyle = useSpring({
@@ -39,11 +40,12 @@ export const FilledButton = ({ children, icon, className, onClick, type = 'defau
   })
 
   return (
-    <animated.div
+    <animated.button
       style={style}
       className={cx('text-white rounded-sm overflow-hidden cursor-pointer', className)}
-      tabIndex={0}
       onClick={onClick}
+      onFocus={() => setFocus(true)}
+      onBlur={() => setFocus(false)}
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
       onMouseDown={() => setClick(true)}
@@ -59,6 +61,6 @@ export const FilledButton = ({ children, icon, className, onClick, type = 'defau
 
         <div children={children} />
       </animated.div>
-    </animated.div>
+    </animated.button>
   )
 }

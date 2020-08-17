@@ -21,11 +21,11 @@ export const Strip = () => {
   return (
     <animated.div
       style={style}
-      className={cx('fixed top-0 left-0 bottom-0 z-10 text-white py-4 flex flex-col items-center', css`width: ${StripWidth}px;`)}>
+      className={cx('fixed top-0 left-0 bottom-0 z-10 text-white py-4 flex flex-col items-center select-none', css`width: ${StripWidth}px;`)}>
 
       <Tooltip overlay={<span><FormattedMessage id='pages.home.title' /> <HeartOutlined /></span>} placement='right' className='mb-4'>
         <BookListingLink>
-          <img alt='logo' className='w-10 h-10' src='/logo-40x40.png' />
+          <img alt='logo' className='w-10 h-10 pointer-events-none' src='/logo-40x40.png' />
         </BookListingLink>
       </Tooltip>
 

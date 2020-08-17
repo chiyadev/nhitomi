@@ -159,7 +159,7 @@ const SearchButton = ({ onClick }: { onClick?: () => void }) => {
 
   return (
     <div
-      className='text-white bg-blue-600 cursor-pointer'
+      className='text-white bg-blue-600 cursor-pointer select-none'
       onMouseDown={onClick}
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}>
@@ -183,7 +183,7 @@ const ClearButton = ({ visible, onClick, className }: { visible?: boolean, onCli
     <div className='relative'>
       <animated.div
         style={style}
-        className={cx('absolute right-0 h-full flex items-center z-10 px-3 cursor-pointer', { 'pointer-events-none': !visible }, className)}
+        className={cx('absolute right-0 h-full flex items-center z-10 px-3 cursor-pointer select-none', { 'pointer-events-none': !visible }, className)}
         onMouseDown={onClick}
         onMouseEnter={() => setHover(true)}
         onMouseLeave={() => setHover(false)}>

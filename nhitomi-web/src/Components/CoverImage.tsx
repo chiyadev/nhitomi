@@ -78,7 +78,7 @@ export const CoverImage = ({ onLoad, onLoaded, className, zoomIn, autoSize, defa
             ? formatAspect(defaultAspect)
             : undefined
       }}
-      className={cx('relative', className)}>
+      className={cx('relative select-none', className)}>
 
       {showImage && (
         <animated.div

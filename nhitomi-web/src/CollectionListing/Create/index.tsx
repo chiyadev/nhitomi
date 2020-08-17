@@ -142,12 +142,12 @@ const Loaded = ({ type, user, collections }: PrefetchResult) => {
 
           <div className='space-x-1'>
             <BackLink>
-              <FlatButton className='inline-block' icon={<LeftOutlined />}>
+              <FlatButton icon={<LeftOutlined />}>
                 <FormattedMessage id='pages.collectionListing.create.cancel' />
               </FlatButton>
             </BackLink>
 
-            <FilledButton className='inline-block' type='primary' onClick={submit} icon={loading && <Loading3QuartersOutlined className='animate-spin' />}>
+            <FilledButton type='primary' onClick={submit} icon={loading && <Loading3QuartersOutlined className='animate-spin' />}>
               <FormattedMessage id='pages.collectionListing.create.submit' />
             </FilledButton>
           </div>

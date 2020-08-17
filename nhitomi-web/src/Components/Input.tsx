@@ -4,6 +4,7 @@ import { convertHex } from '../theme'
 import { colors } from '../theme.json'
 import { cx, css } from 'emotion'
 import { CloseOutlined } from '@ant-design/icons'
+import { useShortcut } from '../shortcut'
 
 export type InputStatus = 'none' | 'success' | 'error' | 'warning'
 
@@ -20,6 +21,8 @@ export const Input = ({ value, setValue, type = 'input', autoFocus, placeholder,
   status?: { status: InputStatus, help?: ReactNode }
 }) => {
   const ref = useRef<HTMLInputElement & HTMLTextAreaElement>(null)
+
+  useShortcut('cancelKey', () => ref.current?.blur(), ref)
 
   const [hover, setHover] = useState(false)
   const [focus, setFocus] = useState(false)

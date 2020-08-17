@@ -1,4 +1,4 @@
-import { useRef, useEffect } from 'react'
+import { useRef, useEffect, RefObject } from 'react'
 import { useKey, useKeyPress, useRafLoop } from 'react-use'
 import keycode from 'keycode'
 import { ShortcutConfig, KeyModifiers, ShortcutConfigKey, useConfig } from './ConfigManager'
@@ -9,9 +9,10 @@ export function getEventModifiers(e: { altKey: boolean, ctrlKey: boolean, metaKe
   return KeyModifiers.filter(key => e[key + 'Key' as keyof typeof e])
 }
 
-function matchShortcut(shortcuts: ShortcutConfig[], event: KeyboardEvent) {
-  // ignore keys for some elements
-  if ([HTMLInputElement, HTMLTextAreaElement, HTMLDivElement].some(e => event.target instanceof e))
+export const FocusIgnoreElements: typeof HTMLElement[] = [HTMLAnchorElement]
+
+function matchShortcut(shortcuts: ShortcutConfig[], event: KeyboardEvent, targetFocus = document.body) {
+  if (FocusIgnoreElements.findIndex(e => event.target instanceof e) === -1 && event.target !== targetFocus)
     return false
 
   const key = event.keyCode
@@ -45,10 +46,13 @@ function matchShortcut(shortcuts: ShortcutConfig[], event: KeyboardEvent) {
 }
 
 /** Callback when a configured key is pressed. */
-export function useShortcut(key: ShortcutConfigKey, callback: (event: KeyboardEvent) => void) {
+export function useShortcut(key: ShortcutConfigKey, callback: (event: KeyboardEvent) => void, ref?: RefObject<HTMLElement>) {
   const [shortcuts] = useConfig(key)
 
-  useKey(e => matchShortcut(shortcuts, e), callback)
+  useKey(e => matchShortcut(shortcuts, e, ref?.current || undefined), callback, {
+    event: 'keydown',
+    target: ref?.current || undefined
+  })
 }
 
 /** Keyboard state when of a configured key. */

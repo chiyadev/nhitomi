@@ -2,6 +2,7 @@ import React, { ComponentProps, useRef, useState } from 'react'
 import { Dropdown } from './Dropdown'
 import { cx } from 'emotion'
 import mergeRefs from 'react-merge-refs'
+import { useShortcut } from '../shortcut'
 
 function getTrueBoundingRect(element: HTMLElement) {
   const rects: DOMRect[] = []
@@ -53,6 +54,8 @@ export const ContextMenu = ({ className, placement = 'right-start', moveTransiti
 
   const [visible, setVisible] = useState(false)
   const [{ x, y }, setPosition] = useState<{ x: number, y: number }>({ x: 0, y: 0 })
+
+  useShortcut('cancelKey', () => overlayRef.current?.blur(), overlayRef)
 
   return (
     <Dropdown

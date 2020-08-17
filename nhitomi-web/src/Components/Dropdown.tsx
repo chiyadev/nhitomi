@@ -5,18 +5,14 @@ import { convertHex } from '../theme'
 import { cx } from 'emotion'
 import { colors } from '../theme.json'
 
-export const Dropdown = ({ interactive = true, appendTo = document.body, placement = 'bottom-start', touch = true, padding = false, overlayProps, ...props }: ComponentProps<typeof Tooltip>) => {
+export const Dropdown = ({ interactive = true, placement = 'bottom-start', touch = true, padding = true, overlayClassName, ...props }: ComponentProps<typeof Tooltip>) => {
   return (
     <Tooltip
       interactive={interactive}
-      appendTo={appendTo}
       placement={placement}
       touch={touch}
-      padding={padding}
-      overlayProps={{
-        className: 'py-1',
-        ...overlayProps
-      }}
+      padding={false}
+      overlayClassName={cx({ 'py-1': padding }, overlayClassName)}
 
       {...props} />
   )

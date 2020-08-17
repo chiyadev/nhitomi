@@ -65,7 +65,7 @@ export const Reader = ({ book, content, viewportWidth }: { book: Book, content: 
   return (
     <div
       ref={ref}
-      className='relative'
+      className='relative select-none'
       style={{
         width: layout.width,
         height: layout.height
