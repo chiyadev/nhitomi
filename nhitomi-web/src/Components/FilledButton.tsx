@@ -1,5 +1,5 @@
 import React, { ReactNode, MouseEvent, useState } from 'react'
-import { cx } from 'emotion'
+import { cx, css } from 'emotion'
 import { useSpring, animated } from 'react-spring'
 import { getColor, Color } from '../theme'
 
@@ -36,7 +36,7 @@ export const FilledButton = ({ children, color = getColor('gray').opacity(0.5), 
 
       <div className='px-2 py-1 flex flex-row'>
         {icon && (
-          <animated.div style={iconStyle} className='w-4 text-center mr-1' children={icon} />
+          <animated.div style={iconStyle} className={cx('text-center mr-1', css`min-width: 1em;`)} children={icon} />
         )}
 
         <div children={children} />
