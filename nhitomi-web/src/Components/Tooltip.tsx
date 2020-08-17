@@ -3,12 +3,13 @@ import Tippy from '@tippyjs/react'
 import { cx } from 'emotion'
 import { animated, useSpring } from 'react-spring'
 
-export const Tooltip = ({ className, overlay, overlayClassName, children, hideOnClick = false, ignoreAttributes = true, touch = false, duration = 200, placement = 'auto', appendTo = document.body, padding = true, moveTransition = true, overlayProps, wrapperProps, popperOptions, ...props }: {
+export const Tooltip = ({ className, overlay, overlayClassName, children, hideOnClick = false, ignoreAttributes = true, touch = false, duration = 200, placement = 'auto', appendTo = document.body, padding = true, moveTransition = true, scaleTransition, overlayProps, wrapperProps, popperOptions, ...props }: {
   overlay?: ReactNode
   overlayClassName?: string
   children?: ReactNode
   padding?: boolean
   moveTransition?: boolean
+  scaleTransition?: boolean
   overlayProps?: Omit<ComponentProps<'div'>, 'ref'> & Pick<ComponentProps<typeof animated.div>, 'ref'>
   wrapperProps?: ComponentProps<'div'>
 } & Omit<ComponentProps<typeof Tippy>, 'content' | 'render' | 'moveTransition' | 'children' | 'animation' | 'arrow'>) => {
@@ -22,6 +23,8 @@ export const Tooltip = ({ className, overlay, overlayClassName, children, hideOn
     marginRight: moveTransition && placement.indexOf('left') !== -1 && !visible ? -5 : 0,
     marginBottom: moveTransition && placement.indexOf('top') !== -1 && !visible ? -5 : 0,
     marginLeft: moveTransition && placement.indexOf('right') !== -1 && !visible ? -5 : 0,
+
+    transform: !scaleTransition || visible ? 'scaleY(1)' : 'scaleY(0.9)',
 
     onChange: {
       opacity: v => setRender(v > 0)
@@ -39,7 +42,12 @@ export const Tooltip = ({ className, overlay, overlayClassName, children, hideOn
             ...style,
             ...overlayProps?.style
           }}
-          className={cx('rounded overflow-hidden text-xs bg-gray-darkest bg-blur text-white', { 'px-2 py-1': padding }, overlayClassName, overlayProps?.className)}>
+          className={cx('rounded overflow-hidden text-xs bg-gray-darkest bg-blur text-white', overlayClassName, overlayProps?.className, {
+            'origin-top': scaleTransition && placement.indexOf('bottom') !== -1,
+            'origin-bottom': scaleTransition && placement.indexOf('top') !== -1
+          }, {
+            'px-2 py-1': padding
+          })}>
 
           {overlay}
         </animated.div>

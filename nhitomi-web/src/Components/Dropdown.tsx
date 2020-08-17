@@ -4,13 +4,14 @@ import { useSpring, animated } from 'react-spring'
 import { convertHex } from '../theme'
 import { cx } from 'emotion'
 
-export const Dropdown = ({ interactive = true, placement = 'bottom-start', touch = true, padding = true, overlayClassName, ...props }: ComponentProps<typeof Tooltip>) => {
+export const Dropdown = ({ interactive = true, placement = 'bottom-start', touch = true, padding = true, scaleTransition = true, overlayClassName, ...props }: ComponentProps<typeof Tooltip>) => {
   return (
     <Tooltip
       interactive={interactive}
       placement={placement}
       touch={touch}
       padding={false}
+      scaleTransition={scaleTransition}
       overlayClassName={cx({ 'py-1': padding }, overlayClassName)}
 
       {...props} />

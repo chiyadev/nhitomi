@@ -48,7 +48,7 @@ function getTrueBoundingRect(element: HTMLElement) {
   return new DOMRect(left, top, right - left, bottom - top)
 }
 
-export const ContextMenu = ({ className, placement = 'right-start', moveTransition = false, offset = [0, 0], wrapperProps, overlayProps, ...props }: Omit<ComponentProps<typeof Dropdown>, 'trigger' | 'hideOnClick' | 'visible' | 'getReferenceClientRect'>) => {
+export const ContextMenu = ({ className, moveTransition = false, offset = [0, 0], wrapperProps, overlayProps, ...props }: Omit<ComponentProps<typeof Dropdown>, 'placement' | 'trigger' | 'hideOnClick' | 'visible' | 'getReferenceClientRect'>) => {
   const wrapperRef = useRef<HTMLDivElement>(null)
   const overlayRef = useRef<HTMLDivElement>(null)
 
@@ -60,8 +60,8 @@ export const ContextMenu = ({ className, placement = 'right-start', moveTransiti
   return (
     <Dropdown
       className={cx('display-contents', className)}
+      placement='bottom-start'
       visible={visible}
-      placement={placement}
       moveTransition={moveTransition}
       offset={offset}
       wrapperProps={{
