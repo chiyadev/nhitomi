@@ -6,9 +6,8 @@ import './theme.css'
 import './theme'
 import './index.css'
 
-render(
+render((
   <React.StrictMode>
     <App />
-  </React.StrictMode>,
-  document.getElementById('root')
-)
+  </React.StrictMode>
+), document.getElementById('root'))
