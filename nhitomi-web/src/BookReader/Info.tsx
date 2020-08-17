@@ -127,14 +127,14 @@ const Tag = ({ type: tag, value }: { type: BookTag, value: string }) => {
 
   const style = useSpring({
     color: getColor(BookTagColors[tag], 'lighter').hex,
-    borderColor: getColor(BookTagColors[tag], 'darker').opacity(0.25).tint(hover ? 0.25 : 0).rgb,
-    backgroundColor: getColor(BookTagColors[tag], 'darker').opacity(0.25).tint(hover ? 0.25 : 0).rgb
+    borderColor: getColor(BookTagColors[tag], 'darker').opacity(0.125).tint(hover ? 0.25 : 0).rgb,
+    backgroundColor: getColor(BookTagColors[tag], 'darker').opacity(0.125).tint(hover ? 0.25 : 0).rgb
   })
 
   return (
     <animated.div
-      style={style}
-      className='inline-flex px-1 mr-1 border rounded-sm overflow-hidden leading-normal cursor-pointer'
+      style={style} // inline-block for spacing between lines
+      className='inline-block px-1 mr-1 border rounded-sm overflow-hidden leading-normal cursor-pointer'
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}>
 
