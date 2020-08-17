@@ -3,7 +3,7 @@ import Tippy from '@tippyjs/react'
 import { cx } from 'emotion'
 import { animated, useSpring } from 'react-spring'
 
-export const Tooltip = ({ className, overlay, children, hideOnClick = false, ignoreAttributes = true, touch = false, duration = 200, placement = 'auto', padding = true, moveTransition = true, overlayProps, wrapperProps, onShow, onHide, popperOptions, ...props }: {
+export const Tooltip = ({ className, overlay, children, hideOnClick = false, ignoreAttributes = true, touch = false, duration = 200, placement = 'auto', padding = true, moveTransition = true, overlayProps, wrapperProps, popperOptions, ...props }: {
   overlay?: ReactNode
   children?: ReactNode
   padding?: boolean
@@ -43,20 +43,11 @@ export const Tooltip = ({ className, overlay, children, hideOnClick = false, ign
           {overlay}
         </animated.div>
       )}
-      hideOnClick={hideOnClick}
+      hideOnClick={typeof props.visible !== 'undefined' ? undefined : hideOnClick} // tippy complains if hideOnClick is specified while visible controlled
       ignoreAttributes={ignoreAttributes}
       touch={touch}
       duration={duration}
       placement={placement}
-
-      onShow={x => {
-        setVisible(true)
-        return onShow?.(x)
-      }}
-      onHide={x => {
-        setVisible(false)
-        return onHide?.(x)
-      }}
 
       popperOptions={{
         modifiers: [
@@ -75,7 +66,16 @@ export const Tooltip = ({ className, overlay, children, hideOnClick = false, ign
         ...popperOptions
       }}
 
-      {...props}>
+      {...props}
+
+      onShow={x => {
+        setVisible(true)
+        return props?.onShow?.(x)
+      }}
+      onHide={x => {
+        setVisible(false)
+        return props?.onHide?.(x)
+      }}>
 
       <div {...wrapperProps} className={cx(className, wrapperProps?.className)}>{children}</div>
     </Tippy>
