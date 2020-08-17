@@ -195,7 +195,6 @@ const ClearButton = ({ visible, onClick, className }: { visible?: boolean, onCli
 
 const Highlighter = ({ tokens, inputRef, className }: { tokens: QueryToken[], inputRef: RefObject<HTMLInputElement>, className?: string }) => {
   const [offset, setOffset] = useState(0)
-  const style = useSpring({ marginLeft: offset })
 
   useLayoutEffect(() => {
     const input = inputRef.current
@@ -210,7 +209,7 @@ const Highlighter = ({ tokens, inputRef, className }: { tokens: QueryToken[], in
   }, [inputRef])
 
   return (
-    <animated.div style={style} className={cx('leading-8 flex items-center whitespace-pre', className)}>
+    <div style={{ marginLeft: offset }} className={cx('leading-8 flex items-center whitespace-pre', className)}>
       {tokens.map(token => {
         switch (token.type) {
           case 'other':
@@ -230,7 +229,7 @@ const Highlighter = ({ tokens, inputRef, className }: { tokens: QueryToken[], in
             return null
         }
       })}
-    </animated.div>
+    </div>
   )
 }
 
