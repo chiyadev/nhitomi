@@ -97,6 +97,7 @@ const Page = ({ book, content, index, image: { x, y, width, height }, setImage }
   setImage: Dispatch<ImageBase | undefined>
 }) => {
   const client = useClient()
+  const { screen, height: screenHeight } = useLayout()
   const [showImage, setShowImage] = useState(false)
 
   const image = useMemo(() => showImage && (
@@ -107,11 +108,18 @@ const Page = ({ book, content, index, image: { x, y, width, height }, setImage }
       onLoaded={setImage} />
   ), [book, client, content, index, setImage, showImage])
 
+  let preload: number
+
+  switch (screen) {
+    case 'sm': preload = screenHeight * 3; break
+    case 'lg': preload = screenHeight; break
+  }
+
   return useMemo(() => (
     <VisibilitySensor
       onChange={v => { v && setShowImage(true) }}
       partialVisibility
-      offset={{ top: -500, bottom: -500 }}>
+      offset={{ top: -preload, bottom: -preload }}>
 
       <div className='absolute' style={{
         top: y,
@@ -122,5 +130,5 @@ const Page = ({ book, content, index, image: { x, y, width, height }, setImage }
         {image}
       </div>
     </VisibilitySensor>
-  ), [height, image, width, x, y])
+  ), [height, image, preload, width, x, y])
 }
