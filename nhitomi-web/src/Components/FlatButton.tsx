@@ -1,11 +1,11 @@
 import React, { ReactNode, MouseEvent, useState } from 'react'
 import { cx } from 'emotion'
 import { useSpring, animated } from 'react-spring'
-import { convertHex, ThemeColor, getColor } from '../theme'
+import { convertHex, Color, getColor } from '../theme'
 
 export const FlatButton = ({ children, color = getColor('gray'), icon, className, onClick }: {
   children?: ReactNode
-  color?: ThemeColor
+  color?: Color
   icon?: ReactNode
   className?: string
   onClick?: (e: MouseEvent<HTMLButtonElement>) => void
@@ -15,8 +15,8 @@ export const FlatButton = ({ children, color = getColor('gray'), icon, className
   const [click, setClick] = useState(false)
 
   const style = useSpring({
-    boxShadow: `inset 0 0 0 1px ${color.rgba(0.15)}`,
-    backgroundColor: color.rgba(0.1)
+    boxShadow: `inset 0 0 0 1px ${color.opacity(0.15).rgb}`,
+    backgroundColor: color.opacity(0.1).rgb
   })
 
   const overlayStyle = useSpring({

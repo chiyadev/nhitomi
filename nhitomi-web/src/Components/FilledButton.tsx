@@ -1,11 +1,11 @@
 import React, { ReactNode, MouseEvent, useState } from 'react'
 import { cx } from 'emotion'
 import { useSpring, animated } from 'react-spring'
-import { convertHex, getColor, ThemeColor } from '../theme'
+import { convertHex, getColor, Color } from '../theme'
 
 export const FilledButton = ({ children, color = getColor('gray'), icon, className, onClick }: {
   children?: ReactNode
-  color?: ThemeColor
+  color?: Color
   icon?: ReactNode
   className?: string
   onClick?: (e: MouseEvent<HTMLButtonElement>) => void

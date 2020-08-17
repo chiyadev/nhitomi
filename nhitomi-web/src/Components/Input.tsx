@@ -1,6 +1,6 @@
 import React, { Dispatch, useState, ReactNode, useMemo, KeyboardEvent, useRef } from 'react'
 import { useSpring, animated } from 'react-spring'
-import { ThemeColor, getColor } from '../theme'
+import { Color, getColor } from '../theme'
 import { cx, css } from 'emotion'
 import { CloseOutlined } from '@ant-design/icons'
 import { useShortcut } from '../shortcut'
@@ -9,8 +9,8 @@ export const Input = ({ value, setValue, type = 'input', color = getColor('gray'
   value: string
   setValue: Dispatch<string>
   type?: 'input' | 'textarea'
-  color?: ThemeColor
-  selectionColor?: ThemeColor
+  color?: Color
+  selectionColor?: Color
   autoFocus?: boolean
   placeholder?: ReactNode
   allowClear?: boolean
@@ -27,12 +27,12 @@ export const Input = ({ value, setValue, type = 'input', color = getColor('gray'
   const [focus, setFocus] = useState(false)
 
   const inputStyle = useSpring({
-    borderColor: color.rgba(focus || hover ? 0.3 : 0.15),
-    backgroundColor: color.rgba(focus ? 0.2 : 0.1)
+    borderColor: color.opacity(focus || hover ? 0.3 : 0.15).rgb,
+    backgroundColor: color.opacity(focus ? 0.2 : 0.1).rgb
   })
 
   const placeholderStyle = useSpring({
-    color: color.rgba(focus ? 0.75 : 0.5)
+    color: color.opacity(focus ? 0.75 : 0.5).rgb
   })
 
   const helpStyle = useSpring({

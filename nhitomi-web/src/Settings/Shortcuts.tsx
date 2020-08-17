@@ -85,8 +85,8 @@ const ItemPart = ({ children, className, onClick }: { children?: ReactNode, clas
   const [hover, setHover] = useState(false)
 
   const style = useSpring({
-    borderColor: getColor('gray').rgba(hover ? 0.3 : 0.15),
-    backgroundColor: getColor('gray').rgba(hover ? 0.2 : 0.1)
+    borderColor: getColor('gray').opacity(hover ? 0.3 : 0.15).rgb,
+    backgroundColor: getColor('gray').opacity(hover ? 0.2 : 0.1).rgb
   })
 
   return (
@@ -121,8 +121,8 @@ const ItemNew = ({ onAdd }: { onAdd?: (shortcut: ShortcutConfig) => void }) => {
         }
       `)}
       style={{
-        borderColor: getColor('gray').rgba(0.15),
-        backgroundColor: getColor('gray').rgba(0.1)
+        borderColor: getColor('gray').opacity(0.15).rgb,
+        backgroundColor: getColor('gray').opacity(0.1).rgb
       }}
       value={stringifyShortcut(current)}
       placeholder={placeholder}

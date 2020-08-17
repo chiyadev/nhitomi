@@ -5,6 +5,7 @@
   "proxy": "http://localhost:5000",
   "dependencies": {
     "@ant-design/icons": "^4.2.2",
+    "@ctrl/tinycolor": "^3.1.4",
     "@openapitools/openapi-generator-cli": "^1.0.15-4.3.1",
     "@react-hook/resize-observer": "^1.1.0",
     "@tippyjs/react": "^4.1.0",

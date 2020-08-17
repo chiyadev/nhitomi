@@ -9,6 +9,8 @@ import VisibilitySensor from 'react-visibility-sensor'
 import { useBookList, BookListItem } from '.'
 import { BookContent } from 'nhitomi-api'
 import { useConfig } from '../../ConfigManager'
+import { ContextMenu } from '../ContextMenu'
+import { Overlay } from './Overlay'
 
 export const Grid = ({ width, menu, empty }: {
   width: number
@@ -97,29 +99,37 @@ const Item = ({ book, width, height, className }: {
 
   const overlay = useMemo(() => <ItemOverlay book={book} hover={hover} />, [book, hover])
   const image = useMemo(() => showImage && <ItemCover book={book} content={content} />, [book, content, showImage])
-  const inner = useMemo(() => <>{image}{overlay}</>, [image, overlay])
+  const inner = useMemo(() => {
+    const children = <>{image}{overlay}</>
 
-  return useMemo(() => (
-    <VisibilitySensor
-      delayedCall
-      partialVisibility
-      offset={{ top: -200, bottom: -200 }}
-      onChange={v => { v && setShowImage(true) }}>
-
+    return (
       <div
         style={{ width, height }}
-        className={cx('rounded overflow-hidden relative cursor-pointer', className)}
+        className={cx('rounded overflow-hidden relative', className)}
         onMouseEnter={() => setHover(true)}
         onMouseLeave={() => setHover(false)}>
 
         {LinkComponent
-          ? <LinkComponent id={book.id} contentId={content?.id} children={inner} />
+          ? <LinkComponent id={book.id} contentId={content?.id} children={children} />
           : content
-            ? <BookReaderLink id={book.id} contentId={content.id} children={inner} />
-            : inner}
+            ? <BookReaderLink id={book.id} contentId={content.id} children={children} />
+            : children}
       </div>
-    </VisibilitySensor>
-  ), [LinkComponent, book.id, className, content, height, inner, width])
+    )
+  }, [LinkComponent, book.id, className, content, height, image, overlay, width])
+
+  return useMemo(() => (
+    <ContextMenu overlay={(
+      <Overlay />
+    )}>
+      <VisibilitySensor
+        delayedCall
+        partialVisibility
+        offset={{ top: -200, bottom: -200 }}
+        onChange={v => { v && setShowImage(true) }}
+        children={inner} />
+    </ContextMenu>
+  ), [inner])
 }
 
 const ItemCover = ({ book, content }: { book: BookListItem, content?: BookContent }) => {

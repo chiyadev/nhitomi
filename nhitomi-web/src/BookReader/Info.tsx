@@ -128,8 +128,8 @@ const Tag = ({ type: tag, value }: { type: BookTag, value: string }) => {
   const [hover, setHover] = useState(false)
 
   const style = useSpring({
-    borderColor: getColor(BookTagColors[tag]).rgba(hover ? 0.3 : 0.15),
-    backgroundColor: getColor(BookTagColors[tag]).rgba(hover ? 0.2 : 0.1)
+    borderColor: getColor(BookTagColors[tag]).tint(hover ? 0.25 : 0).rgb,
+    backgroundColor: getColor(BookTagColors[tag]).tint(hover ? 0.25 : 0).rgb
   })
 
   return (
