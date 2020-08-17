@@ -15,6 +15,7 @@ import { useNotify } from '../../NotificationManager'
 import { useCollectionListingPrefetch } from '..'
 import { useTabTitle } from '../../TitleSetter'
 import { useLocalized } from '../../LocaleManager'
+import { getColor } from '../../theme'
 
 export type PrefetchResult = { type: ObjectType, user: User, collections: Collection[] }
 export type PrefetchOptions = { type?: ObjectType }
@@ -103,6 +104,8 @@ const Loaded = ({ type, user, collections }: PrefetchResult) => {
     }
   }, [client.collection, description, loading, name, navigateListing, notifyError, type])
 
+  const nameTaken = collections.findIndex(c => c.name.toLowerCase() === name.toLowerCase()) !== -1
+
   return (
     <Container className='divide-y divide-gray-900'>
       <div className='p-2'>
@@ -121,11 +124,8 @@ const Loaded = ({ type, user, collections }: PrefetchResult) => {
               allowClear
               value={name}
               setValue={setName}
-              status={(
-                collections.findIndex(c => c.name.toLowerCase() === name.toLowerCase()) !== -1
-                  ? { status: 'warning', help: <FormattedMessage id='pages.collectionListing.create.nameTaken' values={{ name }} /> }
-                  : undefined
-              )}
+              color={nameTaken ? getColor('orange') : undefined}
+              help={nameTaken ? <FormattedMessage id='pages.collectionListing.create.nameTaken' values={{ name }} /> : undefined}
               onSubmit={submit} />
           </div>
 
@@ -147,7 +147,7 @@ const Loaded = ({ type, user, collections }: PrefetchResult) => {
               </FlatButton>
             </BackLink>
 
-            <FilledButton type='primary' onClick={submit} icon={loading && <Loading3QuartersOutlined className='animate-spin' />}>
+            <FilledButton color={getColor('blue')} onClick={submit} icon={loading && <Loading3QuartersOutlined className='animate-spin' />}>
               <FormattedMessage id='pages.collectionListing.create.submit' />
             </FilledButton>
           </div>

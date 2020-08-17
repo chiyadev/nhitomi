@@ -1,11 +1,11 @@
 import React, { ReactNode, createContext, useContext, useMemo } from 'react'
 import { ToastProvider, useToasts, ToastProps, ToastContainerProps, AppearanceTypes } from 'react-toast-notifications'
 import { CloseOutlined, CheckCircleTwoTone, InfoCircleTwoTone, CloseCircleTwoTone, WarningTwoTone } from '@ant-design/icons'
-import { colors } from './theme.json'
 import { cx, css } from 'emotion'
 import { useSpring, animated } from 'react-spring'
 import { useLayout } from './LayoutManager'
 import { ValidationError } from './ClientManager'
+import { ColorHue, getColor } from './theme'
 
 export const NotifyContext = createContext<{
   notify: (type: AppearanceTypes, title: ReactNode, description: ReactNode) => void
@@ -79,16 +79,16 @@ const NotifyToast = ({ children, onMouseEnter, onMouseLeave, transitionState, tr
 
 function convertTypeToIcon(type: AppearanceTypes) {
   let Icon: typeof CloseCircleTwoTone
-  let color: string
+  let color: ColorHue
 
   switch (type) {
-    case 'error': Icon = CloseCircleTwoTone; color = colors.red[500]; break
-    case 'info': Icon = InfoCircleTwoTone; color = colors.blue[500]; break
-    case 'success': Icon = CheckCircleTwoTone; color = colors.green[500]; break
-    case 'warning': Icon = WarningTwoTone; color = colors.orange[500]; break
+    case 'error': Icon = CloseCircleTwoTone; color = 'red'; break
+    case 'info': Icon = InfoCircleTwoTone; color = 'blue'; break
+    case 'success': Icon = CheckCircleTwoTone; color = 'green'; break
+    case 'warning': Icon = WarningTwoTone; color = 'orange'; break
   }
 
-  return <Icon className='text-lg w-6' twoToneColor={color} />
+  return <Icon className='text-lg w-6' twoToneColor={getColor(color).hex} />
 }
 
 const NotifyToastContent = ({ type, title, description }: { type: AppearanceTypes, title?: ReactNode, description?: ReactNode }) => {

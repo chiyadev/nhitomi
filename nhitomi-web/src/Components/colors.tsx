@@ -1,15 +1,15 @@
 import { BookTag } from 'nhitomi-api'
-import { colors } from '../theme.json'
+import { ColorHue } from '../theme'
 
-export const BookTagColors: { [key in BookTag]: string } = {
-  artist: colors.orange[700],
-  circle: colors.indigo[700],
-  character: colors.yellow[700],
+export const BookTagColors: { [key in BookTag]: ColorHue } = {
+  artist: 'orange',
+  circle: 'indigo',
+  character: 'yellow',
   // copyright: 'red',
-  parody: colors.green[700],
-  series: colors.fuschia[700],
+  parody: 'green',
+  series: 'fuschia',
   // pool: 'cyan',
-  convention: colors.pink[700],
-  metadata: colors.lime[700],
-  tag: colors.blue[700]
+  convention: 'pink',
+  metadata: 'lime',
+  tag: 'blue'
 }

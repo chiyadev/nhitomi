@@ -3,7 +3,6 @@ import { Tooltip } from './Tooltip'
 import { useSpring, animated } from 'react-spring'
 import { convertHex } from '../theme'
 import { cx } from 'emotion'
-import { colors } from '../theme.json'
 
 export const Dropdown = ({ interactive = true, placement = 'bottom-start', touch = true, padding = true, overlayClassName, ...props }: ComponentProps<typeof Tooltip>) => {
   return (
@@ -37,22 +36,12 @@ export const DropdownItem = ({ children, className, padding = true }: { children
   )
 }
 
-export const DropdownGroup = ({ name, children, className }: { name?: ReactNode, children?: ReactNode, className?: string }) => {
-  const [hover, setHover] = useState(false)
+export const DropdownGroup = ({ name, children, className }: { name?: ReactNode, children?: ReactNode, className?: string }) => (
+  <div className={cx('pl-2', className)}>
+    <div className='text-gray-500 cursor-default py-1 truncate'>{name}</div>
 
-  const style = useSpring({
-    color: hover ? colors.gray[500] : colors.gray[800]
-  })
-
-  return (
-    <div className={cx('pl-2', className)}>
-      <animated.div style={style} className='cursor-default py-1 truncate'>{name}</animated.div>
-
-      <div
-        className='rounded-l-sm overflow-hidden'
-        onMouseEnter={() => setHover(true)}
-        onMouseLeave={() => setHover(false)}
-        children={children} />
-    </div>
-  )
-}
+    <div
+      className='rounded-l-sm overflow-hidden'
+      children={children} />
+  </div>
+)

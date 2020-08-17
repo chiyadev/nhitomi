@@ -3,7 +3,6 @@ import { useQueryState } from '../state'
 import { SearchQuery } from './search'
 import { SearchOutlined, CloseOutlined } from '@ant-design/icons'
 import { cx, css } from 'emotion'
-import { colors } from '../theme.json'
 import { BookTag, SuggestItem, BookSearchResult } from 'nhitomi-api'
 import { BookTagColors } from '../Components/colors'
 import Tippy from '@tippyjs/react'
@@ -14,7 +13,7 @@ import useResizeObserver from '@react-hook/resize-observer'
 import { useLocalized } from '../LocaleManager'
 import { FormattedMessage } from 'react-intl'
 import { BookTags } from '../orderedConstants'
-import { convertHex } from '../theme'
+import { convertHex, getColor } from '../theme'
 
 export type QueryToken = {
   type: 'other'
@@ -123,11 +122,11 @@ export const SearchInput = ({ result, className }: { result: BookSearchResult, c
               z-index: 1;
 
               &::placeholder {
-                color: ${colors.gray[800]};
+                color: ${getColor('gray', 800).hex};
               }
               &::selection {
                 color: white;
-                background: ${colors.blue[600]};
+                background: ${getColor('blue').hex};
               }
             `)}
             value={text}
@@ -159,7 +158,7 @@ const SearchButton = ({ onClick }: { onClick?: () => void }) => {
 
   return (
     <div
-      className='text-white bg-blue-600 cursor-pointer select-none'
+      className='text-white bg-blue-500 cursor-pointer select-none'
       onMouseDown={onClick}
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}>
@@ -223,7 +222,7 @@ const Highlighter = ({ tokens, inputRef, className }: { tokens: QueryToken[], in
             return (
               <span key={token.index}>
                 <span className={css`opacity: 30%;`}>{token.tag}:</span>
-                <span className={css`color: ${BookTagColors[token.tag]};`}>{token.value}</span>
+                <span className={css`color: ${getColor(BookTagColors[token.tag]).hex};`}>{token.value}</span>
               </span>
             )
 
@@ -446,7 +445,7 @@ const Suggestor = ({ tokens, setText, inputRef, children }: { tokens: QueryToken
 
           {suggestionsTransitions((style, { tag, items }) => (
             <animated.ul key={tag} style={style}>
-              <li className={cx('text-xs', css`color: ${BookTagColors[tag]};`)}>
+              <li className={cx('text-xs', css`color: ${getColor(BookTagColors[tag]).hex};`)}>
                 <FormattedMessage id={`types.bookTag.${tag}`} />
               </li>
 

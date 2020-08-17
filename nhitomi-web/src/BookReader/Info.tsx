@@ -9,9 +9,8 @@ import { UploadOutlined, HistoryOutlined, LinkOutlined, ReadOutlined } from '@an
 import { FormattedMessage } from 'react-intl'
 import { TimeDisplay } from '../Components/TimeDisplay'
 import { BookTagColors } from '../Components/colors'
-import { convertHex } from '../theme'
+import { getColor } from '../theme'
 import { Dropdown, DropdownItem, DropdownGroup } from '../Components/Dropdown'
-import { colors } from '../theme.json'
 import { PrefetchResult, BookReaderLink } from '.'
 import { BookTags, ScraperTypes, LanguageTypes } from '../orderedConstants'
 import { LanguageNames } from '../LocaleManager'
@@ -19,6 +18,7 @@ import { NewTabLink } from '../Components/NewTabLink'
 import { BookListingLink } from '../BookListing'
 import { Disableable } from '../Components/Disableable'
 import { useConfig } from '../ConfigManager'
+import { FlatButton } from '../Components/FlatButton'
 
 export const Info = ({ book, content }: PrefetchResult) => {
   const client = useClient()
@@ -55,7 +55,7 @@ export const Info = ({ book, content }: PrefetchResult) => {
 
             return (
               <div>
-                <div className='text-xs text-gray-800 mb-1'><FormattedMessage id={`types.bookTag.${tag}`} /></div>
+                <div className='text-xs text-gray-500 mb-1'><FormattedMessage id={`types.bookTag.${tag}`} /></div>
                 <div className='text-sm leading-tight'>
                   {tags.sort().map(value => (
                     <BookListingLink query={{ query: `${tag}:${value.replace(/\s/g, '_')}` }}>
@@ -68,7 +68,7 @@ export const Info = ({ book, content }: PrefetchResult) => {
           })}
 
           <div>
-            <div className='text-xs text-gray-800 mb-1'><FormattedMessage id='pages.bookReader.sources' /></div>
+            <div className='text-xs text-gray-500 mb-1'><FormattedMessage id='pages.bookReader.sources' /></div>
             <div className='space-x-1'>
               {ScraperTypes.map(type => {
                 const sourceContents = book.contents.filter(c => c.source === type).sort((a, b) => b.id.localeCompare(a.id))
@@ -93,7 +93,7 @@ export const Info = ({ book, content }: PrefetchResult) => {
                               <BookReaderLink id={book.id} contentId={content.id}>
                                 <DropdownItem>
                                   <NewTabLink href={content.sourceUrl}>
-                                    <LinkOutlined className='pr-2 text-blue-600' />
+                                    <LinkOutlined className='pr-2 text-blue-500' />
                                   </NewTabLink>
 
                                   {content.sourceUrl}
@@ -128,13 +128,13 @@ const Tag = ({ type: tag, value }: { type: BookTag, value: string }) => {
   const [hover, setHover] = useState(false)
 
   const style = useSpring({
-    borderColor: convertHex(BookTagColors[tag], hover ? 0.3 : 0.15),
-    backgroundColor: convertHex(BookTagColors[tag], hover ? 0.2 : 0.1)
+    borderColor: getColor(BookTagColors[tag]).rgba(hover ? 0.3 : 0.15),
+    backgroundColor: getColor(BookTagColors[tag]).rgba(hover ? 0.2 : 0.1)
   })
 
   return (
     <animated.div
-      style={{ ...style, color: BookTagColors[tag] }}
+      style={{ ...style, color: getColor(BookTagColors[tag]).hex }}
       className='inline-block px-1 mr-1 border rounded-sm overflow-hidden leading-normal cursor-pointer'
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}>
@@ -145,24 +145,14 @@ const Tag = ({ type: tag, value }: { type: BookTag, value: string }) => {
 }
 
 const SourceButton = ({ type }: { type: ScraperType }) => {
-  const [hover, setHover] = useState(false)
   const { info: { scrapers } } = useClientInfo()
 
-  const style = useSpring({
-    borderColor: convertHex(colors.gray[800], hover ? 0.3 : 0.15),
-    backgroundColor: convertHex(colors.gray[800], hover ? 0.2 : 0.1)
-  })
-
   return (
-    <animated.div
-      style={style}
-      className='p-1 space-x-1 rounded overflow-hidden border cursor-pointer text-gray-500'
-      onMouseEnter={() => setHover(true)}
-      onMouseLeave={() => setHover(false)}>
-
+    <FlatButton icon={(
       <img className='inline rounded-full h-6 w-auto' alt={type} src={`/assets/icons/${type}.jpg`} />
+    )}>
 
-      <span className='text-sm'>{scrapers.find(s => s.type === type)?.name}</span>
-    </animated.div>
+      <span className='text-sm text-gray-500'>{scrapers.find(s => s.type === type)?.name}</span>
+    </FlatButton>
   )
 }

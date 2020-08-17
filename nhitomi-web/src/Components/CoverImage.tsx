@@ -4,10 +4,10 @@ import { useAsync } from '../hooks'
 import { cx } from 'emotion'
 import { Loading3QuartersOutlined, WarningTwoTone } from '@ant-design/icons'
 import { AbsoluteCenter } from './AbsoluteCenter'
-import { colors } from '../theme.json'
 import { Tooltip } from './Tooltip'
 import { FormattedMessage } from 'react-intl'
 import { probeImage } from '../imageUtils'
+import { getColor } from '../theme'
 
 function formatAspect(x: number) {
   return `${x * 100}%`
@@ -107,7 +107,7 @@ export const CoverImage = ({ onLoad, onLoaded, className, zoomIn, autoSize, defa
               <div><code>{error?.message || <FormattedMessage id='components.coverImage.errorUnknown' />}</code></div>
             </>}>
 
-            <WarningTwoTone twoToneColor={colors.red[500]} />
+            <WarningTwoTone twoToneColor={getColor('red').hex} />
           </Tooltip>
         </animated.div>
       )}

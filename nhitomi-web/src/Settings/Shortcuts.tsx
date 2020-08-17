@@ -4,8 +4,7 @@ import { SettingsFocusContainer } from './common'
 import { useConfig, ShortcutConfigKey, ShortcutConfigKeys, ShortcutConfig } from '../ConfigManager'
 import keycode from 'keycode'
 import { useSpring, animated } from 'react-spring'
-import { convertHex } from '../theme'
-import { colors } from '../theme.json'
+import { getColor } from '../theme'
 import { CloseOutlined, PlusOutlined } from '@ant-design/icons'
 import { cx, css } from 'emotion'
 import { getEventModifiers } from '../shortcut'
@@ -86,8 +85,8 @@ const ItemPart = ({ children, className, onClick }: { children?: ReactNode, clas
   const [hover, setHover] = useState(false)
 
   const style = useSpring({
-    borderColor: convertHex(colors.gray[500], hover ? 0.3 : 0.15),
-    backgroundColor: convertHex(colors.gray[500], hover ? 0.2 : 0.1)
+    borderColor: getColor('gray').rgba(hover ? 0.3 : 0.15),
+    backgroundColor: getColor('gray').rgba(hover ? 0.2 : 0.1)
   })
 
   return (
@@ -118,12 +117,12 @@ const ItemNew = ({ onAdd }: { onAdd?: (shortcut: ShortcutConfig) => void }) => {
       ref={x => x?.focus()}
       className={cx('inline-block align-middle text-xs px-1 border border-gray-800 rounded overflow-hidden w-32', css`
         &::placeholder {
-          color: ${colors.gray[800]};
+          color: ${getColor('gray', 800).hex};
         }
       `)}
       style={{
-        borderColor: convertHex(colors.gray[500], 0.15),
-        backgroundColor: convertHex(colors.gray[500], 0.1)
+        borderColor: getColor('gray').rgba(0.15),
+        backgroundColor: getColor('gray').rgba(0.1)
       }}
       value={stringifyShortcut(current)}
       placeholder={placeholder}

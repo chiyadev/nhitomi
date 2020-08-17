@@ -1,24 +1,23 @@
 import React, { Dispatch, useState, ReactNode, useMemo, KeyboardEvent, useRef } from 'react'
 import { useSpring, animated } from 'react-spring'
-import { convertHex } from '../theme'
-import { colors } from '../theme.json'
+import { ThemeColor, getColor } from '../theme'
 import { cx, css } from 'emotion'
 import { CloseOutlined } from '@ant-design/icons'
 import { useShortcut } from '../shortcut'
 
-export type InputStatus = 'none' | 'success' | 'error' | 'warning'
-
-export const Input = ({ value, setValue, type = 'input', autoFocus, placeholder, allowClear, className, onSubmit, onKeyDown, status = { status: 'none' } }: {
+export const Input = ({ value, setValue, type = 'input', color = getColor('gray'), selectionColor = getColor('blue'), autoFocus, placeholder, allowClear, className, onSubmit, onKeyDown, help }: {
   value: string
   setValue: Dispatch<string>
   type?: 'input' | 'textarea'
+  color?: ThemeColor
+  selectionColor?: ThemeColor
   autoFocus?: boolean
   placeholder?: ReactNode
   allowClear?: boolean
   className?: string
   onSubmit?: (value: string) => void
   onKeyDown?: (e: KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>) => void
-  status?: { status: InputStatus, help?: ReactNode }
+  help?: ReactNode
 }) => {
   const ref = useRef<HTMLInputElement & HTMLTextAreaElement>(null)
 
@@ -27,27 +26,18 @@ export const Input = ({ value, setValue, type = 'input', autoFocus, placeholder,
   const [hover, setHover] = useState(false)
   const [focus, setFocus] = useState(false)
 
-  let color: string
-
-  switch (status.status) {
-    case 'none': color = colors.gray[500]; break
-    case 'success': color = colors.green[500]; break
-    case 'error': color = colors.red[500]; break
-    case 'warning': color = colors.orange[500]; break
-  }
-
   const inputStyle = useSpring({
-    borderColor: convertHex(color, focus || hover ? 0.3 : 0.15),
-    backgroundColor: convertHex(color, focus ? 0.2 : 0.1)
+    borderColor: color.rgba(focus || hover ? 0.3 : 0.15),
+    backgroundColor: color.rgba(focus ? 0.2 : 0.1)
   })
 
   const placeholderStyle = useSpring({
-    color: convertHex(color, focus ? 0.75 : 0.5)
+    color: color.rgba(focus ? 0.75 : 0.5)
   })
 
   const helpStyle = useSpring({
-    color,
-    opacity: status.help ? 1 : 0
+    color: color.hex,
+    opacity: help ? 1 : 0
   })
 
   const [clearHover, setClearHover] = useState(false)
@@ -71,7 +61,7 @@ export const Input = ({ value, setValue, type = 'input', autoFocus, placeholder,
               background: transparent;
 
               &::selection {
-                background: ${colors.blue[600]};
+                background: ${selectionColor.hex};
               }
             `)}
             value={value}
@@ -101,7 +91,7 @@ export const Input = ({ value, setValue, type = 'input', autoFocus, placeholder,
               min-height: 3em;
 
               &::selection {
-                background: ${colors.blue[600]};
+                background: ${selectionColor.hex};
               }
             `)}
             value={value}
@@ -122,7 +112,7 @@ export const Input = ({ value, setValue, type = 'input', autoFocus, placeholder,
             }} />
         )
     }
-  }, [autoFocus, onKeyDown, onSubmit, setValue, type, value])
+  }, [autoFocus, onKeyDown, onSubmit, selectionColor.hex, setValue, type, value])
 
   return (
     <div className={cx('inline-block text-white', className)}>
@@ -149,8 +139,8 @@ export const Input = ({ value, setValue, type = 'input', autoFocus, placeholder,
         )}
       </animated.div>
 
-      {status.help && (
-        <animated.div style={helpStyle} className='text-xs truncate mt-1' children={status.help} />
+      {help && (
+        <animated.div style={helpStyle} className='text-xs truncate mt-1' children={help} />
       )}
     </div>
   )

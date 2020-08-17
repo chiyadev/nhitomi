@@ -1,3 +1,40 @@
+import autoBind from 'auto-bind'
+import { colors } from './theme.json'
+
+export type ColorHue = Exclude<keyof typeof colors, 'white' | 'black'>
+export type ColorLuminance = 100 | 200 | 300 | 400 | 500 | 600 | 700 | 800 | 900
+
+export class ThemeColor {
+  static get transparentRgba() {
+    return 'rgba(0, 0, 0, 0)'
+  }
+
+  get hex() {
+    return colors[this.hue][this.luminance]
+  }
+
+  get rgb() {
+    return convertHex(this.hex)
+  }
+
+  rgba(alpha = 1) {
+    return convertHex(this.hex, alpha)
+  }
+
+  constructor(public hue: ColorHue, public luminance: ColorLuminance = 500) {
+    autoBind(this)
+  }
+
+  toString() {
+    return this.hex
+  }
+}
+
+/** Retrieves a color instance from the current theme. */
+export function getColor(hue: ColorHue, luminance: ColorLuminance = 500) {
+  return new ThemeColor(hue, luminance)
+}
+
 /** Converts a hex color to CSS rgba(...) format. */
 export function convertHex(hex: string, alpha?: number) {
   hex = hex.startsWith('#') ? hex.substring(1) : hex

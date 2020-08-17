@@ -1,34 +1,22 @@
 import React, { ReactNode, MouseEvent, useState } from 'react'
-import { colors } from '../theme.json'
 import { cx } from 'emotion'
 import { useSpring, animated } from 'react-spring'
-import { convertHex } from '../theme'
-import { ButtonType } from './FilledButton'
+import { convertHex, ThemeColor, getColor } from '../theme'
 
-export const FlatButton = ({ children, icon, className, onClick, type = 'default' }: {
+export const FlatButton = ({ children, color = getColor('gray'), icon, className, onClick }: {
   children?: ReactNode
+  color?: ThemeColor
   icon?: ReactNode
   className?: string
   onClick?: (e: MouseEvent<HTMLButtonElement>) => void
-  type?: ButtonType
 }) => {
   const [focus, setFocus] = useState(false)
   const [hover, setHover] = useState(false)
   const [click, setClick] = useState(false)
 
-  let color: string
-
-  switch (type) {
-    case 'default': color = colors.gray[500]; break
-    case 'primary': color = colors.blue[500]; break
-    case 'success': color = colors.green[500]; break
-    case 'error': color = colors.red[500]; break
-    case 'warning': color = colors.orange[500]; break
-  }
-
   const style = useSpring({
-    boxShadow: `inset 0 0 0 1px ${convertHex(color, 0.15)}`,
-    backgroundColor: convertHex(color, 0.1)
+    boxShadow: `inset 0 0 0 1px ${color.rgba(0.15)}`,
+    backgroundColor: color.rgba(0.1)
   })
 
   const overlayStyle = useSpring({

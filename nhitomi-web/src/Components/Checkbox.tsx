@@ -1,9 +1,8 @@
 import React, { Dispatch, ReactNode, useState } from 'react'
 import { cx } from 'emotion'
 import { CheckOutlined } from '@ant-design/icons'
-import { colors } from '../theme.json'
 import { useSpring, animated } from 'react-spring'
-import { convertHex } from '../theme'
+import { getColor, ThemeColor } from '../theme'
 
 export type CheckBoxType = 'check' | 'radio'
 
@@ -36,8 +35,8 @@ export const CheckBox = ({ value, setValue, type = 'check', children, className 
 
 const Check = ({ value, hover }: { value?: boolean, hover?: boolean }) => {
   const boxStyle = useSpring({
-    backgroundColor: value ? colors.blue[600] : convertHex('#000', 0),
-    borderColor: value ? convertHex('#000', 0) : convertHex(colors.gray[600], hover ? 0.8 : 0.4)
+    backgroundColor: value ? getColor('blue').rgba() : ThemeColor.transparentRgba,
+    borderColor: value ? ThemeColor.transparentRgba : getColor('gray').rgba(hover ? 0.75 : 0.5)
   })
 
   const checkStyle = useSpring({
@@ -63,7 +62,7 @@ const Check = ({ value, hover }: { value?: boolean, hover?: boolean }) => {
 
 const Radio = ({ value, hover }: { value?: boolean, hover?: boolean }) => {
   const boxStyle = useSpring({
-    borderColor: value ? colors.blue[600] : convertHex(colors.gray[600], hover ? 0.8 : 0.4)
+    borderColor: value ? getColor('blue').rgba() : getColor('gray').rgba(hover ? 0.75 : 0.5)
   })
 
   const dotStyle = useSpring({
@@ -78,7 +77,7 @@ const Radio = ({ value, hover }: { value?: boolean, hover?: boolean }) => {
 
       <animated.span
         style={dotStyle}
-        className='w-4 h-4 bg-blue-600 rounded-full' />
+        className='w-4 h-4 bg-blue-500 rounded-full' />
     </animated.div>
   )
 }
