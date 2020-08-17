@@ -19,6 +19,7 @@ import { CollectionListing } from './CollectionListing'
 import { CollectionContent } from './CollectionContent'
 import { CollectionCreate } from './CollectionListing/Create'
 import { TitleSetter } from './TitleSetter'
+import { Debug } from './Debug'
 
 export const App = () => {
   return (
@@ -74,6 +75,7 @@ const Routing = () => {
       <Route path='/users/:id/collections' exact render={({ match: { params: { id } } }) => <CollectionListing id={id} />} />
 
       <Route path='/settings' exact component={Settings} />
+      <Route path='/settings/debug' exact component={Debug} />
     </Switch>
   ), [path])
 }
