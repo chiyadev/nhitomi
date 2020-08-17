@@ -4,7 +4,6 @@
 /nhitomi-api
 /src/react-app-env.d.ts
 /src/theme.css
-/src/theme.json
 
 # dependencies
 /node_modules
