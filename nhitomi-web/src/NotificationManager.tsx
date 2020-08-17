@@ -159,7 +159,7 @@ const AlertToast = ({ children, onMouseEnter, onMouseLeave, transitionState, tra
   return (
     <animated.div
       style={style}
-      className='table mx-auto rounded overflow-hidden bg-gray-800 bg-blur text-white text-sm shadow-lg p-3'
+      className='table mx-auto rounded overflow-hidden bg-gray-darkest bg-blur text-white text-sm shadow-lg p-3'
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}>
 
