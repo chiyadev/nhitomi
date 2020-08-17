@@ -126,7 +126,7 @@ export const SearchInput = ({ result, className }: { result: BookSearchResult, c
               }
               &::selection {
                 color: white;
-                background: ${getColor('blue').hex};
+                background: ${getColor('blue').opacity(0.5).hex};
               }
             `)}
             value={text}
@@ -394,12 +394,11 @@ const Suggestor = ({ tokens, setText, inputRef, children }: { tokens: QueryToken
         if (id !== suggestId.current)
           return
 
-        const suggestions = Object
-          .keys(result.tags)
-          .sort((a, b) => (result.tags[b as BookTag]?.[0]?.score || 0) - (result.tags[a as BookTag]?.[0]?.score || 0))
-          .map(key => ({
-            tag: key as BookTag,
-            items: result.tags[key as BookTag] || []
+        const suggestions = [...BookTags]
+          .sort((a, b) => (result.tags[b]?.[0]?.score || 0) - (result.tags[a]?.[0]?.score || 0))
+          .map(tag => ({
+            tag,
+            items: result.tags[tag] || []
           }))
           .filter(x => x.items.length)
 

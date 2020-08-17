@@ -3,7 +3,7 @@ import { cx } from 'emotion'
 import { useSpring, animated } from 'react-spring'
 import { getColor, Color } from '../theme'
 
-export const FilledButton = ({ children, color = getColor('gray'), icon, className, onClick }: {
+export const FilledButton = ({ children, color = getColor('gray').opacity(0.5), icon, className, onClick }: {
   children?: ReactNode
   color?: Color
   icon?: ReactNode

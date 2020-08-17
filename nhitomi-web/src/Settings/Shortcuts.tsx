@@ -84,10 +84,11 @@ const Shortcut = ({ section, shortcutKey }: { section: 'general' | 'bookReader',
 
 const ItemPart = ({ children, className, onClick }: { children?: ReactNode, className?: string, onClick?: () => void }) => {
   const [hover, setHover] = useState(false)
+  const color = getColor('gray', 'darkest').opacity(0.5)
 
   const style = useSpring({
-    boxShadow: `inset 0 0 0 1px ${getColor('gray', 'darkest').tint(hover ? 0.25 : 0.125).rgb}`,
-    backgroundColor: getColor('gray', 'darkest').tint(hover ? 0.25 : 0).rgb
+    boxShadow: `inset 0 0 0 1px ${color.tint(hover ? 0.25 : 0.125).rgb}`,
+    backgroundColor: color.tint(hover ? 0.25 : 0).rgb
   })
 
   return (

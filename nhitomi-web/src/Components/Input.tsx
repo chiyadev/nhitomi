@@ -5,7 +5,7 @@ import { cx, css } from 'emotion'
 import { CloseOutlined } from '@ant-design/icons'
 import { useShortcut } from '../shortcut'
 
-export const Input = ({ value = '', setValue, type = 'input', color = getColor('gray', 'darkest'), selectionColor = getColor('blue'), autoFocus, placeholder, allowClear, padding = true, className, onSubmit, onKeyDown, onFocus, onBlur, help }: {
+export const Input = ({ value = '', setValue, type = 'input', color = getColor('gray', 'darkest').opacity(0.5), selectionColor = getColor('blue').opacity(0.5), autoFocus, placeholder, allowClear, padding = true, className, onSubmit, onKeyDown, onFocus, onBlur, help }: {
   value?: string
   setValue?: Dispatch<string>
   type?: 'input' | 'textarea'

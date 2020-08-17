@@ -3,7 +3,7 @@ import { cx } from 'emotion'
 import { useSpring, animated } from 'react-spring'
 import { Color, getColor } from '../theme'
 
-export const FlatButton = ({ children, color = getColor('gray', 'darkest'), icon, className, onClick }: {
+export const FlatButton = ({ children, color = getColor('gray', 'darkest').opacity(0.5), icon, className, onClick }: {
   children?: ReactNode
   color?: Color
   icon?: ReactNode

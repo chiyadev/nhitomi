@@ -147,11 +147,9 @@ const SourceButton = ({ type }: { type: ScraperType }) => {
   const { info: { scrapers } } = useClientInfo()
 
   return (
-    <FlatButton
-      color={getColor('gray', 'darkest').opacity(0.5)}
-      icon={(
-        <img className='inline rounded-full h-6 w-auto' alt={type} src={`/assets/icons/${type}.jpg`} />
-      )}>
+    <FlatButton icon={(
+      <img className='rounded-full h-6 w-auto align-middle' alt={type} src={`/assets/icons/${type}.jpg`} />
+    )}>
 
       <span className='text-sm text-gray'>{scrapers.find(s => s.type === type)?.name}</span>
     </FlatButton>
