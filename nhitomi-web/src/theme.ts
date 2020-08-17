@@ -5,7 +5,7 @@ import autoBind from 'auto-bind'
 const SupportsHex8 = CSS.supports('color', '#ffffffff')
 
 export type ColorHue = Exclude<keyof typeof colors, 'white' | 'black'>
-export type ColorLuminance = 100 | 200 | 300 | 400 | 500 | 600 | 700 | 800 | 900
+export type ColorLuminance = keyof typeof colors[ColorHue]
 
 export class Color {
   constructor(readonly color: TinyColor) {
@@ -26,7 +26,7 @@ export class Color {
 }
 
 /** Retrieves a color instance from the current theme. */
-export function getColor(color: ColorHue | 'white' | 'black' | 'transparent', luminance: ColorLuminance = 500) {
+export function getColor(color: ColorHue | 'white' | 'black' | 'transparent', luminance: ColorLuminance = 'default') {
   switch (color) {
     case 'white': return new Color(new TinyColor(colors.white))
     case 'black': return new Color(new TinyColor(colors.black))
