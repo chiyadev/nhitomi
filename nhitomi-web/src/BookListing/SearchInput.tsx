@@ -174,20 +174,25 @@ const ClearButton = ({ visible, onClick, className }: { visible?: boolean, onCli
   const [hover, setHover] = useState(false)
 
   const style = useSpring({
-    opacity: visible ? 1 : 0,
+    opacity: visible ? 1 : 0
+  })
+
+  const iconStyle = useSpring({
     transform: hover ? 'scale(1.1)' : 'scale(1)'
   })
 
   return (
     <div className='relative'>
       <animated.div
-        style={style}
-        className={cx('absolute right-0 h-full flex items-center z-10 px-3 cursor-pointer select-none', { 'pointer-events-none': !visible }, className)}
+        style={style} // bg-white to display above text
+        className={cx('absolute right-0 bg-white h-full flex items-center z-10 px-3 cursor-pointer select-none', { 'pointer-events-none': !visible }, className)}
         onMouseDown={onClick}
         onMouseEnter={() => setHover(true)}
         onMouseLeave={() => setHover(false)}>
 
-        <CloseOutlined className='text-sm text-gray-darker' />
+        <animated.span style={iconStyle} className='text-sm text-gray-darker'>
+          <CloseOutlined />
+        </animated.span>
       </animated.div>
     </div>
   )
