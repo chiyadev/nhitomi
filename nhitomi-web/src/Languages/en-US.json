@@ -126,6 +126,35 @@
     "coverImage": {
       "error": "Failed to download this image.",
       "errorUnknown": "<unknown error>"
+    },
+    "bookList": {
+      "overlay": {
+        "openNewTab": "Open in new tab",
+        "searchBy": {
+          "item": "Search by",
+          "name": "By name {value}",
+          "artist": "By artist {value}",
+          "character": "By characters {value}",
+          "tag": "By tags {value}"
+        },
+        "copy": {
+          "id": "Copy ID",
+          "source": "Copy source link",
+          "success": "Copied: {value}"
+        },
+        "collections": {
+          "favoritesAdd": {
+            "item": "Add to favorites",
+            "success": "Successfully added to {link} collection.",
+            "successLink": "favorites"
+          },
+          "laterAdd": {
+            "item": "Add to read later",
+            "success": "Successfully added to {link} collection.",
+            "successLink": "read later"
+          }
+        }
+      }
     }
   },
   "types": {

@@ -1,5 +1,5 @@
 import React, { useRef, useState, ReactNode, createContext, useMemo, ContextType, useContext, ComponentType } from 'react'
-import { BookContent, LanguageType, BookApiGetBookImageRequest } from 'nhitomi-api'
+import { BookContent, LanguageType, BookApiGetBookImageRequest, BookTags } from 'nhitomi-api'
 import { cx } from 'emotion'
 import useResizeObserver from '@react-hook/resize-observer'
 import { Grid } from './Grid'
@@ -11,6 +11,7 @@ export type BookListItem = {
   primaryName: string
   englishName?: string
   contents: BookContent[]
+  tags?: BookTags
 }
 
 const BookListContext = createContext<{

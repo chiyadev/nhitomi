@@ -120,7 +120,7 @@ const Item = ({ book, width, height, className }: {
 
   return useMemo(() => (
     <ContextMenu overlay={(
-      <Overlay />
+      <Overlay book={book} content={content} />
     )}>
       <VisibilitySensor
         delayedCall
@@ -129,7 +129,7 @@ const Item = ({ book, width, height, className }: {
         onChange={v => { v && setShowImage(true) }}
         children={inner} />
     </ContextMenu>
-  ), [inner])
+  ), [book, content, inner])
 }
 
 const ItemCover = ({ book, content }: { book: BookListItem, content?: BookContent }) => {

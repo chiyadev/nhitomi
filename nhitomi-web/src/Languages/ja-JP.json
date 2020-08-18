@@ -126,6 +126,35 @@
     "coverImage": {
       "error": "この画像をダウンロードできませんでした。",
       "errorUnknown": "<理由不明>"
+    },
+    "bookList": {
+      "overlay": {
+        "openNewTab": "新規タブで開く",
+        "searchBy": {
+          "item": "検索",
+          "name": "名前で {value}",
+          "artist": "アーティストで {value}",
+          "character": "キャラで {value}",
+          "tag": "タグで {value}"
+        },
+        "copy": {
+          "id": "IDをコピー",
+          "source": "サイトリンクをコピー",
+          "success": "コピーしました: {value}"
+        },
+        "collections": {
+          "favoritesAdd": {
+            "item": "お気に入りに追加",
+            "success": "{link}に追加しました。",
+            "successLink": "お気に入り"
+          },
+          "laterAdd": {
+            "item": "後で読みに追加",
+            "success": "{link}に追加しました。",
+            "successLink": "後で読み"
+          }
+        }
+      }
     }
   },
   "types": {

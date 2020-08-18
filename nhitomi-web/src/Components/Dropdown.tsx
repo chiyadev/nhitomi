@@ -2,7 +2,7 @@ import React, { ComponentProps, ReactNode, useState } from 'react'
 import { Tooltip } from './Tooltip'
 import { useSpring, animated } from 'react-spring'
 import { convertHex } from '../theme'
-import { cx } from 'emotion'
+import { cx, css } from 'emotion'
 import { RightOutlined } from '@ant-design/icons'
 
 export const Dropdown = ({ interactive = true, placement = 'bottom-start', touch = true, padding = true, scaleTransition = true, overlayClassName, ...props }: ComponentProps<typeof Tooltip>) => {
@@ -19,7 +19,7 @@ export const Dropdown = ({ interactive = true, placement = 'bottom-start', touch
   )
 }
 
-export const DropdownItem = ({ children, className, padding = true, icon }: { children?: ReactNode, className?: string, padding?: boolean, icon?: ReactNode }) => {
+export const DropdownItem = ({ children, className, padding = true, icon, onClick }: { children?: ReactNode, className?: string, padding?: boolean, icon?: ReactNode, onClick?: () => void }) => {
   const [hover, setHover] = useState(false)
 
   const style = useSpring({
@@ -35,7 +35,8 @@ export const DropdownItem = ({ children, className, padding = true, icon }: { ch
       style={style}
       className={cx('cursor-pointer flex flex-row', { 'px-2 py-1': padding }, className)}
       onMouseEnter={() => setHover(true)}
-      onMouseLeave={() => setHover(false)}>
+      onMouseLeave={() => setHover(false)}
+      onClick={onClick}>
 
       {icon && (
         <animated.div style={iconStyle} className='w-4 text-center mr-1' children={icon} />
@@ -76,4 +77,8 @@ export const DropdownSubMenu = ({ name, children, ...props }: { name?: ReactNode
       </>)}
       {...props} />
   </Dropdown>
+)
+
+export const DropdownDivider = ({ className }: { className?: string }) => (
+  <div className={cx('mx-2 my-1 bg-gray', className, css`height: 1px; opacity: 15%;`)} />
 )
