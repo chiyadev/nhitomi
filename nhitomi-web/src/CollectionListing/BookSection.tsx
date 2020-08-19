@@ -37,6 +37,7 @@ export const BookSection = ({ collections }: { collections: BookCollection[] }) 
     <BookList
       items={items}
       contentSelector={contentSelector}
+      preferEnglishName={false} // preferEnglishName would swap collection name and description
       overlayVisible
       getCoverRequest={getCoverRequest}
       LinkComponent={CollectionContentLink}

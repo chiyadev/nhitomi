@@ -18,6 +18,7 @@ const BookListContext = createContext<{
   items: BookListItem[]
   contentSelector: (book: BookListItem) => BookContent | undefined
   getCoverRequest?: (book: BookListItem, content: BookContent) => BookApiGetBookImageRequest
+  preferEnglishName?: boolean
   overlayVisible?: boolean
 
   LinkComponent?: ComponentType<{ id: string, contentId?: string } & TypedPrefetchLinkProps>
@@ -27,7 +28,7 @@ export function useBookList() {
   return useContext(BookListContext)
 }
 
-export const BookList = ({ items, contentSelector, getCoverRequest, overlayVisible, LinkComponent, className, menu, empty }: ContextType<typeof BookListContext> & {
+export const BookList = ({ className, menu, empty, ...context }: ContextType<typeof BookListContext> & {
   className?: string
   menu?: ReactNode
   empty?: ReactNode
@@ -37,19 +38,15 @@ export const BookList = ({ items, contentSelector, getCoverRequest, overlayVisib
 
   useResizeObserver(containerRef, ({ contentRect: { width } }) => setWidth(width))
 
+  const { items, contentSelector, getCoverRequest, preferEnglishName, overlayVisible, LinkComponent } = context
+  context = useMemo(() => ({ items, contentSelector, getCoverRequest, preferEnglishName, overlayVisible, LinkComponent }), [LinkComponent, contentSelector, getCoverRequest, items, overlayVisible, preferEnglishName])
+
   return (
     <div
       ref={containerRef}
       className={cx('w-full relative', className)}>
 
-      <BookListContext.Provider value={useMemo(() => ({
-        items,
-        contentSelector,
-        getCoverRequest,
-        overlayVisible,
-        LinkComponent
-      }), [LinkComponent, contentSelector, getCoverRequest, items, overlayVisible])}>
-
+      <BookListContext.Provider value={context}>
         {width && (
           <Grid width={width} menu={menu} empty={empty} />
         )}

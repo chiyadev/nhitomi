@@ -149,10 +149,13 @@ const ItemCover = ({ book, content }: { book: BookListItem, content?: BookConten
 }
 
 const ItemOverlay = ({ book, hover }: { book: BookListItem, hover?: boolean }) => {
-  const [preferEnglishName] = useConfig('bookReaderPreferEnglishName')
+  let [preferEnglishName] = useConfig('bookReaderPreferEnglishName')
 
-  const { overlayVisible } = useBookList()
+  const { overlayVisible, preferEnglishName: preferEnglishNameOverride } = useBookList()
   hover = overlayVisible || hover
+
+  if (typeof preferEnglishNameOverride !== 'undefined')
+    preferEnglishName = preferEnglishNameOverride
 
   const [visible, setVisible] = useState(hover)
   const style = useSpring({
