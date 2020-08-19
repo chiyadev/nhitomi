@@ -117,8 +117,8 @@
         "submit": "作成"
       },
       "book": {
-        "openNewTab": "新規タブで開く",
         "overlay": {
+          "openNewTab": "新規タブで開く",
           "delete": {
             "item": "削除",
             "confirm": "本当に削除しますか？"
