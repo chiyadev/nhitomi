@@ -42,7 +42,7 @@ export const BookReaderLink = ({ id, contentId, ...props }: TypedPrefetchLinkPro
 )
 
 export const BookReader = (options: PrefetchOptions) => {
-  const { result } = usePostfetch(useBookReaderPrefetch, options)
+  const { result } = usePostfetch(useBookReaderPrefetch, { requireAuth: true, ...options })
 
   useScrollShortcut()
 

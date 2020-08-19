@@ -48,12 +48,12 @@ export const useCollectionCreatePrefetch: PrefetchGenerator<PrefetchResult, Pref
   }
 }
 
-export const CollectionCreateLink = (props: TypedPrefetchLinkProps) => (
-  <PrefetchLink fetch={useCollectionCreatePrefetch} options={{}} {...props} />
+export const CollectionCreateLink = ({ type, ...props }: TypedPrefetchLinkProps & PrefetchOptions) => (
+  <PrefetchLink fetch={useCollectionCreatePrefetch} options={{ type }} {...props} />
 )
 
-export const CollectionCreate = () => {
-  const { result } = usePostfetch(useCollectionCreatePrefetch, {})
+export const CollectionCreate = (options: PrefetchOptions) => {
+  const { result } = usePostfetch(useCollectionCreatePrefetch, { requireAuth: true, ...options })
 
   if (!result)
     return null

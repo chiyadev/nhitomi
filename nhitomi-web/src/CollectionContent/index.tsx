@@ -54,7 +54,7 @@ export const CollectionContentLink = ({ id, ...props }: TypedPrefetchLinkProps &
 )
 
 export const CollectionContent = (options: PrefetchOptions) => {
-  const { result, setResult } = usePostfetch(useCollectionContentPrefetch, options)
+  const { result, setResult } = usePostfetch(useCollectionContentPrefetch, { requireAuth: true, ...options })
 
   useScrollShortcut()
 

@@ -6,6 +6,8 @@ import { useNotify } from './NotificationManager'
 import { Link, LinkProps } from 'react-router-dom'
 import { usePageState, NavigationArgs, useNavigator, NavigationMode } from './state'
 import { cx } from 'emotion'
+import { useClientInfo } from './ClientManager'
+import { useAuthenticationPrefetch } from './Authentication'
 
 function beginScrollTo(scroll: number, retry = 0) {
   requestAnimationFrame(() => {
@@ -87,7 +89,8 @@ export function usePrefetch<T, U extends {}>(generator: PrefetchGenerator<T, U>,
 }
 
 /** Fetches data for the current page if not already fetched. */
-export function usePostfetch<T, U extends {}>(generator: PrefetchGenerator<T, U>, options: U) {
+export function usePostfetch<T, U extends {}>(generator: PrefetchGenerator<T, U>, options: U & { requireAuth?: boolean }) {
+  const { info } = useClientInfo()
   const { begin, end } = useProgress()
   const { notifyError } = useNotify()
   const navigator = useNavigator()
@@ -99,8 +102,17 @@ export function usePostfetch<T, U extends {}>(generator: PrefetchGenerator<T, U>
 
   // generator can call hooks so memoize it
   const { destination, showProgress = true, restoreScroll = true, fetch, done } = useRef(generator).current(({ mode: 'postfetch', ...options }))
+  const { requireAuth } = options
+
+  const [, navigateAuth] = usePrefetch(useAuthenticationPrefetch, { redirect: destination })
 
   const { error, loading } = useAsync(async () => {
+    // redirect to auth if not already authenticated
+    if (requireAuth && !info.authenticated) {
+      await navigateAuth('replace')
+      return
+    }
+
     // display immediately if already loaded
     if (result) {
       if (shouldScroll.current && restoreScroll && typeof scroll === 'number') {

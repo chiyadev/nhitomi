@@ -80,7 +80,7 @@ export const BookListingLink = ({ query, ...props }: TypedPrefetchLinkProps & Pr
 )
 
 export const BookListing = (options: PrefetchOptions) => {
-  const { result, setResult } = usePostfetch(useBookListingPrefetch, options)
+  const { result, setResult } = usePostfetch(useBookListingPrefetch, { requireAuth: true, ...options })
 
   useScrollShortcut()
 

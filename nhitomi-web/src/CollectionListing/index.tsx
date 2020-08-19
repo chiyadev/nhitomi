@@ -56,7 +56,7 @@ export const CollectionListingLink = ({ id, ...props }: TypedPrefetchLinkProps &
 )
 
 export const CollectionListing = (options: PrefetchOptions) => {
-  const { result } = usePostfetch(useCollectionListingPrefetch, options)
+  const { result } = usePostfetch(useCollectionListingPrefetch, { requireAuth: true, ...options })
 
   if (!result)
     return null
