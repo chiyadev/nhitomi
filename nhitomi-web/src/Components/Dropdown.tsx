@@ -57,7 +57,7 @@ export const DropdownGroup = ({ name, children, className }: { name?: ReactNode,
   </div>
 )
 
-export const DropdownSubMenu = ({ name, children, ...props }: { name?: ReactNode } & ComponentProps<typeof DropdownItem>) => (
+export const DropdownSubMenu = ({ name, children, onShow, onHide, ...props }: { name?: ReactNode } & ComponentProps<typeof DropdownItem> & Pick<ComponentProps<typeof Dropdown>, 'onShow' | 'onHide'>) => (
   <Dropdown
     appendTo='parent'
     overlay={children}
@@ -65,7 +65,9 @@ export const DropdownSubMenu = ({ name, children, ...props }: { name?: ReactNode
     offset={[0, 3]}
     blurred={false} // 2020/08 there is a bug with Chrome that causes nested absolute backdrop-filters to not work
     moveTransition
-    scaleTransition={false}>
+    scaleTransition={false}
+    onShow={onShow}
+    onHide={onHide}>
 
     <DropdownItem
       children={(<>
