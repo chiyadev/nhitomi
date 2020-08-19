@@ -1,4 +1,4 @@
-import React, { useCallback, useLayoutEffect, useRef, ComponentProps, ReactNode } from 'react'
+import React, { useCallback, useLayoutEffect, useRef, ComponentProps, ReactNode, useState, useMemo } from 'react'
 import { useAsync } from './hooks'
 import { useProgress } from './ProgressManager'
 import { getEventModifiers } from './shortcut'
@@ -88,11 +88,53 @@ export function usePrefetch<T, U extends {}>(generator: PrefetchGenerator<T, U>,
   return [navigator.stringify(navigator.evaluate(destination)), run]
 }
 
-/** Executes a prefetch as a react component, allowing consumers to pass dynamically computed options. */
-export const Prefetch = <T, U extends {}>({ fetch, options }: { fetch: PrefetchGenerator<T, U>, options: U }) => {
-  const [, navigate] = usePrefetch(fetch, options)
+type PendingDynamicPrefetch<T, U extends {}> = {
+  generator: PrefetchGenerator<T, U>
+  options: U
+  mode?: NavigationMode
+  resolve: (fetched?: T) => void
+  reject: (error: Error) => void
+}
 
-  useLayoutEffect(() => { navigate() }, [navigate])
+/** Returns a react node and a function that takes dynamically computed prefetch options. Returned node must be mounted for prefetch to be executed. */
+export function useDynamicPrefetch<T, U extends {}>(generator: PrefetchGenerator<T, U>): [ReactNode, (options: U, mode?: NavigationMode) => Promise<T | undefined>] {
+  const [pending, setPending] = useState<PendingDynamicPrefetch<T, U>>()
+
+  const node = useMemo(() => {
+    if (!pending)
+      return null
+
+    // return a dummy node whose sole responsibility is to execute the prefetch hook
+    return (
+      <PrefetchExecutorNode {...pending} />
+    )
+  }, [pending])
+
+  const run = useCallback((options: U, mode?: NavigationMode) => new Promise<T | undefined>((resolve, reject) => setPending(pending => {
+    if (pending) {
+      reject(Error('Another dynamic prefetch is already in progress.'))
+      return pending
+    }
+
+    return {
+      generator,
+      options,
+      mode,
+      resolve: result => { setPending(undefined); resolve(result) },
+      reject: error => { setPending(undefined); reject(error) }
+    }
+  })), [generator])
+
+  return [node, run]
+}
+
+const PrefetchExecutorNode = <T, U extends {}>({ generator, options, mode, resolve, reject }: PendingDynamicPrefetch<T, U>) => {
+  const [, run] = usePrefetch(generator, options)
+
+  useAsync(async () => {
+    try { resolve(await run(mode)) }
+    catch (e) { reject(e) }
+  }, [])
 
   return null
 }
