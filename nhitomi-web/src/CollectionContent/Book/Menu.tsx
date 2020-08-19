@@ -7,14 +7,27 @@ import { Dropdown } from '../../Components/Dropdown'
 import { usePrefetch } from '../../Prefetch'
 import { useCollectionListingPrefetch } from '../../CollectionListing'
 import { RoundIconButton } from '../../Components/RoundIconButton'
-import { DeleteOutlined } from '@ant-design/icons'
+import { DeleteOutlined, EditOutlined } from '@ant-design/icons'
 import { FormattedMessage } from 'react-intl'
 import { FlatButton } from '../../Components/FlatButton'
 import { Disableable } from '../../Components/Disableable'
+import { CollectionEditLink } from '../../CollectionListing/Edit'
+import { Tooltip } from '../../Components/Tooltip'
 
 export const Menu = ({ collection }: { collection: Collection }) => <>
+  <EditButton collection={collection} />
   <DeleteButton collection={collection} />
 </>
+
+const EditButton = ({ collection }: { collection: Collection }) => (
+  <Tooltip placement='bottom' overlay={<FormattedMessage id='pages.collectionContent.book.menu.edit' />}>
+    <CollectionEditLink id={collection.id}>
+      <RoundIconButton >
+        <EditOutlined />
+      </RoundIconButton>
+    </CollectionEditLink>
+  </Tooltip>
+)
 
 const DeleteButton = ({ collection }: { collection: Collection }) => {
   const client = useClient()
@@ -30,7 +43,7 @@ const DeleteButton = ({ collection }: { collection: Collection }) => {
       padding={false}
       overlayClassName='flex flex-col space-y-2 p-2'
       overlay={<>
-        <div><FormattedMessage id='pages.collectionContent.book.delete.warning' /></div>
+        <div><FormattedMessage id='pages.collectionContent.book.menu.delete.warning' /></div>
 
         <Disableable disabled={loading}>
           <FlatButton
@@ -56,7 +69,7 @@ const DeleteButton = ({ collection }: { collection: Collection }) => {
               }
             }}>
 
-            <FormattedMessage id='pages.collectionContent.book.delete.button' />
+            <FormattedMessage id='pages.collectionContent.book.menu.delete.button' />
           </FlatButton>
         </Disableable>
       </>}>

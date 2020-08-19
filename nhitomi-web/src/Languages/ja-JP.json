@@ -109,7 +109,7 @@
       "empty": "コレクションがありません。",
       "edit": {
         "title": "コレクション編集",
-        "subtitle": "{owner}さんの{collection}を編集できます。",
+        "subtitle": "{owner}さんの{collection}が編集できます。",
         "name": "名前",
         "description": "説明",
         "cancel": "戻る",
@@ -124,6 +124,7 @@
         },
         "overlay": {
           "openNewTab": "新規タブで開く",
+          "edit": "編集",
           "delete": {
             "item": "削除",
             "confirm": "本当に削除しますか？"
@@ -134,9 +135,12 @@
     "collectionContent": {
       "book": {
         "empty": "コレクションが空っぽです。",
-        "delete": {
-          "warning": "このコレクションを完全に削除します。",
-          "button": "削除"
+        "menu": {
+          "edit": "編集",
+          "delete": {
+            "warning": "このコレクションを完全に削除します。",
+            "button": "削除"
+          }
         }
       }
     },

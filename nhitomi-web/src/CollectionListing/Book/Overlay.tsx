@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { BookListItem } from '../../Components/BookList'
-import { DeleteOutlined, ExpandAltOutlined } from '@ant-design/icons'
+import { DeleteOutlined, ExpandAltOutlined, EditOutlined } from '@ant-design/icons'
 import { FormattedMessage } from 'react-intl'
 import { DropdownItem, DropdownSubMenu } from '../../Components/Dropdown'
 import { usePrefetch } from '../../Prefetch'
@@ -11,10 +11,12 @@ import { Disableable } from '../../Components/Disableable'
 import { useNotify } from '../../NotificationManager'
 import { useClient } from '../../ClientManager'
 import { CollectionContentLink } from '../../CollectionContent'
+import { CollectionEditLink } from '../Edit'
 
 export const Overlay = ({ user, book: { id } }: { user: User, book: BookListItem }) => {
   return <>
     <OpenInNewTabItem id={id} />
+    <EditItem id={id} />
     <DeleteItem user={user} id={id} />
   </>
 }
@@ -25,6 +27,14 @@ const OpenInNewTabItem = ({ id }: { id: string }) => (
       <FormattedMessage id='pages.collectionListing.book.overlay.openNewTab' />
     </DropdownItem>
   </CollectionContentLink>
+)
+
+const EditItem = ({ id }: { id: string }) => (
+  <CollectionEditLink id={id}>
+    <DropdownItem icon={<EditOutlined />}>
+      <FormattedMessage id='pages.collectionListing.book.overlay.edit' />
+    </DropdownItem>
+  </CollectionEditLink>
 )
 
 const DeleteItem = ({ user, id }: { user: User, id: string }) => {

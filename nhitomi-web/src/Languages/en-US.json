@@ -124,6 +124,7 @@
         },
         "overlay": {
           "openNewTab": "Open in new tab",
+          "edit": "Edit",
           "delete": {
             "item": "Delete",
             "confirm": "Really delete?"
@@ -134,9 +135,12 @@
     "collectionContent": {
       "book": {
         "empty": "Empty collection",
-        "delete": {
-          "warning": "This collection will be deleted permanently.",
-          "button": "Delete"
+        "menu": {
+          "edit": "Edit",
+          "delete": {
+            "warning": "This collection will be deleted permanently.",
+            "button": "Delete"
+          }
         }
       }
     },
