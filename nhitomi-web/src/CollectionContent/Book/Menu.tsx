@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { useClient, useClientInfo } from '../../ClientManager'
-import { useNotify } from '../../NotificationManager'
+import { useNotify, useAlert } from '../../NotificationManager'
 import { useProgress } from '../../ProgressManager'
 import { Collection, SpecialCollection, CollectionInsertPosition } from 'nhitomi-api'
 import { Dropdown, DropdownItem } from '../../Components/Dropdown'
@@ -106,11 +106,12 @@ const DuplicateButton = ({ collection }: { collection: Collection }) => {
   const client = useClient()
   const { begin, end } = useProgress()
   const { notifyError } = useNotify()
+  const { alert } = useAlert()
   const [loading, setLoading] = useState(false)
   const [prefetchNode, navigate] = useDynamicPrefetch(useCollectionContentPrefetch)
 
   return (
-    <Tooltip placement='bottom' overlay={<FormattedMessage id='pages.collectionContent.book.menu.duplicate' />}>
+    <Tooltip placement='bottom' overlay={<FormattedMessage id='pages.collectionContent.book.menu.duplicate.item' />}>
       <Disableable disabled={loading}>
         <RoundIconButton onClick={async () => {
           begin()
@@ -133,6 +134,8 @@ const DuplicateButton = ({ collection }: { collection: Collection }) => {
             })
 
             await navigate({ id: created.id })
+
+            alert(<FormattedMessage id='pages.collectionContent.book.menu.duplicate.success' />, 'success')
           }
           catch (e) {
             notifyError(e)

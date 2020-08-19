@@ -141,7 +141,10 @@
             "later": "Set as read later"
           },
           "edit": "Edit",
-          "duplicate": "Duplicate",
+          "duplicate": {
+            "item": "Duplicate",
+            "success": "Collection successfully duplicated."
+          },
           "delete": {
             "warning": "This collection will be deleted permanently.",
             "button": "Delete"

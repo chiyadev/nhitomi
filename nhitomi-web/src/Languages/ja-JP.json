@@ -141,7 +141,10 @@
             "later": "後で読みに設定"
           },
           "edit": "編集",
-          "duplicate": "複製",
+          "duplicate": {
+            "item": "複製",
+            "success": "コレクションを複製しました。"
+          },
           "delete": {
             "warning": "このコレクションを完全に削除します。",
             "button": "削除"
