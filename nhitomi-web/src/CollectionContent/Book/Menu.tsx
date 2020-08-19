@@ -2,31 +2,33 @@ import React, { useState } from 'react'
 import { useClient, useClientInfo } from '../../ClientManager'
 import { useNotify } from '../../NotificationManager'
 import { useProgress } from '../../ProgressManager'
-import { Collection, SpecialCollection } from 'nhitomi-api'
+import { Collection, SpecialCollection, CollectionInsertPosition } from 'nhitomi-api'
 import { Dropdown, DropdownItem } from '../../Components/Dropdown'
-import { usePrefetch } from '../../Prefetch'
+import { usePrefetch, Prefetch } from '../../Prefetch'
 import { useCollectionListingPrefetch } from '../../CollectionListing'
 import { RoundIconButton } from '../../Components/RoundIconButton'
-import { DeleteOutlined, EditOutlined, HeartOutlined, EyeOutlined, StarOutlined } from '@ant-design/icons'
+import { DeleteOutlined, EditOutlined, HeartOutlined, EyeOutlined, StarOutlined, CopyOutlined } from '@ant-design/icons'
 import { FormattedMessage } from 'react-intl'
 import { FlatButton } from '../../Components/FlatButton'
 import { Disableable } from '../../Components/Disableable'
 import { CollectionEditLink } from '../../CollectionListing/Edit'
 import { Tooltip } from '../../Components/Tooltip'
 import { cx } from 'emotion'
+import { useCollectionContentPrefetch } from '..'
 
 export const Menu = ({ collection }: { collection: Collection }) => <>
   <SpecialButton collection={collection} />
   <EditButton collection={collection} />
+  <DuplicateButton collection={collection} />
   <DeleteButton collection={collection} />
 </>
 
 const SpecialButton = ({ collection }: { collection: Collection }) => {
   const client = useClient()
   const { info, setInfo, fetchInfo } = useClientInfo()
-  const [loading, setLoading] = useState(false)
   const { begin, end } = useProgress()
   const { notifyError } = useNotify()
+  const [loading, setLoading] = useState(false)
 
   if (!info.authenticated)
     return null
@@ -93,18 +95,70 @@ const SpecialButton = ({ collection }: { collection: Collection }) => {
 const EditButton = ({ collection }: { collection: Collection }) => (
   <Tooltip placement='bottom' overlay={<FormattedMessage id='pages.collectionContent.book.menu.edit' />}>
     <CollectionEditLink id={collection.id}>
-      <RoundIconButton >
+      <RoundIconButton>
         <EditOutlined />
       </RoundIconButton>
     </CollectionEditLink>
   </Tooltip>
 )
 
-const DeleteButton = ({ collection }: { collection: Collection }) => {
+const DuplicateButton = ({ collection }: { collection: Collection }) => {
   const client = useClient()
-  const [loading, setLoading] = useState(false)
   const { begin, end } = useProgress()
   const { notifyError } = useNotify()
+  const [loading, setLoading] = useState(false)
+  const [created, setCreated] = useState<Collection>()
+
+  return (
+    <Tooltip placement='bottom' overlay={<FormattedMessage id='pages.collectionContent.book.menu.duplicate' />}>
+      <Disableable disabled={loading}>
+        <RoundIconButton onClick={async () => {
+          begin()
+          setLoading(true)
+
+          try {
+            let created = await client.collection.createCollection({
+              createCollectionRequest: {
+                type: collection.type,
+                collection
+              }
+            })
+
+            created = await client.collection.addCollectionItems({
+              id: created.id,
+              addCollectionItemsRequest: {
+                items: collection.items,
+                position: CollectionInsertPosition.Start
+              }
+            })
+
+            setCreated(created)
+          }
+          catch (e) {
+            notifyError(e)
+            setLoading(false)
+          }
+          finally {
+            end()
+          }
+        }}>
+
+          <CopyOutlined />
+        </RoundIconButton>
+      </Disableable>
+
+      {created && (
+        <Prefetch fetch={useCollectionContentPrefetch} options={{ id: created.id }} />
+      )}
+    </Tooltip>
+  )
+}
+
+const DeleteButton = ({ collection }: { collection: Collection }) => {
+  const client = useClient()
+  const { begin, end } = useProgress()
+  const { notifyError } = useNotify()
+  const [loading, setLoading] = useState(false)
   const [, navigateListing] = usePrefetch(useCollectionListingPrefetch, { id: collection.ownerIds[0] })
 
   return (

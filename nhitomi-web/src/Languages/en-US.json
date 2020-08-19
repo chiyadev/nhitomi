@@ -136,11 +136,12 @@
       "book": {
         "empty": "Empty collection",
         "menu": {
-          "edit": "Edit",
           "special": {
             "favorites": "Set as favorites",
             "later": "Set as read later"
           },
+          "edit": "Edit",
+          "duplicate": "Duplicate",
           "delete": {
             "warning": "This collection will be deleted permanently.",
             "button": "Delete"
