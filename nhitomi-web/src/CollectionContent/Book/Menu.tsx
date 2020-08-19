@@ -1,23 +1,94 @@
 import React, { useState } from 'react'
-import { useClient } from '../../ClientManager'
+import { useClient, useClientInfo } from '../../ClientManager'
 import { useNotify } from '../../NotificationManager'
 import { useProgress } from '../../ProgressManager'
-import { Collection } from 'nhitomi-api'
-import { Dropdown } from '../../Components/Dropdown'
+import { Collection, SpecialCollection } from 'nhitomi-api'
+import { Dropdown, DropdownItem } from '../../Components/Dropdown'
 import { usePrefetch } from '../../Prefetch'
 import { useCollectionListingPrefetch } from '../../CollectionListing'
 import { RoundIconButton } from '../../Components/RoundIconButton'
-import { DeleteOutlined, EditOutlined } from '@ant-design/icons'
+import { DeleteOutlined, EditOutlined, HeartOutlined, EyeOutlined, StarOutlined } from '@ant-design/icons'
 import { FormattedMessage } from 'react-intl'
 import { FlatButton } from '../../Components/FlatButton'
 import { Disableable } from '../../Components/Disableable'
 import { CollectionEditLink } from '../../CollectionListing/Edit'
 import { Tooltip } from '../../Components/Tooltip'
+import { cx } from 'emotion'
 
 export const Menu = ({ collection }: { collection: Collection }) => <>
+  <SpecialButton collection={collection} />
   <EditButton collection={collection} />
   <DeleteButton collection={collection} />
 </>
+
+const SpecialButton = ({ collection }: { collection: Collection }) => {
+  const client = useClient()
+  const { info, setInfo, fetchInfo } = useClientInfo()
+  const [loading, setLoading] = useState(false)
+  const { begin, end } = useProgress()
+  const { notifyError } = useNotify()
+
+  if (!info.authenticated)
+    return null
+
+  const setSpecial = async (special: SpecialCollection) => {
+    begin()
+    setLoading(true)
+
+    try {
+      const info = await fetchInfo()
+
+      if (!info.authenticated)
+        throw Error('Unauthenticated.')
+
+      const user = await client.user.updateUser({
+        id: info.user.id,
+        userBase: {
+          ...info.user,
+          specialCollections: {
+            ...info.user.specialCollections,
+            book: {
+              ...info.user.specialCollections?.book,
+              [special]: collection.id
+            }
+          }
+        }
+      })
+
+      setInfo({ ...info, user })
+    }
+    catch (e) {
+      notifyError(e)
+    }
+    finally {
+      end()
+      setLoading(false)
+    }
+  }
+
+  return (
+    <Dropdown
+      placement='bottom'
+      overlay={(
+        <Disableable disabled={loading}>
+          <DropdownItem icon={<HeartOutlined className={cx({ 'text-red': info.user.specialCollections?.book?.favorites === collection.id })} />} onClick={() => setSpecial(SpecialCollection.Favorites)}>
+            <FormattedMessage id='pages.collectionContent.book.menu.special.favorites' />
+          </DropdownItem>
+
+          <DropdownItem icon={<EyeOutlined className={cx({ 'text-blue': info.user.specialCollections?.book?.later === collection.id })} />} onClick={() => setSpecial(SpecialCollection.Later)}>
+            <FormattedMessage id='pages.collectionContent.book.menu.special.later' />
+          </DropdownItem>
+        </Disableable>
+      )}>
+
+      <RoundIconButton>
+        {info.user.specialCollections?.book?.favorites === collection.id ? <HeartOutlined className='text-red' />
+          : info.user.specialCollections?.book?.later === collection.id ? <EyeOutlined className='text-blue' />
+            : <StarOutlined />}
+      </RoundIconButton>
+    </Dropdown>
+  )
+}
 
 const EditButton = ({ collection }: { collection: Collection }) => (
   <Tooltip placement='bottom' overlay={<FormattedMessage id='pages.collectionContent.book.menu.edit' />}>
@@ -38,7 +109,6 @@ const DeleteButton = ({ collection }: { collection: Collection }) => {
 
   return (
     <Dropdown
-      visible={loading || undefined}
       placement='bottom'
       padding={false}
       overlayClassName='flex flex-col space-y-2 p-2'
@@ -50,11 +120,8 @@ const DeleteButton = ({ collection }: { collection: Collection }) => {
             icon={<DeleteOutlined />}
             className='w-full text-red'
             onClick={async () => {
-              if (loading)
-                return
-
-              setLoading(true)
               begin()
+              setLoading(true)
 
               try {
                 await client.collection.deleteCollection({ id: collection.id })
@@ -64,8 +131,8 @@ const DeleteButton = ({ collection }: { collection: Collection }) => {
                 notifyError(e)
               }
               finally {
-                setLoading(false)
                 end()
+                setLoading(false)
               }
             }}>
 
@@ -74,7 +141,7 @@ const DeleteButton = ({ collection }: { collection: Collection }) => {
         </Disableable>
       </>}>
 
-      <RoundIconButton >
+      <RoundIconButton>
         <DeleteOutlined />
       </RoundIconButton>
     </Dropdown>
