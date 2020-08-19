@@ -60,7 +60,7 @@ const NotifyToast = ({ children, onMouseEnter, onMouseLeave, transitionState, tr
   const style = useSpring({
     config: { duration: transitionDuration },
     opacity: transitionState === 'entered' ? 1 : 0,
-    transform: transitionState === 'entered' ? 'translateX(0)' : 'translateX(1em)'
+    transform: transitionState === 'entered' ? 'translateX(0)' : 'translateX(5px)'
   })
 
   const [closeHover, setCloseHover] = useState(false)
