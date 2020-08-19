@@ -5,22 +5,39 @@ import { Container } from '../Components/Container'
 import { FormattedMessage } from 'react-intl'
 import { Language } from './Language'
 import { Animation } from './Animation'
-import { useScrollShortcut } from '../shortcut'
 import { SettingsFocusContainer } from './common'
 import { useQueryState } from '../state'
-import { PictureFilled, MacCommandFilled, ReadOutlined } from '@ant-design/icons'
+import { MacCommandFilled, ReadOutlined, UserOutlined, PictureOutlined } from '@ant-design/icons'
 import { PageContainer } from '../Components/PageContainer'
 import { Blur } from './Blur'
 import { Shortcuts } from './Shortcuts'
 import { useTabTitle } from '../TitleSetter'
 import { useLocalized } from '../LocaleManager'
 import { PreferEnglishName } from './PreferEnglishName'
+import { Account } from './Account'
 
 export type PrefetchResult = ClientInfo
 export type PrefetchOptions = { focus?: SettingsFocus }
 
-export type SettingsSection = 'appearance' | 'reader' | 'keyboard'
-export type SettingsItem = 'language' | 'animation' | 'blur' | 'preferEnglishName' | 'shortcuts'
+export type SettingsStructure = {
+  user: {
+    account: true
+  }
+  appearance: {
+    language: true
+    animation: true
+    blur: true
+  }
+  reader: {
+    preferEnglishName: true
+  }
+  keyboard: {
+    shortcuts: true
+  }
+}
+
+export type SettingsSection = keyof SettingsStructure
+export type SettingsItem = { [key in SettingsSection]: keyof SettingsStructure[key] }[SettingsSection]
 export type SettingsFocus = SettingsSection | SettingsItem
 
 export const useSettingsPrefetch: PrefetchGenerator<PrefetchResult, PrefetchOptions> = ({ mode, focus: targetFocus }) => {
@@ -55,8 +72,6 @@ export const SettingsLink = ({ focus, ...props }: TypedPrefetchLinkProps & Prefe
 export const Settings = (options: PrefetchOptions) => {
   const { result } = usePostfetch(useSettingsPrefetch, { requireAuth: true, ...options })
 
-  useScrollShortcut()
-
   if (!result)
     return null
 
@@ -79,8 +94,15 @@ const Loaded = () => {
 
       <div className='p-2 space-y-12'>
         <Section
+          type='user'
+          name={<span><UserOutlined /> <FormattedMessage id='pages.settings.user.header' /></span>}>
+
+          {[<Account />]}
+        </Section>
+
+        <Section
           type='appearance'
-          name={<span><PictureFilled /> <FormattedMessage id='pages.settings.appearance.header' /></span>}>
+          name={<span><PictureOutlined /> <FormattedMessage id='pages.settings.appearance.header' /></span>}>
 
           <Language />
           <Animation />

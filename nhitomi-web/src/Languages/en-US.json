@@ -35,6 +35,14 @@
     "settings": {
       "title": "Settings",
       "subtitle": "Customize nhitomi's appearance and behavior.",
+      "user": {
+        "header": "User",
+        "account": {
+          "name": "Account",
+          "description": "You are currently signed in as {name}.",
+          "logout": "Log out"
+        }
+      },
       "appearance": {
         "header": "Appearance",
         "language": {

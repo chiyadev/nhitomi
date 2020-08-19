@@ -35,6 +35,14 @@
     "settings": {
       "title": "設定",
       "subtitle": "nhitomiの外見や行動が変更できます。",
+      "user": {
+        "header": "ユーザー",
+        "account": {
+          "name": "アカウント",
+          "description": "あなたは{name}さんです。",
+          "logout": "ログアウト"
+        }
+      },
       "appearance": {
         "header": "外見",
         "language": {
