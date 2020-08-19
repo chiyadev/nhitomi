@@ -1,6 +1,6 @@
 import React, { ReactNode } from 'react'
 import { DropdownItem, DropdownSubMenu, DropdownDivider } from '../Dropdown'
-import { BookListItem } from '.'
+import { BookListItem, useBookList } from '.'
 import { BookContent, BookTag, SpecialCollection, ObjectType, CollectionInsertPosition } from 'nhitomi-api'
 import { BookReaderLink } from '../../BookReader'
 import { FormattedMessage } from 'react-intl'
@@ -15,7 +15,9 @@ import { useProgress } from '../../ProgressManager'
 import { CollectionContentLink } from '../../CollectionContent'
 
 export const Overlay = ({ book, content }: { book: BookListItem, content?: BookContent }) => {
-  const rendered = <>
+  const { OverlayComponent } = useBookList()
+
+  let rendered = <>
     {content && <>
       <BookReaderLink id={book.id} contentId={content.id} target='_blank' rel='noopener noreferrer'>
         <DropdownItem icon={<ExpandAltOutlined />}>
@@ -23,6 +25,7 @@ export const Overlay = ({ book, content }: { book: BookListItem, content?: BookC
         </DropdownItem>
       </BookReaderLink>
     </>}
+
     <SearchItem book={book} />
 
     <DropdownDivider />
@@ -42,6 +45,12 @@ export const Overlay = ({ book, content }: { book: BookListItem, content?: BookC
     <CollectionQuickAddItem book={book} type={SpecialCollection.Favorites} />
     <CollectionQuickAddItem book={book} type={SpecialCollection.Later} />
   </>
+
+  if (OverlayComponent) {
+    rendered = (
+      <OverlayComponent book={book} content={content} children={rendered} />
+    )
+  }
 
   return rendered
 }

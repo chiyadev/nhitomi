@@ -22,6 +22,7 @@ const BookListContext = createContext<{
   overlayVisible?: boolean
 
   LinkComponent?: ComponentType<{ id: string, contentId?: string } & TypedPrefetchLinkProps>
+  OverlayComponent?: ComponentType<{ book: BookListItem, content?: BookContent, children: ReactNode }>
 }>(undefined as any)
 
 export function useBookList() {
@@ -38,8 +39,8 @@ export const BookList = ({ className, menu, empty, ...context }: ContextType<typ
 
   useResizeObserver(containerRef, ({ contentRect: { width } }) => setWidth(width))
 
-  const { items, contentSelector, getCoverRequest, preferEnglishName, overlayVisible, LinkComponent } = context
-  context = useMemo(() => ({ items, contentSelector, getCoverRequest, preferEnglishName, overlayVisible, LinkComponent }), [LinkComponent, contentSelector, getCoverRequest, items, overlayVisible, preferEnglishName])
+  const { items, contentSelector, getCoverRequest, preferEnglishName, overlayVisible, LinkComponent, OverlayComponent } = context
+  context = useMemo(() => ({ items, contentSelector, getCoverRequest, preferEnglishName, overlayVisible, LinkComponent, OverlayComponent }), [LinkComponent, OverlayComponent, contentSelector, getCoverRequest, items, overlayVisible, preferEnglishName])
 
   return (
     <div
