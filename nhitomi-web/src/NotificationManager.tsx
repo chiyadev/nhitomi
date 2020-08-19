@@ -163,7 +163,7 @@ const NotifyManager = ({ children }: { children?: ReactNode }) => {
   )
 }
 
-const AlertToast = ({ children, onMouseEnter, onMouseLeave, transitionState, transitionDuration }: ToastProps) => {
+const AlertToast = ({ children, onMouseEnter, onMouseLeave, transitionState, transitionDuration, onDismiss }: ToastProps) => {
   const style = useSpring({
     config: { duration: transitionDuration },
     opacity: transitionState === 'entered' ? 1 : 0,
@@ -173,7 +173,8 @@ const AlertToast = ({ children, onMouseEnter, onMouseLeave, transitionState, tra
   return (
     <animated.div
       style={style}
-      className='table mx-auto rounded overflow-hidden bg-gray-darkest bg-blur text-white text-sm shadow-lg p-3'
+      className='table mx-auto rounded overflow-hidden bg-gray-darkest bg-blur text-white text-sm shadow-lg p-3 cursor-pointer'
+      onClick={() => onDismiss()}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}>
 
