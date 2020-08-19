@@ -75,25 +75,28 @@ const DeleteButton = ({ collection }: { collection: Collection }) => {
         <div><FormattedMessage id='pages.collectionContent.book.delete.warning' /></div>
 
         <Disableable disabled={loading}>
-          <FlatButton className='w-full' onClick={async () => {
-            if (loading)
-              return
+          <FlatButton
+            icon={<DeleteOutlined />}
+            className='w-full text-red'
+            onClick={async () => {
+              if (loading)
+                return
 
-            setLoading(true)
-            begin()
+              setLoading(true)
+              begin()
 
-            try {
-              await client.collection.deleteCollection({ id: collection.id })
-              await navigateListing()
-            }
-            catch (e) {
-              notifyError(e)
-            }
-            finally {
-              setLoading(false)
-              end()
-            }
-          }}>
+              try {
+                await client.collection.deleteCollection({ id: collection.id })
+                await navigateListing()
+              }
+              catch (e) {
+                notifyError(e)
+              }
+              finally {
+                setLoading(false)
+                end()
+              }
+            }}>
 
             <FormattedMessage id='pages.collectionContent.book.delete.button' />
           </FlatButton>
