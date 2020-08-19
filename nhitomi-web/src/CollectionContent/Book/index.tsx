@@ -14,6 +14,7 @@ import { useTabTitle } from '../../TitleSetter'
 import { FormattedMessage } from 'react-intl'
 import { EmptyIndicator } from '../../Components/EmptyIndicator'
 import { Menu } from './Menu'
+import { Overlay } from './Overlay'
 
 export const BookDisplay = ({ result, setResult }: { result: BookPrefetchResult, setResult: Dispatch<BookPrefetchResult> }) => {
   const { collection, items } = result
@@ -44,7 +45,8 @@ export const BookDisplay = ({ result, setResult }: { result: BookPrefetchResult,
             <EmptyIndicator>
               <FormattedMessage id='pages.collectionContent.book.empty' />
             </EmptyIndicator>
-          )} />
+          )}
+          OverlayComponent={props => <Overlay collection={collection} {...props} />} />
 
         <Loader result={result} setResult={setResult} />
       </div>

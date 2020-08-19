@@ -149,6 +149,12 @@
             "warning": "This collection will be deleted permanently.",
             "button": "Delete"
           }
+        },
+        "overlay": {
+          "delete": {
+            "item": "Delete",
+            "success": "Item successfully deleted."
+          }
         }
       }
     },
