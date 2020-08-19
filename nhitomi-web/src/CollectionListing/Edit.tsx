@@ -8,7 +8,7 @@ import { Container } from '../Components/Container'
 import { FormattedMessage } from 'react-intl'
 import { Input } from '../Components/Input'
 import { FilledButton } from '../Components/FilledButton'
-import { LeftOutlined, Loading3QuartersOutlined } from '@ant-design/icons'
+import { LeftOutlined, Loading3QuartersOutlined, DeleteOutlined, CheckOutlined } from '@ant-design/icons'
 import { FlatButton } from '../Components/FlatButton'
 import { Disableable } from '../Components/Disableable'
 import { useNotify } from '../NotificationManager'
@@ -16,6 +16,7 @@ import { useTabTitle } from '../TitleSetter'
 import { useLocalized } from '../LocaleManager'
 import { getColor } from '../theme'
 import { useCollectionContentPrefetch } from '../CollectionContent'
+import { useCollectionListingPrefetch } from '.'
 
 export type PrefetchResult = { collection: Collection, owner: User }
 export type PrefetchOptions = { id: string }
@@ -61,6 +62,7 @@ const Loaded = ({ collection, owner }: PrefetchResult) => {
 
   const client = useClient()
   const { notifyError } = useNotify()
+  const [, navigateListing] = usePrefetch(useCollectionListingPrefetch, { id: owner.id })
   const [, navigateCollection] = usePrefetch(useCollectionContentPrefetch, { id: collection.id })
 
   const [name, setName] = usePageState('name', collection.name)
@@ -90,6 +92,24 @@ const Loaded = ({ collection, owner }: PrefetchResult) => {
       setLoading(false)
     }
   }, [client.collection, collection.id, description, loading, name, navigateCollection, notifyError])
+
+  const delette = useCallback(async () => {
+    if (loading)
+      return
+
+    setLoading(true)
+
+    try {
+      await client.collection.deleteCollection({ id: collection.id })
+      await navigateListing()
+    }
+    catch (e) {
+      notifyError(e)
+    }
+    finally {
+      setLoading(false)
+    }
+  }, [client.collection, collection.id, loading, navigateListing, notifyError])
 
   return (
     <Container className='divide-y divide-gray-darkest'>
@@ -124,7 +144,11 @@ const Loaded = ({ collection, owner }: PrefetchResult) => {
               </FlatButton>
             </BackLink>
 
-            <FilledButton color={getColor('blue')} onClick={submit} icon={loading && <Loading3QuartersOutlined className='animate-spin' />}>
+            <FlatButton color={getColor('red')} onClick={delette} icon={<DeleteOutlined />}>
+              <FormattedMessage id='pages.collectionListing.edit.delete' />
+            </FlatButton>
+
+            <FilledButton color={getColor('blue')} onClick={submit} icon={loading ? <Loading3QuartersOutlined className='animate-spin' /> : <CheckOutlined />}>
               <FormattedMessage id='pages.collectionListing.edit.submit' />
             </FilledButton>
           </div>

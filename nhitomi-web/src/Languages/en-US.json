@@ -121,7 +121,8 @@
         "name": "Name",
         "description": "Description",
         "cancel": "Back",
-        "submit": "Edit"
+        "delete": "Delete",
+        "submit": "Submit"
       },
       "book": {
         "menu": {

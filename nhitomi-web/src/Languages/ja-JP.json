@@ -121,7 +121,8 @@
         "name": "名前",
         "description": "説明",
         "cancel": "戻る",
-        "submit": "編集"
+        "delete": "削除",
+        "submit": "作成"
       },
       "book": {
         "menu": {
