@@ -4,7 +4,12 @@
       "title": "nhitomi"
     },
     "authentication": {
-      "title": "Log in"
+      "title": "Log in",
+      "tagline": "Open-source doujinshi aggregator",
+      "connect": {
+        "discord": "Continue via Discord",
+        "twitter": "Continue via Twitter"
+      }
     },
     "bookListing": {
       "title": "Books",

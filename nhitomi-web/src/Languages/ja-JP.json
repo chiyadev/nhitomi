@@ -4,7 +4,12 @@
       "title": "nhitomi"
     },
     "authentication": {
-      "title": "ログイン"
+      "title": "ログイン",
+      "tagline": "オープンソース同人誌まとめサイト",
+      "connect": {
+        "discord": "Discordでログイン",
+        "twitter": "Twitterでログイン"
+      }
     },
     "bookListing": {
       "title": "ブックス",
