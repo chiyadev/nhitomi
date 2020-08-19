@@ -119,7 +119,7 @@
         "menu": {
           "create": {
             "item": "New collection",
-            "dummyName": "My collection"
+            "dummyName": "My new collection"
           }
         },
         "overlay": {
