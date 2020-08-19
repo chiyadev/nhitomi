@@ -6,7 +6,7 @@ import { BookContent, User } from 'nhitomi-api'
 import { CollectionContentLink } from '../../CollectionContent'
 import { FormattedMessage } from 'react-intl'
 import { EmptyIndicator } from '../../Components/EmptyIndicator'
-import { NewButton } from './Menu'
+import { Menu } from './Menu'
 import { Overlay } from './Overlay'
 
 // instead of reimplementing a new list for book collections, adapt BookList for code reuse
@@ -38,9 +38,9 @@ export const BookSection = ({ user, collections }: { user: User, collections: Bo
       preferEnglishName={false} // preferEnglishName would swap collection name and description
       overlayVisible
       getCoverRequest={getCoverRequest}
-      menu={<>
-        <NewButton />
-      </>}
+      menu={(
+        <Menu />
+      )}
       empty={(
         <EmptyIndicator>
           <FormattedMessage id='pages.collectionListing.empty' />

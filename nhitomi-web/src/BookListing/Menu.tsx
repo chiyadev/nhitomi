@@ -13,7 +13,12 @@ import { BookListingLink } from '.'
 import { FormattedMessage } from 'react-intl'
 import { CheckBox } from '../Components/Checkbox'
 
-export const LanguageButton = () => {
+export const Menu = () => <>
+  <LanguageButton />
+  <SortButton />
+</>
+
+const LanguageButton = () => {
   const [query] = useQueryState<SearchQuery>()
 
   return (
@@ -34,7 +39,7 @@ export const LanguageButton = () => {
   )
 }
 
-export const SortButton = () => {
+const SortButton = () => {
   const [query] = useQueryState<SearchQuery>()
 
   return (

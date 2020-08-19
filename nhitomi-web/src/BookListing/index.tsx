@@ -16,7 +16,7 @@ import { useSpring, animated } from 'react-spring'
 import { PageContainer } from '../Components/PageContainer'
 import stringify from 'json-stable-stringify'
 import { Container } from '../Components/Container'
-import { LanguageButton, SortButton } from './Menu'
+import { Menu } from './Menu'
 import { useTabTitle } from '../TitleSetter'
 import { useLocalized } from '../LocaleManager'
 import { EmptyIndicator } from '../Components/EmptyIndicator'
@@ -147,10 +147,9 @@ const Loaded = ({ result, setResult }: { result: PrefetchResult, setResult: Disp
       <BookList
         items={result.items}
         contentSelector={contentSelector}
-        menu={<>
-          <LanguageButton />
-          <SortButton />
-        </>}
+        menu={(
+          <Menu />
+        )}
         empty={(
           <EmptyIndicator>
             <FormattedMessage id='pages.bookListing.empty' />
