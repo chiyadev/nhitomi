@@ -6,7 +6,7 @@ import { PrefetchScrollPreserver } from './Prefetch'
 import { ClientManager } from './ClientManager'
 import { LocaleManager } from './LocaleManager'
 import { NotificationManager } from './NotificationManager'
-import { css } from 'emotion'
+import { css, cx } from 'emotion'
 import { Route, Redirect, Switch, Router } from 'react-router-dom'
 import { BookListing } from './BookListing'
 import { Settings } from './Settings'
@@ -22,6 +22,7 @@ import { Debug } from './Debug'
 import { Authentication } from './Authentication'
 import { OAuthCallback } from './Authentication/OAuthCallback'
 import { CollectionEdit } from './CollectionListing/Edit'
+import { Footer } from './Footer'
 
 export const App = () => {
   return (
@@ -53,9 +54,12 @@ const Body = () => {
   const { sidebar } = useLayout()
 
   return (
-    <div className={css`padding-left: ${sidebar}px;`}>
-      <div className='relative w-full'>
+    <div className={cx('flex flex-col min-h-screen', css`padding-left: ${sidebar}px;`)}>
+      <div className='relative w-full flex-1'>
         <Routing />
+      </div>
+      <div className='mt-4'>
+        <Footer />
       </div>
     </div>
   )
