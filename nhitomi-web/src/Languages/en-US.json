@@ -107,14 +107,13 @@
       "title": "Collections",
       "subtitle": "{mode, select, view {View} manage {Manage}} {user}'s collections.",
       "empty": "No collections",
-      "create": {
-        "title": "New collection",
-        "subtitle": "Create a new {type} collection.",
+      "edit": {
+        "title": "Edit collection",
+        "subtitle": "Edit {collection} by {owner}.",
         "name": "Name",
-        "nameTaken": "Name ''{name}'' is already taken.",
         "description": "Description",
         "cancel": "Back",
-        "submit": "Create"
+        "submit": "Edit"
       },
       "book": {
         "overlay": {

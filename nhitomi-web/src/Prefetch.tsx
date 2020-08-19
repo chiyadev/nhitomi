@@ -88,6 +88,15 @@ export function usePrefetch<T, U extends {}>(generator: PrefetchGenerator<T, U>,
   return [navigator.stringify(navigator.evaluate(destination)), run]
 }
 
+/** Executes a prefetch as a react component, allowing consumers to pass dynamically computed options. */
+export const Prefetch = <T, U extends {}>({ generator, options }: { generator: PrefetchGenerator<T, U>, options: U }) => {
+  const [, navigate] = usePrefetch(generator, options)
+
+  useLayoutEffect(() => { navigate() }, [navigate])
+
+  return null
+}
+
 /** Fetches data for the current page if not already fetched. */
 export function usePostfetch<T, U extends {}>(generator: PrefetchGenerator<T, U>, options: U & { requireAuth?: boolean }) {
   const { info } = useClientInfo()

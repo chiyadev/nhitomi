@@ -107,14 +107,13 @@
       "title": "コレクション",
       "subtitle": "{user}さんのコレクション{mode, select, view {が見れます} manage {を管理します}}。",
       "empty": "コレクションがありません。",
-      "create": {
-        "title": "新規コレクション",
-        "subtitle": "新しい{type}コレクションを作成します。",
+      "edit": {
+        "title": "コレクション編集",
+        "subtitle": "{owner}さんの{collection}を編集できます。",
         "name": "名前",
-        "nameTaken": "名前「{name}」はすでに使用されています。",
         "description": "説明",
         "cancel": "戻る",
-        "submit": "作成"
+        "submit": "編集"
       },
       "book": {
         "overlay": {
