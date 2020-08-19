@@ -5,7 +5,7 @@ import { useClient, useClientInfo } from '../ClientManager'
 import { PageContainer } from '../Components/PageContainer'
 import { Container } from '../Components/Container'
 import { FormattedMessage } from 'react-intl'
-import { BookSection } from './BookSection'
+import { BookSection } from './Book'
 import { useTabTitle } from '../TitleSetter'
 import { useLocalized } from '../LocaleManager'
 

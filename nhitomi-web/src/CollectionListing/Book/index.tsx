@@ -1,15 +1,14 @@
 import React, { useCallback, useMemo } from 'react'
-import { BookCollection } from '.'
-import { BookList, selectContent, BookListItem } from '../Components/BookList'
-import { useConfig } from '../ConfigManager'
-import { BookContent, ObjectType } from 'nhitomi-api'
-import { CollectionContentLink } from '../CollectionContent'
-import { Tooltip } from '../Components/Tooltip'
-import { CollectionCreateLink } from './Create'
-import { RoundIconButton } from '../Components/RoundIconButton'
-import { PlusOutlined } from '@ant-design/icons'
+import { BookCollection } from '..'
+import { BookList, selectContent, BookListItem } from '../../Components/BookList'
+import { useConfig } from '../../ConfigManager'
+import { BookContent } from 'nhitomi-api'
+import { CollectionContentLink } from '../../CollectionContent'
+import { DeleteOutlined } from '@ant-design/icons'
 import { FormattedMessage } from 'react-intl'
-import { EmptyIndicator } from '../Components/EmptyIndicator'
+import { EmptyIndicator } from '../../Components/EmptyIndicator'
+import { DropdownItem, DropdownSubMenu } from '../../Components/Dropdown'
+import { NewButton } from './Menu'
 
 // instead of reimplementing a new list for book collections, adapt BookList for code reuse
 export const BookSection = ({ collections }: { collections: BookCollection[] }) => {
@@ -40,7 +39,6 @@ export const BookSection = ({ collections }: { collections: BookCollection[] }) 
       preferEnglishName={false} // preferEnglishName would swap collection name and description
       overlayVisible
       getCoverRequest={getCoverRequest}
-      LinkComponent={CollectionContentLink}
       menu={<>
         <NewButton />
       </>}
@@ -48,16 +46,8 @@ export const BookSection = ({ collections }: { collections: BookCollection[] }) 
         <EmptyIndicator>
           <FormattedMessage id='pages.collectionListing.empty' />
         </EmptyIndicator>
-      )} />
+      )}
+      LinkComponent={CollectionContentLink}
+      OverlayComponent={Overlay} />
   )
 }
-
-const NewButton = () => (
-  <Tooltip placement='bottom' overlay={<FormattedMessage id='pages.collectionListing.create.title' />}>
-    <CollectionCreateLink type={ObjectType.Book}>
-      <RoundIconButton>
-        <PlusOutlined />
-      </RoundIconButton>
-    </CollectionCreateLink>
-  </Tooltip>
-)
