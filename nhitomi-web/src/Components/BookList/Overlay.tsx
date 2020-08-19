@@ -19,11 +19,7 @@ export const Overlay = ({ book, content }: { book: BookListItem, content?: BookC
 
   let rendered = <>
     {content && <>
-      <BookReaderLink id={book.id} contentId={content.id} target='_blank' rel='noopener noreferrer'>
-        <DropdownItem icon={<ExpandAltOutlined />}>
-          <FormattedMessage id='components.bookList.overlay.openNewTab' />
-        </DropdownItem>
-      </BookReaderLink>
+      <OpenInNewTabItem book={book} content={content} />
     </>}
 
     <SearchItem book={book} />
@@ -54,6 +50,14 @@ export const Overlay = ({ book, content }: { book: BookListItem, content?: BookC
 
   return rendered
 }
+
+const OpenInNewTabItem = ({ book, content }: { book: BookListItem, content: BookContent }) => (
+  <BookReaderLink id={book.id} contentId={content.id} target='_blank' rel='noopener noreferrer'>
+    <DropdownItem icon={<ExpandAltOutlined />}>
+      <FormattedMessage id='components.bookList.overlay.openNewTab' />
+    </DropdownItem>
+  </BookReaderLink>
+)
 
 const SearchItem = ({ book }: { book: BookListItem }) => {
   const [preferEnglishName] = useConfig('bookReaderPreferEnglishName')
