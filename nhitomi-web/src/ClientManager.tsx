@@ -1,9 +1,9 @@
-import React, { ReactNode, useMemo, createContext, useState, useCallback, useContext, Dispatch, useLayoutEffect, useRef } from 'react'
+import React, { ReactNode, useMemo, createContext, useState, useCallback, useContext, Dispatch } from 'react'
 import { ConfigurationParameters, ValidationProblemArrayResult, ValidationProblem, UserApi, InfoApi, BookApi, CollectionApi, Configuration, GetInfoResponse, GetInfoAuthenticatedResponse, BASE_PATH, User, UserPermissions, Collection } from 'nhitomi-api'
 import { CustomError } from 'ts-custom-error'
 import { useAsync } from './hooks'
 import { useProgress } from './ProgressManager'
-import { ConfigSource, useConfigManager, useConfig } from './ConfigManager'
+import { ConfigSource, useConfigManager } from './ConfigManager'
 import { Container } from './Components/Container'
 
 export class Client {
@@ -161,18 +161,6 @@ export const ClientManager = ({ children }: { children?: ReactNode }) => {
       end()
     }
   }, [])
-
-  // when token or baseUrl changes, completely refresh the page to lose all fetched data
-  const currentToken = useConfig('token')[0] || ''
-  const fixedToken = useRef(currentToken).current
-
-  const currentBaseUrl = useConfig('baseUrl')[0] || ''
-  const fixedBaseUrl = useRef(currentBaseUrl).current
-
-  useLayoutEffect(() => {
-    if (currentToken !== fixedToken || currentBaseUrl !== fixedBaseUrl)
-      window.location.reload()
-  }, [currentBaseUrl, currentToken, fixedBaseUrl, fixedToken])
 
   if (!info)
     return null
