@@ -89,8 +89,8 @@ export function usePrefetch<T, U extends {}>(generator: PrefetchGenerator<T, U>,
 }
 
 /** Executes a prefetch as a react component, allowing consumers to pass dynamically computed options. */
-export const Prefetch = <T, U extends {}>({ generator, options }: { generator: PrefetchGenerator<T, U>, options: U }) => {
-  const [, navigate] = usePrefetch(generator, options)
+export const Prefetch = <T, U extends {}>({ fetch, options }: { fetch: PrefetchGenerator<T, U>, options: U }) => {
+  const [, navigate] = usePrefetch(fetch, options)
 
   useLayoutEffect(() => { navigate() }, [navigate])
 

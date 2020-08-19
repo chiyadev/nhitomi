@@ -116,6 +116,12 @@
         "submit": "Edit"
       },
       "book": {
+        "menu": {
+          "create": {
+            "item": "New collection",
+            "dummyName": "My collection"
+          }
+        },
         "overlay": {
           "openNewTab": "Open in new tab",
           "delete": {
