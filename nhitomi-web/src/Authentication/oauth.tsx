@@ -1,34 +1,30 @@
 import stringify from 'json-stable-stringify'
-import { useLocalStorage } from 'react-use'
-import { useLayoutEffect, useCallback } from 'react'
+import { NavigationLocation } from '../state'
+import { utoa, atou } from '../base64'
 
 export type OAuthState = {
-  /** Redirect address. */
-  redirect: string
-
-  /** XSRF token. */
-  token: string
+  redirect: Partial<Omit<NavigationLocation, 'state'>>
+  xsrf: string
 }
 
-const randomToken = [...Array(16)].map(() => Math.random().toString(36)[2]).join('')
+const sessionToken = [...Array(16)].map(() => Math.random().toString(36)[2]).join('')
 
-export function useXsrfToken(): [string, () => void] {
-  const [token, setToken] = useLocalStorage('xsrf', randomToken)
+export function useXsrfToken(reset: boolean) {
+  let token = localStorage.getItem('xsrf')
 
-  useLayoutEffect(() => {
-    if (!token)
-      setToken(randomToken)
-  })
+  if (!token || reset) {
+    localStorage.setItem('xsrf', token = sessionToken)
+  }
 
-  const reset = useCallback(() => setToken(randomToken), [setToken])
-
-  return [token || randomToken, reset]
+  return token
 }
 
-export function stringifyOAuthState(state: OAuthState) {
-  return btoa(stringify(state))
+export function stringifyOAuthState({ xsrf, redirect: { path, query, hash } }: OAuthState) {
+  return utoa(stringify([xsrf, path, query, hash]))
 }
 
 export function parseOAuthState(state: string) {
-  return JSON.parse(atob(state)) as OAuthState
+  const [xsrf, path, query, hash] = JSON.parse(atou(state))
+
+  return { xsrf, redirect: { path, query, hash } } as OAuthState
 }
