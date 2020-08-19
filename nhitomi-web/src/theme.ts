@@ -1,5 +1,5 @@
 import { colors } from './theme.json'
-import { TinyColor } from '@ctrl/tinycolor'
+import { TinyColor, ColorInput } from '@ctrl/tinycolor'
 import autoBind from 'auto-bind'
 
 const SupportsHex8 = CSS.supports('color', '#ffffffff')
@@ -18,8 +18,8 @@ export class Color {
   get hex() { return SupportsHex8 ? this.color.toHex8String() : this.color.toHexString() }
   get rgb() { return this.color.toRgbString() }
 
-  mix(other: Color, amount = 0.5) { return new Color(this.color.mix(other.color, amount * 100)) }
-  opacity(value: number) { return new Color(new TinyColor(this.color).setAlpha(this.color.getAlpha() * value)) }
+  mix(other: Color, amount = 0.5) { return createColor(this.color.clone().mix(other.color, amount * 100)) }
+  opacity(value: number) { return createColor(this.color.clone().setAlpha(this.color.getAlpha() * value)) }
 
   tint(value: number) { return this.mix(getColor('white'), value) }
   shade(value: number) { return this.mix(getColor('black'), value) }
@@ -28,12 +28,20 @@ export class Color {
 /** Retrieves a color instance from the current theme. */
 export function getColor(color: ColorHue | 'white' | 'black' | 'transparent', luminance: ColorLuminance = 'default') {
   switch (color) {
-    case 'white': return new Color(new TinyColor(colors.white))
-    case 'black': return new Color(new TinyColor(colors.black))
-    case 'transparent': return new Color(new TinyColor('transparent'))
+    case 'white': return createColor(colors.white)
+    case 'black': return createColor(colors.black)
+    case 'transparent': return createColor('transparent')
   }
 
-  return new Color(new TinyColor(colors[color][luminance]))
+  return createColor(colors[color][luminance])
+}
+
+/** Creates a color instance from the given value. */
+export function createColor(color: ColorInput) {
+  if (color instanceof TinyColor)
+    return new Color(color)
+  else
+    return new Color(new TinyColor(color))
 }
 
 /** Converts a hex color to CSS rgba(...) format. */
