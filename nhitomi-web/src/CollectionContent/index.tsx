@@ -4,7 +4,7 @@ import { Book, ObjectType, Collection } from 'nhitomi-api'
 import { useClient } from '../ClientManager'
 import { PageContainer } from '../Components/PageContainer'
 import { DefaultQueryLimit } from '../BookListing/search'
-import { BookDisplay } from './BookDisplay'
+import { BookDisplay } from './Book'
 import { useScrollShortcut } from '../shortcut'
 
 export type PrefetchResult =
