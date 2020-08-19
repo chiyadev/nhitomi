@@ -7,8 +7,8 @@
       "title": "Log in",
       "tagline": "Open-source doujinshi aggregator",
       "connect": {
-        "discord": "Continue via Discord",
-        "twitter": "Continue via Twitter"
+        "discord": "Continue with Discord",
+        "twitter": "Continue with Twitter"
       }
     },
     "bookListing": {
