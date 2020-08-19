@@ -1,16 +1,16 @@
 import React, { useState } from 'react'
 import { Tooltip } from '../../Components/Tooltip'
 import { FormattedMessage } from 'react-intl'
-import { ObjectType, Collection } from 'nhitomi-api'
+import { ObjectType } from 'nhitomi-api'
 import { PlusOutlined } from '@ant-design/icons'
 import { RoundIconButton } from '../../Components/RoundIconButton'
 import { useClient } from '../../ClientManager'
 import { useProgress } from '../../ProgressManager'
 import { useNotify } from '../../NotificationManager'
 import { Disableable } from '../../Components/Disableable'
-import { Prefetch } from '../../Prefetch'
 import { useCollectionEditPrefetch } from '../Edit'
 import { useLocalized } from '../../LocaleManager'
+import { useDynamicPrefetch } from '../../Prefetch'
 
 export const Menu = () => <>
   <NewButton />
@@ -21,7 +21,7 @@ const NewButton = () => {
   const { begin, end } = useProgress()
   const { notifyError } = useNotify()
   const [loading, setLoading] = useState(false)
-  const [created, setCreated] = useState<Collection>()
+  const [prefetchNode, navigate] = useDynamicPrefetch(useCollectionEditPrefetch)
 
   const dummyName = useLocalized('pages.collectionListing.book.menu.create.dummyName')
 
@@ -42,14 +42,14 @@ const NewButton = () => {
               }
             })
 
-            setCreated(created)
+            await navigate({ id: created.id })
           }
           catch (e) {
             notifyError(e)
-            setLoading(false)
           }
           finally {
             end()
+            setLoading(false)
           }
         }}>
 
@@ -57,9 +57,7 @@ const NewButton = () => {
         </RoundIconButton>
       </Disableable>
 
-      {created && (
-        <Prefetch fetch={useCollectionEditPrefetch} options={{ id: created.id }} />
-      )}
+      {prefetchNode}
     </Tooltip>
   )
 }

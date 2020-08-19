@@ -4,7 +4,7 @@ import { useNotify } from '../../NotificationManager'
 import { useProgress } from '../../ProgressManager'
 import { Collection, SpecialCollection, CollectionInsertPosition } from 'nhitomi-api'
 import { Dropdown, DropdownItem } from '../../Components/Dropdown'
-import { usePrefetch, Prefetch } from '../../Prefetch'
+import { usePrefetch, useDynamicPrefetch } from '../../Prefetch'
 import { useCollectionListingPrefetch } from '../../CollectionListing'
 import { RoundIconButton } from '../../Components/RoundIconButton'
 import { DeleteOutlined, EditOutlined, HeartOutlined, EyeOutlined, StarOutlined, CopyOutlined } from '@ant-design/icons'
@@ -107,7 +107,7 @@ const DuplicateButton = ({ collection }: { collection: Collection }) => {
   const { begin, end } = useProgress()
   const { notifyError } = useNotify()
   const [loading, setLoading] = useState(false)
-  const [created, setCreated] = useState<Collection>()
+  const [prefetchNode, navigate] = useDynamicPrefetch(useCollectionContentPrefetch)
 
   return (
     <Tooltip placement='bottom' overlay={<FormattedMessage id='pages.collectionContent.book.menu.duplicate' />}>
@@ -132,14 +132,14 @@ const DuplicateButton = ({ collection }: { collection: Collection }) => {
               }
             })
 
-            setCreated(created)
+            await navigate({ id: created.id })
           }
           catch (e) {
             notifyError(e)
-            setLoading(false)
           }
           finally {
             end()
+            setLoading(false)
           }
         }}>
 
@@ -147,9 +147,7 @@ const DuplicateButton = ({ collection }: { collection: Collection }) => {
         </RoundIconButton>
       </Disableable>
 
-      {created && (
-        <Prefetch fetch={useCollectionContentPrefetch} options={{ id: created.id }} />
-      )}
+      {prefetchNode}
     </Tooltip>
   )
 }
