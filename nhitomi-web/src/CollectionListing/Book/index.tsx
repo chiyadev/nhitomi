@@ -2,16 +2,15 @@ import React, { useCallback, useMemo } from 'react'
 import { BookCollection } from '..'
 import { BookList, selectContent, BookListItem } from '../../Components/BookList'
 import { useConfig } from '../../ConfigManager'
-import { BookContent } from 'nhitomi-api'
+import { BookContent, User } from 'nhitomi-api'
 import { CollectionContentLink } from '../../CollectionContent'
-import { DeleteOutlined } from '@ant-design/icons'
 import { FormattedMessage } from 'react-intl'
 import { EmptyIndicator } from '../../Components/EmptyIndicator'
-import { DropdownItem, DropdownSubMenu } from '../../Components/Dropdown'
 import { NewButton } from './Menu'
+import { Overlay } from './Overlay'
 
 // instead of reimplementing a new list for book collections, adapt BookList for code reuse
-export const BookSection = ({ collections }: { collections: BookCollection[] }) => {
+export const BookSection = ({ user, collections }: { user: User, collections: BookCollection[] }) => {
   const [language] = useConfig('language')
   const [searchLanguages] = useConfig('searchLanguages')
 
@@ -48,6 +47,6 @@ export const BookSection = ({ collections }: { collections: BookCollection[] }) 
         </EmptyIndicator>
       )}
       LinkComponent={CollectionContentLink}
-      OverlayComponent={Overlay} />
+      OverlayComponent={props => <Overlay user={user} {...props} />} />
   )
 }

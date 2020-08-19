@@ -81,7 +81,7 @@ const Loaded = ({ user, books }: PrefetchResult) => {
       </div>
 
       <div className='py-2 space-y-8'>
-        <BookSection collections={books} />
+        <BookSection user={user} collections={books} />
       </div>
     </Container>
   )

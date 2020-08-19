@@ -115,6 +115,15 @@
         "description": "説明",
         "cancel": "戻る",
         "submit": "作成"
+      },
+      "book": {
+        "openNewTab": "新規タブで開く",
+        "overlay": {
+          "delete": {
+            "item": "削除",
+            "confirm": "本当に削除しますか？"
+          }
+        }
       }
     },
     "collectionContent": {

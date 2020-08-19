@@ -115,6 +115,15 @@
         "description": "Description",
         "cancel": "Back",
         "submit": "Create"
+      },
+      "book": {
+        "overlay": {
+          "openNewTab": "Open in new tab",
+          "delete": {
+            "item": "Delete",
+            "confirm": "Really delete?"
+          }
+        }
       }
     },
     "collectionContent": {
