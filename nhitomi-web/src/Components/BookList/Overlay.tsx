@@ -1,4 +1,4 @@
-import React, { ReactNode } from 'react'
+import React, { ReactNode, useState } from 'react'
 import { DropdownItem, DropdownSubMenu, DropdownDivider } from '../Dropdown'
 import { BookListItem, useBookList } from '.'
 import { BookContent, BookTag, SpecialCollection, ObjectType, CollectionInsertPosition } from 'nhitomi-api'
@@ -13,6 +13,7 @@ import { NewTabLink } from '../NewTabLink'
 import { useClient, useClientInfo } from '../../ClientManager'
 import { useProgress } from '../../ProgressManager'
 import { CollectionContentLink } from '../../CollectionContent'
+import { Disableable } from '../Disableable'
 
 export const Overlay = ({ book, content }: { book: BookListItem, content?: BookContent }) => {
   const { OverlayComponent } = useBookList()
@@ -110,6 +111,7 @@ const CollectionQuickAddItem = ({ book, type }: { book: BookListItem, type: Spec
   const { begin, end } = useProgress()
   const { alert } = useAlert()
   const { notifyError } = useNotify()
+  const [loading, setLoading] = useState(false)
 
   let icon: ReactNode
 
@@ -124,64 +126,68 @@ const CollectionQuickAddItem = ({ book, type }: { book: BookListItem, type: Spec
   }
 
   return (
-    <DropdownItem
-      icon={icon}
-      onClick={async () => {
-        if (!info.authenticated)
-          return
+    <Disableable disabled={loading}>
+      <DropdownItem
+        icon={icon}
+        onClick={async () => {
+          if (!info.authenticated)
+            return
 
-        begin()
+          begin()
+          setLoading(true)
 
-        try {
-          let collection = info.user.specialCollections?.book?.[type]
+          try {
+            let collection = info.user.specialCollections?.book?.[type]
 
-          if (!collection) {
-            collection = (await client.user.getUserSpecialCollection({ id: info.user.id, collection: type, type: ObjectType.Book })).id
+            if (!collection) {
+              collection = (await client.user.getUserSpecialCollection({ id: info.user.id, collection: type, type: ObjectType.Book })).id
 
-            setInfo({
-              ...info,
-              user: {
-                ...info.user,
-                specialCollections: {
-                  ...info.user.specialCollections,
-                  book: {
-                    ...info.user.specialCollections?.book,
-                    [type]: collection
+              setInfo({
+                ...info,
+                user: {
+                  ...info.user,
+                  specialCollections: {
+                    ...info.user.specialCollections,
+                    book: {
+                      ...info.user.specialCollections?.book,
+                      [type]: collection
+                    }
                   }
                 }
+              })
+            }
+
+            await client.collection.addCollectionItems({
+              id: collection,
+              addCollectionItemsRequest: {
+                items: [book.id],
+                position: CollectionInsertPosition.Start
               }
             })
+
+            alert((
+              <FormattedMessage
+                id={`components.bookList.overlay.collections.${type}Add.success`}
+                values={{
+                  link: (
+                    <CollectionContentLink id={collection} className='text-blue'>
+                      <FormattedMessage id={`components.bookList.overlay.collections.${type}Add.successLink`} />
+                    </CollectionContentLink>
+                  )
+                }} />
+            ), 'success')
           }
+          catch (e) {
+            notifyError(e)
+          }
+          finally {
+            end()
+            setLoading(false)
+          }
+        }}>
 
-          await client.collection.addCollectionItems({
-            id: collection,
-            addCollectionItemsRequest: {
-              items: [book.id],
-              position: CollectionInsertPosition.Start
-            }
-          })
-
-          alert((
-            <FormattedMessage
-              id={`components.bookList.overlay.collections.${type}Add.success`}
-              values={{
-                link: (
-                  <CollectionContentLink id={collection} className='text-blue'>
-                    <FormattedMessage id={`components.bookList.overlay.collections.${type}Add.successLink`} />
-                  </CollectionContentLink>
-                )
-              }} />
-          ), 'success')
-        }
-        catch (e) {
-          notifyError(e)
-        }
-        finally {
-          end()
-        }
-      }}>
-
-      <FormattedMessage id={`components.bookList.overlay.collections.${type}Add.item`} />
-    </DropdownItem>
+        <FormattedMessage id={`components.bookList.overlay.collections.${type}Add.item`} />
+      </DropdownItem>
+    </Disableable>
   )
 }
