@@ -1,22 +1,23 @@
 import stringify from 'json-stable-stringify'
 import { NavigationLocation } from '../state'
 import { utoa, atou } from '../base64'
+import { useCallback } from 'react'
 
 export type OAuthState = {
   redirect: Partial<Omit<NavigationLocation, 'state'>>
   xsrf: string
 }
 
-const sessionToken = [...Array(16)].map(() => Math.random().toString(36)[2]).join('')
-
-export function useXsrfToken(reset: boolean) {
+export function useXsrfToken(): [string, () => void] {
   let token = localStorage.getItem('xsrf')
 
-  if (!token || reset) {
-    localStorage.setItem('xsrf', token = sessionToken)
+  if (!token) {
+    localStorage.setItem('xsrf', token = [...Array(16)].map(() => Math.random().toString(36)[2]).join(''))
   }
 
-  return token
+  const reset = useCallback(() => localStorage.removeItem('xsrf'), [])
+
+  return [token, reset]
 }
 
 export function stringifyOAuthState({ xsrf, redirect: { path, query, hash } }: OAuthState) {

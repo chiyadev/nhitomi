@@ -1,10 +1,10 @@
-import React from 'react'
+import React, { useLayoutEffect } from 'react'
 import { useQueryState, useNavigator, NavigationArgs } from '../state'
 import { TypedPrefetchLinkProps, PrefetchLink, usePostfetch, PrefetchGenerator } from '../Prefetch'
 import { ClientInfo, useClientInfo } from '../ClientManager'
 import { useTabTitle } from '../TitleSetter'
 import { useLocalized } from '../LocaleManager'
-import { stringifyOAuthState, useXsrfToken } from './oauth'
+import { stringifyOAuthState, useXsrfToken, parseOAuthState } from './oauth'
 import { FormattedMessage } from 'react-intl'
 import { DiscordOutlined, DiscordColor } from '../Components/Icons/DiscordOutlined'
 import { FilledButton } from '../Components/FilledButton'
@@ -19,10 +19,20 @@ export const useAuthenticationPrefetch: PrefetchGenerator<PrefetchResult, Prefet
   const { info } = useClientInfo()
   const [currentState] = useQueryState<string>('replace', 'state')
   const navigator = useNavigator()
+  const [xsrf] = useXsrfToken()
 
-  const [token] = useXsrfToken()
+  let state: string
 
-  const state = (targetRedirect && stringifyOAuthState({ token, redirect: navigator.stringify(navigator.evaluate(targetRedirect)) })) || (mode === 'postfetch' && currentState) || stringifyOAuthState({ token, redirect: '/' })
+  if (targetRedirect) {
+    state = stringifyOAuthState({ xsrf, redirect: navigator.evaluate(targetRedirect) })
+  }
+  else if (mode === 'postfetch' && currentState) {
+    const { redirect } = parseOAuthState(currentState)
+    state = stringifyOAuthState({ xsrf, redirect })
+  }
+  else {
+    state = stringifyOAuthState({ xsrf, redirect: { path: '/' } })
+  }
 
   return {
     destination: {
@@ -58,6 +68,18 @@ function appendState(url: string, state: string) {
 
 const Loaded = ({ info: { discordOAuthUrl }, state }: PrefetchResult) => {
   useTabTitle(useLocalized('pages.authentication.title'))
+
+  const navigator = useNavigator()
+  const { info } = useClientInfo()
+
+  useLayoutEffect(() => {
+    // redirect immediately if already authenticated
+    if (info.authenticated) {
+      const { redirect } = parseOAuthState(state)
+
+      navigator.navigate('replace', { state: {}, ...redirect })
+    }
+  }, [info.authenticated, navigator, state])
 
   const logoStyle = useSpring({
     from: { opacity: 0, transform: 'scale(0.9)' },

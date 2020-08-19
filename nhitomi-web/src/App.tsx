@@ -21,6 +21,7 @@ import { CollectionCreate } from './CollectionListing/Create'
 import { TitleSetter } from './TitleSetter'
 import { Debug } from './Debug'
 import { Authentication } from './Authentication'
+import { OAuthCallback } from './Authentication/OAuthCallback'
 
 export const App = () => {
   return (
@@ -66,7 +67,9 @@ const Routing = () => {
   return useMemo(() => (
     <Switch location={{ pathname: path, search: '', hash: '', state: undefined }}>
       <Route path='/' exact><Redirect to='/books' /></Route>
-      <Route path='/auth' exact render={({ match: { params: { state } } }) => <Authentication state={state} />} />
+
+      <Route path='/auth' exact component={Authentication} />
+      <Route path='/oauth/:service' exact render={({ match: { params: { service } } }) => <OAuthCallback service={service} />} />
 
       <Route path='/books' exact component={BookListing} />
       <Route path='/books/:id/contents/:contentId' exact render={({ match: { params: { id, contentId } } }) => <BookReader id={id} contentId={contentId} />} />
