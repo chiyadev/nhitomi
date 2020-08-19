@@ -177,16 +177,16 @@
           "success": "コピーしました: {value}"
         },
         "collections": {
+          "success": "{link}に追加しました。",
           "favoritesAdd": {
             "item": "お気に入りに追加",
-            "success": "{link}に追加しました。",
-            "successLink": "お気に入り"
+            "collectionName": "お気に入り"
           },
           "laterAdd": {
             "item": "後で読みに追加",
-            "success": "{link}に追加しました。",
-            "successLink": "後で読み"
-          }
+            "collectionName": "後で読み"
+          },
+          "otherAdd": "コレクションに追加"
         }
       }
     }

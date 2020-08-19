@@ -177,16 +177,16 @@
           "success": "Copied: {value}"
         },
         "collections": {
+          "success": "Added to {link} collection.",
           "favoritesAdd": {
             "item": "Add to favorites",
-            "success": "Successfully added to {link} collection.",
-            "successLink": "favorites"
+            "collectionName": "favorites"
           },
           "laterAdd": {
             "item": "Add to read later",
-            "success": "Successfully added to {link} collection.",
-            "successLink": "read later"
-          }
+            "collectionName": "read later"
+          },
+          "otherAdd": "Add to collection"
         }
       }
     }
