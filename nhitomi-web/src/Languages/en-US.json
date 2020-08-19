@@ -3,6 +3,9 @@
     "home": {
       "title": "nhitomi"
     },
+    "authentication": {
+      "title": "Log in"
+    },
     "bookListing": {
       "title": "Books",
       "search": "Search {total} books on nhitomi",

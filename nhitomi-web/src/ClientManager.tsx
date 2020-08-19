@@ -60,18 +60,26 @@ export class Client {
     console.log('api base path', this.httpConfig.basePath)
   }
 
+  get token() {
+    if (typeof this.httpConfig.accessToken === 'function')
+      return this.httpConfig.accessToken()
+    else
+      return this.httpConfig.accessToken
+  }
+
   async getInfo(): Promise<ClientInfo> {
-    if (this.httpConfig.accessToken)
+    if (this.token) {
       return {
         ...await this.info.getInfoAuthenticated(),
         authenticated: true
       }
-
-    else
+    }
+    else {
       return {
         ...await this.info.getInfo(),
         authenticated: false
       }
+    }
   }
 }
 

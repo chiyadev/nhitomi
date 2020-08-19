@@ -3,6 +3,9 @@
     "home": {
       "title": "nhitomi"
     },
+    "authentication": {
+      "title": "ログイン"
+    },
     "bookListing": {
       "title": "ブックス",
       "search": "nhitomiで {total}本を検索",

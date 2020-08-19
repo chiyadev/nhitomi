@@ -20,6 +20,7 @@ import { CollectionContent } from './CollectionContent'
 import { CollectionCreate } from './CollectionListing/Create'
 import { TitleSetter } from './TitleSetter'
 import { Debug } from './Debug'
+import { Authentication } from './Authentication'
 
 export const App = () => {
   return (
@@ -65,6 +66,7 @@ const Routing = () => {
   return useMemo(() => (
     <Switch location={{ pathname: path, search: '', hash: '', state: undefined }}>
       <Route path='/' exact><Redirect to='/books' /></Route>
+      <Route path='/auth' exact render={({ match: { params: { state } } }) => <Authentication state={state} />} />
 
       <Route path='/books' exact component={BookListing} />
       <Route path='/books/:id/contents/:contentId' exact render={({ match: { params: { id, contentId } } }) => <BookReader id={id} contentId={contentId} />} />
