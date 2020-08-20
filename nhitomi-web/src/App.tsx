@@ -22,6 +22,7 @@ import { Authentication } from './Authentication'
 import { OAuthCallback } from './Authentication/OAuthCallback'
 import { CollectionEdit } from './CollectionListing/Edit'
 import { Footer } from './Footer'
+import { About } from './About'
 
 export const App = () => {
   return (
@@ -67,6 +68,7 @@ const Routing = () => {
   return useMemo(() => (
     <Switch location={{ pathname: path, search: '', hash: '', state: undefined }}>
       <Route path='/' exact><Redirect to='/books' /></Route>
+      <Route path='/about' exact component={About} />
 
       <Route path='/auth' exact component={Authentication} />
       <Route path='/oauth/:service' exact render={({ match: { params: { service } } }) => <OAuthCallback service={service} />} />

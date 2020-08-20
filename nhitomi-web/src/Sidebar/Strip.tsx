@@ -11,6 +11,7 @@ import { useSpring, animated } from 'react-spring'
 import { SelfCollectionListingLink } from '../CollectionListing'
 import { useClientInfo } from '../ClientManager'
 import { Disableable } from '../Components/Disableable'
+import { AboutLink } from '../About'
 
 export const StripWidth = 64
 
@@ -86,12 +87,14 @@ const Buttons = () => {
     </Tooltip>
 
     <Tooltip overlay={<FormattedMessage id='pages.about.title' />} placement='right'>
-      <RoundIconButton>
-        <Switch>
-          <Route path='/about'><InfoCircleFilled /></Route>
-          <Route><InfoCircleOutlined /></Route>
-        </Switch>
-      </RoundIconButton>
+      <AboutLink>
+        <RoundIconButton>
+          <Switch>
+            <Route path='/about'><InfoCircleFilled /></Route>
+            <Route><InfoCircleOutlined /></Route>
+          </Switch>
+        </RoundIconButton>
+      </AboutLink>
     </Tooltip>
   </>
 }

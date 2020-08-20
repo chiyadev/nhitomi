@@ -3,6 +3,9 @@
     "home": {
       "title": "nhitomi"
     },
+    "about": {
+      "title": "About"
+    },
     "authentication": {
       "title": "Log in",
       "tagline": "Open-source doujinshi aggregator",
@@ -166,9 +169,6 @@
           }
         }
       }
-    },
-    "about": {
-      "title": "About"
     }
   },
   "components": {

@@ -3,6 +3,9 @@
     "home": {
       "title": "nhitomi"
     },
+    "about": {
+      "title": "情報"
+    },
     "authentication": {
       "title": "ログイン",
       "tagline": "オープンソース同人誌まとめサイト",
@@ -166,9 +169,6 @@
           }
         }
       }
-    },
-    "about": {
-      "title": "情報"
     }
   },
   "components": {
