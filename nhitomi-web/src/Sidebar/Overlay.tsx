@@ -16,7 +16,7 @@ import { Tooltip } from '../Components/Tooltip'
 export const Overlay = ({ children }: { children?: ReactNode }) => {
   const [open, setOpen] = useState(false)
 
-  useNavigated(() => setOpen(false))
+  useNavigated(() => setTimeout(() => setOpen(false)))
 
   return useMemo(() => <>
     <ScrollLock isActive={open} />
