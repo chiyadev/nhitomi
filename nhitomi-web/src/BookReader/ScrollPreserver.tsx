@@ -14,7 +14,7 @@ export const ScrollPreserver = ({ containerRef, layout }: { containerRef: RefObj
   const lastLayout = lastLayoutRef.current
 
   const { height } = useLayout()
-  const visible = useRef<Element>()
+  const visible = useRef<HTMLElement>()
   const scrolling = useRef<number>()
 
   if (!scrolling.current) {
@@ -34,18 +34,24 @@ export const ScrollPreserver = ({ containerRef, layout }: { containerRef: RefObj
     }
 
     else if (container) {
+      let visibleElement: HTMLElement | undefined
+
       // tslint:disable-next-line: prefer-for-of
       for (let i = 0; i < container.children.length; i++) {
         const child = container.children[i]
 
-        // child is considered visible if they're in the middle of the window
-        const { top, bottom } = child.getBoundingClientRect()
+        if (child instanceof HTMLElement) {
+          // child is considered visible if they're in the middle of the window
+          const { top, bottom } = child.getBoundingClientRect()
 
-        if (top < height / 2 && height / 2 < bottom) {
-          visible.current = child
-          break
+          if (top < height / 2 && height / 2 < bottom) {
+            visibleElement = child
+            break
+          }
         }
       }
+
+      visible.current = visibleElement
     }
   }
 
