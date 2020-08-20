@@ -159,7 +159,7 @@ export function useContextMenu(callback: (target: HTMLDivElement, trigger: Conte
     },
 
     onTouchMove: e => {
-      if (!touch.current || touch.current.triggered)
+      if (!touch.current || touch.current.triggered || e.touches.length !== 1)
         return
 
       const deltaX = e.touches[0].clientX - touch.current.x
