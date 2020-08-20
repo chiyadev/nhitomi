@@ -28,7 +28,7 @@
     "utf-8-validate": "^5.0.2"
   },
   "optionalDependencies": {
-    "nhitomi-api": "file:nhitomi-api"
+    "nhitomi-api": "link:nhitomi-api"
   },
   "scripts": {
     "start": "node prestart && tsc && cd build && node index.js",

@@ -947,8 +947,9 @@ natural-compare@^1.4.0:
   resolved "https://registry.yarnpkg.com/natural-compare/-/natural-compare-1.4.0.tgz#4abebfeed7541f2c27acfb29bdbbd15c8d5ba4f7"
   integrity sha1-Sr6/7tdUHywnrPspvbvRXI1bpPc=
 
-"nhitomi-api@file:nhitomi-api":
-  version "2020.6.21"
+"nhitomi-api@link:nhitomi-api":
+  version "0.0.0"
+  uid ""
 
 node-cache@^5.1.0:
   version "5.1.0"
