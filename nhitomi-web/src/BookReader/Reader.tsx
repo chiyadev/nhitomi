@@ -9,6 +9,8 @@ import { useConfig } from '../ConfigManager'
 import { ScrollPreserver } from './ScrollPreserver'
 import { ScrollManager } from './ScrollManager'
 import { KeyHandler } from './KeyHandler'
+import { useShortcutPress } from '../shortcut'
+import { useSpring, animated } from 'react-spring'
 
 export const Reader = ({ book, content, viewportWidth }: { book: Book, content: BookContent, viewportWidth: number }) => {
   const { height: viewportHeight } = useLayout()
@@ -98,17 +100,16 @@ const Page = ({ book, content, index, image: { x, y, width, height }, setImage }
   image: LayoutImage
   setImage: Dispatch<ImageBase | undefined>
 }) => {
-  const client = useClient()
   const { screen, height: screenHeight } = useLayout()
   const [showImage, setShowImage] = useState(false)
 
   const image = useMemo(() => showImage && (
-    <CoverImage
-      className='w-full h-full'
-      sizing='contain'
-      onLoad={async () => await client.book.getBookImage({ id: book.id, contentId: content.id, index })}
-      onLoaded={setImage} />
-  ), [book, client, content, index, setImage, showImage])
+    <PageImage
+      book={book}
+      content={content}
+      index={index}
+      setImage={setImage} />
+  ), [book, content, index, setImage, showImage])
 
   let preload: number
 
@@ -123,14 +124,55 @@ const Page = ({ book, content, index, image: { x, y, width, height }, setImage }
       partialVisibility
       offset={{ top: -preload, bottom: -preload }}>
 
-      <div className='absolute' style={{
-        top: y,
-        left: x,
-        width,
-        height
-      }}>
-        {image}
-      </div>
+      <div
+        children={image}
+        className='absolute'
+        style={{
+          top: y,
+          left: x,
+          width,
+          height
+        }} />
     </VisibilitySensor>
   ), [height, image, preload, width, x, y])
+}
+
+const PageImage = ({ book: { id }, content: { id: contentId }, index, setImage }: {
+  book: Book
+  content: BookContent
+  index: number
+  setImage: Dispatch<ImageBase | undefined>
+}) => {
+  const client = useClient()
+  const image = useMemo(() => (
+    <CoverImage
+      className='w-full h-full'
+      sizing='contain'
+      onLoad={async () => await client.book.getBookImage({ id, contentId, index })}
+      onLoaded={setImage} />
+  ), [client.book, contentId, id, index, setImage])
+
+  const [pageNumber] = useShortcutPress('bookReaderPageNumberKey')
+  const [pageNumberVisible, setPageNumberVisible] = useState(false)
+
+  const numberStyle = useSpring({
+    opacity: pageNumber ? 0.75 : 0,
+    fontSize: pageNumber ? 120 : 108,
+    onChange: {
+      opacity: v => setPageNumberVisible(v > 0)
+    }
+  })
+
+  return <>
+    {image}
+
+    {pageNumberVisible && (
+      <animated.div
+        style={numberStyle}
+        className='absolute top-0 w-full h-full bg-black pointer-events-none font-bold flex items-center justify-center'>
+
+        <span className='opacity-50'>{index + 1}</span>
+      </animated.div>
+    )}
+  </>
 }
