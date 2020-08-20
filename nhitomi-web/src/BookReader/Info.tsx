@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useMemo } from 'react'
 import { BookTag, ScraperType } from 'nhitomi-api'
 import { useClient, useClientInfo } from '../ClientManager'
 import { CoverImage } from '../Components/CoverImage'
@@ -23,30 +23,34 @@ import { FlatButton } from '../Components/FlatButton'
 export const Info = ({ book, content }: PrefetchResult) => {
   const client = useClient()
   const { screen } = useLayout()
-
+  console.log('rerender')
   const [preferEnglishName] = useConfig('bookReaderPreferEnglishName')
 
   return (
     <div className={cx('flex p-4', screen === 'sm' ? 'flex-col space-y-4' : 'flex-row space-x-4')}>
-      <div className={cx(screen === 'sm' ? 'flex-1' : 'w-1/4')}>
-        <CoverImage
-          autoSize
-          defaultAspect={7 / 5}
-          className='rounded overflow-hidden'
-          onLoad={async () => await client.book.getBookImage({
-            id: book.id,
-            contentId: content.id,
-            index: 0
-          })} />
-      </div>
+      {useMemo(() => (
+        <div className={cx(screen === 'sm' ? 'flex-1' : 'w-1/4')}>
+          <CoverImage
+            autoSize
+            defaultAspect={7 / 5}
+            className='rounded overflow-hidden'
+            onLoad={async () => await client.book.getBookImage({
+              id: book.id,
+              contentId: content.id,
+              index: 0
+            })} />
+        </div>
+      ), [book.id, client.book, content.id, screen])}
 
       <div className='flex-1 space-y-4'>
-        <div>
-          <div className='text-2xl font-bold'>{(preferEnglishName && book.englishName) || book.primaryName}</div>
-          <div className='text-sm text-gray-darker'>{(!preferEnglishName && book.englishName) || book.primaryName}</div>
-        </div>
+        {useMemo(() => (
+          <div>
+            <div className='text-2xl font-bold'>{(preferEnglishName && book.englishName) || book.primaryName}</div>
+            <div className='text-sm text-gray-darker'>{(!preferEnglishName && book.englishName) || book.primaryName}</div>
+          </div>
+        ), [book.englishName, book.primaryName, preferEnglishName])}
 
-        {BookTags.map(tag => {
+        {useMemo(() => BookTags.map(tag => {
           const tags = book.tags[tag]
 
           if (!tags)
@@ -64,59 +68,63 @@ export const Info = ({ book, content }: PrefetchResult) => {
               </div>
             </div>
           )
-        })}
+        }), [book.tags])}
 
-        <div>
-          <div className='text-xs text-gray-darker mb-1'><FormattedMessage id='pages.bookReader.sources' /></div>
-          <div className='space-x-1'>
-            {ScraperTypes.map(type => {
-              const sourceContents = book.contents.filter(c => c.source === type).sort((a, b) => b.id.localeCompare(a.id))
+        {useMemo(() => (
+          <div>
+            <div className='text-xs text-gray-darker mb-1'><FormattedMessage id='pages.bookReader.sources' /></div>
+            <div className='space-x-1'>
+              {ScraperTypes.map(type => {
+                const sourceContents = book.contents.filter(c => c.source === type).sort((a, b) => b.id.localeCompare(a.id))
 
-              if (!sourceContents.length)
-                return null
+                if (!sourceContents.length)
+                  return null
 
-              return (
-                <Dropdown className='inline-flex' overlay={(
-                  LanguageTypes.map(language => {
-                    const languageContents = sourceContents.filter(c => c.language === language)
+                return (
+                  <Dropdown className='inline-flex' overlay={(
+                    LanguageTypes.map(language => {
+                      const languageContents = sourceContents.filter(c => c.language === language)
 
-                    if (!languageContents.length)
-                      return null
+                      if (!languageContents.length)
+                        return null
 
-                    const displayContent = content
+                      const displayContent = content
 
-                    return (
-                      <DropdownGroup name={LanguageNames[language]}>
-                        {languageContents.map(content => (
-                          <Disableable disabled={content === displayContent}>
-                            <BookReaderLink id={book.id} contentId={content.id}>
-                              <DropdownItem>
-                                <NewTabLink href={content.sourceUrl}>
-                                  <LinkOutlined className='pr-2 text-blue' />
-                                </NewTabLink>
+                      return (
+                        <DropdownGroup name={LanguageNames[language]}>
+                          {languageContents.map(content => (
+                            <Disableable disabled={content === displayContent}>
+                              <BookReaderLink id={book.id} contentId={content.id}>
+                                <DropdownItem>
+                                  <NewTabLink href={content.sourceUrl}>
+                                    <LinkOutlined className='pr-2 text-blue' />
+                                  </NewTabLink>
 
-                                {content.sourceUrl}
-                              </DropdownItem>
-                            </BookReaderLink>
-                          </Disableable>
-                        ))}
-                      </DropdownGroup>
-                    )
-                  })
-                )}>
+                                  {content.sourceUrl}
+                                </DropdownItem>
+                              </BookReaderLink>
+                            </Disableable>
+                          ))}
+                        </DropdownGroup>
+                      )
+                    })
+                  )}>
 
-                  <SourceButton type={type} />
-                </Dropdown>
-              )
-            })}
+                    <SourceButton type={type} />
+                  </Dropdown>
+                )
+              })}
+            </div>
           </div>
-        </div>
+        ), [book.contents, book.id, content])}
 
-        <div className='text-xs text-gray'>
-          <div><ReadOutlined className='w-4 text-center' /> <FormattedMessage id='pages.bookReader.pageCount' values={{ count: content.pageCount }} /></div>
-          <div><UploadOutlined className='w-4 text-center' /> <FormattedMessage id='pages.bookReader.uploadTime' values={{ time: <TimeDisplay value={book.createdTime} /> }} /></div>
-          <div><HistoryOutlined className='w-4 text-center' /> <FormattedMessage id='pages.bookReader.updateTime' values={{ time: <TimeDisplay value={book.updatedTime} /> }} /></div>
-        </div>
+        {useMemo(() => (
+          <div className='text-xs text-gray'>
+            <div><ReadOutlined className='w-4 text-center' /> <FormattedMessage id='pages.bookReader.pageCount' values={{ count: content.pageCount }} /></div>
+            <div><UploadOutlined className='w-4 text-center' /> <FormattedMessage id='pages.bookReader.uploadTime' values={{ time: <TimeDisplay value={book.createdTime} /> }} /></div>
+            <div><HistoryOutlined className='w-4 text-center' /> <FormattedMessage id='pages.bookReader.updateTime' values={{ time: <TimeDisplay value={book.updatedTime} /> }} /></div>
+          </div>
+        ), [book.createdTime, book.updatedTime, content.pageCount])}
       </div>
     </div>
   )

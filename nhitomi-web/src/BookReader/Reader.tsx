@@ -71,9 +71,11 @@ export const Reader = ({ book, content, viewportWidth }: { book: Book, content: 
         height: layout.height
       }}>
 
-      <KeyHandler layout={layout} />
-      <ScrollManager containerRef={ref} layout={layout} />
-      <ScrollPreserver containerRef={ref} layout={layout} />
+      {useMemo(() => <>
+        <KeyHandler layout={layout} />
+        <ScrollManager containerRef={ref} layout={layout} />
+        <ScrollPreserver containerRef={ref} layout={layout} />
+      </>, [layout])}
 
       {useMemo(() => (
         layout.images.map((image, i) => (
