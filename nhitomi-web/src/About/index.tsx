@@ -1,11 +1,17 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import { TypedPrefetchLinkProps, PrefetchLink, usePostfetch, PrefetchGenerator } from '../Prefetch'
 import { useClientInfo, ClientInfo } from '../ClientManager'
 import { PageContainer } from '../Components/PageContainer'
 import { useTabTitle } from '../TitleSetter'
 import { useLocalized } from '../LocaleManager'
+import { Container } from '../Components/Container'
+import { useSpring, animated } from 'react-spring'
+import { NewTabLink } from '../Components/NewTabLink'
+import { HeartFilled } from '@ant-design/icons'
+import { FilledButton } from '../Components/FilledButton'
+import { DiscordColor, DiscordOutlined } from '../Components/Icons/DiscordOutlined'
 
-export type PrefetchResult = { info: ClientInfo, readme: string }
+export type PrefetchResult = { info: ClientInfo }
 export type PrefetchOptions = {}
 
 export const useAboutPrefetch: PrefetchGenerator<PrefetchResult, PrefetchOptions> = () => {
@@ -16,11 +22,7 @@ export const useAboutPrefetch: PrefetchGenerator<PrefetchResult, PrefetchOptions
       path: '/about'
     },
 
-    fetch: async () => {
-      const readme = await fetch('https://raw.githubusercontent.com/chiyadev/nhitomi/master/README.md', { cache: 'no-cache' }).then(r => r.text())
-
-      return { info, readme }
-    }
+    fetch: async () => ({ info })
   }
 }
 
@@ -41,8 +43,108 @@ export const About = (options: PrefetchOptions) => {
   )
 }
 
-const Loaded = ({ }: PrefetchResult) => {
+const Loaded = ({ info }: PrefetchResult) => {
   useTabTitle(useLocalized('pages.about.title'))
 
-  return null
+  const logoStyle = useSpring({
+    from: { opacity: 0 },
+    to: { opacity: 1 }
+  })
+
+  return (
+    <Container className='p-4 text-sm space-y-8'>
+      <div>
+        <animated.img style={logoStyle} alt='logo' className='w-48 h-48 pointer-events-none select-none' src='/logo-192x192.png' />
+        <br />
+
+        <div><span className='font-bold'>nhitomi</span> — Open-source doujinshi aggregator</div>
+      </div>
+
+      {useMemo(() => (
+        <Content info={info} />
+      ), [info])}
+    </Container>
+  )
+}
+
+const Content = ({ info }: PrefetchResult) => {
+  return <>
+    <div className='space-y-2'>
+      <div className='text-2xl'>Features</div>
+
+      <ul className='list-disc list-inside'>
+        <li>Completele free and <NewTabLink className='font-bold' href='https://github.com/chiyadev/nhitomi'>open-source</NewTabLink></li>
+        <li>No advertisements whatsoever</li>
+        <li>Beautiful interface with first-class mobile support</li>
+        <li>Customizable reader</li>
+        <li>Missing a feature? <NewTabLink className='text-blue' href='https://github.com/chiyadev/nhitomi/issues/new'>Suggest one!</NewTabLink></li>
+      </ul>
+    </div>
+
+    <div className='space-y-2'>
+      <div className='text-2xl'>Accounts</div>
+      <div>Registration is free and login integrates popular SSO services.</div>
+
+      <ul className='list-disc list-inside'>
+        <li>View any number of books without restrictions</li>
+        <li>Create unlimited number of collections</li>
+      </ul>
+    </div>
+
+    <div className='space-y-2'>
+      <div className='text-2xl'>Sources</div>
+      <div>Doujinshi are scraped from the below sources and aggregated for convenient browsing.</div>
+
+      <ul className='list-disc list-inside'>
+        {info.scrapers.map(scraper => (
+          <li key={scraper.type}>
+            <img className='inline rounded-full w-6 h-6 mr-2 align-middle' alt={scraper.type} src={`/assets/icons/${scraper.type}.jpg`} />
+
+            {scraper.name}
+            {' — '}
+            <NewTabLink className='text-blue' href={scraper.url}>{scraper.url}</NewTabLink>
+          </li>
+        ))}
+
+        <li>
+          More to come...
+        </li>
+      </ul>
+    </div>
+
+    <div className='space-y-2'>
+      <div className='text-2xl'>Discord</div>
+      <div>nhitomi began its life as a Discord bot and evolved into a website after an year of development.</div>
+
+      <ul className='list-disc list-inside'>
+        <li>Read books directly in your server</li>
+        <li>Detect links and display detailed information</li>
+      </ul>
+
+      <div>
+        <NewTabLink href='https://discord.gg/JFNga7q'>
+          <FilledButton color={DiscordColor} icon={<DiscordOutlined />}>Join our Discord server</FilledButton>
+        </NewTabLink>
+      </div>
+    </div>
+
+    <div className='space-y-2'>
+      <div className='text-2xl'>Development</div>
+      <div>nhitomi is developed with <HeartFilled className='text-red' /> by <NewTabLink className='font-bold' href='https://chiya.dev'>chiya.dev</NewTabLink>.</div>
+
+      <ul className='list-disc list-inside'>
+        <li>Codebase is moderately sized, consisting of C# and Typescript</li>
+        <li>Source code is released under the permissive MIT license</li>
+        <li>Contributions are accepted through pull requests</li>
+      </ul>
+
+      <div>Want to build something custom instead?</div>
+
+      <ul className='list-disc list-inside'>
+        <li>nhitomi provides an HTTP API service, complete with <a className='text-blue' href='/api/v1'>documentation</a> and an <a className='text-blue' href='/api/v1/docs.json'>OpenAPI 3.0 specification</a></li>
+      </ul>
+    </div>
+
+    <div>Thank you for visiting! <span className='text-gray-darker'>- chiya.dev 2018-2020</span></div>
+  </>
 }
