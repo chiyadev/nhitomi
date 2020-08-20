@@ -137,6 +137,8 @@ export class ConfigSource extends (EventEmitter as new () => StrictEventEmitter<
   constructor() {
     super()
 
+    this.setMaxListeners(0)
+
     window.addEventListener('storage', ({ key, newValue }) => {
       const [success, value] = this.parse(newValue)
 

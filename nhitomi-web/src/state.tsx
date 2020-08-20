@@ -76,6 +76,8 @@ export const Navigator: NavigationLocation & {
   }
 }
 
+Navigator.events.setMaxListeners(0)
+
 function serializeQuery(query: QueryState): Search {
   return stringify(query, {
     addQueryPrefix: true,
