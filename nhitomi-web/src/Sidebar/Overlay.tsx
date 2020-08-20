@@ -29,7 +29,7 @@ export const Overlay = ({ children }: { children?: ReactNode }) => {
 
 const Anchor = ({ open, setOpen }: { open: boolean, setOpen: Dispatch<boolean> }) => {
   const [hover, setHover] = useState(false)
-  const [visible, setVisible] = useState(true)
+  const [visible, setVisible] = useState(!open)
 
   const style = useSpring({
     from: {
@@ -80,7 +80,7 @@ const Body = ({ open, children }: { open: boolean, children?: ReactNode }) => {
 }
 
 const Menu = ({ open, setOpen }: { open: boolean, setOpen: Dispatch<boolean> }) => {
-  const [visible, setVisible] = useState(true)
+  const [visible, setVisible] = useState(open)
 
   const style = useSpring({
     opacity: open ? 1 : 0,
