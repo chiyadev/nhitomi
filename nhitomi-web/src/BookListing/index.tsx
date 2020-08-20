@@ -50,6 +50,8 @@ export const useBookListingPrefetch: PrefetchGenerator<PrefetchResult, PrefetchO
 
   const query = targetQuery || (mode === 'postfetch' && currentQuery) || {}
 
+  query.query = query.query || ''
+
   // sort by updated time
   query.sort = query.sort || BookSort.UpdatedTime
   query.order = query.order || SortDirection.Descending
