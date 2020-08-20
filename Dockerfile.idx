@@ -22,7 +22,7 @@ RUN dotnet "build/nhitomi.dll" -- --generate-spec > apispec.json
 FROM node:lts-alpine AS web
 WORKDIR /app
 
-COPY nhitomi-web/package*.json ./
+COPY nhitomi-web/package.json nhitomi-web/yarn.lock ./
 COPY scripts ../scripts/
 RUN yarn
 
@@ -36,16 +36,14 @@ COPY nhitomi-web ./
 RUN yarn build
 
 # build final image
+# (temporarily using sdk image to diagnose memory leaks in prod)
 FROM mcr.microsoft.com/dotnet/core/sdk:latest as app
 # FROM mcr.microsoft.com/dotnet/core/aspnet:latest as app
 WORKDIR /app
 
-# fontconfig required by SkiaSharp
-RUN apt-get update && apt-get install -y fontconfig
-
+COPY --from=git version.txt ./
 COPY --from=idx /app/build ./
 COPY --from=web /app/build ./static/
-COPY --from=git version.txt ./
 
 ENV ASPNETCORE_ENVIRONMENT Production
 ENTRYPOINT ["dotnet", "nhitomi.dll"]

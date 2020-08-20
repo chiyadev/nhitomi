@@ -1,7 +1,7 @@
 FROM node:lts-alpine as discord
 WORKDIR /app
 
-COPY nhitomi-discord/package*.json ./
+COPY nhitomi-discord/package.json nhitomi-discord/yarn.lock ./
 COPY scripts ../scripts/
 RUN yarn
 
@@ -11,6 +11,8 @@ RUN yarn genclient
 
 COPY nhitomi-discord ./
 RUN yarn build
+
+RUN apk del openjdk8-jre
 
 WORKDIR /app/build
 ENV NODE_ENV production
