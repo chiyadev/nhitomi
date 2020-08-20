@@ -1,4 +1,4 @@
-import React, { ComponentProps, useRef, useState } from 'react'
+import React, { ComponentProps, useRef, useState, RefObject, useLayoutEffect } from 'react'
 import { Dropdown, DropdownItem, DropdownDivider } from './Dropdown'
 import { cx } from 'emotion'
 import mergeRefs from 'react-merge-refs'
@@ -54,7 +54,7 @@ export const ContextMenu = ({ className, overlayClassName, moveTransition = fals
   const [visible, setVisible] = useState(false)
   const [{ x, y, trigger }, setPosition] = useState<{ x: number, y: number, trigger: ContextMenuTrigger }>({ x: 0, y: 0, trigger: 'mouse' })
 
-  const contextProps = useContextMenu((target, trigger, { x, y }) => {
+  useContextMenu(wrapperRef, (target, trigger, { x, y }) => {
     if (trigger === 'touch' && visible)
       return
 
@@ -84,14 +84,12 @@ export const ContextMenu = ({ className, overlayClassName, moveTransition = fals
       offset={offset}
       wrapperProps={{
         ...wrapperProps,
-        ...contextProps,
-
         ref: wrapperProps?.ref ? mergeRefs([wrapperRef, wrapperProps.ref]) : wrapperRef
       }}
       overlayProps={{
         tabIndex: -1,
-        ...overlayProps,
 
+        ...overlayProps,
         ref: overlayProps?.ref ? mergeRefs([overlayRef, overlayProps.ref]) : overlayRef,
 
         onBlur: () => {
@@ -135,16 +133,21 @@ export const ContextMenu = ({ className, overlayClassName, moveTransition = fals
 
 type ContextMenuTrigger = 'mouse' | 'touch'
 
-export function useContextMenu(callback: (target: HTMLDivElement, trigger: ContextMenuTrigger, position: { x: number, y: number }) => void): ComponentProps<'div'> {
+export function useContextMenu(ref: RefObject<HTMLElement>, callback: (target: HTMLElement, trigger: ContextMenuTrigger, position: { x: number, y: number }) => void) {
   const touch = useRef<{ x: number, y: number, triggered: boolean }>()
 
-  return {
-    onContextMenu: e => {
-      callback(e.currentTarget, 'mouse', { x: e.clientX, y: e.clientY })
-      e.preventDefault()
-    },
+  useLayoutEffect(() => {
+    const element = ref.current
 
-    onTouchStart: e => {
+    if (!element)
+      return
+
+    const contextmenu = (e: MouseEvent) => {
+      callback(element, 'mouse', { x: e.clientX, y: e.clientY })
+      e.preventDefault()
+    }
+
+    const touchstart = (e: TouchEvent) => {
       if (touch.current)
         return
 
@@ -153,9 +156,9 @@ export function useContextMenu(callback: (target: HTMLDivElement, trigger: Conte
         y: e.touches[0].clientY,
         triggered: false
       }
-    },
+    }
 
-    onTouchMove: e => {
+    const touchmove = (e: TouchEvent) => {
       if (!touch.current || touch.current.triggered || e.touches.length !== 1)
         return
 
@@ -166,11 +169,24 @@ export function useContextMenu(callback: (target: HTMLDivElement, trigger: Conte
       if (deltaX < -60 && Math.abs(deltaY) < Math.abs(deltaX) / 2) {
         touch.current.triggered = true
 
-        callback(e.currentTarget, 'touch', touch.current)
+        callback(element, 'touch', touch.current)
       }
-    },
+    }
 
-    onTouchEnd: () => touch.current = undefined,
-    onTouchCancel: () => touch.current = undefined
-  }
+    const touchend = () => touch.current = undefined
+
+    element.addEventListener('contextmenu', contextmenu)
+    element.addEventListener('touchstart', touchstart, { passive: true })
+    element.addEventListener('touchmove', touchmove, { passive: true })
+    element.addEventListener('touchend', touchend, { passive: true })
+    element.addEventListener('touchcancel', touchend, { passive: true })
+
+    return () => {
+      element.removeEventListener('contextmenu', contextmenu)
+      element.removeEventListener('touchstart', touchstart)
+      element.removeEventListener('touchmove', touchmove)
+      element.removeEventListener('touchend', touchend)
+      element.removeEventListener('touchcancel', touchend)
+    }
+  }, [callback, ref])
 }
