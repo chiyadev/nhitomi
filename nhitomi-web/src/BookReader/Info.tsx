@@ -19,10 +19,12 @@ import { BookListingLink } from '../BookListing'
 import { Disableable } from '../Components/Disableable'
 import { useConfig } from '../ConfigManager'
 import { FlatButton } from '../Components/FlatButton'
+import { useContentSelector } from '../Components/BookList'
 
 export const Info = ({ book, content }: PrefetchResult) => {
   const client = useClient()
   const { screen } = useLayout()
+  const selectContent = useContentSelector()
 
   const [preferEnglishName] = useConfig('bookReaderPreferEnglishName')
 
@@ -76,8 +78,9 @@ export const Info = ({ book, content }: PrefetchResult) => {
             <div className='space-x-1'>
               {ScraperTypes.map(type => {
                 const sourceContents = book.contents.filter(c => c.source === type).sort((a, b) => b.id.localeCompare(a.id))
+                const linkContent = content.source === type ? content : selectContent(sourceContents)
 
-                if (!sourceContents.length)
+                if (!linkContent)
                   return null
 
                 return (
@@ -110,13 +113,15 @@ export const Info = ({ book, content }: PrefetchResult) => {
                     })
                   )}>
 
-                    <SourceButton type={type} />
+                    <NewTabLink href={linkContent.sourceUrl}>
+                      <SourceButton type={type} />
+                    </NewTabLink>
                   </Dropdown>
                 )
               })}
             </div>
           </div>
-        ), [book.contents, book.id, content])}
+        ), [book.contents, book.id, content, selectContent])}
 
         {useMemo(() => (
           <div className='text-xs text-gray'>
