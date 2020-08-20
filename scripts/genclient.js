@@ -1,27 +1,21 @@
 const fs = require('fs')
 const path = require('path')
-const { exec } = require('child_process')
-const { promisify } = require('util')
+const { execSync: execSync2 } = require('child_process')
 
-exec2 = (...x) => {
-  console.log(x[0])
-
-  const p = exec(...x)
-  p.stdout.pipe(process.stdout)
-  return p
+const execSync = (...x) => {
+  process.stdout.write(execSync2(...x))
 }
 
 const emptyDirSync = function (dir) {
-  if (!fs.existsSync(dir))
-    return
+  if (fs.existsSync(dir)) {
+    for (const filename of fs.readdirSync(dir)) {
+      const file = path.join(dir, filename)
 
-  for (const filename of fs.readdirSync(dir)) {
-    const file = path.join(dir, filename)
-
-    if (fs.lstatSync(file).isDirectory())
-      emptyDirSync(file)
-    else
-      fs.unlinkSync(file)
+      if (fs.lstatSync(file).isDirectory())
+        emptyDirSync(file)
+      else
+        fs.unlinkSync(file)
+    }
   }
 }
 
@@ -38,22 +32,21 @@ switch (source) {
     break
 }
 
-const name = 'nhitomi-api';
+const name = 'nhitomi-api'
 
-(async () => {
-  emptyDirSync(name)
+emptyDirSync(name)
 
-  await promisify(exec2)(
-    `npx openapi-generator generate \
-      -psupportsES6=true \
-      -ptypescriptThreePlus=true \
-      -pprefixParameterInterfaces=true \
-      -pnpmName=${name} \
-      -pnpmRepository=https://github.com/chiyadev/nhitomi \
-      -i ${source} \
-      -g ${language} \
-      -o ${name}`)
+execSync(
+  `yarn openapi-generator generate \
+    -psupportsES6=true \
+    -ptypescriptThreePlus=true \
+    -pprefixParameterInterfaces=true \
+    -pnpmName=${name} \
+    -pnpmRepository=https://github.com/chiyadev/nhitomi \
+    -i ${source} \
+    -g ${language} \
+    -o ${name}`
+)
 
-  await promisify(exec2)(`cd ${name} && npm i && npm run build`)
-  await promisify(exec2)(`npm install --no-save ${name}`)
-})()
+execSync(`cd ${name} && yarn && yarn build`)
+execSync(`yarn add link:${name} --optional`)
