@@ -32,7 +32,7 @@ export const Strip = ({ children }: { children?: ReactNode }) => {
 
         <Tooltip overlay={<span><FormattedMessage id='pages.home.title' /> <HeartOutlined /></span>} placement='right' className='mb-4'>
           <BookListingLink>
-            <img alt='logo' className='w-10 h-10 pointer-events-none' src='/logo-40x40.png' />
+            <img alt='logo' className='w-10 h-10 pointer-events-none' src='/logo-80x80.png' />
           </BookListingLink>
         </Tooltip>
 
