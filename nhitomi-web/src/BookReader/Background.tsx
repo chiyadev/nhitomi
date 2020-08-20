@@ -6,6 +6,7 @@ import { useWindowScroll } from '../hooks'
 import { useSpring, animated } from 'react-spring'
 import { PrefetchResult } from '.'
 import { useConfig } from '../ConfigManager'
+import { createPortal } from 'react-dom'
 
 export const Background = ({ book, content, scrollHeight }: PrefetchResult & { scrollHeight: number }) => {
   const client = useClient()
@@ -17,7 +18,7 @@ export const Background = ({ book, content, scrollHeight }: PrefetchResult & { s
     opacity: Math.max(0, 1 - scroll / Math.max(1, scrollHeight))
   })
 
-  return (
+  return createPortal((
     <animated.div style={style} className='fixed left-0 top-0 pointer-events-none'>
       <CoverImage
         className={cx('w-screen h-screen', css`
@@ -31,5 +32,5 @@ export const Background = ({ book, content, scrollHeight }: PrefetchResult & { s
           index: 0
         })} />
     </animated.div>
-  )
+  ), document.body)
 }
