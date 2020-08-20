@@ -1,6 +1,6 @@
 import React, { ComponentProps, useRef, useState } from 'react'
 import { Dropdown } from './Dropdown'
-import { cx } from 'emotion'
+import { cx, css } from 'emotion'
 import mergeRefs from 'react-merge-refs'
 import { useShortcut } from '../shortcut'
 
@@ -48,46 +48,47 @@ function getTrueBoundingRect(element: HTMLElement) {
   return new DOMRect(left, top, right - left, bottom - top)
 }
 
-export const ContextMenu = ({ className, moveTransition = false, offset = [0, 0], wrapperProps, overlayProps, ...props }: Omit<ComponentProps<typeof Dropdown>, 'placement' | 'trigger' | 'hideOnClick' | 'visible' | 'getReferenceClientRect'>) => {
+export const ContextMenu = ({ className, overlayClassName, moveTransition = false, offset = [0, 0], wrapperProps, overlayProps, ...props }: Omit<ComponentProps<typeof Dropdown>, 'placement' | 'trigger' | 'hideOnClick' | 'visible' | 'getReferenceClientRect'>) => {
   const wrapperRef = useRef<HTMLDivElement>(null)
   const overlayRef = useRef<HTMLDivElement>(null)
 
   const [visible, setVisible] = useState(false)
   const [{ x, y }, setPosition] = useState<{ x: number, y: number }>({ x: 0, y: 0 })
 
+  const contextProps = useContextMenu((target, type, { x, y }) => {
+    const { left, top } = getTrueBoundingRect(target) || { left: 0, top: 0 }
+
+    setPosition({
+      x: x - left,
+      y: y - top
+    })
+    setVisible(true)
+
+    requestAnimationFrame(() => overlayRef.current?.focus())
+  })
+
   useShortcut('cancelKey', () => overlayRef.current?.blur(), overlayRef)
 
   return (
     <Dropdown
-      className={cx('display-contents', className)}
+      className={cx('display-contents', className, css`-webkit-touch-callout: none;`)}
+      overlayClassName={cx('select-none', overlayClassName)}
       placement='bottom-start'
       visible={visible}
       moveTransition={moveTransition}
       offset={offset}
       wrapperProps={{
         ...wrapperProps,
-        ref: wrapperProps?.ref ? mergeRefs([wrapperRef, wrapperProps.ref]) : wrapperRef,
-        onContextMenu: e => {
-          const { left, top } = getTrueBoundingRect(e.currentTarget) || { left: 0, top: 0 }
+        ...contextProps,
 
-          setPosition({
-            x: e.clientX - left,
-            y: e.clientY - top
-          })
-          setVisible(true)
-
-          requestAnimationFrame(() => overlayRef.current?.focus())
-
-          e.preventDefault()
-          return wrapperProps?.onContextMenu?.(e)
-        }
+        ref: wrapperProps?.ref ? mergeRefs([wrapperRef, wrapperProps.ref]) : wrapperRef
       }}
       overlayProps={{
         tabIndex: -1,
         ...overlayProps,
 
         ref: overlayProps?.ref ? mergeRefs([overlayRef, overlayProps.ref]) : overlayRef,
-        onBlur: e => {
+        onBlur: () => {
           setTimeout(() => {
             // hack: bring focus back to overlay if an overlay descendant stole focus
             if (overlayRef.current && overlayRef.current.contains(document.activeElement))
@@ -96,8 +97,6 @@ export const ContextMenu = ({ className, moveTransition = false, offset = [0, 0]
             else
               setVisible(false)
           })
-
-          return overlayProps?.onBlur?.(e)
         }
       }}
       getReferenceClientRect={() => {
@@ -115,4 +114,66 @@ export const ContextMenu = ({ className, moveTransition = false, offset = [0, 0]
 
       {...props} />
   )
+}
+
+export function useContextMenu(callback: (target: HTMLDivElement, type: 'mouse' | 'touch', position: { x: number, y: number }) => void): ComponentProps<'div'> {
+  const touch = useRef<{
+    x: number
+    y: number
+    timeout: number
+  }>()
+
+  const clearTouch = () => {
+    if (touch.current) {
+      clearTimeout(touch.current.timeout)
+      touch.current = undefined
+    }
+  }
+
+  return {
+    onContextMenu: e => {
+      callback(e.currentTarget, 'mouse', { x: e.clientX, y: e.clientY })
+      e.preventDefault()
+    },
+
+    onTouchStart: e => {
+      if (!touch.current) {
+        const target = e.currentTarget
+        const x = e.touches[0].clientX
+        const y = e.touches[0].clientY
+
+        touch.current = {
+          x, y,
+          timeout: window.setTimeout(() => {
+            callback(target, 'touch', { x, y })
+            clearTouch()
+          }, 500)
+        }
+      }
+
+      e.nativeEvent.returnValue = false
+    },
+
+    onTouchMove: e => {
+      if (touch.current) {
+        const deltaX = touch.current.x - e.touches[0].clientX
+        const deltaY = touch.current.y - e.touches[0].clientY
+
+        if (deltaX >= 10 || deltaY >= 10)
+          clearTouch()
+      }
+
+      e.nativeEvent.returnValue = false
+    },
+
+    onTouchEnd: e => {
+      clearTouch()
+      e.nativeEvent.returnValue = false
+    },
+
+    onTouchCancel: e => {
+      clearTouch()
+      e.nativeEvent.returnValue = false
+    }
+  }
 }
