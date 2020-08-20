@@ -337,8 +337,11 @@ const Suggestor = ({ tokens, setText, inputRef, children }: { tokens: QueryToken
       }
 
       const moveTokenSelected = (move: number) => {
-        const toknes = tokens.filter(token => token.display)
-        const newToken = toknes[(toknes.length + (token ? toknes.indexOf(token) : 0) + move) % toknes.length]
+        if (!tokens.length)
+          return
+
+        const tokenns = tokens.filter(token => token.display)
+        const newToken = tokenns[(tokenns.length + (token ? tokenns.indexOf(token) : 0) + move) % tokenns.length]
 
         input.selectionStart = newToken.begin
         input.selectionEnd = newToken.end
