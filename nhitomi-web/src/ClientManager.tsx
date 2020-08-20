@@ -58,7 +58,7 @@ export class Client {
     }
 
     this.httpConfig.accessToken = () => this.config.token || ''
-    this.httpConfig.basePath = 'http://192.168.0.3:3000/api/v1' || this.config.baseUrl || url.href
+    this.httpConfig.basePath = this.config.baseUrl || url.href
 
     console.log('api base path', this.httpConfig.basePath)
   }
