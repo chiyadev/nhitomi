@@ -11,16 +11,13 @@ function getTrueBoundingRect(element: HTMLElement) {
   const elementRects = element.getClientRects()
 
   for (let i = 0; i < elementRects.length; i++) {
-    const rect = elementRects.item(i)
-
-    if (rect)
-      rects.push(rect)
+    rects.push(elementRects[i])
   }
 
   // if element doesn't have bounding box (display: contents), use children boxes
   if (!rects.length) {
     for (let i = 0; i < element.children.length; i++) {
-      const child = element.children.item(i)
+      const child = element.children[i]
 
       if (child instanceof HTMLElement) {
         const rect = getTrueBoundingRect(child)
