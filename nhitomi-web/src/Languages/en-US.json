@@ -4,7 +4,8 @@
       "title": "nhitomi"
     },
     "about": {
-      "title": "About"
+      "title": "About",
+      "subtitle": "Read about nhitomi's information."
     },
     "authentication": {
       "title": "Log in",

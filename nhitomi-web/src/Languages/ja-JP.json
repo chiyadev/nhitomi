@@ -4,7 +4,8 @@
       "title": "nhitomi"
     },
     "about": {
-      "title": "情報"
+      "title": "情報",
+      "subtitle": "nhitomiについて"
     },
     "authentication": {
       "title": "ログイン",

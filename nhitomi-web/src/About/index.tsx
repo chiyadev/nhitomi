@@ -10,6 +10,7 @@ import { NewTabLink } from '../Components/NewTabLink'
 import { HeartFilled } from '@ant-design/icons'
 import { FilledButton } from '../Components/FilledButton'
 import { DiscordColor, DiscordOutlined } from '../Components/Icons/DiscordOutlined'
+import { FormattedMessage } from 'react-intl'
 
 export type PrefetchResult = { info: ClientInfo }
 export type PrefetchOptions = {}
@@ -52,17 +53,26 @@ const Loaded = ({ info }: PrefetchResult) => {
   })
 
   return (
-    <Container className='p-4 text-sm space-y-8'>
-      <div>
-        <animated.img style={logoStyle} alt='logo' className='w-48 h-48 pointer-events-none select-none' src='/logo-192x192.png' />
-        <br />
-
-        <div><span className='font-bold'>nhitomi</span> — Open-source doujinshi aggregator</div>
-      </div>
-
+    <Container className='divide-y divide-gray-darkest text-sm'>
       {useMemo(() => (
-        <Content info={info} />
-      ), [info])}
+        <div className='p-2'>
+          <div className='text-2xl'><FormattedMessage id='pages.about.title' /></div>
+          <div className='text-xs text-gray-darker'><FormattedMessage id='pages.about.subtitle' /></div>
+        </div>
+      ), [])}
+
+      <div className='p-2 space-y-8'>
+        <div>
+          <animated.img style={logoStyle} alt='logo' className='w-48 h-48 pointer-events-none select-none' src='/logo-192x192.png' />
+          <br />
+
+          <div><span className='font-bold'>nhitomi</span> — Open-source doujinshi aggregator</div>
+        </div>
+
+        {useMemo(() => (
+          <Content info={info} />
+        ), [info])}
+      </div>
     </Container>
   )
 }
@@ -77,8 +87,10 @@ const Content = ({ info }: PrefetchResult) => {
         <li>No advertisements whatsoever</li>
         <li>Beautiful interface with first-class mobile support</li>
         <li>Customizable reader</li>
-        <li>Missing a feature? <NewTabLink className='text-blue' href='https://github.com/chiyadev/nhitomi/issues/new'>Suggest one!</NewTabLink></li>
+        <li>More to come...</li>
       </ul>
+
+      <div>Missing a feature? <NewTabLink className='text-blue' href='https://github.com/chiyadev/nhitomi/issues/new'>Suggest one!</NewTabLink></div>
     </div>
 
     <div className='space-y-2'>
@@ -93,7 +105,7 @@ const Content = ({ info }: PrefetchResult) => {
 
     <div className='space-y-2'>
       <div className='text-2xl'>Sources</div>
-      <div>Doujinshi are scraped from the below sources and aggregated for convenient browsing.</div>
+      <div>Doujinshi are regularly scraped from the below sources and aggregated for convenient browsing.</div>
 
       <ul className='list-disc list-inside'>
         {info.scrapers.map(scraper => (
@@ -106,9 +118,7 @@ const Content = ({ info }: PrefetchResult) => {
           </li>
         ))}
 
-        <li>
-          More to come...
-        </li>
+        <li>More to come...</li>
       </ul>
     </div>
 
@@ -138,6 +148,7 @@ const Content = ({ info }: PrefetchResult) => {
         <li>Contributions are accepted through pull requests</li>
       </ul>
 
+      <br />
       <div>Want to build something custom instead?</div>
 
       <ul className='list-disc list-inside'>
