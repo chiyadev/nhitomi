@@ -118,11 +118,11 @@ const CollectionQuickAddItem = ({ book, type }: { book: BookListItem, type: Spec
 
   switch (type) {
     case SpecialCollection.Favorites:
-      icon = <HeartOutlined />
+      icon = <HeartOutlined className='text-red' />
       break
 
     case SpecialCollection.Later:
-      icon = <EyeOutlined />
+      icon = <EyeOutlined className='text-blue' />
       break
   }
 
