@@ -1,12 +1,11 @@
 import React, { useMemo } from 'react'
 import { Sidebar } from './Sidebar'
-import { LayoutManager, useLayout } from './LayoutManager'
+import { LayoutManager } from './LayoutManager'
 import { ProgressManager } from './ProgressManager'
 import { PrefetchScrollPreserver } from './Prefetch'
 import { ClientManager } from './ClientManager'
 import { LocaleManager } from './LocaleManager'
 import { NotificationManager } from './NotificationManager'
-import { css, cx } from 'emotion'
 import { Route, Redirect, Switch, Router } from 'react-router-dom'
 import { BookListing } from './BookListing'
 import { Settings } from './Settings'
@@ -38,8 +37,9 @@ export const App = () => {
                   <BlurSetter />
                   <TitleSetter />
 
-                  <Sidebar />
-                  <Body />
+                  <Sidebar>
+                    <Body />
+                  </Sidebar>
                 </NotificationManager>
               </LocaleManager>
             </ClientManager>
@@ -50,20 +50,16 @@ export const App = () => {
   )
 }
 
-const Body = () => {
-  const { sidebar } = useLayout()
-
-  return (
-    <div className={cx('flex flex-col min-h-screen', css`padding-left: ${sidebar}px;`)}>
-      <div className='relative w-full flex-1'>
-        <Routing />
-      </div>
-      <div className='mt-4'>
-        <Footer />
-      </div>
+const Body = () => (
+  <div className='flex flex-col min-h-screen'>
+    <div className='relative w-full flex-1'>
+      <Routing />
     </div>
-  )
-}
+    <div className='mt-4'>
+      <Footer />
+    </div>
+  </div>
+)
 
 const Routing = () => {
   const { path } = useNavigator()

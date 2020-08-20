@@ -14,7 +14,6 @@ export const LargeBreakpoints = [640, 768, 1024, 1280].map(n => n - StripWidth)
 const LayoutContext = createContext<{
   width: number
   height: number
-  sidebar: number
   screen: ScreenType
   breakpoint?: number
 }>(undefined as any)
@@ -28,13 +27,11 @@ export const LayoutManager = ({ children }: { children?: ReactNode }) => {
 
   let screen: ScreenType = 'sm'
   let width = windowWidth
-  let sidebar = 0
   let breakpoint = getBreakpoint(SmallBreakpoints, width)
 
   if (width >= ScreenBreakpoint) {
     screen = 'lg'
-    sidebar = StripWidth
-    width -= sidebar // on large screens there is a sidebar
+    width -= StripWidth // on large screens there is a sidebar
     breakpoint = getBreakpoint(LargeBreakpoints, width)
   }
 
@@ -43,10 +40,9 @@ export const LayoutManager = ({ children }: { children?: ReactNode }) => {
       value={useMemo(() => ({
         width,
         height,
-        sidebar,
         screen,
         breakpoint
-      }), [width, height, sidebar, screen, breakpoint])}
+      }), [width, height, screen, breakpoint])}
       children={children} />
   )
 }

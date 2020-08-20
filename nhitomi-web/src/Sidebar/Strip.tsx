@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { ReactNode } from 'react'
 import { cx, css } from 'emotion'
 import { ReadFilled, FolderOutlined, InfoCircleOutlined, HeartOutlined, SettingOutlined, BookOutlined, SettingFilled, FolderOpenFilled, InfoCircleFilled } from '@ant-design/icons'
 import { RoundIconButton } from '../Components/RoundIconButton'
@@ -14,7 +14,7 @@ import { Disableable } from '../Components/Disableable'
 
 export const StripWidth = 64
 
-export const Strip = () => {
+export const Strip = ({ children }: { children?: ReactNode }) => {
   const { info } = useClientInfo()
 
   const style = useSpring({
@@ -22,7 +22,9 @@ export const Strip = () => {
     to: { opacity: 1, marginLeft: 0 }
   })
 
-  return (
+  return <>
+    <div className={css`padding-left: ${StripWidth}px;`} children={children} />
+
     <Disableable disabled={!info.authenticated}>
       <animated.div
         style={style}
@@ -37,7 +39,7 @@ export const Strip = () => {
         <Buttons />
       </animated.div>
     </Disableable>
-  )
+  </>
 }
 
 const Buttons = () => {
