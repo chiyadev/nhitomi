@@ -108,8 +108,7 @@
             "bookReaderLeftToRightKey": "左から右へ並べ",
             "bookReaderImagesPerRowKey": "ページモードを変更",
             "bookReaderSingleCoverKey": "最初のページを別表示",
-            "bookReaderPageNumberKey": "ページ数を表示",
-            "bookReaderJumpKey": "ページへ飛び"
+            "bookReaderPageNumberKey": "ページ数を表示"
           }
         }
       }

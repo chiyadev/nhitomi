@@ -58,7 +58,6 @@ export type ConfigStore = {
   bookReaderImagesPerRowKey: ShortcutConfig[]
   bookReaderSingleCoverKey: ShortcutConfig[]
   bookReaderPageNumberKey: ShortcutConfig[]
-  bookReaderJumpKey: ShortcutConfig[]
 }
 
 export const BlurSupported = CSS.supports('backdrop-filter', 'blur(0)')
@@ -91,8 +90,7 @@ const DefaultStore: ConfigStore = {
   bookReaderLeftToRightKey: [{ key: 76 }],    // l
   bookReaderImagesPerRowKey: [{ key: 88 }],   // x
   bookReaderSingleCoverKey: [{ key: 75 }],    // k
-  bookReaderPageNumberKey: [{ key: 32 }],     // space
-  bookReaderJumpKey: [{ key: 71 }]            // g
+  bookReaderPageNumberKey: [{ key: 32 }]     // space
 }
 
 export type ConfigKey = keyof ConfigStore
@@ -132,7 +130,6 @@ export class ConfigSource extends (EventEmitter as new () => StrictEventEmitter<
   bookReaderImagesPerRowKey!: ShortcutConfig[]
   bookReaderSingleCoverKey!: ShortcutConfig[]
   bookReaderPageNumberKey!: ShortcutConfig[]
-  bookReaderJumpKey!: ShortcutConfig[]
 
   constructor() {
     super()

@@ -108,8 +108,7 @@
             "bookReaderLeftToRightKey": "Toggle left to right",
             "bookReaderImagesPerRowKey": "Toggle page mode",
             "bookReaderSingleCoverKey": "Toggle single page cover",
-            "bookReaderPageNumberKey": "Show page numbers",
-            "bookReaderJumpKey": "Show jump dialog"
+            "bookReaderPageNumberKey": "Show page numbers"
           }
         }
       }
