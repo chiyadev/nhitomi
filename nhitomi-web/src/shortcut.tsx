@@ -1,8 +1,9 @@
-import { useRef, useEffect, RefObject } from 'react'
-import { useKey, useKeyPress, useRafLoop } from 'react-use'
+import { useRef, RefObject } from 'react'
+import { useKey, useKeyPress } from 'react-use'
 import keycode from 'keycode'
 import { ShortcutConfig, KeyModifiers, ShortcutConfigKey, useConfig } from './ConfigManager'
 import { useLayout } from './LayoutManager'
+import { useSpring } from 'react-spring'
 
 /** Returns all modifier keys pressed in the given event. */
 export function getEventModifiers(e: { altKey: boolean, ctrlKey: boolean, metaKey: boolean, shiftKey: boolean }) {
@@ -66,29 +67,48 @@ export function useShortcutPress(key: ShortcutConfigKey) {
 export function useScrollShortcut() {
   const { height } = useLayout()
 
-  const timestamp = useRef(0)
   const [scrollDown] = useShortcutPress('scrollDownKey')
   const [scrollUp] = useShortcutPress('scrollUpKey')
 
-  const [stopScroll, startScroll] = useRafLoop(time => {
-    const elapsed = time - timestamp.current
+  const timeout = useRef<number>()
+  const timestamp = useRef(0)
+  const direction = useRef<number>()
 
-    window.scrollBy({
-      top: elapsed / 500 * height * (scrollDown ? 1 : scrollUp ? -1 : 0)
-    })
+  useSpring({
+    config: {
+      bounce: 0,
+      duration: 100 // slow scroll causes motion sickness...
+    },
+    speed: scrollDown || scrollUp ? height / 500 : 0,
 
-    timestamp.current = time
+    onChange: {
+      speed: speed => {
+        timeout.current && cancelAnimationFrame(timeout.current)
+
+        if (speed) {
+          if (!timeout.current)
+            timestamp.current = performance.now()
+
+          const dir = direction.current = scrollDown ? 1 : scrollUp ? -1 : direction.current || 0
+
+          const frame = (time: number) => {
+            const elapsed = time - timestamp.current
+
+            window.scrollBy({ top: Math.round(elapsed * speed * dir) })
+
+            timestamp.current = time
+            timeout.current = requestAnimationFrame(frame)
+          }
+
+          timeout.current = requestAnimationFrame(frame)
+        }
+        else {
+          timeout.current = undefined
+          direction.current = undefined
+        }
+      }
+    }
   })
-
-  // cannot be useLayoutEffect
-  useEffect(() => {
-    timestamp.current = performance.now()
-
-    if (scrollDown === scrollUp)
-      stopScroll()
-    else
-      startScroll()
-  }, [scrollUp, scrollDown]) // eslint-disable-line
 }
 
 /** Returns the key name of a shortcut key. */
