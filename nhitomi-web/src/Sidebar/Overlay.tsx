@@ -94,7 +94,8 @@ const Menu = ({ open, setOpen }: { open: boolean, setOpen: Dispatch<boolean> }) 
     <TouchScrollable>
       <animated.div
         style={style}
-        className={cx('fixed top-0 left-0 z-10 w-screen h-screen bg-black bg-blur', { 'pointer-events-none': !visible })}>
+        className={cx('fixed top-0 left-0 z-10 w-screen h-screen bg-black bg-blur', { 'pointer-events-none': !visible })}
+        onClick={() => setOpen(false)}>
 
         <Strip additionalMenu={(
           <Tooltip overlay={<FormattedMessage id='components.sidebar.close' />} placement='right'>
