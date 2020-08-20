@@ -21,9 +21,10 @@ export const Dropdown = ({ interactive = true, placement = 'bottom-start', touch
 
 export const DropdownItem = ({ children, className, padding = true, icon, onClick }: { children?: ReactNode, className?: string, padding?: boolean, icon?: ReactNode, onClick?: () => void }) => {
   const [hover, setHover] = useState(false)
+  const [click, setClick] = useState(false)
 
   const style = useSpring({
-    backgroundColor: convertHex('#fff', hover ? 0.1 : 0)
+    backgroundColor: convertHex('#fff', click ? 0.25 : hover ? 0.125 : 0)
   })
 
   const iconStyle = useSpring({
@@ -36,6 +37,8 @@ export const DropdownItem = ({ children, className, padding = true, icon, onClic
       className={cx('cursor-pointer flex flex-row', { 'px-2 py-1': padding }, className)}
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
+      onMouseDown={() => setClick(true)}
+      onMouseUp={() => setClick(false)}
       onClick={onClick}>
 
       {icon && (
