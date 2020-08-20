@@ -29,6 +29,7 @@ export const Overlay = ({ children }: { children?: ReactNode }) => {
 
 const Anchor = ({ open, setOpen }: { open: boolean, setOpen: Dispatch<boolean> }) => {
   const [hover, setHover] = useState(false)
+  const [visible, setVisible] = useState(true)
 
   const style = useSpring({
     from: {
@@ -39,13 +40,16 @@ const Anchor = ({ open, setOpen }: { open: boolean, setOpen: Dispatch<boolean> }
       opacity: open ? 0 : 1,
       marginLeft: open ? -5 : 0,
       backgroundColor: getColor('gray', 'darkest').tint(hover ? 0.25 : 0).rgb
+    },
+    onChange: {
+      opacity: v => setVisible(v > 0)
     }
   })
 
   return (
     <animated.div
       style={style}
-      className={cx('fixed top-0 left-0 z-10 mt-16 w-10 h-10 flex items-center justify-center rounded-r overflow-hidden shadow-md', { 'pointer-events-none': open })}
+      className={cx('fixed top-0 left-0 z-10 mt-16 w-10 h-10 flex items-center justify-center rounded-r overflow-hidden shadow-md', { 'pointer-events-none': !visible })}
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
       onClick={() => setOpen(true)}>
@@ -76,16 +80,21 @@ const Body = ({ open, children }: { open: boolean, children?: ReactNode }) => {
 }
 
 const Menu = ({ open, setOpen }: { open: boolean, setOpen: Dispatch<boolean> }) => {
+  const [visible, setVisible] = useState(true)
+
   const style = useSpring({
     opacity: open ? 1 : 0,
-    transform: open ? 'translateX(0)' : 'translateX(-5px)'
+    transform: open ? 'translateX(0)' : 'translateX(-10px)',
+    onChange: {
+      opacity: v => setVisible(v > 0)
+    }
   })
 
   return (
     <TouchScrollable>
       <animated.div
         style={style}
-        className={cx('fixed top-0 left-0 z-10 w-screen h-screen bg-black bg-blur', { 'pointer-events-none': !open })}>
+        className={cx('fixed top-0 left-0 z-10 w-screen h-screen bg-black bg-blur', { 'pointer-events-none': !visible })}>
 
         <Strip additionalMenu={(
           <Tooltip overlay={<FormattedMessage id='components.sidebar.close' />} placement='right'>
