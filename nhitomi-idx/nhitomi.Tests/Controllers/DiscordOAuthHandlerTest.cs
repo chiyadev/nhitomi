@@ -14,13 +14,13 @@ namespace nhitomi.Controllers
     public class DiscordOAuthHandlerTest : TestBaseServices
     {
         readonly IHttpClientFactory _clientFactory = TestUtils.HttpClient(
-            x => x.When("https://discordapp.com/api/oauth2/token")
+            x => x.When("https://discord.com/api/oauth2/token")
                   .With(m => m.Content is FormUrlEncodedContent)
                   .RespondJson(new
                    {
                        access_token = "access token"
                    }),
-            x => x.When("https://discordapp.com/api/users/@me")
+            x => x.When("https://discord.com/api/users/@me")
                   .With(m => m.Headers.Authorization.Scheme == "Bearer" && m.Headers.Authorization.Parameter == "access token")
                   .RespondJson(new
                    {

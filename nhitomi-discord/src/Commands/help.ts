@@ -31,7 +31,7 @@ class HelpMessage extends InteractiveMessage {
 
     const invite = l.get('invite', {
       serverInvite: `https://discord.gg/${config.get<string>('serverInvite')}`,
-      botInvite: `https://discordapp.com/oauth2/authorize?client_id=${Discord.user?.id}&scope=bot&permissions=${config.get<string>('botInvitePerms')}`
+      botInvite: `https://discord.com/oauth2/authorize?client_id=${Discord.user?.id}&scope=bot&permissions=${config.get<string>('botInvitePerms')}`
     })
 
     l = l.section(this.page)

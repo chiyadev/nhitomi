@@ -80,7 +80,7 @@ namespace nhitomi.Controllers
             {
                 var options = _options.CurrentValue;
 
-                return $"https://discordapp.com/oauth2/authorize?response_type=code&prompt=none&client_id={options.ClientId}&scope={string.Join("%20", options.Scopes)}&redirect_uri={WebUtility.UrlEncode(RedirectUrl)}";
+                return $"https://discord.com/oauth2/authorize?response_type=code&prompt=none&client_id={options.ClientId}&scope={string.Join("%20", options.Scopes)}&redirect_uri={WebUtility.UrlEncode(RedirectUrl)}";
             }
         }
 
@@ -110,7 +110,7 @@ namespace nhitomi.Controllers
             using (var response = await _http.SendAsync(new HttpRequestMessage
             {
                 Method     = HttpMethod.Post,
-                RequestUri = new Uri("https://discordapp.com/api/oauth2/token"),
+                RequestUri = new Uri("https://discord.com/api/oauth2/token"),
 
                 Content = new FormUrlEncodedContent(new Dictionary<string, string>
                 {
@@ -133,7 +133,7 @@ namespace nhitomi.Controllers
             using (var response = await _http.SendAsync(new HttpRequestMessage
             {
                 Method     = HttpMethod.Get,
-                RequestUri = new Uri("https://discordapp.com/api/users/@me"),
+                RequestUri = new Uri("https://discord.com/api/users/@me"),
                 Headers =
                 {
                     Authorization = new AuthenticationHeaderValue("Bearer", token)
