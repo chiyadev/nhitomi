@@ -6,7 +6,7 @@ import { useClient } from '../../ClientManager'
 import { useSpring, animated } from 'react-spring'
 import { BookReaderLink } from '../../BookReader'
 import VisibilitySensor from 'react-visibility-sensor'
-import { useBookList, BookListItem } from '.'
+import { useBookList, BookListItem, useContentSelector } from '.'
 import { BookContent } from 'nhitomi-api'
 import { useConfig } from '../../ConfigManager'
 import { ContextMenu } from '../ContextMenu'
@@ -93,11 +93,12 @@ const Item = ({ book, width, height, className }: {
   height: number
   className?: string
 }) => {
-  const { contentSelector, LinkComponent } = useBookList()
+  const contentSelector = useContentSelector()
+  const { LinkComponent } = useBookList()
   const [hover, setHover] = useState(false)
   const [showImage, setShowImage] = useState(false)
 
-  const content = useMemo(() => contentSelector(book), [book, contentSelector])
+  const content = useMemo(() => contentSelector(book.contents), [book.contents, contentSelector])
 
   const overlay = useMemo(() => (
     <ItemOverlay book={book} hover={hover} />

@@ -1,7 +1,6 @@
 import React, { useCallback, useMemo } from 'react'
 import { BookCollection } from '..'
-import { BookList, selectContent, BookListItem } from '../../Components/BookList'
-import { useConfig } from '../../ConfigManager'
+import { BookList, BookListItem } from '../../Components/BookList'
 import { BookContent, User } from 'nhitomi-api'
 import { CollectionContentLink } from '../../CollectionContent'
 import { FormattedMessage } from 'react-intl'
@@ -11,12 +10,6 @@ import { Overlay } from './Overlay'
 
 // instead of reimplementing a new list for book collections, adapt BookList for code reuse
 export const BookSection = ({ user, collections }: { user: User, collections: BookCollection[] }) => {
-  const [language] = useConfig('language')
-  const [searchLanguages] = useConfig('searchLanguages')
-
-  const contentLanguages = [language, ...searchLanguages]
-  const contentSelector = useCallback((book: BookListItem) => selectContent(book.contents, contentLanguages), [contentLanguages.join(',')]) // eslint-disable-line
-
   const items = useMemo(() => collections.map(({ collection, cover }) => ({
     ...cover || { contents: [] },
 
@@ -34,7 +27,6 @@ export const BookSection = ({ user, collections }: { user: User, collections: Bo
   return useMemo(() => (
     <BookList
       items={items}
-      contentSelector={contentSelector}
       preferEnglishName={false} // preferEnglishName would swap collection name and description
       overlayVisible
       getCoverRequest={getCoverRequest}
@@ -50,5 +42,5 @@ export const BookSection = ({ user, collections }: { user: User, collections: Bo
       OverlayComponent={props => (
         <Overlay user={user} {...props} />
       )} />
-  ), [contentSelector, getCoverRequest, items, user])
+  ), [getCoverRequest, items, user])
 }

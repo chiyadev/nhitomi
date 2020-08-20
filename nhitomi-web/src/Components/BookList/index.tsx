@@ -1,10 +1,11 @@
-import React, { useRef, useState, ReactNode, createContext, useMemo, ContextType, useContext, ComponentType } from 'react'
-import { BookContent, LanguageType, BookApiGetBookImageRequest, BookTags } from 'nhitomi-api'
+import React, { useRef, useState, ReactNode, createContext, useMemo, ContextType, useContext, ComponentType, useCallback } from 'react'
+import { BookContent, BookApiGetBookImageRequest, BookTags } from 'nhitomi-api'
 import { cx } from 'emotion'
 import useResizeObserver from '@react-hook/resize-observer'
 import { Grid } from './Grid'
 import { ScraperTypes } from '../../orderedConstants'
 import { TypedPrefetchLinkProps } from '../../Prefetch'
+import { useConfig } from '../../ConfigManager'
 
 export type BookListItem = {
   id: string
@@ -16,7 +17,6 @@ export type BookListItem = {
 
 const BookListContext = createContext<{
   items: BookListItem[]
-  contentSelector: (book: BookListItem) => BookContent | undefined
   getCoverRequest?: (book: BookListItem, content: BookContent) => BookApiGetBookImageRequest
   preferEnglishName?: boolean
   overlayVisible?: boolean
@@ -39,8 +39,8 @@ export const BookList = ({ className, menu, empty, ...context }: ContextType<typ
 
   useResizeObserver(containerRef, ({ contentRect: { width } }) => setWidth(width))
 
-  const { items, contentSelector, getCoverRequest, preferEnglishName, overlayVisible, LinkComponent, OverlayComponent } = context
-  context = useMemo(() => ({ items, contentSelector, getCoverRequest, preferEnglishName, overlayVisible, LinkComponent, OverlayComponent }), [LinkComponent, OverlayComponent, contentSelector, getCoverRequest, items, overlayVisible, preferEnglishName])
+  const { items, getCoverRequest, preferEnglishName, overlayVisible, LinkComponent, OverlayComponent } = context
+  context = useMemo(() => ({ items, getCoverRequest, preferEnglishName, overlayVisible, LinkComponent, OverlayComponent }), [LinkComponent, OverlayComponent, getCoverRequest, items, overlayVisible, preferEnglishName])
 
   return (
     <div
@@ -56,8 +56,12 @@ export const BookList = ({ className, menu, empty, ...context }: ContextType<typ
   )
 }
 
-export function selectContent(contents: BookContent[], languages: LanguageType[] = []): BookContent | undefined {
-  return contents.sort((a, b) => {
+export function useContentSelector(): (contents: BookContent[]) => BookContent | undefined {
+  const [language] = useConfig('language')
+  const [searchLanguages] = useConfig('searchLanguages')
+  const languages = useMemo(() => [language, ...searchLanguages].filter((v, i, a) => a.indexOf(v) === i), [language, searchLanguages])
+
+  return useCallback(contents => contents.sort((a, b) => {
     // respect language preference
     const language = indexCompare(languages, a.language, b.language)
     if (language) return language
@@ -68,7 +72,7 @@ export function selectContent(contents: BookContent[], languages: LanguageType[]
 
     // prefer newer contents
     return b.id.localeCompare(a.id)
-  })[0]
+  })[0], [languages])
 }
 
 function indexCompare<T>(array: T[], a: T, b: T) {

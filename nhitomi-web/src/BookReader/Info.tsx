@@ -23,7 +23,7 @@ import { FlatButton } from '../Components/FlatButton'
 export const Info = ({ book, content }: PrefetchResult) => {
   const client = useClient()
   const { screen } = useLayout()
-  console.log('rerender')
+
   const [preferEnglishName] = useConfig('bookReaderPreferEnglishName')
 
   return (

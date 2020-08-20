@@ -1,4 +1,4 @@
-import React, { Dispatch, useRef, useCallback, useMemo } from 'react'
+import React, { Dispatch, useRef, useMemo } from 'react'
 import { BookPrefetchResult } from '..'
 import { Container } from '../../Components/Container'
 import { useClient } from '../../ClientManager'
@@ -8,8 +8,7 @@ import { useSpring, animated } from 'react-spring'
 import { LoadContainer } from '../../Components/LoadContainer'
 import { DefaultQueryLimit } from '../../BookListing/search'
 import { Book } from 'nhitomi-api'
-import { BookList, BookListItem, selectContent } from '../../Components/BookList'
-import { useConfig } from '../../ConfigManager'
+import { BookList } from '../../Components/BookList'
 import { useTabTitle } from '../../TitleSetter'
 import { FormattedMessage } from 'react-intl'
 import { EmptyIndicator } from '../../Components/EmptyIndicator'
@@ -20,12 +19,6 @@ export const BookDisplay = ({ result, setResult }: { result: BookPrefetchResult,
   const { collection, items } = result
 
   useTabTitle(collection.name)
-
-  const [language] = useConfig('language')
-  const [searchLanguages] = useConfig('searchLanguages')
-
-  const contentLanguages = [language, ...searchLanguages]
-  const contentSelector = useCallback((book: BookListItem) => selectContent(book.contents, contentLanguages), [contentLanguages.join(',')]) // eslint-disable-line
 
   return (
     <Container className='divide-y divide-gray-darkest'>
@@ -39,7 +32,6 @@ export const BookDisplay = ({ result, setResult }: { result: BookPrefetchResult,
       <div className='py-2'>
         <BookList
           items={items}
-          contentSelector={contentSelector}
           menu={(
             <Menu collection={collection} />
           )}

@@ -1,10 +1,10 @@
-import React, { Dispatch, useMemo, useRef, useLayoutEffect, useCallback } from 'react'
+import React, { Dispatch, useMemo, useRef, useLayoutEffect } from 'react'
 import { SearchQuery, convertQuery, DefaultQueryLimit } from './search'
 import { useQueryState, usePageState } from '../state'
 import { TypedPrefetchLinkProps, PrefetchLink, usePostfetch, PrefetchGenerator } from '../Prefetch'
 import { BookSearchResult, BookSort, SortDirection, Book } from 'nhitomi-api'
 import { SearchInput } from './SearchInput'
-import { BookList, selectContent, BookListItem } from '../Components/BookList'
+import { BookList } from '../Components/BookList'
 import { useAsync } from '../hooks'
 import { useNotify } from '../NotificationManager'
 import { useClient, Client } from '../ClientManager'
@@ -103,7 +103,6 @@ const Loaded = ({ result, setResult }: { result: PrefetchResult, setResult: Disp
   const { notifyError } = useNotify()
   const { begin, end } = useProgress()
 
-  const [language] = useConfig('language')
   const [query] = useQueryState<SearchQuery>()
   const queryId = useRef(0)
 
@@ -139,16 +138,12 @@ const Loaded = ({ result, setResult }: { result: PrefetchResult, setResult: Disp
     }
   }, [queryCmp, effectiveQueryCmp])
 
-  const contentLanguages = [language, ...(query.langs || [])]
-  const contentSelector = useCallback((book: BookListItem) => selectContent(book.contents, contentLanguages), [contentLanguages.join(',')]) // eslint-disable-line
-
   return (
     <Container>
       <Input result={result} />
 
       <BookList
         items={result.items}
-        contentSelector={contentSelector}
         menu={(
           <Menu />
         )}
