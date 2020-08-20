@@ -4,14 +4,15 @@ This is nhitomi browser frontend written in Typescript using Preact.
 
 ### Prerequisites
 
-- [Node.js](https://nodejs.org/en/)
-- [Java Runtime 8+](https://www.java.com/en/download/) (for [genclient](../docs/genclient.md))
+- [Node.js](https://nodejs.org/)
+- [Yarn](https://yarnpkg.com/)
+- [Java Runtime 8+](https://www.java.com/download/) (for [genclient](../docs/genclient.md))
 
 ### Setup
 
 ```shell
 # Install dependencies
-$ yarm install
+$ yarn
 
 # Run locally
 $ yarn start

@@ -4,15 +4,16 @@ This is nhitomi [Discord](https://discord.com) bot written in Typescript using D
 
 ### Prerequisites
 
-- [Node.js 12+](https://nodejs.org/en/)
-- [Java Runtime 8+](https://www.java.com/en/download/) (for [genclient](../docs/genclient.md))
+- [Node.js 12+](https://nodejs.org/)
+- [Yarn](https://yarnpkg.com/)
+- [Java Runtime 8+](https://www.java.com/download/) (for [genclient](../docs/genclient.md))
 
 ### Setup
 
 ```shell
 # Install dependencies
-$ npm i
+$ yarn
 
 # Run locally
-$ npm start
+$ yarn start
 ```

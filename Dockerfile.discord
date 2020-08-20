@@ -3,14 +3,14 @@ WORKDIR /app
 
 COPY nhitomi-discord/package*.json ./
 COPY scripts ../scripts/
-RUN npm install
+RUN yarn
 
 # java 8 required by openapi-generator
 RUN apk add --no-cache openjdk8-jre
-RUN npm run genclient
+RUN yarn genclient
 
 COPY nhitomi-discord ./
-RUN npm run build
+RUN yarn build
 
 WORKDIR /app/build
 ENV NODE_ENV production

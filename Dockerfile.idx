@@ -24,16 +24,16 @@ WORKDIR /app
 
 COPY nhitomi-web/package*.json ./
 COPY scripts ../scripts/
-RUN npm install
+RUN yarn
 
 COPY --from=idx /app/apispec.json ./
 
 # java 8 required by openapi-generator
 RUN apk add --no-cache openjdk8-jre
-RUN npm run genclient apispec.json
+RUN yarn genclient apispec.json
 
 COPY nhitomi-web ./
-RUN npm run build
+RUN yarn build
 
 # build final image
 FROM mcr.microsoft.com/dotnet/core/sdk:latest as app
