@@ -172,6 +172,9 @@
     }
   },
   "components": {
+    "contextMenu": {
+      "close": "Close"
+    },
     "coverImage": {
       "error": "Failed to download this image.",
       "errorUnknown": "<unknown error>"

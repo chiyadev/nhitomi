@@ -1,8 +1,10 @@
 import React, { ComponentProps, useRef, useState } from 'react'
-import { Dropdown } from './Dropdown'
-import { cx, css } from 'emotion'
+import { Dropdown, DropdownItem, DropdownDivider } from './Dropdown'
+import { cx } from 'emotion'
 import mergeRefs from 'react-merge-refs'
 import { useShortcut } from '../shortcut'
+import { CloseOutlined } from '@ant-design/icons'
+import { FormattedMessage } from 'react-intl'
 
 function getTrueBoundingRect(element: HTMLElement) {
   const rects: DOMRect[] = []
@@ -48,30 +50,36 @@ function getTrueBoundingRect(element: HTMLElement) {
   return new DOMRect(left, top, right - left, bottom - top)
 }
 
-export const ContextMenu = ({ className, overlayClassName, moveTransition = false, offset = [0, 0], wrapperProps, overlayProps, ...props }: Omit<ComponentProps<typeof Dropdown>, 'placement' | 'trigger' | 'hideOnClick' | 'visible' | 'getReferenceClientRect'>) => {
+export const ContextMenu = ({ className, overlayClassName, moveTransition = false, offset = [0, 0], wrapperProps, overlayProps, overlay, ...props }: Omit<ComponentProps<typeof Dropdown>, 'placement' | 'trigger' | 'hideOnClick' | 'visible' | 'getReferenceClientRect'>) => {
   const wrapperRef = useRef<HTMLDivElement>(null)
   const overlayRef = useRef<HTMLDivElement>(null)
 
   const [visible, setVisible] = useState(false)
-  const [{ x, y }, setPosition] = useState<{ x: number, y: number }>({ x: 0, y: 0 })
+  const [{ x, y, trigger }, setPosition] = useState<{ x: number, y: number, trigger: ContextMenuTrigger }>({ x: 0, y: 0, trigger: 'mouse' })
 
-  const contextProps = useContextMenu((target, type, { x, y }) => {
+  const contextProps = useContextMenu((target, trigger, { x, y }) => {
+    if (trigger === 'touch' && visible)
+      return
+
     const { left, top } = getTrueBoundingRect(target) || { left: 0, top: 0 }
 
     setPosition({
       x: x - left,
-      y: y - top
+      y: y - top,
+      trigger
     })
     setVisible(true)
 
     requestAnimationFrame(() => overlayRef.current?.focus())
   })
 
-  useShortcut('cancelKey', () => overlayRef.current?.blur(), overlayRef)
+  const close = () => overlayRef.current?.blur()
+
+  useShortcut('cancelKey', close, overlayRef)
 
   return (
     <Dropdown
-      className={cx('display-contents', className, css`-webkit-touch-callout: none;`)}
+      className={cx('display-contents', className)}
       overlayClassName={cx('select-none', overlayClassName)}
       placement='bottom-start'
       visible={visible}
@@ -88,6 +96,7 @@ export const ContextMenu = ({ className, overlayClassName, moveTransition = fals
         ...overlayProps,
 
         ref: overlayProps?.ref ? mergeRefs([overlayRef, overlayProps.ref]) : overlayRef,
+
         onBlur: () => {
           setTimeout(() => {
             // hack: bring focus back to overlay if an overlay descendant stole focus
@@ -112,23 +121,25 @@ export const ContextMenu = ({ className, overlayClassName, moveTransition = fals
         }
       }}
 
+      overlay={<>
+        <div className='display-contents' children={overlay} />
+
+        {trigger === 'touch' && <>
+          <DropdownDivider />
+          <DropdownItem icon={<CloseOutlined />} onClick={close}>
+            <FormattedMessage id='components.contextMenu.close' />
+          </DropdownItem>
+        </>}
+      </>}
+
       {...props} />
   )
 }
 
-export function useContextMenu(callback: (target: HTMLDivElement, type: 'mouse' | 'touch', position: { x: number, y: number }) => void): ComponentProps<'div'> {
-  const touch = useRef<{
-    x: number
-    y: number
-    timeout: number
-  }>()
+type ContextMenuTrigger = 'mouse' | 'touch'
 
-  const clearTouch = () => {
-    if (touch.current) {
-      clearTimeout(touch.current.timeout)
-      touch.current = undefined
-    }
-  }
+export function useContextMenu(callback: (target: HTMLDivElement, trigger: ContextMenuTrigger, position: { x: number, y: number }) => void): ComponentProps<'div'> {
+  const touch = useRef<{ x: number, y: number, triggered: boolean }>()
 
   return {
     onContextMenu: e => {
@@ -137,43 +148,32 @@ export function useContextMenu(callback: (target: HTMLDivElement, type: 'mouse' 
     },
 
     onTouchStart: e => {
-      if (!touch.current) {
-        const target = e.currentTarget
-        const x = e.touches[0].clientX
-        const y = e.touches[0].clientY
+      if (touch.current)
+        return
 
-        touch.current = {
-          x, y,
-          timeout: window.setTimeout(() => {
-            callback(target, 'touch', { x, y })
-            clearTouch()
-          }, 500)
-        }
+      touch.current = {
+        x: e.touches[0].clientX,
+        y: e.touches[0].clientY,
+        triggered: false
       }
-
-      e.nativeEvent.returnValue = false
     },
 
     onTouchMove: e => {
-      if (touch.current) {
-        const deltaX = touch.current.x - e.touches[0].clientX
-        const deltaY = touch.current.y - e.touches[0].clientY
+      if (!touch.current || touch.current.triggered)
+        return
 
-        if (deltaX >= 10 || deltaY >= 10)
-          clearTouch()
+      const deltaX = e.touches[0].clientX - touch.current.x
+      const deltaY = e.touches[0].clientY - touch.current.y
+
+      // left swipe
+      if (deltaX < -60 && Math.abs(deltaY) < Math.abs(deltaX) / 2) {
+        touch.current.triggered = true
+
+        callback(e.currentTarget, 'touch', touch.current)
       }
-
-      e.nativeEvent.returnValue = false
     },
 
-    onTouchEnd: e => {
-      clearTouch()
-      e.nativeEvent.returnValue = false
-    },
-
-    onTouchCancel: e => {
-      clearTouch()
-      e.nativeEvent.returnValue = false
-    }
+    onTouchEnd: () => touch.current = undefined,
+    onTouchCancel: () => touch.current = undefined
   }
 }

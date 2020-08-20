@@ -172,6 +172,9 @@
     }
   },
   "components": {
+    "contextMenu": {
+      "close": "閉じる"
+    },
     "coverImage": {
       "error": "この画像をダウンロードできませんでした。",
       "errorUnknown": "<理由不明>"
