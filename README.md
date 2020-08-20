@@ -2,7 +2,7 @@
 
 ![nhitomi](https://github.com/chiyadev/nhitomi/raw/master/nhitomi.png)
 
-nhitomi — Doujinshi aggregator
+nhitomi — Open-source doujinshi aggregator
 
 [https://nhitomi.chiya.dev](https://nhitomi.chiya.dev)
 

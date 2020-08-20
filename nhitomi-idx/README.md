@@ -1,6 +1,6 @@
 # nhitomi-idx
 
-This is nhitomi backend server written in C#.
+This is nhitomi backend server written in C# using ASP.NET Core.
 
 ### Prerequisites
 

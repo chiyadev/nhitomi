@@ -1,6 +1,6 @@
 # nhitomi-web
 
-This is nhitomi browser frontend using Preact with Typescript, currently in process of a rewrite using [Tailwind](https://tailwindcss.com/).
+This is nhitomi browser frontend written in Typescript using Preact.
 
 ### Prerequisites
 

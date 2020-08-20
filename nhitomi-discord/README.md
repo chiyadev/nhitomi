@@ -1,6 +1,6 @@
 # nhitomi-discord
 
-This is nhitomi [Discord](https://discord.com) frontend using Discord.js with Typescript.
+This is nhitomi [Discord](https://discord.com) bot written in Typescript using Discord.js.
 
 ### Prerequisites
 
