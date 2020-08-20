@@ -10,9 +10,14 @@ import { FormattedDate, FormattedTime } from 'react-intl'
 export const Footer = () => {
   const { info } = useClientInfo()
 
+  const style = useSpring({
+    from: { marginBottom: -5, opacity: 0 },
+    to: { marginBottom: 0, opacity: 1 }
+  })
+
   return (
-    <Container className='text-xs text-gray-darker p-4 text-center space-y-1'>
-      <div>
+    <Container className='text-xs text-gray-darker p-4 text-center space-y-1 overflow-hidden'>
+      <animated.div style={style}>
         <Tooltip
           className='inline-flex'
           overlayClassName='text-center'
@@ -42,7 +47,7 @@ export const Footer = () => {
         <NewTabLink href='https://chiya.dev'>
           <LinkText>chiya.dev</LinkText>
         </NewTabLink>
-      </div>
+      </animated.div>
     </Container>
   )
 }
