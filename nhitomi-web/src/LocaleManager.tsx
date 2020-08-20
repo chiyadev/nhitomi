@@ -108,7 +108,7 @@ export const LocaleManager = ({ children }: { children?: ReactNode }) => {
 }
 
 async function loadLanguage(language: LanguageType): Promise<Record<string, string>> {
-  let data = JSON.parse(JSON.stringify((await import(`./Languages/${LanguageType.EnUS}.json`)).default))
+  let data = JSON.parse(JSON.stringify((await import('./Languages/en-US.json')).default)) // use "en-US" constant! webpack seems to break with LanguageType.EnUS string interpolation
 
   // layer other languages on top of the default English
   if (language !== LanguageType.EnUS && AvailableLocalizations.indexOf(language) !== -1) {
