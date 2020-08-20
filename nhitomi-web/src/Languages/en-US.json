@@ -172,6 +172,9 @@
     }
   },
   "components": {
+    "sidebar": {
+      "close": "Close"
+    },
     "contextMenu": {
       "close": "Close"
     },

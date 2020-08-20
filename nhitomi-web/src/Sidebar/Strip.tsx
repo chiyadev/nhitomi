@@ -14,7 +14,7 @@ import { Disableable } from '../Components/Disableable'
 
 export const StripWidth = 64
 
-export const Strip = ({ children }: { children?: ReactNode }) => {
+export const Strip = ({ children, additionalMenu }: { children?: ReactNode, additionalMenu?: ReactNode }) => {
   const { info } = useClientInfo()
 
   const style = useSpring({
@@ -25,11 +25,11 @@ export const Strip = ({ children }: { children?: ReactNode }) => {
   return <>
     <div className={css`padding-left: ${StripWidth}px;`} children={children} />
 
-    <Disableable disabled={!info.authenticated}>
-      <animated.div
-        style={style}
-        className={cx('fixed top-0 left-0 bottom-0 z-10 text-white py-4 flex flex-col items-center select-none', css`width: ${StripWidth}px;`)}>
+    <animated.div
+      style={style}
+      className={cx('fixed top-0 left-0 bottom-0 z-10 text-white py-4 flex flex-col items-center select-none', css`width: ${StripWidth}px;`)}>
 
+      <Disableable disabled={!info.authenticated}>
         <Tooltip overlay={<span><FormattedMessage id='pages.home.title' /> <HeartOutlined /></span>} placement='right' className='mb-4'>
           <BookListingLink>
             <img alt='logo' className='w-10 h-10 pointer-events-none' src='/logo-80x80.png' />
@@ -37,8 +37,10 @@ export const Strip = ({ children }: { children?: ReactNode }) => {
         </Tooltip>
 
         <Buttons />
-      </animated.div>
-    </Disableable>
+      </Disableable>
+
+      {additionalMenu}
+    </animated.div>
   </>
 }
 

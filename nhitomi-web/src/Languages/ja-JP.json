@@ -172,6 +172,9 @@
     }
   },
   "components": {
+    "sidebar": {
+      "close": "閉じる"
+    },
     "contextMenu": {
       "close": "閉じる"
     },
