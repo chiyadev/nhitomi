@@ -3,8 +3,10 @@ import { ConfigurationParameters, ValidationProblemArrayResult, ValidationProble
 import { CustomError } from 'ts-custom-error'
 import { useAsync } from './hooks'
 import { useProgress } from './ProgressManager'
-import { ConfigSource, useConfigManager } from './ConfigManager'
+import { ConfigSource, useConfigManager, useConfig } from './ConfigManager'
 import { Container } from './Components/Container'
+import { FlatButton } from './Components/FlatButton'
+import { ReloadOutlined, ClearOutlined } from '@ant-design/icons'
 
 export class Client {
   private readonly httpConfig: ConfigurationParameters = {
@@ -162,14 +164,21 @@ export const ClientManager = ({ children }: { children?: ReactNode }) => {
     }
   }, [])
 
+  const [, setToken] = useConfig('token')
+  const [, setBaseUrl] = useConfig('baseUrl')
+
   if (!info)
     return null
 
   if (info instanceof Error) {
     return (
-      <Container className='text-sm'>
-        <div className='mb-1'>nhitomi could not contact the API server. Please try again later.</div>
+      <Container className='text-sm p-4'>
+        <div className='mb-2'>nhitomi could not contact the API server. Please try again later.</div>
         <code>{info.stack}</code>
+        <div className='mt-4 space-x-1'>
+          <FlatButton icon={<ReloadOutlined />} onClick={() => window.location.reload()}>Retry</FlatButton>
+          <FlatButton icon={<ClearOutlined />} onClick={() => { setToken(undefined); setBaseUrl(undefined); window.location.reload() }}>Reset</FlatButton>
+        </div>
       </Container>
     )
   }
