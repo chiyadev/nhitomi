@@ -131,7 +131,8 @@
         "menu": {
           "create": {
             "item": "新規コレクション",
-            "dummyName": "私の新しいコレクション"
+            "dummyName": "私の新しいコレクション",
+            "success": "新しいコレクションを作りました。"
           }
         },
         "overlay": {

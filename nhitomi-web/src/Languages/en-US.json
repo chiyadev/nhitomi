@@ -131,7 +131,8 @@
         "menu": {
           "create": {
             "item": "New collection",
-            "dummyName": "My new collection"
+            "dummyName": "My new collection",
+            "success": "Collection successfully created."
           }
         },
         "overlay": {

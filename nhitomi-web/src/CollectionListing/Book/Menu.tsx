@@ -6,7 +6,7 @@ import { PlusOutlined } from '@ant-design/icons'
 import { RoundIconButton } from '../../Components/RoundIconButton'
 import { useClient } from '../../ClientManager'
 import { useProgress } from '../../ProgressManager'
-import { useNotify } from '../../NotificationManager'
+import { useNotify, useAlert } from '../../NotificationManager'
 import { Disableable } from '../../Components/Disableable'
 import { useCollectionEditPrefetch } from '../Edit'
 import { useLocalized } from '../../LocaleManager'
@@ -20,6 +20,7 @@ const NewButton = () => {
   const client = useClient()
   const { begin, end } = useProgress()
   const { notifyError } = useNotify()
+  const { alert } = useAlert()
   const [loading, setLoading] = useState(false)
   const [prefetchNode, navigate] = useDynamicPrefetch(useCollectionEditPrefetch)
 
@@ -43,6 +44,8 @@ const NewButton = () => {
             })
 
             await navigate({ id: created.id })
+
+            alert(<FormattedMessage id='pages.collectionListing.book.menu.create.success' />, 'success')
           }
           catch (e) {
             notifyError(e)
