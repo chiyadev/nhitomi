@@ -125,13 +125,15 @@ const DuplicateButton = ({ collection }: { collection: Collection }) => {
               }
             })
 
-            created = await client.collection.addCollectionItems({
-              id: created.id,
-              addCollectionItemsRequest: {
-                items: collection.items,
-                position: CollectionInsertPosition.Start
-              }
-            })
+            if (collection.items.length) {
+              created = await client.collection.addCollectionItems({
+                id: created.id,
+                addCollectionItemsRequest: {
+                  items: collection.items,
+                  position: CollectionInsertPosition.Start
+                }
+              })
+            }
 
             await navigate({ id: created.id })
 
