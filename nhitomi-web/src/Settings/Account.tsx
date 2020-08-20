@@ -1,6 +1,6 @@
 import React from 'react'
 import { FormattedMessage } from 'react-intl'
-import { SettingsFocusContainer } from './common'
+import { SettingsFocusContainer } from './SettingsFocusContainer'
 import { useConfig } from '../ConfigManager'
 import { useClientInfo } from '../ClientManager'
 import { LogoutOutlined } from '@ant-design/icons'

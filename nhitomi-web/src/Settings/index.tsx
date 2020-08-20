@@ -1,11 +1,11 @@
-import React, { ReactNode } from 'react'
+import React, { ReactNode, useMemo } from 'react'
 import { TypedPrefetchLinkProps, PrefetchLink, usePostfetch, PrefetchGenerator } from '../Prefetch'
 import { useClientInfo, ClientInfo } from '../ClientManager'
 import { Container } from '../Components/Container'
 import { FormattedMessage } from 'react-intl'
 import { Language } from './Language'
 import { Animation } from './Animation'
-import { SettingsFocusContainer } from './common'
+import { SettingsFocusContainer } from './SettingsFocusContainer'
 import { useQueryState } from '../state'
 import { MacCommandFilled, ReadOutlined, UserOutlined, PictureOutlined } from '@ant-design/icons'
 import { PageContainer } from '../Components/PageContainer'
@@ -85,7 +85,7 @@ export const Settings = (options: PrefetchOptions) => {
 const Loaded = () => {
   useTabTitle(useLocalized('pages.settings.title'))
 
-  return (
+  return useMemo(() => (
     <Container className='divide-y divide-gray-darkest'>
       <div className='p-2'>
         <div className='text-2xl'><FormattedMessage id='pages.settings.title' /></div>
@@ -124,7 +124,7 @@ const Loaded = () => {
         </Section>
       </div>
     </Container>
-  )
+  ), [])
 }
 
 const Section = ({ name, type, children, className }: { name?: ReactNode, type: SettingsSection, children?: ReactNode[], className?: string }) => (

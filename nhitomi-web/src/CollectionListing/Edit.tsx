@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react'
+import React, { useState, useCallback, useMemo } from 'react'
 import { Collection, User } from 'nhitomi-api'
 import { PrefetchGenerator, usePostfetch, TypedPrefetchLinkProps, PrefetchLink, BackLink, usePrefetch } from '../Prefetch'
 import { useClient } from '../ClientManager'
@@ -113,45 +113,53 @@ const Loaded = ({ collection, owner }: PrefetchResult) => {
 
   return (
     <Container className='divide-y divide-gray-darkest'>
-      <div className='p-2'>
-        <div className='text-2xl'><FormattedMessage id='pages.collectionListing.edit.title' /></div>
-        <div className='text-xs text-gray-darker'><FormattedMessage id='pages.collectionListing.edit.subtitle' values={{ collection: collection.name, owner: owner.username }} /></div>
-      </div>
+      {useMemo(() => (
+        <div className='p-2'>
+          <div className='text-2xl'><FormattedMessage id='pages.collectionListing.edit.title' /></div>
+          <div className='text-xs text-gray-darker'><FormattedMessage id='pages.collectionListing.edit.subtitle' values={{ collection: collection.name, owner: owner.username }} /></div>
+        </div>
+      ), [collection.name, owner.username])}
 
       <Disableable disabled={loading}>
         <div className='p-2 space-y-4 text-sm'>
-          <div>
-            <div className='mb-1'><FormattedMessage id='pages.collectionListing.edit.name' /></div>
+          {useMemo(() => (
+            <div>
+              <div className='mb-1'><FormattedMessage id='pages.collectionListing.edit.name' /></div>
 
-            <Input className='w-full max-w-sm' autoFocus allowClear value={name} setValue={setName} onSubmit={submit} />
-          </div>
+              <Input className='w-full max-w-sm' autoFocus allowClear value={name} setValue={setName} onSubmit={submit} />
+            </div>
+          ), [name, setName, submit])}
 
-          <div>
-            <div className='mb-1'><FormattedMessage id='pages.collectionListing.edit.description' /></div>
+          {useMemo(() => (
+            <div>
+              <div className='mb-1'><FormattedMessage id='pages.collectionListing.edit.description' /></div>
 
-            <Input
-              type='textarea'
-              className='w-full max-w-sm'
-              value={description}
-              setValue={setDescription}
-              onSubmit={submit} />
-          </div>
+              <Input
+                type='textarea'
+                className='w-full max-w-sm'
+                value={description}
+                setValue={setDescription}
+                onSubmit={submit} />
+            </div>
+          ), [description, setDescription, submit])}
 
-          <div className='space-x-1'>
-            <BackLink>
-              <FlatButton icon={<LeftOutlined />}>
-                <FormattedMessage id='pages.collectionListing.edit.cancel' />
+          {useMemo(() => (
+            <div className='space-x-1'>
+              <BackLink>
+                <FlatButton icon={<LeftOutlined />}>
+                  <FormattedMessage id='pages.collectionListing.edit.cancel' />
+                </FlatButton>
+              </BackLink>
+
+              <FlatButton color={getColor('red')} onClick={delette} icon={<DeleteOutlined />}>
+                <FormattedMessage id='pages.collectionListing.edit.delete' />
               </FlatButton>
-            </BackLink>
 
-            <FlatButton color={getColor('red')} onClick={delette} icon={<DeleteOutlined />}>
-              <FormattedMessage id='pages.collectionListing.edit.delete' />
-            </FlatButton>
-
-            <FilledButton color={getColor('blue')} onClick={submit} icon={loading ? <Loading3QuartersOutlined className='animate-spin' /> : <CheckOutlined />}>
-              <FormattedMessage id='pages.collectionListing.edit.submit' />
-            </FilledButton>
-          </div>
+              <FilledButton color={getColor('blue')} onClick={submit} icon={loading ? <Loading3QuartersOutlined className='animate-spin' /> : <CheckOutlined />}>
+                <FormattedMessage id='pages.collectionListing.edit.submit' />
+              </FilledButton>
+            </div>
+          ), [delette, loading, submit])}
         </div>
       </Disableable>
     </Container>

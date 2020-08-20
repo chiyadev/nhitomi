@@ -1,4 +1,4 @@
-import React, { useState, ReactNode } from 'react'
+import React, { useState, ReactNode, useMemo } from 'react'
 import { Container } from './Components/Container'
 import { NewTabLink } from './Components/NewTabLink'
 import { useSpring, animated } from 'react-spring'
@@ -6,6 +6,7 @@ import { getColor } from './theme'
 import { useClientInfo } from './ClientManager'
 import { Tooltip } from './Components/Tooltip'
 import { FormattedDate, FormattedTime } from 'react-intl'
+import { GitCommit } from 'nhitomi-api'
 
 export const Footer = () => {
   const { info } = useClientInfo()
@@ -18,41 +19,47 @@ export const Footer = () => {
   return (
     <Container className='text-xs text-gray-darker p-4 text-center space-y-1 overflow-hidden'>
       <animated.div style={style}>
-        <Tooltip
-          className='inline-flex'
-          overlayClassName='text-center'
-          placement='top'
-          overlay={<>
-            <div>{info.version.hash}</div>
-            <div><FormattedDate value={info.version.time} /> <FormattedTime value={info.version.time} /></div>
-          </>}>
-
-          <NewTabLink href={`https://github.com/chiyadev/nhitomi/commit/${info.version.hash}`}>
-            <LinkText>b.{info.version.shortHash}</LinkText>
+        {useMemo(() => <>
+          <VersionTooltip version={info.version}>
+            <NewTabLink href={`https://github.com/chiyadev/nhitomi/commit/${info.version.hash}`}>
+              <LinkText>b.{info.version.shortHash}</LinkText>
+            </NewTabLink>
+          </VersionTooltip>
+          <Split />
+          <NewTabLink href='https://github.com/chiyadev/nhitomi'>
+            <LinkText>GitHub</LinkText>
           </NewTabLink>
-        </Tooltip>
-        <Split />
-        <NewTabLink href='https://github.com/chiyadev/nhitomi'>
-          <LinkText>GitHub</LinkText>
-        </NewTabLink>
-        <Split />
-        <NewTabLink href='https://discord.gg/JFNga7q'>
-          <LinkText>Discord</LinkText>
-        </NewTabLink>
-        <Split />
-        <NewTabLink href='/api/v1'>
-          <LinkText>API</LinkText>
-        </NewTabLink>
-        <Split />
-        <NewTabLink href='https://chiya.dev'>
-          <LinkText>chiya.dev</LinkText>
-        </NewTabLink>
+          <Split />
+          <NewTabLink href='https://discord.gg/JFNga7q'>
+            <LinkText>Discord</LinkText>
+          </NewTabLink>
+          <Split />
+          <NewTabLink href='/api/v1'>
+            <LinkText>API</LinkText>
+          </NewTabLink>
+          <Split />
+          <NewTabLink href='https://chiya.dev'>
+            <LinkText>chiya.dev</LinkText>
+          </NewTabLink>
+        </>, [info.version])}
       </animated.div>
     </Container>
   )
 }
 
 const Split = () => <span className='mx-2'>·</span>
+
+const VersionTooltip = ({ version, children }: { version: GitCommit, children?: ReactNode }) => (
+  <Tooltip
+    className='inline-flex'
+    overlayClassName='text-center'
+    placement='top'
+    overlay={<>
+      <div>{version.hash}</div>
+      <div><FormattedDate value={version.time} /> <FormattedTime value={version.time} /></div>
+    </>}
+    children={children} />
+)
 
 const LinkText = ({ children }: { children?: ReactNode }) => {
   const [hover, setHover] = useState(false)

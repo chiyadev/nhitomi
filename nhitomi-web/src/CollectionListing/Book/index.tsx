@@ -31,7 +31,7 @@ export const BookSection = ({ user, collections }: { user: User, collections: Bo
     index: -1
   }), [collections])
 
-  return (
+  return useMemo(() => (
     <BookList
       items={items}
       contentSelector={contentSelector}
@@ -47,6 +47,8 @@ export const BookSection = ({ user, collections }: { user: User, collections: Bo
         </EmptyIndicator>
       )}
       LinkComponent={CollectionContentLink}
-      OverlayComponent={props => <Overlay user={user} {...props} />} />
-  )
+      OverlayComponent={props => (
+        <Overlay user={user} {...props} />
+      )} />
+  ), [contentSelector, getCoverRequest, items, user])
 }

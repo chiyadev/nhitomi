@@ -1,6 +1,6 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import { FormattedMessage } from 'react-intl'
-import { SettingsFocusContainer } from './common'
+import { SettingsFocusContainer } from './SettingsFocusContainer'
 import { CheckBox } from '../Components/Checkbox'
 import { AvailableLocalizations } from '../Languages/languages'
 import { LanguageNames } from '../LocaleManager'
@@ -22,7 +22,7 @@ export const Language = () => {
       <div>
         <div><FormattedMessage id='pages.settings.appearance.language.interface' /></div>
 
-        {LanguageTypes.filter(l => AvailableLocalizations.indexOf(l) !== -1).map(language => (
+        {useMemo(() => LanguageTypes.filter(l => AvailableLocalizations.indexOf(l) !== -1).map(language => (
           <CheckBox
             type='radio'
             value={language === interfaceLanguage}
@@ -32,14 +32,14 @@ export const Language = () => {
 
             <span><LocaleFlag language={language} size={20} /> {LanguageNames[language]}</span>
           </CheckBox>
-        ))}
+        )), [interfaceLanguage, setInterfaceLanguage])}
       </div>
       <br />
 
       <div>
         <div><FormattedMessage id='pages.settings.appearance.language.search' /></div>
 
-        {LanguageTypes.map(language => (
+        {useMemo(() => LanguageTypes.map(language => (
           <Disableable disabled={searchLanguages.length === 1 && searchLanguages[0] === language}>
             <CheckBox
               value={searchLanguages.indexOf(language) !== -1}
@@ -51,7 +51,7 @@ export const Language = () => {
               <span><LocaleFlag language={language} size={20} /> {LanguageNames[language]}</span>
             </CheckBox>
           </Disableable>
-        ))}
+        )), [searchLanguages, setSearchLanguages])}
       </div>
     </SettingsFocusContainer>
   )

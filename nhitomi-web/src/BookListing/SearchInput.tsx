@@ -105,47 +105,51 @@ export const SearchInput = ({ result, className }: { result: BookSearchResult, c
   const setTextWithSearch = useCallback((text: string) => { setText(text); setQuery({ ...query, query: text }) }, [query, setQuery])
   const placeholder = useLocalized('pages.bookListing.search', { total: result?.total })
 
-  return (
+  const input = useMemo(() => (
+    <Suggestor
+      tokens={tokens}
+      inputRef={inputRef}
+      setText={setTextWithSearch}>
+
+      <div className='flex-grow text-sm relative overflow-hidden'>
+        <input
+          ref={inputRef}
+          className={cx('pl-4 w-full h-full absolute top-0 left-0 border-none', css`
+            background: none;
+            color: transparent;
+            caret-color: black;
+            z-index: 1;
+
+            &::placeholder {
+              color: ${getColor('gray', 'darker').hex};
+            }
+            &::selection {
+              color: white;
+              background: ${getColor('blue').opacity(0.5).hex};
+            }
+          `)}
+          value={text}
+          onChange={({ target: { value } }) => setText(value)}
+          onFocus={() => setFocused(true)}
+          onBlur={() => setFocused(false)}
+          placeholder={placeholder} />
+
+        <Highlighter
+          tokens={tokens}
+          inputRef={inputRef}
+          className='pl-4 w-full h-full absolute top-0 left-0' />
+      </div>
+    </Suggestor>
+  ), [placeholder, setTextWithSearch, text, tokens])
+
+  return useMemo(() => (
     <div className={cx('flex flex-row bg-white text-black rounded overflow-hidden', className)}>
-      <Suggestor
-        tokens={tokens}
-        inputRef={inputRef}
-        setText={setTextWithSearch}>
-
-        <div className='flex-grow text-sm relative overflow-hidden'>
-          <input
-            ref={inputRef}
-            className={cx('pl-4 w-full h-full absolute top-0 left-0 border-none', css`
-              background: none;
-              color: transparent;
-              caret-color: black;
-              z-index: 1;
-
-              &::placeholder {
-                color: ${getColor('gray', 'darker').hex};
-              }
-              &::selection {
-                color: white;
-                background: ${getColor('blue').opacity(0.5).hex};
-              }
-            `)}
-            value={text}
-            onChange={({ target: { value } }) => setText(value)}
-            onFocus={() => setFocused(true)}
-            onBlur={() => setFocused(false)}
-            placeholder={placeholder} />
-
-          <Highlighter
-            tokens={tokens}
-            inputRef={inputRef}
-            className='pl-4 w-full h-full absolute top-0 left-0' />
-        </div>
-      </Suggestor>
+      {input}
 
       <ClearButton onClick={() => setTextWithSearch('')} visible={!!text && !focused} className='right-0' />
       <SearchButton onClick={() => setTextWithSearch(text)} />
     </div>
-  )
+  ), [className, focused, input, setTextWithSearch, text])
 }
 
 const SearchButton = ({ onClick }: { onClick?: () => void }) => {
@@ -215,7 +219,7 @@ const Highlighter = ({ tokens, inputRef, className }: { tokens: QueryToken[], in
 
   return (
     <div style={{ marginLeft: offset }} className={cx('leading-8 flex items-center whitespace-pre', className)}>
-      {tokens.map(token => {
+      {useMemo(() => tokens.map(token => {
         switch (token.type) {
           case 'other':
             return (
@@ -233,7 +237,7 @@ const Highlighter = ({ tokens, inputRef, className }: { tokens: QueryToken[], in
           default:
             return null
         }
-      })}
+      }), [tokens])}
     </div>
   )
 }
@@ -435,6 +439,22 @@ const Suggestor = ({ tokens, setText, inputRef, children }: { tokens: QueryToken
     leave: { display: 'none' }
   })
 
+  const dropdownContent = <>
+    {useMemo(() => token && (
+      <span className='text-xs text-gray-darker'>"{token.display}" ({suggestions && !suggestLoading ? suggestions.flatMap(s => s.items).length : '*'})</span>
+    ), [suggestLoading, suggestions, token])}
+
+    {suggestionsTransitions((style, { tag, items }) => (
+      <animated.ul key={tag} style={style}>
+        <li className={cx(`text-xs text-${BookTagColors[tag]}`)}>
+          <FormattedMessage id={`types.bookTag.${tag}`} />
+        </li>
+
+        <SuggestorSection items={items} complete={complete} selected={selected} setSelected={setSelected} />
+      </animated.ul>
+    ))}
+  </>
+
   return (
     <Tippy
       visible={dropdownVisible}
@@ -447,17 +467,7 @@ const Suggestor = ({ tokens, setText, inputRef, children }: { tokens: QueryToken
           style={{ ...dropdownStyle, width: inputRef.current?.clientWidth }}
           className='bg-gray-darkest bg-blur text-white text-sm px-2 py-1 rounded overflow-hidden flex flex-col space-y-2'>
 
-          {token && <span className='text-xs text-gray-darker'>"{token.display}" ({suggestions && !suggestLoading ? suggestions.flatMap(s => s.items).length : '*'})</span>}
-
-          {suggestionsTransitions((style, { tag, items }) => (
-            <animated.ul key={tag} style={style}>
-              <li className={cx(`text-xs text-${BookTagColors[tag]}`)}>
-                <FormattedMessage id={`types.bookTag.${tag}`} />
-              </li>
-
-              <SuggestorSection items={items} complete={complete} selected={selected} setSelected={setSelected} />
-            </animated.ul>
-          ))}
+          {dropdownContent}
         </animated.div>
       )}
       children={children} />

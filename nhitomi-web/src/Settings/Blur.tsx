@@ -1,6 +1,6 @@
 import React from 'react'
 import { FormattedMessage } from 'react-intl'
-import { SettingsFocusContainer } from './common'
+import { SettingsFocusContainer } from './SettingsFocusContainer'
 import { useConfig, BlurSupported } from '../ConfigManager'
 import { CheckBox } from '../Components/Checkbox'
 import { Disableable } from '../Components/Disableable'

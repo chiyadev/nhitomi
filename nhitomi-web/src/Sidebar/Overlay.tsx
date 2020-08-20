@@ -1,4 +1,4 @@
-import React, { useState, Dispatch, ReactNode } from 'react'
+import React, { useState, Dispatch, ReactNode, useMemo } from 'react'
 import { useSpring, animated } from 'react-spring'
 import { MenuOutlined, LeftOutlined } from '@ant-design/icons'
 import { getColor } from '../theme'
@@ -18,13 +18,13 @@ export const Overlay = ({ children }: { children?: ReactNode }) => {
 
   useNavigated(() => setOpen(false))
 
-  return <>
+  return useMemo(() => <>
     <ScrollLock isActive={open} />
 
     <Menu open={open} setOpen={setOpen} />
     <Anchor open={open} setOpen={setOpen} />
     <Body open={open} children={children} />
-  </>
+  </>, [children, open])
 }
 
 const Anchor = ({ open, setOpen }: { open: boolean, setOpen: Dispatch<boolean> }) => {

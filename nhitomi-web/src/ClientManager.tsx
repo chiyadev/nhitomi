@@ -1,4 +1,4 @@
-import React, { ReactNode, useMemo, createContext, useState, useCallback, useContext, Dispatch } from 'react'
+import React, { ReactNode, useMemo, createContext, useState, useContext, Dispatch } from 'react'
 import { ConfigurationParameters, ValidationProblemArrayResult, ValidationProblem, UserApi, InfoApi, BookApi, CollectionApi, Configuration, GetInfoResponse, GetInfoAuthenticatedResponse, BASE_PATH, User, UserPermissions, Collection } from 'nhitomi-api'
 import { CustomError } from 'ts-custom-error'
 import { useAsync } from './hooks'
@@ -58,7 +58,7 @@ export class Client {
     }
 
     this.httpConfig.accessToken = () => this.config.token || ''
-    this.httpConfig.basePath = this.config.baseUrl || url.href
+    this.httpConfig.basePath = 'http://192.168.0.3:3000/api/v1' || this.config.baseUrl || url.href
 
     console.log('api base path', this.httpConfig.basePath)
   }
@@ -188,25 +188,21 @@ export const ClientManager = ({ children }: { children?: ReactNode }) => {
   )
 }
 
-const Loaded = ({ client, info, setInfo, children }: { client: Client, info: ClientInfo, setInfo: Dispatch<ClientInfo>, children?: ReactNode }) => {
-  const fetchInfo = useCallback(async () => {
-    const info = await client.getInfo()
-    setInfo(info)
-    return info
-  }, [client, setInfo])
-
-  return (
-    <ClientContext.Provider
-      children={children}
-      value={useMemo(() => ({
-        client,
-        permissions: new PermissionHelper(info?.authenticated ? info.user : undefined),
-        info,
-        setInfo,
-        fetchInfo
-      }), [client, info, setInfo, fetchInfo])} />
-  )
-}
+const Loaded = ({ client, info, setInfo, children }: { client: Client, info: ClientInfo, setInfo: Dispatch<ClientInfo>, children?: ReactNode }) => (
+  <ClientContext.Provider
+    children={children}
+    value={useMemo(() => ({
+      client,
+      permissions: new PermissionHelper(info?.authenticated ? info.user : undefined),
+      info,
+      setInfo,
+      fetchInfo: async () => {
+        const info = await client.getInfo()
+        setInfo(info)
+        return info
+      }
+    }), [client, info, setInfo])} />
+)
 
 export class PermissionHelper {
   constructor(readonly user?: User) { }

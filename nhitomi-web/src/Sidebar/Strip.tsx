@@ -1,4 +1,4 @@
-import React, { ReactNode } from 'react'
+import React, { ReactNode, useMemo } from 'react'
 import { cx, css } from 'emotion'
 import { ReadFilled, FolderOutlined, InfoCircleOutlined, HeartOutlined, SettingOutlined, BookOutlined, SettingFilled, FolderOpenFilled, InfoCircleFilled } from '@ant-design/icons'
 import { RoundIconButton } from '../Components/RoundIconButton'
@@ -29,20 +29,25 @@ export const Strip = ({ children, additionalMenu }: { children?: ReactNode, addi
       style={style}
       className={cx('fixed top-0 left-0 bottom-0 z-10 text-white py-4 flex flex-col items-center select-none', css`width: ${StripWidth}px;`)}>
 
-      <Disableable disabled={!info.authenticated}>
-        <Tooltip overlay={<span><FormattedMessage id='pages.home.title' /> <HeartOutlined /></span>} placement='right' className='mb-4'>
-          <BookListingLink>
-            <img alt='logo' className='w-10 h-10 pointer-events-none' src='/logo-80x80.png' />
-          </BookListingLink>
-        </Tooltip>
-
-        <Buttons />
-      </Disableable>
+      {useMemo(() => (
+        <Disableable disabled={!info.authenticated}>
+          <Logo />
+          <Buttons />
+        </Disableable>
+      ), [info.authenticated])}
 
       {additionalMenu}
     </animated.div>
   </>
 }
+
+const Logo = () => (
+  <Tooltip overlay={<span><FormattedMessage id='pages.home.title' /> <HeartOutlined /></span>} placement='right' className='mb-4'>
+    <BookListingLink>
+      <img alt='logo' className='w-10 h-10 pointer-events-none' src='/logo-80x80.png' />
+    </BookListingLink>
+  </Tooltip>
+)
 
 const Buttons = () => {
   return <>

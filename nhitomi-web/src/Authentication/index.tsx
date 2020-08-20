@@ -1,4 +1,4 @@
-import React, { useLayoutEffect } from 'react'
+import React, { useLayoutEffect, useMemo } from 'react'
 import { useQueryState, useNavigator, NavigationArgs } from '../state'
 import { TypedPrefetchLinkProps, PrefetchLink, usePostfetch, PrefetchGenerator } from '../Prefetch'
 import { ClientInfo, useClientInfo } from '../ClientManager'
@@ -95,23 +95,29 @@ const Loaded = ({ info: { discordOAuthUrl }, state }: PrefetchResult) => {
     <animated.img style={logoStyle} alt='logo' className='w-48 h-48 pointer-events-none select-none mx-auto mb-4 mt-8' src='/logo-192x192.png' />
 
     <animated.div style={infoStyle}>
-      <div className='space-y-1'>
-        <div className='text-center text-2xl font-bold'>nhitomi</div>
-        <div className='text-center text-sm text-gray-darker'><FormattedMessage id='pages.authentication.tagline' /></div>
-      </div>
+      {useMemo(() => (
+        <div className='space-y-1'>
+          <div className='text-center text-2xl font-bold'>nhitomi</div>
+          <div className='text-center text-sm text-gray-darker'><FormattedMessage id='pages.authentication.tagline' /></div>
+        </div>
+      ), [])}
 
       <div className='mt-8 flex flex-col items-center space-y-1'>
-        <a href={appendState(discordOAuthUrl, state)}>
-          <FilledButton className='text-sm' color={DiscordColor} icon={<DiscordOutlined />}>
-            <FormattedMessage id='pages.authentication.connect.discord' />
-          </FilledButton>
-        </a>
+        {useMemo(() => (
+          <a href={appendState(discordOAuthUrl, state)}>
+            <FilledButton className='text-sm' color={DiscordColor} icon={<DiscordOutlined />}>
+              <FormattedMessage id='pages.authentication.connect.discord' />
+            </FilledButton>
+          </a>
+        ), [discordOAuthUrl, state])}
 
-        <Disableable disabled>
-          <FilledButton className='text-sm' color={TwitterColor} icon={<TwitterOutlined />}>
-            <FormattedMessage id='pages.authentication.connect.twitter' />
-          </FilledButton>
-        </Disableable>
+        {useMemo(() => (
+          <Disableable disabled>
+            <FilledButton className='text-sm' color={TwitterColor} icon={<TwitterOutlined />}>
+              <FormattedMessage id='pages.authentication.connect.twitter' />
+            </FilledButton>
+          </Disableable>
+        ), [])}
       </div>
     </animated.div>
   </>

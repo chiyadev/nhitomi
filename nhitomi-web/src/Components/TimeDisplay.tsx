@@ -1,10 +1,10 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import { FormattedDate, FormattedTime } from 'react-intl'
 import { Tooltip } from './Tooltip'
 import { cx } from 'emotion'
 
 export const TimeDisplay = ({ value, className }: { value: Date, className?: string }) => {
-  return (
+  return useMemo(() => (
     <Tooltip
       className={cx('inline-flex', className)}
       placement='top'
@@ -16,5 +16,5 @@ export const TimeDisplay = ({ value, className }: { value: Date, className?: str
         <FormattedTime value={value} />
       </span>
     </Tooltip>
-  )
+  ), [className, value])
 }

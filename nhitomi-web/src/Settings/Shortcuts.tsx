@@ -1,6 +1,6 @@
 import React, { useState, ReactNode } from 'react'
 import { FormattedMessage } from 'react-intl'
-import { SettingsFocusContainer } from './common'
+import { SettingsFocusContainer } from './SettingsFocusContainer'
 import { useConfig, ShortcutConfigKey, ShortcutConfigKeys, ShortcutConfig } from '../ConfigManager'
 import keycode from 'keycode'
 import { useSpring, animated } from 'react-spring'

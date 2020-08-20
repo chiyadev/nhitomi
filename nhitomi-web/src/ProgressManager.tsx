@@ -44,6 +44,7 @@ export const ProgressManager = ({ children }: { children?: ReactNode }) => {
 
   return (
     <ProgressContext.Provider
+      children={children}
       value={useMemo(() => ({
         begin: () => {
           clearTimeout(done.current)
@@ -55,7 +56,6 @@ export const ProgressManager = ({ children }: { children?: ReactNode }) => {
           if (--count.current === 0)
             done.current = window.setTimeout(() => nprogress.done(), 200)
         }
-      }), [])}
-      children={children} />
+      }), [])} />
   )
 }

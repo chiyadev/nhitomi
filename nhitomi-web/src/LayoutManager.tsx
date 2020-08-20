@@ -25,25 +25,22 @@ export function useLayout() {
 export const LayoutManager = ({ children }: { children?: ReactNode }) => {
   const { width: windowWidth, height } = useWindowSize()
 
-  let screen: ScreenType = 'sm'
-  let width = windowWidth
-  let breakpoint = getBreakpoint(SmallBreakpoints, width)
-
-  if (width >= ScreenBreakpoint) {
-    screen = 'lg'
-    width -= StripWidth // on large screens there is a sidebar
-    breakpoint = getBreakpoint(LargeBreakpoints, width)
-  }
-
   return (
     <LayoutContext.Provider
-      value={useMemo(() => ({
-        width,
-        height,
-        screen,
-        breakpoint
-      }), [width, height, screen, breakpoint])}
-      children={children} />
+      children={children}
+      value={useMemo(() => {
+        let screen: ScreenType = 'sm'
+        let width = windowWidth
+        let breakpoint = getBreakpoint(SmallBreakpoints, width)
+
+        if (width >= ScreenBreakpoint) {
+          screen = 'lg'
+          width -= StripWidth // on large screens there is a sidebar
+          breakpoint = getBreakpoint(LargeBreakpoints, width)
+        }
+
+        return { screen, width, height, breakpoint }
+      }, [windowWidth, height])} />
   )
 }
 

@@ -49,22 +49,24 @@ export const Grid = ({ width, menu, empty }: {
     <div style={{ maxWidth: rowWidth }} className='mx-auto w-full'>
       <Menu children={menu} />
 
-      <div className={cx('flex flex-row flex-wrap justify-center', css`
-        padding-left: ${spacing / 2}px;
-        padding-right: ${spacing / 2}px;
-      `)}>
+      {useMemo(() => (
+        <div className={cx('flex flex-row flex-wrap justify-center', css`
+          padding-left: ${spacing / 2}px;
+          padding-right: ${spacing / 2}px;
+        `)}>
 
-        {useMemo(() => items.map(item => (
-          <Item
-            key={item.id}
-            book={item}
-            width={itemWidth}
-            height={itemHeight}
-            className={css`margin: ${spacing / 2}px;`} />
-        )), [itemHeight, itemWidth, items, spacing])}
+          {items.map(item => (
+            <Item
+              key={item.id}
+              book={item}
+              width={itemWidth}
+              height={itemHeight}
+              className={css`margin: ${spacing / 2}px;`} />
+          ))}
 
-        {!items.length && empty}
-      </div>
+          {!items.length && empty}
+        </div>
+      ), [empty, itemHeight, itemWidth, items, spacing])}
     </div>
   )
 }
@@ -97,8 +99,14 @@ const Item = ({ book, width, height, className }: {
 
   const content = useMemo(() => contentSelector(book), [book, contentSelector])
 
-  const overlay = useMemo(() => <ItemOverlay book={book} hover={hover} />, [book, hover])
-  const image = useMemo(() => showImage && <ItemCover book={book} content={content} />, [book, content, showImage])
+  const overlay = useMemo(() => (
+    <ItemOverlay book={book} hover={hover} />
+  ), [book, hover])
+
+  const image = useMemo(() => showImage && (
+    <ItemCover book={book} content={content} />
+  ), [book, content, showImage])
+
   const inner = useMemo(() => {
     const children = <>{image}{overlay}</>
 
@@ -122,6 +130,7 @@ const Item = ({ book, width, height, className }: {
     <ContextMenu overlay={(
       <Overlay book={book} content={content} />
     )}>
+
       <VisibilitySensor
         delayedCall
         partialVisibility

@@ -43,7 +43,8 @@ const ToastContainer = ({ children, placement, hasToasts }: ToastContainerProps)
 
   return (
     <animated.div
-      className={(
+      children={children}
+      className={useMemo(() => (
         cx('w-screen fixed p-4 z-50 text-center', { 'max-w-md': screen === 'lg' }, { 'pointer-events-none': !hasToasts }, placement
           .replace('-', ' ')
           .replace('top', 'top-0')
@@ -51,8 +52,7 @@ const ToastContainer = ({ children, placement, hasToasts }: ToastContainerProps)
           .replace('left', 'left-0')
           .replace('right', 'right-0')
           .replace('center', css`transform: translateX(-50%); left: 50%;`))
-      )}
-      children={children} />
+      ), [hasToasts, placement, screen])} />
   )
 }
 
@@ -102,11 +102,13 @@ function convertTypeToIcon(type: AppearanceTypes) {
     case 'warning': Icon = WarningTwoTone; color = 'orange'; break
   }
 
-  return <Icon className='text-lg w-6' twoToneColor={getColor(color).hex} />
+  return (
+    <Icon className='text-lg w-6' twoToneColor={getColor(color).hex} />
+  )
 }
 
 const NotifyToastContent = ({ type, title, description }: { type: AppearanceTypes, title?: ReactNode, description?: ReactNode }) => {
-  return <>
+  return useMemo(() => <>
     <div className='mb-3'>
       {convertTypeToIcon(type)}
       {' '}
@@ -116,50 +118,52 @@ const NotifyToastContent = ({ type, title, description }: { type: AppearanceType
     <div className='text-xs overflow-auto'>
       {description}
     </div>
-  </>
+  </>, [description, title, type])
 }
 
 const NotifyManager = ({ children }: { children?: ReactNode }) => {
   const { addToast } = useToasts()
 
   return (
-    <NotifyContext.Provider children={children} value={useMemo(() => ({
-      notify: (type, title, description) => {
-        addToast(<NotifyToastContent type={type} title={title} description={description} />)
-      },
-      notifyError: (error, title) => {
-        if (!(error instanceof Error))
-          error = Error((error as any)?.message || 'Unknown error.')
+    <NotifyContext.Provider
+      children={children}
+      value={useMemo(() => ({
+        notify: (type, title, description) => {
+          addToast(<NotifyToastContent type={type} title={title} description={description} />)
+        },
+        notifyError: (error, title) => {
+          if (!(error instanceof Error))
+            error = Error((error as any)?.message || 'Unknown error.')
 
-        if (error instanceof ValidationError) {
-          addToast(
-            <NotifyToastContent
-              type='error'
-              title={title || error.message}
-              description={(
-                <ul className='list-disc list-inside'>
-                  {error.list.map(problem => (
-                    <li>
-                      <code>{problem.field} </code>
-                      <span>{problem.messages.join(' ')}</span>
-                    </li>
-                  ))}
-                </ul>
-              )} />
-          )
+          if (error instanceof ValidationError) {
+            addToast(
+              <NotifyToastContent
+                type='error'
+                title={title || error.message}
+                description={(
+                  <ul className='list-disc list-inside'>
+                    {error.list.map(problem => (
+                      <li>
+                        <code>{problem.field} </code>
+                        <span>{problem.messages.join(' ')}</span>
+                      </li>
+                    ))}
+                  </ul>
+                )} />
+            )
+          }
+          else {
+            addToast(
+              <NotifyToastContent
+                type='error'
+                title={title || error.message}
+                description={(
+                  <code>{error.stack}</code>
+                )} />
+            )
+          }
         }
-        else {
-          addToast(
-            <NotifyToastContent
-              type='error'
-              title={title || error.message}
-              description={(
-                <code>{error.stack}</code>
-              )} />
-          )
-        }
-      }
-    }), [addToast])} />
+      }), [addToast])} />
   )
 }
 
@@ -187,16 +191,18 @@ const AlertManager = ({ children }: { children?: ReactNode }) => {
   const { addToast, removeAllToasts } = useToasts()
 
   return (
-    <AlertContext.Provider children={children} value={useMemo(() => ({
-      alert: (message, type) => {
-        let content = <span>{message}</span>
+    <AlertContext.Provider
+      children={children}
+      value={useMemo(() => ({
+        alert: (message, type) => {
+          let content = <span>{message}</span>
 
-        if (type)
-          content = <span>{convertTypeToIcon(type)} {content}</span>
+          if (type)
+            content = <span>{convertTypeToIcon(type)} {content}</span>
 
-        removeAllToasts()
-        addToast(content)
-      }
-    }), [addToast, removeAllToasts])} />
+          removeAllToasts()
+          addToast(content)
+        }
+      }), [addToast, removeAllToasts])} />
   )
 }

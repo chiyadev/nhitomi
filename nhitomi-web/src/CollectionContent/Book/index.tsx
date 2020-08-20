@@ -1,4 +1,4 @@
-import React, { Dispatch, useRef, useCallback } from 'react'
+import React, { Dispatch, useRef, useCallback, useMemo } from 'react'
 import { BookPrefetchResult } from '..'
 import { Container } from '../../Components/Container'
 import { useClient } from '../../ClientManager'
@@ -29,10 +29,12 @@ export const BookDisplay = ({ result, setResult }: { result: BookPrefetchResult,
 
   return (
     <Container className='divide-y divide-gray-darkest'>
-      <div className='p-2'>
-        <div className='text-2xl'>{collection.name}</div>
-        <div className='text-xs text-gray-darker'>{collection.description}</div>
-      </div>
+      {useMemo(() => (
+        <div className='p-2'>
+          <div className='text-2xl'>{collection.name}</div>
+          <div className='text-xs text-gray-darker'>{collection.description}</div>
+        </div>
+      ), [collection.description, collection.name])}
 
       <div className='py-2'>
         <BookList
@@ -46,7 +48,9 @@ export const BookDisplay = ({ result, setResult }: { result: BookPrefetchResult,
               <FormattedMessage id='pages.collectionContent.book.empty' />
             </EmptyIndicator>
           )}
-          OverlayComponent={props => <Overlay collection={collection} {...props} />} />
+          OverlayComponent={props => (
+            <Overlay collection={collection} {...props} />
+          )} />
 
         <Loader result={result} setResult={setResult} />
       </div>
