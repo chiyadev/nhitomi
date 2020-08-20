@@ -31,9 +31,8 @@
     "nhitomi-api": "file:nhitomi-api"
   },
   "scripts": {
-    "prestart": "node prestart",
-    "start": "tsc && cd build && node index.js",
-    "build": "tsc",
+    "start": "node prestart && tsc && cd build && node index.js",
+    "build": "node prestart && tsc",
     "genclient": "node ../scripts/genclient typescript-fetch"
   },
   "eslintConfig": {

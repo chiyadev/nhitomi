@@ -11,7 +11,6 @@ RUN npm run genclient
 
 COPY nhitomi-discord ./
 RUN npm run build
-RUN npm run prestart
 
 WORKDIR /app/build
 ENV NODE_ENV production

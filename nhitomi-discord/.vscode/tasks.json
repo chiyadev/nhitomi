@@ -9,15 +9,6 @@
         "$tsc"
       ],
       "group": "build"
-    },
-    {
-      "label": "preLaunchTask",
-      "type": "npm",
-      "script": "prestart",
-      "group": "build",
-      "dependsOn": [
-        "build"
-      ]
     }
   ]
 }
