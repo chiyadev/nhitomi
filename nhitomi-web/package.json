@@ -35,6 +35,7 @@
     "react-merge-refs": "^1.1.0",
     "react-router-dom": "^5.2.0",
     "react-scripts": "3.4.1",
+    "react-scrolllock": "^5.0.1",
     "react-spring": "9.0.0-rc.3",
     "react-toast-notifications": "^2.4.0",
     "react-use": "^15.3.3",
