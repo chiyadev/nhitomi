@@ -5,7 +5,7 @@ import { Book, BookContent, BookTag, ObjectType, SpecialCollection } from 'nhito
 import { Api } from '../api'
 import { DestroyTrigger } from '../Triggers/destroy'
 import { MessageContext } from '../context'
-import { Message } from 'discord.js'
+import { Message } from 'discord.js-light'
 import { ReadTrigger } from '../Triggers/read'
 import { FavoriteTrigger, FavoriteTriggerTarget } from '../Triggers/favorite'
 import { SourcesTrigger } from '../Triggers/sources'

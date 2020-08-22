@@ -1,4 +1,4 @@
-import { Message, MessageEmbed, MessageEmbedOptions, MessageReaction, PartialMessage, User, PartialUser } from 'discord.js'
+import { Message, MessageEmbed, MessageEmbedOptions, MessageReaction, PartialMessage, User, PartialUser } from 'discord.js-light'
 import { Lock } from 'semaphore-async-await'
 import deepEqual from 'fast-deep-equal'
 import config from 'config'

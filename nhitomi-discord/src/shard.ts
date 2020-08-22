@@ -1,5 +1,5 @@
 import './logging'
-import { Client, Message } from 'discord.js'
+import { Client, Message } from 'discord.js-light'
 import config from 'config'
 import { loadCommands, matchCommand } from './Commands'
 import { shouldHandleMessage, shouldHandleReaction } from './filter'

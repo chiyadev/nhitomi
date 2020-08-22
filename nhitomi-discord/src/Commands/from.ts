@@ -3,7 +3,7 @@ import { Api } from '../api'
 import { ScraperCategory, BookQuery, BookSort, SortDirection } from 'nhitomi-api'
 import { BookSearchMessage } from './search'
 import { MessageContext } from '../context'
-import { Message } from 'discord.js'
+import { Message } from 'discord.js-light'
 
 export function sourceInvalid(context: MessageContext, input: string): Promise<Message> {
   const l = context.locale.section('from.badSource')

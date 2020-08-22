@@ -3,7 +3,7 @@ import { InteractiveMessage, RenderResult, ReactionTrigger } from '../interactiv
 import { Locale } from '../locales'
 import { ListTrigger } from '../Triggers/list'
 import { Api } from '../api'
-import { MessageEmbedOptions } from 'discord.js'
+import { MessageEmbedOptions } from 'discord.js-light'
 import config from 'config'
 import { Discord } from '../shard'
 
@@ -25,7 +25,7 @@ class HelpMessage extends InteractiveMessage {
         url: 'https://github.com/chiyadev/nhitomi/raw/master/nhitomi.png'
       },
       footer: {
-        text: `v${Api.currentInfo.version.shortHash} — ${l.get('owner')}`
+        text: `b.${Api.currentInfo.version.shortHash} — ${l.get('owner')}`
       }
     }
 

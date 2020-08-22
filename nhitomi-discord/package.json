@@ -15,6 +15,7 @@
     "bufferutil": "^4.0.1",
     "config": "^3.3.1",
     "discord.js": "^12.2.0",
+    "discord.js-light": "^3.2.3",
     "eslint": "^7.0.0",
     "fast-deep-equal": "^3.1.1",
     "fs-extra": "^9.0.0",
@@ -32,7 +33,7 @@
   },
   "scripts": {
     "start": "node prestart && tsc && cd build && node index.js",
-    "build": "node prestart && tsc",
+    "build": "tsc && node prestart",
     "genclient": "node ../scripts/genclient typescript-fetch"
   },
   "eslintConfig": {

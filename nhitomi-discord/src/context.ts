@@ -1,7 +1,7 @@
 import { Locale } from './locales'
 import { User } from 'nhitomi-api'
 import { ApiClient, Api } from './api'
-import { Message } from 'discord.js'
+import { Message } from 'discord.js-light'
 import NodeCache from 'node-cache'
 import config from 'config'
 import { InteractiveMessage, HeadlessInteractiveMessage } from './interactive'
