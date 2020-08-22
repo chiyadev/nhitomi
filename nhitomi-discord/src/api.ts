@@ -147,5 +147,5 @@ class BotApiClient extends ApiClient {
 /** Global nhitomi API client authenticated as bot user. */
 export const Api = new BotApiClient()
 
-// refresh info every minute
-setInterval(() => Api.initialize(), 60 * 1000)
+// refresh client info frequently
+setInterval(() => Api.initialize(), 5 * 60 * 1000)
