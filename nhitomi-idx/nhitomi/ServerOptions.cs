@@ -8,7 +8,7 @@ namespace nhitomi
         /// <summary>
         /// Public facing server URL, without trailing slash.
         /// </summary>
-        public string PublicUrl { get; set; }
+        public string PublicUrl { get; set; } = "http://localhost:80";
 
         /// <summary>
         /// HTTP port to be used in non-development environment.
