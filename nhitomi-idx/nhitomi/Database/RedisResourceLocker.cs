@@ -56,7 +56,7 @@ namespace nhitomi.Database
 
             static readonly Counter _contention = Metrics.CreateCounter("locker_contention", "Number of failed attempts to acquire a lock.");
 
-            static readonly Histogram _time = Metrics.CreateHistogram("locker_time_milliseconds", "Time spent between lock acquire and release.", new HistogramConfiguration
+            static readonly Histogram _time = Metrics.CreateHistogram("locker_time", "Time spent between lock acquire and release.", new HistogramConfiguration
             {
                 Buckets = HistogramEx.ExponentialBuckets(10, 60000, 20)
             });

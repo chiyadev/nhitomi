@@ -388,7 +388,7 @@ namespace nhitomi.Database
             }
         }
 
-        static readonly Histogram _requestTime = Metrics.CreateHistogram("elastic_request_time_milliseconds", "Time spent on making Elasticsearch requests.", new HistogramConfiguration
+        static readonly Histogram _requestTime = Metrics.CreateHistogram("elastic_request_time", "Time spent on making Elasticsearch requests.", new HistogramConfiguration
         {
             Buckets = HistogramEx.ExponentialBuckets(10, 5000, 10)
         });

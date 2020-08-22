@@ -15,7 +15,7 @@ namespace nhitomi.Storage
     {
         public RootStorage(IServiceProvider services, IOptionsMonitor<StorageOptions> options) : base(services, options.CurrentValue) { }
 
-        static readonly Histogram _readTime = Metrics.CreateHistogram("storage_read_time_milliseconds", "Time spent on reading a file in the storage.", new HistogramConfiguration
+        static readonly Histogram _readTime = Metrics.CreateHistogram("storage_read_time", "Time spent on reading a file in the storage.", new HistogramConfiguration
         {
             Buckets = HistogramEx.ExponentialBuckets(10, 1000, 10)
         });
@@ -42,7 +42,7 @@ namespace nhitomi.Storage
             return result;
         }
 
-        static readonly Histogram _writeTime = Metrics.CreateHistogram("storage_write_time_milliseconds", "Time spent on writing a file in the storage.", new HistogramConfiguration
+        static readonly Histogram _writeTime = Metrics.CreateHistogram("storage_write_time", "Time spent on writing a file in the storage.", new HistogramConfiguration
         {
             Buckets = HistogramEx.ExponentialBuckets(10, 1000, 10)
         });
@@ -75,7 +75,7 @@ namespace nhitomi.Storage
             return result;
         }
 
-        static readonly Histogram _deleteTime = Metrics.CreateHistogram("storage_delete_time_milliseconds", "Time spent on deleting files in the storage.", new HistogramConfiguration
+        static readonly Histogram _deleteTime = Metrics.CreateHistogram("storage_delete_time", "Time spent on deleting files in the storage.", new HistogramConfiguration
         {
             Buckets = HistogramEx.ExponentialBuckets(10, 1000, 10)
         });

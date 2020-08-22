@@ -32,7 +32,7 @@ namespace nhitomi
             LabelNames = new[] { "result" }
         });
 
-        static readonly Histogram _time = Metrics.CreateHistogram("server_authentication_time_milliseconds", "Time spent on validating authenticated requests.", new HistogramConfiguration
+        static readonly Histogram _time = Metrics.CreateHistogram("server_authentication_time", "Time spent on validating authenticated requests.", new HistogramConfiguration
         {
             Buckets = HistogramEx.ExponentialBuckets(0.01, 50, 10)
         });

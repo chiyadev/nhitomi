@@ -88,7 +88,7 @@ namespace nhitomi.Scrapers
             _logger  = logger;
         }
 
-        static readonly Histogram _scrapingTime = Metrics.CreateHistogram("scraper_scraping_time_seconds", "Time spent on scraping a source.", new HistogramConfiguration
+        static readonly Histogram _scrapingTime = Metrics.CreateHistogram("scraper_scraping_time", "Time spent on scraping a source.", new HistogramConfiguration
         {
             Buckets    = HistogramEx.ExponentialBuckets(1, 30, 10),
             LabelNames = new[] { "type" }
@@ -114,7 +114,7 @@ namespace nhitomi.Scrapers
 
                         await TestAsync(stoppingToken);
 
-                        using (_scrapingTime.Labels(Type.ToString()).Measure(ObservationUnits.Seconds))
+                        using (_scrapingTime.Labels(Type.ToString()).Measure())
                             await RunAsync(stoppingToken);
 
                         _logger.LogDebug($"End {Type} scrape.");
@@ -132,7 +132,7 @@ namespace nhitomi.Scrapers
             }
         }
 
-        static readonly Histogram _testingTime = Metrics.CreateHistogram("scraper_testing_time_seconds", "Time spent on testing a source.", new HistogramConfiguration
+        static readonly Histogram _testingTime = Metrics.CreateHistogram("scraper_testing_time", "Time spent on testing a source.", new HistogramConfiguration
         {
             Buckets    = HistogramEx.ExponentialBuckets(1, 30, 10),
             LabelNames = new[] { "type" }
@@ -150,7 +150,7 @@ namespace nhitomi.Scrapers
             if (manager == null)
                 return;
 
-            using (_testingTime.Labels(Type.ToString()).Measure(ObservationUnits.Seconds))
+            using (_testingTime.Labels(Type.ToString()).Measure())
                 await manager.RunAsync(cancellationToken);
         }
 

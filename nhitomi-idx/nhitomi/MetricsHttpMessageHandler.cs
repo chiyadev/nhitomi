@@ -12,7 +12,7 @@ namespace nhitomi
     {
         // prefix should be "http_handler" because "http" usually relates to our kestrel server
 
-        static readonly Histogram _time = Metrics.CreateHistogram("http_handler_time_milliseconds", "Time spent on performing HTTP requests.", new HistogramConfiguration
+        static readonly Histogram _time = Metrics.CreateHistogram("http_handler_time", "Time spent on performing HTTP requests.", new HistogramConfiguration
         {
             Buckets    = HistogramEx.ExponentialBuckets(100, 10000, 10),
             LabelNames = new[] { "host", "method" }

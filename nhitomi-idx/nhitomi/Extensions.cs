@@ -67,8 +67,8 @@ namespace nhitomi
 
     public enum ObservationUnits
     {
-        Milliseconds = 0,
-        Seconds = 1
+        //Milliseconds = 0,
+        Seconds = 0
     }
 
     public static class Extensions
@@ -91,9 +91,9 @@ namespace nhitomi
 
                 switch (_units)
                 {
-                    case ObservationUnits.Milliseconds:
+                    /*case ObservationUnits.Milliseconds:
                         _observer.Observe(_measure.Milliseconds);
-                        break;
+                        break;*/
 
                     case ObservationUnits.Seconds:
                         _observer.Observe(_measure.Seconds);
@@ -105,7 +105,7 @@ namespace nhitomi
         /// <summary>
         /// Similar to <see cref="TimerExtensions.NewTimer(Prometheus.IObserver)"/> but observes the time in the specified unit.
         /// </summary>
-        public static IDisposable Measure(this IObserver observer, ObservationUnits units = ObservationUnits.Milliseconds) => new HistogramMeasureContext(observer, units);
+        public static IDisposable Measure(this IObserver observer, ObservationUnits units = ObservationUnits.Seconds) => new HistogramMeasureContext(observer, units);
 
         sealed class DisposableStackContext<T> : IDisposable
         {
