@@ -34,7 +34,6 @@ namespace nhitomi.Scrapers.Tests
                 "Demon Girl ♀",
                 "Garter Belt ♀",
                 "Loli ♀",
-                "Nakadashi ♀",
                 "School Swimsuit ♀",
                 "Sole Female ♀",
                 "Stockings ♀",
