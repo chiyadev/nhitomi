@@ -1,5 +1,6 @@
 import { SortDirection, BookSort, BookQuery, QueryMatchMode, LanguageType } from 'nhitomi-api'
 import { tokenize } from './SearchInput'
+import { Client, ClientInfo } from '../ClientManager'
 
 export const DefaultQueryLimit = 50
 
@@ -46,4 +47,22 @@ export function convertQuery({ query, order, sort, langs }: SearchQuery): BookQu
   }
 
   return result
+}
+
+export async function performQuery(client: Client, info: ClientInfo, query: SearchQuery) {
+  // try scanning for links first
+  if (query.query && info.scrapers.findIndex(s => !s.galleryRegexLax || query.query?.match(s.galleryRegexLax)?.length) !== -1) {
+    const { matches } = await client.book.getBooksByLink({ getBookByLinkRequest: { link: query.query } })
+
+    if (matches.length) {
+      return {
+        items: matches.map(match => match.book),
+        took: '',
+        total: matches.length
+      }
+    }
+  }
+
+  // if not, perform an actual search
+  return await client.book.searchBooks({ bookQuery: convertQuery(query) })
 }

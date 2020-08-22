@@ -1,5 +1,5 @@
 import React, { Dispatch, useMemo, useRef, useLayoutEffect } from 'react'
-import { SearchQuery, convertQuery, DefaultQueryLimit } from './search'
+import { SearchQuery, convertQuery, DefaultQueryLimit, performQuery } from './search'
 import { useQueryState, usePageState } from '../state'
 import { TypedPrefetchLinkProps, PrefetchLink, usePostfetch, PrefetchGenerator } from '../Prefetch'
 import { BookSearchResult, BookSort, SortDirection, Book } from 'nhitomi-api'
@@ -7,7 +7,7 @@ import { SearchInput } from './SearchInput'
 import { BookList } from '../Components/BookList'
 import { useAsync } from '../hooks'
 import { useNotify } from '../NotificationManager'
-import { useClient, Client } from '../ClientManager'
+import { useClient, useClientInfo } from '../ClientManager'
 import { LoadContainer } from '../Components/LoadContainer'
 import { useProgress } from '../ProgressManager'
 import { useScrollShortcut } from '../shortcut'
@@ -22,29 +22,12 @@ import { useLocalized } from '../LocaleManager'
 import { EmptyIndicator } from '../Components/EmptyIndicator'
 import { FormattedMessage } from 'react-intl'
 
-async function performQuery(client: Client, query: SearchQuery) {
-  // try scanning for links first
-  if (query.query) {
-    const { matches } = await client.book.getBooksByLink({ getBookByLinkRequest: { link: query.query } })
-
-    if (matches.length) {
-      return {
-        items: matches.map(match => match.book),
-        took: '',
-        total: matches.length
-      }
-    }
-  }
-
-  // if not, perform an actual search
-  return await client.book.searchBooks({ bookQuery: convertQuery(query) })
-}
-
 export type PrefetchResult = BookSearchResult & { nextOffset: number }
 export type PrefetchOptions = { query?: SearchQuery }
 
 export const useBookListingPrefetch: PrefetchGenerator<PrefetchResult, PrefetchOptions> = ({ mode, query: targetQuery }) => {
   const client = useClient()
+  const { info } = useClientInfo()
   const [languages] = useConfig('searchLanguages')
   const [currentQuery] = useQueryState<SearchQuery>()
 
@@ -70,7 +53,7 @@ export const useBookListingPrefetch: PrefetchGenerator<PrefetchResult, PrefetchO
     },
 
     fetch: async () => {
-      const result = await performQuery(client, query)
+      const result = await performQuery(client, info, query)
 
       return { ...result, nextOffset: DefaultQueryLimit }
     }
@@ -100,6 +83,7 @@ const Loaded = ({ result, setResult }: { result: PrefetchResult, setResult: Disp
   useTabTitle(useLocalized('pages.bookListing.title'))
 
   const client = useClient()
+  const { info } = useClientInfo()
   const { notifyError } = useNotify()
   const { begin, end } = useProgress()
 
@@ -123,7 +107,7 @@ const Loaded = ({ result, setResult }: { result: PrefetchResult, setResult: Disp
     const id = ++queryId.current
 
     try {
-      const result = await performQuery(client, query)
+      const result = await performQuery(client, info, query)
 
       if (queryId.current === id) {
         setResult({ ...result, nextOffset: DefaultQueryLimit })
