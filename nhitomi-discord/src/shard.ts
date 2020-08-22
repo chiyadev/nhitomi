@@ -15,16 +15,27 @@ import { getBuckets, measureHistogram } from './metrics'
 
 collectDefaultMetrics({ register })
 
+const cacheConfig = {
+  cacheGuilds: true, // required for prometheus guild metrics
+  cacheChannels: false,
+  cacheOverwrites: false,
+  cacheRoles: false,
+  cacheEmojis: false,
+  cachePresences: false
+}
+
 export const Discord = new Client({
+  ...cacheConfig,
+
   fetchAllMembers: false,
   messageCacheMaxSize: 0,
-  partials: [
-    'CHANNEL',
-    'GUILD_MEMBER',
-    'MESSAGE',
-    'REACTION',
-    'USER'
-  ],
+  // partials: [ no partials discord.js-light
+  //   'CHANNEL',
+  //   'GUILD_MEMBER',
+  //   'MESSAGE',
+  //   'REACTION',
+  //   'USER'
+  // ],
   ws: {
     intents: [
       'GUILDS',
