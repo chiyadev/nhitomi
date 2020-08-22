@@ -50,7 +50,7 @@ namespace nhitomi.Scrapers
 
             foreach (var entry in entries)
             {
-                var content = entry.Value.Contents?.OrderByDescending(c => c.Id).FirstOrDefault();
+                var content = entry.Value?.Contents?.OrderByDescending(c => c.Id).FirstOrDefault();
 
                 if (content == null)
                     continue;
