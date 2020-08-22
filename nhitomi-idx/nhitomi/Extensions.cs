@@ -54,7 +54,7 @@ namespace nhitomi
         /// <summary>
         /// Similar to <see cref="Histogram.ExponentialBuckets"/> but takes a max value instead of the common ratio.
         /// </summary>
-        public static double[] ExponentialBuckets(double min, double max, int count, int round = 2)
+        public static double[] ExponentialBuckets(double min, double max, int count, int round = 6)
         {
             var r = Math.Pow(max / min, 1.0 / (count - 1));
             var a = new double[count];

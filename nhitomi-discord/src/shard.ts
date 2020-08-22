@@ -101,7 +101,7 @@ const messageCount = new Counter({
 const commandTime = new Histogram({
   name: 'discord_command',
   help: 'Time spent on executing commands.',
-  buckets: getBuckets(50, 5000, 10),
+  buckets: getBuckets(0.05, 10, 12),
   labelNames: ['command']
 })
 

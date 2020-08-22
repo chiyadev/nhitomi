@@ -28,7 +28,7 @@ const interactiveCount = new Gauge({
 const interactiveRenderTime = new Histogram({
   name: 'discord_interactive_render',
   help: 'Time spent on rendering interactive messages.',
-  buckets: getBuckets(50, 2000, 5),
+  buckets: getBuckets(0.05, 2, 6),
   labelNames: ['type']
 })
 

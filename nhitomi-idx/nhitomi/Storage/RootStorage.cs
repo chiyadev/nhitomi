@@ -17,7 +17,7 @@ namespace nhitomi.Storage
 
         static readonly Histogram _readTime = Metrics.CreateHistogram("storage_read_time", "Time spent on reading a file in the storage.", new HistogramConfiguration
         {
-            Buckets = HistogramEx.ExponentialBuckets(10, 1000, 10)
+            Buckets = HistogramEx.ExponentialBuckets(0.01, 1, 10)
         });
 
         static readonly Counter _readResults = Metrics.CreateCounter("storage_read_results", "Results of storage read operations.", new CounterConfiguration
@@ -44,7 +44,7 @@ namespace nhitomi.Storage
 
         static readonly Histogram _writeTime = Metrics.CreateHistogram("storage_write_time", "Time spent on writing a file in the storage.", new HistogramConfiguration
         {
-            Buckets = HistogramEx.ExponentialBuckets(10, 1000, 10)
+            Buckets = HistogramEx.ExponentialBuckets(0.01, 1, 10)
         });
 
         static readonly Counter _writeResults = Metrics.CreateCounter("storage_write_results", "Results of storage write operations.", new CounterConfiguration
@@ -77,7 +77,7 @@ namespace nhitomi.Storage
 
         static readonly Histogram _deleteTime = Metrics.CreateHistogram("storage_delete_time", "Time spent on deleting files in the storage.", new HistogramConfiguration
         {
-            Buckets = HistogramEx.ExponentialBuckets(10, 1000, 10)
+            Buckets = HistogramEx.ExponentialBuckets(0.01, 1, 10)
         });
 
         static readonly Counter _deleteResults = Metrics.CreateCounter("storage_delete_results", "Number of files attempted deleted in the storage.");

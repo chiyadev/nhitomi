@@ -14,7 +14,7 @@ namespace nhitomi
 
         static readonly Histogram _time = Metrics.CreateHistogram("http_handler_time", "Time spent on performing HTTP requests.", new HistogramConfiguration
         {
-            Buckets    = HistogramEx.ExponentialBuckets(100, 10000, 10),
+            Buckets    = HistogramEx.ExponentialBuckets(0.1, 30, 10),
             LabelNames = new[] { "host", "method" }
         });
 

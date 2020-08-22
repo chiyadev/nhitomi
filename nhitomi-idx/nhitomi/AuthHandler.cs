@@ -34,7 +34,7 @@ namespace nhitomi
 
         static readonly Histogram _time = Metrics.CreateHistogram("server_authentication_time", "Time spent on validating authenticated requests.", new HistogramConfiguration
         {
-            Buckets = HistogramEx.ExponentialBuckets(0.01, 50, 10)
+            Buckets = HistogramEx.ExponentialBuckets(0.001, 1, 10)
         });
 
         protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
