@@ -6,6 +6,7 @@ import { Api } from '../api'
 import { MessageEmbedOptions } from 'discord.js-light'
 import config from 'config'
 import { Discord } from '../shard'
+import { ScraperType } from 'nhitomi-api'
 
 type Page = 'doujinshi' | 'collections' | 'oss'
 const Pages: Page[] = ['doujinshi', 'collections', 'oss']
@@ -51,7 +52,7 @@ class HelpMessage extends InteractiveMessage {
 `.trim()
         }, {
           name: l.get('sources.title'),
-          value: Api.currentInfo.scrapers.map(s => `- ${s.name} — ${s.url}`).sort().join('\n')
+          value: Api.currentInfo.scrapers.filter(s => s.type !== ScraperType.Unknown).map(s => `- ${s.name} — ${s.url}`).sort().join('\n')
         }]
         break
 
