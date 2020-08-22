@@ -12,6 +12,7 @@ import { AsyncArray } from './asyncArray'
 import { BookMessage } from './Commands/get'
 import { register, collectDefaultMetrics, Histogram, Counter, Gauge } from 'prom-client'
 import { getBuckets } from './metrics'
+import { RegExpCache } from './regex'
 
 collectDefaultMetrics({ register })
 
@@ -188,9 +189,13 @@ ${stack}
 
   // scan message for links (this is slightly different from n!get command because strict=false; allows multiple links)
   else {
+    // optimize api calls by first checking for the existence of links
     const content = message.content.trim()
+    const shouldScan = content && Api.currentInfo.scrapers.some(s => !s.galleryRegexLax || content.match(RegExpCache.get(s.galleryRegexLax))?.length)
 
-    if (!content)
+    console.log('content', content, 'shouldScan', shouldScan)
+
+    if (!shouldScan)
       return
 
     const result = await Api.book.getBooksByLink({ strict: false, getBookByLinkRequest: { link: content } })

@@ -131,8 +131,8 @@ class BotApiClient extends ApiClient {
 
   async initialize(): Promise<void> {
     const info = await this.info.getInfoAuthenticated()
-
     const refresh = !!this.currentInfo
+
     this.currentInfo = info
 
     if (!refresh)
