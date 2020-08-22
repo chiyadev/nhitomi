@@ -126,12 +126,7 @@ class BotApiClient extends ApiClient {
 
   /** Formats a link to a frontend route using publicUrl. */
   getWebLink(path: string): string {
-    const url = new URL(path, this.publicUrl)
-
-    // automatically authenticate using discord
-    url.searchParams.set('auth', 'discord')
-
-    return url.href
+    return new URL(path, this.publicUrl).href
   }
 
   async initialize(): Promise<void> {
