@@ -111,7 +111,7 @@ namespace nhitomi.Scrapers
                              .MultiSort(() => (SortDirection.Descending, null));
         }
 
-        public async IAsyncEnumerable<(IDbEntry<DbBook>, DbBookContent)> FindByUrlAsync(string url, bool strict, [EnumeratorCancellation] CancellationToken cancellationToken = default)
+        public virtual async IAsyncEnumerable<(IDbEntry<DbBook>, DbBookContent)> FindByUrlAsync(string url, bool strict, [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             if (UrlRegex == null)
                 yield break;

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using System.Threading;
 using ChiyaFlake;
@@ -14,6 +15,7 @@ namespace nhitomi.Scrapers
     /// </summary>
     public class nhitomiDummyBookScraper : BookScraperBase
     {
+        readonly IElasticClient _client;
         readonly ILinkGenerator _link;
 
         public override string Name => "nhitomi (dummy)";
@@ -23,9 +25,10 @@ namespace nhitomi.Scrapers
 
         sealed class Options : ScraperOptions { }
 
-        public nhitomiDummyBookScraper(IServiceProvider services, ILogger<nhitomiDummyBookScraper> logger, ILinkGenerator link) : base(services, Extensions.GetOptionsMonitor(new Options()), logger)
+        public nhitomiDummyBookScraper(IServiceProvider services, ILogger<nhitomiDummyBookScraper> logger, IElasticClient client, ILinkGenerator link) : base(services, Extensions.GetOptionsMonitor(new Options()), logger)
         {
-            _link = link;
+            _client = client;
+            _link   = link;
 
             var hostname = new Uri(_link.GetWebLink("/")).Authority;
 
@@ -35,5 +38,25 @@ namespace nhitomi.Scrapers
         public override string GetExternalUrl(DbBookContent content) => null;
 
         protected override IAsyncEnumerable<BookAdaptor> ScrapeAsync(CancellationToken cancellationToken = default) => AsyncEnumerable.Empty<BookAdaptor>();
+
+        public override async IAsyncEnumerable<(IDbEntry<DbBook>, DbBookContent)> FindByUrlAsync(string url, bool strict, [EnumeratorCancellation] CancellationToken cancellationToken = default)
+        {
+            var ids = UrlRegex.MatchIds(url, strict).ToArray();
+
+            if (ids.Length == 0)
+                yield break;
+
+            var entries = await _client.GetEntryManyAsync<DbBook>(ids, cancellationToken);
+
+            foreach (var entry in entries)
+            {
+                var content = entry.Value.Contents?.OrderByDescending(c => c.Id).FirstOrDefault();
+
+                if (content == null)
+                    continue;
+
+                yield return (entry, content);
+            }
+        }
     }
 }
