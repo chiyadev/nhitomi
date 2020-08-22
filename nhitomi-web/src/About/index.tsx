@@ -11,6 +11,7 @@ import { HeartFilled } from '@ant-design/icons'
 import { FilledButton } from '../Components/FilledButton'
 import { DiscordColor, DiscordOutlined } from '../Components/Icons/DiscordOutlined'
 import { FormattedMessage } from 'react-intl'
+import { ScraperType } from 'nhitomi-api'
 
 export type PrefetchResult = { info: ClientInfo }
 export type PrefetchOptions = {}
@@ -108,7 +109,7 @@ const Content = ({ info }: PrefetchResult) => {
       <div>Doujinshi are regularly scraped from the below sources and aggregated for convenient browsing.</div>
 
       <ul className='list-disc list-inside'>
-        {info.scrapers.map(scraper => (
+        {info.scrapers.filter(s => s.type !== ScraperType.Unknown).map(scraper => (
           <li key={scraper.type}>
             <img className='inline rounded-full w-6 h-6 mr-2 align-middle' alt={scraper.type} src={`/assets/icons/${scraper.type}.jpg`} />
 
