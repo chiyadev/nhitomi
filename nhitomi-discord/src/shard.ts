@@ -193,8 +193,6 @@ ${stack}
     const content = message.content.trim()
     const shouldScan = content && Api.currentInfo.scrapers.some(s => !s.galleryRegexLax || content.match(RegExpCache.get(s.galleryRegexLax))?.length)
 
-    console.log('content', content, 'shouldScan', shouldScan)
-
     if (!shouldScan)
       return
 

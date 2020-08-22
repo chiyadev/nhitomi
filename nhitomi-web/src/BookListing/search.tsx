@@ -51,7 +51,7 @@ export function convertQuery({ query, order, sort, langs }: SearchQuery): BookQu
 
 export async function performQuery(client: Client, info: ClientInfo, query: SearchQuery) {
   // try scanning for links first
-  if (query.query && info.scrapers.findIndex(s => !s.galleryRegexLax || query.query?.match(s.galleryRegexLax)?.length) !== -1) {
+  if (query.query && info.scrapers.findIndex(s => !s.galleryRegexLax || query.query?.match(new RegExp(s.galleryRegexLax, 'gi'))?.length) !== -1) {
     const { matches } = await client.book.getBooksByLink({ getBookByLinkRequest: { link: query.query } })
 
     if (matches.length) {
