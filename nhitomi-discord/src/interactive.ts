@@ -5,7 +5,7 @@ import config from 'config'
 import { MessageContext } from './context'
 import { Locale } from './locales'
 import { Gauge, Histogram, Counter } from 'prom-client'
-import { measureHistogram, getBuckets } from './metrics'
+import { getBuckets } from './metrics'
 
 type InteractiveInput = {
   userId: string
@@ -26,7 +26,7 @@ const interactiveCount = new Gauge({
 })
 
 const interactiveRenderTime = new Histogram({
-  name: 'discord_interactive_render_milliseconds',
+  name: 'discord_interactive_render',
   help: 'Time spent on rendering interactive messages.',
   buckets: getBuckets(50, 2000, 5),
   labelNames: ['type']
@@ -83,7 +83,7 @@ export abstract class InteractiveMessage {
   async update(): Promise<boolean> {
     await this.lock.wait()
 
-    const measure = measureHistogram(interactiveRenderTime, { type: this.constructor.name })
+    const measure = interactiveRenderTime.startTimer({ type: this.constructor.name })
 
     try {
       this.timeout.refresh()

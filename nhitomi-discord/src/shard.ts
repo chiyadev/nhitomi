@@ -11,7 +11,7 @@ import { BookListMessage } from './Commands/search'
 import { AsyncArray } from './asyncArray'
 import { BookMessage } from './Commands/get'
 import { register, collectDefaultMetrics, Histogram, Counter, Gauge } from 'prom-client'
-import { getBuckets, measureHistogram } from './metrics'
+import { getBuckets } from './metrics'
 
 collectDefaultMetrics({ register })
 
@@ -98,7 +98,7 @@ const messageCount = new Counter({
 })
 
 const commandTime = new Histogram({
-  name: 'discord_command_milliseconds',
+  name: 'discord_command',
   help: 'Time spent on executing commands.',
   buckets: getBuckets(50, 5000, 10),
   labelNames: ['command']
@@ -132,7 +132,7 @@ Discord.on('message', wrapHandler('message', async message => {
 
     const { name, run } = module
 
-    const measure = measureHistogram(commandTime, { command: name })
+    const measure = commandTime.startTimer({ command: name })
 
     try {
       await whileTyping(message.channel, async () => {
