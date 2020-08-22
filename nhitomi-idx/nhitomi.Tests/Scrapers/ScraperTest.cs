@@ -4,6 +4,7 @@ using NUnit.Framework;
 
 namespace nhitomi.Scrapers
 {
+    [TestFixture(typeof(nhitomiDummyBookScraper))]
     [TestFixture(typeof(nhentaiScraper))]
     [TestFixture(typeof(HitomiScraper))]
     public class ScraperTest<T> : TestBaseServices where T : IScraper
@@ -12,6 +13,9 @@ namespace nhitomi.Scrapers
         public async Task AllTests()
         {
             var tests = ActivatorUtilities.CreateInstance<T>(Services).TestManager;
+
+            if (tests == null)
+                return;
 
             tests.PickCount = null;
             tests.Parallel  = false;

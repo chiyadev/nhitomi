@@ -256,7 +256,8 @@ namespace nhitomi
             services.Configure<nhentaiScraperOptions>(_configuration.GetSection("Scraper:nhentai"))
                     .Configure<HitomiScraperOptions>(_configuration.GetSection("Scraper:Hitomi"));
 
-            services.AddInjectableHostedService<IScraper, nhentaiScraper>()
+            services.AddInjectableHostedService<IScraper, nhitomiDummyBookScraper>()
+                    .AddInjectableHostedService<IScraper, nhentaiScraper>()
                     .AddInjectableHostedService<IScraper, HitomiScraper>();
 
             // other

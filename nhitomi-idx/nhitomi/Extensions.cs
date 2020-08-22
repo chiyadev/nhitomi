@@ -16,6 +16,7 @@ using Microsoft.AspNetCore.Mvc.Abstractions;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using Prometheus;
 
 namespace nhitomi
@@ -73,6 +74,27 @@ namespace nhitomi
 
     public static class Extensions
     {
+        sealed class BasicOptionsMonitor<T> : IOptionsMonitor<T>
+        {
+            public T CurrentValue { get; }
+
+            public BasicOptionsMonitor(T value)
+            {
+                CurrentValue = value;
+            }
+
+            public T Get(string name) => CurrentValue;
+
+            sealed class DummyDisposable : IDisposable
+            {
+                public void Dispose() { }
+            }
+
+            public IDisposable OnChange(Action<T, string> listener) => new DummyDisposable();
+        }
+
+        public static IOptionsMonitor<T> GetOptionsMonitor<T>(T value) => new BasicOptionsMonitor<T>(value);
+
         sealed class HistogramMeasureContext : IDisposable
         {
             readonly MeasureContext _measure = new MeasureContext();
