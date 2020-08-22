@@ -37,6 +37,16 @@ namespace nhitomi.Models
         /// </summary>
         [Required]
         public string Url { get; set; }
+
+        /// <summary>
+        /// Lax version of the regex to match the gallery URL of this scraper.
+        /// </summary>
+        public string GalleryRegexLax { get; set; }
+
+        /// <summary>
+        /// Strict version of the regex to match the gallery URL of this scraper.
+        /// </summary>
+        public string GalleryRegexStrict { get; set; }
     }
 
     /// <summary>
