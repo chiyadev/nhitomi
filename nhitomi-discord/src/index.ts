@@ -1,4 +1,4 @@
-import { ShardingManager } from 'discord.js'
+import { ShardingManager } from 'discord.js-light'
 import config from 'config'
 import polka from 'polka'
 import { register, collectDefaultMetrics, AggregatorRegistry } from 'prom-client'
@@ -7,7 +7,8 @@ collectDefaultMetrics({ register })
 
 const shards = new ShardingManager('shard.js', {
   token: config.get('token'),
-  respawn: true
+  respawn: true,
+  mode: 'worker'
 })
 
 shards.spawn()
