@@ -6,7 +6,7 @@ using nhitomi.Models;
 using NUnit.Framework;
 using RichardSzalay.MockHttp;
 
-namespace nhitomi.Controllers
+namespace nhitomi.Controllers.OAuth
 {
     /// <summary>
     /// <see cref="DiscordOAuthHandler"/>

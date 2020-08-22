@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using nhitomi.Controllers.OAuth;
 using nhitomi.Database;
 using nhitomi.Models;
 using nhitomi.Models.Queries;

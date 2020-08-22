@@ -13,7 +13,7 @@ using nhitomi.Models;
 using nhitomi.Models.Queries;
 using IElasticClient = nhitomi.Database.IElasticClient;
 
-namespace nhitomi.Controllers
+namespace nhitomi.Controllers.OAuth
 {
     public class DiscordOAuthOptions
     {

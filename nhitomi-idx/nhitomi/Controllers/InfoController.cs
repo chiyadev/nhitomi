@@ -4,6 +4,7 @@ using Force.DeepCloner;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
+using nhitomi.Controllers.OAuth;
 using nhitomi.Database;
 using nhitomi.Models;
 using nhitomi.Scrapers;

@@ -21,6 +21,7 @@ using Microsoft.OpenApi.Models;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
 using nhitomi.Controllers;
+using nhitomi.Controllers.OAuth;
 using nhitomi.Database;
 using nhitomi.Documentation;
 using nhitomi.Models;
