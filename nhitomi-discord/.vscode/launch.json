@@ -8,6 +8,7 @@
       "skipFiles": [
         "<node_internals>/**"
       ],
+      "preLaunchTask": "build",
       "program": "${workspaceFolder}\\build\\index.js",
       "autoAttachChildProcesses": true,
       "cwd": "${workspaceFolder}\\build",

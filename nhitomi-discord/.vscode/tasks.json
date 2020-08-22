@@ -8,7 +8,15 @@
       "problemMatcher": [
         "$tsc"
       ],
-      "group": "build"
+      "group": "build",
+      "dependsOn": [
+        "prestart"
+      ]
+    },
+    {
+      "label": "prestart",
+      "type": "shell",
+      "command": "node prestart.js"
     }
   ]
 }
