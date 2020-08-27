@@ -9,6 +9,10 @@ using OneOf.Types;
 
 namespace nhitomi.Storage
 {
+    /// <summary>
+    /// A dictionary of glob prefixes mapping to nested storage options.
+    /// Dictionaries do not preserve the order of insertion, so pattern specificity is determined based on its length.
+    /// </summary>
     public class PrefixedStorageOptions : Dictionary<string, StorageOptions> { }
 
     public class PrefixedStorage : IStorage
@@ -33,6 +37,8 @@ namespace nhitomi.Storage
 
             foreach (var (prefix, inner) in options)
                 impls.Add(new PrefixedImpl(new Glob(prefix), new GenericStorage(services, inner)));
+
+            impls.Sort((a, b) => b.Prefix.Pattern.Length.CompareTo(a.Prefix.Pattern.Length));
 
             _impls = impls.ToArray();
         }
