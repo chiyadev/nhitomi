@@ -11,6 +11,7 @@ using Elasticsearch.Net;
 using MessagePack;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Microsoft.IO;
 using Nest;
 using nhitomi.Models;
 using nhitomi.Models.Queries;
@@ -344,7 +345,7 @@ namespace nhitomi.Database
         readonly ILogger<ElasticClient> _logger;
         readonly IServiceProvider _services;
 
-        public ElasticClient(IOptionsMonitor<ElasticOptions> options, IRedisClient redis, IResourceLocker locker, ILogger<ElasticClient> logger, IServiceProvider services)
+        public ElasticClient(IOptionsMonitor<ElasticOptions> options, IRedisClient redis, IResourceLocker locker, ILogger<ElasticClient> logger, IServiceProvider services, RecyclableMemoryStreamManager memory)
         {
             var opts = options.CurrentValue;
 
@@ -363,7 +364,7 @@ namespace nhitomi.Database
                 new ConnectionSettings(pool)
                    .DisableDirectStreaming()
                    .ThrowExceptions(false)
-                   .MemoryStreamFactory(new ElasticMemoryStreamFactory(Startup.MemoryStreamManager)));
+                   .MemoryStreamFactory(new ElasticMemoryStreamFactory(memory)));
         }
 
         public Task InitializeAsync(CancellationToken cancellationToken)
