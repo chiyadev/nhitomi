@@ -4,6 +4,7 @@ using System.IO;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Writers;
 using nhitomi.Database;
@@ -47,6 +48,11 @@ namespace nhitomi
             WebHost.CreateDefaultBuilder<Startup>(args)
                    .UseContentRoot(AppContext.BaseDirectory)
                    .UseWebRoot(Path.Combine(AppContext.BaseDirectory, "static"))
-                   .ConfigureAppConfiguration(config => config.Add(new ElasticConfigurationSource()));
+                   .ConfigureAppConfiguration(config =>
+                    {
+                        config.AddJsonFile("appsettings.Local.json", true, true);
+
+                        config.Add(new ElasticConfigurationSource());
+                    });
     }
 }
