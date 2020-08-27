@@ -11,7 +11,7 @@ namespace nhitomi.Storage
     /// <summary>
     /// Root node in the storage implementation tree that collects some metrics.
     /// </summary>
-    public class RootStorage : DefaultStorage
+    public class RootStorage : GenericStorage
     {
         public RootStorage(IServiceProvider services, IOptionsMonitor<StorageOptions> options) : base(services, options.CurrentValue) { }
 

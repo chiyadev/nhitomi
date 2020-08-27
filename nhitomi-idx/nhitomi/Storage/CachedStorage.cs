@@ -42,7 +42,7 @@ namespace nhitomi.Storage
             public string MediaType { get; set; }
         }
 
-        readonly DefaultStorage _impl;
+        readonly GenericStorage _impl;
         readonly CachedStorageOptions _options;
         readonly IRedisClient _redis;
         readonly ILogger<CachedStorage> _logger;
@@ -50,7 +50,7 @@ namespace nhitomi.Storage
 
         public CachedStorage(IServiceProvider services, CachedStorageOptions options, IRedisClient redis, ILogger<CachedStorage> logger, RecyclableMemoryStreamManager memory)
         {
-            _impl    = new DefaultStorage(services, options.Inner);
+            _impl    = new GenericStorage(services, options.Inner);
             _options = options;
             _redis   = redis;
             _logger  = logger;

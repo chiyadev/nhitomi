@@ -113,11 +113,11 @@ namespace nhitomi.Storage
     /// <summary>
     /// A storage implementation that delegates calls to another storage implementation configured by <see cref="StorageOptions"/>.
     /// </summary>
-    public class DefaultStorage : IStorage
+    public class GenericStorage : IStorage
     {
         readonly IStorage _impl;
 
-        public DefaultStorage(IServiceProvider services, StorageOptions options)
+        public GenericStorage(IServiceProvider services, StorageOptions options)
         {
             if (options.Memory != null)
                 _impl = ActivatorUtilities.CreateInstance<MemoryStorage>(services, options.Memory);
@@ -133,7 +133,7 @@ namespace nhitomi.Storage
 
             else throw new NotSupportedException("Unsupported storage.");
 
-            services.GetService<ILogger<DefaultStorage>>().LogWarning($"Created storage implementation: {_impl.GetType().Name}");
+            services.GetService<ILogger<GenericStorage>>().LogWarning($"Created storage implementation: {_impl.GetType().Name}");
         }
 
         public virtual Task InitializeAsync(CancellationToken cancellationToken = default) => _impl.InitializeAsync(cancellationToken);
