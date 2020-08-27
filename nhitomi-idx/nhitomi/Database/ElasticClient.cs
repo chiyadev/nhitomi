@@ -359,7 +359,11 @@ namespace nhitomi.Database
 
             var pool = new SingleNodeConnectionPool(new Uri($"http://{opts.Endpoint}"));
 
-            _client = new Nest.ElasticClient(new ConnectionSettings(pool).DisableDirectStreaming().ThrowExceptions(false));
+            _client = new Nest.ElasticClient(
+                new ConnectionSettings(pool)
+                   .DisableDirectStreaming()
+                   .ThrowExceptions(false)
+                   .MemoryStreamFactory(new ElasticMemoryStreamFactory(Startup.MemoryStreamManager)));
         }
 
         public Task InitializeAsync(CancellationToken cancellationToken)
