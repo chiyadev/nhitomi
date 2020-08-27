@@ -103,9 +103,21 @@ namespace nhitomi.Storage
             set => SetInner(value);
         }
 
+        /// <summary>
+        /// <see cref="S3Storage"/>
+        /// </summary>
         public S3StorageOptions S3
         {
             get => _inner as S3StorageOptions;
+            set => SetInner(value);
+        }
+
+        /// <summary>
+        /// <see cref="PrefixedStorage"/>
+        /// </summary>
+        public PrefixedStorageOptions Prefixed
+        {
+            get => _inner as PrefixedStorageOptions;
             set => SetInner(value);
         }
     }
@@ -130,6 +142,9 @@ namespace nhitomi.Storage
 
             else if (options.S3 != null)
                 _impl = ActivatorUtilities.CreateInstance<S3Storage>(services, options.S3);
+
+            else if (options.Prefixed != null)
+                _impl = ActivatorUtilities.CreateInstance<PrefixedStorage>(services, options.Prefixed);
 
             else throw new NotSupportedException("Unsupported storage.");
 
