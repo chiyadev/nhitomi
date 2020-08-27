@@ -28,7 +28,12 @@ namespace nhitomi.Storage
         /// <summary>
         /// <see cref="S3Storage"/>
         /// </summary>
-        S3
+        S3,
+
+        /// <summary>
+        /// <see cref="PrefixedStorage"/>
+        /// </summary>
+        Prefixed
     }
 
     /// <summary>
@@ -46,10 +51,11 @@ namespace nhitomi.Storage
         {
             get => _inner switch
             {
-                MemoryStorageOptions _ => StorageType.Memory,
-                LocalStorageOptions _  => StorageType.Local,
-                CachedStorageOptions _ => StorageType.Cached,
-                S3StorageOptions _     => StorageType.S3,
+                MemoryStorageOptions _   => StorageType.Memory,
+                LocalStorageOptions _    => StorageType.Local,
+                CachedStorageOptions _   => StorageType.Cached,
+                S3StorageOptions _       => StorageType.S3,
+                PrefixedStorageOptions _ => StorageType.Prefixed,
 
                 _ => throw new NotSupportedException($"Unsupported inner storage {_inner?.GetType().Name ?? "<null>"}.")
             };
@@ -60,10 +66,11 @@ namespace nhitomi.Storage
 
                 _inner = value switch
                 {
-                    StorageType.Memory => new MemoryStorageOptions(),
-                    StorageType.Local  => new LocalStorageOptions(),
-                    StorageType.Cached => new CachedStorageOptions(),
-                    StorageType.S3     => new S3StorageOptions(),
+                    StorageType.Memory   => new MemoryStorageOptions(),
+                    StorageType.Local    => new LocalStorageOptions(),
+                    StorageType.Cached   => new CachedStorageOptions(),
+                    StorageType.S3       => new S3StorageOptions(),
+                    StorageType.Prefixed => new PrefixedStorageOptions(),
 
                     _ => throw new NotSupportedException($"Unsupported inner storage {value}.")
                 };
