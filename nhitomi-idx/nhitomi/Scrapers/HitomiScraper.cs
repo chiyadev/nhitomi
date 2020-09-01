@@ -285,12 +285,7 @@ namespace nhitomi.Scrapers
         }
 
         // https://ltn.hitomi.la/common.js subdomain_from_galleryid
-        public static char SubdomainFromGalleryId(int id)
-        {
-            const int frontends = 3;
-
-            return (char) ('a' + id % frontends);
-        }
+        public static char SubdomainFromGalleryId(int id, int frontends = 3) => (char) ('a' + id % frontends);
 
         // https://ltn.hitomi.la/common.js full_path_from_hash
         public static string FullPathFromHash(string hash)
@@ -313,7 +308,17 @@ namespace nhitomi.Scrapers
 
             hash = DataContainer.DecompressHash(hash.Substring(0, hash.Length - ext.Length)); // substr instead of GetFileNameWithoutExtension because hash has slashes
 
-            var cdn = SubdomainFromGalleryId(Convert.ToInt32(hash.Substring(hash.Length - 3, 2), 16));
+            // https://ltn.hitomi.la/common.js subdomain_from_url
+            var galleryId = Convert.ToInt32(hash.Substring(hash.Length - 3, 2), 16);
+            var frontends = 3;
+
+            if (galleryId < 0x30)
+                frontends = 2;
+
+            if (galleryId < 0x09)
+                galleryId = 1;
+
+            var cdn = SubdomainFromGalleryId(galleryId, frontends);
             var url = index == -1
                 ? $"https://tn.hitomi.la/bigtn/{FullPathFromHash(hash)}.jpg" // it seems like hitomi thumbnails are always jpg
                 : $"https://{cdn}a.hitomi.la/images/{FullPathFromHash(hash)}{ext}";
