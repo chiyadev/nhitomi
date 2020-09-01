@@ -50,6 +50,13 @@
           "name": "Account",
           "description": "You are currently signed in as {name}.",
           "logout": "Log out"
+        },
+        "token": {
+          "name": "API",
+          "description": "This is your API access information.",
+          "docs": "View documentation",
+          "token": "Access token: {token}",
+          "warning": "Do not share this token with others. Your account security can be compromised."
         }
       },
       "appearance": {

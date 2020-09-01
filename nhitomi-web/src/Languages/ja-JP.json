@@ -50,6 +50,13 @@
           "name": "アカウント",
           "description": "あなたは{name}さんです。",
           "logout": "ログアウト"
+        },
+        "token": {
+          "name": "API",
+          "description": "あなたのAPIアクセス情報です。",
+          "docs": "APIドキュメントを見に行く",
+          "token": "アクセストークン：{token}",
+          "warning": "このトークンは他人と共有しないでください。アカウントのセキュリティが侵害される可能性があります。"
         }
       },
       "appearance": {

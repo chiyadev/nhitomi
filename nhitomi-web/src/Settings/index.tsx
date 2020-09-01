@@ -15,6 +15,7 @@ import { useTabTitle } from '../TitleSetter'
 import { useLocalized } from '../LocaleManager'
 import { PreferEnglishName } from './PreferEnglishName'
 import { Account } from './Account'
+import { Token } from './Token'
 
 export type PrefetchResult = ClientInfo
 export type PrefetchOptions = { focus?: SettingsFocus }
@@ -22,6 +23,7 @@ export type PrefetchOptions = { focus?: SettingsFocus }
 export type SettingsStructure = {
   user: {
     account: true
+    token: true
   }
   appearance: {
     language: true
@@ -97,7 +99,8 @@ const Loaded = () => {
           type='user'
           name={<span><UserOutlined /> <FormattedMessage id='pages.settings.user.header' /></span>}>
 
-          {[<Account />]}
+          <Account />
+          <Token />
         </Section>
 
         <Section
