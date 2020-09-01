@@ -80,15 +80,15 @@ export const BookListing = (options: PrefetchOptions) => {
 }
 
 const Loaded = ({ result, setResult }: { result: PrefetchResult, setResult: Dispatch<PrefetchResult> }) => {
-  useTabTitle(useLocalized('pages.bookListing.title'))
+  const [query] = useQueryState<SearchQuery>()
+  const queryId = useRef(0)
+
+  useTabTitle(query.query, useLocalized('pages.bookListing.title'))
 
   const client = useClient()
   const { info } = useClientInfo()
   const { notifyError } = useNotify()
   const { begin, end } = useProgress()
-
-  const [query] = useQueryState<SearchQuery>()
-  const queryId = useRef(0)
 
   // displayed results may not represent the current query if we navigated before storing the results
   const [effectiveQuery, setEffectiveQuery] = usePageState<SearchQuery>('query')
