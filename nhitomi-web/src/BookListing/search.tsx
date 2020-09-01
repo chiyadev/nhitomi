@@ -39,7 +39,7 @@ export function convertQuery({ query, order, sort, langs }: SearchQuery): BookQu
         const value = token.display.substring(token.display.indexOf(':'))
 
         if (value)
-          (result.tags![token.tag] || (result.tags![token.tag] = { values: [], mode: QueryMatchMode.All })).values.push(`"${value}"`) // tags are wrapped in quotes for phrase match
+          (result.tags![token.tag] || (result.tags![token.tag] = { values: [], mode: QueryMatchMode.All })).values.push(wrapTag(value))
 
         break
       }
@@ -47,6 +47,23 @@ export function convertQuery({ query, order, sort, langs }: SearchQuery): BookQu
   }
 
   return result
+}
+
+function wrapTag(tag: string) {
+  let negated = false
+
+  if (tag.startsWith('-')) {
+    negated = true
+    tag = tag.substring(1)
+  }
+
+  // tags are wrapped in quotes for phrase match
+  tag = `"${tag}"`
+
+  if (negated)
+    tag = '-' + tag
+
+  return tag
 }
 
 export async function performQuery(client: Client, info: ClientInfo, query: SearchQuery) {
