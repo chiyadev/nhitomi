@@ -15,7 +15,7 @@ namespace nhitomi.Scrapers
     {
         public abstract string Name { get; }
 
-        static readonly Histogram _responseTime = Metrics.CreateHistogram("scraper_image_response_time_milliseconds", "Time spent on writing scraper image result to response body.", new HistogramConfiguration
+        static readonly Histogram _responseTime = Metrics.CreateHistogram("scraper_image_response_time", "Time spent on writing scraper image result to response body.", new HistogramConfiguration
         {
             Buckets    = HistogramEx.ExponentialBuckets(0.01, 30, 20),
             LabelNames = new[] { "source" }
