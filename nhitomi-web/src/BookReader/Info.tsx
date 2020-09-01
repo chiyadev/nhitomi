@@ -47,8 +47,13 @@ export const Info = ({ book, content }: PrefetchResult) => {
       <div className='flex-1 space-y-4'>
         {useMemo(() => (
           <div>
-            <div className='text-2xl font-bold'>{(preferEnglishName && book.englishName) || book.primaryName}</div>
-            <div className='text-sm text-gray-darker'>{(!preferEnglishName && book.englishName) || book.primaryName}</div>
+            <BookListingLink query={{ query: (preferEnglishName && book.englishName) || book.primaryName }}>
+              <div className='text-2xl font-bold'>{(preferEnglishName && book.englishName) || book.primaryName}</div>
+            </BookListingLink>
+
+            <BookListingLink query={{ query: (!preferEnglishName && book.englishName) || book.primaryName }}>
+              <div className='text-sm text-gray-darker'>{(!preferEnglishName && book.englishName) || book.primaryName}</div>
+            </BookListingLink>
           </div>
         ), [book.englishName, book.primaryName, preferEnglishName])}
 
