@@ -3,6 +3,11 @@
     "home": {
       "title": "nhitomi"
     },
+    "notFound": {
+      "description": "ページが見つかりませんでした。",
+      "back": "戻る",
+      "home": "ホーム"
+    },
     "about": {
       "title": "情報",
       "subtitle": "nhitomiについて"

@@ -3,6 +3,11 @@
     "home": {
       "title": "nhitomi"
     },
+    "notFound": {
+      "description": "The requested page does not exist.",
+      "back": "Back",
+      "home": "Home"
+    },
     "about": {
       "title": "About",
       "subtitle": "Read about nhitomi's information."

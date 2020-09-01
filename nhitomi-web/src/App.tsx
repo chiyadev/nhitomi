@@ -23,6 +23,7 @@ import { OAuthCallback } from './Authentication/OAuthCallback'
 import { CollectionEdit } from './CollectionListing/Edit'
 import { Footer } from './Footer'
 import { About } from './About'
+import { NotFound } from './NotFound'
 
 export const App = () => {
   return (
@@ -83,6 +84,8 @@ const Routing = () => {
 
       <Route path='/settings' exact component={Settings} />
       <Route path='/settings/debug' exact component={Debug} />
+
+      <Route component={NotFound} />
     </Switch>
   ), [path])
 }
