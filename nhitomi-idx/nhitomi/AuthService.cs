@@ -9,7 +9,6 @@ using Microsoft.Extensions.Options;
 using nhitomi.Controllers;
 using nhitomi.Database;
 using OneOf;
-using StackExchange.Redis;
 
 namespace nhitomi
 {
@@ -36,8 +35,14 @@ namespace nhitomi
 
     public interface IAuthService
     {
+        /// <summary>
+        /// On initialization, this is set to a cryptographically random value.
+        /// <see cref="StartupInitializer"/> can override this value to preserve the secret across restarts or between clustered nhitomi instances.
+        /// </summary>
+        byte[] SigningSecret { get; set; }
+
         Task<string> GenerateTokenAsync(DbUser user, CancellationToken cancellationToken = default);
-        Task<byte[]> GetPayloadHashAsync(byte[] buffer, CancellationToken cancellationToken = default);
+        byte[] GetPayloadHashAsync(byte[] buffer, CancellationToken cancellationToken = default);
 
         Task<OneOf<AuthTokenPayload, TokenValidationError>> ValidateTokenAsync(string token);
 
@@ -52,10 +57,15 @@ namespace nhitomi
         readonly IOptionsMonitor<UserServiceOptions> _options;
         readonly IRedisClient _redis;
 
+        public byte[] SigningSecret { get; set; } = new byte[64]; // 64 is recommended https://docs.microsoft.com/en-us/dotnet/api/system.security.cryptography.hmacsha256.-ctor
+
         public AuthService(IOptionsMonitor<UserServiceOptions> options, IRedisClient redis)
         {
             _options = options;
             _redis   = redis;
+
+            using var rand = new RNGCryptoServiceProvider();
+            rand.GetBytes(SigningSecret);
         }
 
         public async Task<string> GenerateTokenAsync(DbUser user, CancellationToken cancellationToken = default)
@@ -67,7 +77,7 @@ namespace nhitomi
                 SessionId = await GetSessionIdAsync(user.Id, cancellationToken)
             }, _serializerOptions);
 
-            var hashBuffer = await GetPayloadHashAsync(payloadBuffer, cancellationToken);
+            var hashBuffer = GetPayloadHashAsync(payloadBuffer, cancellationToken);
 
             var payload = WebEncoders.Base64UrlEncode(payloadBuffer);
             var hash    = WebEncoders.Base64UrlEncode(hashBuffer);
@@ -77,11 +87,10 @@ namespace nhitomi
 
         readonly ConcurrentQueue<HMACSHA256> _hashes = new ConcurrentQueue<HMACSHA256>();
 
-        public async Task<byte[]> GetPayloadHashAsync(byte[] buffer, CancellationToken cancellationToken = default)
+        public byte[] GetPayloadHashAsync(byte[] buffer, CancellationToken cancellationToken = default)
         {
-            // get or create new hash processor
             if (!_hashes.TryDequeue(out var hash))
-                hash = new HMACSHA256(await GetSigningKeyAsync(cancellationToken));
+                hash = new HMACSHA256(SigningSecret);
 
             try
             {
@@ -105,7 +114,7 @@ namespace nhitomi
 
             // validate hash
             var hash1 = WebEncoders.Base64UrlDecode(parts[1]);
-            var hash2 = await GetPayloadHashAsync(buffer);
+            var hash2 = GetPayloadHashAsync(buffer);
 
             if (!hash1.BufferEquals(hash2))
                 return TokenValidationError.VerificationFailed;
@@ -121,30 +130,6 @@ namespace nhitomi
                 return TokenValidationError.Invalidated;
 
             return payload;
-        }
-
-        async ValueTask<byte[]> GetSigningKeyAsync(CancellationToken cancellationToken = default)
-        {
-            while (true)
-            {
-                // get key
-                var key = await _redis.GetAsync("config:signKey", cancellationToken);
-
-                // generate new key if null
-                if (key == null)
-                {
-                    using (var rand = new RNGCryptoServiceProvider())
-                    {
-                        key = new byte[64]; // 64 is recommended https://docs.microsoft.com/en-us/dotnet/api/system.security.cryptography.hmacsha256.-ctor
-                        rand.GetBytes(key);
-                    }
-
-                    if (!await _redis.SetAsync("config:signKey", key, null, When.NotExists, cancellationToken))
-                        continue;
-                }
-
-                return key;
-            }
         }
 
         public Task<long> GetSessionIdAsync(string userId, CancellationToken cancellationToken = default)

@@ -22,16 +22,18 @@ namespace nhitomi
         readonly IRedisClient _redis;
         readonly IElasticClient _elastic;
         readonly IStorage _storage;
+        readonly IAuthService _auth;
         readonly IReloadableConfigurationProvider[] _configProviders;
         readonly ILogger<StartupInitializer> _logger;
 
-        public StartupInitializer(IOptionsMonitor<UserServiceOptions> options, IServiceProvider services, IRedisClient redis, IElasticClient elastic, IStorage storage, IConfigurationRoot config, ILogger<StartupInitializer> logger)
+        public StartupInitializer(IOptionsMonitor<UserServiceOptions> options, IServiceProvider services, IRedisClient redis, IElasticClient elastic, IStorage storage, IAuthService auth, IConfigurationRoot config, ILogger<StartupInitializer> logger)
         {
             _options         = options;
             _services        = services;
             _redis           = redis;
             _elastic         = elastic;
             _storage         = storage;
+            _auth            = auth;
             _configProviders = config.Providers.OfType<IReloadableConfigurationProvider>().ToArray();
             _logger          = logger;
         }
@@ -46,6 +48,7 @@ namespace nhitomi
 
             await InitStorageAsync(cancellationToken);
             await ConfigureUsersAsync(cancellationToken);
+            await ConfigureAuthAsync(cancellationToken);
         }
 
         public bool SanityChecks { get; set; } = true;
@@ -146,6 +149,34 @@ namespace nhitomi
                     entry.Value.Permissions = new[] { UserPermissions.Administrator };
                 }
                 while (!await entry.TryUpdateAsync(cancellationToken));
+            }
+        }
+
+        public async Task ConfigureAuthAsync(CancellationToken cancellationToken = default)
+        {
+            var str = await _storage.ReadStringAsync("meta/secret", cancellationToken);
+
+            if (str == null)
+            {
+                // for older versions of nhitomi: migrate signing key stored in redis
+                var redisSignKey = await _redis.GetAsync("config:signKey", cancellationToken);
+
+                if (redisSignKey != null)
+                {
+                    str = Convert.ToBase64String(_auth.SigningSecret = redisSignKey);
+
+                    await _redis.DeleteAsync("config:signKey", cancellationToken);
+                }
+                else
+                {
+                    str = Convert.ToBase64String(_auth.SigningSecret);
+                }
+
+                await _storage.WriteStringAsync("meta/secret", str, cancellationToken);
+            }
+            else
+            {
+                _auth.SigningSecret = Convert.FromBase64String(str);
             }
         }
     }
