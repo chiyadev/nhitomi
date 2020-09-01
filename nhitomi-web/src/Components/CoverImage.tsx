@@ -1,4 +1,4 @@
-import React, { useLayoutEffect, useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useSpring, animated } from 'react-spring'
 import { cx } from 'emotion'
 import { Loading3QuartersOutlined, WarningTwoTone } from '@ant-design/icons'
@@ -42,7 +42,8 @@ export const CoverImage = ({ onLoad, onLoaded, className, zoomIn, autoSize, defa
     }
   }, [])
 
-  useLayoutEffect(() => loaded ? () => URL.revokeObjectURL(loaded.src) : undefined, [loaded])
+  // revocation can run async
+  useEffect(() => loaded ? () => URL.revokeObjectURL(loaded.src) : undefined, [loaded])
 
   const [showImage, setShowImage] = useState(false)
   const imageStyle = useSpring({
