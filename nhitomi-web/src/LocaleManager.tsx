@@ -1,6 +1,6 @@
 import React, { ReactNode, useState, useRef, useLayoutEffect } from 'react'
 import { IntlProvider, useIntl } from 'react-intl'
-import { useAsync } from './hooks'
+import { useAsync } from 'react-use'
 import { useProgress } from './ProgressManager'
 import { LanguageType } from 'nhitomi-api'
 import { useConfig } from './ConfigManager'

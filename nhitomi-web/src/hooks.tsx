@@ -1,18 +1,4 @@
-import { DependencyList, useLayoutEffect, useState } from 'react'
-import { useAsyncFn } from 'react-use'
-import { FnReturningPromise } from 'react-use/lib/util'
-
-// these are react-use hooks reimplemented using useLayoutEffect instead of useEffect
-
-export function useAsync<T extends FnReturningPromise>(fn: T, deps: DependencyList = []) {
-  const [state, callback] = useAsyncFn(fn, deps, {
-    loading: true
-  })
-
-  useLayoutEffect(() => { callback() }, [callback])
-
-  return state
-}
+import { useLayoutEffect, useState } from 'react'
 
 export function useWindowSize() {
   const [state, setState] = useState<{

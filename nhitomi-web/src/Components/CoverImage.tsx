@@ -1,6 +1,5 @@
 import React, { useLayoutEffect, useState } from 'react'
 import { useSpring, animated } from 'react-spring'
-import { useAsync } from '../hooks'
 import { cx } from 'emotion'
 import { Loading3QuartersOutlined, WarningTwoTone } from '@ant-design/icons'
 import { AbsoluteCenter } from './AbsoluteCenter'
@@ -8,6 +7,7 @@ import { Tooltip } from './Tooltip'
 import { FormattedMessage } from 'react-intl'
 import { probeImage } from '../imageUtils'
 import { getColor } from '../theme'
+import { useAsync } from 'react-use'
 
 function formatAspect(x: number) {
   return `${x * 100}%`

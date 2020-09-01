@@ -1,6 +1,6 @@
 import React, { ReactNode, useState } from 'react'
 import VisibilitySensor from 'react-visibility-sensor'
-import { useAsync } from '../hooks'
+import { useAsync } from 'react-use'
 import { cx } from 'emotion'
 import { useSpring, animated } from 'react-spring'
 import { Loading3QuartersOutlined } from '@ant-design/icons'

@@ -5,7 +5,6 @@ import { TypedPrefetchLinkProps, PrefetchLink, usePostfetch, PrefetchGenerator }
 import { BookSearchResult, BookSort, SortDirection, Book } from 'nhitomi-api'
 import { SearchInput } from './SearchInput'
 import { BookList } from '../Components/BookList'
-import { useAsync } from '../hooks'
 import { useNotify } from '../NotificationManager'
 import { useClient, useClientInfo } from '../ClientManager'
 import { LoadContainer } from '../Components/LoadContainer'
@@ -21,6 +20,7 @@ import { useTabTitle } from '../TitleSetter'
 import { useLocalized } from '../LocaleManager'
 import { EmptyIndicator } from '../Components/EmptyIndicator'
 import { FormattedMessage } from 'react-intl'
+import { useAsync } from 'react-use'
 
 export type PrefetchResult = BookSearchResult & { nextOffset: number }
 export type PrefetchOptions = { query?: SearchQuery }
