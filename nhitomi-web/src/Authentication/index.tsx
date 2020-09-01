@@ -1,4 +1,4 @@
-import React, { useLayoutEffect, useMemo } from 'react'
+import React, { useLayoutEffect, useMemo, useState } from 'react'
 import { useQueryState, useNavigator, NavigationArgs } from '../state'
 import { TypedPrefetchLinkProps, PrefetchLink, usePostfetch, PrefetchGenerator } from '../Prefetch'
 import { ClientInfo, useClientInfo } from '../ClientManager'
@@ -11,6 +11,7 @@ import { FilledButton } from '../Components/FilledButton'
 import { Disableable } from '../Components/Disableable'
 import { TwitterOutlined, TwitterColor } from '../Components/Icons/TwitterOutlined'
 import { useSpring, animated } from 'react-spring'
+import GitHubButton from 'react-github-btn'
 
 export type PrefetchResult = { info: ClientInfo, state: string }
 export type PrefetchOptions = { redirect?: NavigationArgs }
@@ -94,7 +95,7 @@ const Loaded = ({ info: { discordOAuthUrl }, state }: PrefetchResult) => {
   return <>
     <animated.img style={logoStyle} alt='logo' className='w-48 h-48 pointer-events-none select-none mx-auto mb-4 mt-8' src='/logo-192x192.png' />
 
-    <animated.div style={infoStyle}>
+    <animated.div style={infoStyle} className='space-y-8'>
       {useMemo(() => (
         <div className='space-y-1'>
           <div className='text-center text-2xl font-bold'>nhitomi</div>
@@ -102,7 +103,7 @@ const Loaded = ({ info: { discordOAuthUrl }, state }: PrefetchResult) => {
         </div>
       ), [])}
 
-      <div className='mt-8 flex flex-col items-center space-y-1'>
+      <div className='flex flex-col items-center space-y-1'>
         {useMemo(() => (
           <a href={appendState(discordOAuthUrl, state)}>
             <FilledButton className='text-sm' color={DiscordColor} icon={<DiscordOutlined />}>
@@ -119,6 +120,29 @@ const Loaded = ({ info: { discordOAuthUrl }, state }: PrefetchResult) => {
           </Disableable>
         ), [])}
       </div>
+
+      <GitHubButtons />
     </animated.div>
   </>
+}
+
+const GitHubButtons = () => {
+  const [hover, setHover] = useState(false)
+
+  const style = useSpring({
+    opacity: hover ? 1 : 0.5
+  })
+
+  return (
+    <animated.div
+      style={style}
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+      className='flex justify-center space-x-1 opacity-75'>
+
+      <GitHubButton href='https://github.com/chiyadev/nhitomi/subscription' data-icon='octicon-eye' data-show-count={true}>Watch</GitHubButton>
+      <GitHubButton href='https://github.com/chiyadev/nhitomi' data-icon='octicon-star' data-show-count={true}>Star</GitHubButton>
+      <GitHubButton href='https://github.com/chiyadev/nhitomi/fork' data-icon='octicon-repo-forked' data-show-count={true}>Fork</GitHubButton>
+    </animated.div>
+  )
 }
