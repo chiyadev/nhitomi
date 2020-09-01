@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Fastenshtein;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 
 namespace nhitomi.Scrapers.Tests
 {
@@ -20,6 +21,9 @@ namespace nhitomi.Scrapers.Tests
         public async Task RunAsync(CancellationToken cancellationToken = default)
         {
             var other = await GetAsync(cancellationToken);
+
+            if (_logger != null && _logger.IsEnabled(LogLevel.Debug))
+                _logger.LogDebug($"Test {GetType().Name} retrieved data: {JsonConvert.SerializeObject(other)}");
 
             NotNull(nameof(other), other);
             Match(other);
