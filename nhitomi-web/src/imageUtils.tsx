@@ -9,5 +9,5 @@ export async function probeImage(data: Blob): Promise<{
   wUnits: string
   hUnits: string
 }> {
-  return await probe(new Uint8Array(await new Response(data).arrayBuffer()))
+  return probe(new Uint8Array(await new Response(data).arrayBuffer()))
 }
