@@ -7,7 +7,7 @@ import { Dropdown, DropdownItem } from '../../Components/Dropdown'
 import { usePrefetch, useDynamicPrefetch } from '../../Prefetch'
 import { useCollectionListingPrefetch } from '../../CollectionListing'
 import { RoundIconButton } from '../../Components/RoundIconButton'
-import { DeleteOutlined, EditOutlined, HeartOutlined, EyeOutlined, StarOutlined, CopyOutlined } from '@ant-design/icons'
+import { DeleteOutlined, EditOutlined, HeartOutlined, EyeOutlined, StarOutlined, CopyOutlined, InfoCircleOutlined } from '@ant-design/icons'
 import { FormattedMessage } from 'react-intl'
 import { FlatButton } from '../../Components/FlatButton'
 import { Disableable } from '../../Components/Disableable'
@@ -15,12 +15,14 @@ import { CollectionEditLink } from '../../CollectionListing/Edit'
 import { Tooltip } from '../../Components/Tooltip'
 import { cx } from 'emotion'
 import { useCollectionContentPrefetch } from '..'
+import { NewTabLink } from '../../Components/NewTabLink'
 
 export const Menu = ({ collection }: { collection: Collection }) => <>
   <SpecialButton collection={collection} />
   <EditButton collection={collection} />
   <DuplicateButton collection={collection} />
   <DeleteButton collection={collection} />
+  <HelpButton />
 </>
 
 const SpecialButton = ({ collection }: { collection: Collection }) => {
@@ -204,3 +206,13 @@ const DeleteButton = ({ collection }: { collection: Collection }) => {
     </Dropdown>
   )
 }
+
+const HelpButton = () => (
+  <Tooltip placement='bottom' overlay={<FormattedMessage id='pages.collectionContent.book.menu.help' />}>
+    <NewTabLink href='https://github.com/chiyadev/nhitomi/wiki/Managing-collections-on-the-website'>
+      <RoundIconButton>
+        <InfoCircleOutlined />
+      </RoundIconButton>
+    </NewTabLink>
+  </Tooltip>
+)

@@ -161,7 +161,8 @@
           "delete": {
             "warning": "このコレクションを完全に削除します。",
             "button": "削除"
-          }
+          },
+          "help": "ヘルプ"
         },
         "overlay": {
           "delete": {

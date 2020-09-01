@@ -161,7 +161,8 @@
           "delete": {
             "warning": "This collection will be deleted permanently.",
             "button": "Delete"
-          }
+          },
+          "help": "Help"
         },
         "overlay": {
           "delete": {
