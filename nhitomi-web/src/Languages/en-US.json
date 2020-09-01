@@ -125,7 +125,14 @@
         "description": "Description",
         "cancel": "Back",
         "delete": "Delete",
-        "submit": "Submit"
+        "submit": "Submit",
+        "book": {
+          "duplicate": {
+            "name": "Duplicate",
+            "description": "This will create a new collection with identical contents.",
+            "success": "Collection successfully duplicated."
+          }
+        }
       },
       "book": {
         "menu": {
@@ -154,10 +161,6 @@
             "later": "Set as read later"
           },
           "edit": "Edit",
-          "duplicate": {
-            "item": "Duplicate",
-            "success": "Collection successfully duplicated."
-          },
           "delete": {
             "warning": "This collection will be deleted permanently.",
             "button": "Delete"

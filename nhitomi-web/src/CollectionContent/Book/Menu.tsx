@@ -1,26 +1,24 @@
 import React, { useState } from 'react'
 import { useClient, useClientInfo } from '../../ClientManager'
-import { useNotify, useAlert } from '../../NotificationManager'
+import { useNotify } from '../../NotificationManager'
 import { useProgress } from '../../ProgressManager'
-import { Collection, SpecialCollection, CollectionInsertPosition } from 'nhitomi-api'
+import { Collection, SpecialCollection } from 'nhitomi-api'
 import { Dropdown, DropdownItem } from '../../Components/Dropdown'
-import { usePrefetch, useDynamicPrefetch } from '../../Prefetch'
+import { usePrefetch } from '../../Prefetch'
 import { useCollectionListingPrefetch } from '../../CollectionListing'
 import { RoundIconButton } from '../../Components/RoundIconButton'
-import { DeleteOutlined, EditOutlined, HeartOutlined, EyeOutlined, StarOutlined, CopyOutlined, InfoCircleOutlined } from '@ant-design/icons'
+import { DeleteOutlined, EditOutlined, HeartOutlined, EyeOutlined, StarOutlined, InfoCircleOutlined } from '@ant-design/icons'
 import { FormattedMessage } from 'react-intl'
 import { FlatButton } from '../../Components/FlatButton'
 import { Disableable } from '../../Components/Disableable'
 import { CollectionEditLink } from '../../CollectionListing/Edit'
 import { Tooltip } from '../../Components/Tooltip'
 import { cx } from 'emotion'
-import { useCollectionContentPrefetch } from '..'
 import { NewTabLink } from '../../Components/NewTabLink'
 
 export const Menu = ({ collection }: { collection: Collection }) => <>
   <SpecialButton collection={collection} />
   <EditButton collection={collection} />
-  <DuplicateButton collection={collection} />
   <DeleteButton collection={collection} />
   <HelpButton />
 </>
@@ -103,61 +101,6 @@ const EditButton = ({ collection }: { collection: Collection }) => (
     </CollectionEditLink>
   </Tooltip>
 )
-
-const DuplicateButton = ({ collection }: { collection: Collection }) => {
-  const client = useClient()
-  const { begin, end } = useProgress()
-  const { notifyError } = useNotify()
-  const { alert } = useAlert()
-  const [loading, setLoading] = useState(false)
-  const [prefetchNode, navigate] = useDynamicPrefetch(useCollectionContentPrefetch)
-
-  return (
-    <Tooltip placement='bottom' overlay={<FormattedMessage id='pages.collectionContent.book.menu.duplicate.item' />}>
-      <Disableable disabled={loading}>
-        <RoundIconButton onClick={async () => {
-          begin()
-          setLoading(true)
-
-          try {
-            let created = await client.collection.createCollection({
-              createCollectionRequest: {
-                type: collection.type,
-                collection
-              }
-            })
-
-            if (collection.items.length) {
-              created = await client.collection.addCollectionItems({
-                id: created.id,
-                addCollectionItemsRequest: {
-                  items: collection.items,
-                  position: CollectionInsertPosition.Start
-                }
-              })
-            }
-
-            await navigate({ id: created.id })
-
-            alert(<FormattedMessage id='pages.collectionContent.book.menu.duplicate.success' />, 'success')
-          }
-          catch (e) {
-            notifyError(e)
-          }
-          finally {
-            end()
-            setLoading(false)
-          }
-        }}>
-
-          <CopyOutlined />
-        </RoundIconButton>
-      </Disableable>
-
-      {prefetchNode}
-    </Tooltip>
-  )
-}
 
 const DeleteButton = ({ collection }: { collection: Collection }) => {
   const client = useClient()

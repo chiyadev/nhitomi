@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useMemo } from 'react'
-import { Collection, User } from 'nhitomi-api'
+import { Collection, User, ObjectType } from 'nhitomi-api'
 import { PrefetchGenerator, usePostfetch, TypedPrefetchLinkProps, PrefetchLink, BackLink, usePrefetch } from '../Prefetch'
 import { useClient } from '../ClientManager'
 import { PageContainer } from '../Components/PageContainer'
@@ -17,6 +17,7 @@ import { useLocalized } from '../LocaleManager'
 import { getColor } from '../theme'
 import { useCollectionContentPrefetch } from '../CollectionContent'
 import { useCollectionListingPrefetch } from '.'
+import { Edit as BookEdit } from './Book/Edit'
 
 export type PrefetchResult = { collection: Collection, owner: User }
 export type PrefetchOptions = { id: string }
@@ -121,45 +122,51 @@ const Loaded = ({ collection, owner }: PrefetchResult) => {
       ), [collection.name, owner.username])}
 
       <Disableable disabled={loading}>
-        <div className='p-2 space-y-4 text-sm'>
-          {useMemo(() => (
-            <div>
-              <div className='mb-1'><FormattedMessage id='pages.collectionListing.edit.name' /></div>
+        <div className='text-sm space-y-8 divide-y divide-gray-darkest'>
+          <div className='p-2 space-y-4'>
+            {useMemo(() => (
+              <div>
+                <div className='mb-1'><FormattedMessage id='pages.collectionListing.edit.name' /></div>
 
-              <Input className='w-full max-w-sm' autoFocus allowClear value={name} setValue={setName} onSubmit={submit} />
-            </div>
-          ), [name, setName, submit])}
+                <Input className='w-full max-w-sm' autoFocus allowClear value={name} setValue={setName} onSubmit={submit} />
+              </div>
+            ), [name, setName, submit])}
 
-          {useMemo(() => (
-            <div>
-              <div className='mb-1'><FormattedMessage id='pages.collectionListing.edit.description' /></div>
+            {useMemo(() => (
+              <div>
+                <div className='mb-1'><FormattedMessage id='pages.collectionListing.edit.description' /></div>
 
-              <Input
-                type='textarea'
-                className='w-full max-w-sm'
-                value={description}
-                setValue={setDescription}
-                onSubmit={submit} />
-            </div>
-          ), [description, setDescription, submit])}
+                <Input
+                  type='textarea'
+                  className='w-full max-w-sm'
+                  value={description}
+                  setValue={setDescription}
+                  onSubmit={submit} />
+              </div>
+            ), [description, setDescription, submit])}
 
-          {useMemo(() => (
-            <div className='space-x-1'>
-              <BackLink>
-                <FlatButton icon={<LeftOutlined />}>
-                  <FormattedMessage id='pages.collectionListing.edit.cancel' />
+            {useMemo(() => (
+              <div className='space-x-1'>
+                <BackLink>
+                  <FlatButton icon={<LeftOutlined />}>
+                    <FormattedMessage id='pages.collectionListing.edit.cancel' />
+                  </FlatButton>
+                </BackLink>
+
+                <FlatButton color={getColor('red')} onClick={delette} icon={<DeleteOutlined />}>
+                  <FormattedMessage id='pages.collectionListing.edit.delete' />
                 </FlatButton>
-              </BackLink>
 
-              <FlatButton color={getColor('red')} onClick={delette} icon={<DeleteOutlined />}>
-                <FormattedMessage id='pages.collectionListing.edit.delete' />
-              </FlatButton>
+                <FilledButton color={getColor('blue')} onClick={submit} icon={loading ? <Loading3QuartersOutlined className='animate-spin' /> : <CheckOutlined />}>
+                  <FormattedMessage id='pages.collectionListing.edit.submit' />
+                </FilledButton>
+              </div>
+            ), [delette, loading, submit])}
+          </div>
 
-              <FilledButton color={getColor('blue')} onClick={submit} icon={loading ? <Loading3QuartersOutlined className='animate-spin' /> : <CheckOutlined />}>
-                <FormattedMessage id='pages.collectionListing.edit.submit' />
-              </FilledButton>
-            </div>
-          ), [delette, loading, submit])}
+          {useMemo(() => collection.type === ObjectType.Book && (
+            <BookEdit collection={collection} />
+          ), [collection])}
         </div>
       </Disableable>
     </Container>

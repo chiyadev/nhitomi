@@ -125,7 +125,14 @@
         "description": "説明",
         "cancel": "戻る",
         "delete": "削除",
-        "submit": "作成"
+        "submit": "作成",
+        "book": {
+          "duplicate": {
+            "name": "複製",
+            "description": "このコレクションを複製します。",
+            "success": "コレクションを複製しました。"
+          }
+        }
       },
       "book": {
         "menu": {
@@ -154,10 +161,6 @@
             "later": "後で読みに設定"
           },
           "edit": "編集",
-          "duplicate": {
-            "item": "複製",
-            "success": "コレクションを複製しました。"
-          },
           "delete": {
             "warning": "このコレクションを完全に削除します。",
             "button": "削除"
