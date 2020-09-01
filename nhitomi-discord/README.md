@@ -6,7 +6,7 @@ This is nhitomi [Discord](https://discord.com) bot written in Typescript using D
 
 - [Node.js 12+](https://nodejs.org/)
 - [Yarn](https://yarnpkg.com/)
-- [Java Runtime 8+](https://www.java.com/download/) (for [genclient](../docs/genclient.md))
+- [Java Runtime 8+](https://www.java.com/download/) (for [genclient](https://github.com/chiyadev/nhitomi/wiki/genclient)
 
 ### Setup
 
