@@ -153,7 +153,7 @@ const Content = ({ info }: PrefetchResult) => {
       <div>Want to build something custom instead?</div>
 
       <ul className='list-disc list-inside'>
-        <li>nhitomi provides an HTTP API service, complete with <a className='text-blue' href='/api/v1'>documentation</a> and an <a className='text-blue' href='/api/v1/docs.json'>OpenAPI 3.0 specification</a></li>
+        <li>nhitomi provides an HTTP API service, complete with <NewTabLink className='text-blue' href='https://github.com/chiyadev/nhitomi/wiki/API'>documentation</NewTabLink> and an <NewTabLink className='text-blue' href='/api/v1/docs.json'>OpenAPI 3.0 specification</NewTabLink></li>
       </ul>
     </div>
 
