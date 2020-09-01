@@ -18,7 +18,7 @@ Join the [Discord server](https://discord.gg/JFNga7q) or [invite the nhitomi bot
 
 ## API
 
-Please see the [API Documentation](https://nhitomi.chiya.dev/api/v1).
+Please see the [wiki](https://github.com/chiyadev/nhitomi/wiki/API).
 
 ## License
 

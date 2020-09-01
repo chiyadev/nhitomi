@@ -34,7 +34,7 @@ export const Footer = () => {
             <LinkText>Discord</LinkText>
           </NewTabLink>
           <Split />
-          <NewTabLink href='/api/v1'>
+          <NewTabLink href='https://github.com/chiyadev/nhitomi/wiki/API'>
             <LinkText>API</LinkText>
           </NewTabLink>
           <Split />
