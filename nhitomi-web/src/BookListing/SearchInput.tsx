@@ -22,6 +22,7 @@ export type QueryToken = {
   end: number
   text: string
   display: string
+  url: boolean
 } | {
   type: 'tag'
   index: number
@@ -42,6 +43,12 @@ export function tokenize(text: string): QueryToken[] {
 
   const addOther = (start: number, end: number) => {
     const s = text.substring(start, end)
+    let url = false
+
+    try {
+      url = !!new URL(s)
+    }
+    catch { /* ignored */ }
 
     results.push({
       type: 'other',
@@ -49,7 +56,8 @@ export function tokenize(text: string): QueryToken[] {
       begin: start + (s.length - s.trimStart().length),
       end: start + s.trimEnd().length,
       text: s,
-      display: s.replace(/_/g, ' ').trim()
+      display: s.replace(/_/g, ' ').trim(),
+      url
     })
   }
 
@@ -223,7 +231,7 @@ const Highlighter = ({ tokens, inputRef, className }: { tokens: QueryToken[], in
         switch (token.type) {
           case 'other':
             return (
-              <span key={token.index}>{token.text}</span>
+              <span className={cx({ 'text-cyan': token.url })} key={token.index}>{token.text}</span>
             )
 
           case 'tag':
