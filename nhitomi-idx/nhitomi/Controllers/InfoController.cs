@@ -18,14 +18,16 @@ namespace nhitomi.Controllers
     public class InfoController : nhitomiControllerBase
     {
         readonly IServiceProvider _services;
+        readonly IOptionsMonitor<ServerOptions> _options;
         readonly ILinkGenerator _link;
         readonly IDiscordOAuthHandler _discordOAuth;
         readonly IScraperService _scrapers;
         readonly RecaptchaOptions _recaptchaOptions;
 
-        public InfoController(IServiceProvider services, ILinkGenerator link, IOptionsSnapshot<RecaptchaOptions> recaptchaOptions, IDiscordOAuthHandler discordOAuth, IScraperService scrapers)
+        public InfoController(IServiceProvider services, IOptionsMonitor<ServerOptions> options, ILinkGenerator link, IOptionsSnapshot<RecaptchaOptions> recaptchaOptions, IDiscordOAuthHandler discordOAuth, IScraperService scrapers)
         {
             _services         = services;
+            _options          = options;
             _link             = link;
             _discordOAuth     = discordOAuth;
             _scrapers         = scrapers;
@@ -66,6 +68,12 @@ namespace nhitomi.Controllers
             /// </summary>
             [Required]
             public ScraperInfo[] Scrapers { get; set; }
+
+            /// <summary>
+            /// True if the server is in maintenance mode.
+            /// </summary>
+            [Required]
+            public bool Maintenance { get; set; }
         }
 
         /// <summary>
@@ -78,6 +86,7 @@ namespace nhitomi.Controllers
             Version          = VersionInfo.Commit,
             RecaptchaSiteKey = _recaptchaOptions.SiteKey,
             DiscordOAuthUrl  = _discordOAuth.AuthorizeUrl,
+
             Scrapers = _scrapers.ToArray(s => new ScraperInfo
             {
                 Name               = s.Name,
@@ -87,7 +96,9 @@ namespace nhitomi.Controllers
                 Url                = s.Url,
                 GalleryRegexLax    = s.UrlRegex?.Lax.ToString(),
                 GalleryRegexStrict = s.UrlRegex?.Strict.ToString()
-            })
+            }),
+
+            Maintenance = _options.CurrentValue.BlockDatabaseWrites
         };
 
         public class GetInfoAuthenticatedResponse : GetInfoResponse
