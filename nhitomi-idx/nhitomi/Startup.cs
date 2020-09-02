@@ -246,7 +246,8 @@ namespace nhitomi
                     .AddSingleton<IVoteService, VoteService>()
                     .AddSingleton<ICollectionService, CollectionService>();
 
-            services.AddSingleton<IMigrationManager, MigrationManager>();
+            services.AddSingleton<IWriteControl, WriteControl>()
+                    .AddSingleton<IMigrationManager, MigrationManager>();
 
             // redis
             services.Configure<RedisOptions>(_configuration.GetSection("Redis"))

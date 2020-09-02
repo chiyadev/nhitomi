@@ -59,8 +59,12 @@ namespace nhitomi
         public TimeSpan DynamicConfigReloadInterval { get; set; } = TimeSpan.FromSeconds(2);
 
         /// <summary>
-        /// Whether the server is in maintenance mode, which blocks all writes to the database.
+        /// Whether all routes that write to the database should be blocked.
         /// </summary>
-        public bool Maintenance { get; set; }
+        /// <remarks>
+        /// This flag is used during background database migration.
+        /// This does NOT directly block any elasticsearch requests.
+        /// </remarks>
+        public bool BlockDatabaseWrites { get; set; }
     }
 }

@@ -111,7 +111,7 @@ namespace nhitomi.Models
         RestrictUsers = 1 << 2,
 
         /// <summary>
-        /// Can manage internal server configuration, maintenance mode, restart, etc.
+        /// Can manage internal server configuration.
         /// </summary>
         ManageServer = 1 << 3,
 

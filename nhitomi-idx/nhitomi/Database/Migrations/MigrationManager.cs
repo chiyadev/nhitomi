@@ -45,15 +45,17 @@ namespace nhitomi.Database.Migrations
         readonly IServiceProvider _services;
         readonly IResourceLocker _locker;
         readonly IOptionsMonitor<ElasticOptions> _options;
+        readonly IWriteControl _writeControl;
         readonly Nest.ElasticClient _client;
         readonly ILogger<MigrationManager> _logger;
 
-        public MigrationManager(IServiceProvider services, IResourceLocker locker, IOptionsMonitor<ElasticOptions> options, RecyclableMemoryStreamManager memory, ILogger<MigrationManager> logger)
+        public MigrationManager(IServiceProvider services, IResourceLocker locker, IOptionsMonitor<ElasticOptions> options, IWriteControl writeControl, RecyclableMemoryStreamManager memory, ILogger<MigrationManager> logger)
         {
-            _services = services;
-            _locker   = locker;
-            _options  = options;
-            _logger   = logger;
+            _services     = services;
+            _locker       = locker;
+            _options      = options;
+            _writeControl = writeControl;
+            _logger       = logger;
 
             var pool = new SingleNodeConnectionPool(new Uri($"http://{options.CurrentValue.Endpoint}"));
 
@@ -83,7 +85,10 @@ namespace nhitomi.Database.Migrations
 
         public async Task RunAsync(CancellationToken cancellationToken = default)
         {
-            await using (await _locker.EnterAsync("migrations", cancellationToken))
+            // block database writes
+            await _writeControl.BlockAsync(cancellationToken);
+
+            await using (await _locker.EnterAsync("maintenance:migrations", cancellationToken))
             {
                 var options = _options.CurrentValue;
                 var indexes = await _client.Cat.IndicesAsync(c => c.Index($"{options.IndexPrefix}*"), cancellationToken);
@@ -165,6 +170,9 @@ namespace nhitomi.Database.Migrations
                     migrationIds[name] = currentId;
                 }
             }
+
+            // allow database writes
+            await _writeControl.UnblockAsync(cancellationToken);
         }
     }
 }
