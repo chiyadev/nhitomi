@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using ChiyaFlake;
 using Elasticsearch.Net;
 using MessagePack;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IO;
@@ -245,6 +246,7 @@ namespace nhitomi.Database
 
     public interface IElasticClient : IDisposable
     {
+        Nest.ElasticClient GetInternalClient();
         Task InitializeAsync(CancellationToken cancellationToken = default);
 
         /// <summary>
@@ -341,7 +343,7 @@ namespace nhitomi.Database
         readonly ILogger<ElasticClient> _logger;
         readonly IServiceProvider _services;
 
-        public ElasticClient(IOptionsMonitor<ElasticOptions> options, IRedisClient redis, IResourceLocker locker, ILogger<ElasticClient> logger, IServiceProvider services, RecyclableMemoryStreamManager memory)
+        public ElasticClient(IOptionsMonitor<ElasticOptions> options, IRedisClient redis, IResourceLocker locker, ILogger<ElasticClient> logger, IServiceProvider services, RecyclableMemoryStreamManager memory, IHostEnvironment environment)
         {
             var opts = options.CurrentValue;
 
@@ -358,10 +360,12 @@ namespace nhitomi.Database
 
             _client = new Nest.ElasticClient(
                 new ConnectionSettings(pool)
-                   .DisableDirectStreaming()
+                   .DisableDirectStreaming(environment.IsDevelopment())
                    .ThrowExceptions(false)
                    .MemoryStreamFactory(new ElasticMemoryStreamFactory(memory)));
         }
+
+        public Nest.ElasticClient GetInternalClient() => _client;
 
         public Task InitializeAsync(CancellationToken cancellationToken)
         {

@@ -10,7 +10,7 @@ namespace nhitomi.Database.Migrations
     /// </summary>
     public class Migration202001010000 : MigrationBase
     {
-        public Migration202001010000(IOptionsMonitor<ElasticOptions> options, Nest.ElasticClient client, ILogger<Migration202001010000> logger) : base(options, client, logger) { }
+        public Migration202001010000(IOptionsMonitor<ElasticOptions> options, IElasticClient client, ILogger<Migration202001010000> logger) : base(options, client, logger) { }
 
         public override Task RunAsync(CancellationToken cancellationToken = default) => Task.CompletedTask;
     }

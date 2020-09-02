@@ -3,12 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Elasticsearch.Net;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IO;
-using Nest;
 
 namespace nhitomi.Database.Migrations
 {
@@ -43,26 +41,20 @@ namespace nhitomi.Database.Migrations
         public static readonly long LatestMigrationId = MigrationTypes.Keys.OrderByDescending(x => x).First();
 
         readonly IServiceProvider _services;
+        readonly Nest.ElasticClient _client;
         readonly IResourceLocker _locker;
         readonly IOptionsMonitor<ElasticOptions> _options;
         readonly IWriteControl _writeControl;
-        readonly Nest.ElasticClient _client;
         readonly ILogger<MigrationManager> _logger;
 
-        public MigrationManager(IServiceProvider services, IResourceLocker locker, IOptionsMonitor<ElasticOptions> options, IWriteControl writeControl, RecyclableMemoryStreamManager memory, ILogger<MigrationManager> logger)
+        public MigrationManager(IServiceProvider services, IElasticClient client, IResourceLocker locker, IOptionsMonitor<ElasticOptions> options, IWriteControl writeControl, RecyclableMemoryStreamManager memory, ILogger<MigrationManager> logger)
         {
             _services     = services;
+            _client       = client.GetInternalClient();
             _locker       = locker;
             _options      = options;
             _writeControl = writeControl;
             _logger       = logger;
-
-            var pool = new SingleNodeConnectionPool(new Uri($"http://{options.CurrentValue.Endpoint}"));
-
-            _client = new Nest.ElasticClient(
-                new ConnectionSettings(pool)
-                   .ThrowExceptions(false)
-                   .MemoryStreamFactory(new ElasticMemoryStreamFactory(memory)));
         }
 
         /// <summary>

@@ -24,12 +24,12 @@ namespace nhitomi.Database.Migrations
         readonly Nest.ElasticClient _client;
         readonly ILogger<MigrationBase> _logger;
 
-        protected MigrationBase(IOptionsMonitor<ElasticOptions> options, Nest.ElasticClient client, ILogger<MigrationBase> logger)
+        protected MigrationBase(IOptionsMonitor<ElasticOptions> options, IElasticClient client, ILogger<MigrationBase> logger)
         {
             Id = GetMigrationIdFromType(GetType());
 
             _options = options;
-            _client  = client;
+            _client  = client.GetInternalClient();
             _logger  = logger;
         }
 
