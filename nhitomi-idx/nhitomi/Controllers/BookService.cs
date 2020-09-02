@@ -26,7 +26,7 @@ namespace nhitomi.Controllers
     {
         Task<OneOf<DbBook, NotFound>> GetAsync(string id, CancellationToken cancellationToken = default);
         Task<OneOf<(DbBook, DbBookContent), NotFound>> GetContentAsync(string id, string contentId, CancellationToken cancellationToken = default);
-        IAsyncEnumerable<(IDbEntry<DbBook>, DbBookContent)> GetByLinkAsync(string link, bool strict, CancellationToken cancellationToken = default);
+        IAsyncEnumerable<(DbBook, DbBookContent)> GetByLinkAsync(string link, bool strict, CancellationToken cancellationToken = default);
         Task<DbBook[]> GetManyAsync(string[] ids, CancellationToken cancellationToken = default);
 
         Task<SearchResult<DbBook>> SearchAsync(BookQuery query, CancellationToken cancellationToken = default);
@@ -35,6 +35,7 @@ namespace nhitomi.Controllers
 
         Task<OneOf<DbBook, NotFound>> UpdateAsync(string id, BookBase book, SnapshotArgs snapshot, CancellationToken cancellationToken = default);
         Task<OneOf<(DbBook, DbBookContent), NotFound>> UpdateContentAsync(string id, string contentId, BookContentBase content, SnapshotArgs snapshot, CancellationToken cancellationToken = default);
+        Task<OneOf<DbBook, NotFound>> RefreshAsync(string id, string contentId, CancellationToken cancellationToken = default);
 
         Task<OneOf<Success, NotFound>> DeleteAsync(string id, SnapshotArgs snapshot, CancellationToken cancellationToken = default);
         Task<OneOf<DbBook, Success, NotFound>> DeleteContentAsync(string id, string contentId, SnapshotArgs snapshot, CancellationToken cancellationToken = default);
@@ -82,8 +83,12 @@ namespace nhitomi.Controllers
             return (book, content);
         }
 
-        public IAsyncEnumerable<(IDbEntry<DbBook>, DbBookContent)> GetByLinkAsync(string link, bool strict, CancellationToken cancellationToken = default)
-            => _scrapers.Books.ToAsyncEnumerable().SelectMany(s => s.FindByUrlAsync(link, strict, cancellationToken));
+        public IAsyncEnumerable<(DbBook, DbBookContent)> GetByLinkAsync(string link, bool strict, CancellationToken cancellationToken = default)
+            => _scrapers.Books.ToAsyncEnumerable().SelectMany(s => s.FindByUrlAsync(link, strict, cancellationToken).Select(x =>
+            {
+                var (entry, content) = x;
+                return (entry.Value, content);
+            }));
 
         public Task<DbBook[]> GetManyAsync(string[] ids, CancellationToken cancellationToken = default)
             => _client.GetManyAsync<DbBook>(ids, cancellationToken);
@@ -164,6 +169,36 @@ namespace nhitomi.Controllers
                 Source = SnapshotSource.System,
                 Time   = DateTime.UtcNow
             }, cancellationToken);
+        }
+
+        public async Task<OneOf<DbBook, NotFound>> RefreshAsync(string id, string contentId, CancellationToken cancellationToken = default)
+        {
+            var entry   = await _client.GetEntryAsync<DbBook>(id, cancellationToken);
+            var content = entry.Value?.Contents.FirstOrDefault(c => c.Id == contentId);
+
+            if (content == null)
+                return new NotFound();
+
+            if (!_scrapers.GetBook(content.Source, out var scraper))
+                return entry.Value;
+
+            // if retrieve returns null, the book became unavailable from source
+            var now     = DateTime.UtcNow;
+            var missing = await scraper.RetrieveAsync(content, cancellationToken) == null;
+
+            do
+            {
+                content = entry.Value?.Contents.FirstOrDefault(c => c.Id == contentId);
+
+                if (content == null)
+                    return new NotFound();
+
+                content.RefreshTime   = now;
+                content.IsUnavailable = missing;
+            }
+            while (!await entry.TryUpdateAsync(cancellationToken));
+
+            return entry.Value;
         }
 
         public async Task<OneOf<Success, NotFound>> DeleteAsync(string id, SnapshotArgs snapshot, CancellationToken cancellationToken = default)

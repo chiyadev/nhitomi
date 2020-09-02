@@ -100,7 +100,7 @@ namespace nhitomi.Controllers
 
                 return new GetBookByLinkResponse.GetBookByLinkMatch
                 {
-                    Book              = book.Value.Convert(_services),
+                    Book              = book.Convert(_services),
                     SelectedContentId = content.Id
                 };
             }).ToArrayAsync()
@@ -171,6 +171,31 @@ namespace nhitomi.Controllers
             var (_, content) = value;
 
             return content.Convert(_services);
+        }
+
+        public class RefreshContentRequest
+        {
+            /// <summary>
+            /// ID of the content to refresh.
+            /// </summary>
+            [Required]
+            public string ContentId { get; set; }
+        }
+
+        /// <summary>
+        /// Refreshes a book from source.
+        /// </summary>
+        /// <param name="id">Book ID.</param>
+        /// <param name="request">Refresh content request.</param>
+        [HttpPost("{id}/refresh", Name = "refreshBook"), RequireUser(Unrestricted = true)]
+        public async Task<ActionResult<Book>> RefreshContentAsync(string id, RefreshContentRequest request)
+        {
+            var result = await _books.RefreshAsync(id, request.ContentId);
+
+            if (!result.TryPickT0(out var value, out _))
+                return ResultUtilities.NotFound(id, request.ContentId);
+
+            return value.Convert(_services);
         }
 
         /// <summary>
