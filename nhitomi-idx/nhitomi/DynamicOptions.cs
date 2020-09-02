@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using nhitomi.Database;
 
 namespace nhitomi
@@ -22,12 +23,14 @@ namespace nhitomi
 
     public class DynamicOptions : IDynamicOptions
     {
+        readonly IOptionsMonitor<ServerOptions> _options;
         readonly IElasticClient _elastic;
         readonly IConfiguration _config;
         readonly ILogger<DynamicOptions> _logger;
 
-        public DynamicOptions(IElasticClient elastic, IConfiguration config, ILogger<DynamicOptions> logger)
+        public DynamicOptions(IOptionsMonitor<ServerOptions> options, IElasticClient elastic, IConfiguration config, ILogger<DynamicOptions> logger)
         {
+            _options = options;
             _elastic = elastic;
             _config  = config;
             _logger  = logger;
@@ -51,6 +54,9 @@ namespace nhitomi
                     entry.Value.Config.Remove(name);
             }
             while (!await entry.TryUpdateAsync(cancellationToken));
+
+            // wait passively for options to reload
+            await Task.Delay(_options.CurrentValue.DynamicConfigReloadInterval, cancellationToken);
 
             _logger.LogInformation($"Set server config '{name}' to '{value}'.");
         }
