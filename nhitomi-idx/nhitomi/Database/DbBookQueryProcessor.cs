@@ -55,7 +55,9 @@ namespace nhitomi.Database
                         q = q.Filter(Query.Category, b => b.Category)
                              .Filter(Query.Rating, b => b.Rating)
                              .Filter(Query.Language, b => b.Language)
-                             .Filter(Query.Source, b => b.Sources);
+                             .Filter(Query.Source, b => b.Sources)
+                             .Range(Query.RefreshTime, b => b.RefreshTime)
+                             .Filter(Query.IsUnavailable, b => b.IsUnavailable);
 
                         return q;
                     })
@@ -66,6 +68,7 @@ namespace nhitomi.Database
                         BookSort.PageCount   => b => b.PageCount,
                         BookSort.NoteCount   => b => b.NoteCount,
                         BookSort.TagCount    => b => b.TagCount,
+                        BookSort.RefreshTime => b => b.RefreshTime,
 
                         _ => null
                     }));

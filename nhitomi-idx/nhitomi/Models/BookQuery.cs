@@ -21,6 +21,8 @@ namespace nhitomi.Models
         public FilterQuery<LanguageType> Language { get; set; }
         public FilterQuery<MaterialRating> Rating { get; set; }
         public FilterQuery<ScraperType> Source { get; set; }
+        public RangeQuery<DateTime> RefreshTime { get; set; }
+        public FilterQuery<bool> IsUnavailable { get; set; }
     }
 
     public enum BookSort
@@ -53,6 +55,11 @@ namespace nhitomi.Models
         /// <summary>
         /// Sort by tag count.
         /// </summary>
-        TagCount = 5
+        TagCount = 5,
+
+        /// <summary>
+        /// Sort by refresh time.
+        /// </summary>
+        RefreshTime = 6
     }
 }

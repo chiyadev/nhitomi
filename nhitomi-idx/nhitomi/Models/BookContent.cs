@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using nhitomi.Models.Validation;
@@ -42,6 +43,21 @@ namespace nhitomi.Models
         /// </summary>
         [Required]
         public string SourceUrl { get; set; }
+
+        /// <summary>
+        /// Time when this content was last refreshed from source.
+        /// </summary>
+        [Required]
+        public DateTime? RefreshTime { get; set; }
+
+        /// <summary>
+        /// Whether this content is unavailable for viewing.
+        /// </summary>
+        /// <remarks>
+        /// Contents may become unavailable if they are deleted from the source website.
+        /// </remarks>
+        [Required]
+        public bool IsUnavailable { get; set; }
     }
 
     public class BookContentBase

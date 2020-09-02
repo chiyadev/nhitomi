@@ -197,6 +197,18 @@ namespace nhitomi.Database
         /// <summary>
         /// This is a cached property for querying.
         /// </summary>
+        [IgnoreMember, Date(Name = "Tr"), DbCached]
+        public DateTime?[] RefreshTime { get; set; }
+
+        /// <summary>
+        /// This is a cached property for querying.
+        /// </summary>
+        [IgnoreMember, Boolean(Name = "ua", DocValues = false), DbCached]
+        public bool[] IsUnavailable { get; set; }
+
+        /// <summary>
+        /// This is a cached property for querying.
+        /// </summary>
         [IgnoreMember, Completion(Name = "sug", PreserveSeparators = false, PreservePositionIncrements = false), DbCached]
         public CompletionField Suggest { get; set; }
 
@@ -209,12 +221,14 @@ namespace nhitomi.Database
                 foreach (var content in Contents)
                     content.Id ??= Snowflake.New;
 
-            PageCount = Contents?.ToArray(c => c.PageCount);
-            NoteCount = Contents?.ToArray(c => c.Notes?.Values.Sum(x => x?.Length ?? 0) ?? 0);
-            TagCount  = _tags.Values.Sum(x => x?.Length ?? 0);
-            Language  = Contents?.ToArray(c => c.Language);
-            Sources   = Contents?.ToArray(c => c.Source);
-            SourceIds = Contents?.ToArray(c => c.SourceId);
+            PageCount     = Contents?.ToArray(c => c.PageCount);
+            NoteCount     = Contents?.ToArray(c => c.Notes?.Values.Sum(x => x?.Length ?? 0) ?? 0);
+            TagCount      = _tags.Values.Sum(x => x?.Length ?? 0);
+            Language      = Contents?.ToArray(c => c.Language);
+            Sources       = Contents?.ToArray(c => c.Source);
+            SourceIds     = Contents?.ToArray(c => c.SourceId);
+            RefreshTime   = Contents?.ToArray(c => c.RefreshTime);
+            IsUnavailable = Contents?.ToArray(c => c.IsUnavailable);
 
             Suggest = new CompletionField
             {
