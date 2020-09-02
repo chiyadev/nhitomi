@@ -23,6 +23,7 @@ using Newtonsoft.Json.Serialization;
 using nhitomi.Controllers;
 using nhitomi.Controllers.OAuth;
 using nhitomi.Database;
+using nhitomi.Database.Migrations;
 using nhitomi.Documentation;
 using nhitomi.Models;
 using nhitomi.Scrapers;
@@ -55,8 +56,8 @@ namespace nhitomi
         static Startup()
         {
             MemoryStreamManager.AggressiveBufferReturn    = true;
-            MemoryStreamManager.MaximumFreeSmallPoolBytes = RecyclableMemoryStreamManager.DefaultBlockSize * 128;
-            MemoryStreamManager.MaximumFreeLargePoolBytes = RecyclableMemoryStreamManager.DefaultLargeBufferMultiple * 32;
+            MemoryStreamManager.MaximumFreeSmallPoolBytes = RecyclableMemoryStreamManager.DefaultBlockSize * 32;          // 4 MiB
+            MemoryStreamManager.MaximumFreeLargePoolBytes = RecyclableMemoryStreamManager.DefaultLargeBufferMultiple * 4; // 4 MiB
         }
 
         readonly IConfigurationRoot _configuration;
@@ -243,6 +244,8 @@ namespace nhitomi
                     .AddSingleton<ISnapshotService, SnapshotService>()
                     .AddSingleton<IVoteService, VoteService>()
                     .AddSingleton<ICollectionService, CollectionService>();
+
+            services.AddSingleton<IMigrationManager, MigrationManager>();
 
             // redis
             services.Configure<RedisOptions>(_configuration.GetSection("Redis"))

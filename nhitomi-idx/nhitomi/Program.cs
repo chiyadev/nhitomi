@@ -8,6 +8,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Writers;
 using nhitomi.Database;
+using nhitomi.Database.Migrations;
 using Swashbuckle.AspNetCore.Swagger;
 
 namespace nhitomi
@@ -18,26 +19,37 @@ namespace nhitomi
         {
             using var host = CreateWebHostBuilder(args).Build();
 
-            if (!HandleArgs(host, args))
+            if (!await HandleArgsAsync(host, args))
             {
                 await host.Services.GetService<StartupInitializer>().RunAsync();
                 await host.RunAsync();
             }
         }
 
-        static bool HandleArgs(IWebHost host, IEnumerable<string> args)
+        static async Task<bool> HandleArgsAsync(IWebHost host, IEnumerable<string> args)
         {
             foreach (var arg in args)
             {
                 switch (arg)
                 {
-                    // generates API specification
+                    // generate API specification
                     case "--generate-spec":
+                    {
                         var link    = host.Services.GetService<ILinkGenerator>();
                         var swagger = host.Services.GetService<ISwaggerProvider>();
 
                         swagger.GetSwagger("docs", link.GetApiLink("/")).SerializeAsV3(new OpenApiJsonWriter(Console.Out));
                         return true;
+                    }
+
+                    // run migrations
+                    case "--migrations":
+                    {
+                        var manager = host.Services.GetService<IMigrationManager>();
+
+                        await manager.RunAsync();
+                        return true;
+                    }
                 }
             }
 

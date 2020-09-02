@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using nhitomi.Controllers;
 using nhitomi.Database;
+using nhitomi.Database.Migrations;
 using nhitomi.Models;
 using nhitomi.Models.Queries;
 using nhitomi.Storage;
@@ -23,10 +24,11 @@ namespace nhitomi
         readonly IElasticClient _elastic;
         readonly IStorage _storage;
         readonly IAuthService _auth;
+        readonly IMigrationManager _migrations;
         readonly IReloadableConfigurationProvider[] _configProviders;
         readonly ILogger<StartupInitializer> _logger;
 
-        public StartupInitializer(IOptionsMonitor<UserServiceOptions> options, IServiceProvider services, IRedisClient redis, IElasticClient elastic, IStorage storage, IAuthService auth, IConfigurationRoot config, ILogger<StartupInitializer> logger)
+        public StartupInitializer(IOptionsMonitor<UserServiceOptions> options, IServiceProvider services, IRedisClient redis, IElasticClient elastic, IStorage storage, IAuthService auth, IMigrationManager migrations, IConfigurationRoot config, ILogger<StartupInitializer> logger)
         {
             _options         = options;
             _services        = services;
@@ -34,6 +36,7 @@ namespace nhitomi
             _elastic         = elastic;
             _storage         = storage;
             _auth            = auth;
+            _migrations      = migrations;
             _configProviders = config.Providers.OfType<IReloadableConfigurationProvider>().ToArray();
             _logger          = logger;
         }
@@ -42,6 +45,8 @@ namespace nhitomi
         {
             await InitRedisAsync(cancellationToken);
             await InitElasticAsync(cancellationToken);
+
+            await _migrations.FinalizeAsync(cancellationToken);
 
             // load dynamic configurations
             await Task.WhenAll(_configProviders.Select(p => p.LoadAsync(_services, cancellationToken)));

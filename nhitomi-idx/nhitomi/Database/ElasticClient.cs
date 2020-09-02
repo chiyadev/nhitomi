@@ -13,6 +13,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IO;
 using Nest;
+using nhitomi.Database.Migrations;
 using nhitomi.Models;
 using nhitomi.Models.Queries;
 using Prometheus;
@@ -437,18 +438,18 @@ namespace nhitomi.Database
 
         sealed class IndexInfo
         {
-            public readonly string Name;
             public readonly string IndexName;
+            public readonly string IndexNameWithoutMigration;
             public readonly string CachePrefix;
             public readonly TimeSpan CacheExpiry;
 
-            public IndexInfo(Type type, ElasticOptions options)
+            public IndexInfo(string name, string indexName, ElasticOptions options)
             {
-                Name = (type.GetCustomAttribute<ElasticsearchTypeAttribute>()?.RelationName ?? type.Name).ToLowerInvariant();
-
-                IndexName   = options.IndexPrefix + Name;
-                CachePrefix = options.CachePrefix + Name + ":";
+                IndexName   = indexName;
+                CachePrefix = $"{options.CachePrefix}{name}:";
                 CacheExpiry = options.CacheExpiry;
+
+                MigrationManager.TryParseIndexName(indexName, out IndexNameWithoutMigration, out _);
             }
 
             public override string ToString() => IndexName;
@@ -464,57 +465,43 @@ namespace nhitomi.Database
         async ValueTask<IndexInfo> GetIndexAsync<T>(CancellationToken cancellationToken = default) where T : class
         {
             var options = _options.CurrentValue;
+            var type    = typeof(T);
 
-            var type  = typeof(T);
-            var index = null as IndexInfo;
-
-            try
+            if (_indexes.TryGetValue(type, out var index))
             {
-                if (_indexes.TryGetValue(type, out index))
-                    return index;
+                _indexAccesses.Labels(index.IndexNameWithoutMigration).Inc();
 
-                index = new IndexInfo(type, options);
-            }
-            finally
-            {
-                if (index != null)
-                    _indexAccesses.Labels(index.IndexName).Inc();
+                return index;
             }
 
+            var name    = (type.GetCustomAttribute<ElasticsearchTypeAttribute>()?.RelationName ?? type.Name).ToLowerInvariant();
             var measure = new MeasureContext();
 
-            await using (await _locker.EnterAsync($"elastic:index:{index}", cancellationToken))
+            await using (await _locker.EnterAsync($"elastic:index:{name}", cancellationToken))
             {
-                // may have been created while we were waiting
+                // may have loaded while we were waiting for the lock
                 if (_indexes.TryGetValue(type, out var newIndex))
                     return newIndex;
 
-                var excludeFields = typeof(T).GetProperties()
-                                             .Where(p => p.GetCustomAttributes().OfType<DbSourceExcludeAttribute>().Any())
-                                             .ToArray(p => p.GetCustomAttributes().OfType<IPropertyMapping>().First().Name);
+                // get all indexes with migration suffix
+                var indexes = await Request(c => c.Cat.IndicesAsync(x => x.Index($"{options.IndexPrefix}{name}*"), cancellationToken));
 
-                // index mapping update
-                if ((await Request(c => c.Indices.ExistsAsync(index.IndexName, null, cancellationToken))).Exists)
+                // select the last index for which we have a migration
+                var indexName = indexes.Records
+                                       .Select(r => r.Index)
+                                       .Where(s => MigrationManager.TryParseIndexName(s, out _, out var migrationId) && MigrationManager.MigrationTypes.ContainsKey(migrationId))
+                                       .OrderBy(s => s)
+                                       .LastOrDefault();
+
+                // create new index
+                if (indexName == null)
                 {
-                    IPutMappingRequest map(PutMappingDescriptor<T> m)
-                        => m.Index(index.IndexName)
-                            .AutoMap()
-                            .SourceField(s => s.Excludes(excludeFields))
-                            .Dynamic(false);
+                    indexName = $"{options.IndexPrefix}{name}-{MigrationManager.LatestMigrationId}";
 
-                    IPromise<IDynamicIndexSettings> settings(DynamicIndexSettingsDescriptor s)
-                        => s.NumberOfReplicas(options.ReplicaCount)
-                            .RefreshInterval(options.RefreshInterval);
+                    var excludeFields = typeof(T).GetProperties()
+                                                 .Where(p => p.GetCustomAttributes().OfType<DbSourceExcludeAttribute>().Any())
+                                                 .ToArray(p => p.GetCustomAttributes().OfType<IPropertyMapping>().First().Name);
 
-                    await Request(c => c.Indices.PutMappingAsync<T>(map, cancellationToken));
-                    await Request(c => c.Indices.UpdateSettingsAsync(index.IndexName, x => x.IndexSettings(settings), cancellationToken));
-
-                    _logger.LogInformation($"Updated index {index} in {measure}: {type.FullName}");
-                }
-
-                // index creation
-                else
-                {
                     ICreateIndexRequest map(CreateIndexDescriptor i)
                         => i.Settings(settings)
                             .Map(m => m.AutoMap<T>()
@@ -526,12 +513,24 @@ namespace nhitomi.Database
                             .NumberOfReplicas(options.ReplicaCount)
                             .RefreshInterval(options.RefreshInterval);
 
-                    await Request(c => c.Indices.CreateAsync(index.IndexName, map, cancellationToken));
+                    await Request(c => c.Indices.CreateAsync(indexName, map, cancellationToken));
 
-                    _logger.LogInformation($"Created index {index} in {measure}: {type.FullName}");
+                    _logger.LogInformation($"Created index {indexName} in {measure}: {type.FullName}");
                 }
 
-                return _indexes[type] = index;
+                // update settings for existing index
+                else
+                {
+                    IPromise<IDynamicIndexSettings> settings(DynamicIndexSettingsDescriptor s)
+                        => s.NumberOfReplicas(options.ReplicaCount)
+                            .RefreshInterval(options.RefreshInterval);
+
+                    await Request(c => c.Indices.UpdateSettingsAsync(indexName, x => x.IndexSettings(settings), cancellationToken));
+
+                    _logger.LogInformation($"Updated index settings {indexName} in {measure}: {type.FullName}");
+                }
+
+                return _indexes[type] = new IndexInfo(name, indexName, options);
             }
         }
 
