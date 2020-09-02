@@ -65,7 +65,13 @@ namespace nhitomi.Scrapers
         /// <summary>
         /// Retrieves the image of a page of the given book content as a stream.
         /// </summary>
-        Task<StorageFile> GetImageAsync(DbBook book, DbBookContent content, int index, CancellationToken cancellationToken = default);
+        Task<StorageFile> GetImageAsync(DbBookContent content, int index, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// Retrieves the latest book information for the given content.
+        /// This can return null if the book was deleted from the source website.
+        /// </summary>
+        Task<DbBook> RetrieveAsync(DbBookContent content, CancellationToken cancellationToken = default);
     }
 
     public abstract class BookScraperBase : ScraperBase, IBookScraper
@@ -90,7 +96,7 @@ namespace nhitomi.Scrapers
         /// </summary>
         protected abstract IAsyncEnumerable<BookAdaptor> ScrapeAsync(CancellationToken cancellationToken = default);
 
-        protected override async Task RunAsync(CancellationToken cancellationToken = default)
+        protected sealed override async Task RunAsync(CancellationToken cancellationToken = default)
             => await _indexer.IndexAsync(await ScrapeAsync(cancellationToken).Select(b => b.Convert(this, _services)).ToArrayAsync(cancellationToken), cancellationToken);
 
         sealed class SourceQuery : IQueryProcessor<DbBook>
@@ -133,6 +139,13 @@ namespace nhitomi.Scrapers
             }
         }
 
-        public virtual Task<StorageFile> GetImageAsync(DbBook book, DbBookContent content, int index, CancellationToken cancellationToken = default) => Task.FromResult<StorageFile>(null);
+        public virtual Task<StorageFile> GetImageAsync(DbBookContent content, int index, CancellationToken cancellationToken = default)
+            => Task.FromResult<StorageFile>(null);
+
+        public virtual Task<BookAdaptor> RetrieveAsync(DbBookContent content, CancellationToken cancellationToken = default)
+            => Task.FromResult<BookAdaptor>(null);
+
+        async Task<DbBook> IBookScraper.RetrieveAsync(DbBookContent content, CancellationToken cancellationToken)
+            => (await RetrieveAsync(content, cancellationToken))?.Convert(this, _services);
     }
 }

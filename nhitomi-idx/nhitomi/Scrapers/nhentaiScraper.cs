@@ -146,6 +146,16 @@ namespace nhitomi.Scrapers
             return JsonConvert.DeserializeObject<nhentaiBook>(await response.Content.ReadAsStringAsync());
         }
 
+        public override async Task<BookAdaptor> RetrieveAsync(DbBookContent content, CancellationToken cancellationToken = default)
+        {
+            if (!int.TryParse(content.SourceId, out var id))
+                return null;
+
+            var book = await GetAsync(id, cancellationToken);
+
+            return book == null ? null : new nhentaiBookAdaptor(book);
+        }
+
         /// <summary>
         /// Enumerates all books reverse-chronologically (descending ID).
         /// </summary>
@@ -181,7 +191,7 @@ namespace nhitomi.Scrapers
             [JsonProperty("ext")] public string Extensions;
         }
 
-        public override async Task<StorageFile> GetImageAsync(DbBook book, DbBookContent content, int index, CancellationToken cancellationToken = default)
+        public override async Task<StorageFile> GetImageAsync(DbBookContent content, int index, CancellationToken cancellationToken = default)
         {
             var data = DataContainer.Deserialize(content.Data);
 

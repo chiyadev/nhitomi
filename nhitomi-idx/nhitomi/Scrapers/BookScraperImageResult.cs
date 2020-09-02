@@ -9,7 +9,6 @@ namespace nhitomi.Scrapers
 {
     public class BookScraperImageResult : ScraperImageResult
     {
-        readonly DbBook _book;
         readonly DbBookContent _content;
         readonly int _index;
 
@@ -17,11 +16,10 @@ namespace nhitomi.Scrapers
 
         public BookScraperImageResult(DbBook book, DbBookContent content, int index)
         {
-            _book    = book;
             _content = content;
             _index   = index;
 
-            Name = $"books/{_book.Id}/contents/{_content.Id}/pages/{_index}";
+            Name = $"books/{book.Id}/contents/{content.Id}/pages/{index}";
         }
 
         protected override (IScraper, Task<StorageFile>) GetImageAsync(ActionContext context)
@@ -31,7 +29,7 @@ namespace nhitomi.Scrapers
             if (!scrapers.GetBook(_content.Source, out var scraper))
                 throw new NotSupportedException($"Scraper {scraper} is not supported.");
 
-            return (scraper, scraper.GetImageAsync(_book, _content, _index, context.HttpContext.RequestAborted));
+            return (scraper, scraper.GetImageAsync(_content, _index, context.HttpContext.RequestAborted));
         }
     }
 }

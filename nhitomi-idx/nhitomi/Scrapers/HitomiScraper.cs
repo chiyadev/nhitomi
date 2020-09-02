@@ -226,6 +226,14 @@ namespace nhitomi.Scrapers
             };
         }
 
+        public override async Task<BookAdaptor> RetrieveAsync(DbBookContent content, CancellationToken cancellationToken = default)
+        {
+            var data = DataContainer.Deserialize(content.Data);
+            var book = await GetAsync(data.Id, cancellationToken);
+
+            return book == null ? null : new HitomiBookAdaptor(book);
+        }
+
         public sealed class DataContainer : HitomiGalleryIdentity
         {
             public static string Serialize(DataContainer data) => JsonConvert.SerializeObject(data);
@@ -296,7 +304,7 @@ namespace nhitomi.Scrapers
             return $"{hash.Substring(hash.Length - 1, 1)}/{hash.Substring(hash.Length - 3, 2)}/{hash}";
         }
 
-        public override async Task<StorageFile> GetImageAsync(DbBook book, DbBookContent content, int index, CancellationToken cancellationToken = default)
+        public override async Task<StorageFile> GetImageAsync(DbBookContent content, int index, CancellationToken cancellationToken = default)
         {
             var data = DataContainer.Deserialize(content.Data);
 

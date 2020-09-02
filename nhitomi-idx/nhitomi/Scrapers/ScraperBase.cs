@@ -99,7 +99,7 @@ namespace nhitomi.Scrapers
             LabelNames = new[] { "type" }
         });
 
-        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+        protected sealed override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             while (!stoppingToken.IsCancellationRequested)
             {
@@ -143,7 +143,7 @@ namespace nhitomi.Scrapers
         /// This is called before <see cref="RunAsync"/> to ensure invalid data does not get indexed
         /// when this scraper breaks due to the reasons such as the website's layout changing.
         /// </summary>
-        protected virtual async Task TestAsync(CancellationToken cancellationToken = default)
+        protected async Task TestAsync(CancellationToken cancellationToken = default)
         {
             var manager = TestManager;
 
