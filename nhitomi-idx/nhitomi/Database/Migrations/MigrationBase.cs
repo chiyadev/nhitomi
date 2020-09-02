@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -64,5 +65,10 @@ namespace nhitomi.Database.Migrations
 
             return (source, destination);
         }
+
+        /// <summary>
+        /// Indexes created by this migration.
+        /// </summary>
+        public List<string> IndexesCreated { get; } = new List<string>();
     }
 }

@@ -43,13 +43,15 @@ namespace nhitomi.Database.Migrations
         public static readonly long LatestMigrationId = MigrationTypes.Keys.OrderByDescending(x => x).First();
 
         readonly IServiceProvider _services;
+        readonly IResourceLocker _locker;
         readonly IOptionsMonitor<ElasticOptions> _options;
         readonly Nest.ElasticClient _client;
         readonly ILogger<MigrationManager> _logger;
 
-        public MigrationManager(IServiceProvider services, IOptionsMonitor<ElasticOptions> options, RecyclableMemoryStreamManager memory, ILogger<MigrationManager> logger)
+        public MigrationManager(IServiceProvider services, IResourceLocker locker, IOptionsMonitor<ElasticOptions> options, RecyclableMemoryStreamManager memory, ILogger<MigrationManager> logger)
         {
             _services = services;
+            _locker   = locker;
             _options  = options;
             _logger   = logger;
 
@@ -81,28 +83,54 @@ namespace nhitomi.Database.Migrations
 
         public async Task RunAsync(CancellationToken cancellationToken = default)
         {
-            var options = _options.CurrentValue;
-            var indexes = await _client.Cat.IndicesAsync(c => c.Index($"{options.IndexPrefix}*"), cancellationToken);
-            var count   = 0;
-
-            // not all indexes get migrated every migration, so use the max
-            var lastMigrationId = indexes.Records.Select(r => TryParseIndexName(r.Index, out _, out var migrationId) ? migrationId : 0).Max();
-
-            foreach (var nextMigrationId in MigrationTypes.Keys.OrderBy(x => x))
+            await using (await _locker.EnterAsync("migrations", cancellationToken))
             {
-                if (nextMigrationId <= lastMigrationId)
-                    continue;
+                var options = _options.CurrentValue;
+                var indexes = await _client.Cat.IndicesAsync(c => c.Index($"{options.IndexPrefix}*"), cancellationToken);
+                var count   = 0;
 
-                var migration = (MigrationBase) ActivatorUtilities.CreateInstance(_services, MigrationTypes[nextMigrationId]);
+                // not all indexes get migrated every migration, so use the max
+                var lastMigrationId = indexes.Records.Select(r => TryParseIndexName(r.Index, out _, out var migrationId) ? migrationId : 0).Max();
 
-                _logger.LogWarning($"Applying migration {migration.Id}.");
+                foreach (var nextMigrationId in MigrationTypes.Keys.OrderBy(x => x))
+                {
+                    if (nextMigrationId <= lastMigrationId)
+                        continue;
 
-                await migration.RunAsync(cancellationToken);
+                    var migration = (MigrationBase) ActivatorUtilities.CreateInstance(_services, MigrationTypes[nextMigrationId]);
 
-                count++;
+                    _logger.LogWarning($"Applying migration {migration.Id}.");
+
+                    try
+                    {
+                        await migration.RunAsync(cancellationToken);
+                    }
+                    catch (Exception e)
+                    {
+                        _logger.LogError(e, $"Could not apply migration {migration.Id}.");
+
+                        foreach (var index in migration.IndexesCreated)
+                        {
+                            try
+                            {
+                                await _client.Indices.DeleteAsync(index, null, cancellationToken);
+
+                                _logger.LogInformation($"Deleted incomplete index '{index}'.");
+                            }
+                            catch (Exception ee)
+                            {
+                                _logger.LogWarning(ee, $"Could not delete incomplete index '{index}'.");
+                            }
+                        }
+
+                        break;
+                    }
+
+                    count++;
+                }
+
+                _logger.LogInformation($"All {count} migration(s) applied.");
             }
-
-            _logger.LogInformation($"All {count} migrations applied.");
         }
 
         public async Task FinalizeAsync(CancellationToken cancellationToken = default)
