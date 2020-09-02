@@ -43,7 +43,7 @@ namespace nhitomi.Controllers
         /// Creates a new empty collection.
         /// </summary>
         /// <param name="request">Create collection request.</param>
-        [HttpPost(Name = "createCollection"), RequireUser(Unrestricted = true)]
+        [HttpPost(Name = "createCollection"), RequireUser(Unrestricted = true), RequireDbWrite]
         public async Task<ActionResult<Collection>> CreateAsync(CreateCollectionRequest request)
         {
             var result = await _collections.CreateAsync(request.Type, request.Collection, UserId);
@@ -77,7 +77,7 @@ namespace nhitomi.Controllers
         /// </summary>
         /// <param name="id">Collection ID.</param>
         /// <param name="model">New collection information.</param>
-        [HttpPut("{id}", Name = "updateCollection"), RequireUser(Unrestricted = true)]
+        [HttpPut("{id}", Name = "updateCollection"), RequireUser(Unrestricted = true), RequireDbWrite]
         public async Task<ActionResult<Collection>> UpdateAsync(string id, CollectionBase model)
         {
             var result = await _collections.UpdateAsync(id, model, CurrentConstraint);
@@ -95,7 +95,7 @@ namespace nhitomi.Controllers
         /// This will remove all items in the collection. Collection will become inaccessible by all other co-owners.
         /// </remarks>
         /// <param name="id">Collection ID.</param>
-        [HttpDelete("{id}", Name = "deleteCollection"), RequireUser(Unrestricted = true)]
+        [HttpDelete("{id}", Name = "deleteCollection"), RequireUser(Unrestricted = true), RequireDbWrite]
         public async Task<ActionResult> DeleteAsync(string id)
         {
             await _collections.DeleteAsync(id, CurrentConstraint);
@@ -120,7 +120,7 @@ namespace nhitomi.Controllers
         /// </remarks>
         /// <param name="id">Collection ID.</param>
         /// <param name="request">Add owner request.</param>
-        [HttpPost("{id}/owners", Name = "addCollectionOwner"), RequireUser(Unrestricted = true)]
+        [HttpPost("{id}/owners", Name = "addCollectionOwner"), RequireUser(Unrestricted = true), RequireDbWrite]
         public async Task<ActionResult<Collection>> AddOwnerAsync(string id, AddCollectionOwnerRequest request)
         {
             var userResult = await _users.GetAsync(request.UserId);
@@ -145,7 +145,7 @@ namespace nhitomi.Controllers
         /// </remarks>
         /// <param name="id">Collection ID.</param>
         /// <param name="ownerId">Co-owner user ID.</param>
-        [HttpDelete("{id}/owners/{ownerId}", Name = "removeCollectionOwner"), RequireUser(Unrestricted = true)]
+        [HttpDelete("{id}/owners/{ownerId}", Name = "removeCollectionOwner"), RequireUser(Unrestricted = true), RequireDbWrite]
         public async Task<ActionResult> RemoveOwnerAsync(string id, string ownerId)
         {
             await _collections.RemoveOwnerAsync(id, ownerId, CurrentConstraint);
@@ -179,7 +179,7 @@ namespace nhitomi.Controllers
         /// </remarks>
         /// <param name="id">Collection ID.</param>
         /// <param name="request">Add items request.</param>
-        [HttpPost("{id}/items", Name = "addCollectionItems"), RequireUser(Unrestricted = true)]
+        [HttpPost("{id}/items", Name = "addCollectionItems"), RequireUser(Unrestricted = true), RequireDbWrite]
         public async Task<ActionResult<Collection>> AddItemsAsync(string id, AddCollectionItemsRequest request)
         {
             var result = await _collections.AddItemsAsync(id, request.Items, request.Position, CurrentConstraint);
@@ -195,7 +195,7 @@ namespace nhitomi.Controllers
         /// </summary>
         /// <param name="id">Collection ID.</param>
         /// <param name="request">Remove items request.</param>
-        [HttpPost("{id}/items/delete", Name = "removeCollectionItems"), RequireUser(Unrestricted = true)]
+        [HttpPost("{id}/items/delete", Name = "removeCollectionItems"), RequireUser(Unrestricted = true), RequireDbWrite]
         public async Task<ActionResult<Collection>> RemoveItemsAsync(string id, CollectionItemsRequest request)
         {
             var result = await _collections.RemoveItemsAsync(id, request.Items, CurrentConstraint);
@@ -210,12 +210,12 @@ namespace nhitomi.Controllers
         /// Sorts the items in a collection.
         /// </summary>
         /// <remarks>
-        /// The request should contain all items in the collection rearranged at the requester's discretion.
-        /// If the array of items represents only a subset of the collection, no guarantee is made for the order of items not included.
+        /// The request should contain all items in the collection rearranged by the requester.
+        /// If the array of items is a subset of the full collection, no guarantee is made about the order of items that are missing.
         /// </remarks>
         /// <param name="id">Collection ID.</param>
         /// <param name="request">Sort items request.</param>
-        [HttpPost("{id}/items/sort", Name = "sortCollectionItems"), RequireUser(Unrestricted = true)]
+        [HttpPost("{id}/items/sort", Name = "sortCollectionItems"), RequireUser(Unrestricted = true), RequireDbWrite]
         public async Task<ActionResult<Collection>> SortItemsAsync(string id, CollectionItemsRequest request)
         {
             var result = await _collections.SortAsync(id, request.Items, CurrentConstraint);

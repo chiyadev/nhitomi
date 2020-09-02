@@ -68,7 +68,7 @@ namespace nhitomi.Controllers
         /// Authenticates using Discord OAuth.
         /// </summary>
         /// <param name="request">OAuth data.</param>
-        [HttpPost("oauth/discord", Name = "authenticateUserDiscord"), AllowAnonymous]
+        [HttpPost("oauth/discord", Name = "authenticateUserDiscord"), AllowAnonymous, RequireDbWrite]
         public async Task<ActionResult<AuthenticateResponse>> AuthDiscordAsync(AuthenticateDiscordRequest request)
         {
             var user = User = await _discord.GetOrCreateUserAsync(request.Code);
@@ -107,7 +107,7 @@ namespace nhitomi.Controllers
         /// <param name="id">User ID.</param>
         /// <param name="model">New user information.</param>
         /// <param name="reason">Reason for this action.</param>
-        [HttpPut("{id}", Name = "updateUser"), RequireUser(Unrestricted = false)]
+        [HttpPut("{id}", Name = "updateUser"), RequireUser(Unrestricted = false), RequireDbWrite]
         public async Task<ActionResult<User>> UpdateAsync(string id, UserBase model, [FromQuery] string reason = null)
         {
             if (UserId != id && !User.HasPermissions(UserPermissions.ManageUsers))
@@ -144,7 +144,7 @@ namespace nhitomi.Controllers
         /// <param name="id">User ID.</param>
         /// <param name="request">Restriction request.</param>
         /// <param name="reason">Reason for this action.</param>
-        [HttpPost("{id}/restrictions", Name = "restrictUser"), RequireUser(Unrestricted = true, Permissions = UserPermissions.RestrictUsers), RequireReason]
+        [HttpPost("{id}/restrictions", Name = "restrictUser"), RequireUser(Unrestricted = true, Permissions = UserPermissions.RestrictUsers), RequireReason, RequireDbWrite]
         public async Task<ActionResult<User>> RestrictAsync(string id, RestrictUserRequest request, [FromQuery] string reason = null)
         {
             var result = await _users.RestrictAsync(id, UserId, request.Duration, new SnapshotArgs
@@ -169,7 +169,7 @@ namespace nhitomi.Controllers
         /// </remarks>
         /// <param name="id">User ID.</param>
         /// <param name="reason">Reason for this action.</param>
-        [HttpDelete("{id}/restrictions", Name = "unrestrictUser"), RequireUser(Unrestricted = true, Permissions = UserPermissions.RestrictUsers), RequireReason]
+        [HttpDelete("{id}/restrictions", Name = "unrestrictUser"), RequireUser(Unrestricted = true, Permissions = UserPermissions.RestrictUsers), RequireReason, RequireDbWrite]
         public async Task<ActionResult<User>> UnrestrictAsync(string id, [FromQuery] string reason = null)
         {
             var result = await _users.UnrestrictAsync(id, new SnapshotArgs
@@ -210,7 +210,7 @@ namespace nhitomi.Controllers
         /// <param name="id">User ID.</param>
         /// <param name="type">Collection object type.</param>
         /// <param name="collection">Special collection type.</param>
-        [HttpGet("{id}/collections/{type}/{collection}", Name = "getUserSpecialCollection"), RequireUser]
+        [HttpGet("{id}/collections/{type}/{collection}", Name = "getUserSpecialCollection"), RequireUser, RequireDbWrite]
         public async Task<ActionResult<Collection>> GetSpecialCollectionAsync(string id, ObjectType type, SpecialCollection collection)
         {
             if (UserId != id && !User.HasPermissions(UserPermissions.ManageUsers))

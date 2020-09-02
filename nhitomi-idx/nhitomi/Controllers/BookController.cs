@@ -130,7 +130,7 @@ namespace nhitomi.Controllers
         /// <param name="id">Book ID.</param>
         /// <param name="model">New book information.</param>
         /// <param name="reason">Reason for this action.</param>
-        [HttpPut("{id}", Name = "updateBook"), RequireUser(Unrestricted = true)]
+        [HttpPut("{id}", Name = "updateBook"), RequireUser(Unrestricted = true), RequireDbWrite]
         public async Task<ActionResult<Book>> UpdateAsync(string id, BookBase model, [FromQuery] string reason = null)
         {
             var result = await _books.UpdateAsync(id, model, new SnapshotArgs
@@ -154,7 +154,7 @@ namespace nhitomi.Controllers
         /// <param name="contentId">Content ID.</param>
         /// <param name="model">New content information.</param>
         /// <param name="reason">Reason for this action.</param>
-        [HttpPut("{id}/contents/{contentId}", Name = "updateBookContent"), RequireUser(Unrestricted = true)]
+        [HttpPut("{id}/contents/{contentId}", Name = "updateBookContent"), RequireUser(Unrestricted = true), RequireDbWrite]
         public async Task<ActionResult<BookContent>> UpdateContentAsync(string id, string contentId, BookContentBase model, [FromQuery] string reason = null)
         {
             var result = await _books.UpdateContentAsync(id, contentId, model, new SnapshotArgs
@@ -187,7 +187,7 @@ namespace nhitomi.Controllers
         /// </summary>
         /// <param name="id">Book ID.</param>
         /// <param name="request">Refresh content request.</param>
-        [HttpPost("{id}/refresh", Name = "refreshBook"), RequireUser(Unrestricted = true)]
+        [HttpPost("{id}/refresh", Name = "refreshBook"), RequireUser(Unrestricted = true), RequireDbWrite]
         public async Task<ActionResult<Book>> RefreshContentAsync(string id, RefreshContentRequest request)
         {
             var result = await _books.RefreshAsync(id, request.ContentId);
@@ -203,7 +203,7 @@ namespace nhitomi.Controllers
         /// </summary>
         /// <param name="id">Book ID.</param>
         /// <param name="reason">Reason for this action.</param>
-        [HttpDelete("{id}", Name = "deleteBook"), RequireHuman, RequireUser(Unrestricted = true), RequireReason]
+        [HttpDelete("{id}", Name = "deleteBook"), RequireHuman, RequireUser(Unrestricted = true), RequireReason, RequireDbWrite]
         public async Task<ActionResult> DeleteAsync(string id, [FromQuery] string reason = null)
         {
             await _books.DeleteAsync(id, new SnapshotArgs
@@ -226,7 +226,7 @@ namespace nhitomi.Controllers
         /// <param name="id">Book ID.</param>
         /// <param name="contentId">Content ID.</param>
         /// <param name="reason">Reason for this action.</param>
-        [HttpDelete("{id}/contents/{contentId}", Name = "deleteBookContent"), RequireHuman, RequireUser(Unrestricted = true), RequireReason]
+        [HttpDelete("{id}/contents/{contentId}", Name = "deleteBookContent"), RequireHuman, RequireUser(Unrestricted = true), RequireReason, RequireDbWrite]
         public async Task<ActionResult> DeleteContentAsync(string id, string contentId, [FromQuery] string reason = null)
         {
             await _books.DeleteContentAsync(id, contentId, new SnapshotArgs
@@ -339,7 +339,7 @@ namespace nhitomi.Controllers
         /// <param name="id">Book ID.</param>
         /// <param name="request">Rollback request.</param>
         /// <param name="reason">Reason for this action.</param>
-        [HttpPost("{id}/snapshots/rollback", Name = "revertBook"), RequireUser(Unrestricted = true), RequireReason]
+        [HttpPost("{id}/snapshots/rollback", Name = "revertBook"), RequireUser(Unrestricted = true), RequireReason, RequireDbWrite]
         public async Task<ActionResult<Book>> RollBackAsync(string id, RollbackRequest request, [FromQuery] string reason = null)
         {
             var result = await _snapshots.GetAsync(ObjectType.Book, request.SnapshotId);
@@ -384,7 +384,7 @@ namespace nhitomi.Controllers
         /// </summary>
         /// <param name="id">Book ID.</param>
         /// <param name="model">Vote information.</param>
-        [HttpPut("{id}/vote", Name = "setBookVote")]
+        [HttpPut("{id}/vote", Name = "setBookVote"), RequireDbWrite]
         public async Task<ActionResult<Vote>> SetVoteAsync(string id, VoteBase model)
         {
             var result = await _books.GetAsync(id);
@@ -401,7 +401,7 @@ namespace nhitomi.Controllers
         /// Removes the vote from a book.
         /// </summary>
         /// <param name="id">Book ID.</param>
-        [HttpDelete("{id}/vote", Name = "unsetBookVote")]
+        [HttpDelete("{id}/vote", Name = "unsetBookVote"), RequireDbWrite]
         public async Task<ActionResult> UnsetVoteAsync(string id)
         {
             await _votes.UnsetAsync(UserId, new nhitomiObject(ObjectType.Book, id));

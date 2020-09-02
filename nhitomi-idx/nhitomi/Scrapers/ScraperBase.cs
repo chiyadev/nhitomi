@@ -8,6 +8,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
+using nhitomi.Database;
 using nhitomi.Models;
 using nhitomi.Scrapers.Tests;
 using nhitomi.Storage;
@@ -87,6 +88,7 @@ namespace nhitomi.Scrapers
     {
         readonly IResourceLocker _locker;
         readonly IStorage _storage;
+        readonly IWriteControl _writeControl;
         readonly IOptionsMonitor<ScraperOptions> _options;
         readonly ILogger<ScraperBase<TState>> _logger;
 
@@ -105,10 +107,11 @@ namespace nhitomi.Scrapers
         {
             Services = services;
 
-            _locker  = services.GetService<IResourceLocker>();
-            _storage = services.GetService<IStorage>();
-            _options = options;
-            _logger  = logger;
+            _locker       = services.GetService<IResourceLocker>();
+            _storage      = services.GetService<IStorage>();
+            _writeControl = services.GetService<IWriteControl>();
+            _options      = options;
+            _logger       = logger;
         }
 
         protected sealed override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -120,6 +123,7 @@ namespace nhitomi.Scrapers
                     if (!Enabled)
                         goto sleep;
 
+                    await using (await _writeControl.EnterAsync(stoppingToken))
                     await using (await _locker.EnterAsync($"scrape:{Type}", stoppingToken))
                     {
                         _logger.LogDebug($"Begin {Type} scrape.");
