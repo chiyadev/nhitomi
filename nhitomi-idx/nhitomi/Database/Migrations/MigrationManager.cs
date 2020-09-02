@@ -41,16 +41,18 @@ namespace nhitomi.Database.Migrations
         public static readonly long LatestMigrationId = MigrationTypes.Keys.OrderByDescending(x => x).First();
 
         readonly IServiceProvider _services;
-        readonly Nest.ElasticClient _client;
+        readonly Nest.ElasticClient _elastic;
+        readonly IRedisClient _redis;
         readonly IResourceLocker _locker;
         readonly IOptionsMonitor<ElasticOptions> _options;
         readonly IWriteControl _writeControl;
         readonly ILogger<MigrationManager> _logger;
 
-        public MigrationManager(IServiceProvider services, IElasticClient client, IResourceLocker locker, IOptionsMonitor<ElasticOptions> options, IWriteControl writeControl, RecyclableMemoryStreamManager memory, ILogger<MigrationManager> logger)
+        public MigrationManager(IServiceProvider services, IElasticClient elastic, IRedisClient redis, IResourceLocker locker, IOptionsMonitor<ElasticOptions> options, IWriteControl writeControl, RecyclableMemoryStreamManager memory, ILogger<MigrationManager> logger)
         {
             _services     = services;
-            _client       = client.GetInternalClient();
+            _elastic      = elastic.GetInternalClient();
+            _redis        = redis;
             _locker       = locker;
             _options      = options;
             _writeControl = writeControl;
@@ -83,7 +85,7 @@ namespace nhitomi.Database.Migrations
             await using (await _locker.EnterAsync("maintenance:migrations", cancellationToken))
             {
                 var options = _options.CurrentValue;
-                var indexes = await _client.Cat.IndicesAsync(c => c.Index($"{options.IndexPrefix}*"), cancellationToken);
+                var indexes = await _elastic.Cat.IndicesAsync(c => c.Index($"{options.IndexPrefix}*"), cancellationToken);
                 var count   = 0;
 
                 // not all indexes get migrated every migration, so use the max
@@ -110,7 +112,7 @@ namespace nhitomi.Database.Migrations
                         {
                             try
                             {
-                                await _client.Indices.DeleteAsync(index, null, cancellationToken);
+                                await _elastic.Indices.DeleteAsync(index, null, cancellationToken);
 
                                 _logger.LogInformation($"Deleted incomplete index '{index}'.");
                             }
@@ -132,13 +134,11 @@ namespace nhitomi.Database.Migrations
 
         public async Task FinalizeAsync(CancellationToken cancellationToken = default)
         {
-            //todo: clear redis caches
-            //todo: disable scrapers while migrating
-
             var options = _options.CurrentValue;
-            var indexes = await _client.Cat.IndicesAsync(c => c.Index($"{options.IndexPrefix}*"), cancellationToken);
+            var indexes = await _elastic.Cat.IndicesAsync(c => c.Index($"{options.IndexPrefix}*"), cancellationToken);
 
             var migrationIds = new Dictionary<string, long>(indexes.Records.Count);
+            var migrated     = false;
 
             foreach (var index in indexes.Records)
             {
@@ -152,16 +152,22 @@ namespace nhitomi.Database.Migrations
                 // delete older migration index
                 if (migrationIds.TryGetValue(name, out var lastId) && currentId < lastId)
                 {
-                    var response = await _client.Indices.DeleteAsync(index.Index, null, cancellationToken);
+                    var response = await _elastic.Indices.DeleteAsync(index.Index, null, cancellationToken);
 
                     if (response.OriginalException != null)
                         _logger.LogWarning(response.OriginalException, $"Could not delete old migration index '{name}-{lastId}'.");
+
+                    migrated = true;
                 }
                 else
                 {
                     migrationIds[name] = currentId;
                 }
             }
+
+            // delete redis caches if we migrated
+            if (migrated)
+                await _redis.ScanDeleteAsync($"{options.CachePrefix}*", cancellationToken);
 
             // allow database writes
             await _writeControl.UnblockAsync(cancellationToken);

@@ -22,6 +22,9 @@ namespace nhitomi.Database
         Task<T[]> GetObjectManyAsync<T>(RedisKey[] keys, CancellationToken cancellationToken = default);
         Task<long> GetIntegerAsync(RedisKey key, CancellationToken cancellationToken = default);
 
+        IAsyncEnumerable<RedisKey> ScanAsync(RedisValue pattern, CancellationToken cancellationToken = default);
+        Task ScanDeleteAsync(RedisValue pattern, CancellationToken cancellationToken = default);
+
         Task<bool> SetAsync(RedisKey key, RedisValue value, TimeSpan? expiry = null, When when = When.Always, CancellationToken cancellationToken = default);
         Task<bool> SetManyAsync(RedisKey[] keys, RedisValue[] values, When when = When.Always, CancellationToken cancellationToken = default);
         Task<bool> SetObjectAsync<T>(RedisKey key, T value, TimeSpan? expiry = null, When when = When.Always, CancellationToken cancellationToken = default);
@@ -156,6 +159,32 @@ namespace nhitomi.Database
 
             using (_requestTime.Measure())
                 return (long) await _database.StringGetAsync(key.Prepend(_keyPrefix));
+        }
+
+        public async IAsyncEnumerable<RedisKey> ScanAsync(RedisValue pattern, CancellationToken cancellationToken = default)
+        {
+            foreach (var endpoint in _connection.GetEndPoints())
+            await foreach (var key in _connection.GetServer(endpoint).KeysAsync(pattern: pattern, pageSize: 1000).WithCancellation(cancellationToken))
+                yield return key;
+        }
+
+        public async Task ScanDeleteAsync(RedisValue pattern, CancellationToken cancellationToken = default)
+        {
+            var batch = new List<RedisKey>(10000);
+
+            await foreach (var key in ScanAsync(pattern, cancellationToken))
+            {
+                batch.Add(key);
+
+                if (batch.Count == batch.Capacity)
+                {
+                    await _database.KeyDeleteAsync(batch.ToArray());
+                    batch.Clear();
+                }
+            }
+
+            if (batch.Count != 0)
+                await _database.KeyDeleteAsync(batch.ToArray());
         }
 
         public async Task<bool> SetAsync(RedisKey key, RedisValue value, TimeSpan? expiry = null, When when = When.Always, CancellationToken cancellationToken = default)
