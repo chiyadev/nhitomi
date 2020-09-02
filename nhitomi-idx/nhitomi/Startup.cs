@@ -73,6 +73,7 @@ namespace nhitomi
         {
             // configuration
             services.AddSingleton(_configuration) // root
+                    .AddSingleton<IDynamicOptions, DynamicOptions>()
                     .AddHostedService<ConfigurationReloader>();
 
             // kestrel

@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Options;
 using nhitomi.Controllers.OAuth;
 using nhitomi.Database;
 using nhitomi.Models;
@@ -21,23 +19,18 @@ namespace nhitomi.Controllers
     public class InternalController : nhitomiControllerBase
     {
         readonly IServiceProvider _services;
-        readonly IConfiguration _config;
-        readonly ServerOptions _serverOptions;
-        readonly IElasticClient _elastic;
+        readonly IDynamicOptions _options;
         readonly IUserService _users;
         readonly IAuthService _auth;
         readonly IDiscordOAuthHandler _discord;
 
-        public InternalController(IServiceProvider services, IConfiguration config, IOptionsSnapshot<ServerOptions> serverOptions,
-                                  IElasticClient elastic, IUserService users, IAuthService auth, IDiscordOAuthHandler discord)
+        public InternalController(IServiceProvider services, IDynamicOptions options, IUserService users, IAuthService auth, IDiscordOAuthHandler discord)
         {
-            _services      = services;
-            _config        = config;
-            _serverOptions = serverOptions.Value;
-            _elastic       = elastic;
-            _users         = users;
-            _auth          = auth;
-            _discord       = discord;
+            _services = services;
+            _options  = options;
+            _users    = users;
+            _auth     = auth;
+            _discord  = discord;
         }
 
         /// <summary>
@@ -47,30 +40,35 @@ namespace nhitomi.Controllers
         /// Requires <see cref="UserPermissions.ManageServer"/> permission.
         /// </remarks>
         [HttpGet("config", Name = "getServerConfig"), RequireUser(Permissions = UserPermissions.ManageServer)]
-        public Dictionary<string, string> GetConfig()
-            => _config.Get<Dictionary<string, string>>();
+        public Dictionary<string, string> GetConfig() => _options.GetMapping();
+
+        public class SetConfigRequest
+        {
+            /// <summary>
+            /// Name of the configuration field.
+            /// </summary>
+            [Required]
+            public string Name { get; set; }
+
+            /// <summary>
+            /// Value of the configuration, or null to delete the field.
+            /// </summary>
+            public string Value { get; set; }
+        }
 
         /// <summary>
-        /// Updates internal server configuration values.
+        /// Updates internal server configuration value.
         /// </summary>
         /// <remarks>
         /// Requires <see cref="UserPermissions.ManageServer"/> permission.
-        /// Changes may not take effect immediately. Some changes will require a full server restart.
+        /// Changes may not take effect immediately. Some changes may require a full server restart.
         /// </remarks>
-        /// <param name="data">New configuration object to replace with.</param>
-        [HttpPut("config", Name = "setServerConfig"), RequireUser(Permissions = UserPermissions.ManageServer)]
-        public async Task<Dictionary<string, string>> SetConfigAsync(Dictionary<string, string> data)
+        /// <param name="request">Set config request.</param>
+        [HttpPost("config", Name = "setServerConfig"), RequireUser(Permissions = UserPermissions.ManageServer)]
+        public async Task<ActionResult> SetConfigAsync(SetConfigRequest request)
         {
-            var entry = _elastic.Entry<DbCompositeConfig>(DbCompositeConfig.DefaultId);
-
-            entry.Value ??= new DbCompositeConfig();
-
-            entry.Value.Config = data;
-
-            await entry.UpdateAsync();
-            await Task.Delay(_serverOptions.ConfigurationReloadInterval);
-
-            return GetConfig();
+            await _options.SetAsync(request.Name, request.Value);
+            return Ok();
         }
 
         /// <summary>
