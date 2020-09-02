@@ -38,6 +38,19 @@ namespace nhitomi
             _poolCapacity = 100;
         }
 
+        public Task<bool> IsConsumed(string key, CancellationToken cancellationToken = default)
+        {
+            Lock l;
+
+            lock (_lock)
+            {
+                if (!_locks.TryGetValue(key, out l))
+                    return Task.FromResult(false);
+            }
+
+            return Task.FromResult(l.Semaphore.Wait(TimeSpan.Zero));
+        }
+
         public async Task<IAsyncDisposable> EnterAsync(string key, CancellationToken cancellationToken = default)
         {
             Lock l;

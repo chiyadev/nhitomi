@@ -26,6 +26,9 @@ namespace nhitomi.Database
         static readonly Gauge _acquireOngoing = Metrics.CreateGauge("locker_acquire_ongoing", "Number of locks in the process of being acquired.");
         static readonly Counter _acquires = Metrics.CreateCounter("locker_acquires", "Number of locks successfully acquired.");
 
+        public async Task<bool> IsConsumed(string key, CancellationToken cancellationToken = default)
+            => await _client.GetAsync($"lock:{key}", cancellationToken) != null;
+
         public async Task<IAsyncDisposable> EnterAsync(string key, CancellationToken cancellationToken = default)
         {
             var locker = new Locker($"lock:{key}", _client, _options.CurrentValue.LockExpiry);
