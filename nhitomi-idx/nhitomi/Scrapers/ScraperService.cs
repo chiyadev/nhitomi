@@ -32,7 +32,7 @@ namespace nhitomi.Scrapers
 
         public ScraperService(IEnumerable<IScraper> scrapers)
         {
-            _scrapers = scrapers.ToDictionary(s => s.Type);
+            _scrapers = scrapers.Where(s => s.Type != ScraperType.Unknown).ToDictionary(s => s.Type);
         }
 
         public bool Get(ScraperType type, out IScraper scraper) => _scrapers.TryGetValue(type, out scraper);
