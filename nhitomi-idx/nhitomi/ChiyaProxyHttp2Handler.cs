@@ -40,71 +40,79 @@ namespace nhitomi
 
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
-            var options   = _options.CurrentValue;
-            var response  = null as HttpResponseMessage;
-            var exception = null as Exception;
-
-            for (var i = 0; i < options.RetryCount + 1; i++)
+            try
             {
-                var waited = false;
+                var options   = _options.CurrentValue;
+                var response  = null as HttpResponseMessage;
+                var exception = null as Exception;
 
-                try
+                for (var i = 0; i < options.RetryCount + 1; i++)
                 {
-                    response = await SendAsyncInternal(request, cancellationToken);
+                    var waited = false;
 
-                    switch (response.StatusCode)
+                    try
                     {
-                        // retry on certain statuses
-                        case HttpStatusCode.TooManyRequests:
-                        case HttpStatusCode.InternalServerError:
-                        case HttpStatusCode.BadGateway:
-                        case HttpStatusCode.ServiceUnavailable:
-                            break;
+                        response = await SendAsyncInternal(request, cancellationToken);
 
-                        default:
-                            return response;
+                        switch (response.StatusCode)
+                        {
+                            // retry on certain statuses
+                            case HttpStatusCode.TooManyRequests:
+                            case HttpStatusCode.InternalServerError:
+                            case HttpStatusCode.BadGateway:
+                            case HttpStatusCode.ServiceUnavailable:
+                                break;
+
+                            default:
+                                return response;
+                        }
+
+                        // use retry-after header
+                        var retry = response.Headers.RetryAfter;
+                        var date  = retry?.Date?.UtcDateTime;
+                        var delta = retry?.Delta;
+
+                        if (date > DateTime.UtcNow)
+                        {
+                            await Task.Delay(date.Value - DateTime.UtcNow, cancellationToken);
+                            waited = true;
+                        }
+
+                        else if (delta != null)
+                        {
+                            await Task.Delay(delta.Value, cancellationToken);
+                            waited = true;
+                        }
+                    }
+                    catch (OperationCanceledException)
+                    {
+                        throw;
+                    }
+                    catch (Exception e)
+                    {
+                        exception ??= e;
                     }
 
-                    // use retry-after header
-                    var retry = response.Headers.RetryAfter;
-                    var date  = retry?.Date?.UtcDateTime;
-                    var delta = retry?.Delta;
+                    if (!waited)
+                        await Task.Delay(TimeSpan.FromSeconds(i + 1), cancellationToken);
 
-                    if (date > DateTime.UtcNow)
-                    {
-                        await Task.Delay(date.Value - DateTime.UtcNow, cancellationToken);
-                        waited = true;
-                    }
+                    // request needs to be cloned for resend
+                    var newRequest = await CloneAsync(request);
 
-                    else if (delta != null)
-                    {
-                        await Task.Delay(delta.Value, cancellationToken);
-                        waited = true;
-                    }
-                }
-                catch (OperationCanceledException)
-                {
-                    throw;
-                }
-                catch (Exception e)
-                {
-                    exception ??= e;
+                    request.Dispose();
+                    request = newRequest;
                 }
 
-                if (!waited)
-                    await Task.Delay(TimeSpan.FromSeconds(i + 1), cancellationToken);
+                if (exception != null)
+                    ExceptionDispatchInfo.Throw(exception);
 
-                // request needs to be cloned for resend
-                var newRequest = await CloneAsync(request);
-
-                request.Dispose();
-                request = newRequest;
+                return response;
             }
-
-            if (exception != null)
-                ExceptionDispatchInfo.Throw(exception);
-
-            return response;
+            finally
+            {
+                // ensure request is disposed because we clone it on retries
+                request?.Dispose();
+            }
         }
 
         async Task<HttpRequestMessage> CloneAsync(HttpRequestMessage request)
