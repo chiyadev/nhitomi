@@ -17,7 +17,7 @@ namespace nhitomi.Scrapers
     {
         sealed class Options : ScraperOptions { }
 
-        sealed class Scraper : BookScraperBase
+        sealed class Scraper : BookScraperBase<DummyScraperState>
         {
             public override string Name => null;
             public override ScraperType Type => ScraperType.nhentai;
@@ -153,7 +153,7 @@ namespace nhitomi.Scrapers
 
             public override string GetExternalUrl(DbBookContent content) => null;
 
-            protected override IAsyncEnumerable<BookAdaptor> ScrapeAsync(CancellationToken cancellationToken = default)
+            protected override IAsyncEnumerable<BookAdaptor> ScrapeAsync(DummyScraperState state, CancellationToken cancellationToken = default)
             {
                 var books = Interlocked.Exchange(ref _books, null);
 
@@ -176,7 +176,7 @@ namespace nhitomi.Scrapers
         {
             var scraper = ActivatorUtilities.CreateInstance<Scraper>(Services);
 
-            await scraper.ForceRunAsync();
+            await scraper.ForceRunAsync(new DummyScraperState());
 
             var books = Services.GetService<IBookService>();
 

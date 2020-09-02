@@ -10,10 +10,12 @@ using nhitomi.Database;
 
 namespace nhitomi.Scrapers
 {
+    public class DummyScraperState { }
+
     /// <summary>
     /// This is a dummy scraper, used to provide link scanning for nhitomi's own gallery urls.
     /// </summary>
-    public class nhitomiDummyBookScraper : BookScraperBase
+    public class nhitomiDummyBookScraper : BookScraperBase<DummyScraperState>
     {
         readonly IElasticClient _client;
         readonly ILinkGenerator _link;
@@ -37,7 +39,7 @@ namespace nhitomi.Scrapers
 
         public override string GetExternalUrl(DbBookContent content) => null;
 
-        protected override IAsyncEnumerable<BookAdaptor> ScrapeAsync(CancellationToken cancellationToken = default) => AsyncEnumerable.Empty<BookAdaptor>();
+        protected override IAsyncEnumerable<BookAdaptor> ScrapeAsync(DummyScraperState state, CancellationToken cancellationToken = default) => AsyncEnumerable.Empty<BookAdaptor>();
 
         public override async IAsyncEnumerable<(IDbEntry<DbBook>, DbBookContent)> FindByUrlAsync(string url, bool strict, [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {

@@ -24,7 +24,20 @@ namespace nhitomi.Scrapers
         public int AdditionalScrapeItems { get; set; } = 5;
     }
 
-    public class nhentaiScraper : BookScraperBase
+    public class nhentaiScraperState
+    {
+        /// <summary>
+        /// We iterate from the latest book to "last upper" to find new books since the last scrape.
+        /// </summary>
+        [JsonProperty("last_upper")] public int? LastUpper;
+
+        /// <summary>
+        /// We iterate from "last lower" a configured amount to find old books that we haven't scraped yet.
+        /// </summary>
+        [JsonProperty("last_lower")] public int? LastLower;
+    }
+
+    public class nhentaiScraper : BookScraperBase<nhentaiScraperState>
     {
         readonly HttpClient _http;
         readonly IOptionsMonitor<nhentaiScraperOptions> _options;
@@ -50,24 +63,9 @@ namespace nhitomi.Scrapers
 
         public override string GetExternalUrl(DbBookContent content) => $"https://nhentai.net/g/{content.SourceId}/";
 
-        public sealed class ScraperState
-        {
-            /// <summary>
-            /// We iterate from the latest book to "last upper" to find new books since the last scrape.
-            /// </summary>
-            [JsonProperty("last_upper")] public int? LastUpper;
-
-            /// <summary>
-            /// We iterate from "last lower" a configured amount to find old books that we haven't scraped yet.
-            /// </summary>
-            [JsonProperty("last_lower")] public int? LastLower;
-        }
-
-        protected override async IAsyncEnumerable<BookAdaptor> ScrapeAsync([EnumeratorCancellation] CancellationToken cancellationToken = default)
+        protected override async IAsyncEnumerable<BookAdaptor> ScrapeAsync(nhentaiScraperState state, [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             var options = _options.CurrentValue;
-
-            var state = await GetStateAsync<ScraperState>(cancellationToken) ?? new ScraperState();
 
             if (state.LastUpper == null)
             {
@@ -126,8 +124,6 @@ namespace nhitomi.Scrapers
                 // set lower as oldest book
                 state.LastLower = start;
             }
-
-            await SetStateAsync(state, cancellationToken);
         }
 
         /// <summary>

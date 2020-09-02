@@ -60,12 +60,35 @@ namespace nhitomi.Scrapers
         ScraperUrlRegex UrlRegex { get; }
     }
 
-    public abstract class ScraperBase : BackgroundService, IScraper
+    /// <summary>
+    /// <see cref="ScraperBase{TState}"/> is generic.
+    /// </summary>
+    static class ScraperMetrics
+    {
+        public static readonly Histogram ScrapingTime = Metrics.CreateHistogram("scraper_scraping_time", "Time spent on scraping a source.", new HistogramConfiguration
+        {
+            Buckets    = HistogramEx.ExponentialBuckets(1, 30, 10),
+            LabelNames = new[] { "type" }
+        });
+
+        public static readonly Counter ScrapeErrors = Metrics.CreateCounter("scraper_errors", "Number of errors occurred that terminated a scrape.", new CounterConfiguration
+        {
+            LabelNames = new[] { "type" }
+        });
+
+        public static readonly Histogram TestingTime = Metrics.CreateHistogram("scraper_testing_time", "Time spent on testing a source.", new HistogramConfiguration
+        {
+            Buckets    = HistogramEx.ExponentialBuckets(1, 30, 10),
+            LabelNames = new[] { "type" }
+        });
+    }
+
+    public abstract class ScraperBase<TState> : BackgroundService, IScraper
     {
         readonly IResourceLocker _locker;
         readonly IStorage _storage;
         readonly IOptionsMonitor<ScraperOptions> _options;
-        readonly ILogger<ScraperBase> _logger;
+        readonly ILogger<ScraperBase<TState>> _logger;
 
         public IServiceProvider Services { get; }
         public virtual IScraperTestManager TestManager => null;
@@ -78,7 +101,7 @@ namespace nhitomi.Scrapers
         public abstract string Url { get; }
         public virtual ScraperUrlRegex UrlRegex => null;
 
-        protected ScraperBase(IServiceProvider services, IOptionsMonitor<ScraperOptions> options, ILogger<ScraperBase> logger)
+        protected ScraperBase(IServiceProvider services, IOptionsMonitor<ScraperOptions> options, ILogger<ScraperBase<TState>> logger)
         {
             Services = services;
 
@@ -87,17 +110,6 @@ namespace nhitomi.Scrapers
             _options = options;
             _logger  = logger;
         }
-
-        static readonly Histogram _scrapingTime = Metrics.CreateHistogram("scraper_scraping_time", "Time spent on scraping a source.", new HistogramConfiguration
-        {
-            Buckets    = HistogramEx.ExponentialBuckets(1, 30, 10),
-            LabelNames = new[] { "type" }
-        });
-
-        static readonly Counter _scrapeErrors = Metrics.CreateCounter("scraper_errors", "Number of errors occurred that terminated a scrape.", new CounterConfiguration
-        {
-            LabelNames = new[] { "type" }
-        });
 
         protected sealed override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
@@ -112,17 +124,28 @@ namespace nhitomi.Scrapers
                     {
                         _logger.LogDebug($"Begin {Type} scrape.");
 
+                        // run tests before scrape
                         await TestAsync(stoppingToken);
 
-                        using (_scrapingTime.Labels(Type.ToString()).Measure())
-                            await RunAsync(stoppingToken);
+                        // load last state from storage
+                        var state = await _storage.ReadObjectAsync<TState>($"scrapers/{Type}/state", stoppingToken);
+
+                        // execute scraper
+                        using (ScraperMetrics.ScrapingTime.Labels(Type.ToString()).Measure())
+                            await RunAsync(state, stoppingToken);
+
+                        // save state
+                        await _storage.WriteObjectAsync($"scrapers/{Type}/state", state, stoppingToken);
+
+                        if (_logger.IsEnabled(LogLevel.Debug))
+                            _logger.LogDebug($"Saved scraper state {Type}: {JsonConvert.SerializeObject(state)}");
 
                         _logger.LogDebug($"End {Type} scrape.");
                     }
                 }
                 catch (Exception e)
                 {
-                    _scrapeErrors.Labels(Type.ToString()).Inc();
+                    ScraperMetrics.ScrapeErrors.Labels(Type.ToString()).Inc();
 
                     _logger.LogWarning(e, $"Exception while scraping {Type}.");
                 }
@@ -131,12 +154,6 @@ namespace nhitomi.Scrapers
                 await Task.Delay(_options.CurrentValue.Interval, stoppingToken);
             }
         }
-
-        static readonly Histogram _testingTime = Metrics.CreateHistogram("scraper_testing_time", "Time spent on testing a source.", new HistogramConfiguration
-        {
-            Buckets    = HistogramEx.ExponentialBuckets(1, 30, 10),
-            LabelNames = new[] { "type" }
-        });
 
         /// <summary>
         /// Tests this scraper and throws an exception if this scraper is broken.
@@ -150,36 +167,19 @@ namespace nhitomi.Scrapers
             if (manager == null)
                 return;
 
-            using (_testingTime.Labels(Type.ToString()).Measure())
+            using (ScraperMetrics.TestingTime.Labels(Type.ToString()).Measure())
                 await manager.RunAsync(cancellationToken);
         }
 
         /// <summary>
         /// Scrapes and indexes data into the database.
         /// </summary>
-        protected abstract Task RunAsync(CancellationToken cancellationToken = default);
+        protected abstract Task RunAsync(TState state, CancellationToken cancellationToken = default);
 
         /// <summary>
-        /// Retrieves the last saved state of this scraper.
+        /// Forcefully calls <see cref="RunAsync"/> immediately. This is for unit testing purposes only.
         /// </summary>
-        protected Task<T> GetStateAsync<T>(CancellationToken cancellationToken = default)
-            => _storage.ReadObjectAsync<T>($"scrapers/{Type}/state", cancellationToken);
-
-        /// <summary>
-        /// Updates the saved state of this scraper.
-        /// </summary>
-        protected async Task SetStateAsync<T>(T value, CancellationToken cancellationToken = default)
-        {
-            if (_logger.IsEnabled(LogLevel.Debug))
-                _logger.LogDebug($"Saving scraper state {Type}: {JsonConvert.SerializeObject(value)}");
-
-            await _storage.WriteObjectAsync($"scrapers/{Type}/state", value, cancellationToken);
-        }
-
-        /// <summary>
-        /// Forcefully calls <see cref="RunAsync"/> immediately. This is for unit testing only.
-        /// </summary>
-        public Task ForceRunAsync(CancellationToken cancellationToken = default) => RunAsync(cancellationToken);
+        public Task ForceRunAsync(TState state, CancellationToken cancellationToken = default) => RunAsync(state, cancellationToken);
     }
 
     public class ScraperUrlRegex

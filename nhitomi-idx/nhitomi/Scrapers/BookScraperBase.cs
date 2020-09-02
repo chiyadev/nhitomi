@@ -74,7 +74,7 @@ namespace nhitomi.Scrapers
         Task<DbBook> RetrieveAsync(DbBookContent content, CancellationToken cancellationToken = default);
     }
 
-    public abstract class BookScraperBase : ScraperBase, IBookScraper
+    public abstract class BookScraperBase<TState> : ScraperBase<TState>, IBookScraper
     {
         readonly IServiceProvider _services;
         readonly IElasticClient _client;
@@ -82,7 +82,7 @@ namespace nhitomi.Scrapers
 
         public override ScraperCategory Category => ScraperCategory.Book;
 
-        protected BookScraperBase(IServiceProvider services, IOptionsMonitor<ScraperOptions> options, ILogger<BookScraperBase> logger) : base(services, options, logger)
+        protected BookScraperBase(IServiceProvider services, IOptionsMonitor<ScraperOptions> options, ILogger<BookScraperBase<TState>> logger) : base(services, options, logger)
         {
             _services = services;
             _client   = services.GetService<IElasticClient>();
@@ -94,10 +94,10 @@ namespace nhitomi.Scrapers
         /// <summary>
         /// Scrapes new books without adding them to the database.
         /// </summary>
-        protected abstract IAsyncEnumerable<BookAdaptor> ScrapeAsync(CancellationToken cancellationToken = default);
+        protected abstract IAsyncEnumerable<BookAdaptor> ScrapeAsync(TState state, CancellationToken cancellationToken = default);
 
-        protected sealed override async Task RunAsync(CancellationToken cancellationToken = default)
-            => await _indexer.IndexAsync(await ScrapeAsync(cancellationToken).Select(b => b.Convert(this, _services)).ToArrayAsync(cancellationToken), cancellationToken);
+        protected sealed override async Task RunAsync(TState state, CancellationToken cancellationToken = default)
+            => await _indexer.IndexAsync(await ScrapeAsync(state, cancellationToken).Select(b => b.Convert(this, _services)).ToArrayAsync(cancellationToken), cancellationToken);
 
         sealed class SourceQuery : IQueryProcessor<DbBook>
         {

@@ -27,7 +27,13 @@ namespace nhitomi.Scrapers
         public int ScrapeItems { get; set; } = 5;
     }
 
-    public class HitomiScraper : BookScraperBase
+    public class HitomiScraperState
+    {
+        [JsonProperty("last_upper")] public int? LastUpper;
+        [JsonProperty("last_lower")] public int? LastLower;
+    }
+
+    public class HitomiScraper : BookScraperBase<HitomiScraperState>
     {
         readonly HttpClient _http;
         readonly HitomiNozomiIndexReader _index;
@@ -39,7 +45,7 @@ namespace nhitomi.Scrapers
         public override ScraperUrlRegex UrlRegex { get; } = new ScraperUrlRegex(@"(hi(tomi)?(\/|\s+)|(https?:\/\/)?hitomi\.la\/)((?<type>\w+)\/)?([^\/\s]+\-)?(?<id>\d{1,8})(\.html)?");
         public override IScraperTestManager TestManager { get; }
 
-        public HitomiScraper(IServiceProvider services, IOptionsMonitor<HitomiScraperOptions> options, ILogger<BookScraperBase> logger, IHttpClientFactory http) : base(services, options, logger)
+        public HitomiScraper(IServiceProvider services, IOptionsMonitor<HitomiScraperOptions> options, ILogger<HitomiScraper> logger, IHttpClientFactory http) : base(services, options, logger)
         {
             _http    = http.CreateClient(nameof(HitomiScraper));
             _index   = ActivatorUtilities.CreateInstance<HitomiNozomiIndexReader>(services);
@@ -76,19 +82,11 @@ namespace nhitomi.Scrapers
 
         public override string GetExternalUrl(DbBookContent content) => $"https://hitomi.la/{GetCombinedId(DataContainer.Deserialize(content.Data))}.html";
 
-        public sealed class ScraperState
-        {
-            [JsonProperty("last_upper")] public int? LastUpper;
-            [JsonProperty("last_lower")] public int? LastLower;
-        }
-
-        protected override async IAsyncEnumerable<BookAdaptor> ScrapeAsync([EnumeratorCancellation] CancellationToken cancellationToken = default)
+        protected override async IAsyncEnumerable<BookAdaptor> ScrapeAsync(HitomiScraperState state, [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             var options = _options.CurrentValue;
 
-            var state = await GetStateAsync<ScraperState>(cancellationToken) ?? new ScraperState();
-            var index = await _index.ReadAsync(cancellationToken);
-
+            var index   = await _index.ReadAsync(cancellationToken);
             var targets = new HashSet<int>(options.ScrapeItems);
 
             // find new books
@@ -140,8 +138,6 @@ namespace nhitomi.Scrapers
                 if (book != null)
                     yield return new HitomiBookAdaptor(book);
             }
-
-            await SetStateAsync(state, cancellationToken);
         }
 
         public static class XPaths
