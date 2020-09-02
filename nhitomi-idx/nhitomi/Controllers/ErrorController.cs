@@ -21,7 +21,7 @@ namespace nhitomi.Controllers
         {
             var exception = HttpContext.Features.Get<IExceptionHandlerFeature>()?.Error;
 
-            var message = exception?.ToStringWithTrace("Could not handle this request due to an internal server error.", _environment.IsProduction());
+            var message = exception?.ToStringWithTrace("Could not complete this request due to an internal server error.", _environment.IsProduction());
 
             return new Result<object>(HttpStatusCode.InternalServerError, message, null);
         }
