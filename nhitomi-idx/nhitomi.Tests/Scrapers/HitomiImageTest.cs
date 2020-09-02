@@ -17,12 +17,11 @@ namespace nhitomi.Scrapers
 
             Assert.That(hitomiBook, Is.Not.Null);
 
-            var book    = new HitomiBookAdaptor(hitomiBook).Convert(scraper, Services);
-            var content = book.Contents[0];
+            var content = new HitomiBookAdaptor(hitomiBook).Convert(scraper, Services).Contents[0];
 
             for (var i = 0; i < 5; i++)
             {
-                await using var file = await scraper.GetImageAsync(book, content, i);
+                await using var file = await scraper.GetImageAsync(content, i);
             }
         }
     }
