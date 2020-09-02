@@ -33,7 +33,7 @@ namespace nhitomi
         {
             while (!stoppingToken.IsCancellationRequested)
             {
-                await Task.Delay(_options.CurrentValue.ConfigurationReloadInterval, stoppingToken);
+                await Task.Delay(_options.CurrentValue.DynamicConfigReloadInterval, stoppingToken);
 
                 await Task.WhenAll(_providers.Select(p => p.LoadAsync(_services, stoppingToken)));
             }

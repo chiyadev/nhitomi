@@ -49,8 +49,18 @@ namespace nhitomi
         public bool ResponseCompression { get; set; }
 
         /// <summary>
+        /// True to enable dynamic server configuration stored in Elasticsearch.
+        /// </summary>
+        public bool DynamicConfigEnabled { get; set; } = true;
+
+        /// <summary>
         /// Interval of dynamic configuration reloads.
         /// </summary>
-        public TimeSpan ConfigurationReloadInterval { get; set; } = TimeSpan.FromSeconds(2);
+        public TimeSpan DynamicConfigReloadInterval { get; set; } = TimeSpan.FromSeconds(2);
+
+        /// <summary>
+        /// Whether the server is in maintenance mode, which blocks all writes to the database.
+        /// </summary>
+        public bool Maintenance { get; set; }
     }
 }

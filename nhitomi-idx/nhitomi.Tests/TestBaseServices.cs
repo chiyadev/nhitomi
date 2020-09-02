@@ -82,6 +82,9 @@ namespace nhitomi
         {
             var prefix = Snowflake.New.ToLowerInvariant();
 
+            // disable dynamic config to make tests faster
+            services.PostConfigure<ServerOptions>(o => o.DynamicConfigEnabled = false);
+
             // use in-memory storage
             services.PostConfigure<StorageOptions>(o => o.Type = StorageType.Memory);
 
@@ -95,9 +98,6 @@ namespace nhitomi
 
                 // make elasticsearch refresh immediately to make tests run faster
                 o.RequestRefreshOption = Refresh.True;
-
-                // disable dynamic config to make tests faster
-                o.EnableDynamicConfig = false;
             });
 
             // use a random redis key prefix

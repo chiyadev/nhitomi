@@ -21,9 +21,9 @@ namespace nhitomi.Database
         public async Task LoadAsync(IServiceProvider services, CancellationToken cancellationToken = default)
         {
             var client  = services.GetService<IElasticClient>();
-            var options = services.GetService<IOptionsMonitor<ElasticOptions>>().CurrentValue;
+            var options = services.GetService<IOptionsMonitor<ServerOptions>>().CurrentValue;
 
-            if (!options.EnableDynamicConfig)
+            if (!options.DynamicConfigEnabled)
             {
                 if (Data.Count != 0)
                 {

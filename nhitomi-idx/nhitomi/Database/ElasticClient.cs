@@ -73,11 +73,6 @@ namespace nhitomi.Database
         public TimeSpan RateLimitWait { get; set; } = TimeSpan.FromSeconds(3);
 
         /// <summary>
-        /// True to enable dynamic server configuration stored in Elasticsearch.
-        /// </summary>
-        public bool EnableDynamicConfig { get; set; } = true;
-
-        /// <summary>
         /// Number of items to search per chunk when searching as a stream.
         /// </summary>
         public int StreamSearchChunkSize { get; set; } = 10;
