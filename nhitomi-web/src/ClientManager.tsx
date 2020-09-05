@@ -1,7 +1,7 @@
 import React, { ReactNode, useMemo, createContext, useState, useContext, Dispatch } from 'react'
 import { ConfigurationParameters, ValidationProblemArrayResult, ValidationProblem, UserApi, InfoApi, BookApi, CollectionApi, Configuration, GetInfoResponse, GetInfoAuthenticatedResponse, BASE_PATH, User, UserPermissions, Collection } from 'nhitomi-api'
 import { CustomError } from 'ts-custom-error'
-import { useAsync } from 'react-use'
+import { useAsync, useInterval } from 'react-use'
 import { useProgress } from './ProgressManager'
 import { ConfigSource, useConfigManager, useConfig } from './ConfigManager'
 import { Container } from './Components/Container'
@@ -165,6 +165,16 @@ export const ClientManager = ({ children }: { children?: ReactNode }) => {
       end()
     }
   }, [])
+
+  // periodically refresh info
+  useInterval(async () => {
+    try {
+      setInfo(await client.getInfo())
+    }
+    catch (e) {
+      console.warn('could not refresh info', e)
+    }
+  }, 1000 * 60)
 
   const [, setToken] = useConfig('token')
   const [, setBaseUrl] = useConfig('baseUrl')
