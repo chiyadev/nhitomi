@@ -157,7 +157,7 @@ namespace nhitomi.Database.Migrations
                 list.Add((index.Index, currentId));
             }
 
-            var clearCaches = false;
+            var migrated = false;
 
             foreach (var list in migrations.Values)
             {
@@ -175,16 +175,18 @@ namespace nhitomi.Database.Migrations
                     else
                         _logger.LogWarning(response.OriginalException, $"Could not delete old migration index '{index}'.");
 
-                    clearCaches = true;
+                    migrated = true;
                 }
             }
 
-            // clear redis caches
-            if (clearCaches)
+            if (migrated)
+            {
+                // clear redis caches
                 await _redis.ScanDeleteAsync($"{options.CachePrefix}*", cancellationToken);
 
-            // unblock database writes
-            await _writeControl.UnblockAsync(cancellationToken);
+                // unblock database writes
+                await _writeControl.UnblockAsync(cancellationToken);
+            }
         }
     }
 }
