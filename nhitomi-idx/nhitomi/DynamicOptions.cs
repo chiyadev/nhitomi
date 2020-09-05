@@ -41,7 +41,7 @@ namespace nhitomi
 
         public async Task SetAsync(string name, string value, CancellationToken cancellationToken = default)
         {
-            var entry = _elastic.Entry<DbCompositeConfig>(DbCompositeConfig.DefaultId);
+            var entry = await _elastic.GetEntryAsync<DbCompositeConfig>(DbCompositeConfig.DefaultId, cancellationToken);
 
             do
             {
