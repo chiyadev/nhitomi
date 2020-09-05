@@ -21,7 +21,7 @@ namespace nhitomi.Database.Migrations
 
         public override Task RunAsync(CancellationToken cancellationToken = default) => Task.CompletedTask;
 
-        public class DbBook
+        public class DbBook : IDbObject
         {
             [Keyword(Name = "id", Index = false)]
             public string Id { get; set; }
@@ -38,66 +38,29 @@ namespace nhitomi.Database.Migrations
             [Text(Name = "ne")]
             public string EnglishName { get; set; }
 
-            readonly Dictionary<BookTag, string[]> _tags = new Dictionary<BookTag, string[]>();
-
-            public string[] GetTags(BookTag tag) => _tags.GetValueOrDefault(tag);
-            public void SetTags(BookTag tag, string[] value) => _tags[tag] = value;
-
             [Text(Name = "tg")]
-            public string[] TagsGeneral
-            {
-                get => GetTags(BookTag.Tag);
-                set => SetTags(BookTag.Tag, value);
-            }
+            public string[] TagsGeneral { get; set; }
 
             [Text(Name = "ta")]
-            public string[] TagsArtist
-            {
-                get => GetTags(BookTag.Artist);
-                set => SetTags(BookTag.Artist, value);
-            }
+            public string[] TagsArtist { get; set; }
 
             [Text(Name = "tp")]
-            public string[] TagsParody
-            {
-                get => GetTags(BookTag.Parody);
-                set => SetTags(BookTag.Parody, value);
-            }
+            public string[] TagsParody { get; set; }
 
             [Text(Name = "tc")]
-            public string[] TagsCharacter
-            {
-                get => GetTags(BookTag.Character);
-                set => SetTags(BookTag.Character, value);
-            }
+            public string[] TagsCharacter { get; set; }
 
             [Text(Name = "tco")]
-            public string[] TagsConvention
-            {
-                get => GetTags(BookTag.Convention);
-                set => SetTags(BookTag.Convention, value);
-            }
+            public string[] TagsConvention { get; set; }
 
             [Text(Name = "ts")]
-            public string[] TagsSeries
-            {
-                get => GetTags(BookTag.Series);
-                set => SetTags(BookTag.Series, value);
-            }
+            public string[] TagsSeries { get; set; }
 
             [Text(Name = "tci")]
-            public string[] TagsCircle
-            {
-                get => GetTags(BookTag.Circle);
-                set => SetTags(BookTag.Circle, value);
-            }
+            public string[] TagsCircle { get; set; }
 
             [Text(Name = "tm")]
-            public string[] TagsMetadata
-            {
-                get => GetTags(BookTag.Metadata);
-                set => SetTags(BookTag.Metadata, value);
-            }
+            public string[] TagsMetadata { get; set; }
 
             [Keyword(Name = "ca", DocValues = false)]
             public BookCategory Category { get; set; }
@@ -131,16 +94,28 @@ namespace nhitomi.Database.Migrations
             [Completion(Name = "sug", PreserveSeparators = false, PreservePositionIncrements = false), DbCached]
             public CompletionField Suggest { get; set; }
 
-            public virtual void UpdateCache(IServiceProvider services)
+            public void UpdateCache(IServiceProvider services)
             {
                 // auto-set content ids
                 if (Contents != null)
                     foreach (var content in Contents)
                         content.Id ??= Snowflake.New;
 
+                var tags = new Dictionary<BookTag, string[]>
+                {
+                    [BookTag.Tag]        = TagsGeneral,
+                    [BookTag.Artist]     = TagsArtist,
+                    [BookTag.Parody]     = TagsParody,
+                    [BookTag.Character]  = TagsCharacter,
+                    [BookTag.Convention] = TagsConvention,
+                    [BookTag.Series]     = TagsSeries,
+                    [BookTag.Circle]     = TagsCircle,
+                    [BookTag.Metadata]   = TagsMetadata
+                };
+
                 PageCount = Contents?.ToArray(c => c.PageCount);
                 NoteCount = Contents?.ToArray(c => c.Notes?.Values.Sum(x => x?.Length ?? 0) ?? 0);
-                TagCount  = _tags.Values.Sum(x => x?.Length ?? 0);
+                TagCount  = tags.Values.Sum(x => x?.Length ?? 0);
                 Language  = Contents?.ToArray(c => c.Language);
                 Sources   = Contents?.ToArray(c => c.Source);
                 SourceIds = Contents?.ToArray(c => c.SourceId);
@@ -153,7 +128,7 @@ namespace nhitomi.Database.Migrations
                         [-2] = new[] { EnglishName }
                     }.Chain(d =>
                     {
-                        foreach (var (key, value) in _tags)
+                        foreach (var (key, value) in tags)
                             d[(int) key] = value;
                     }))
                 };
@@ -186,7 +161,7 @@ namespace nhitomi.Database.Migrations
             public string Data { get; set; }
         }
 
-        public class DbCollection
+        public class DbCollection : IDbObject
         {
             [Keyword(Name = "id", Index = false)]
             public string Id { get; set; }
@@ -211,6 +186,8 @@ namespace nhitomi.Database.Migrations
 
             [Keyword(Name = "it", Index = false)]
             public string[] Items { get; set; }
+
+            public void UpdateCache(IServiceProvider services) { }
         }
 
         public class DbImageNote
@@ -234,7 +211,7 @@ namespace nhitomi.Database.Migrations
             public string Content { get; set; }
         }
 
-        public class DbSnapshot
+        public class DbSnapshot : IDbObject
         {
             [Keyword(Name = "id", Index = false)]
             public string Id { get; set; }
@@ -265,9 +242,11 @@ namespace nhitomi.Database.Migrations
 
             [Keyword(Name = "d", Index = false)]
             public string Data { get; set; }
+
+            public void UpdateCache(IServiceProvider services) { }
         }
 
-        public class DbUser
+        public class DbUser : IDbObject
         {
             [Keyword(Name = "id", Index = false)]
             public string Id { get; set; }
@@ -310,7 +289,7 @@ namespace nhitomi.Database.Migrations
             [Keyword(Name = "cdi", DocValues = false), DbCached]
             public ulong? DiscordId { get; set; }
 
-            public virtual void UpdateCache(IServiceProvider services)
+            public void UpdateCache(IServiceProvider services)
             {
                 DiscordId = DiscordConnection?.Id;
             }
@@ -318,7 +297,7 @@ namespace nhitomi.Database.Migrations
 #endregion
         }
 
-        public class DbVote
+        public class DbVote : IDbObject
         {
             [Keyword(Name = "id", Index = false)]
             public string Id { get; set; }
@@ -334,6 +313,8 @@ namespace nhitomi.Database.Migrations
 
             [Keyword(Name = "e", DocValues = false)]
             public string TargetId { get; set; }
+
+            public void UpdateCache(IServiceProvider services) { }
         }
     }
 }
