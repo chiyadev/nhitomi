@@ -50,6 +50,8 @@ namespace nhitomi.Database
         {
             await _optionsSetter.SetAsync($"Server:{nameof(ServerOptions.BlockDatabaseWrites)}", "true", cancellationToken);
 
+            using var measure = new MeasureContext();
+
             _logger.LogDebug("Blocking on write control.");
 
             // wait until all writers release
@@ -62,6 +64,8 @@ namespace nhitomi.Database
 
                 await Task.Delay(TimeSpan.FromMilliseconds(100), cancellationToken);
             }
+
+            _logger.LogDebug($"All writers blocked in {measure}.");
         }
 
         public Task UnblockAsync(CancellationToken cancellationToken = default)
