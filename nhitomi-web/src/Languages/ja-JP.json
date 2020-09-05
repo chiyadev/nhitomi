@@ -227,6 +227,9 @@
           "otherAdd": "コレクションに追加"
         }
       }
+    },
+    "maintenanceHeader": {
+      "text": "nhitomiは現在メンテナンスを行っています。"
     }
   },
   "types": {

@@ -227,6 +227,9 @@
           "otherAdd": "Add to collection"
         }
       }
+    },
+    "maintenanceHeader": {
+      "text": "nhitomi is currently under maintenance."
     }
   },
   "types": {

@@ -24,6 +24,7 @@ import { CollectionEdit } from './CollectionListing/Edit'
 import { Footer } from './Footer'
 import { About } from './About'
 import { NotFound } from './NotFound'
+import { MaintenanceHeader } from './MaintenanceHeader'
 
 export const App = () => {
   return (
@@ -55,6 +56,8 @@ export const App = () => {
 const Body = () => (
   <div className='flex flex-col min-h-screen'>
     <div className='relative w-full flex-1'>
+      <MaintenanceHeader />
+
       <Routing />
     </div>
     <div className='mt-4'>
