@@ -12,7 +12,7 @@ export const Token = () => {
   const [visible, setVisible] = useState(false)
 
   return (
-    <SettingsFocusContainer focus='account'>
+    <SettingsFocusContainer focus='token'>
       <div className='text-base'><FormattedMessage id='pages.settings.user.token.name' /></div>
       <div className='text-xs text-gray-darker'><FormattedMessage id='pages.settings.user.token.description' /></div>
       <br />
