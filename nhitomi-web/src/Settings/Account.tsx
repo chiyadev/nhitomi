@@ -7,7 +7,7 @@ import { LogoutOutlined } from '@ant-design/icons'
 import { FlatButton } from '../Components/FlatButton'
 
 export const Account = () => {
-  const { info } = useClientInfo()
+  const { info, setInfo } = useClientInfo()
   const [, setToken] = useConfig('token')
 
   if (!info.authenticated)
@@ -23,7 +23,7 @@ export const Account = () => {
         icon={<LogoutOutlined />}
         onClick={() => {
           setToken(undefined)
-          window.location.reload()
+          setInfo({ ...info, authenticated: false })
         }}>
 
         <FormattedMessage id='pages.settings.user.account.logout' />
