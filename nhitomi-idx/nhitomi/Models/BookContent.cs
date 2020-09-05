@@ -47,7 +47,6 @@ namespace nhitomi.Models
         /// <summary>
         /// Time when this content was last refreshed from source.
         /// </summary>
-        [Required]
         public DateTime? RefreshTime { get; set; }
 
         /// <summary>
