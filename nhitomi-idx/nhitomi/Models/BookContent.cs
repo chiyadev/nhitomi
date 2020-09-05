@@ -51,13 +51,13 @@ namespace nhitomi.Models
         public DateTime? RefreshTime { get; set; }
 
         /// <summary>
-        /// Whether this content is unavailable for viewing.
+        /// Whether this content is available for viewing.
         /// </summary>
         /// <remarks>
         /// Contents may become unavailable if they are deleted from the source website.
         /// </remarks>
         [Required]
-        public bool IsUnavailable { get; set; }
+        public bool IsAvailable { get; set; }
     }
 
     public class BookContentBase

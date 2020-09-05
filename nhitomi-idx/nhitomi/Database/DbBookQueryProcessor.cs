@@ -57,7 +57,7 @@ namespace nhitomi.Database
                              .Filter(Query.Language, b => b.Language)
                              .Filter(Query.Source, b => b.Sources)
                              .Range(Query.RefreshTime, b => b.RefreshTime)
-                             .Filter(Query.IsUnavailable, b => b.IsUnavailable);
+                             .Filter(Query.IsAvailable, b => b.IsAvailable);
 
                         return q;
                     })

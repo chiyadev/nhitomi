@@ -22,7 +22,7 @@ namespace nhitomi.Models
         public FilterQuery<MaterialRating> Rating { get; set; }
         public FilterQuery<ScraperType> Source { get; set; }
         public RangeQuery<DateTime> RefreshTime { get; set; }
-        public FilterQuery<bool> IsUnavailable { get; set; }
+        public FilterQuery<bool> IsAvailable { get; set; }
     }
 
     public enum BookSort

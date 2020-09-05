@@ -183,8 +183,8 @@ namespace nhitomi.Controllers
                 return entry.Value;
 
             // if retrieve returns null, the book became unavailable from source
-            var now     = DateTime.UtcNow;
-            var missing = await scraper.RetrieveAsync(content, cancellationToken) == null;
+            var now       = DateTime.UtcNow;
+            var available = await scraper.RetrieveAsync(content, cancellationToken) != null;
 
             do
             {
@@ -193,8 +193,8 @@ namespace nhitomi.Controllers
                 if (content == null)
                     return new NotFound();
 
-                content.RefreshTime   = now;
-                content.IsUnavailable = missing;
+                content.RefreshTime = now;
+                content.IsAvailable = available;
             }
             while (!await entry.TryUpdateAsync(cancellationToken));
 

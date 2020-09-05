@@ -34,8 +34,8 @@ namespace nhitomi.Database
         [Key("Tr"), Date(Name = "Tr")]
         public DateTime? RefreshTime { get; set; }
 
-        [Key("ua"), Boolean(Name = "ua", DocValues = false)]
-        public bool IsUnavailable { get; set; }
+        [Key("av"), Boolean(Name = "av", DocValues = false)]
+        public bool IsAvailable { get; set; }
 
         /// <summary>
         /// Cannot query against this property.
@@ -47,24 +47,24 @@ namespace nhitomi.Database
         {
             base.MapTo(model, services);
 
-            model.PageCount     = PageCount;
-            model.Language      = Language;
-            model.Notes         = Notes?.ToDictionary(x => x.Key, x => x.Value.ToArray(n => n.Convert(services))) ?? new Dictionary<int, ImageNote[]>();
-            model.Source        = Source;
-            model.SourceUrl     = services.GetService<IScraperService>().GetBook(Source, out var s) ? s.GetExternalUrl(this) : null;
-            model.RefreshTime   = RefreshTime;
-            model.IsUnavailable = IsUnavailable;
+            model.PageCount   = PageCount;
+            model.Language    = Language;
+            model.Notes       = Notes?.ToDictionary(x => x.Key, x => x.Value.ToArray(n => n.Convert(services))) ?? new Dictionary<int, ImageNote[]>();
+            model.Source      = Source;
+            model.SourceUrl   = services.GetService<IScraperService>().GetBook(Source, out var s) ? s.GetExternalUrl(this) : null;
+            model.RefreshTime = RefreshTime;
+            model.IsAvailable = IsAvailable;
         }
 
         public override void MapFrom(BookContent model, IServiceProvider services)
         {
             base.MapFrom(model, services);
 
-            PageCount     = model.PageCount;
-            Language      = model.Language;
-            Notes         = model.Notes?.ToDictionary(x => x.Key, x => x.Value.ToArray(n => new DbImageNote().Apply(n, services)));
-            RefreshTime   = model.RefreshTime;
-            IsUnavailable = model.IsUnavailable;
+            PageCount   = model.PageCount;
+            Language    = model.Language;
+            Notes       = model.Notes?.ToDictionary(x => x.Key, x => x.Value.ToArray(n => new DbImageNote().Apply(n, services)));
+            RefreshTime = model.RefreshTime;
+            IsAvailable = model.IsAvailable;
 
             // do not map Source and SourceId because Data is valid only for the scraper that initialized it
         }
