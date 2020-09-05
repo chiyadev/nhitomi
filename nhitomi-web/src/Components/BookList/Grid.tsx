@@ -1,5 +1,5 @@
 import React, { useMemo, useState, ReactNode } from 'react'
-import { SmallBreakpoints, LargeBreakpoints, getBreakpoint, ScreenBreakpoint } from '../../LayoutManager'
+import { SmallBreakpoints, LargeBreakpoints, getBreakpoint, ScreenBreakpoint, useLayout } from '../../LayoutManager'
 import { cx, css } from 'emotion'
 import { CoverImage } from '../CoverImage'
 import { useClient } from '../../ClientManager'
@@ -93,6 +93,7 @@ const Item = ({ book, width, height, className }: {
   height: number
   className?: string
 }) => {
+  const { screen, height: screenHeight } = useLayout()
   const contentSelector = useContentSelector()
   const { LinkComponent } = useBookList()
   const [hover, setHover] = useState(false)
@@ -127,19 +128,25 @@ const Item = ({ book, width, height, className }: {
     )
   }, [LinkComponent, book.id, className, content, height, image, overlay, width])
 
+  let preload: number
+
+  switch (screen) {
+    case 'sm': preload = screenHeight * 2; break
+    case 'lg': preload = 200; break
+  }
+
   return useMemo(() => (
     <ContextMenu overlay={(
       <Overlay book={book} content={content} />
     )}>
-
       <VisibilitySensor
         delayedCall
         partialVisibility
-        offset={{ top: -200, bottom: -200 }}
+        offset={{ top: -preload, bottom: -preload }}
         onChange={v => { v && setShowImage(true) }}
         children={inner} />
     </ContextMenu>
-  ), [book, content, inner])
+  ), [book, content, inner, preload])
 }
 
 const ItemCover = ({ book, content }: { book: BookListItem, content?: BookContent }) => {
