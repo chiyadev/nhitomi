@@ -1,4 +1,4 @@
-import React, { ReactNode, useMemo, createContext, useState, useContext, Dispatch, useLayoutEffect } from 'react'
+import React, { ReactNode, useMemo, createContext, useState, useContext, Dispatch, useLayoutEffect, useRef } from 'react'
 import { ConfigurationParameters, ValidationProblemArrayResult, ValidationProblem, UserApi, InfoApi, BookApi, CollectionApi, Configuration, GetInfoResponse, GetInfoAuthenticatedResponse, BASE_PATH, User, UserPermissions, Collection } from 'nhitomi-api'
 import { CustomError } from 'ts-custom-error'
 import { useAsync, useInterval } from 'react-use'
@@ -188,6 +188,18 @@ export const ClientManager = ({ children }: { children?: ReactNode }) => {
       setCachedInfo(info)
     else
       setCachedInfo(undefined)
+  }, [info])
+
+  const version = useRef<string>()
+
+  useLayoutEffect(() => {
+    if (info && !(info instanceof Error)) {
+      // reload if version changes
+      if (version.current && version.current !== info.version.hash)
+        window.location.reload()
+
+      version.current = info.version.hash
+    }
   }, [info])
 
   useAsync(async () => {
