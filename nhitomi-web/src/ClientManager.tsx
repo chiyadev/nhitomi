@@ -1,4 +1,4 @@
-import React, { ReactNode, useMemo, createContext, useState, useContext, Dispatch } from 'react'
+import React, { ReactNode, useMemo, createContext, useState, useContext, Dispatch, useLayoutEffect } from 'react'
 import { ConfigurationParameters, ValidationProblemArrayResult, ValidationProblem, UserApi, InfoApi, BookApi, CollectionApi, Configuration, GetInfoResponse, GetInfoAuthenticatedResponse, BASE_PATH, User, UserPermissions, Collection } from 'nhitomi-api'
 import { CustomError } from 'ts-custom-error'
 import { useAsync, useInterval } from 'react-use'
@@ -142,12 +142,53 @@ export function useClientInfo() {
   return { permissions, info, setInfo, fetchInfo }
 }
 
+const cacheKey = 'info_cached'
+type CachedClientInfo = {
+  time: number
+  value: ClientInfo
+}
+
+/** Cached client info allows the site to load faster. */
+function getCachedInfo(): ClientInfo | undefined {
+  try {
+    const cached: CachedClientInfo = JSON.parse(localStorage.getItem(cacheKey) || '')
+    const now = Date.now()
+
+    if (now - cached.time < 1000 * 60 * 30) // cache valid for 30 minutes
+      return cached.value
+  }
+  catch {
+    // ignored
+  }
+}
+
+function setCachedInfo(value?: ClientInfo) {
+  if (value) {
+    const cached: CachedClientInfo = {
+      time: Date.now(),
+      value
+    }
+
+    localStorage.setItem(cacheKey, JSON.stringify(cached))
+  }
+  else {
+    localStorage.removeItem(cacheKey)
+  }
+}
+
 export const ClientManager = ({ children }: { children?: ReactNode }) => {
   const config = useConfigManager()
 
   const client = useMemo(() => new Client(config), [config])
-  const [info, setInfo] = useState<ClientInfo | Error>()
+  const [info, setInfo] = useState<ClientInfo | Error | undefined>(getCachedInfo)
   const { begin, end } = useProgress()
+
+  useLayoutEffect(() => {
+    if (info && !(info instanceof Error))
+      setCachedInfo(info)
+    else
+      setCachedInfo(undefined)
+  }, [info])
 
   useAsync(async () => {
     begin()
