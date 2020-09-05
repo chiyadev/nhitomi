@@ -33,6 +33,11 @@
       "pageCount": "{count}ページ",
       "uploadTime": "{time}にアップロード",
       "updateTime": "{time}に更新",
+      "available": {
+        "refresh": "リフレッシュ中・・・",
+        "error": "リフレッシュできませんでした。",
+        "false": "この本はソースサイトから削除されました。"
+      },
       "sources": "サイト",
       "alerts": {
         "imagesPerRow": "{value, select, 1 {シングル} 2 {ダブル} other {{value}}}ページモードに切り替えました。",

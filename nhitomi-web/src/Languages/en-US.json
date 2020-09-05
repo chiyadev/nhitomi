@@ -33,6 +33,11 @@
       "pageCount": "{count} pages",
       "uploadTime": "Uploaded on {time}",
       "updateTime": "Updated on {time}",
+      "available": {
+        "refresh": "Refreshing...",
+        "error": "Could not refresh this book.",
+        "false": "This book has been deleted from the source website."
+      },
       "sources": "Sources",
       "alerts": {
         "imagesPerRow": "Switched to {value, select, 1 {single} 2 {double} other {{value}}} page mode.",

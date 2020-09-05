@@ -5,7 +5,7 @@ import { CoverImage } from '../Components/CoverImage'
 import { cx } from 'emotion'
 import { useSpring, animated } from 'react-spring'
 import { useLayout } from '../LayoutManager'
-import { UploadOutlined, HistoryOutlined, LinkOutlined, ReadOutlined } from '@ant-design/icons'
+import { UploadOutlined, HistoryOutlined, LinkOutlined, ReadOutlined, ReloadOutlined, WarningOutlined } from '@ant-design/icons'
 import { FormattedMessage } from 'react-intl'
 import { TimeDisplay } from '../Components/TimeDisplay'
 import { BookTagColors } from '../Components/colors'
@@ -20,6 +20,8 @@ import { Disableable } from '../Components/Disableable'
 import { useConfig } from '../ConfigManager'
 import { FlatButton } from '../Components/FlatButton'
 import { useContentSelector } from '../Components/BookList'
+import { useAsync } from 'react-use'
+import { useNotify } from '../NotificationManager'
 
 export const Info = ({ book, content }: PrefetchResult) => {
   const client = useClient()
@@ -133,8 +135,9 @@ export const Info = ({ book, content }: PrefetchResult) => {
             <div><ReadOutlined className='w-4 text-center' /> <FormattedMessage id='pages.bookReader.pageCount' values={{ count: content.pageCount }} /></div>
             <div><UploadOutlined className='w-4 text-center' /> <FormattedMessage id='pages.bookReader.uploadTime' values={{ time: <TimeDisplay value={book.createdTime} /> }} /></div>
             <div><HistoryOutlined className='w-4 text-center' /> <FormattedMessage id='pages.bookReader.updateTime' values={{ time: <TimeDisplay value={book.updatedTime} /> }} /></div>
+            <div><RefreshStatus book={book} content={content} /></div>
           </div>
-        ), [book.createdTime, book.updatedTime, content.pageCount])}
+        ), [book, content])}
       </div>
     </div>
   )
@@ -168,8 +171,37 @@ const SourceButton = ({ type }: { type: ScraperType }) => {
     <FlatButton icon={(
       <img className='rounded-full h-6 w-auto align-middle' alt={type} src={`/assets/icons/${type}.jpg`} />
     )}>
-
       <span className='text-sm text-gray'>{scrapers.find(s => s.type === type)?.name}</span>
     </FlatButton>
   )
+}
+
+const RefreshStatus = ({ book, content }: PrefetchResult) => {
+  const client = useClient()
+  const { notifyError } = useNotify()
+
+  const { loading, value, error } = useAsync(async () => {
+    if (content.refreshTime && Date.now() - content.refreshTime.getTime() < 1000 * 60 * 60 * 24)
+      return content.isAvailable
+
+    const refreshed = await client.book.refreshBook({
+      id: book.id,
+      refreshContentRequest: {
+        contentId: content.id
+      }
+    })
+
+    return refreshed.contents.find(c => c.id === content.id)?.isAvailable
+  }, [])
+
+  return loading
+    ? (
+      <div><ReloadOutlined className='w-4 text-center animate-spin' /> <FormattedMessage id='pages.bookReader.available.refresh' /></div>
+    ) : error
+      ? (
+        <div className='text-red cursor-pointer' onClick={() => notifyError(error)}><WarningOutlined className='w-4 text-center' /> <FormattedMessage id='pages.bookReader.available.error' /></div>
+      )
+      : value ? null : (
+        <div className='text-red'><WarningOutlined className='w-4 text-center' /> <FormattedMessage id='pages.bookReader.available.false' /></div>
+      )
 }
