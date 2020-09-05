@@ -82,7 +82,12 @@ export const LocaleManager = ({ children }: { children?: ReactNode }) => {
           setPreferEnglishName(AsianLanguages.indexOf(language) === -1)
         }
       }
+    }
+    catch (e) {
+      console.error('could not synchronize language', e)
+    }
 
+    try {
       const messages = await loadLanguage(language)
 
       if (loadId.current === id) {
