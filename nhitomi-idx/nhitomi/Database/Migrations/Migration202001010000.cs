@@ -5,7 +5,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using ChiyaFlake;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using Nest;
 using nhitomi.Models;
 using nhitomi.Scrapers;
@@ -17,7 +16,7 @@ namespace nhitomi.Database.Migrations
     /// </summary>
     public class Migration202001010000 : MigrationBase
     {
-        public Migration202001010000(IOptionsMonitor<ElasticOptions> options, IElasticClient client, ILogger<Migration202001010000> logger) : base(options, client, logger) { }
+        public Migration202001010000(IServiceProvider services, ILogger<Migration202001010000> logger) : base(services, logger) { }
 
         public override Task RunAsync(CancellationToken cancellationToken = default) => Task.CompletedTask;
 
