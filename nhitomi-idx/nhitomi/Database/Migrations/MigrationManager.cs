@@ -102,7 +102,11 @@ namespace nhitomi.Database.Migrations
 
                     try
                     {
+                        using var measure = new MeasureContext();
+
                         await migration.RunAsync(cancellationToken);
+
+                        _logger.LogInformation($"Successfully migrated {migration.Id} in {measure}.");
                     }
                     catch (Exception e)
                     {
@@ -134,42 +138,52 @@ namespace nhitomi.Database.Migrations
 
         public async Task FinalizeAsync(CancellationToken cancellationToken = default)
         {
-            var options = _options.CurrentValue;
-            var indexes = await _elastic.Cat.IndicesAsync(c => c.Index($"{options.IndexPrefix}*"), cancellationToken);
-
-            var migrationIds = new Dictionary<string, long>(indexes.Records.Count);
-            var migrated     = false;
+            var options    = _options.CurrentValue;
+            var indexes    = await _elastic.Cat.IndicesAsync(c => c.Index($"{options.IndexPrefix}*"), cancellationToken);
+            var migrations = new Dictionary<string, List<(string index, long id)>>(indexes.Records.Count);
 
             foreach (var index in indexes.Records)
             {
                 if (!TryParseIndexName(index.Index, out var name, out var currentId))
                     continue;
 
-                // unknown migration
+                // ignore unknown migrations
                 if (!MigrationTypes.ContainsKey(currentId))
                     continue;
 
-                // delete older migration index
-                if (migrationIds.TryGetValue(name, out var lastId) && currentId < lastId)
-                {
-                    var response = await _elastic.Indices.DeleteAsync(index.Index, null, cancellationToken);
+                if (!migrations.TryGetValue(name, out var list))
+                    migrations[name] = list = new List<(string index, long id)>();
 
-                    if (response.OriginalException != null)
-                        _logger.LogWarning(response.OriginalException, $"Could not delete old migration index '{name}-{lastId}'.");
+                list.Add((index.Index, currentId));
+            }
 
-                    migrated = true;
-                }
-                else
+            var clearCaches = false;
+
+            foreach (var list in migrations.Values)
+            {
+                // sort by migration id
+                list.Sort((a, b) => a.id.CompareTo(b.id));
+
+                // delete old migrations
+                for (var i = 0; i < list.Count - 1; i++)
                 {
-                    migrationIds[name] = currentId;
+                    var (index, _) = list[i];
+                    var response = await _elastic.Indices.DeleteAsync(index, null, cancellationToken);
+
+                    if (response.OriginalException == null)
+                        _logger.LogInformation($"Deleted old migrated index '{index}'.");
+                    else
+                        _logger.LogWarning(response.OriginalException, $"Could not delete old migration index '{index}'.");
+
+                    clearCaches = true;
                 }
             }
 
-            // delete redis caches if we migrated
-            if (migrated)
+            // clear redis caches
+            if (clearCaches)
                 await _redis.ScanDeleteAsync($"{options.CachePrefix}*", cancellationToken);
 
-            // allow database writes
+            // unblock database writes
             await _writeControl.UnblockAsync(cancellationToken);
         }
     }

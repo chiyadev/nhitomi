@@ -483,7 +483,7 @@ namespace nhitomi.Database
                     return newIndex;
 
                 // get all indexes with migration suffix
-                var indexes = await Request(c => c.Cat.IndicesAsync(x => x.Index($"{options.IndexPrefix}{name}*"), cancellationToken));
+                var indexes = await Request(c => c.Cat.IndicesAsync(x => x.Index($"{options.IndexPrefix}{name}-*"), cancellationToken));
 
                 // select the last index for which we have a migration
                 var indexName = indexes.Records
@@ -497,6 +497,7 @@ namespace nhitomi.Database
                 {
                     indexName = $"{options.IndexPrefix}{name}-{MigrationManager.LatestMigrationId}";
 
+                    // sync this code with MigrationBase.CreateIndexAsync
                     var excludeFields = typeof(T).GetProperties()
                                                  .Where(p => p.GetCustomAttributes().OfType<DbSourceExcludeAttribute>().Any())
                                                  .ToArray(p => p.GetCustomAttributes().OfType<IPropertyMapping>().First().Name);
