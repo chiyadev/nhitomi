@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using MessagePack;
@@ -161,7 +162,7 @@ namespace nhitomi.Database
                 return (long) await _database.StringGetAsync(key.Prepend(_keyPrefix));
         }
 
-        public async IAsyncEnumerable<RedisKey> ScanAsync(RedisValue pattern, CancellationToken cancellationToken = default)
+        public async IAsyncEnumerable<RedisKey> ScanAsync(RedisValue pattern, [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             foreach (var endpoint in _connection.GetEndPoints())
             await foreach (var key in _connection.GetServer(endpoint).KeysAsync(pattern: pattern, pageSize: 1000).WithCancellation(cancellationToken))
@@ -172,19 +173,29 @@ namespace nhitomi.Database
         {
             var batch = new List<RedisKey>(10000);
 
+            async Task flush()
+            {
+                if (batch.Count == 0)
+                    return;
+
+                using (_requestTime.Measure())
+                    await _database.KeyDeleteAsync(batch.ToArray());
+
+                batch.Clear();
+            }
+
             await foreach (var key in ScanAsync(pattern, cancellationToken))
             {
                 batch.Add(key);
 
                 if (batch.Count == batch.Capacity)
                 {
-                    await _database.KeyDeleteAsync(batch.ToArray());
+                    await flush();
                     batch.Clear();
                 }
             }
 
-            if (batch.Count != 0)
-                await _database.KeyDeleteAsync(batch.ToArray());
+            await flush();
         }
 
         public async Task<bool> SetAsync(RedisKey key, RedisValue value, TimeSpan? expiry = null, When when = When.Always, CancellationToken cancellationToken = default)
