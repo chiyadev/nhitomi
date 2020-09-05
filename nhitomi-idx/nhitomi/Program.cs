@@ -45,6 +45,9 @@ namespace nhitomi
                     // run migrations
                     case "--migrations":
                     {
+                        await host.Services.GetService<IRedisClient>().InitializeAsync();
+                        await host.Services.GetService<IElasticClient>().InitializeAsync();
+
                         var manager = host.Services.GetService<IMigrationManager>();
 
                         await manager.RunAsync();
