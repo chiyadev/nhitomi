@@ -41,7 +41,7 @@ namespace nhitomi.Database.Migrations
         public static readonly long LatestMigrationId = MigrationTypes.Keys.OrderByDescending(x => x).First();
 
         readonly IServiceProvider _services;
-        readonly Nest.ElasticClient _elastic;
+        readonly IElasticClient _elastic;
         readonly IRedisClient _redis;
         readonly IResourceLocker _locker;
         readonly IOptionsMonitor<ElasticOptions> _options;
@@ -51,7 +51,7 @@ namespace nhitomi.Database.Migrations
         public MigrationManager(IServiceProvider services, IElasticClient elastic, IRedisClient redis, IResourceLocker locker, IOptionsMonitor<ElasticOptions> options, IWriteControl writeControl, RecyclableMemoryStreamManager memory, ILogger<MigrationManager> logger)
         {
             _services     = services;
-            _elastic      = elastic.GetInternalClient();
+            _elastic      = elastic;
             _redis        = redis;
             _locker       = locker;
             _options      = options;
@@ -85,7 +85,7 @@ namespace nhitomi.Database.Migrations
             await using (await _locker.EnterAsync("maintenance:migrations", cancellationToken))
             {
                 var options = _options.CurrentValue;
-                var indexes = await _elastic.Cat.IndicesAsync(c => c.Index($"{options.IndexPrefix}*"), cancellationToken);
+                var indexes = await _elastic.RequestAsync(c => c.Cat.IndicesAsync(c => c.Index($"{options.IndexPrefix}*"), cancellationToken));
                 var count   = 0;
 
                 // not all indexes get migrated every migration, so use the max
@@ -116,7 +116,7 @@ namespace nhitomi.Database.Migrations
                         {
                             try
                             {
-                                await _elastic.Indices.DeleteAsync(index, null, cancellationToken);
+                                await _elastic.RequestAsync(c => c.Indices.DeleteAsync(index, null, cancellationToken));
 
                                 _logger.LogInformation($"Deleted incomplete index '{index}'.");
                             }
@@ -139,7 +139,7 @@ namespace nhitomi.Database.Migrations
         public async Task FinalizeAsync(CancellationToken cancellationToken = default)
         {
             var options    = _options.CurrentValue;
-            var indexes    = await _elastic.Cat.IndicesAsync(c => c.Index($"{options.IndexPrefix}*"), cancellationToken);
+            var indexes    = await _elastic.RequestAsync(c => c.Cat.IndicesAsync(x => x.Index($"{options.IndexPrefix}*"), cancellationToken));
             var migrations = new Dictionary<string, List<(string index, long id)>>(indexes.Records.Count);
 
             foreach (var index in indexes.Records)
@@ -168,14 +168,19 @@ namespace nhitomi.Database.Migrations
                 for (var i = 0; i < list.Count - 1; i++)
                 {
                     var (index, _) = list[i];
-                    var response = await _elastic.Indices.DeleteAsync(index, null, cancellationToken);
 
-                    if (response.OriginalException == null)
+                    try
+                    {
+                        await _elastic.RequestAsync(c => c.Indices.DeleteAsync(index, null, cancellationToken));
+
                         _logger.LogInformation($"Deleted old migrated index '{index}'.");
-                    else
-                        _logger.LogWarning(response.OriginalException, $"Could not delete old migration index '{index}'.");
 
-                    migrated = true;
+                        migrated = true;
+                    }
+                    catch (Exception e)
+                    {
+                        _logger.LogWarning(e, $"Could not delete old migration index '{index}'.");
+                    }
                 }
             }
 

@@ -246,7 +246,6 @@ namespace nhitomi.Database
 
     public interface IElasticClient : IDisposable
     {
-        Nest.ElasticClient GetInternalClient();
         Task InitializeAsync(CancellationToken cancellationToken = default);
 
         /// <summary>
@@ -254,6 +253,11 @@ namespace nhitomi.Database
         /// This is only valid within the caller's async context.
         /// </summary>
         IDisposable UseIndexingOptions(IndexingOptions options);
+
+        /// <summary>
+        /// Makes an asynchronous request using an internal Elasticsearch client.
+        /// </summary>
+        Task<T> RequestAsync<T>(Func<Nest.ElasticClient, Task<T>> request) where T : IResponse;
 
         /// <summary>
         /// Creates a wrapper object of the specified type with the given ID.
@@ -365,8 +369,6 @@ namespace nhitomi.Database
                    .MemoryStreamFactory(new ElasticMemoryStreamFactory(memory)));
         }
 
-        public Nest.ElasticClient GetInternalClient() => _client;
-
         public Task InitializeAsync(CancellationToken cancellationToken)
         {
             _logger.LogWarning($"Connecting to Elasticsearch endpoint: {_options.CurrentValue.Endpoint}");
@@ -398,7 +400,7 @@ namespace nhitomi.Database
             Buckets = HistogramEx.ExponentialBuckets(0.01, 10, 12)
         });
 
-        async Task<T> Request<T>(Func<Nest.ElasticClient, Task<T>> request) where T : IResponse
+        public async Task<T> RequestAsync<T>(Func<Nest.ElasticClient, Task<T>> request) where T : IResponse
         {
             T response;
 
@@ -421,7 +423,7 @@ namespace nhitomi.Database
                     case 429:
                         await Task.Delay(_options.CurrentValue.RateLimitWait);
 
-                        return await Request(request);
+                        return await RequestAsync(request);
                 }
 
                 _logger.LogDebug(response.DebugInformation?.Trim());
@@ -483,7 +485,7 @@ namespace nhitomi.Database
                     return newIndex;
 
                 // get all indexes with migration suffix
-                var indexes = await Request(c => c.Cat.IndicesAsync(x => x.Index($"{options.IndexPrefix}{name}-*"), cancellationToken));
+                var indexes = await RequestAsync(c => c.Cat.IndicesAsync(x => x.Index($"{options.IndexPrefix}{name}-*"), cancellationToken));
 
                 // select the last index for which we have a migration
                 var indexName = indexes.Records
@@ -513,7 +515,7 @@ namespace nhitomi.Database
                             .NumberOfReplicas(options.ReplicaCount)
                             .RefreshInterval(options.RefreshInterval);
 
-                    await Request(c => c.Indices.CreateAsync(indexName, map, cancellationToken));
+                    await RequestAsync(c => c.Indices.CreateAsync(indexName, map, cancellationToken));
 
                     _logger.LogInformation($"Created index {indexName} in {measure}: {type.FullName}");
                 }
@@ -525,7 +527,7 @@ namespace nhitomi.Database
                         => s.NumberOfReplicas(options.ReplicaCount)
                             .RefreshInterval(options.RefreshInterval);
 
-                    await Request(c => c.Indices.UpdateSettingsAsync(indexName, x => x.IndexSettings(settings), cancellationToken));
+                    await RequestAsync(c => c.Indices.UpdateSettingsAsync(indexName, x => x.IndexSettings(settings), cancellationToken));
 
                     _logger.LogInformation($"Updated index settings {indexName} in {measure}: {type.FullName}");
                 }
@@ -547,7 +549,7 @@ namespace nhitomi.Database
 
                     try
                     {
-                        await Request(c => c.Indices.DeleteAsync(index.IndexName, null, cancellationToken));
+                        await RequestAsync(c => c.Indices.DeleteAsync(index.IndexName, null, cancellationToken));
 
                         _logger.LogInformation($"Deleted index {index} in {measure}.");
                     }
@@ -667,7 +669,7 @@ namespace nhitomi.Database
                     return x;
                 }
 
-                var response = await _client.Request(c => c.IndexAsync(_value, selector, cancellationToken));
+                var response = await _client.RequestAsync(c => c.IndexAsync(_value, selector, cancellationToken));
 
                 if (_logger.IsEnabled(LogLevel.Debug))
                     _logger.LogDebug($"{(type == OpType.Index ? "Indexed" : "Created")} {index} {Id} in {measure}: {SerializeValue(Value)}");
@@ -705,7 +707,7 @@ namespace nhitomi.Database
                         .IfPrimaryTerm(_primaryTerm)
                         .Refresh(options2.Refresh ?? options.RequestRefreshOption);
 
-                var response = await _client.Request(c => c.DeleteAsync<T>(Id, selector, cancellationToken));
+                var response = await _client.RequestAsync(c => c.DeleteAsync<T>(Id, selector, cancellationToken));
 
                 if (_logger.IsEnabled(LogLevel.Debug))
                     _logger.LogDebug($"Deleted {index} {Id} in {measure}: {SerializeValue(Value)}");
@@ -761,7 +763,7 @@ namespace nhitomi.Database
         {
             var index = await GetIndexAsync<T>(cancellationToken);
 
-            var response = await Request(c => c.GetAsync<T>(id, x => x.Index(index.IndexName).Realtime(), cancellationToken));
+            var response = await RequestAsync(c => c.GetAsync<T>(id, x => x.Index(index.IndexName).Realtime(), cancellationToken));
 
             return new EntryInfo<T>
             {
@@ -800,7 +802,7 @@ namespace nhitomi.Database
         {
             var index = await GetIndexAsync<T>(cancellationToken);
 
-            var response = await Request(c => c.MultiGetAsync(x => x.GetMany<T>(ids, (d, _) => d.Index(index.IndexName)).Realtime(), cancellationToken));
+            var response = await RequestAsync(c => c.MultiGetAsync(x => x.GetMany<T>(ids, (d, _) => d.Index(index.IndexName)).Realtime(), cancellationToken));
 
             var indexes = new Dictionary<string, int>(ids.Length);
 
@@ -920,7 +922,7 @@ namespace nhitomi.Database
 
             var index = await GetIndexAsync<T>(cancellationToken);
 
-            var response = await Request(c => c.BulkAsync(b =>
+            var response = await RequestAsync(c => c.BulkAsync(b =>
             {
                 b = type switch
                 {
@@ -995,10 +997,10 @@ namespace nhitomi.Database
             var index = await GetIndexAsync<T>(cancellationToken);
 
             // searching bypasses cache
-            var response = await Request(c => c.SearchAsync<T>(q => q.Index(index.IndexName)
-                                                                     .SequenceNumberPrimaryTerm()
-                                                                     .TrackTotalHits()
-                                                                     .Compose(processor.Process), cancellationToken));
+            var response = await RequestAsync(c => c.SearchAsync<T>(q => q.Index(index.IndexName)
+                                                                          .SequenceNumberPrimaryTerm()
+                                                                          .TrackTotalHits()
+                                                                          .Compose(processor.Process), cancellationToken));
 
             var infos = response.Hits.ToArray(h => new EntryInfo<T>
             {
@@ -1081,11 +1083,11 @@ namespace nhitomi.Database
 
             var index = await GetIndexAsync<T>(cancellationToken);
 
-            var response = await Request(c => c.SearchAsync<T>(q => q.Index(index.IndexName)
-                                                                     .Source(false)
-                                                                     .SequenceNumberPrimaryTerm()
-                                                                     .Compose(processor.Process)
-                                                                     .Suggest(s => s.Completion("suggest", processor.Process)), cancellationToken));
+            var response = await RequestAsync(c => c.SearchAsync<T>(q => q.Index(index.IndexName)
+                                                                          .Source(false)
+                                                                          .SequenceNumberPrimaryTerm()
+                                                                          .Compose(processor.Process)
+                                                                          .Suggest(s => s.Completion("suggest", processor.Process)), cancellationToken));
 
             var result = processor.CreateResult(response.Suggest["suggest"].SelectMany(s => s.Options));
 

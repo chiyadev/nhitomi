@@ -26,7 +26,7 @@ namespace nhitomi.Database.Migrations
 
         readonly IServiceProvider _services;
         readonly IOptionsMonitor<ElasticOptions> _options;
-        readonly Nest.ElasticClient _client;
+        readonly IElasticClient _client;
         readonly ILogger<MigrationBase> _logger;
 
         protected MigrationBase(IServiceProvider services, ILogger<MigrationBase> logger)
@@ -35,7 +35,7 @@ namespace nhitomi.Database.Migrations
 
             _services = services;
             _options  = services.GetService<IOptionsMonitor<ElasticOptions>>();
-            _client   = services.GetService<IElasticClient>().GetInternalClient();
+            _client   = services.GetService<IElasticClient>();
             _logger   = logger;
         }
 
@@ -49,7 +49,7 @@ namespace nhitomi.Database.Migrations
             var prefix = _options.CurrentValue.IndexPrefix;
 
             // get all indexes with migration suffix
-            var indexes = await _client.Cat.IndicesAsync(c => c.Index($"{prefix}{name}-*"), cancellationToken);
+            var indexes = await _client.RequestAsync(c => c.Cat.IndicesAsync(x => x.Index($"{prefix}{name}-*"), cancellationToken));
 
             // sort indexes ascending and select the last migration that isn't this migration
             var source = indexes.Records
@@ -64,7 +64,7 @@ namespace nhitomi.Database.Migrations
             var destination = $"{prefix}{name}-{Id}";
 
             // ensure destination doesn't exist
-            if ((await _client.Indices.ExistsAsync(destination, null, cancellationToken)).Exists)
+            if ((await _client.RequestAsync(c => c.Indices.ExistsAsync(destination, null, cancellationToken))).Exists)
                 throw new ArgumentException($"Destination index '{destination}' already exists.");
 
             _logger.LogInformation($"Reindexing source index '{source}' to destination index '{destination}'.");
@@ -100,7 +100,7 @@ namespace nhitomi.Database.Migrations
                     .NumberOfReplicas(options.ReplicaCount)
                     .RefreshInterval(options.RefreshInterval);
 
-            await _client.Indices.CreateAsync(name, map, cancellationToken);
+            await _client.RequestAsync(c => c.Indices.CreateAsync(name, map, cancellationToken));
 
             IndexesCreated.Add(name);
 
@@ -117,9 +117,7 @@ namespace nhitomi.Database.Migrations
             var options = _options.CurrentValue;
 
             // disable refresh and replicas
-            await _client.Indices.UpdateSettingsAsync(destination, x => x.IndexSettings(
-                s => s.RefreshInterval(Time.MinusOne)
-                      .NumberOfReplicas(0)), cancellationToken);
+            await _client.RequestAsync(c => c.Indices.UpdateSettingsAsync(destination, x => x.IndexSettings(s => s.RefreshInterval(Time.MinusOne).NumberOfReplicas(0)), cancellationToken));
 
             // use semaphore to limit the number of indexing workers
             const int workers   = 16; //ThreadPool.GetMaxThreads(out var workers, out _);
@@ -162,7 +160,7 @@ namespace nhitomi.Database.Migrations
                 var batches       = 0;
                 var progress      = 0;
 
-                response = await _client.SearchAsync<TSource>(s => s.Index(source).Size(1000).Scroll(scrollDuration), cancellationToken);
+                response = await _client.RequestAsync(c => c.SearchAsync<TSource>(s => s.Index(source).Size(1000).Scroll(scrollDuration), cancellationToken));
 
                 while (response.Documents.Count != 0)
                 {
@@ -188,7 +186,7 @@ namespace nhitomi.Database.Migrations
                                     return value;
                                 }).Where(d => d != null);
 
-                                await _client.IndexManyAsync(values, destination, cancellationToken);
+                                await _client.RequestAsync(c => c.IndexManyAsync(values, destination, cancellationToken));
 
                                 lock (options)
                                 {
@@ -206,7 +204,7 @@ namespace nhitomi.Database.Migrations
                     }, cancellationToken);
 
                     searchMeasure = new MeasureContext();
-                    response      = await _client.ScrollAsync<TSource>(scrollDuration, response.ScrollId, null, cancellationToken);
+                    response      = await _client.RequestAsync(c => c.ScrollAsync<TSource>(scrollDuration, response.ScrollId, null, cancellationToken));
 
                     checkExceptions();
                 }
@@ -215,7 +213,7 @@ namespace nhitomi.Database.Migrations
             {
                 // clear scroll
                 if (response != null)
-                    await _client.ClearScrollAsync(s => s.ScrollId(response.ScrollId), cancellationToken);
+                    await _client.RequestAsync(c => c.ClearScrollAsync(s => s.ScrollId(response.ScrollId), cancellationToken));
 
                 // wait for all workers to exit
                 for (var i = 0; i < workers; i++)
@@ -226,11 +224,8 @@ namespace nhitomi.Database.Migrations
                 _logger.LogInformation($"Refreshing index '{destination}'...");
 
                 // refresh immediately
-                await _client.Indices.RefreshAsync(destination, null, cancellationToken);
-
-                await _client.Indices.UpdateSettingsAsync(destination, x => x.IndexSettings(
-                    s => s.RefreshInterval(options.RefreshInterval)
-                          .NumberOfReplicas(options.ReplicaCount)), cancellationToken);
+                await _client.RequestAsync(c => c.Indices.RefreshAsync(destination, null, cancellationToken));
+                await _client.RequestAsync(c => c.Indices.UpdateSettingsAsync(destination, x => x.IndexSettings(s => s.RefreshInterval(options.RefreshInterval).NumberOfReplicas(options.ReplicaCount)), cancellationToken));
             }
         }
     }
