@@ -209,8 +209,8 @@ export function usePostfetch<T, U extends {}>(generator: PrefetchGenerator<T, U>
     finally {
       if (showProgress)
         end()
-    }
-  }, [result, navigator.stringify(navigator.evaluate(destination))])
+    } // we want to reload when the authenticated user changes
+  }, [info.authenticated && info.user.id, result, navigator.stringify(navigator.evaluate(destination))])
 
   return { result, setResult, error, loading }
 }
