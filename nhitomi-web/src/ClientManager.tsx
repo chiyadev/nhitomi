@@ -7,6 +7,8 @@ import { ConfigSource, useConfigManager, useConfig } from './ConfigManager'
 import { Container } from './Components/Container'
 import { FlatButton } from './Components/FlatButton'
 import { ReloadOutlined, ClearOutlined } from '@ant-design/icons'
+import { getColor } from './theme'
+import { FilledButton } from './Components/FilledButton'
 
 export class Client {
   private readonly httpConfig: ConfigurationParameters = {
@@ -176,7 +178,7 @@ export const ClientManager = ({ children }: { children?: ReactNode }) => {
         <div className='mb-2'>nhitomi could not contact the API server. Please try again later.</div>
         <code>{info.stack}</code>
         <div className='mt-4 space-x-1'>
-          <FlatButton icon={<ReloadOutlined />} onClick={() => window.location.reload()}>Retry</FlatButton>
+          <FilledButton icon={<ReloadOutlined />} onClick={() => window.location.reload()} color={getColor('red')}>Retry</FilledButton>
           <FlatButton icon={<ClearOutlined />} onClick={() => { setToken(undefined); setBaseUrl(undefined); window.location.reload() }}>Reset</FlatButton>
         </div>
       </Container>
