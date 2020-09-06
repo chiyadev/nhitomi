@@ -7,7 +7,7 @@ import { Language } from './Language'
 import { Animation } from './Animation'
 import { SettingsFocusContainer } from './SettingsFocusContainer'
 import { useQueryState } from '../state'
-import { MacCommandFilled, ReadOutlined, UserOutlined, PictureOutlined } from '@ant-design/icons'
+import { MacCommandFilled, ReadOutlined, UserOutlined, PictureOutlined, ToolOutlined } from '@ant-design/icons'
 import { PageContainer } from '../Components/PageContainer'
 import { Blur } from './Blur'
 import { Shortcuts } from './Shortcuts'
@@ -16,11 +16,18 @@ import { useLocalized } from '../LocaleManager'
 import { PreferEnglishName } from './PreferEnglishName'
 import { Account } from './Account'
 import { Token } from './Token'
+import { Debug } from './Debug'
+import { Server } from './Server'
+import { UserPermissions } from 'nhitomi-api'
 
 export type PrefetchResult = ClientInfo
 export type PrefetchOptions = { focus?: SettingsFocus }
 
 export type SettingsStructure = {
+  internal: {
+    debug: true
+    server: true
+  }
   user: {
     account: true
     token: true
@@ -85,6 +92,8 @@ export const Settings = (options: PrefetchOptions) => {
 }
 
 const Loaded = () => {
+  const { permissions } = useClientInfo()
+
   useTabTitle(useLocalized('pages.settings.title'))
 
   return useMemo(() => (
@@ -95,6 +104,19 @@ const Loaded = () => {
       </div>
 
       <div className='p-2 space-y-12'>
+        <Section
+          type='internal'
+          name={<span><ToolOutlined /> Internal</span>}>
+
+          {process.env.NODE_ENV === 'development' && (
+            <Debug />
+          )}
+
+          {permissions.hasPermissions(UserPermissions.ManageServer) && (
+            <Server />
+          )}
+        </Section>
+
         <Section
           type='user'
           name={<span><UserOutlined /> <FormattedMessage id='pages.settings.user.header' /></span>}>
@@ -127,18 +149,25 @@ const Loaded = () => {
         </Section>
       </div>
     </Container>
-  ), [])
+  ), [permissions])
 }
 
-const Section = ({ name, type, children, className }: { name?: ReactNode, type: SettingsSection, children?: ReactNode[], className?: string }) => (
-  <SettingsFocusContainer
-    focus={type}
-    className={className}>
+const Section = ({ name, type, children, className }: { name?: ReactNode, type: SettingsSection, children?: ReactNode[], className?: string }) => {
+  children = children?.filter(c => c)
 
-    <div className='text-xs text-gray-darker font-bold' children={name} />
+  if (!children?.length)
+    return null
 
-    <div className='text-sm divide-y divide-gray-darkest'>
-      {children?.map(child => <div className='py-4' children={child} />)}
-    </div>
-  </SettingsFocusContainer>
-)
+  return (
+    <SettingsFocusContainer
+      focus={type}
+      className={className}>
+
+      <div className='text-xs text-gray-darker font-bold' children={name} />
+
+      <div className='text-sm divide-y divide-gray-darkest'>
+        {children?.map(child => <div className='py-4' children={child} />)}
+      </div>
+    </SettingsFocusContainer>
+  )
+}
