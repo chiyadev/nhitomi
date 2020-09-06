@@ -272,8 +272,8 @@ const Loaded = ({ client, info, setInfo, children }: { client: Client, info: Cli
 export class PermissionHelper {
   constructor(readonly user?: User) { }
 
-  get administrator() {
-    return this.permissions.indexOf(UserPermissions.Administrator)
+  get isAdministrator() {
+    return this.permissions.indexOf(UserPermissions.Administrator) !== -1
   }
 
   get permissions() {
@@ -285,7 +285,7 @@ export class PermissionHelper {
   }
 
   hasPermissions(...permissions: UserPermissions[]) {
-    if (this.administrator)
+    if (this.isAdministrator)
       return true
 
     for (const permission of permissions) {
@@ -297,7 +297,7 @@ export class PermissionHelper {
   }
 
   hasAnyPermission(...permissions: UserPermissions[]) {
-    if (this.administrator)
+    if (this.isAdministrator)
       return true
 
     for (const permission of permissions) {
