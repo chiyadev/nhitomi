@@ -12,6 +12,7 @@ import { Disableable } from '../Components/Disableable'
 import { TwitterOutlined, TwitterColor } from '../Components/Icons/TwitterOutlined'
 import { useSpring, animated } from 'react-spring'
 import GitHubButton from 'react-github-btn'
+import { Anchor } from '../Components/Anchor'
 
 export type PrefetchResult = { info: ClientInfo, state: string }
 export type PrefetchOptions = { redirect?: NavigationArgs }
@@ -105,11 +106,11 @@ const Loaded = ({ info: { discordOAuthUrl }, state }: PrefetchResult) => {
 
       <div className='flex flex-col items-center space-y-1'>
         {useMemo(() => (
-          <a href={appendState(discordOAuthUrl, state)}>
+          <Anchor href={appendState(discordOAuthUrl, state)}>
             <FilledButton className='text-sm' color={DiscordColor} icon={<DiscordOutlined />}>
               <FormattedMessage id='pages.authentication.connect.discord' />
             </FilledButton>
-          </a>
+          </Anchor>
         ), [discordOAuthUrl, state])}
 
         {useMemo(() => (
