@@ -21,7 +21,7 @@ export const Token = () => {
         <NewTabLink className='text-xs text-blue' href='https://github.com/chiyadev/nhitomi/wiki/API'><LinkOutlined /> <FormattedMessage id='pages.settings.user.token.docs' /></NewTabLink>
       </div>
 
-      <div>
+      <div className='break-all'>
         <FormattedMessage id='pages.settings.user.token.token' values={{
           token: (
             <span
