@@ -1,5 +1,5 @@
 import React, { ReactNode, useMemo, createContext, useState, useContext, Dispatch, useLayoutEffect, useRef } from 'react'
-import { ConfigurationParameters, ValidationProblemArrayResult, ValidationProblem, UserApi, InfoApi, BookApi, CollectionApi, Configuration, GetInfoResponse, GetInfoAuthenticatedResponse, BASE_PATH, User, UserPermissions, Collection } from 'nhitomi-api'
+import { ConfigurationParameters, ValidationProblemArrayResult, ValidationProblem, UserApi, InfoApi, BookApi, CollectionApi, Configuration, GetInfoResponse, GetInfoAuthenticatedResponse, BASE_PATH, User, UserPermissions, Collection, InternalApi } from 'nhitomi-api'
 import { CustomError } from 'ts-custom-error'
 import { useAsync, useInterval } from 'react-use'
 import { useProgress } from './ProgressManager'
@@ -44,12 +44,14 @@ export class Client {
   readonly info: InfoApi
   readonly book: BookApi
   readonly collection: CollectionApi
+  readonly internal: InternalApi
 
   constructor(private readonly config: ConfigSource) {
     this.user = new UserApi(new Configuration(this.httpConfig))
     this.info = new InfoApi(new Configuration(this.httpConfig))
     this.book = new BookApi(new Configuration(this.httpConfig))
     this.collection = new CollectionApi(new Configuration(this.httpConfig))
+    this.internal = new InternalApi(new Configuration(this.httpConfig))
 
     const url = new URL(BASE_PATH)
 

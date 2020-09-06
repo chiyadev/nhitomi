@@ -105,19 +105,6 @@ const Loaded = () => {
 
       <div className='p-2 space-y-12'>
         <Section
-          type='internal'
-          name={<span><ToolOutlined /> Internal</span>}>
-
-          {process.env.NODE_ENV === 'development' && (
-            <Debug />
-          )}
-
-          {permissions.hasPermissions(UserPermissions.ManageServer) && (
-            <Server />
-          )}
-        </Section>
-
-        <Section
           type='user'
           name={<span><UserOutlined /> <FormattedMessage id='pages.settings.user.header' /></span>}>
 
@@ -146,6 +133,19 @@ const Loaded = () => {
           name={<span><MacCommandFilled /> <FormattedMessage id='pages.settings.keyboard.header' /></span>}>
 
           {[<Shortcuts />]}
+        </Section>
+
+        <Section
+          type='internal'
+          name={<span><ToolOutlined /> Internal</span>}>
+
+          {process.env.NODE_ENV === 'development' && (
+            <Debug />
+          )}
+
+          {permissions.hasPermissions(UserPermissions.ManageServer) && (
+            <Server />
+          )}
         </Section>
       </div>
     </Container>
