@@ -36,7 +36,7 @@
       "available": {
         "refresh": "Refreshing...",
         "error": "Could not refresh this book.",
-        "false": "This book has been deleted from the source website."
+        "false": "This book may have been deleted from the source website."
       },
       "sources": "Sources",
       "alerts": {
