@@ -33,6 +33,22 @@ namespace nhitomi.Controllers
             _discord  = discord;
         }
 
+        // use a list with key-value entries to avoid key names getting lowercased when using a dict
+        public class ConfigEntry
+        {
+            /// <summary>
+            /// Name of the configuration field.
+            /// </summary>
+            [Required]
+            public string Key { get; set; }
+
+            /// <summary>
+            /// Value of the configuration.
+            /// </summary>
+            [Required]
+            public string Value { get; set; }
+        }
+
         /// <summary>
         /// Retrieves internal server configuration values.
         /// </summary>
@@ -40,7 +56,15 @@ namespace nhitomi.Controllers
         /// Requires <see cref="UserPermissions.ManageServer"/> permission.
         /// </remarks>
         [HttpGet("config", Name = "getServerConfig"), RequireUser(Permissions = UserPermissions.ManageServer)]
-        public Dictionary<string, string> GetConfig() => _options.GetMapping();
+        public List<ConfigEntry> GetConfig()
+        {
+            var list = new List<ConfigEntry>();
+
+            foreach (var (key, value) in _options.GetMapping())
+                list.Add(new ConfigEntry { Key = key, Value = value });
+
+            return list;
+        }
 
         public class SetConfigRequest
         {
@@ -48,7 +72,7 @@ namespace nhitomi.Controllers
             /// Name of the configuration field.
             /// </summary>
             [Required]
-            public string Name { get; set; }
+            public string Key { get; set; }
 
             /// <summary>
             /// Value of the configuration, or null to delete the field.
@@ -65,9 +89,9 @@ namespace nhitomi.Controllers
         /// </remarks>
         /// <param name="request">Set config request.</param>
         [HttpPost("config", Name = "setServerConfig"), RequireUser(Permissions = UserPermissions.ManageServer)] // no RequireDbWrite
-        public async Task<Dictionary<string, string>> SetConfigAsync(SetConfigRequest request)
+        public async Task<List<ConfigEntry>> SetConfigAsync(SetConfigRequest request)
         {
-            await _options.SetAsync(request.Name, request.Value);
+            await _options.SetAsync(request.Key, request.Value);
 
             return GetConfig();
         }
