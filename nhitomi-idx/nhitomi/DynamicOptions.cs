@@ -37,7 +37,17 @@ namespace nhitomi
         }
 
         public Dictionary<string, string> GetMapping()
-            => _config.Get<Dictionary<string, string>>();
+        {
+            var dict = new Dictionary<string, string>();
+
+            foreach (var (key, value) in _config.AsEnumerable())
+            {
+                if (!string.IsNullOrEmpty(value))
+                    dict[key] = value;
+            }
+
+            return dict;
+        }
 
         public async Task SetAsync(string name, string value, CancellationToken cancellationToken = default)
         {
