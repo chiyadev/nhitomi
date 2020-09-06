@@ -91,7 +91,7 @@ const Loaded = ({ result, setResult }: { result: PrefetchResult, setResult: Disp
   const { begin, end } = useProgress()
 
   // displayed results may not represent the current query if we navigated before storing the results
-  const [effectiveQuery, setEffectiveQuery] = usePageState<SearchQuery>('query')
+  const [effectiveQuery, setEffectiveQuery] = usePageState<SearchQuery>('query', query)
 
   // serialized query string is used for comparison
   const queryCmp = useMemo(() => stringify(query), [query])
