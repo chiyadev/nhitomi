@@ -272,7 +272,8 @@
       "updatedTime": "Updated time",
       "pageCount": "Page count",
       "noteCount": "Note count",
-      "tagCount": "Tag count"
+      "tagCount": "Tag count",
+      "refreshTime": "Refresh time"
     },
     "materialRating": {
       "safe": "Safe",

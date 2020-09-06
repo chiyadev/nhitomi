@@ -265,7 +265,8 @@
       "updatedTime": "更新時間",
       "pageCount": "ページ数",
       "noteCount": "ノート数",
-      "tagCount": "タグ数"
+      "tagCount": "タグ数",
+      "refreshTime": "リフレッシュ時間"
     },
     "materialRating": {
       "explicit": "成人向け"
