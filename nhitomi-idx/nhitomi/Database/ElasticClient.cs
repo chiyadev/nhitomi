@@ -253,10 +253,27 @@ namespace nhitomi.Database
 
     public class IndexingOptions
     {
+        /// <summary>
+        /// Index refresh option.
+        /// </summary>
         public Refresh? Refresh { get; set; }
 
+        /// <summary>
+        /// Whether to update time fields like <see cref="IHasCreatedTime.CreatedTime"/> and <see cref="IHasUpdatedTime.UpdatedTime"/>.
+        /// </summary>
+        public bool? UpdateTimes { get; set; }
+
+        /// <summary>
+        /// Whether to update cache fields.
+        /// </summary>
+        public bool? UpdateCaches { get; set; }
+
         public void MergeInto(IndexingOptions options)
-            => options.Refresh ??= Refresh;
+        {
+            options.Refresh      ??= Refresh;
+            options.UpdateTimes  ??= UpdateTimes;
+            options.UpdateCaches ??= UpdateCaches;
+        }
     }
 
     public interface IElasticClient : IDisposable
@@ -645,20 +662,24 @@ namespace nhitomi.Database
             public Task<T> UpdateAsync(CancellationToken cancellationToken = default)
                 => IndexAsyncInternal(OpType.Index, cancellationToken);
 
-            internal void PrepareIndexInternal()
+            internal void PrepareIndexInternal(IndexingOptions options)
             {
                 if (_value == null)
                     throw new InvalidOperationException($"Cannot create or update entry when {nameof(Value)} is null.");
 
                 var now = DateTime.UtcNow;
 
-                if (_value is IHasCreatedTime hasCreatedTime && hasCreatedTime.CreatedTime == default)
-                    hasCreatedTime.CreatedTime = now;
+                if (options.UpdateTimes ?? true)
+                {
+                    if (_value is IHasCreatedTime hasCreatedTime && hasCreatedTime.CreatedTime == default)
+                        hasCreatedTime.CreatedTime = now;
 
-                if (_value is IHasUpdatedTime hasUpdatedTime)
-                    hasUpdatedTime.UpdatedTime = now;
+                    if (_value is IHasUpdatedTime hasUpdatedTime)
+                        hasUpdatedTime.UpdatedTime = now;
+                }
 
-                _value.UpdateCache(_client._services);
+                if (options.UpdateCaches ?? true)
+                    _value.UpdateCache(_client._services);
             }
 
             async Task<T> IndexAsyncInternal(OpType type, CancellationToken cancellationToken = default)
@@ -667,7 +688,7 @@ namespace nhitomi.Database
                 var options  = _client._options.CurrentValue;
                 var options2 = _client.CurrentIndexingOptions;
 
-                PrepareIndexInternal();
+                PrepareIndexInternal(options2);
 
                 var index = await _client.GetIndexAsync<T>(cancellationToken);
 
@@ -931,7 +952,7 @@ namespace nhitomi.Database
 
                 entries[i] = entry;
                 results[i] = entry;
-                entry.PrepareIndexInternal();
+                entry.PrepareIndexInternal(options2);
 
                 indexes[entry.Id] = i;
             }
