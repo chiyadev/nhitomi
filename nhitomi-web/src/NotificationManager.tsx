@@ -6,6 +6,7 @@ import { useSpring, animated } from 'react-spring'
 import { useLayout } from './LayoutManager'
 import { ValidationError } from './ClientManager'
 import { ColorHue, getColor } from './theme'
+import { exception } from 'react-ga'
 
 export const NotifyContext = createContext<{
   notify: (type: AppearanceTypes, title: ReactNode, description: ReactNode) => void
@@ -162,6 +163,11 @@ const NotifyManager = ({ children }: { children?: ReactNode }) => {
                 )} />
             )
           }
+
+          exception({
+            description: error.message,
+            fatal: false
+          })
         }
       }), [addToast])} />
   )

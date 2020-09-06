@@ -1,9 +1,10 @@
-import { useRef, RefObject } from 'react'
+import { useRef, RefObject, useCallback } from 'react'
 import { useKey, useKeyPress } from 'react-use'
 import keycode from 'keycode'
 import { ShortcutConfig, KeyModifiers, ShortcutConfigKey, useConfig } from './ConfigManager'
 import { useLayout } from './LayoutManager'
 import { useSpring } from 'react-spring'
+import { event } from 'react-ga'
 
 /** Returns all modifier keys pressed in the given event. */
 export function getEventModifiers(e: { altKey: boolean, ctrlKey: boolean, metaKey: boolean, shiftKey: boolean }) {
@@ -50,7 +51,15 @@ function matchShortcut(shortcuts: ShortcutConfig[], event: KeyboardEvent, target
 export function useShortcut(key: ShortcutConfigKey, callback: (event: KeyboardEvent) => void, ref?: RefObject<HTMLElement>) {
   const [shortcuts] = useConfig(key)
 
-  useKey(e => matchShortcut(shortcuts, e, ref?.current || undefined), callback, {
+  const callback2 = useCallback((e: KeyboardEvent) => {
+    callback(e)
+    event({
+      action: key,
+      category: 'shortcut'
+    })
+  }, [callback, key])
+
+  useKey(e => matchShortcut(shortcuts, e, ref?.current || undefined), callback2, {
     event: 'keydown',
     target: ref?.current || undefined
   })

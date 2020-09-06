@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react'
+import React, { useMemo, useLayoutEffect } from 'react'
 import { Sidebar } from './Sidebar'
 import { LayoutManager } from './LayoutManager'
 import { ProgressManager } from './ProgressManager'
@@ -25,6 +25,7 @@ import { Footer } from './Footer'
 import { About } from './About'
 import { NotFound } from './NotFound'
 import { MaintenanceHeader } from './MaintenanceHeader'
+import { pageview } from 'react-ga'
 
 export const App = () => {
   return (
@@ -67,7 +68,10 @@ const Body = () => (
 )
 
 const Routing = () => {
-  const { path } = useNavigator()
+  const { path, query, stringify, evaluate } = useNavigator()
+  const gapath = useMemo(() => stringify(evaluate({ path, query })), [evaluate, path, query, stringify])
+
+  useLayoutEffect(() => { pageview(gapath) }, [gapath])
 
   return useMemo(() => (
     <Switch location={{ pathname: path, search: '', hash: '', state: undefined }}>

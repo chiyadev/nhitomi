@@ -8,6 +8,7 @@ import { usePageState, NavigationArgs, useNavigator, NavigationMode } from './st
 import { cx } from 'emotion'
 import { useClientInfo } from './ClientManager'
 import { useAuthenticationPrefetch } from './Authentication'
+import { timing } from 'react-ga'
 
 function beginScrollTo(scroll: number, retry = 0) {
   requestAnimationFrame(() => {
@@ -53,6 +54,8 @@ export function usePrefetch<T, U extends {}>(generator: PrefetchGenerator<T, U>,
     if (showProgress)
       begin()
 
+    const startTime = performance.now()
+
     try {
       const fetched = await fetch()
       const location = navigator.evaluate(destination)
@@ -68,6 +71,12 @@ export function usePrefetch<T, U extends {}>(generator: PrefetchGenerator<T, U>,
           scroll: { value: restoreScroll ? 0 : location.state.scroll?.value, version: Math.random() },
           fetch: { value: fetched, version: Math.random() }
         }
+      })
+
+      timing({
+        variable: navigator.stringify(location),
+        category: 'fetch',
+        value: performance.now() - startTime
       })
 
       if (restoreScroll)
@@ -179,6 +188,8 @@ export function usePostfetch<T, U extends {}>(generator: PrefetchGenerator<T, U>
     if (showProgress)
       begin()
 
+    const startTime = performance.now()
+
     try {
       const fetched = await fetch()
       const location = navigator.evaluate(destination)
@@ -194,6 +205,12 @@ export function usePostfetch<T, U extends {}>(generator: PrefetchGenerator<T, U>
           scroll: { value: restoreScroll && typeof scroll === 'number' ? scroll : location.state.scroll?.value, version: Math.random() },
           fetch: { value: fetched, version: Math.random() }
         }
+      })
+
+      timing({
+        variable: navigator.stringify(location),
+        category: 'fetch',
+        value: performance.now() - startTime
       })
 
       if (restoreScroll && typeof scroll === 'number') {

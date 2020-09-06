@@ -9,11 +9,11 @@ import { useConfig } from '../../ConfigManager'
 import { BookListingLink } from '../../BookListing'
 import { useAlert, useNotify } from '../../NotificationManager'
 import { useCopyToClipboard, useAsync } from 'react-use'
-import { NewTabLink } from '../NewTabLink'
 import { useClient, useClientInfo } from '../../ClientManager'
 import { useProgress } from '../../ProgressManager'
 import { CollectionContentLink } from '../../CollectionContent'
 import { Disableable } from '../Disableable'
+import { Anchor } from '../Anchor'
 
 export const Overlay = ({ book, content }: { book: BookListItem, content?: BookContent }) => {
   const { OverlayComponent } = useBookList()
@@ -32,7 +32,7 @@ export const Overlay = ({ book, content }: { book: BookListItem, content?: BookC
     </CopyToClipboardItem>
 
     {content && <>
-      <CopyToClipboardItem value={content.sourceUrl} displayValue={<NewTabLink className='text-blue' href={content.sourceUrl}>{content.sourceUrl}</NewTabLink>}>
+      <CopyToClipboardItem value={content.sourceUrl} displayValue={<Anchor target='_blank' className='text-blue' href={content.sourceUrl}>{content.sourceUrl}</Anchor>}>
         <FormattedMessage id='components.bookList.overlay.copy.source' />
       </CopyToClipboardItem>
     </>}

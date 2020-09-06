@@ -14,7 +14,6 @@ import { Dropdown, DropdownItem, DropdownGroup } from '../Components/Dropdown'
 import { PrefetchResult, BookReaderLink } from '.'
 import { BookTags, ScraperTypes, LanguageTypes } from '../orderedConstants'
 import { LanguageNames } from '../LocaleManager'
-import { NewTabLink } from '../Components/NewTabLink'
 import { BookListingLink } from '../BookListing'
 import { Disableable } from '../Components/Disableable'
 import { useConfig } from '../ConfigManager'
@@ -22,6 +21,7 @@ import { FlatButton } from '../Components/FlatButton'
 import { useContentSelector } from '../Components/BookList'
 import { useAsync } from 'react-use'
 import { useNotify } from '../NotificationManager'
+import { Anchor } from '../Components/Anchor'
 
 export const Info = ({ book, content }: PrefetchResult) => {
   const client = useClient()
@@ -106,9 +106,9 @@ export const Info = ({ book, content }: PrefetchResult) => {
                             <Disableable disabled={content === displayContent}>
                               <BookReaderLink id={book.id} contentId={content.id}>
                                 <DropdownItem>
-                                  <NewTabLink href={content.sourceUrl}>
+                                  <Anchor target='_blank' href={content.sourceUrl}>
                                     <LinkOutlined className='pr-2 text-blue' />
-                                  </NewTabLink>
+                                  </Anchor>
 
                                   {content.sourceUrl}
                                 </DropdownItem>
@@ -120,9 +120,9 @@ export const Info = ({ book, content }: PrefetchResult) => {
                     })
                   )}>
 
-                    <NewTabLink href={linkContent.sourceUrl}>
+                    <Anchor target='_blank' href={linkContent.sourceUrl}>
                       <SourceButton type={type} />
-                    </NewTabLink>
+                    </Anchor>
                   </Dropdown>
                 )
               })}

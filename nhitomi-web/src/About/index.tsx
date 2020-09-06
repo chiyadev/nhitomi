@@ -6,12 +6,12 @@ import { useTabTitle } from '../TitleSetter'
 import { useLocalized } from '../LocaleManager'
 import { Container } from '../Components/Container'
 import { useSpring, animated } from 'react-spring'
-import { NewTabLink } from '../Components/NewTabLink'
 import { HeartFilled } from '@ant-design/icons'
 import { FilledButton } from '../Components/FilledButton'
 import { DiscordColor, DiscordOutlined } from '../Components/Icons/DiscordOutlined'
 import { FormattedMessage } from 'react-intl'
 import { ScraperType } from 'nhitomi-api'
+import { Anchor } from '../Components/Anchor'
 
 export type PrefetchResult = { info: ClientInfo }
 export type PrefetchOptions = {}
@@ -84,14 +84,14 @@ const Content = ({ info }: PrefetchResult) => {
       <div className='text-2xl'>Features</div>
 
       <ul className='list-disc list-inside'>
-        <li>Completele free and <NewTabLink className='font-bold' href='https://github.com/chiyadev/nhitomi'>open-source</NewTabLink></li>
+        <li>Completele free and <Anchor target='_blank' className='font-bold' href='https://github.com/chiyadev/nhitomi'>open-source</Anchor></li>
         <li>No advertisements whatsoever</li>
         <li>Beautiful interface with first-class mobile support</li>
         <li>Customizable reader</li>
         <li>More to come...</li>
       </ul>
 
-      <div>Missing a feature? <NewTabLink className='text-blue' href='https://github.com/chiyadev/nhitomi/issues/new'>Suggest one!</NewTabLink></div>
+      <div>Missing a feature? <Anchor target='_blank' className='text-blue' href='https://github.com/chiyadev/nhitomi/issues/new'>Suggest one!</Anchor></div>
     </div>
 
     <div className='space-y-2'>
@@ -115,7 +115,7 @@ const Content = ({ info }: PrefetchResult) => {
 
             {scraper.name}
             {' — '}
-            <NewTabLink className='text-blue' href={scraper.url}>{scraper.url}</NewTabLink>
+            <Anchor target='_blank' className='text-blue' href={scraper.url}>{scraper.url}</Anchor>
           </li>
         ))}
 
@@ -133,15 +133,15 @@ const Content = ({ info }: PrefetchResult) => {
       </ul>
 
       <div>
-        <NewTabLink href='https://discord.gg/JFNga7q'>
+        <Anchor target='_blank' href='https://discord.gg/JFNga7q'>
           <FilledButton color={DiscordColor} icon={<DiscordOutlined />}>Join our Discord server</FilledButton>
-        </NewTabLink>
+        </Anchor>
       </div>
     </div>
 
     <div className='space-y-2'>
       <div className='text-2xl'>Development</div>
-      <div>nhitomi is developed with <HeartFilled className='text-red' /> by <NewTabLink className='font-bold' href='https://chiya.dev'>chiya.dev</NewTabLink>.</div>
+      <div>nhitomi is developed with <HeartFilled className='text-red' /> by <Anchor target='_blank' className='font-bold' href='https://chiya.dev'>chiya.dev</Anchor>.</div>
 
       <ul className='list-disc list-inside'>
         <li>Codebase is moderately sized, consisting of C# and Typescript</li>
@@ -153,7 +153,7 @@ const Content = ({ info }: PrefetchResult) => {
       <div>Want to build something custom instead?</div>
 
       <ul className='list-disc list-inside'>
-        <li>nhitomi provides an HTTP API service, complete with <NewTabLink className='text-blue' href='https://github.com/chiyadev/nhitomi/wiki/API'>documentation</NewTabLink> and an <NewTabLink className='text-blue' href='/api/v1/docs.json'>OpenAPI 3.0 specification</NewTabLink></li>
+        <li>nhitomi provides an HTTP API service, complete with <Anchor target='_blank' className='text-blue' href='https://github.com/chiyadev/nhitomi/wiki/API'>documentation</Anchor> and an <Anchor target='_blank' className='text-blue' href='/api/v1/docs.json'>OpenAPI 3.0 specification</Anchor></li>
       </ul>
     </div>
 

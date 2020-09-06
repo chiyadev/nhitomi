@@ -14,7 +14,7 @@ import { Disableable } from '../../Components/Disableable'
 import { CollectionEditLink } from '../../CollectionListing/Edit'
 import { Tooltip } from '../../Components/Tooltip'
 import { cx } from 'emotion'
-import { NewTabLink } from '../../Components/NewTabLink'
+import { Anchor } from '../../Components/Anchor'
 
 export const Menu = ({ collection }: { collection: Collection }) => <>
   <SpecialButton collection={collection} />
@@ -152,10 +152,10 @@ const DeleteButton = ({ collection }: { collection: Collection }) => {
 
 const HelpButton = () => (
   <Tooltip placement='bottom' overlay={<FormattedMessage id='pages.collectionContent.book.menu.help' />}>
-    <NewTabLink href='https://github.com/chiyadev/nhitomi/wiki/Managing-collections-on-the-website'>
+    <Anchor target='_blank' href='https://github.com/chiyadev/nhitomi/wiki/Managing-collections-on-the-website'>
       <RoundIconButton>
         <InfoCircleOutlined />
       </RoundIconButton>
-    </NewTabLink>
+    </Anchor>
   </Tooltip>
 )

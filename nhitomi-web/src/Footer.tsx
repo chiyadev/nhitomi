@@ -1,12 +1,12 @@
 import React, { useState, ReactNode, useMemo } from 'react'
 import { Container } from './Components/Container'
-import { NewTabLink } from './Components/NewTabLink'
 import { useSpring, animated } from 'react-spring'
 import { getColor } from './theme'
 import { useClientInfo } from './ClientManager'
 import { Tooltip } from './Components/Tooltip'
 import { FormattedDate, FormattedTime } from 'react-intl'
 import { GitCommit } from 'nhitomi-api'
+import { Anchor } from './Components/Anchor'
 
 export const Footer = () => {
   const { info } = useClientInfo()
@@ -21,26 +21,26 @@ export const Footer = () => {
       <animated.div style={style}>
         {useMemo(() => <>
           <VersionTooltip version={info.version}>
-            <NewTabLink href={`https://github.com/chiyadev/nhitomi/commit/${info.version.hash}`}>
+            <Anchor target='_blank' href={`https://github.com/chiyadev/nhitomi/commit/${info.version.hash}`}>
               <LinkText>b.{info.version.shortHash}</LinkText>
-            </NewTabLink>
+            </Anchor>
           </VersionTooltip>
           <Split />
-          <NewTabLink href='https://github.com/chiyadev/nhitomi'>
+          <Anchor target='_blank' href='https://github.com/chiyadev/nhitomi'>
             <LinkText>GitHub</LinkText>
-          </NewTabLink>
+          </Anchor>
           <Split />
-          <NewTabLink href='https://discord.gg/JFNga7q'>
+          <Anchor target='_blank' href='https://discord.gg/JFNga7q'>
             <LinkText>Discord</LinkText>
-          </NewTabLink>
+          </Anchor>
           <Split />
-          <NewTabLink href='https://github.com/chiyadev/nhitomi/wiki/API'>
+          <Anchor target='_blank' href='https://github.com/chiyadev/nhitomi/wiki/API'>
             <LinkText>API</LinkText>
-          </NewTabLink>
+          </Anchor>
           <Split />
-          <NewTabLink href='https://chiya.dev'>
+          <Anchor target='_blank' href='https://chiya.dev'>
             <LinkText>chiya.dev</LinkText>
-          </NewTabLink>
+          </Anchor>
         </>, [info.version])}
       </animated.div>
     </Container>

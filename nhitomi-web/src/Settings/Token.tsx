@@ -3,9 +3,9 @@ import { FormattedMessage } from 'react-intl'
 import { SettingsFocusContainer } from './SettingsFocusContainer'
 import { useConfig } from '../ConfigManager'
 import { cx } from 'emotion'
-import { NewTabLink } from '../Components/NewTabLink'
 import { LinkOutlined } from '@ant-design/icons'
 import { getColor } from '../theme'
+import { Anchor } from '../Components/Anchor'
 
 export const Token = () => {
   const [token] = useConfig('token')
@@ -18,7 +18,7 @@ export const Token = () => {
       <br />
 
       <div className='mb-2'>
-        <NewTabLink className='text-xs text-blue' href='https://github.com/chiyadev/nhitomi/wiki/API'><LinkOutlined /> <FormattedMessage id='pages.settings.user.token.docs' /></NewTabLink>
+        <Anchor target='_blank' className='text-xs text-blue' href='https://github.com/chiyadev/nhitomi/wiki/API'><LinkOutlined /> <FormattedMessage id='pages.settings.user.token.docs' /></Anchor>
       </div>
 
       <div className='break-all'>

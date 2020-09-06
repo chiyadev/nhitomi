@@ -9,11 +9,29 @@ import { FlatButton } from './Components/FlatButton'
 import { ReloadOutlined, ClearOutlined } from '@ant-design/icons'
 import { getColor } from './theme'
 import { FilledButton } from './Components/FilledButton'
+import * as ga from 'react-ga'
+
+const gaApiIgnorePaths = [
+  /books\/.*\/contents\/.*\/pages\/.*/g
+]
 
 export class Client {
   private readonly httpConfig: ConfigurationParameters = {
     middleware: [{
+      pre: async context => {
+        (context.init as any).startTime = performance.now()
+      },
       post: async context => {
+        if (gaApiIgnorePaths.findIndex(g => context.url.match(g)) === -1) {
+          const time = performance.now() - (context.init as any).startTime
+
+          ga.timing({
+            variable: context.url.replace(this.httpConfig.basePath || '', ''),
+            category: 'api',
+            value: time
+          })
+        }
+
         const { response } = context
 
         if (response.ok)
@@ -192,15 +210,33 @@ export const ClientManager = ({ children }: { children?: ReactNode }) => {
       setCachedInfo(undefined)
   }, [info])
 
-  const version = useRef<string>()
+  const lastGtag = useRef<string>()
+
+  useLayoutEffect(() => {
+    if (info && !(info instanceof Error)) {
+      if (info.gTag && lastGtag.current !== info.gTag) {
+        ga.initialize(info.gTag, {
+          debug: process.env.NODE_ENV === 'development',
+          titleCase: false,
+          gaOptions: {
+            userId: info.authenticated ? info.user.id : undefined
+          }
+        })
+      }
+
+      lastGtag.current = info.gTag
+    }
+  }, [info])
+
+  const lastVersion = useRef<string>()
 
   useLayoutEffect(() => {
     if (info && !(info instanceof Error)) {
       // reload if version changes
-      if (version.current && version.current !== info.version.hash)
+      if (lastVersion.current && lastVersion.current !== info.version.hash)
         window.location.reload()
 
-      version.current = info.version.hash
+      lastVersion.current = info.version.hash
     }
   }, [info])
 
@@ -215,6 +251,11 @@ export const ClientManager = ({ children }: { children?: ReactNode }) => {
         setInfo(e)
       else
         setInfo(Error(e?.message || 'Unknown error.'))
+
+      ga.exception({
+        description: e.message,
+        fatal: true
+      })
     }
     finally {
       end()
