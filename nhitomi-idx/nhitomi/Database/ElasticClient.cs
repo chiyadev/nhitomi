@@ -77,6 +77,21 @@ namespace nhitomi.Database
         /// Number of items to search per chunk when searching as a stream.
         /// </summary>
         public int StreamSearchChunkSize { get; set; } = 10;
+
+        /// <summary>
+        /// Size of batches of documents to read during migrations.
+        /// </summary>
+        public int MigrationBatchSize { get; set; } = 1000;
+
+        /// <summary>
+        /// Number of background indexing workers to use during migrations.
+        /// </summary>
+        public int MigrationWorkers { get; set; } = 16;
+
+        /// <summary>
+        /// Whether to force GC collections during migration.
+        /// </summary>
+        public bool MigrationForceCollect { get; set; }
     }
 
     public interface IQueryProcessor<T> where T : class, IDbObject

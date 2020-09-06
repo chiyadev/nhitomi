@@ -120,10 +120,9 @@ namespace nhitomi.Database.Migrations
             await _client.RequestAsync(c => c.Indices.UpdateSettingsAsync(destination, x => x.IndexSettings(s => s.RefreshInterval(Time.MinusOne).NumberOfReplicas(0)), cancellationToken));
 
             // use semaphore to limit the number of indexing workers
-            const int workers   = 16; //ThreadPool.GetMaxThreads(out var workers, out _);
-            using var semaphore = new SemaphoreSlim(workers);
+            using var semaphore = new SemaphoreSlim(options.MigrationWorkers);
 
-            _logger.LogDebug($"Using {workers} workers for indexing.");
+            _logger.LogDebug($"Using {semaphore.CurrentCount} workers for indexing.");
 
             var exceptions = new List<Exception>();
 
@@ -160,7 +159,7 @@ namespace nhitomi.Database.Migrations
                 var batches       = 0;
                 var progress      = 0;
 
-                response = await _client.RequestAsync(c => c.SearchAsync<TSource>(s => s.Index(source).Size(1000).Scroll(scrollDuration), cancellationToken));
+                response = await _client.RequestAsync(c => c.SearchAsync<TSource>(s => s.Index(source).Size(options.MigrationBatchSize).Scroll(scrollDuration), cancellationToken));
 
                 while (response.Documents.Count != 0)
                 {
@@ -200,6 +199,9 @@ namespace nhitomi.Database.Migrations
                                 lock (exceptions)
                                     exceptions.Add(e);
                             }
+
+                            if (options.MigrationForceCollect)
+                                GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced, true, true);
                         }
                     }, cancellationToken);
 
@@ -216,7 +218,7 @@ namespace nhitomi.Database.Migrations
                     await _client.RequestAsync(c => c.ClearScrollAsync(s => s.ScrollId(response.ScrollId), cancellationToken));
 
                 // wait for all workers to exit
-                for (var i = 0; i < workers; i++)
+                for (var i = 0; i < options.MigrationWorkers; i++)
                     await semaphore.WaitAsync(cancellationToken);
 
                 checkExceptions();
