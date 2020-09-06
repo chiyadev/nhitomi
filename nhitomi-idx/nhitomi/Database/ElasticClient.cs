@@ -365,6 +365,7 @@ namespace nhitomi.Database
             _client = new Nest.ElasticClient(
                 new ConnectionSettings(pool)
                    .DisableDirectStreaming(environment.IsDevelopment())
+                   .PrettyJson(environment.IsDevelopment())
                    .ThrowExceptions(false)
                    .MemoryStreamFactory(new ElasticMemoryStreamFactory(memory)));
         }
