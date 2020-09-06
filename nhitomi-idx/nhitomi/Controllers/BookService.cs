@@ -186,17 +186,20 @@ namespace nhitomi.Controllers
             var now       = DateTime.UtcNow;
             var available = await scraper.RetrieveAsync(content, cancellationToken) != null;
 
-            do
+            using (_client.UseIndexingOptions(new IndexingOptions { UpdateTimes = false })) // don't change update time on refresh
             {
-                content = entry.Value?.Contents.FirstOrDefault(c => c.Id == contentId);
+                do
+                {
+                    content = entry.Value?.Contents.FirstOrDefault(c => c.Id == contentId);
 
-                if (content == null)
-                    return new NotFound();
+                    if (content == null)
+                        return new NotFound();
 
-                content.RefreshTime = now;
-                content.IsAvailable = available;
+                    content.RefreshTime = now;
+                    content.IsAvailable = available;
+                }
+                while (!await entry.TryUpdateAsync(cancellationToken));
             }
-            while (!await entry.TryUpdateAsync(cancellationToken));
 
             return entry.Value;
         }
