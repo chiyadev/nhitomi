@@ -9335,6 +9335,11 @@ react-flag-kit@^0.3.1:
   resolved "https://registry.yarnpkg.com/react-flag-kit/-/react-flag-kit-0.3.1.tgz#31f93c26d50c8915d27c46f76a34e37aa8a7b164"
   integrity sha512-mxbw6tF0JVHqsIP4s70LaqhLtAF3utljg2h9/cVLewoYhJNx52byQAerXO1jnnOIMOh717u31Y4c1lEyfpB3BQ==
 
+react-ga@^3.1.2:
+  version "3.1.2"
+  resolved "https://registry.yarnpkg.com/react-ga/-/react-ga-3.1.2.tgz#e13f211c51a2e5c401ea69cf094b9501fe3c51ce"
+  integrity sha512-OJrMqaHEHbodm+XsnjA6ISBEHTwvpFrxco65mctzl/v3CASMSLSyUkFqz9yYrPDKGBUfNQzKCjuMJwctjlWBbw==
+
 react-github-btn@^1.2.0:
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/react-github-btn/-/react-github-btn-1.2.0.tgz#464066f999a77c0eed27980260601b51cbe15614"
