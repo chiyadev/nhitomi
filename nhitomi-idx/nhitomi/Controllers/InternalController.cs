@@ -65,10 +65,11 @@ namespace nhitomi.Controllers
         /// </remarks>
         /// <param name="request">Set config request.</param>
         [HttpPost("config", Name = "setServerConfig"), RequireUser(Permissions = UserPermissions.ManageServer)] // no RequireDbWrite
-        public async Task<ActionResult> SetConfigAsync(SetConfigRequest request)
+        public async Task<Dictionary<string, string>> SetConfigAsync(SetConfigRequest request)
         {
             await _options.SetAsync(request.Name, request.Value);
-            return Ok();
+
+            return GetConfig();
         }
 
         /// <summary>
