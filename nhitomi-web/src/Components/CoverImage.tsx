@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react'
 import { useSpring, animated } from 'react-spring'
 import { cx } from 'emotion'
 import { Loading3QuartersOutlined, WarningTwoTone } from '@ant-design/icons'
-import { AbsoluteCenter } from './AbsoluteCenter'
 import { Tooltip } from './Tooltip'
 import { FormattedMessage } from 'react-intl'
 import { probeImage } from '../imageUtils'
@@ -94,13 +93,13 @@ export const CoverImage = ({ onLoad, onLoaded, className, zoomIn, autoSize, defa
       )}
 
       {showLoading && (
-        <animated.div style={loadingStyle} className={AbsoluteCenter}>
+        <animated.div style={loadingStyle} className='absolute transform-center'>
           <Loading3QuartersOutlined className='animate-spin' />
         </animated.div>
       )}
 
       {showError && (
-        <animated.div style={errorStyle} className={AbsoluteCenter}>
+        <animated.div style={errorStyle} className='absolute transform-center'>
           <Tooltip
             placement='bottom'
             overlay={<>
