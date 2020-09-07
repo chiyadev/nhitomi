@@ -13,6 +13,7 @@ import { LayoutSetter } from './LayoutSetter'
 import { CursorVisibility } from './CursorVisibility'
 import { useTabTitle } from '../TitleSetter'
 import { useConfig } from '../ConfigManager'
+import { SupportBanner } from './SupportBanner'
 
 export type PrefetchResult = { book: Book, content: BookContent }
 export type PrefetchOptions = { id: string, contentId: string }
@@ -76,6 +77,8 @@ const Loaded = ({ book, content }: PrefetchResult) => {
           <Info book={book} content={content} />
         </Container>
       </div>
+
+      <SupportBanner book={book} content={content} />
 
       <CursorVisibility>
         <Reader book={book} content={content} viewportWidth={infoWidth} />
