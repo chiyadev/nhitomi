@@ -49,7 +49,7 @@ const Anchor = ({ open, setOpen }: { open: boolean, setOpen: Dispatch<boolean> }
   return (
     <animated.div
       style={style}
-      className={cx('fixed top-0 left-0 z-10 mt-16 w-10 h-10 flex items-center justify-center rounded-r overflow-hidden shadow-md', { 'pointer-events-none': !visible })}
+      className={cx('fixed top-0 left-0 z-10 mt-16 w-10 h-10 flex items-center justify-center rounded-r overflow-hidden shadow-md cursor-pointer', { 'pointer-events-none': !visible })}
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
       onClick={() => setOpen(true)}>
