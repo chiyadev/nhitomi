@@ -2,7 +2,6 @@ import React, { ReactNode } from 'react'
 import { useLayout } from '../LayoutManager'
 import { animated, useSpring } from 'react-spring'
 import { css, cx } from 'emotion'
-import { FormattedMessage } from 'react-intl'
 
 export const SupportDescription = () => (
   <div className='space-y-2'>
@@ -41,16 +40,11 @@ export const MainCard = ({ children }: { children?: ReactNode }) => {
     case 'lg':
       return (
         <div className={cx('relative', css`height: 350px;`)}>
-          <animated.div style={imageStyle} className='absolute ml-8 w-64 h-full z-10'>
-            <img
-              alt='megumi'
-              src='/assets/images/megumi_happy.png'
-              className='select-none pointer-events-none object-cover rounded w-full h-full' />
-
-            <div className='text-right text-xs text-gray-darker cursor-default mr-4'>
-              <FormattedMessage id='pages.support.megumi' />
-            </div>
-          </animated.div>
+          <animated.img
+            style={imageStyle}
+            alt='megumi'
+            src='/assets/images/megumi_happy.png'
+            className='select-none pointer-events-none object-cover rounded absolute ml-8 w-64 h-full z-10' />
 
           <div className='bg-white text-black rounded-lg absolute transform-center w-full pl-64 shadow-lg'>
             <div className='ml-8 px-4 py-8' children={children} />
