@@ -47,6 +47,8 @@ namespace nhitomi.Controllers
 
         Task<OneOf<DbUser, NotFound>> RestrictAsync(string id, string moderatorId, TimeSpan? duration, SnapshotArgs snapshot, CancellationToken cancellationToken = default);
         Task<OneOf<DbUser, NotFound>> UnrestrictAsync(string id, SnapshotArgs snapshot, CancellationToken cancellationToken = default);
+
+        Task<OneOf<DbUser, NotFound>> AddSupporterDurationAsync(string id, TimeSpan duration, double spending, CancellationToken cancellationToken = default);
     }
 
     public class UserService : IUserService
@@ -179,6 +181,31 @@ namespace nhitomi.Controllers
 
             if (snapshot != null)
                 await _snapshots.CreateAsync(entry.Value, snapshot, cancellationToken);
+
+            return entry.Value;
+        }
+
+        public async Task<OneOf<DbUser, NotFound>> AddSupporterDurationAsync(string id, TimeSpan duration, double spending, CancellationToken cancellationToken = default)
+        {
+            var entry = await _client.GetEntryAsync<DbUser>(id, cancellationToken);
+
+            do
+            {
+                if (entry.Value == null)
+                    return new NotFound();
+
+                var now = DateTime.UtcNow;
+
+                entry.Value.SupporterInfo ??= new DbUserSupporterInfo();
+
+                entry.Value.SupporterInfo.StartTime ??= now;
+                entry.Value.SupporterInfo.EndTime   ??= now;
+
+                entry.Value.SupporterInfo.EndTime       += duration;
+                entry.Value.SupporterInfo.TotalDays     += duration.TotalDays;
+                entry.Value.SupporterInfo.TotalSpending += spending;
+            }
+            while (!await entry.TryUpdateAsync(cancellationToken));
 
             return entry.Value;
         }

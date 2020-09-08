@@ -247,7 +247,7 @@ namespace nhitomi.Controllers
         [HttpPost("{id}/supporter", Name = "createUserSupporterCheckout"), RequireUser, RequireDbWrite] // RequireDbWrite to prevent supporter purchase during maintenance
         public async Task<CreateSupporterCheckoutResponse> CreateSupporterCheckoutAsync(CreateSupporterCheckoutRequest request)
         {
-            var session = await _stripe.CreateSupporterCheckoutAsync(request.Amount);
+            var session = await _stripe.CreateSupporterCheckoutAsync(User, request.Amount);
 
             return new CreateSupporterCheckoutResponse
             {

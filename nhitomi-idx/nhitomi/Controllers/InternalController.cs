@@ -1,11 +1,16 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.IO;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using nhitomi.Controllers.OAuth;
 using nhitomi.Database;
 using nhitomi.Models;
+using Stripe;
+using Stripe.Checkout;
 
 namespace nhitomi.Controllers
 {
@@ -23,14 +28,18 @@ namespace nhitomi.Controllers
         readonly IUserService _users;
         readonly IAuthService _auth;
         readonly IDiscordOAuthHandler _discord;
+        readonly IStripeService _stripe;
+        readonly IOptionsMonitor<StripeServiceOptions> _stripeOptions;
 
-        public InternalController(IServiceProvider services, IDynamicOptions options, IUserService users, IAuthService auth, IDiscordOAuthHandler discord)
+        public InternalController(IServiceProvider services, IDynamicOptions options, IUserService users, IAuthService auth, IDiscordOAuthHandler discord, IStripeService stripe, IOptionsMonitor<StripeServiceOptions> stripeOptions)
         {
-            _services = services;
-            _options  = options;
-            _users    = users;
-            _auth     = auth;
-            _discord  = discord;
+            _services      = services;
+            _options       = options;
+            _users         = users;
+            _auth          = auth;
+            _discord       = discord;
+            _stripe        = stripe;
+            _stripeOptions = stripeOptions;
         }
 
         // use a list with key-value entries to avoid key names getting lowercased when using a dict
@@ -164,6 +173,42 @@ namespace nhitomi.Controllers
                 Token = await _auth.GenerateTokenAsync(user),
                 User  = ProcessUser(user.Convert(_services))
             };
+        }
+
+        /// <summary>
+        /// Defines the Webhook callback endpoint for Stripe.
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost("stripe"), AllowAnonymous, ApiExplorerSettings(IgnoreApi = true)]
+        public async Task<ActionResult> StripeCallbackAsync()
+        {
+            Event stripeEvent;
+
+            try
+            {
+                stripeEvent = EventUtility.ConstructEvent(
+                    await new StreamReader(HttpContext.Request.Body).ReadToEndAsync(),
+                    Request.Headers["Stripe-Signature"],
+                    _stripeOptions.CurrentValue.WebhookSecret,
+                    throwOnApiVersionMismatch: false);
+            }
+            catch (StripeException)
+            {
+                // event construction failed, so request wasn't valid
+                return ResultUtilities.BadRequest("You're not stripe, are you?");
+            }
+
+            switch (stripeEvent.Type)
+            {
+                case Events.CheckoutSessionCompleted when stripeEvent.Data.Object is Session session:
+                    await _stripe.HandleSupporterCheckoutCompletedAsync(session);
+                    break;
+
+                default:
+                    return ResultUtilities.BadRequest($"Stripe event {stripeEvent.Type} should not be received by this server.");
+            }
+
+            return Ok();
         }
     }
 }
