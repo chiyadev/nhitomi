@@ -203,8 +203,8 @@ namespace nhitomi.Controllers
                     info.EndTime = now;
 
                 info.EndTime       += duration;
-                info.TotalDays     =  duration.TotalDays;
-                info.TotalSpending =  spending;
+                info.TotalDays     += duration.TotalDays;
+                info.TotalSpending += spending;
             }
             while (!await entry.TryUpdateAsync(cancellationToken));
 
