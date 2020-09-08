@@ -1,2 +1,3 @@
 chino_book_mask.png: original by kouda suzu at https://gelbooru.com/index.php?page=post&s=view&id=3686786, rendered by phosphene47 on 2020/09/07
 megumi_happy.png: original by rikatan at https://gelbooru.com/index.php?page=post&s=view&id=4283276, rendered by phosphene47 on 2020/09/08
+megumi_button_bg.jpg: original by rikatan at https://gelbooru.com/index.php?page=post&s=view&id=4567018
