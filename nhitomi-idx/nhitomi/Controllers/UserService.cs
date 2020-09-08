@@ -194,16 +194,17 @@ namespace nhitomi.Controllers
                 if (entry.Value == null)
                     return new NotFound();
 
-                var now = DateTime.UtcNow;
+                var now  = DateTime.UtcNow;
+                var info = entry.Value.SupporterInfo ??= new DbUserSupporterInfo();
 
-                entry.Value.SupporterInfo ??= new DbUserSupporterInfo();
+                info.StartTime ??= now;
 
-                entry.Value.SupporterInfo.StartTime ??= now;
-                entry.Value.SupporterInfo.EndTime   ??= now;
+                if (info.EndTime == null || info.EndTime < now)
+                    info.EndTime = now;
 
-                entry.Value.SupporterInfo.EndTime       += duration;
-                entry.Value.SupporterInfo.TotalDays     += duration.TotalDays;
-                entry.Value.SupporterInfo.TotalSpending += spending;
+                info.EndTime       += duration;
+                info.TotalDays     =  duration.TotalDays;
+                info.TotalSpending =  spending;
             }
             while (!await entry.TryUpdateAsync(cancellationToken));
 

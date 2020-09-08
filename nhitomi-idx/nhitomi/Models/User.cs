@@ -63,6 +63,15 @@ namespace nhitomi.Models
         public UserDiscordConnection DiscordConnection { get; set; }
 
         /// <summary>
+        /// Whether this user is an nhitomi supporter.
+        /// </summary>
+        /// <remarks>
+        /// This is a convenience field for checking <see cref="SupporterInfo"/>'s end time.
+        /// </remarks>
+        [Required]
+        public bool IsSupporter => DateTime.UtcNow < SupporterInfo?.EndTime;
+
+        /// <summary>
         /// Supporter information.
         /// </summary>
         public UserSupporterInfo SupporterInfo { get; set; }
