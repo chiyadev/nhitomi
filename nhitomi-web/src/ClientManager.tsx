@@ -10,6 +10,7 @@ import { ReloadOutlined, ClearOutlined } from '@ant-design/icons'
 import { getColor } from './theme'
 import { FilledButton } from './Components/FilledButton'
 import * as ga from 'react-ga'
+import { JSONex } from './jsonEx'
 
 const gaApiIgnorePaths = [
   /books\/.*\/contents\/.*\/pages\/.*/g
@@ -171,7 +172,7 @@ type CachedClientInfo = {
 /** Cached client info allows the site to load faster. */
 function getCachedInfo(): ClientInfo | undefined {
   try {
-    const cached: CachedClientInfo = JSON.parse(localStorage.getItem(cacheKey) || '')
+    const cached: CachedClientInfo = JSONex.parse(localStorage.getItem(cacheKey) || '')
     const now = Date.now()
 
     if (now - cached.time < 1000 * 60 * 30) // cache valid for 30 minutes
