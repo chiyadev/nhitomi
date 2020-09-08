@@ -47,8 +47,13 @@ const Inner = ({ thumb }: { thumb: string }) => {
     height: expanded ? 260 : 80
   })
 
+  const headingStyle = useSpring({
+    opacity: hover || expanded ? 1 : 0,
+    marginLeft: hover || expanded ? 0 : -5
+  })
+
   const heartStyle = useSpring({
-    transform: `rotate(${expanded ? 0 : 20}deg)`
+    transform: `rotate(${hover || expanded ? 0 : 20}deg)`
   })
 
   const descriptionRef = useRef<HTMLDivElement>(null)
@@ -77,13 +82,13 @@ const Inner = ({ thumb }: { thumb: string }) => {
         <div className='flex-1 my-auto pr-2'>
           <div>
             <animated.div className='inline-block' style={heartStyle}><HeartFilled className='text-pink text-4xl' /></animated.div>
-            <span className='text-base whitespace-pre'>
+            <animated.span className={cx('text-base', { 'hidden': !(hover || expanded) })} style={headingStyle}>
               <FormattedMessage id='pages.bookReader.supportBanner.text' values={{
                 nhitomi: (
                   <span className='ml-2 text-lg font-bold'>nhitomi</span>
                 )
               }} />
-            </span>
+            </animated.span>
           </div>
 
           <animated.div style={descriptionStyle} className='text-xs text-gray-darker'>
