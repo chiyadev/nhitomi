@@ -16,7 +16,11 @@
       "title": "Support",
       "subtitle": "{nhitomi} needs your help",
       "buy": "Support nhitomi!",
-      "duration": "Become a supporter for {duration, plural, one {# month} other {# months}}"
+      "duration": "Become a supporter for {duration, plural, one {# month} other {# months}}",
+      "error": {
+        "title": "Could not process payment.",
+        "canceled": "Payment was canceled."
+      }
     },
     "authentication": {
       "title": "Log in",

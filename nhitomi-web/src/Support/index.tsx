@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react'
 import { TypedPrefetchLinkProps, PrefetchLink, usePostfetch, PrefetchGenerator } from '../Prefetch'
-import { useClientInfo, ClientInfo } from '../ClientManager'
+import { useClient } from '../ClientManager'
 import { PageContainer } from '../Components/PageContainer'
 import { useTabTitle } from '../TitleSetter'
 import { useLocalized } from '../LocaleManager'
@@ -10,19 +10,37 @@ import { HeartFilled } from '@ant-design/icons'
 import { FormattedMessage } from 'react-intl'
 import { SupportDescription, MainCard } from './MainCard'
 import { Checkout } from './Checkout'
+import { GetStripeInfoResponse } from 'nhitomi-api'
+import { useQueryState } from '../state'
+import { useNotify } from '../NotificationManager'
 
-export type PrefetchResult = { info: ClientInfo }
+export type PrefetchResult = GetStripeInfoResponse
 export type PrefetchOptions = {}
 
 export const useSupportPrefetch: PrefetchGenerator<PrefetchResult, PrefetchOptions> = () => {
-  const { fetchInfo } = useClientInfo()
+  const client = useClient()
+  const { notify } = useNotify()
+  const [status] = useQueryState<'canceled'>('replace', 'checkout')
 
   return {
     destination: {
-      path: '/support'
+      path: '/support',
+      query: q => ({ ...q, checkout: undefined })
     },
 
-    fetch: async () => ({ info: await fetchInfo() })
+    fetch: async () => {
+      switch (status) {
+        case 'canceled':
+          notify('error', (
+            <FormattedMessage id='pages.support.error.title' />
+          ), (
+            <FormattedMessage id='pages.support.error.canceled' />
+          ))
+          break
+      }
+
+      return await client.info.getStripeInfo()
+    }
   }
 }
 
@@ -43,7 +61,7 @@ export const Support = (options: PrefetchOptions) => {
   )
 }
 
-const Loaded = ({ info }: PrefetchResult) => {
+const Loaded = (result: PrefetchResult) => {
   useTabTitle(useLocalized('pages.support.title'))
 
   return (
@@ -68,8 +86,8 @@ const Loaded = ({ info }: PrefetchResult) => {
       ), [])}
 
       {useMemo(() => (
-        <Checkout />
-      ), [])}
+        <Checkout {...result} />
+      ), [result])}
     </Container>
   )
 }

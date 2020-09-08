@@ -16,7 +16,11 @@
       "title": "サポート",
       "subtitle": "{nhitomi}を支援してください",
       "buy": "nhitomiを支援する！",
-      "duration": "{duration}ヶ月間サポーターになります"
+      "duration": "{duration}ヶ月間サポーターになります",
+      "error": {
+        "title": "お支払いを処理できませんでした。",
+        "canceled": "お支払いがキャンセルされました。"
+      }
     },
     "authentication": {
       "title": "ログイン",
