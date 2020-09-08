@@ -45,6 +45,9 @@ namespace nhitomi.Database
         [Key("Cp"), Object(Name = "Cp", Enabled = false)]
         public Dictionary<ObjectType, Dictionary<SpecialCollection, string>> SpecialCollections { get; set; }
 
+        [Key("sp"), Object(Name = "sp", Enabled = false)]
+        public DbUserSupporterInfo SupporterInfo { get; set; }
+
         /// <summary>
         /// Returns true if this user has the specified permissions.
         /// This method allows <see cref="UserPermissions.Administrator"/> bypass.
@@ -66,6 +69,7 @@ namespace nhitomi.Database
             model.DiscordConnection      = DiscordConnection?.Convert(services);
             model.AllowSharedCollections = AllowSharedCollections;
             model.SpecialCollections     = SpecialCollections;
+            model.SupporterInfo          = SupporterInfo?.Convert(services);
 
             if (model.Restrictions != null)
                 Array.Sort(model.Restrictions, (a, b) => a.StartTime.CompareTo(b.StartTime));
@@ -85,6 +89,7 @@ namespace nhitomi.Database
             DiscordConnection      = model.DiscordConnection == null ? null : new DbUserDiscordConnection().Apply(model.DiscordConnection, services);
             AllowSharedCollections = model.AllowSharedCollections;
             SpecialCollections     = model.SpecialCollections;
+            SupporterInfo          = model.SupporterInfo == null ? null : new DbUserSupporterInfo().Apply(model.SupporterInfo, services);
         }
 
 #region Cached
@@ -95,11 +100,25 @@ namespace nhitomi.Database
         [IgnoreMember, Keyword(Name = "cdi", DocValues = false), DbCached]
         public ulong? DiscordId { get; set; }
 
+        /// <summary>
+        /// This is a cached property for querying.
+        /// </summary>
+        [IgnoreMember, Date(Name = "sTe"), DbCached]
+        public DateTime? SupporterEndTime { get; set; }
+
+        /// <summary>
+        /// This is a cached property for querying.
+        /// </summary>
+        [IgnoreMember, Number(Name = "ssp"), DbCached]
+        public double SupporterTotalSpending { get; set; }
+
         public override void UpdateCache(IServiceProvider services)
         {
             base.UpdateCache(services);
 
-            DiscordId = DiscordConnection?.Id;
+            DiscordId              = DiscordConnection?.Id;
+            SupporterEndTime       = SupporterInfo?.EndTime;
+            SupporterTotalSpending = SupporterInfo?.TotalSpending ?? 0;
         }
 
 #endregion

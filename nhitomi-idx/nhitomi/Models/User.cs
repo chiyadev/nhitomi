@@ -61,6 +61,11 @@ namespace nhitomi.Models
         /// Discord connection information.
         /// </summary>
         public UserDiscordConnection DiscordConnection { get; set; }
+
+        /// <summary>
+        /// Supporter information.
+        /// </summary>
+        public UserSupporterInfo SupporterInfo { get; set; }
     }
 
     public class UserBase
