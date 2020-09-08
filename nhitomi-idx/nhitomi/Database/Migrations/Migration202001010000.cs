@@ -93,7 +93,7 @@ namespace nhitomi.Database.Migrations
             [Completion(Name = "sug", PreserveSeparators = false, PreservePositionIncrements = false), DbCached]
             public CompletionField Suggest { get; set; }
 
-            public void UpdateCache(IServiceProvider services)
+            public virtual void UpdateCache(IServiceProvider services)
             {
                 // auto-set content ids
                 if (Contents != null)
@@ -186,7 +186,7 @@ namespace nhitomi.Database.Migrations
             [Keyword(Name = "it", Index = false)]
             public string[] Items { get; set; }
 
-            public void UpdateCache(IServiceProvider services) { }
+            public virtual void UpdateCache(IServiceProvider services) { }
         }
 
         public class DbImageNote
@@ -242,7 +242,7 @@ namespace nhitomi.Database.Migrations
             [Keyword(Name = "d", Index = false)]
             public string Data { get; set; }
 
-            public void UpdateCache(IServiceProvider services) { }
+            public virtual void UpdateCache(IServiceProvider services) { }
         }
 
         public class DbUser : IDbObject
@@ -288,12 +288,42 @@ namespace nhitomi.Database.Migrations
             [Keyword(Name = "cdi", DocValues = false), DbCached]
             public ulong? DiscordId { get; set; }
 
-            public void UpdateCache(IServiceProvider services)
+            public virtual void UpdateCache(IServiceProvider services)
             {
                 DiscordId = DiscordConnection?.Id;
             }
 
 #endregion
+        }
+
+        public class DbUserRestriction
+        {
+            [Date(Name = "s")]
+            public DateTime StartTime { get; set; }
+
+            [Date(Name = "e")]
+            public DateTime? EndTime { get; set; }
+
+            [Keyword(Name = "m", DocValues = false)]
+            public string ModeratorId { get; set; }
+
+            [Text(Name = "r")]
+            public string Reason { get; set; }
+        }
+
+        public class DbUserDiscordConnection
+        {
+            [Keyword(Name = "xi", DocValues = false)]
+            public ulong Id { get; set; }
+
+            [Keyword(Name = "u", DocValues = false)]
+            public string Username { get; set; }
+
+            [Keyword(Name = "d", DocValues = false)]
+            public int Discriminator { get; set; }
+
+            [Keyword(Name = "e", DocValues = false)]
+            public string Email { get; set; }
         }
 
         public class DbVote : IDbObject
@@ -313,7 +343,7 @@ namespace nhitomi.Database.Migrations
             [Keyword(Name = "e", DocValues = false)]
             public string TargetId { get; set; }
 
-            public void UpdateCache(IServiceProvider services) { }
+            public virtual void UpdateCache(IServiceProvider services) { }
         }
     }
 }
