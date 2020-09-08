@@ -13,7 +13,7 @@ export const Checkout = () => {
   const duration = Math.floor(amount / monthPrice)
 
   return (
-    <div className='max-w-sm mx-auto p-4 space-y-4'>
+    <div className='max-w-xs mx-auto p-4 space-y-4'>
       <CheckoutButton duration={duration} />
 
       <div className='space-y-1'>
@@ -41,7 +41,7 @@ const CheckoutButton = ({ duration }: { duration: number }) => {
 
   return (
     <div
-      className='mx-auto w-64 h-32 bg-black rounded-lg relative overflow-hidden cursor-pointer'
+      className='h-32 bg-black rounded-lg relative overflow-hidden cursor-pointer'
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}>
 
