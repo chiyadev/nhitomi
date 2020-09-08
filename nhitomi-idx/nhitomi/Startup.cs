@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -29,6 +30,7 @@ using nhitomi.Models;
 using nhitomi.Scrapers;
 using nhitomi.Storage;
 using Prometheus;
+using Stripe;
 using Swashbuckle.AspNetCore.ReDoc;
 
 namespace nhitomi
@@ -264,6 +266,16 @@ namespace nhitomi
             services.AddInjectableHostedService<IScraper, nhitomiDummyBookScraper>()
                     .AddInjectableHostedService<IScraper, nhentaiScraper>()
                     .AddInjectableHostedService<IScraper, HitomiScraper>();
+
+            // stripe
+            services.Configure<StripeOptions>(_configuration.GetSection("Stripe"))
+                    .AddSingleton<IStripeClient, StripeClient>(s =>
+                     {
+                         var options = s.GetService<IOptionsMonitor<StripeOptions>>().CurrentValue;
+
+                         return new StripeClient(options.ApiKey, options.ClientId,
+                             new SystemNetHttpClient(s.GetService<IHttpClientFactory>().CreateClient(nameof(StripeClient))));
+                     });
 
             // other
             services.AddSingleton<StartupInitializer>()
