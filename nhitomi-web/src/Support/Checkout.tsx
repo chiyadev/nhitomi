@@ -71,7 +71,7 @@ export const Checkout = ({ supporterPrice, apiKey }: PrefetchResult) => {
 
         <ul className='list-disc list-inside text-xs'>
           <li>nhitomi supporter is a non-recurring payment.</li>
-          <li>If you are already a supporter, your supporter duration will be extended.</li>
+          <li>If you are already a supporter, your supporter period will be extended.</li>
         </ul>
       </div>
     </Disableable>
@@ -79,6 +79,8 @@ export const Checkout = ({ supporterPrice, apiKey }: PrefetchResult) => {
 }
 
 const CheckoutButton = ({ duration, loading, submit }: { duration: number, loading: boolean, submit: () => void }) => {
+  const { info } = useClientInfo()
+  const supporter = info.authenticated && info.user.isSupporter
   const [hover, setHover] = useState(false)
 
   const imageStyle = useSpring({
@@ -98,7 +100,7 @@ const CheckoutButton = ({ duration, loading, submit }: { duration: number, loadi
 
   return (
     <div
-      className='h-32 bg-black rounded-lg relative overflow-hidden cursor-pointer shadow-lg'
+      className='h-32 bg-black rounded-lg relative overflow-hidden cursor-pointer shadow-lg border border-pink'
       onClick={submit}
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}>
@@ -115,7 +117,7 @@ const CheckoutButton = ({ duration, loading, submit }: { duration: number, loadi
             <FormattedMessage id='pages.support.buy' />
           </div>
           <div className='text-xs'>
-            <FormattedMessage id='pages.support.duration' values={{ duration }} />
+            <FormattedMessage id={supporter ? 'pages.support.duration_supporter' : 'pages.support.duration'} values={{ duration }} />
           </div>
         </animated.div>
       </div>
