@@ -109,7 +109,7 @@ const CheckoutButton = ({ duration, loading, submit }: { duration: number, loadi
         style={imageStyle}
         alt='buttonbg'
         src='/assets/images/megumi_button_bg.jpg'
-        className={cx('absolute w-full object-cover', css`left: 50%; top: 50%;`)} />
+        className={cx('absolute w-full object-cover select-none pointer-events-none', css`left: 50%; top: 50%;`)} />
 
       <div className='absolute transform-center w-full text-center'>
         <animated.div style={textStyle}>

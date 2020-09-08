@@ -27,6 +27,7 @@ import { NotFound } from './NotFound'
 import { MaintenanceHeader } from './MaintenanceHeader'
 import { pageview } from 'react-ga'
 import { Support } from './Support'
+import { Pending as SupportPending } from './Support/Pending'
 
 export const App = () => {
   return (
@@ -78,7 +79,9 @@ const Routing = () => {
     <Switch location={{ pathname: path, search: '', hash: '', state: undefined }}>
       <Route path='/' exact><Redirect to='/books' /></Route>
       <Route path='/about' exact component={About} />
+
       <Route path='/support' exact component={Support} />
+      <Route path='/support/pending' exact component={SupportPending} />
 
       <Route path='/auth' exact component={Authentication} />
       <Route path='/oauth/:service' exact render={({ match: { params: { service } } }) => <OAuthCallback service={service} />} />

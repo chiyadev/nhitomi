@@ -69,7 +69,7 @@ namespace nhitomi.Controllers
                 Mode               = "payment",
                 PaymentMethodTypes = new List<string> { "card" },
 
-                SuccessUrl = _link.GetWebLink("/support?checkout=success"),
+                SuccessUrl = _link.GetWebLink("/support/pending"),
                 CancelUrl  = _link.GetWebLink("/support?checkout=canceled"),
 
                 ClientReferenceId = user.Id,
