@@ -15,7 +15,9 @@
     "support": {
       "title": "Support",
       "subtitle": "{nhitomi} needs your help",
-      "megumi": "Natsu Megumi"
+      "megumi": "Natsu Megumi",
+      "buy": "Support nhitomi!",
+      "duration": "Become a supporter for {duration, plural, one {# month} other {# months}}"
     },
     "authentication": {
       "title": "Log in",

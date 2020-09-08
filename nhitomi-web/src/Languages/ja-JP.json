@@ -15,7 +15,9 @@
     "support": {
       "title": "サポート",
       "subtitle": "{nhitomi}を支援してください",
-      "megumi": "奈津恵（なつ めぐみ）"
+      "megumi": "奈津恵（なつ めぐみ）",
+      "buy": "nhitomiを支援する！",
+      "duration": "{duration}ヶ月間サポーターになります"
     },
     "authentication": {
       "title": "ログイン",
