@@ -157,6 +157,6 @@ const Content = ({ info }: PrefetchResult) => {
       </ul>
     </div>
 
-    <div>Thank you for visiting! <span className='text-gray-darker'>- chiya.dev 2018-2020</span></div>
+    <div>Thank you for visiting! <span className='text-gray-darker'>— chiya.dev 2018-2020</span></div>
   </>
 }
