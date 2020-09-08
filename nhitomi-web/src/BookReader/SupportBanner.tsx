@@ -1,7 +1,7 @@
 import { Book, BookContent } from 'nhitomi-api'
 import React, { useEffect, useState, useRef } from 'react'
 import { useAsync } from 'react-use'
-import { useClient } from '../ClientManager'
+import { useClient, useClientInfo } from '../ClientManager'
 import { useSpring, animated } from 'react-spring'
 import { HeartFilled } from '@ant-design/icons'
 import { cx } from 'emotion'
@@ -12,6 +12,8 @@ import { SupportDescription } from '../Support/MainCard'
 
 export const SupportBanner = ({ book, content }: { book: Book, content: BookContent }) => {
   const client = useClient()
+  const { info } = useClientInfo()
+  const supporter = info.authenticated && info.user.isSupporter
 
   const { value: thumb } = useAsync(async () => {
     const blob = await client.book.getBookImage({ id: book.id, contentId: content.id, index: 0 })
@@ -26,7 +28,7 @@ export const SupportBanner = ({ book, content }: { book: Book, content: BookCont
     opacity: thumb ? 1 : 0
   })
 
-  if (!thumb)
+  if (!thumb || supporter)
     return null
 
   return (
