@@ -74,7 +74,6 @@ namespace nhitomi.Controllers
 
                 ClientReferenceId = user.Id,
                 CustomerEmail     = user.Email,
-                Locale            = user.Language.ToString().Split('-')[0],
 
                 LineItems = new List<SessionLineItemOptions>
                 {
@@ -87,7 +86,7 @@ namespace nhitomi.Controllers
                             ProductData = new SessionLineItemPriceDataProductDataOptions
                             {
                                 Name        = "nhitomi supporter",
-                                Description = $"{duration} months of nhitomi supporter.",
+                                Description = $"{duration} {(duration == 1 ? "month" : "months")} of nhitomi supporter.",
                                 Images      = new List<string> { _link.GetWebLink("/assets/logo-192x192.png") }
                             }
                         },
