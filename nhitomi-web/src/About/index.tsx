@@ -17,14 +17,14 @@ export type PrefetchResult = { info: ClientInfo }
 export type PrefetchOptions = {}
 
 export const useAboutPrefetch: PrefetchGenerator<PrefetchResult, PrefetchOptions> = () => {
-  const { info } = useClientInfo()
+  const { fetchInfo } = useClientInfo()
 
   return {
     destination: {
       path: '/about'
     },
 
-    fetch: async () => ({ info })
+    fetch: async () => ({ info: await fetchInfo() })
   }
 }
 
