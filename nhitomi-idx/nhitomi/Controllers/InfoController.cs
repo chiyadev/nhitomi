@@ -18,16 +18,18 @@ namespace nhitomi.Controllers
     public class InfoController : nhitomiControllerBase
     {
         readonly IServiceProvider _services;
-        readonly IOptionsMonitor<ServerOptions> _options;
+        readonly IOptionsMonitor<ServerOptions> _serverOptions;
+        readonly IOptionsMonitor<StripeServiceOptions> _stripeOptions;
         readonly ILinkGenerator _link;
         readonly IDiscordOAuthHandler _discordOAuth;
         readonly IScraperService _scrapers;
         readonly RecaptchaOptions _recaptchaOptions;
 
-        public InfoController(IServiceProvider services, IOptionsMonitor<ServerOptions> options, ILinkGenerator link, IOptionsSnapshot<RecaptchaOptions> recaptchaOptions, IDiscordOAuthHandler discordOAuth, IScraperService scrapers)
+        public InfoController(IServiceProvider services, IOptionsMonitor<ServerOptions> serverOptions, IOptionsMonitor<StripeServiceOptions> stripeOptions, ILinkGenerator link, IOptionsSnapshot<RecaptchaOptions> recaptchaOptions, IDiscordOAuthHandler discordOAuth, IScraperService scrapers)
         {
             _services         = services;
-            _options          = options;
+            _serverOptions    = serverOptions;
+            _stripeOptions    = stripeOptions;
             _link             = link;
             _discordOAuth     = discordOAuth;
             _scrapers         = scrapers;
@@ -103,8 +105,8 @@ namespace nhitomi.Controllers
                 GalleryRegexStrict = s.UrlRegex?.Strict.ToString()
             }),
 
-            Maintenance = _options.CurrentValue.BlockDatabaseWrites,
-            GTag        = _options.CurrentValue.GTag
+            Maintenance = _serverOptions.CurrentValue.BlockDatabaseWrites,
+            GTag        = _serverOptions.CurrentValue.GTag
         };
 
         public class GetInfoAuthenticatedResponse : GetInfoResponse
@@ -124,5 +126,30 @@ namespace nhitomi.Controllers
         {
             User = ProcessUser(User.Convert(_services))
         });
+
+        /// <summary>
+        /// Retrieves Stripe API information.
+        /// </summary>
+        public class GetStripeInfoResponse
+        {
+            /// <summary>
+            /// Stripe API key.
+            /// </summary>
+            [Required]
+            public string ApiKey { get; set; }
+
+            /// <summary>
+            /// Price in USD per month of supporter.
+            /// </summary>
+            [Required]
+            public double SupporterPrice { get; set; }
+        }
+
+        [HttpGet("info/stripe", Name = "getStripeInfo"), RequireUser]
+        public GetStripeInfoResponse GetStripeInfo() => new GetStripeInfoResponse
+        {
+            ApiKey         = _stripeOptions.CurrentValue.PublicKey,
+            SupporterPrice = _stripeOptions.CurrentValue.SupporterPrice
+        };
     }
 }

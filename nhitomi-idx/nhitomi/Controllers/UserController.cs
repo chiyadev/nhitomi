@@ -30,14 +30,16 @@ namespace nhitomi.Controllers
         readonly IDiscordOAuthHandler _discord;
         readonly IUserService _users;
         readonly ICollectionService _collections;
+        readonly IStripeService _stripe;
 
-        public UserController(IServiceProvider services, IAuthService auth, IDiscordOAuthHandler discord, IUserService users, ICollectionService collections)
+        public UserController(IServiceProvider services, IAuthService auth, IDiscordOAuthHandler discord, IUserService users, ICollectionService collections, IStripeService stripe)
         {
             _services    = services;
             _auth        = auth;
             _discord     = discord;
             _users       = users;
             _collections = collections;
+            _stripe      = stripe;
         }
 
         public class AuthenticateDiscordRequest
@@ -222,6 +224,35 @@ namespace nhitomi.Controllers
                 return ResultUtilities.NotFound(id);
 
             return coll.Convert(_services);
+        }
+
+        public class CreateSupporterCheckoutRequest
+        {
+            /// <summary>
+            /// Payment amount in USD.
+            /// </summary>
+            [Required, Range(1, double.PositiveInfinity)]
+            public double Amount { get; set; }
+        }
+
+        public class CreateSupporterCheckoutResponse
+        {
+            /// <summary>
+            /// Checkout session ID.
+            /// </summary>
+            [Required]
+            public string SessionId { get; set; }
+        }
+
+        [HttpPost("{id}/supporter", Name = "createUserSupporterCheckout"), RequireUser, RequireDbWrite] // RequireDbWrite to prevent supporter purchase during maintenance
+        public async Task<CreateSupporterCheckoutResponse> CreateSupporterCheckoutAsync(CreateSupporterCheckoutRequest request)
+        {
+            var session = await _stripe.CreateSupporterCheckoutAsync(request.Amount);
+
+            return new CreateSupporterCheckoutResponse
+            {
+                SessionId = session.Id
+            };
         }
     }
 }
