@@ -12,6 +12,11 @@
       "title": "About",
       "subtitle": "Read about nhitomi's information."
     },
+    "support": {
+      "title": "Support",
+      "subtitle": "{nhitomi} needs your help",
+      "megumi": "Natsu Megumi"
+    },
     "authentication": {
       "title": "Log in",
       "tagline": "Open-source doujinshi aggregator",
@@ -44,9 +49,6 @@
         "viewportBound": "Pages are {value, select, true {bound} false {unbound}} to window height.",
         "leftToRight": "Pages are ordered {value, select, true {left to right} false {right to left}}.",
         "singleCover": "Cover page is displayed {value, select, true {separately} false {with other pages}}"
-      },
-      "supportBanner": {
-        "text": "{nhitomi} needs your help"
       }
     },
     "settings": {

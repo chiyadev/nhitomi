@@ -12,6 +12,11 @@
       "title": "情報",
       "subtitle": "nhitomiについて"
     },
+    "support": {
+      "title": "サポート",
+      "subtitle": "{nhitomi}を支援してください",
+      "megumi": "奈津恵（なつ めぐみ）"
+    },
     "authentication": {
       "title": "ログイン",
       "tagline": "オープンソース同人誌まとめサイト",
@@ -44,9 +49,6 @@
         "viewportBound": "ページを画面サイズに固定{value, select, true {します} false {しません}}。",
         "leftToRight": "ページを{value, select, true {左から右へ} false {右から左へ}}並べます。",
         "singleCover": "最初のページを別に表示{value, select, true {します} false {しません}}。"
-      },
-      "supportBanner": {
-        "text": "{nhitomi}を支援してください"
       }
     },
     "settings": {

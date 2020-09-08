@@ -6,6 +6,9 @@ import { useSpring, animated } from 'react-spring'
 import { HeartFilled } from '@ant-design/icons'
 import { cx } from 'emotion'
 import { FormattedMessage } from 'react-intl'
+import { SupportLink } from '../Support'
+import { usePageState } from '../state'
+import { SupportDescription } from '../Support/MainCard'
 
 export const SupportBanner = ({ book, content }: { book: Book, content: BookContent }) => {
   const client = useClient()
@@ -23,10 +26,6 @@ export const SupportBanner = ({ book, content }: { book: Book, content: BookCont
     opacity: thumb ? 1 : 0
   })
 
-  const shouldShow: boolean = false // todo: support page not implemented yet
-  if (!shouldShow)
-    return null
-
   if (!thumb)
     return null
 
@@ -39,7 +38,7 @@ export const SupportBanner = ({ book, content }: { book: Book, content: BookCont
 
 const Inner = ({ thumb }: { thumb: string }) => {
   const [hover, setHover] = useState(false)
-  const [expanded, setExpanded] = useState(false)
+  const [expanded, setExpanded] = usePageState('bannerExpanded', false)
 
   const widgetStyle = useSpring({
     backgroundColor: '#fff', // not using bg-white as it's not actually fully white
@@ -47,9 +46,13 @@ const Inner = ({ thumb }: { thumb: string }) => {
     height: expanded ? 260 : 80
   })
 
+  const [headingVisible, setHeadingVisible] = useState(hover || expanded)
   const headingStyle = useSpring({
     opacity: hover || expanded ? 1 : 0,
-    marginLeft: hover || expanded ? 0 : -5
+    marginLeft: hover || expanded ? 0 : -5,
+    onChange: {
+      opacity: v => setHeadingVisible(v > 0)
+    }
   })
 
   const heartStyle = useSpring({
@@ -82,8 +85,8 @@ const Inner = ({ thumb }: { thumb: string }) => {
         <div className='flex-1 my-auto pr-2'>
           <div>
             <animated.div className='inline-block' style={heartStyle}><HeartFilled className='text-pink text-4xl' /></animated.div>
-            <animated.span className={cx('text-base', { 'hidden': !(hover || expanded) })} style={headingStyle}>
-              <FormattedMessage id='pages.bookReader.supportBanner.text' values={{
+            <animated.span className={cx('text-base', { 'hidden': !headingVisible })} style={headingStyle}>
+              <FormattedMessage id='pages.support.subtitle' values={{
                 nhitomi: (
                   <span className='ml-2 text-lg font-bold'>nhitomi</span>
                 )
@@ -93,14 +96,10 @@ const Inner = ({ thumb }: { thumb: string }) => {
 
           <animated.div style={descriptionStyle} className='text-xs text-gray-darker'>
             <div ref={descriptionRef} className='space-y-4'>
-              <div className='space-y-2'>
-                <div>nhitomi is a free service, but serving thousands of visitors everyday and maintaining our infrastructure is costly.</div>
-                <div>We are an open-source project and do not rely on any advertisements.</div>
-                <div>Please help us keep going.</div>
-              </div>
+              <SupportDescription />
 
               <div className='space-x-2'>
-                <span className='text-blue'>Support nhitomi</span>
+                <SupportLink className='text-blue'>Support nhitomi!</SupportLink>
                 <span className='cursor-pointer' onClick={e => { setHover(false); setExpanded(false); e.stopPropagation() }}>No thanks</span>
               </div>
             </div>

@@ -1,6 +1,6 @@
 import React, { ReactNode, useMemo } from 'react'
 import { cx, css } from 'emotion'
-import { ReadFilled, FolderOutlined, InfoCircleOutlined, HeartOutlined, SettingOutlined, BookOutlined, SettingFilled, FolderOpenFilled, InfoCircleFilled } from '@ant-design/icons'
+import { ReadFilled, FolderOutlined, InfoCircleOutlined, HeartOutlined, SettingOutlined, BookOutlined, SettingFilled, FolderOpenFilled, InfoCircleFilled, HeartFilled } from '@ant-design/icons'
 import { RoundIconButton } from '../Components/RoundIconButton'
 import { Tooltip } from '../Components/Tooltip'
 import { FormattedMessage } from 'react-intl'
@@ -12,6 +12,7 @@ import { SelfCollectionListingLink } from '../CollectionListing'
 import { useClientInfo } from '../ClientManager'
 import { Disableable } from '../Components/Disableable'
 import { AboutLink } from '../About'
+import { SupportLink } from '../Support'
 
 export const StripWidth = 64
 
@@ -84,6 +85,17 @@ const Buttons = () => {
           </Switch>
         </RoundIconButton>
       </SettingsLink>
+    </Tooltip>
+
+    <Tooltip overlay={<FormattedMessage id='pages.support.title' />} placement='right'>
+      <SupportLink>
+        <RoundIconButton>
+          <Switch>
+            <Route path='/support'><HeartFilled className='text-pink' /></Route>
+            <Route><HeartOutlined /></Route>
+          </Switch>
+        </RoundIconButton>
+      </SupportLink>
     </Tooltip>
 
     <Tooltip overlay={<FormattedMessage id='pages.about.title' />} placement='right'>
