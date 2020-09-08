@@ -65,7 +65,17 @@ export const Server = () => {
             <div key={key} className={cx({
               'rounded-sm bg-gray-darkest font-bold': key.toLowerCase() === updatingKey.toLowerCase()
             })}>
-              <code className='text-xs text-gray-darker cursor-pointer' onClick={() => { setUpdatingKey(key); setUpdatingValue(value); updatingRef.current?.scrollIntoView() }}>{key}: </code>
+              <code className='text-xs text-gray-darker cursor-pointer' onClick={() => {
+                setUpdatingKey(key)
+                setUpdatingValue(value)
+
+                updatingRef.current?.scrollIntoView({
+                  block: 'nearest',
+                  inline: 'nearest'
+                })
+              }}>
+                <span>{key}: </span>
+              </code>
 
               <code className={cx('text-xs', {
                 'text-blue': !isNaN(parseInt(value)),
