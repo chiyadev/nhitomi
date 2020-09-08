@@ -87,7 +87,7 @@ namespace nhitomi.Controllers
                             {
                                 Name        = "nhitomi supporter",
                                 Description = $"{duration} {(duration == 1 ? "month" : "months")} of nhitomi supporter.",
-                                Images      = new List<string> { _link.GetWebLink("/assets/logo-192x192.png") }
+                                Images      = new List<string> { _link.GetWebLink("/logo-192x192.png") }
                             }
                         },
                         Quantity = 1
