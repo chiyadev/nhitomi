@@ -14,8 +14,8 @@ namespace nhitomi.Database
         [Key("Te"), Date(Name = "Te")]
         public DateTime? EndTime { get; set; }
 
-        [Key("mo"), Number(Name = "mo")]
-        public int TotalMonths { get; set; }
+        [Key("da"), Number(Name = "da")]
+        public double TotalDays { get; set; }
 
         [Key("sp"), Number(Name = "sp")]
         public double TotalSpending { get; set; }
@@ -26,7 +26,7 @@ namespace nhitomi.Database
 
             model.StartTime     = StartTime;
             model.EndTime       = EndTime;
-            model.TotalMonths   = TotalMonths;
+            model.TotalDays     = TotalDays;
             model.TotalSpending = TotalSpending;
         }
 
@@ -36,7 +36,7 @@ namespace nhitomi.Database
 
             StartTime     = model.StartTime;
             EndTime       = model.EndTime;
-            TotalMonths   = model.TotalMonths;
+            TotalDays     = model.TotalDays;
             TotalSpending = model.TotalSpending;
         }
     }

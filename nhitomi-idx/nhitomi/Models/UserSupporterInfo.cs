@@ -16,10 +16,10 @@ namespace nhitomi.Models
         public DateTime? EndTime { get; set; }
 
         /// <summary>
-        /// Total number of months this user has been a supporter for.
+        /// Total number of days this user has been a supporter for.
         /// </summary>
         [Required]
-        public int TotalMonths { get; set; }
+        public double TotalDays { get; set; }
 
         /// <summary>
         /// Total amount of money in USD spent by this user for supporter.
