@@ -1,4 +1,4 @@
-const { override, addWebpackAlias } = require('customize-cra')
+const { override, addWebpackAlias, setWebpackOptimizationSplitChunks } = require('customize-cra')
 const { execSync } = require('child_process')
 
 // compile Tailwind
@@ -9,5 +9,17 @@ module.exports = override(
   addWebpackAlias({
     'react': 'preact/compat',
     'react-dom': 'preact/compat'
+  }),
+
+  // https://medium.com/@poshakajay/heres-how-i-reduced-my-bundle-size-by-90-2e14c8a11c11
+  setWebpackOptimizationSplitChunks({
+    chunks: 'all',
+    cacheGroups: {
+      commons: {
+        test: /[\\/]node_modules[\\/]/,
+        name: 'vendors',
+        chunks: 'all'
+      }
+    }
   })
 )
