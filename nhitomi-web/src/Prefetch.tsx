@@ -10,13 +10,38 @@ import { useClientInfo } from './ClientManager'
 import { useAuthenticationPrefetch } from './Authentication'
 import { timing } from 'react-ga'
 
-function beginScrollTo(scroll: number, retry = 0) {
+// in the past we used usePageState to store page-specific scroll positions
+// this was extremely bad in terms of performance, so we use sessionStorage instead, with history location key suffix to identify the page
+function getRetainedScroll(key: string) {
+  let value = parseInt(sessionStorage.getItem(`scroll_${key}`) || '')
+
+  // if the key doesn't exist, it is likely that the user refreshed current page (refreshing changes the page key without an event)
+  // use non page-specific retained scroll position
+  if (isNaN(value))
+    value = parseInt(sessionStorage.getItem('scroll') || '')
+
+  return value || 0
+}
+
+function setRetainedScroll(key: string, value?: number) {
+  if (typeof value === 'undefined') {
+    sessionStorage.removeItem(`scroll_${key}`)
+  }
+  else {
+    sessionStorage.setItem('scroll', value.toString())
+    sessionStorage.setItem(`scroll_${key}`, value.toString())
+  }
+}
+
+function beginRetainedScrollTo(key: string, top: number, retry = 0) {
+  setRetainedScroll(key, top)
+
   requestAnimationFrame(() => {
-    window.scrollTo({ top: scroll })
+    window.scrollTo({ top })
 
     // components may not render immediately after prefetch
     if (retry < 5)
-      beginScrollTo(scroll, retry + 1)
+      beginRetainedScrollTo(key, top, retry + 1)
   })
 }
 
@@ -68,7 +93,6 @@ export function usePrefetch<T, U extends {}>(generator: PrefetchGenerator<T, U>,
         ...location,
         state: {
           ...(mode === 'push' ? {} : location.state), // clear previous states if pushing
-          scroll: { value: restoreScroll ? 0 : location.state.scroll?.value, version: Math.random() },
           fetch: { value: fetched, version: Math.random() }
         }
       })
@@ -79,8 +103,9 @@ export function usePrefetch<T, U extends {}>(generator: PrefetchGenerator<T, U>,
         value: performance.now() - startTime
       })
 
+      // scroll to top after pushing
       if (restoreScroll)
-        beginScrollTo(0)
+        beginRetainedScrollTo(navigator.history.location.key!, 0)
 
       await done?.(fetched)
 
@@ -155,14 +180,15 @@ export function usePostfetch<T, U extends {}>(generator: PrefetchGenerator<T, U>
   const { notifyError } = useNotify()
   const navigator = useNavigator()
 
-  const [result, setResult] = usePageState<T>('fetch')
-  const [scroll] = usePageState<number>('scroll')
-
-  const shouldScroll = useRef(true)
-
   // generator can call hooks so memoize it
   const { destination, showProgress = true, restoreScroll = true, fetch, done } = useRef(generator).current(({ mode: 'postfetch', ...options }))
   const { requireAuth } = options
+
+  const [result, setResult] = usePageState<T>('fetch')
+
+  // prevents any scrolls after loading the page for the first time
+  const scroll = getRetainedScroll(navigator.history.location.key!)
+  const shouldScroll = useRef(restoreScroll)
 
   const [, navigateAuth] = usePrefetch(useAuthenticationPrefetch, { redirect: destination })
 
@@ -175,8 +201,9 @@ export function usePostfetch<T, U extends {}>(generator: PrefetchGenerator<T, U>
 
     // display immediately if already loaded
     if (result) {
-      if (shouldScroll.current && restoreScroll && typeof scroll === 'number') {
-        beginScrollTo(scroll)
+      // restore scroll after popping
+      if (shouldScroll.current) {
+        beginRetainedScrollTo(navigator.history.location.key!, scroll)
         shouldScroll.current = false
       }
 
@@ -202,7 +229,6 @@ export function usePostfetch<T, U extends {}>(generator: PrefetchGenerator<T, U>
         ...location,
         state: {
           ...location.state,
-          scroll: { value: restoreScroll && typeof scroll === 'number' ? scroll : location.state.scroll?.value, version: Math.random() },
           fetch: { value: fetched, version: Math.random() }
         }
       })
@@ -213,8 +239,9 @@ export function usePostfetch<T, U extends {}>(generator: PrefetchGenerator<T, U>
         value: performance.now() - startTime
       })
 
-      if (restoreScroll && typeof scroll === 'number') {
-        beginScrollTo(scroll)
+      // restore scroll after fetching
+      if (restoreScroll) {
+        beginRetainedScrollTo(navigator.history.location.key!, scroll)
         shouldScroll.current = false
       }
 
@@ -279,21 +306,41 @@ export const BackLink = ({ children, className }: { children?: ReactNode, classN
   )
 }
 
-/** Stores window scroll position in the page state for retainment between navigations. */
+/** Stores window scroll position to be retained between navigations. */
 export const PrefetchScrollPreserver = () => {
-  const [, setScroll] = usePageState<number>('scroll')
+  const navigator = useNavigator()
+
+  useLayoutEffect(() => {
+    let lastKey: string | undefined
+
+    const handler = () => {
+      const currentKey = navigator.history.location.key
+
+      // don't remember scroll positions for replaced pages
+      if (lastKey && lastKey !== currentKey && navigator.history.action === 'REPLACE') {
+        const current = getRetainedScroll(lastKey)
+        setRetainedScroll(lastKey, undefined)
+        setRetainedScroll(currentKey!, current)
+      }
+
+      lastKey = currentKey
+    }
+
+    navigator.events.on('navigated', handler)
+    return () => { navigator.events.off('navigated', handler) }
+  }, [navigator])
 
   const flush = useRef<number>()
 
   useLayoutEffect(() => {
     const handler = () => {
       clearTimeout(flush.current)
-      flush.current = window.setTimeout(() => setScroll(window.scrollY), 100)
+      flush.current = window.setTimeout(() => setRetainedScroll(navigator.history.location.key!, window.scrollY), 20)
     }
 
     window.addEventListener('scroll', handler)
     return () => window.removeEventListener('scroll', handler)
-  }, [setScroll])
+  }, [navigator])
 
   return null
 }

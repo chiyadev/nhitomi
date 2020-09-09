@@ -123,8 +123,8 @@ catch {
 }
 
 if (refreshed) {
-  // clear all stale states except scroll position on refresh
-  Navigator.navigate('replace', { state: s => ({ scroll: s.scroll }) })
+  // clear all stale states on refresh
+  Navigator.navigate('replace', { state: {} })
 }
 
 export function useNavigator() {
