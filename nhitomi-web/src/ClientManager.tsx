@@ -175,7 +175,7 @@ function getCachedInfo(): ClientInfo | undefined {
     const cached: CachedClientInfo = JSONex.parse(localStorage.getItem(cacheKey) || '')
     const now = Date.now()
 
-    if (now - cached.time < 1000 * 60 * 30) // cache valid for 30 minutes
+    if (now - cached.time < 1000 * 60 * 60) // cache valid for a day
       return cached.value
   }
   catch {
