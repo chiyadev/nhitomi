@@ -40,7 +40,7 @@ export function useLocalized(id: string, values: any) {
 
 export const LocaleManager = ({ children }: { children?: ReactNode }) => {
   const client = useClient()
-  const { setInfo, fetchInfo } = useClientInfo()
+  const { info, setInfo, fetchInfo } = useClientInfo()
   const [messages, setMessages] = useState<Record<string, string>>()
   const { begin, end } = useProgress()
 
@@ -88,7 +88,10 @@ export const LocaleManager = ({ children }: { children?: ReactNode }) => {
     }
 
     try {
-      const messages = await loadLanguage(language)
+      let messages = getLanguageCached(language, info.version.shortHash)
+
+      if (!messages)
+        setLanguageCached(language, info.version.shortHash, messages = await loadLanguage(language))
 
       if (loadId.current === id) {
         setMessages(messages)
@@ -128,6 +131,32 @@ async function loadLanguage(language: LanguageType): Promise<Record<string, stri
   }
 
   return flattenObject(data)
+}
+
+type LocalizationCache = {
+  value: Record<string, string>
+  version: string
+}
+
+function getLanguageCached(language: LanguageType, version: string): Record<string, string> | undefined {
+  try {
+    const cache: Partial<LocalizationCache> = JSON.parse(localStorage.getItem(`lang_cache_${language}`) || '')
+
+    if (typeof cache.value === 'object' && cache.version === version)
+      return cache.value
+  }
+  catch{
+    // ignored
+  }
+}
+
+function setLanguageCached(language: LanguageType, version: string, messages: Record<string, string>) {
+  const cache: LocalizationCache = {
+    value: messages,
+    version
+  }
+
+  localStorage.setItem(`lang_cache_${language}`, JSON.stringify(cache))
 }
 
 function mergeObjects(a: { [k: string]: any }, b: { [k: string]: any }) {
