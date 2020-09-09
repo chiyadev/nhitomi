@@ -1,40 +1,41 @@
-import React, { useMemo, useLayoutEffect } from 'react'
-import { Sidebar } from './Sidebar'
-import { LayoutManager } from './LayoutManager'
-import { ProgressManager } from './ProgressManager'
-import { PrefetchScrollPreserver } from './Prefetch'
-import { ClientManager } from './ClientManager'
-import { LocaleManager } from './LocaleManager'
-import { NotificationManager } from './NotificationManager'
+import React, { useMemo, useLayoutEffect, lazy, ExoticComponent } from 'react'
 import { Route, Redirect, Switch, Router } from 'react-router-dom'
-import { BookListing } from './BookListing'
-import { Settings } from './Settings'
 import { Navigator, useNavigator } from './state'
-import { AnimationSetter } from './AnimationSetter'
-import { ConfigManager } from './ConfigManager'
-import { BookReader } from './BookReader'
-import { BlurSetter } from './BlurSetter'
-import { CollectionListing } from './CollectionListing'
-import { CollectionContent } from './CollectionContent'
-import { TitleSetter } from './TitleSetter'
-import { Debug } from './Internal/Debug'
-import { Authentication } from './Authentication'
-import { OAuthCallback } from './Authentication/OAuthCallback'
-import { CollectionEdit } from './CollectionListing/Edit'
-import { Footer } from './Footer'
-import { About } from './About'
-import { NotFound } from './NotFound'
-import { MaintenanceHeader } from './MaintenanceHeader'
+import { ProgressManager } from './ProgressManager'
 import { pageview } from 'react-ga'
-import { Support } from './Support'
-import { Pending as SupportPending } from './Support/Pending'
+import { SuspenseEx } from './Components/SuspenseEx'
+
+function lazyEx<T extends { [key: string]: any }>(factory: () => Promise<T>, component: keyof T) {
+  return lazy(() => factory().then(module => ({ default: module[component] })))
+}
+
+function WrapSuspense<T>(Component: ExoticComponent<T>) {
+  return (props: T) => (
+    <SuspenseEx>
+      <Component {...props} />
+    </SuspenseEx>
+  )
+}
+
+const ConfigManager = WrapSuspense(lazyEx(() => import('./ConfigManager'), 'ConfigManager'))
+const LayoutManager = WrapSuspense(lazyEx(() => import('./LayoutManager'), 'LayoutManager'))
+const ClientManager = WrapSuspense(lazyEx(() => import('./ClientManager'), 'ClientManager'))
+const LocaleManager = WrapSuspense(lazyEx(() => import('./LocaleManager'), 'LocaleManager'))
+const NotificationManager = WrapSuspense(lazyEx(() => import('./NotificationManager'), 'NotificationManager'))
+const PrefetchScrollPreserver = WrapSuspense(lazyEx(() => import('./Prefetch'), 'PrefetchScrollPreserver'))
+const AnimationSetter = WrapSuspense(lazyEx(() => import('./AnimationSetter'), 'AnimationSetter'))
+const BlurSetter = WrapSuspense(lazyEx(() => import('./BlurSetter'), 'BlurSetter'))
+const TitleSetter = WrapSuspense(lazyEx(() => import('./TitleSetter'), 'TitleSetter'))
+const Sidebar = WrapSuspense(lazyEx(() => import('./Sidebar'), 'Sidebar'))
+const MaintenanceHeader = WrapSuspense(lazyEx(() => import('./MaintenanceHeader'), 'MaintenanceHeader'))
+const Footer = WrapSuspense(lazyEx(() => import('./Footer'), 'Footer'))
 
 export const App = () => {
   return (
     <Router history={Navigator.history}>
-      <ConfigManager>
-        <LayoutManager>
-          <ProgressManager>
+      <ProgressManager>
+        <ConfigManager>
+          <LayoutManager>
             <ClientManager>
               <LocaleManager>
                 <NotificationManager>
@@ -44,30 +45,40 @@ export const App = () => {
                   <TitleSetter />
 
                   <Sidebar>
-                    <Body />
+                    <div className='flex flex-col min-h-screen'>
+                      <div className='relative w-full flex-1'>
+                        <MaintenanceHeader />
+
+                        <Routing />
+                      </div>
+                      <div className='mt-4'>
+                        <Footer />
+                      </div>
+                    </div>
                   </Sidebar>
                 </NotificationManager>
               </LocaleManager>
             </ClientManager>
-          </ProgressManager>
-        </LayoutManager>
-      </ConfigManager>
+          </LayoutManager>
+        </ConfigManager>
+      </ProgressManager>
     </Router>
   )
 }
 
-const Body = () => (
-  <div className='flex flex-col min-h-screen'>
-    <div className='relative w-full flex-1'>
-      <MaintenanceHeader />
-
-      <Routing />
-    </div>
-    <div className='mt-4'>
-      <Footer />
-    </div>
-  </div>
-)
+const About = WrapSuspense(lazyEx(() => import('./About'), 'About'))
+const Support = WrapSuspense(lazyEx(() => import('./Support'), 'Support'))
+const SupportPending = WrapSuspense(lazyEx(() => import('./Support/Pending'), 'Pending'))
+const Authentication = WrapSuspense(lazyEx(() => import('./Authentication'), 'Authentication'))
+const OAuthCallback = WrapSuspense(lazyEx(() => import('./Authentication/OAuthCallback'), 'OAuthCallback'))
+const BookListing = WrapSuspense(lazyEx(() => import('./BookListing'), 'BookListing'))
+const BookReader = WrapSuspense(lazyEx(() => import('./BookReader'), 'BookReader'))
+const CollectionContent = WrapSuspense(lazyEx(() => import('./CollectionContent'), 'CollectionContent'))
+const CollectionEdit = WrapSuspense(lazyEx(() => import('./CollectionListing/Edit'), 'CollectionEdit'))
+const CollectionListing = WrapSuspense(lazyEx(() => import('./CollectionListing'), 'CollectionListing'))
+const Settings = WrapSuspense(lazyEx(() => import('./Settings'), 'Settings'))
+const Debug = WrapSuspense(lazyEx(() => import('./Internal/Debug'), 'Debug'))
+const NotFound = WrapSuspense(lazyEx(() => import('./NotFound'), 'NotFound'))
 
 const Routing = () => {
   const { path, query, stringify, evaluate } = useNavigator()

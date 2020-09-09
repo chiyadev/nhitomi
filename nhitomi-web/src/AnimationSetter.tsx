@@ -1,6 +1,7 @@
 import { useConfig } from './ConfigManager'
 import { useLayoutEffect, useRef } from 'react'
 import { Globals } from 'react-spring'
+import { useProgress } from './ProgressManager'
 
 export const AnimationSetter = () => {
   const [mode] = useConfig('animation')
@@ -22,6 +23,13 @@ export const AnimationSetter = () => {
       }
     })
   }, [mode])
+
+  // progress maintains its own animation mode, so sync it
+  const { setMode: setProgressMode } = useProgress()
+
+  useLayoutEffect(() => {
+    setProgressMode(mode)
+  }, [mode, setProgressMode])
 
   return null
 }

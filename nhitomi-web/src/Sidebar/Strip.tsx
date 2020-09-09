@@ -13,8 +13,7 @@ import { useClientInfo } from '../ClientManager'
 import { Disableable } from '../Components/Disableable'
 import { AboutLink } from '../About'
 import { SupportLink } from '../Support'
-
-export const StripWidth = 64
+import { SidebarStripWidth } from '../LayoutManager'
 
 export const Strip = ({ children, additionalMenu }: { children?: ReactNode, additionalMenu?: ReactNode }) => {
   const { info } = useClientInfo()
@@ -25,11 +24,11 @@ export const Strip = ({ children, additionalMenu }: { children?: ReactNode, addi
   })
 
   return <>
-    <div className={css`padding-left: ${StripWidth}px;`} children={children} />
+    <div className={css`padding-left: ${SidebarStripWidth}px;`} children={children} />
 
     <animated.div
       style={style}
-      className={cx('fixed top-0 left-0 bottom-0 z-10 text-white py-4 flex flex-col items-center select-none', css`width: ${StripWidth}px;`)}>
+      className={cx('fixed top-0 left-0 bottom-0 z-10 text-white py-4 flex flex-col items-center select-none', css`width: ${SidebarStripWidth}px;`)}>
 
       {useMemo(() => (
         <Disableable disabled={!info.authenticated}>

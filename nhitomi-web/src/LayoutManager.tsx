@@ -1,14 +1,16 @@
 import React, { ReactNode, createContext, useMemo, useContext } from 'react'
 import { useWindowSize } from './hooks'
-import { StripWidth } from './Sidebar/Strip'
 
 export type ScreenType = 'sm' | 'lg'
+
+/** On large screens there is a sidebar. */
+export const SidebarStripWidth = 64
 
 /** Width after which the device will be considered large. */
 export const ScreenBreakpoint = 768
 
 export const SmallBreakpoints = [320, 480, 640]
-export const LargeBreakpoints = [640, 768, 1024, 1280].map(n => n - StripWidth)
+export const LargeBreakpoints = [640, 768, 1024, 1280].map(n => n - SidebarStripWidth)
 
 /** Layout information context. */
 const LayoutContext = createContext<{
@@ -35,7 +37,7 @@ export const LayoutManager = ({ children }: { children?: ReactNode }) => {
 
         if (width >= ScreenBreakpoint) {
           screen = 'lg'
-          width -= StripWidth // on large screens there is a sidebar
+          width -= SidebarStripWidth
           breakpoint = getBreakpoint(LargeBreakpoints, width)
         }
 
