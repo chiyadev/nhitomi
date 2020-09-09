@@ -24,8 +24,7 @@ export const useSupportPrefetch: PrefetchGenerator<PrefetchResult, PrefetchOptio
 
   return {
     destination: {
-      path: '/support',
-      query: q => ({ ...q, checkout: undefined })
+      path: '/support'
     },
 
     fetch: async () => {
