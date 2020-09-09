@@ -52,7 +52,7 @@
   },
   "scripts": {
     "start": "react-app-rewired start",
-    "build": "react-app-rewired build",
+    "build": "GENERATE_SOURCEMAP=false react-app-rewired build",
     "genclient": "node ../scripts/genclient typescript-fetch"
   },
   "eslintConfig": {
