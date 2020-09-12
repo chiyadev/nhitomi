@@ -59,6 +59,11 @@ namespace nhitomi.Database
         public Refresh RequestRefreshOption { get; set; } = Refresh.WaitFor;
 
         /// <summary>
+        /// Whether Redis caching of objects is enabled.
+        /// </summary>
+        public bool CacheEnabled { get; set; } = true;
+
+        /// <summary>
         /// Prefix to use when caching objects.
         /// </summary>
         public string CachePrefix { get; set; } = "el:";
@@ -721,7 +726,8 @@ namespace nhitomi.Database
                 SetInfo(info);
 
                 // update cache
-                await _redis.SetObjectAsync(index.CachePrefix + Id, info, index.CacheExpiry, cancellationToken: cancellationToken);
+                if (options.CacheEnabled)
+                    await _redis.SetObjectAsync(index.CachePrefix + Id, info, index.CacheExpiry, cancellationToken: cancellationToken);
 
                 return _value;
             }
@@ -759,7 +765,8 @@ namespace nhitomi.Database
                 SetInfo(info);
 
                 // update cache
-                await _redis.SetObjectAsync(index.CachePrefix + Id, info, index.CacheExpiry, cancellationToken: cancellationToken);
+                if (options.CacheEnabled)
+                    await _redis.SetObjectAsync(index.CachePrefix + Id, info, index.CacheExpiry, cancellationToken: cancellationToken);
             }
 
 #endregion
@@ -768,7 +775,8 @@ namespace nhitomi.Database
 
             public async Task<T> RefreshAsync(CancellationToken cancellationToken = default)
             {
-                var index = await _client.GetIndexAsync<T>(cancellationToken);
+                var options = _client._options.CurrentValue;
+                var index   = await _client.GetIndexAsync<T>(cancellationToken);
 
                 // set info with fresh value
                 var info = await _client.GetDirectAsync<T>(Id, cancellationToken);
@@ -776,7 +784,8 @@ namespace nhitomi.Database
                 SetInfo(info);
 
                 // update cache
-                await _redis.SetObjectAsync(index.CachePrefix + Id, info, index.CacheExpiry, cancellationToken: cancellationToken);
+                if (options.CacheEnabled)
+                    await _redis.SetObjectAsync(index.CachePrefix + Id, info, index.CacheExpiry, cancellationToken: cancellationToken);
 
                 return _value;
             }
@@ -815,18 +824,28 @@ namespace nhitomi.Database
             if (string.IsNullOrEmpty(id))
                 return Entry<T>(id);
 
-            var index = await GetIndexAsync<T>(cancellationToken);
+            var options = _options.CurrentValue;
+            var index   = await GetIndexAsync<T>(cancellationToken);
 
-            // try get from cache
-            var info = await _redis.GetObjectAsync<EntryInfo<T>>(index.CachePrefix + id, cancellationToken);
+            EntryInfo<T> info;
 
-            // get fresh value from es
-            if (info == null)
+            if (options.CacheEnabled)
+            {
+                // try get from cache
+                info = await _redis.GetObjectAsync<EntryInfo<T>>(index.CachePrefix + id, cancellationToken);
+
+                // get fresh value from es
+                if (info == null)
+                {
+                    info = await GetDirectAsync<T>(id, cancellationToken);
+
+                    // update cache
+                    await _redis.SetObjectAsync(index.CachePrefix + id, info, index.CacheExpiry, cancellationToken: cancellationToken);
+                }
+            }
+            else
             {
                 info = await GetDirectAsync<T>(id, cancellationToken);
-
-                // update cache
-                await _redis.SetObjectAsync(index.CachePrefix + id, info, index.CacheExpiry, cancellationToken: cancellationToken);
             }
 
             return new EntryWrapper<T>(this, id, info);
@@ -875,47 +894,57 @@ namespace nhitomi.Database
             if (ids.Length == 1)
                 return new[] { await GetEntryAsync<T>(ids[0], cancellationToken) };
 
-            var index = await GetIndexAsync<T>(cancellationToken);
+            var options = _options.CurrentValue;
+            var index   = await GetIndexAsync<T>(cancellationToken);
 
-            // try get from cache
-            var cacheKeys = new RedisKey[ids.Length];
+            EntryInfo<T>[] infos;
 
-            for (var i = 0; i < ids.Length; i++)
-                cacheKeys[i] = index.CachePrefix + ids[i];
-
-            var infos = await _redis.GetObjectManyAsync<EntryInfo<T>>(cacheKeys, cancellationToken);
-
-            // find missing ids (uncached entries)
-            var missingIds       = new string[ids.Length];
-            var missingCacheKeys = new RedisKey[ids.Length];
-            var missingIndexes   = new int[ids.Length];
-            var missing          = 0;
-
-            for (var i = 0; i < infos.Length; i++)
+            if (options.CacheEnabled)
             {
-                if (infos[i] == null)
-                {
-                    missingIds[missing]       = ids[i];
-                    missingCacheKeys[missing] = cacheKeys[i];
-                    missingIndexes[missing]   = i;
+                // try get from cache
+                var cacheKeys = new RedisKey[ids.Length];
 
-                    ++missing;
+                for (var i = 0; i < ids.Length; i++)
+                    cacheKeys[i] = index.CachePrefix + ids[i];
+
+                infos = await _redis.GetObjectManyAsync<EntryInfo<T>>(cacheKeys, cancellationToken);
+
+                // find missing ids (uncached entries)
+                var missingIds       = new string[ids.Length];
+                var missingCacheKeys = new RedisKey[ids.Length];
+                var missingIndexes   = new int[ids.Length];
+                var missing          = 0;
+
+                for (var i = 0; i < infos.Length; i++)
+                {
+                    if (infos[i] == null)
+                    {
+                        missingIds[missing]       = ids[i];
+                        missingCacheKeys[missing] = cacheKeys[i];
+                        missingIndexes[missing]   = i;
+
+                        ++missing;
+                    }
+                }
+
+                // get fresh values from es
+                if (missing != 0)
+                {
+                    Array.Resize(ref missingIds, missing);
+                    Array.Resize(ref missingCacheKeys, missing);
+
+                    var retrieved = await GetDirectManyAsync<T>(missingIds, cancellationToken);
+
+                    for (var i = 0; i < retrieved.Length; i++)
+                        infos[missingIndexes[i]] = retrieved[i];
+
+                    // update cache
+                    await _redis.SetObjectManyAsync(missingCacheKeys, retrieved, index.CacheExpiry, cancellationToken: cancellationToken);
                 }
             }
-
-            // get fresh values from es
-            if (missing != 0)
+            else
             {
-                Array.Resize(ref missingIds, missing);
-                Array.Resize(ref missingCacheKeys, missing);
-
-                var retrieved = await GetDirectManyAsync<T>(missingIds, cancellationToken);
-
-                for (var i = 0; i < retrieved.Length; i++)
-                    infos[missingIndexes[i]] = retrieved[i];
-
-                // update cache
-                await _redis.SetObjectManyAsync(missingCacheKeys, retrieved, index.CacheExpiry, cancellationToken: cancellationToken);
+                infos = await GetDirectManyAsync<T>(ids, cancellationToken);
             }
 
             var entries = new IDbEntry<T>[infos.Length];
@@ -1010,7 +1039,8 @@ namespace nhitomi.Database
             }
 
             // update cache
-            await _redis.SetObjectManyAsync(cacheKeys, infos, index.CacheExpiry, cancellationToken: cancellationToken);
+            if (options.CacheEnabled)
+                await _redis.SetObjectManyAsync(cacheKeys, infos, index.CacheExpiry, cancellationToken: cancellationToken);
 
             return results;
         }
@@ -1031,7 +1061,8 @@ namespace nhitomi.Database
 
             var measure = new MeasureContext();
 
-            var index = await GetIndexAsync<T>(cancellationToken);
+            var options = _options.CurrentValue;
+            var index   = await GetIndexAsync<T>(cancellationToken);
 
             // searching bypasses cache
             var response = await RequestAsync(c => c.SearchAsync<T>(q => q.Index(index.IndexName)
@@ -1047,12 +1078,15 @@ namespace nhitomi.Database
             });
 
             // update caches
-            var cacheKeys = new RedisKey[infos.Length];
+            if (options.CacheEnabled)
+            {
+                var cacheKeys = new RedisKey[infos.Length];
 
-            for (var i = 0; i < infos.Length; i++)
-                cacheKeys[i] = index.CachePrefix + infos[i].Value.Id;
+                for (var i = 0; i < infos.Length; i++)
+                    cacheKeys[i] = index.CachePrefix + infos[i].Value.Id;
 
-            await _redis.SetObjectManyAsync(cacheKeys, infos, index.CacheExpiry, cancellationToken: cancellationToken);
+                await _redis.SetObjectManyAsync(cacheKeys, infos, index.CacheExpiry, cancellationToken: cancellationToken);
+            }
 
             return new SearchResult<IDbEntry<T>>
             {
