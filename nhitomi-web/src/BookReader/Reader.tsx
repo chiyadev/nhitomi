@@ -114,8 +114,8 @@ const Page = ({ book, content, index, image: { x, y, width, height }, setImage }
   let preload: number
 
   switch (screen) {
-    case 'sm': preload = screenHeight * 3; break
-    case 'lg': preload = screenHeight; break
+    case 'sm': preload = screenHeight * 4; break
+    case 'lg': preload = screenHeight * 2; break
   }
 
   return useMemo(() => (

@@ -132,7 +132,7 @@ const Item = ({ book, width, height, className }: {
 
   switch (screen) {
     case 'sm': preload = screenHeight * 2; break
-    case 'lg': preload = 200; break
+    case 'lg': preload = 400; break
   }
 
   return useMemo(() => (

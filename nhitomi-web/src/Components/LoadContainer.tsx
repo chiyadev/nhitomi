@@ -22,7 +22,7 @@ export const LoadContainer = ({ onLoad, children, className }: { onLoad: () => P
       delayedCall
       partialVisibility
       onChange={v => v && setLoad(true)}
-      offset={{ top: -200, left: -200, bottom: -200, right: -200 }}>
+      offset={{ top: -400, left: -400, bottom: -400, right: -400 }}>
 
       <div className={cx('relative', className)}>
         {children}
