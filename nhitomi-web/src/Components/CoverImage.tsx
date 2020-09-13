@@ -7,7 +7,7 @@ import { FormattedMessage } from 'react-intl'
 import { probeImage } from '../imageUtils'
 import { getColor } from '../theme'
 import { useAsync } from 'react-use'
-import { getImageCache, setImageCache } from '../imageCache'
+import { getCachedImageRef, createCachedImageRef, returnCachedImageRef } from '../imageCache'
 
 function formatAspect(x: number) {
   return `${x * 100}%`
@@ -16,7 +16,7 @@ function formatAspect(x: number) {
 export const CoverImage = ({ cacheKey, onLoad, onLoaded, className, zoomIn, autoSize, defaultAspect, sizing = 'cover' }: {
   cacheKey?: string
   onLoad: () => Promise<Blob> | Blob
-  onLoaded?: (image: { src: string, width: number, height: number }) => void
+  onLoaded?: (image: { url: string, width: number, height: number }) => void
   className?: string
   zoomIn?: boolean
   autoSize?: boolean
@@ -29,19 +29,24 @@ export const CoverImage = ({ cacheKey, onLoad, onLoaded, className, zoomIn, auto
     const timer = window.setTimeout(() => setProlongedLoad(true), 2000)
 
     try {
-      let image = cacheKey && getImageCache(cacheKey)
+      let loaded: { url: string, width: number, height: number }
+      const cached = cacheKey && getCachedImageRef(cacheKey)
 
-      if (!image) {
+      if (cached) {
+        loaded = cached
+      }
+      else {
         const blob = await onLoad()
-
-        image = { blob, ...await probeImage(blob) }
+        const { width, height } = await probeImage(blob)
+        let url: string
 
         if (cacheKey)
-          setImageCache(cacheKey, image)
-      }
+          url = createCachedImageRef(cacheKey, { blob, width, height })
+        else
+          url = URL.createObjectURL(blob)
 
-      const { blob, width, height } = image
-      const loaded = { src: URL.createObjectURL(blob), width, height }
+        loaded = { url, width, height }
+      }
 
       onLoaded?.(loaded)
 
@@ -53,7 +58,14 @@ export const CoverImage = ({ cacheKey, onLoad, onLoaded, className, zoomIn, auto
   }, [])
 
   // revocation can run async
-  useEffect(() => loaded ? () => URL.revokeObjectURL(loaded.src) : undefined, [loaded])
+  useEffect(() => () => {
+    if (loaded) {
+      if (cacheKey)
+        returnCachedImageRef(cacheKey)
+      else
+        URL.revokeObjectURL(loaded.url)
+    }
+  }, [cacheKey, loaded])
 
   const [showImage, setShowImage] = useState(false)
   const imageStyle = useSpring({
@@ -95,7 +107,7 @@ export const CoverImage = ({ cacheKey, onLoad, onLoaded, className, zoomIn, auto
         <animated.div
           style={{
             ...imageStyle,
-            backgroundImage: loaded ? `url(${loaded.src})` : undefined, // don't use emotion for perf
+            backgroundImage: loaded ? `url(${loaded.url})` : undefined, // don't use emotion for perf
             backgroundSize: sizing,
             backgroundPosition: 'center',
             backgroundRepeat: 'no-repeat'
