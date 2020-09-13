@@ -37,6 +37,7 @@ export const Info = ({ book, content }: PrefetchResult) => {
           <CoverImage
             autoSize
             defaultAspect={7 / 5}
+            cacheKey={`books/${book.id}/contents/${content.id}/pages/0`}
             className='rounded overflow-hidden'
             onLoad={async () => await client.book.getBookImage({
               id: book.id,

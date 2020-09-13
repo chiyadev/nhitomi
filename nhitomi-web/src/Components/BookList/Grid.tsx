@@ -157,6 +157,7 @@ const ItemCover = ({ book, content }: { book: BookListItem, content?: BookConten
     ? (
       <CoverImage
         key={`${book.id}/${content.id}`}
+        cacheKey={`books/${book.id}/contents/${content.id}/pages/-1`}
         zoomIn
         className='w-full h-full rounded overflow-hidden'
         onLoad={async () => await client.book.getBookImage(getCoverRequest?.(book, content) || { id: book.id, contentId: content.id, index: -1 })} />

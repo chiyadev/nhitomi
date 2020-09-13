@@ -7,12 +7,14 @@ import { FormattedMessage } from 'react-intl'
 import { probeImage } from '../imageUtils'
 import { getColor } from '../theme'
 import { useAsync } from 'react-use'
+import { getImageCache, setImageCache } from '../imageCache'
 
 function formatAspect(x: number) {
   return `${x * 100}%`
 }
 
-export const CoverImage = ({ onLoad, onLoaded, className, zoomIn, autoSize, defaultAspect, sizing = 'cover' }: {
+export const CoverImage = ({ cacheKey, onLoad, onLoaded, className, zoomIn, autoSize, defaultAspect, sizing = 'cover' }: {
+  cacheKey?: string
   onLoad: () => Promise<Blob> | Blob
   onLoaded?: (image: { src: string, width: number, height: number }) => void
   className?: string
@@ -27,9 +29,18 @@ export const CoverImage = ({ onLoad, onLoaded, className, zoomIn, autoSize, defa
     const timer = window.setTimeout(() => setProlongedLoad(true), 2000)
 
     try {
-      const blob = await onLoad()
-      const { width, height } = await probeImage(blob)
+      let image = cacheKey && getImageCache(cacheKey)
 
+      if (!image) {
+        const blob = await onLoad()
+
+        image = { blob, ...await probeImage(blob) }
+
+        if (cacheKey)
+          setImageCache(cacheKey, image)
+      }
+
+      const { blob, width, height } = image
       const loaded = { src: URL.createObjectURL(blob), width, height }
 
       onLoaded?.(loaded)

@@ -146,6 +146,7 @@ const PageImage = ({ book: { id }, content: { id: contentId }, index, setImage }
   const client = useClient()
   const image = useMemo(() => (
     <CoverImage
+      cacheKey={`books/${id}/contents/${contentId}/pages/${index}`}
       className='w-full h-full'
       sizing='contain'
       onLoad={async () => await client.book.getBookImage({ id, contentId, index })}

@@ -21,6 +21,7 @@ export const Background = ({ book, content, scrollHeight }: PrefetchResult & { s
   return createPortal((
     <animated.div style={style} className='fixed left-0 top-0 pointer-events-none'>
       <CoverImage
+        cacheKey={`books/${book.id}/contents/${content.id}/pages/0`}
         className={cx('w-screen h-screen', css`
           z-index: -1;
           opacity: ${blur ? '10%' : '5%'};
