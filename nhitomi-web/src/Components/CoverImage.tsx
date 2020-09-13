@@ -25,32 +25,32 @@ export const CoverImage = ({ cacheKey, onLoad, onLoaded, className, zoomIn, auto
 }) => {
   const [prolongedLoad, setProlongedLoad] = useState(false) // if load is prolonged, show loading indicator
 
-  const { loading, error, value: loaded } = useAsync(async () => {
+  const [loaded, setLoaded] = useState<{ url: string, width: number, height: number } | undefined>(() => {
+    if (cacheKey)
+      return getCachedImageRef(cacheKey)
+  })
+
+  const { loading, error } = useAsync(async () => {
+    if (loaded)
+      return
+
     const timer = window.setTimeout(() => setProlongedLoad(true), 2000)
 
     try {
-      let loaded: { url: string, width: number, height: number }
-      const cached = cacheKey && getCachedImageRef(cacheKey)
+      const blob = await onLoad()
+      const { width, height } = await probeImage(blob)
 
-      if (cached) {
-        loaded = cached
-      }
-      else {
-        const blob = await onLoad()
-        const { width, height } = await probeImage(blob)
-        let url: string
+      let url: string
 
-        if (cacheKey)
-          url = createCachedImageRef(cacheKey, { blob, width, height })
-        else
-          url = URL.createObjectURL(blob)
+      if (cacheKey)
+        url = createCachedImageRef(cacheKey, { blob, width, height })
+      else
+        url = URL.createObjectURL(blob)
 
-        loaded = { url, width, height }
-      }
+      const loaded = { url, width, height }
 
       onLoaded?.(loaded)
-
-      return loaded
+      setLoaded(loaded)
     }
     finally {
       clearTimeout(timer)
@@ -67,7 +67,7 @@ export const CoverImage = ({ cacheKey, onLoad, onLoaded, className, zoomIn, auto
     }
   }, [cacheKey, loaded])
 
-  const [showImage, setShowImage] = useState(false)
+  const [showImage, setShowImage] = useState(!!loaded)
   const imageStyle = useSpring({
     opacity: loaded ? 1 : 0,
     transform: loaded || !zoomIn ? 'scale(1)' : 'scale(0.9)',
@@ -76,7 +76,7 @@ export const CoverImage = ({ cacheKey, onLoad, onLoaded, className, zoomIn, auto
     }
   })
 
-  const [showLoading, setShowLoading] = useState(false)
+  const [showLoading, setShowLoading] = useState(prolongedLoad && loading)
   const loadingStyle = useSpring({
     opacity: prolongedLoad && loading ? 1 : 0,
     onChange: {
@@ -84,7 +84,7 @@ export const CoverImage = ({ cacheKey, onLoad, onLoaded, className, zoomIn, auto
     }
   })
 
-  const [showError, setShowError] = useState(false)
+  const [showError, setShowError] = useState(!!error)
   const errorStyle = useSpring({
     opacity: error ? 1 : 0,
     onChange: {
