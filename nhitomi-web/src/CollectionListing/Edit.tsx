@@ -57,7 +57,7 @@ export const CollectionEdit = (options: PrefetchOptions) => {
 }
 
 const Loaded = ({ collection, owner }: PrefetchResult) => {
-  useTabTitle(useLocalized('pages.collectionListing.edit.title'))
+  useTabTitle(collection.name, useLocalized('pages.collectionListing.edit.title'))
 
   const [loading, setLoading] = useState(false)
 
