@@ -285,7 +285,7 @@ export const ClientManager = ({ children }: { children?: ReactNode }) => {
         <div className='mb-2'>nhitomi could not contact the API server. Please try again later.</div>
         <code>{info.stack}</code>
         <div className='mt-4 space-x-1'>
-          <FilledButton icon={<ReloadOutlined />} onClick={() => window.location.reload()} color={getColor('red')}>Retry</FilledButton>
+          <FilledButton icon={<ReloadOutlined />} onClick={() => window.location.reload()} color={getColor('red', 'darker')}>Retry</FilledButton>
           <FlatButton icon={<ClearOutlined />} onClick={() => { setToken(undefined); setBaseUrl(undefined); window.location.reload() }}>Reset</FlatButton>
         </div>
       </Container>

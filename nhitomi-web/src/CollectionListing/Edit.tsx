@@ -153,7 +153,7 @@ const Loaded = ({ collection, owner }: PrefetchResult) => {
                   </FlatButton>
                 </BackLink>
 
-                <FlatButton color={getColor('red')} onClick={delette} icon={<DeleteOutlined />}>
+                <FlatButton color={getColor('red', 'darker')} onClick={delette} icon={<DeleteOutlined />}>
                   <FormattedMessage id='pages.collectionListing.edit.delete' />
                 </FlatButton>
 
