@@ -30,19 +30,17 @@ export const Strip = ({ children, additionalMenu }: { children?: ReactNode, addi
       style={style}
       className={cx('fixed top-0 left-0 bottom-0 z-10 text-white py-4 select-none', css`width: ${SidebarStripWidth}px;`)}>
 
-      {useMemo(() => <>
-        <Disableable disabled={!info.authenticated} className='flex flex-col items-center'>
-          <Logo />
-          <Buttons />
-        </Disableable>
-      </>, [info.authenticated])}
+      <Disableable disabled={!info.authenticated} className='flex flex-col items-center'>
+        <Logo />
+        <Buttons />
 
-      {additionalMenu}
+        {additionalMenu}
+      </Disableable>
     </animated.div>
   </>
 }
 
-const Logo = () => (
+const Logo = () => useMemo(() => (
   <Tooltip overlay={<span><FormattedMessage id='pages.home.title' /> <HeartOutlined /></span>} placement='right' className='mb-4'>
     <BookListingLink>
       <img
@@ -55,10 +53,10 @@ const Logo = () => (
         `)} />
     </BookListingLink>
   </Tooltip>
-)
+), [])
 
 const Buttons = () => {
-  return <>
+  return useMemo(() => <>
     <Tooltip overlay={<FormattedMessage id='pages.bookListing.title' />} placement='right'>
       <BookListingLink>
         <RoundIconButton>
@@ -114,5 +112,5 @@ const Buttons = () => {
         </RoundIconButton>
       </AboutLink>
     </Tooltip>
-  </>
+  </>, [])
 }
