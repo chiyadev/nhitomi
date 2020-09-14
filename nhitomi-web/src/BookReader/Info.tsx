@@ -22,6 +22,7 @@ import { useContentSelector } from '../Components/BookList'
 import { useAsync } from 'react-use'
 import { useNotify } from '../NotificationManager'
 import { Anchor } from '../Components/Anchor'
+import { Buttons } from './Buttons'
 
 export const Info = ({ book, content }: PrefetchResult) => {
   const client = useClient()
@@ -138,6 +139,10 @@ export const Info = ({ book, content }: PrefetchResult) => {
             <div><HistoryOutlined className='w-4 text-center' /> <FormattedMessage id='pages.bookReader.updateTime' values={{ time: <TimeDisplay value={book.updatedTime} /> }} /></div>
             <div><RefreshStatus book={book} content={content} /></div>
           </div>
+        ), [book, content])}
+
+        {useMemo(() => (
+          <Buttons book={book} content={content} />
         ), [book, content])}
       </div>
     </div>

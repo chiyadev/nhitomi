@@ -57,6 +57,10 @@
         "false": "この本はソースサイトから削除された可能性があります。"
       },
       "sources": "サイト",
+      "buttons": {
+        "favorite": "いいね",
+        "collectionAdd": "コレクションに追加"
+      },
       "alerts": {
         "imagesPerRow": "{value, select, 1 {シングル} 2 {ダブル} other {{value}}}ページモードに切り替えました。",
         "viewportBound": "ページを画面サイズに固定{value, select, true {します} false {しません}}。",
@@ -222,6 +226,9 @@
       "error": "この画像をダウンロードできませんでした。",
       "errorUnknown": "<理由不明>"
     },
+    "collections": {
+      "added": "{name}コレクションに追加しました。"
+    },
     "bookList": {
       "overlay": {
         "openNewTab": "新規タブで開く",
@@ -238,16 +245,9 @@
           "success": "コピーしました: {value}"
         },
         "collections": {
-          "success": "{link}に追加しました。",
-          "favoritesAdd": {
-            "item": "お気に入りに追加",
-            "collectionName": "お気に入り"
-          },
-          "laterAdd": {
-            "item": "後で読みに追加",
-            "collectionName": "後で読み"
-          },
-          "otherAdd": "コレクションに追加"
+          "favorites": "お気に入りに追加",
+          "later": "後で読みに追加",
+          "other": "コレクションに追加"
         }
       }
     },

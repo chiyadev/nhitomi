@@ -57,6 +57,10 @@
         "false": "This book may have been deleted from the source website."
       },
       "sources": "Sources",
+      "buttons": {
+        "favorite": "Favorite",
+        "collectionAdd": "Add to collection"
+      },
       "alerts": {
         "imagesPerRow": "Switched to {value, select, 1 {single} 2 {double} other {{value}}} page mode.",
         "viewportBound": "Pages are {value, select, true {bound} false {unbound}} to window height.",
@@ -222,6 +226,9 @@
       "error": "Failed to download this image.",
       "errorUnknown": "<unknown error>"
     },
+    "collections": {
+      "added": "Added to collection {name}."
+    },
     "bookList": {
       "overlay": {
         "openNewTab": "Open in new tab",
@@ -238,16 +245,9 @@
           "success": "Copied: {value}"
         },
         "collections": {
-          "success": "Added to {link} collection.",
-          "favoritesAdd": {
-            "item": "Add to favorites",
-            "collectionName": "favorites"
-          },
-          "laterAdd": {
-            "item": "Add to read later",
-            "collectionName": "read later"
-          },
-          "otherAdd": "Add to collection"
+          "favorites": "Add to favorites",
+          "later": "Add to read later",
+          "other": "Add to collection"
         }
       }
     },
