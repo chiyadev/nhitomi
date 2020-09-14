@@ -1,19 +1,20 @@
 import React, { ReactNode, useState } from 'react'
 import { DropdownItem, DropdownSubMenu, DropdownDivider } from '../Dropdown'
 import { BookListItem, useBookList } from '.'
-import { BookContent, BookTag, SpecialCollection, ObjectType, CollectionInsertPosition, Collection } from 'nhitomi-api'
+import { BookContent, BookTag, SpecialCollection, ObjectType, CollectionInsertPosition } from 'nhitomi-api'
 import { BookReaderLink } from '../../BookReader'
 import { FormattedMessage } from 'react-intl'
-import { ExpandAltOutlined, SearchOutlined, LinkOutlined, HeartOutlined, EyeOutlined, PlusOutlined, Loading3QuartersOutlined } from '@ant-design/icons'
+import { ExpandAltOutlined, SearchOutlined, LinkOutlined, HeartOutlined, EyeOutlined, PlusOutlined } from '@ant-design/icons'
 import { useConfig } from '../../ConfigManager'
 import { BookListingLink } from '../../BookListing'
 import { useAlert, useNotify } from '../../NotificationManager'
-import { useCopyToClipboard, useAsync } from 'react-use'
+import { useCopyToClipboard } from 'react-use'
 import { useClient, useClientInfo } from '../../ClientManager'
 import { useProgress } from '../../ProgressManager'
 import { CollectionContentLink } from '../../CollectionContent'
 import { Disableable } from '../Disableable'
 import { Anchor } from '../Anchor'
+import { CollectionAddBookDropdownMenu } from '../CollectionAddBookDropdownMenu'
 
 export const Overlay = ({ book, content }: { book: BookListItem, content?: BookContent }) => {
   const { OverlayComponent } = useBookList()
@@ -194,97 +195,17 @@ const CollectionQuickAddItem = ({ book, type }: { book: BookListItem, type: Spec
 }
 
 const CollectionAddItem = ({ book }: { book: BookListItem }) => {
-  const client = useClient()
-  const { info } = useClientInfo()
-  const { notifyError } = useNotify()
-  const [loading, setLoading] = useState(false)
-  const [collections, setCollections] = useState<Collection[]>()
-
-  useAsync(async () => {
-    if (!loading || collections)
-      return
-
-    try {
-      if (!info.authenticated)
-        throw Error('Unauthenticated.')
-
-      const { items } = await client.user.getUserCollections({ id: info.user.id })
-
-      setCollections(items)
-    }
-    catch (e) {
-      notifyError(e)
-      setCollections([])
-    }
-    finally {
-      setLoading(false)
-    }
-  }, [loading])
+  const [load, setLoad] = useState(false)
 
   return (
     <DropdownSubMenu
       name={<FormattedMessage id='components.bookList.overlay.collections.otherAdd' />}
       icon={<PlusOutlined />}
-      onShow={() => { !collections && setLoading(true) }}>
+      onShow={() => setLoad(true)}>
 
-      {loading && (
-        <Disableable disabled>
-          <DropdownItem>
-            <Loading3QuartersOutlined className='animate-spin' />
-          </DropdownItem>
-        </Disableable>
+      {load && (
+        <CollectionAddBookDropdownMenu book={book} />
       )}
-
-      {collections?.map(collection => (
-        <CollectionAddItemPart book={book} collection={collection} />
-      ))}
     </DropdownSubMenu>
-  )
-}
-
-const CollectionAddItemPart = ({ book, collection }: { book: BookListItem, collection: Collection }) => {
-  const client = useClient()
-  const { begin, end } = useProgress()
-  const { alert } = useAlert()
-  const { notifyError } = useNotify()
-  const [loading, setLoading] = useState(false)
-
-  return (
-    <Disableable disabled={loading}>
-      <DropdownItem onClick={async () => {
-        begin()
-        setLoading(true)
-
-        try {
-          await client.collection.addCollectionItems({
-            id: collection.id,
-            addCollectionItemsRequest: {
-              items: [book.id],
-              position: CollectionInsertPosition.Start
-            }
-          })
-
-          alert((
-            <FormattedMessage
-              id='components.bookList.overlay.collections.success'
-              values={{
-                link: (
-                  <CollectionContentLink id={collection.id} className='text-blue'>{collection.name}</CollectionContentLink>
-                )
-              }} />
-          ), 'success')
-        }
-        catch (e) {
-          notifyError(e)
-        }
-        finally {
-          end()
-          setLoading(false)
-        }
-      }}>
-
-        {collection.name}
-      </DropdownItem>
-    </Disableable>
   )
 }
