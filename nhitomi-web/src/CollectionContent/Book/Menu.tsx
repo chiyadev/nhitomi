@@ -4,7 +4,7 @@ import { useNotify } from '../../NotificationManager'
 import { useProgress } from '../../ProgressManager'
 import { Collection, SpecialCollection } from 'nhitomi-api'
 import { Dropdown, DropdownItem } from '../../Components/Dropdown'
-import { usePrefetch } from '../../Prefetch'
+import { usePrefetch, useDynamicPrefetch } from '../../Prefetch'
 import { useCollectionListingPrefetch } from '../../CollectionListing'
 import { RoundIconButton } from '../../Components/RoundIconButton'
 import { DeleteOutlined, EditOutlined, HeartOutlined, EyeOutlined, StarOutlined, InfoCircleOutlined } from '@ant-design/icons'
@@ -15,9 +15,13 @@ import { CollectionEditLink } from '../../CollectionListing/Edit'
 import { Tooltip } from '../../Components/Tooltip'
 import { cx } from 'emotion'
 import { Anchor } from '../../Components/Anchor'
+import { useBookReaderPrefetch } from '../../BookReader'
+import { useContentSelector } from '../../Components/BookList'
+import { RandomOutlined } from '../../Components/Icons/RandomOutlined'
 
 export const Menu = ({ collection }: { collection: Collection }) => <>
   <SpecialButton collection={collection} />
+  <RandomButton collection={collection} />
   <EditButton collection={collection} />
   <DeleteButton collection={collection} />
   <HelpButton />
@@ -79,6 +83,46 @@ const SpecialButton = ({ collection }: { collection: Collection }) => {
             : <StarOutlined />}
       </RoundIconButton>
     </Dropdown>
+  )
+}
+
+const RandomButton = ({ collection }: { collection: Collection }) => {
+  const client = useClient()
+  const { notifyError } = useNotify()
+  const selectContent = useContentSelector()
+  const [prefetchNode, navigate] = useDynamicPrefetch(useBookReaderPrefetch)
+  const [loading, setLoading] = useState(false)
+
+  if (!collection.items.length)
+    return null
+
+  return (
+    <Tooltip placement='bottom' overlay={<FormattedMessage id='pages.collectionContent.book.menu.random' />}>
+      <Disableable disabled={loading}>
+        <RoundIconButton onClick={async () => {
+          setLoading(true)
+
+          try {
+            const book = await client.book.getBook({ id: collection.items[Math.floor(Math.random() * collection.items.length)] })
+            const content = selectContent(book.contents)
+
+            if (content)
+              await navigate({ id: book.id, contentId: content.id })
+          }
+          catch (e) {
+            notifyError(e)
+          }
+          finally {
+            setLoading(false)
+          }
+        }}>
+
+          <RandomOutlined />
+        </RoundIconButton>
+      </Disableable>
+
+      {prefetchNode}
+    </Tooltip>
   )
 }
 

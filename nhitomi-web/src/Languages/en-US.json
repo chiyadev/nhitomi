@@ -201,6 +201,7 @@
             "favorites": "Set as favorites",
             "later": "Set as read later"
           },
+          "random": "Random",
           "edit": "Edit",
           "delete": {
             "warning": "This collection will be deleted permanently.",
