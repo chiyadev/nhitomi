@@ -225,6 +225,7 @@
     "collections": {
       "added": "Added to collection {name}.",
       "created": {
+        "name": "New",
         "dummyName": "My new collection",
         "success": "Collection successfully created."
       }

@@ -225,6 +225,7 @@
     "collections": {
       "added": "{name}コレクションに追加しました。",
       "created": {
+        "name": "新規",
         "dummyName": "私の新しいコレクション",
         "success": "新しいコレクションを作成しました。"
       }
