@@ -15,7 +15,7 @@ export const FilledButton = ({ children, color = getColor('gray').opacity(0.5), 
   const [click, setClick] = useState(false)
 
   const style = useSpring({
-    backgroundColor: click ? color.tint(0.5).rgb : color.shade(focus || hover ? 0.25 : 0).rgb
+    backgroundColor: click ? color.tint(0.25).rgb : color.shade(focus || hover ? 0.25 : 0).rgb
   })
 
   const iconStyle = useSpring({
