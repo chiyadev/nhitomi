@@ -79,10 +79,12 @@ const CollectionAddItem = ({ book, collection }: { book: BasicBook, collection: 
 
           alert((
             <FormattedMessage
-              id='components.bookList.overlay.collections.success'
+              id='components.collections.added'
               values={{
-                link: (
-                  <CollectionContentLink id={collection.id} className='text-blue'>{collection.name}</CollectionContentLink>
+                name: (
+                  <CollectionContentLink id={collection.id} className='text-blue'>
+                    {collection.name}
+                  </CollectionContentLink>
                 )
               }} />
           ), 'success')
