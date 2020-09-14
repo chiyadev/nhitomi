@@ -140,6 +140,10 @@
             "scrollUpKey": "Scroll up",
             "shortcutsKey": "Show shortcut hints"
           },
+          "bookListing": {
+            "name": "Listing",
+            "bookListingSearchKey": "Search"
+          },
           "bookReader": {
             "name": "Reader",
             "bookReaderNextPageKey": "Next page",

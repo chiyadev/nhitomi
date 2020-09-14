@@ -14,6 +14,7 @@ import { useLocalized } from '../LocaleManager'
 import { FormattedMessage } from 'react-intl'
 import { BookTags } from '../orderedConstants'
 import { convertHex, getColor } from '../theme'
+import { useShortcut } from '../shortcut'
 
 export type QueryToken = {
   type: 'other'
@@ -109,6 +110,8 @@ export const SearchInput = ({ result, className }: { result: BookSearchResult, c
   const inputRef = useRef<HTMLInputElement>(null)
 
   useLayoutEffect(() => setText(query.query || ''), [query.query])
+
+  useShortcut('bookListingSearchKey', () => inputRef.current?.focus())
 
   const setTextWithSearch = useCallback((text: string) => { setText(text); setQuery({ ...query, query: text }) }, [query, setQuery])
   const placeholder = useLocalized('pages.bookListing.search', { total: result?.total })

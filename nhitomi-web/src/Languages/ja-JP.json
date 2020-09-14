@@ -91,7 +91,7 @@
         "header": "外見",
         "language": {
           "name": "言語",
-          "description": "言語設定は表示言語、コンテンツ言語、検索結果を変更します。",
+          "description": "言語設定は表示言語、コンテンツ言語、検索結果などを変更します。",
           "interface": "表示言語",
           "search": "検索言語"
         },
@@ -137,7 +137,12 @@
             "name": "一般",
             "cancelKey": "キャンセル",
             "scrollDownKey": "スクロールダウン",
-            "scrollUpKey": "スクロールアップ"
+            "scrollUpKey": "スクロールアップ",
+            "shortcutsKey": "ショートカットヒントを示す"
+          },
+          "bookListing": {
+            "name": "検索",
+            "bookListingSearchKey": "検索"
           },
           "bookReader": {
             "name": "読み",

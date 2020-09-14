@@ -49,6 +49,8 @@ export type ConfigStore = {
   bookReaderImagesPerRow: number
   bookReaderSingleCover: boolean
 
+  bookListingSearchKey: ShortcutConfig[]
+
   bookReaderNextPageKey: ShortcutConfig[]
   bookReaderPreviousPageKey: ShortcutConfig[]
   bookReaderFirstPageKey: ShortcutConfig[]
@@ -82,6 +84,8 @@ const DefaultStore: ConfigStore = {
   bookReaderLeftToRight: false,
   bookReaderImagesPerRow: 2,
   bookReaderSingleCover: true,
+
+  bookListingSearchKey: [{ key: 70, modifiers: ['ctrl'] }], // ctrl+f
 
   bookReaderNextPageKey: [{ key: 65 }, { key: 37 }, { key: 34 }],     // a left pageDown
   bookReaderPreviousPageKey: [{ key: 68 }, { key: 39 }, { key: 33 }], // d right pageUp
@@ -122,6 +126,8 @@ export class ConfigSource extends (EventEmitter as new () => StrictEventEmitter<
   bookReaderLeftToRight!: boolean
   bookReaderImagesPerRow!: number
   bookReaderSingleCover!: boolean
+
+  bookListingSearchKey!: ShortcutConfig[]
 
   bookReaderNextPageKey!: ShortcutConfig[]
   bookReaderPreviousPageKey!: ShortcutConfig[]

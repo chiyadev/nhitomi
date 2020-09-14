@@ -11,17 +11,29 @@ import { getEventModifiers } from '../shortcut'
 import { useLocalized } from '../LocaleManager'
 import { Input } from '../Components/Input'
 
-export const Shortcuts = () => {
-  const generalKeys: ShortcutConfigKey[] = []
-  const bookReaderKeys: ShortcutConfigKey[] = []
+const keyGroups: Record<string, ShortcutConfigKey[]> = {
+  bookListing: [],
+  bookReader: [],
+  general: []
+}
 
-  for (const key of ShortcutConfigKeys) {
-    if (key.startsWith('bookReader'))
-      bookReaderKeys.push(key)
-    else
-      generalKeys.push(key)
+for (const key of ShortcutConfigKeys) {
+  let added = false
+
+  for (const group in keyGroups) {
+    if (key.startsWith(group)) {
+      keyGroups[group].push(key)
+
+      added = true
+      break
+    }
   }
 
+  if (!added)
+    keyGroups.general.push(key)
+}
+
+export const Shortcuts = () => {
   return (
     <SettingsFocusContainer focus='shortcuts'>
       <div><FormattedMessage id='pages.settings.keyboard.shortcuts.name' /></div>
@@ -29,19 +41,14 @@ export const Shortcuts = () => {
       <br />
 
       <div className='divide-y divide-gray-darkest'>
-        <div className='pb-4 space-y-1'>
-          <div><FormattedMessage id='pages.settings.keyboard.shortcuts.general.name' /></div>
-          {generalKeys.map(key => (
-            <Shortcut section='general' shortcutKey={key} />
-          ))}
-        </div>
-
-        <div className='pt-4 space-y-1'>
-          <div><FormattedMessage id='pages.settings.keyboard.shortcuts.bookReader.name' /></div>
-          {bookReaderKeys.map(key => (
-            <Shortcut section='bookReader' shortcutKey={key} />
-          ))}
-        </div>
+        {Object.keys(keyGroups).filter(group => keyGroups[group].length).map(group => (
+          <div className='pb-4 space-y-1'>
+            <div><FormattedMessage id={`pages.settings.keyboard.shortcuts.${group}.name`} /></div>
+            {keyGroups[group].map(key => (
+              <Shortcut group={group} shortcutKey={key} />
+            ))}
+          </div>
+        ))}
       </div>
     </SettingsFocusContainer>
   )
@@ -62,12 +69,12 @@ function stringifyShortcut(shortcut: Partial<ShortcutConfig>) {
     .join('+')
 }
 
-const Shortcut = ({ section, shortcutKey }: { section: 'general' | 'bookReader', shortcutKey: ShortcutConfigKey }) => {
+const Shortcut = ({ group, shortcutKey }: { group: string, shortcutKey: ShortcutConfigKey }) => {
   const [shortcuts, setShortcuts] = useConfig(shortcutKey)
 
   return (
     <div className='space-x-1 ml-4'>
-      <span><FormattedMessage id={`pages.settings.keyboard.shortcuts.${section}.${shortcutKey}`} /> </span>
+      <span><FormattedMessage id={`pages.settings.keyboard.shortcuts.${group}.${shortcutKey}`} /> </span>
 
       {shortcuts.map(shortcut => (
         <ItemPart>
