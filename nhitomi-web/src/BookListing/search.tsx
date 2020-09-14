@@ -1,4 +1,4 @@
-import { SortDirection, BookSort, BookQuery, QueryMatchMode, LanguageType } from 'nhitomi-api'
+import { SortDirection, BookSort, BookQuery, QueryMatchMode, LanguageType, ScraperType } from 'nhitomi-api'
 import { tokenize } from './SearchInput'
 import { Client, ClientInfo } from '../ClientManager'
 
@@ -9,15 +9,20 @@ export type SearchQuery = {
   sort?: BookSort
   order?: SortDirection
   langs?: LanguageType[]
+  sources?: ScraperType[]
 }
 
-export function convertQuery({ query, order, sort, langs }: SearchQuery): BookQuery {
+export function convertQuery({ query, order, sort, langs, sources }: SearchQuery): BookQuery {
   const result: BookQuery = {
     limit: DefaultQueryLimit,
     mode: QueryMatchMode.All,
     tags: {},
     language: !langs?.length ? undefined : {
       values: langs,
+      mode: QueryMatchMode.Any
+    },
+    source: !sources?.length ? undefined : {
+      values: sources,
       mode: QueryMatchMode.Any
     },
     sorting: [{

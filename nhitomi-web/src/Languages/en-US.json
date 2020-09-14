@@ -44,7 +44,8 @@
       "empty": "No results",
       "menu": {
         "sort": "Sort",
-        "order": "Order"
+        "order": "Order",
+        "sources": "Sources"
       }
     },
     "bookReader": {

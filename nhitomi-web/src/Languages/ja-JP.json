@@ -44,7 +44,8 @@
       "empty": "結果なし",
       "menu": {
         "sort": "並べ替え",
-        "order": "並び順"
+        "order": "並び順",
+        "sources": "サイト"
       }
     },
     "bookReader": {

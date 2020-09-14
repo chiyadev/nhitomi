@@ -34,13 +34,14 @@ export const useBookListingPrefetch: PrefetchGenerator<PrefetchResult, PrefetchO
   const query = targetQuery || (mode === 'postfetch' && currentQuery) || {}
 
   query.query = query.query || ''
+  query.sources = query.sources?.length ? query.sources : undefined
 
   // sort by updated time
   query.sort = query.sort || BookSort.UpdatedTime
   query.order = query.order || SortDirection.Descending
 
   // use configured languages if unspecified
-  query.langs = query.langs || languages
+  query.langs = query.langs?.length ? query.langs : languages
 
   return {
     destination: {
