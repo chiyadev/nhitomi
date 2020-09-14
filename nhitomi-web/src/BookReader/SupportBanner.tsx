@@ -82,7 +82,7 @@ const Inner = ({ thumb }: { thumb: string }) => {
         onClick={() => setExpanded(true)}>
 
         <div className={cx('relative w-1/3 select-none', css`max-width: 50%;`)}>
-          <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 930 1315' className='absolute transform-center w-full'>
+          <svg viewBox='0 0 930 1315' className='absolute transform-center w-full'>
             <image href={thumb} x={336} y={554} width={288} height={404} transform='rotate(1.6)' className='origin-center' preserveAspectRatio='xMinYMin slice' />
             <image href='/assets/images/chino_book_mask.png' />
           </svg>
