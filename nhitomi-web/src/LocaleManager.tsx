@@ -23,7 +23,7 @@ export const LanguageNames: { [lang in LanguageType]: string } = {
   'vi-VN': 'Tiếng Việt'
 }
 
-export const AsianLanguages: LanguageType[] = [
+export const CJKLanguages: LanguageType[] = [
   LanguageType.JaJP,
   LanguageType.ZhCN,
   LanguageType.KoKR
@@ -63,11 +63,15 @@ export const LocaleManager = ({ children }: { children?: ReactNode }) => {
     begin()
 
     try {
-      // synchronize language setting on change
       if (id > 1) {
+        // synchronize language setting on change
         await updateUser(user => ({ ...user, language }))
 
-        setPreferEnglishName(AsianLanguages.indexOf(language) === -1)
+        // prefer english name for non-CJK languages
+        setPreferEnglishName(CJKLanguages.indexOf(language) === -1)
+
+        // add new interface language as search language
+        setSearchLanguages([...searchLanguages, language].filter((v, i, a) => a.indexOf(v) === i))
       }
     }
     catch (e) {
