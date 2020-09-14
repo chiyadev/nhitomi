@@ -14,7 +14,7 @@ export const NotFound = () => {
 
       <div className='text-center'>
         <div className='text-4xl font-bold'>404</div>
-        <div className='text-xs text-gray-darker'><FormattedMessage id='pages.notFound.description' /></div>
+        <div className='text-sm text-gray-darker'><FormattedMessage id='pages.notFound.description' /></div>
       </div>
 
       <div className='flex flex-row justify-center'>

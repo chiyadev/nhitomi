@@ -148,7 +148,7 @@ export const Input = ({ value = '', setValue, type = 'input', color = getColor('
       </animated.div>
 
       {help && (
-        <animated.div style={helpStyle} className='text-xs truncate mt-1' children={help} />
+        <animated.div style={helpStyle} className='text-sm truncate mt-1' children={help} />
       )}
     </div>
   )

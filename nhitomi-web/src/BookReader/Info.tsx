@@ -51,11 +51,11 @@ export const Info = ({ book, content }: PrefetchResult) => {
         {useMemo(() => (
           <div>
             <BookListingLink query={{ query: (preferEnglishName && book.englishName) || book.primaryName }}>
-              <div className='text-2xl font-bold'>{(preferEnglishName && book.englishName) || book.primaryName}</div>
+              <div className='text-3xl font-bold'>{(preferEnglishName && book.englishName) || book.primaryName}</div>
             </BookListingLink>
 
             <BookListingLink query={{ query: (!preferEnglishName && book.englishName) || book.primaryName }}>
-              <div className='text-sm text-gray-darker'>{(!preferEnglishName && book.englishName) || book.primaryName}</div>
+              <div className='text-gray-darker'>{(!preferEnglishName && book.englishName) || book.primaryName}</div>
             </BookListingLink>
           </div>
         ), [book.englishName, book.primaryName, preferEnglishName])}
@@ -68,8 +68,8 @@ export const Info = ({ book, content }: PrefetchResult) => {
 
           return (
             <div>
-              <div className='text-xs text-gray-darker mb-1'><FormattedMessage id={`types.bookTag.${tag}`} /></div>
-              <div className='text-sm leading-tight'>
+              <div className='text-sm text-gray-darker mb-1'><FormattedMessage id={`types.bookTag.${tag}`} /></div>
+              <div className='leading-tight'>
                 {tags.sort().map(value => (
                   <BookListingLink query={{ query: `${tag}:${value.replace(/\s/g, '_')}` }}>
                     <Tag type={tag} value={value} />
@@ -82,7 +82,7 @@ export const Info = ({ book, content }: PrefetchResult) => {
 
         {useMemo(() => (
           <div>
-            <div className='text-xs text-gray-darker mb-1'><FormattedMessage id='pages.bookReader.sources' /></div>
+            <div className='text-sm text-gray-darker mb-1'><FormattedMessage id='pages.bookReader.sources' /></div>
             <div className='space-x-1'>
               {ScraperTypes.map(type => {
                 const sourceContents = book.contents.filter(c => c.source === type).sort((a, b) => b.id.localeCompare(a.id))
@@ -132,7 +132,7 @@ export const Info = ({ book, content }: PrefetchResult) => {
         ), [book.contents, book.id, content, selectContent])}
 
         {useMemo(() => (
-          <div className='text-xs text-gray'>
+          <div className='text-sm text-gray'>
             <div><ReadOutlined className='w-4 text-center' /> <FormattedMessage id='pages.bookReader.pageCount' values={{ count: content.pageCount }} /></div>
             <div><UploadOutlined className='w-4 text-center' /> <FormattedMessage id='pages.bookReader.uploadTime' values={{ time: <TimeDisplay value={book.createdTime} /> }} /></div>
             <div><HistoryOutlined className='w-4 text-center' /> <FormattedMessage id='pages.bookReader.updateTime' values={{ time: <TimeDisplay value={book.updatedTime} /> }} /></div>
@@ -172,7 +172,7 @@ const SourceButton = ({ type }: { type: ScraperType }) => {
     <FlatButton icon={(
       <img className='rounded-full h-6 w-auto align-middle' alt={type} src={`/assets/icons/${type}.jpg`} />
     )}>
-      <span className='text-sm text-gray'>{scrapers.find(s => s.type === type)?.name}</span>
+      <span className='text-gray'>{scrapers.find(s => s.type === type)?.name}</span>
     </FlatButton>
   )
 }

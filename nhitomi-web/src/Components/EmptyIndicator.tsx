@@ -16,7 +16,7 @@ export const EmptyIndicator = ({ children, className }: { children?: ReactNode, 
 
       <InboxOutlined className='text-2xl' />
 
-      <div className='text-sm' children={children} />
+      <div children={children} />
     </animated.div>
   )
 }

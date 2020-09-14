@@ -24,8 +24,8 @@ export const Shortcuts = () => {
 
   return (
     <SettingsFocusContainer focus='shortcuts'>
-      <div className='text-base'><FormattedMessage id='pages.settings.keyboard.shortcuts.name' /></div>
-      <div className='text-xs text-gray-darker'><FormattedMessage id='pages.settings.keyboard.shortcuts.description' /></div>
+      <div><FormattedMessage id='pages.settings.keyboard.shortcuts.name' /></div>
+      <div className='text-sm text-gray-darker'><FormattedMessage id='pages.settings.keyboard.shortcuts.description' /></div>
       <br />
 
       <div className='divide-y divide-gray-darkest'>
@@ -94,7 +94,7 @@ const ItemPart = ({ children, className, onClick }: { children?: ReactNode, clas
   return (
     <animated.div
       style={style}
-      className={cx('inline-block align-middle text-xs px-1 rounded overflow-hidden cursor-default', className)}
+      className={cx('inline-block align-middle text-sm px-1 rounded overflow-hidden cursor-default', className)}
       onClick={onClick}
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
@@ -117,7 +117,7 @@ const ItemNew = ({ onAdd }: { onAdd?: (shortcut: ShortcutConfig) => void }) => {
   return (
     <Input
       autoFocus
-      className='text-xs rounded overflow-hidden w-32'
+      className='text-sm rounded overflow-hidden w-32'
       value={stringifyShortcut(current)}
       placeholder={placeholder}
       onKeyDown={e => {

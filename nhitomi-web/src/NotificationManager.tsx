@@ -80,7 +80,7 @@ const NotifyToast = ({ children, onMouseEnter, onMouseLeave, transitionState, tr
 
       <animated.span
         style={closeStyle}
-        className='absolute top-0 right-0 p-3 text-gray-darker text-sm'>
+        className='absolute top-0 right-0 p-3 text-gray-darker'>
 
         <CloseOutlined
           className='cursor-pointer'
@@ -116,7 +116,7 @@ const NotifyToastContent = ({ type, title, description }: { type: AppearanceType
       {title}
     </div>
 
-    <div className='text-xs overflow-auto'>
+    <div className='text-sm overflow-auto'>
       {description}
     </div>
   </>, [description, title, type])

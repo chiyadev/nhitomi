@@ -100,7 +100,7 @@ const Loaded = () => {
     <Container className='divide-y divide-gray-darkest'>
       <div className='p-2'>
         <div className='text-2xl'><FormattedMessage id='pages.settings.title' /></div>
-        <div className='text-xs text-gray-darker'><FormattedMessage id='pages.settings.subtitle' /></div>
+        <div className='text-sm text-gray-darker'><FormattedMessage id='pages.settings.subtitle' /></div>
       </div>
 
       <div className='p-2 space-y-12'>
@@ -163,9 +163,9 @@ const Section = ({ name, type, children, className }: { name?: ReactNode, type: 
       focus={type}
       className={className}>
 
-      <div className='text-xs text-gray-darker font-bold' children={name} />
+      <div className='text-sm text-gray-darker font-bold' children={name} />
 
-      <div className='text-sm divide-y divide-gray-darkest'>
+      <div className='divide-y divide-gray-darkest'>
         {children?.map(child => <div className='py-4' children={child} />)}
       </div>
     </SettingsFocusContainer>

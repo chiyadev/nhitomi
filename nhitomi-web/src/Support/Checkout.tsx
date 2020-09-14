@@ -57,7 +57,7 @@ export const Checkout = ({ supporterPrice, apiKey }: PrefetchResult) => {
         <CheckoutButton duration={duration} loading={loading} submit={submit} />
 
         <div className='space-y-1'>
-          <div className='text-center text-xs'>{amount} USD</div>
+          <div className='text-center text-sm'>{amount} USD</div>
 
           <Slider
             className='w-full'
@@ -69,7 +69,7 @@ export const Checkout = ({ supporterPrice, apiKey }: PrefetchResult) => {
             overlay={`${amount} USD`} />
         </div>
 
-        <ul className='list-disc list-inside text-xs'>
+        <ul className='list-disc list-inside text-sm'>
           <li>nhitomi supporter is a non-recurring payment.</li>
           <li>If you are already a supporter, your supporter period will be extended.</li>
         </ul>
@@ -116,7 +116,7 @@ const CheckoutButton = ({ duration, loading, submit }: { duration: number, loadi
           <div className='text-xl'>
             <FormattedMessage id='pages.support.buy' />
           </div>
-          <div className='text-xs'>
+          <div className='text-sm'>
             <FormattedMessage id={supporter ? 'pages.support.duration_supporter' : 'pages.support.duration'} values={{ duration }} />
           </div>
         </animated.div>

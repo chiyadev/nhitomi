@@ -24,7 +24,7 @@ const Inner = () => {
   return (
     <animated.div
       style={style}
-      className='w-full px-4 py-2 text-xs bg-red-darkest text-white rounded-b'>
+      className='w-full px-4 py-2 text-sm bg-red-darkest text-white rounded-b'>
 
       <WarningFilled />
       {' '}

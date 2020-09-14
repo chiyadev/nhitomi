@@ -15,8 +15,8 @@ export const Account = () => {
 
   return (
     <SettingsFocusContainer focus='account'>
-      <div className='text-base'><FormattedMessage id='pages.settings.user.account.name' /></div>
-      <div className='text-xs text-gray-darker'><FormattedMessage id='pages.settings.user.account.description' values={{ name: info.user.username }} /></div>
+      <div><FormattedMessage id='pages.settings.user.account.name' /></div>
+      <div className='text-sm text-gray-darker'><FormattedMessage id='pages.settings.user.account.description' values={{ name: info.user.username }} /></div>
       <br />
 
       <FlatButton

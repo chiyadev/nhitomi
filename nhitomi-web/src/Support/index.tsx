@@ -79,7 +79,7 @@ const Loaded = (result: PrefetchResult) => {
               }} />
             </div>
 
-            <div className='text-gray-darker text-xs max-w-lg'>
+            <div className='text-gray-darker text-sm max-w-lg'>
               {supporter
                 ? <ThanksDescription />
                 : <SupportDescription />}

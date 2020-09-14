@@ -56,7 +56,7 @@ export const Server = () => {
 
   return (
     <SettingsFocusContainer focus='server'>
-      <div className='text-base'>Server configuration</div>
+      <div>Server configuration</div>
       <br />
 
       <div className='break-words'>
@@ -65,7 +65,7 @@ export const Server = () => {
             <div key={key} className={cx({
               'rounded-sm bg-gray-darkest font-bold': key.toLowerCase() === updatingKey.toLowerCase()
             })}>
-              <code className='text-xs text-gray-darker cursor-pointer' onClick={() => {
+              <code className='text-sm text-gray-darker cursor-pointer' onClick={() => {
                 setUpdatingKey(key)
                 setUpdatingValue(value)
 
@@ -77,7 +77,7 @@ export const Server = () => {
                 <span>{key}: </span>
               </code>
 
-              <code className={cx('text-xs', {
+              <code className={cx('text-sm', {
                 'text-blue': !isNaN(parseInt(value)),
                 'text-orange': typeof parseBoolean(value) === 'boolean',
                 'text-green': !!parseURL(value)

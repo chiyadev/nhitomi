@@ -6,9 +6,9 @@ import { LinkOutlined } from '@ant-design/icons'
 export const Debug = () => {
   return (
     <SettingsFocusContainer focus='debug'>
-      <div className='text-base'>Debug</div>
+      <div>Debug</div>
 
-      <Link to='/settings/debug' className='text-xs text-blue'><LinkOutlined /> Debug helper</Link>
+      <Link to='/settings/debug' className='text-sm text-blue'><LinkOutlined /> Debug helper</Link>
     </SettingsFocusContainer>
   )
 }

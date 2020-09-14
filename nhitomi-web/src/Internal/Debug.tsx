@@ -10,7 +10,7 @@ export const Debug = () => {
   useTabTitle('Debug helper')
 
   return (
-    <Container className='text-sm space-y-4'>
+    <Container className='space-y-4'>
       <Notifications />
       <Alerts />
       <Colors />

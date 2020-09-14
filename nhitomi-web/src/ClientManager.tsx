@@ -281,7 +281,7 @@ export const ClientManager = ({ children }: { children?: ReactNode }) => {
 
   if (info instanceof Error) {
     return (
-      <Container className='text-sm p-4'>
+      <Container className='p-4'>
         <div className='mb-2'>nhitomi could not contact the API server. Please try again later.</div>
         <code>{info.stack}</code>
         <div className='mt-4 space-x-1'>

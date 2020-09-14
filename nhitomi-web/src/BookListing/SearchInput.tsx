@@ -119,7 +119,7 @@ export const SearchInput = ({ result, className }: { result: BookSearchResult, c
       inputRef={inputRef}
       setText={setTextWithSearch}>
 
-      <div className='flex-grow text-sm relative overflow-hidden'>
+      <div className='flex-grow relative overflow-hidden'>
         <input
           ref={inputRef}
           className={cx('pl-4 w-full h-full absolute top-0 left-0 border-none', css`
@@ -175,7 +175,7 @@ const SearchButton = ({ onClick }: { onClick?: () => void }) => {
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}>
 
-      <animated.div className='px-3 py-2 text-lg' style={style}>
+      <animated.div className='px-4 py-3 text-xl' style={style}>
         <SearchOutlined />
       </animated.div>
     </div>
@@ -197,7 +197,7 @@ const ClearButton = ({ visible, onClick, className }: { visible?: boolean, onCli
     <div className='relative'>
       <animated.div
         style={style} // bg-white to display above text
-        className={cx('absolute right-0 bg-white h-full flex items-center z-10 px-3 cursor-pointer select-none', { 'pointer-events-none': !visible }, className)}
+        className={cx('absolute right-0 bg-white h-full flex items-center z-10 px-4 cursor-pointer select-none', { 'pointer-events-none': !visible }, className)}
         onMouseDown={onClick}
         onMouseEnter={() => setHover(true)}
         onMouseLeave={() => setHover(false)}>
@@ -449,12 +449,12 @@ const Suggestor = ({ tokens, setText, inputRef, children }: { tokens: QueryToken
 
   const dropdownContent = <>
     {useMemo(() => token && (
-      <span className='text-xs text-gray-darker'>"{token.display}" ({suggestions && !suggestLoading ? suggestions.flatMap(s => s.items).length : '*'})</span>
+      <span className='text-sm text-gray-darker'>"{token.display}" ({suggestions && !suggestLoading ? suggestions.flatMap(s => s.items).length : '*'})</span>
     ), [suggestLoading, suggestions, token])}
 
     {suggestionsTransitions((style, { tag, items }) => (
       <animated.ul key={tag} style={style}>
-        <li className={cx(`text-xs text-${BookTagColors[tag]}`)}>
+        <li className={cx(`text-sm text-${BookTagColors[tag]}`)}>
           <FormattedMessage id={`types.bookTag.${tag}`} />
         </li>
 

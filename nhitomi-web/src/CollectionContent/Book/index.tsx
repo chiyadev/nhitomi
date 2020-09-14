@@ -25,7 +25,7 @@ export const BookDisplay = ({ result, setResult }: { result: BookPrefetchResult,
       {useMemo(() => (
         <div className='p-2'>
           <div className='text-2xl'>{collection.name}</div>
-          <div className='text-xs text-gray-darker'>{collection.description}</div>
+          <div className='text-sm text-gray-darker'>{collection.description}</div>
         </div>
       ), [collection.description, collection.name])}
 

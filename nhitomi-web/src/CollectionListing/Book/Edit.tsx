@@ -26,7 +26,7 @@ const Duplicate = ({ collection }: { collection: Collection }) => {
     <div className='p-2 space-y-4'>
       <div>
         <div><FormattedMessage id='pages.collectionListing.edit.book.duplicate.name' /></div>
-        <div className='text-xs text-gray-darker'><FormattedMessage id='pages.collectionListing.edit.book.duplicate.description' /></div>
+        <div className='text-sm text-gray-darker'><FormattedMessage id='pages.collectionListing.edit.book.duplicate.description' /></div>
       </div>
 
       <Disableable disabled={loading}>

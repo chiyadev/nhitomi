@@ -28,7 +28,7 @@ export const SupportBanner = ({ book, content }: { book: Book, content: BookCont
     opacity: thumb ? 1 : 0
   })
 
-  if (!thumb || supporter)
+  if (!thumb || !supporter)
     return null
 
   return (
@@ -64,7 +64,7 @@ const Inner = ({ thumb }: { thumb: string }) => {
   const descriptionRef = useRef<HTMLDivElement>(null)
   const descriptionStyle = useSpring({
     opacity: expanded ? 1 : 0,
-    marginTop: expanded ? 5 : -5,
+    marginTop: expanded ? 16 : -5,
     height: (expanded && descriptionRef.current?.clientHeight) || 0
   })
 
@@ -96,7 +96,7 @@ const Inner = ({ thumb }: { thumb: string }) => {
             </animated.span>
           </div>
 
-          <animated.div style={descriptionStyle} className='text-xs text-gray-darker'>
+          <animated.div style={descriptionStyle} className='text-sm text-gray-darker'>
             <div ref={descriptionRef} className='space-y-4'>
               <SupportDescription />
 

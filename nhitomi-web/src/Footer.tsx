@@ -17,7 +17,7 @@ export const Footer = () => {
   })
 
   return (
-    <Container className='text-xs text-gray-darker p-4 text-center space-y-1 overflow-hidden'>
+    <Container className='text-sm text-gray-darker p-4 text-center space-y-1 overflow-hidden'>
       <animated.div style={style}>
         {useMemo(() => <>
           <VersionTooltip version={info.version}>

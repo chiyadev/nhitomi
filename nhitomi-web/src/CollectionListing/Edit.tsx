@@ -117,18 +117,18 @@ const Loaded = ({ collection, owner }: PrefetchResult) => {
       {useMemo(() => (
         <div className='p-2'>
           <div className='text-2xl'><FormattedMessage id='pages.collectionListing.edit.title' /></div>
-          <div className='text-xs text-gray-darker'><FormattedMessage id='pages.collectionListing.edit.subtitle' values={{ collection: collection.name, owner: owner.username }} /></div>
+          <div className='text-sm text-gray-darker'><FormattedMessage id='pages.collectionListing.edit.subtitle' values={{ collection: collection.name, owner: owner.username }} /></div>
         </div>
       ), [collection.name, owner.username])}
 
       <Disableable disabled={loading}>
-        <div className='text-sm space-y-8 divide-y divide-gray-darkest'>
+        <div className='space-y-8 divide-y divide-gray-darkest'>
           <div className='p-2 space-y-4'>
             {useMemo(() => (
               <div>
                 <div className='mb-1'><FormattedMessage id='pages.collectionListing.edit.name' /></div>
 
-                <Input className='w-full max-w-sm' autoFocus allowClear value={name} setValue={setName} onSubmit={submit} />
+                <Input className='w-full max-w-sm text-sm' autoFocus allowClear value={name} setValue={setName} onSubmit={submit} />
               </div>
             ), [name, setName, submit])}
 
@@ -138,7 +138,7 @@ const Loaded = ({ collection, owner }: PrefetchResult) => {
 
                 <Input
                   type='textarea'
-                  className='w-full max-w-sm'
+                  className='w-full max-w-sm text-sm'
                   value={description}
                   setValue={setDescription}
                   onSubmit={submit} />

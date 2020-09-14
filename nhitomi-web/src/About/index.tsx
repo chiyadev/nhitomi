@@ -54,11 +54,11 @@ const Loaded = ({ info }: PrefetchResult) => {
   })
 
   return (
-    <Container className='divide-y divide-gray-darkest text-sm'>
+    <Container className='divide-y divide-gray-darkest'>
       {useMemo(() => (
         <div className='p-2'>
           <div className='text-2xl'><FormattedMessage id='pages.about.title' /></div>
-          <div className='text-xs text-gray-darker'><FormattedMessage id='pages.about.subtitle' /></div>
+          <div className='text-sm text-gray-darker'><FormattedMessage id='pages.about.subtitle' /></div>
         </div>
       ), [])}
 

@@ -36,11 +36,11 @@ export const Pending = () => {
           <Loading3QuartersOutlined className='animate-spin' />
         </div>
 
-        <div className='text-sm'>
+        <div>
           <FormattedMessage id='pages.support.pending.text' />
         </div>
 
-        <div className='text-xs'>
+        <div className='text-sm'>
           <div><FormattedMessage id='pages.support.pending.desc1' /></div>
           <div><FormattedMessage id='pages.support.pending.desc2' /></div>
         </div>
