@@ -33,7 +33,7 @@ const FavoriteButton = ({ book }: { book: Book }) => {
       <FilledButton
         icon={<HeartFilled />}
         color={getColor('red', 'darker')}
-        className='p-1'
+        className='py-1'
         onClick={async () => {
           setLoading(true)
           begin()
@@ -65,7 +65,7 @@ const CollectionAddButton = ({ book }: { book: Book }) => {
     )}>
       <FilledButton
         icon={<PlusOutlined />}
-        className='p-1'>
+        className='py-1'>
 
         <FormattedMessage id='pages.bookReader.buttons.collectionAdd' />
       </FilledButton>
