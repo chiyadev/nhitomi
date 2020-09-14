@@ -1,5 +1,5 @@
 import React, { ReactNode, useMemo, createContext, useState, useContext, Dispatch, useLayoutEffect, useRef } from 'react'
-import { ConfigurationParameters, ValidationProblemArrayResult, ValidationProblem, UserApi, InfoApi, BookApi, CollectionApi, Configuration, GetInfoResponse, GetInfoAuthenticatedResponse, BASE_PATH, User, UserPermissions, Collection, InternalApi } from 'nhitomi-api'
+import { ConfigurationParameters, ValidationProblemArrayResult, ValidationProblem, UserApi, InfoApi, BookApi, CollectionApi, Configuration, GetInfoResponse, GetInfoAuthenticatedResponse, BASE_PATH, User, UserPermissions, Collection, InternalApi, UserBase, SpecialCollection, ObjectType, CollectionInsertPosition } from 'nhitomi-api'
 import { CustomError } from 'ts-custom-error'
 import { useAsync, useInterval } from 'react-use'
 import { useProgress } from './ProgressManager'
@@ -11,6 +11,9 @@ import { getColor } from './theme'
 import { FilledButton } from './Components/FilledButton'
 import * as ga from 'react-ga'
 import { JSONex } from './jsonEx'
+import { useAlert } from './NotificationManager'
+import { FormattedMessage } from 'react-intl'
+import { CollectionContentLink } from './CollectionContent'
 
 const gaApiIgnorePaths = [
   /books\/.*\/contents\/.*\/pages\/.*/g
@@ -358,5 +361,95 @@ export class PermissionHelper {
 
   canManageCollection(collection: Collection) {
     return this.hasPermissions(UserPermissions.ManageUsers) || (this.user && collection.ownerIds.indexOf(this.user.id) !== -1)
+  }
+}
+
+export function usePermissions() {
+  return useClientInfo().permissions
+}
+
+/** Provides commonly used client-related functions would otherwise be copy-pasted in several places. */
+export function useClientUtils() {
+  const client = useClient()
+  const { info, setInfo, fetchInfo } = useClientInfo()
+
+  // optional
+  const alertService: ReturnType<typeof useAlert> | undefined = useAlert()
+
+  return {
+    updateUser: async (update: (user: User) => UserBase) => {
+      const info = await fetchInfo()
+
+      if (!info.authenticated)
+        throw Error('Unauthenticated.')
+
+      setInfo({
+        ...info,
+        authenticated: true,
+        user: await client.user.updateUser({ id: info.user.id, userBase: update(info.user) })
+      })
+    },
+
+    addToSpecialCollection: async (itemId: string, type: ObjectType, special: SpecialCollection) => {
+      if (!info.authenticated)
+        throw Error('Unauthenticated.')
+
+      // get special collection id from user object
+      // note that it is possible for this id to be invalid
+      let collectionId = info.user.specialCollections?.book?.[special]
+
+      if (!collectionId) {
+        collectionId = (await client.user.getUserSpecialCollection({ id: info.user.id, type, collection: special })).id
+
+        setInfo({
+          ...info,
+          user: {
+            ...info.user,
+            specialCollections: {
+              ...info.user.specialCollections,
+              book: {
+                ...info.user.specialCollections?.book,
+                [special]: collectionId
+              }
+            }
+          }
+        })
+      }
+
+      let collection: Collection
+
+      for (let i = 0; ; i++) {
+        try {
+          collection = await client.collection.addCollectionItems({
+            id: collectionId,
+            addCollectionItemsRequest: {
+              items: [itemId],
+              position: CollectionInsertPosition.Start
+            }
+          })
+
+          break
+        }
+        catch (e) {
+          if (i === 1)
+            throw e
+
+          // id was invalid so collection was probably deleted; this time actually request it
+          collectionId = (await client.user.getUserSpecialCollection({ id: info.user.id, type, collection: special })).id
+        }
+      }
+
+      alertService?.alert((
+        <FormattedMessage
+          id='components.collections.added'
+          values={{
+            name: (
+              <CollectionContentLink id={collectionId} className='text-blue'>
+                {collection.name}
+              </CollectionContentLink>
+            )
+          }} />
+      ), 'success')
+    }
   }
 }

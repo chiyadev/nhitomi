@@ -1,7 +1,7 @@
 import React, { ReactNode, useState } from 'react'
 import { DropdownItem, DropdownSubMenu, DropdownDivider } from '../Dropdown'
 import { BookListItem, useBookList } from '.'
-import { BookContent, BookTag, SpecialCollection, ObjectType, CollectionInsertPosition } from 'nhitomi-api'
+import { BookContent, BookTag, SpecialCollection, ObjectType } from 'nhitomi-api'
 import { BookReaderLink } from '../../BookReader'
 import { FormattedMessage } from 'react-intl'
 import { ExpandAltOutlined, SearchOutlined, LinkOutlined, HeartOutlined, EyeOutlined, PlusOutlined } from '@ant-design/icons'
@@ -9,9 +9,8 @@ import { useConfig } from '../../ConfigManager'
 import { BookListingLink } from '../../BookListing'
 import { useAlert, useNotify } from '../../NotificationManager'
 import { useCopyToClipboard } from 'react-use'
-import { useClient, useClientInfo } from '../../ClientManager'
+import { useClientUtils } from '../../ClientManager'
 import { useProgress } from '../../ProgressManager'
-import { CollectionContentLink } from '../../CollectionContent'
 import { Disableable } from '../Disableable'
 import { Anchor } from '../Anchor'
 import { CollectionAddBookDropdownMenu } from '../CollectionAddBookDropdownMenu'
@@ -108,10 +107,8 @@ const CopyToClipboardItem = ({ children, value, displayValue }: { children?: Rea
 }
 
 const CollectionQuickAddItem = ({ book, type }: { book: BookListItem, type: SpecialCollection }) => {
-  const client = useClient()
-  const { info, setInfo } = useClientInfo()
   const { begin, end } = useProgress()
-  const { alert } = useAlert()
+  const { addToSpecialCollection } = useClientUtils()
   const { notifyError } = useNotify()
   const [loading, setLoading] = useState(false)
 
@@ -136,48 +133,7 @@ const CollectionQuickAddItem = ({ book, type }: { book: BookListItem, type: Spec
           setLoading(true)
 
           try {
-            if (!info.authenticated)
-              throw Error('Unauthenticated.')
-
-            let collection = info.user.specialCollections?.book?.[type]
-
-            if (!collection) {
-              collection = (await client.user.getUserSpecialCollection({ id: info.user.id, collection: type, type: ObjectType.Book })).id
-
-              setInfo({
-                ...info,
-                user: {
-                  ...info.user,
-                  specialCollections: {
-                    ...info.user.specialCollections,
-                    book: {
-                      ...info.user.specialCollections?.book,
-                      [type]: collection
-                    }
-                  }
-                }
-              })
-            }
-
-            await client.collection.addCollectionItems({
-              id: collection,
-              addCollectionItemsRequest: {
-                items: [book.id],
-                position: CollectionInsertPosition.Start
-              }
-            })
-
-            alert((
-              <FormattedMessage
-                id='components.bookList.overlay.collections.success'
-                values={{
-                  link: (
-                    <CollectionContentLink id={collection} className='text-blue'>
-                      <FormattedMessage id={`components.bookList.overlay.collections.${type}Add.collectionName`} />
-                    </CollectionContentLink>
-                  )
-                }} />
-            ), 'success')
+            await addToSpecialCollection(book.id, ObjectType.Book, type)
           }
           catch (e) {
             notifyError(e)
@@ -188,7 +144,7 @@ const CollectionQuickAddItem = ({ book, type }: { book: BookListItem, type: Spec
           }
         }}>
 
-        <FormattedMessage id={`components.bookList.overlay.collections.${type}Add.item`} />
+        <FormattedMessage id={`components.bookList.overlay.collections.${type}`} />
       </DropdownItem>
     </Disableable>
   )
@@ -199,7 +155,7 @@ const CollectionAddItem = ({ book }: { book: BookListItem }) => {
 
   return (
     <DropdownSubMenu
-      name={<FormattedMessage id='components.bookList.overlay.collections.otherAdd' />}
+      name={<FormattedMessage id='components.bookList.overlay.collections.other' />}
       icon={<PlusOutlined />}
       onShow={() => setLoad(true)}>
 

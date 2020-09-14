@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { useClient, useClientInfo } from '../../ClientManager'
+import { useClient, useClientInfo, useClientUtils } from '../../ClientManager'
 import { useNotify } from '../../NotificationManager'
 import { useProgress } from '../../ProgressManager'
 import { Collection, SpecialCollection } from 'nhitomi-api'
@@ -24,8 +24,8 @@ export const Menu = ({ collection }: { collection: Collection }) => <>
 </>
 
 const SpecialButton = ({ collection }: { collection: Collection }) => {
-  const client = useClient()
-  const { info, setInfo, fetchInfo } = useClientInfo()
+  const { info } = useClientInfo()
+  const { updateUser } = useClientUtils()
   const { begin, end } = useProgress()
   const { notifyError } = useNotify()
   const [loading, setLoading] = useState(false)
@@ -38,26 +38,16 @@ const SpecialButton = ({ collection }: { collection: Collection }) => {
     setLoading(true)
 
     try {
-      const info = await fetchInfo()
-
-      if (!info.authenticated)
-        throw Error('Unauthenticated.')
-
-      const user = await client.user.updateUser({
-        id: info.user.id,
-        userBase: {
-          ...info.user,
-          specialCollections: {
-            ...info.user.specialCollections,
-            book: {
-              ...info.user.specialCollections?.book,
-              [special]: collection.id
-            }
+      await updateUser(user => ({
+        ...user,
+        specialCollections: {
+          ...user.specialCollections,
+          book: {
+            ...user.specialCollections?.book,
+            [special]: collection.id
           }
         }
-      })
-
-      setInfo({ ...info, user })
+      }))
     }
     catch (e) {
       notifyError(e)

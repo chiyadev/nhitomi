@@ -4,7 +4,7 @@ import { useAsync } from 'react-use'
 import { useProgress } from './ProgressManager'
 import { LanguageType } from 'nhitomi-api'
 import { useConfig } from './ConfigManager'
-import { useClient, useClientInfo } from './ClientManager'
+import { useClientInfo, useClientUtils } from './ClientManager'
 import { AvailableLocalizations } from './Languages/languages'
 
 export const LanguageNames: { [lang in LanguageType]: string } = {
@@ -39,8 +39,8 @@ export function useLocalized(id: string, values: any) {
 }
 
 export const LocaleManager = ({ children }: { children?: ReactNode }) => {
-  const client = useClient()
-  const { info, setInfo, fetchInfo } = useClientInfo()
+  const { info: { version: { shortHash: version } } } = useClientInfo()
+  const { updateUser } = useClientUtils()
   const [messages, setMessages] = useState<Record<string, string>>()
   const { begin, end } = useProgress()
 
@@ -65,22 +65,9 @@ export const LocaleManager = ({ children }: { children?: ReactNode }) => {
     try {
       // synchronize language setting on change
       if (id > 1) {
-        const info = await fetchInfo()
+        await updateUser(user => ({ ...user, language }))
 
-        if (info.authenticated) {
-          setInfo({
-            ...info,
-            user: await client.user.updateUser({
-              id: info.user.id,
-              userBase: {
-                ...info.user,
-                language
-              }
-            })
-          })
-
-          setPreferEnglishName(AsianLanguages.indexOf(language) === -1)
-        }
+        setPreferEnglishName(AsianLanguages.indexOf(language) === -1)
       }
     }
     catch (e) {
@@ -88,10 +75,10 @@ export const LocaleManager = ({ children }: { children?: ReactNode }) => {
     }
 
     try {
-      let messages = getLanguageCached(language, info.version.shortHash)
+      let messages = getLanguageCached(language, version)
 
       if (!messages)
-        setLanguageCached(language, info.version.shortHash, messages = await loadLanguage(language))
+        setLanguageCached(language, version, messages = await loadLanguage(language))
 
       if (loadId.current === id) {
         setMessages(messages)
