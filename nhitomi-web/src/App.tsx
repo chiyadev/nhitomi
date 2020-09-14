@@ -16,6 +16,7 @@ import { TitleSetter } from './TitleSetter'
 import { Sidebar } from './Sidebar'
 import { MaintenanceHeader } from './MaintenanceHeader'
 import { Footer } from './Footer'
+import { ShortcutHintDisplay } from './ShortcutHintDisplay'
 
 import { About } from './About'
 import { Support } from './Support'
@@ -44,6 +45,7 @@ export const App = () => {
                   <AnimationSetter />
                   <BlurSetter />
                   <TitleSetter />
+                  <ShortcutHintDisplay />
 
                   <Sidebar>
                     <div className='flex flex-col min-h-screen'>

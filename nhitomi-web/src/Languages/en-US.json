@@ -137,7 +137,8 @@
             "name": "General",
             "cancelKey": "Cancel",
             "scrollDownKey": "Scroll down",
-            "scrollUpKey": "Scroll up"
+            "scrollUpKey": "Scroll up",
+            "shortcutsKey": "Show shortcut hints"
           },
           "bookReader": {
             "name": "Reader",

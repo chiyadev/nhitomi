@@ -41,6 +41,7 @@ export type ConfigStore = {
   cancelKey: ShortcutConfig[]
   scrollDownKey: ShortcutConfig[]
   scrollUpKey: ShortcutConfig[]
+  shortcutsKey: ShortcutConfig[]
 
   bookReaderPreferEnglishName: boolean
   bookReaderViewportBound: boolean
@@ -71,9 +72,10 @@ const DefaultStore: ConfigStore = {
   animation: 'normal',
   blur: BlurSupported,
 
-  cancelKey: [{ key: 27 }],                   // esc
-  scrollDownKey: [{ key: 83 }, { key: 40 }],  // s down
-  scrollUpKey: [{ key: 87 }, { key: 38 }],    // w up
+  cancelKey: [{ key: 27 }],                           // esc
+  scrollDownKey: [{ key: 83 }, { key: 40 }],          // s down
+  scrollUpKey: [{ key: 87 }, { key: 38 }],            // w up
+  shortcutsKey: [{ key: 191, modifiers: ['ctrl'] }],  // ctrl+/
 
   bookReaderPreferEnglishName: true,
   bookReaderViewportBound: true,
@@ -113,6 +115,7 @@ export class ConfigSource extends (EventEmitter as new () => StrictEventEmitter<
   cancelKey!: ShortcutConfig[]
   scrollDownKey!: ShortcutConfig[]
   scrollUpKey!: ShortcutConfig[]
+  shortcutsKey!: ShortcutConfig[]
 
   bookReaderPreferEnglishName!: boolean
   bookReaderViewportBound!: boolean
