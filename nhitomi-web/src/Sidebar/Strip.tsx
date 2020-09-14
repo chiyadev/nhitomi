@@ -28,14 +28,14 @@ export const Strip = ({ children, additionalMenu }: { children?: ReactNode, addi
 
     <animated.div
       style={style}
-      className={cx('fixed top-0 left-0 bottom-0 z-10 text-white py-4 flex flex-col items-center select-none', css`width: ${SidebarStripWidth}px;`)}>
+      className={cx('fixed top-0 left-0 bottom-0 z-10 text-white py-4 select-none', css`width: ${SidebarStripWidth}px;`)}>
 
-      {useMemo(() => (
-        <Disableable disabled={!info.authenticated}>
+      {useMemo(() => <>
+        <Disableable disabled={!info.authenticated} className='flex flex-col items-center'>
           <Logo />
           <Buttons />
         </Disableable>
-      ), [info.authenticated])}
+      </>, [info.authenticated])}
 
       {additionalMenu}
     </animated.div>
@@ -45,7 +45,14 @@ export const Strip = ({ children, additionalMenu }: { children?: ReactNode, addi
 const Logo = () => (
   <Tooltip overlay={<span><FormattedMessage id='pages.home.title' /> <HeartOutlined /></span>} placement='right' className='mb-4'>
     <BookListingLink>
-      <img alt='logo' className='w-10 h-10 pointer-events-none' src='/logo-80x80.png' />
+      <img
+        alt='logo'
+        src='/logo-80x80.png'
+        className={cx('pointer-events-none rendering-crisp', css`
+          /* integer width to prevent blurry downscale */
+          width: 40px;
+          height: 40px;
+        `)} />
     </BookListingLink>
   </Tooltip>
 )

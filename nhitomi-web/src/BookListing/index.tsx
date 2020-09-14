@@ -149,7 +149,7 @@ const Input = ({ result }: { result: PrefetchResult }) => {
   })
 
   return (
-    <div className='mx-auto p-4 w-full max-w-xl sticky top-0 z-20'>
+    <div className='mx-auto p-4 w-full max-w-2xl sticky top-0 z-20'>
       <animated.div style={style} className='w-full'>
         <SearchInput result={result} className='shadow-lg w-full' />
       </animated.div>

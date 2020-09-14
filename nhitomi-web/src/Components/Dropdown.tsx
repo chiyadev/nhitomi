@@ -13,7 +13,7 @@ export const Dropdown = ({ interactive = true, placement = 'bottom-start', touch
       touch={touch}
       padding={false}
       scaleTransition={scaleTransition}
-      overlayClassName={cx({ 'py-1': padding }, overlayClassName)}
+      overlayClassName={cx({ 'py-2': padding }, overlayClassName)}
 
       {...props} />
   )
@@ -85,5 +85,5 @@ export const DropdownSubMenu = ({ name, children, onShow, onHide, ...props }: { 
 )
 
 export const DropdownDivider = ({ className }: { className?: string }) => (
-  <div className={cx('mx-2 my-1 bg-gray', className, css`height: 1px; opacity: 15%;`)} />
+  <div className={cx('mx-2 my-2 bg-gray', className, css`height: 1px; opacity: 15%;`)} />
 )

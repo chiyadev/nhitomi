@@ -75,12 +75,12 @@ const Loaded = ({ user, books }: PrefetchResult) => {
 
   return (
     <Container className='divide-y divide-gray-darkest'>
-      <div className='p-2'>
+      <div className='p-4'>
         <div className='text-2xl'><FormattedMessage id='pages.collectionListing.title' /></div>
         <div className='text-sm text-gray-darker'><FormattedMessage id='pages.collectionListing.subtitle' values={{ user: user.username, mode: permissions.canManageCollections(user) ? 'manage' : 'view' }} /></div>
       </div>
 
-      <div className='py-2 space-y-8'>
+      <div className='py-4 space-y-8'>
         <BookSection user={user} collections={books} />
       </div>
     </Container>

@@ -81,7 +81,7 @@ const Menu = ({ children }: { children?: ReactNode }) => {
     {children && (
       <animated.div
         style={style}
-        className='w-full flex flex-row justify-end px-1 mb-1'
+        className='w-full flex flex-row justify-end px-2 mb-2'
         children={children} />
     )}
   </>
@@ -188,7 +188,7 @@ const ItemOverlay = ({ book, hover }: { book: BookListItem, hover?: boolean }) =
   })
 
   const inner = useMemo(() => visible && (
-    <div className='p-1 bg-white bg-blur text-black rounded-b'>
+    <div className='px-2 py-1 bg-white bg-blur text-black rounded-b'>
       <span className='block truncate font-bold'>{(preferEnglishName && book.englishName) || book.primaryName}</span>
 
       {book.englishName && book.primaryName !== book.englishName && (

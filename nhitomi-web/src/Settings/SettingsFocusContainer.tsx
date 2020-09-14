@@ -15,7 +15,7 @@ export const SettingsFocusContainer = ({ focus, className, ...props }: Component
 
   return (
     <div
-      ref={ref}
+      ref={ref} // p-2 -m-2 to make border outside the container
       className={cx(className, { 'rounded border border-blue border-opacity-50 p-2 -m-2': currentFocus === focus }, css`scroll-margin: 0.5em;`)}
 
       {...props} />

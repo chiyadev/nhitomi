@@ -23,13 +23,13 @@ export const BookDisplay = ({ result, setResult }: { result: BookPrefetchResult,
   return (
     <Container className='divide-y divide-gray-darkest'>
       {useMemo(() => (
-        <div className='p-2'>
+        <div className='p-4'>
           <div className='text-2xl'>{collection.name}</div>
           <div className='text-sm text-gray-darker'>{collection.description}</div>
         </div>
       ), [collection.description, collection.name])}
 
-      <div className='py-2'>
+      <div className='py-4'>
         <BookList
           items={items}
           menu={(

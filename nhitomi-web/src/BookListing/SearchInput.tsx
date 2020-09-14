@@ -175,7 +175,7 @@ const SearchButton = ({ onClick }: { onClick?: () => void }) => {
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}>
 
-      <animated.div className='px-4 py-3 text-xl' style={style}>
+      <animated.div className='px-4 py-3 text-lg' style={style}>
         <SearchOutlined />
       </animated.div>
     </div>
@@ -473,7 +473,7 @@ const Suggestor = ({ tokens, setText, inputRef, children }: { tokens: QueryToken
         <animated.div
           {...props}
           style={{ ...dropdownStyle, width: inputRef.current?.clientWidth }}
-          className='bg-gray-darkest bg-blur text-white text-sm px-2 py-1 rounded overflow-hidden flex flex-col space-y-2'>
+          className='bg-gray-darkest bg-blur text-white px-2 py-1 rounded overflow-hidden flex flex-col space-y-2'>
 
           {dropdownContent}
         </animated.div>

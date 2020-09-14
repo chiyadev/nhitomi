@@ -94,7 +94,7 @@ export const Server = () => {
 
       <div ref={updatingRef} className='flex flex-row'>
         <Input className='w-32' placeholder='Key' value={updatingKey} setValue={setUpdatingKey} onSubmit={submitChange} />
-        <div className='p-1'>:</div>
+        <div className='px-2 py-1'>:</div>
         <Input className='flex-1' placeholder='Value' value={updatingValue} setValue={setUpdatingValue} onSubmit={submitChange} />
       </div>
     </SettingsFocusContainer>

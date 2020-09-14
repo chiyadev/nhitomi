@@ -23,7 +23,7 @@ const Duplicate = ({ collection }: { collection: Collection }) => {
   const [prefetchNode, navigate] = useDynamicPrefetch(useCollectionContentPrefetch)
 
   return (
-    <div className='p-2 space-y-4'>
+    <div className='p-4 space-y-4'>
       <div>
         <div><FormattedMessage id='pages.collectionListing.edit.book.duplicate.name' /></div>
         <div className='text-sm text-gray-darker'><FormattedMessage id='pages.collectionListing.edit.book.duplicate.description' /></div>

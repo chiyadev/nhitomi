@@ -98,12 +98,12 @@ const Loaded = () => {
 
   return useMemo(() => (
     <Container className='divide-y divide-gray-darkest'>
-      <div className='p-2'>
+      <div className='p-4'>
         <div className='text-2xl'><FormattedMessage id='pages.settings.title' /></div>
         <div className='text-sm text-gray-darker'><FormattedMessage id='pages.settings.subtitle' /></div>
       </div>
 
-      <div className='p-2 space-y-12'>
+      <div className='p-4 space-y-12'>
         <Section
           type='user'
           name={<span><UserOutlined /> <FormattedMessage id='pages.settings.user.header' /></span>}>

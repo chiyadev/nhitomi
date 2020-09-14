@@ -3,6 +3,7 @@ import { useSpring, animated } from 'react-spring'
 import { useClientInfo } from './ClientManager'
 import { FormattedMessage } from 'react-intl'
 import { WarningFilled } from '@ant-design/icons'
+import { Container } from './Components/Container'
 
 export const MaintenanceHeader = () => {
   const { info: { maintenance } } = useClientInfo()
@@ -22,13 +23,15 @@ const Inner = () => {
   })
 
   return (
-    <animated.div
-      style={style}
-      className='w-full px-4 py-2 text-sm bg-red-darkest text-white rounded-b'>
+    <Container>
+      <animated.div
+        style={style}
+        className='w-full px-4 py-2 text-sm bg-red-darkest text-white rounded-b'>
 
-      <WarningFilled />
-      {' '}
-      <FormattedMessage id='components.maintenanceHeader.text' />
-    </animated.div>
+        <WarningFilled />
+        {' '}
+        <FormattedMessage id='components.maintenanceHeader.text' />
+      </animated.div>
+    </Container>
   )
 }

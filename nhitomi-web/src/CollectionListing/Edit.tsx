@@ -115,7 +115,7 @@ const Loaded = ({ collection, owner }: PrefetchResult) => {
   return (
     <Container className='divide-y divide-gray-darkest'>
       {useMemo(() => (
-        <div className='p-2'>
+        <div className='p-4'>
           <div className='text-2xl'><FormattedMessage id='pages.collectionListing.edit.title' /></div>
           <div className='text-sm text-gray-darker'><FormattedMessage id='pages.collectionListing.edit.subtitle' values={{ collection: collection.name, owner: owner.username }} /></div>
         </div>
@@ -123,7 +123,7 @@ const Loaded = ({ collection, owner }: PrefetchResult) => {
 
       <Disableable disabled={loading}>
         <div className='space-y-8 divide-y divide-gray-darkest'>
-          <div className='p-2 space-y-4'>
+          <div className='p-4 space-y-4'>
             {useMemo(() => (
               <div>
                 <div className='mb-1'><FormattedMessage id='pages.collectionListing.edit.name' /></div>
