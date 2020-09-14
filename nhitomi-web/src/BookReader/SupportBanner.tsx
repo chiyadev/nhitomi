@@ -1,10 +1,10 @@
 import { Book, BookContent } from 'nhitomi-api'
-import React, { useEffect, useState, useRef } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useAsync } from 'react-use'
 import { useClient, useClientInfo } from '../ClientManager'
 import { useSpring, animated } from 'react-spring'
 import { HeartFilled } from '@ant-design/icons'
-import { cx } from 'emotion'
+import { cx, css } from 'emotion'
 import { FormattedMessage } from 'react-intl'
 import { SupportLink } from '../Support'
 import { usePageState } from '../state'
@@ -28,7 +28,7 @@ export const SupportBanner = ({ book, content }: { book: Book, content: BookCont
     opacity: thumb ? 1 : 0
   })
 
-  if (!thumb || !supporter)
+  if (!thumb || supporter)
     return null
 
   return (
@@ -42,13 +42,9 @@ const Inner = ({ thumb }: { thumb: string }) => {
   const [hover, setHover] = useState(false)
   const [expanded, setExpanded] = usePageState('bannerExpanded', false)
 
-  const widgetStyle = useSpring({
-    backgroundColor: '#fff', // not using bg-white as it's not actually fully white
-    opacity: hover || expanded ? 1 : 0.75,
-    height: expanded ? 260 : 80
-  })
-
   const [headingVisible, setHeadingVisible] = useState(hover || expanded)
+  const [heading, setHeading] = useState<HTMLDivElement | null>()
+  const headingHeight = heading?.clientHeight || 0
   const headingStyle = useSpring({
     opacity: hover || expanded ? 1 : 0,
     marginLeft: hover || expanded ? 0 : -5,
@@ -61,11 +57,19 @@ const Inner = ({ thumb }: { thumb: string }) => {
     transform: `rotate(${hover || expanded ? 0 : 20}deg)`
   })
 
-  const descriptionRef = useRef<HTMLDivElement>(null)
+  const [description, setDescription] = useState<HTMLDivElement | null>()
+  const descriptionHeight = expanded ? (description?.clientHeight || 0) + 10 : 0
   const descriptionStyle = useSpring({
     opacity: expanded ? 1 : 0,
-    marginTop: expanded ? 16 : -5,
-    height: (expanded && descriptionRef.current?.clientHeight) || 0
+    marginTop: expanded ? 0 : -5,
+    paddingTop: expanded ? 10 : 0,
+    height: descriptionHeight
+  })
+
+  const widgetStyle = useSpring({
+    backgroundColor: '#fff', // not using bg-white as it's not actually fully white
+    opacity: hover || expanded ? 1 : 0.75,
+    height: headingHeight + descriptionHeight + 40
   })
 
   return (
@@ -77,7 +81,7 @@ const Inner = ({ thumb }: { thumb: string }) => {
         onMouseLeave={() => setHover(false)}
         onClick={() => setExpanded(true)}>
 
-        <div className='relative w-1/3 select-none' style={{ maxWidth: '50%' }}>
+        <div className={cx('relative w-1/3 select-none', css`max-width: 50%;`)}>
           <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 930 1315' className='absolute transform-center w-full'>
             <image href={thumb} x={336} y={554} width={288} height={404} transform='rotate(1.6)' className='origin-center' preserveAspectRatio='xMinYMin slice' />
             <image href='/assets/images/chino_book_mask.png' />
@@ -85,9 +89,9 @@ const Inner = ({ thumb }: { thumb: string }) => {
         </div>
 
         <div className='flex-1 my-auto pr-2'>
-          <div>
+          <div ref={setHeading}>
             <animated.div className='inline-block' style={heartStyle}><HeartFilled className='text-pink text-4xl' /></animated.div>
-            <animated.span className={cx('text-base', { 'hidden': !headingVisible })} style={headingStyle}>
+            <animated.span className={cx({ 'hidden': !headingVisible })} style={headingStyle}>
               <FormattedMessage id='pages.support.subtitle' values={{
                 nhitomi: (
                   <span className='ml-2 text-lg font-bold'>nhitomi</span>
@@ -97,7 +101,7 @@ const Inner = ({ thumb }: { thumb: string }) => {
           </div>
 
           <animated.div style={descriptionStyle} className='text-sm text-gray-darker'>
-            <div ref={descriptionRef} className='space-y-4'>
+            <div ref={setDescription} className='space-y-4'>
               <SupportDescription />
 
               <div className='space-x-2'>

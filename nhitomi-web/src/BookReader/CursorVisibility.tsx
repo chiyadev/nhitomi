@@ -1,6 +1,7 @@
 import React, { ReactNode, useState, useLayoutEffect, useRef } from 'react'
 import { CurrentPage } from './ScrollManager'
 import { usePageState } from '../state'
+import { cx, css } from 'emotion'
 
 export const CursorVisibility = ({ children, className }: { children?: ReactNode, className?: string }) => {
   const [visible, setVisible] = useState(true)
@@ -17,9 +18,10 @@ export const CursorVisibility = ({ children, className }: { children?: ReactNode
 
   return (
     <div
-      style={{ cursor: visible ? undefined : 'none' }}
       onMouseMove={() => setVisible(true)}
-      className={className}
+      className={cx(className, css`
+        cursor: ${visible ? 'inherit' : 'none'};
+      `)}
       children={children} />
   )
 }
