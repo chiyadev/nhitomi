@@ -175,11 +175,7 @@
       },
       "book": {
         "menu": {
-          "create": {
-            "item": "新規コレクション",
-            "dummyName": "私の新しいコレクション",
-            "success": "新しいコレクションを作りました。"
-          }
+          "create": "新規コレクション"
         },
         "overlay": {
           "openNewTab": "新規タブで開く",
@@ -227,7 +223,11 @@
       "errorUnknown": "<理由不明>"
     },
     "collections": {
-      "added": "{name}コレクションに追加しました。"
+      "added": "{name}コレクションに追加しました。",
+      "created": {
+        "dummyName": "私の新しいコレクション",
+        "success": "新しいコレクションを作成しました。"
+      }
     },
     "bookList": {
       "overlay": {

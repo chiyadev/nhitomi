@@ -175,11 +175,7 @@
       },
       "book": {
         "menu": {
-          "create": {
-            "item": "New collection",
-            "dummyName": "My new collection",
-            "success": "Collection successfully created."
-          }
+          "create": "New collection"
         },
         "overlay": {
           "openNewTab": "Open in new tab",
@@ -227,7 +223,11 @@
       "errorUnknown": "<unknown error>"
     },
     "collections": {
-      "added": "Added to collection {name}."
+      "added": "Added to collection {name}.",
+      "created": {
+        "dummyName": "My new collection",
+        "success": "Collection successfully created."
+      }
     },
     "bookList": {
       "overlay": {

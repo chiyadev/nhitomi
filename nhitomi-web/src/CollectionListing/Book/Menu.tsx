@@ -24,17 +24,17 @@ const NewButton = () => {
   const [loading, setLoading] = useState(false)
   const [prefetchNode, navigate] = useDynamicPrefetch(useCollectionEditPrefetch)
 
-  const dummyName = useLocalized('pages.collectionListing.book.menu.create.dummyName')
+  const dummyName = useLocalized('components.collections.created.dummyName')
 
   return (
-    <Tooltip placement='bottom' overlay={<FormattedMessage id='pages.collectionListing.book.menu.create.item' />}>
+    <Tooltip placement='bottom' overlay={<FormattedMessage id='pages.collectionListing.book.menu.create' />}>
       <Disableable disabled={loading}>
         <RoundIconButton onClick={async () => {
           begin()
           setLoading(true)
 
           try {
-            const created = await client.collection.createCollection({
+            const collection = await client.collection.createCollection({
               createCollectionRequest: {
                 type: ObjectType.Book,
                 collection: {
@@ -43,9 +43,9 @@ const NewButton = () => {
               }
             })
 
-            await navigate({ id: created.id })
+            await navigate({ id: collection.id })
 
-            alert(<FormattedMessage id='pages.collectionListing.book.menu.create.success' />, 'success')
+            alert(<FormattedMessage id='components.collections.created.success' />, 'success')
           }
           catch (e) {
             notifyError(e)
