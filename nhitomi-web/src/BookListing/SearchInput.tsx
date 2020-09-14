@@ -252,7 +252,7 @@ const Highlighter = ({ tokens, inputRef, className }: { tokens: QueryToken[], in
 
 const Suggestor = ({ tokens, setText, inputRef, children }: { tokens: QueryToken[], setText: Dispatch<string>, inputRef: RefObject<HTMLInputElement>, children?: ReactElement<any> }) => {
   const [index, setIndex] = useState<number>()
-  const [focused, setFocused] = useState(false)
+  const [visible, setVisible] = useState(false)
   const [suggestions, setSuggestions] = useState<{ tag: BookTag, items: SuggestItem[] }[]>()
   const [selected, setSelected] = useState<SuggestItem>()
 
@@ -262,10 +262,18 @@ const Suggestor = ({ tokens, setText, inputRef, children }: { tokens: QueryToken
   }, [index, tokens])
 
   const complete = useCallback(() => {
+    // hides the overlay so that it doesn't cover the listing after searching
+    const hide = () => setTimeout(() => {
+      setVisible(false)
+      setSuggestions(undefined)
+    })
+
     let text = assemble(tokens)
 
+    // can trigger search in 'other' tokens
     if (!selected || !token) {
-      setText(text) // can trigger search in 'other' tokens
+      setText(text)
+      hide()
       return
     }
 
@@ -294,6 +302,8 @@ const Suggestor = ({ tokens, setText, inputRef, children }: { tokens: QueryToken
         input.focus()
       }
     })
+
+    hide()
   }, [inputRef, selected, setText, suggestions, token, tokens])
 
   useLayoutEffect(() => {
@@ -302,7 +312,9 @@ const Suggestor = ({ tokens, setText, inputRef, children }: { tokens: QueryToken
 
     const handler = () => {
       const index = input.selectionEnd || input.selectionStart
+
       setIndex(typeof index === 'number' ? index : undefined)
+      setVisible(true)
     }
 
     // unfortunately input doesn't have a caret event
@@ -324,7 +336,7 @@ const Suggestor = ({ tokens, setText, inputRef, children }: { tokens: QueryToken
     if (!input) return
 
     const handler = () => {
-      setFocused(document.activeElement === input)
+      setVisible(document.activeElement === input)
     }
 
     input.addEventListener('focus', handler)
@@ -431,7 +443,7 @@ const Suggestor = ({ tokens, setText, inputRef, children }: { tokens: QueryToken
     }, 200)
   }, [suggestPrefix]) // eslint-disable-line
 
-  const dropdownVisible = focused && !!token
+  const dropdownVisible = visible && !!token
   const dropdownStyle = useSpring({
     opacity: dropdownVisible ? 1 : 0,
     marginTop: dropdownVisible ? 0 : -5
