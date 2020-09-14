@@ -139,6 +139,10 @@ type LocalizationCache = {
 }
 
 function getLanguageCached(language: LanguageType, version: string): Record<string, string> | undefined {
+  // ignore cache in dev
+  if (process.env.NODE_ENV === 'development')
+    return
+
   try {
     const cache: Partial<LocalizationCache> = JSON.parse(localStorage.getItem(`lang_cache_${language}`) || '')
 
