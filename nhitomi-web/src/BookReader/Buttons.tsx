@@ -65,6 +65,7 @@ const CollectionAddButton = ({ book }: { book: Book }) => {
     )}>
       <FilledButton
         icon={<PlusOutlined />}
+        color={getColor('gray', 'darkest')}
         className='py-1'>
 
         <FormattedMessage id='pages.bookReader.buttons.collectionAdd' />
