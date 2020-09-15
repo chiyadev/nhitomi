@@ -1,9 +1,15 @@
-import React, { ReactNode } from 'react'
+import React, { ReactNode, useLayoutEffect } from 'react'
 import { useSpring, animated } from 'react-spring'
+import { usePageState } from '../state'
 
 export const PageContainer = ({ children, className }: { children?: ReactNode, className?: string }) => {
+  const [shown, setShown] = usePageState<boolean>('pageShown')
+
+  // prevents fade-in on back navigate
+  useLayoutEffect(() => setShown(true), [setShown])
+
   const style = useSpring({
-    from: { opacity: 0 },
+    from: { opacity: shown ? 1 : 0 },
     to: { opacity: 1 }
   })
 
