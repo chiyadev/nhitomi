@@ -6,14 +6,14 @@ export function formatTitle(...parts: (string | undefined)[]) {
 }
 
 export function useTabTitle(...parts: (string | undefined)[]) {
-  const [, setCurrent] = usePageState<string>('title')
+  const [, setCurrent] = usePageState<string>('pageTitle')
   const value = formatTitle(...parts)
 
   useLayoutEffect(() => setCurrent(value), [setCurrent, value])
 }
 
 export const TitleSetter = () => {
-  const [current] = usePageState<string>('title', formatTitle())
+  const [current] = usePageState<string>('pageTitle', formatTitle())
 
   useLayoutEffect(() => { document.title = current }, [current])
 
