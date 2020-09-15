@@ -3,7 +3,7 @@ import Tippy from '@tippyjs/react'
 import { cx } from 'emotion'
 import { animated, useSpring } from 'react-spring'
 
-export const Tooltip = ({ className, overlay, overlayClassName, children, hideOnClick = false, ignoreAttributes = true, touch = false, duration = 200, placement = 'auto', appendTo = document.body, padding = true, moveTransition = true, scaleTransition, blurred = true, overlayProps, wrapperProps, popperOptions, ...props }: {
+export const Tooltip = ({ className, overlay, overlayClassName, children, hideOnClick = false, ignoreAttributes = true, touch = false, duration = 200, placement = 'auto', appendTo = document.body, padding = true, moveTransition = true, scaleTransition, blurred = true, flip = true, overlayProps, wrapperProps, popperOptions, ...props }: {
   overlay?: ReactNode
   overlayClassName?: string
   children?: ReactNode
@@ -11,6 +11,7 @@ export const Tooltip = ({ className, overlay, overlayClassName, children, hideOn
   moveTransition?: boolean
   scaleTransition?: boolean
   blurred?: boolean
+  flip?: boolean
   overlayProps?: Omit<ComponentProps<'div'>, 'ref'> & Pick<ComponentProps<typeof animated.div>, 'ref'>
   wrapperProps?: ComponentProps<'div'>
 } & Omit<ComponentProps<typeof Tippy>, 'content' | 'render' | 'moveTransition' | 'children' | 'animation' | 'arrow'>) => {
@@ -63,19 +64,19 @@ export const Tooltip = ({ className, overlay, overlayClassName, children, hideOn
       appendTo={appendTo}
 
       popperOptions={{
-        modifiers: [
-          {
-            // disable scroll listeners for performance if not visible
-            name: 'eventListeners',
-            enabled: true,
-            phase: 'write',
-            options: {
-              scroll: render,
-              resize: render
-            }
-          },
-          ...(popperOptions?.modifiers || [])
-        ],
+        modifiers: [{
+          // disable scroll listeners for performance if not visible
+          name: 'eventListeners',
+          enabled: true,
+          phase: 'write',
+          options: {
+            scroll: render,
+            resize: render
+          }
+        }, {
+          name: 'flip',
+          enabled: flip
+        }, ...(popperOptions?.modifiers || [])],
         ...popperOptions
       }}
 

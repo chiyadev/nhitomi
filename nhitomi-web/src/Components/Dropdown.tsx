@@ -5,7 +5,7 @@ import { convertHex } from '../theme'
 import { cx, css } from 'emotion'
 import { RightOutlined } from '@ant-design/icons'
 
-export const Dropdown = ({ interactive = true, placement = 'bottom-start', touch = true, padding = true, scaleTransition = true, overlayClassName, ...props }: ComponentProps<typeof Tooltip>) => {
+export const Dropdown = ({ interactive = true, placement = 'bottom-start', touch = true, padding = true, scaleTransition = true, flip = false, overlayClassName, ...props }: ComponentProps<typeof Tooltip>) => {
   return (
     <Tooltip
       interactive={interactive}
@@ -13,6 +13,7 @@ export const Dropdown = ({ interactive = true, placement = 'bottom-start', touch
       touch={touch}
       padding={false}
       scaleTransition={scaleTransition}
+      flip={flip}
       overlayClassName={cx({ 'py-2': padding }, overlayClassName)}
 
       {...props} />
@@ -69,6 +70,7 @@ export const DropdownSubMenu = ({ name, children, onShow, onHide, ...props }: { 
     blurred={false} // 2020/08 there is a bug with Chrome that causes nested absolute backdrop-filters to not work
     moveTransition
     scaleTransition={false}
+    flip
     onShow={onShow}
     onHide={onHide}>
 
