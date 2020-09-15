@@ -1,11 +1,11 @@
 import React, { ReactNode, useState, useRef, useLayoutEffect } from 'react'
 import { IntlProvider, useIntl } from 'react-intl'
-import { useAsync } from 'react-use'
 import { useProgress } from './ProgressManager'
 import { LanguageType } from 'nhitomi-api'
 import { useConfig } from './ConfigManager'
 import { useClientInfo, useClientUtils } from './ClientManager'
 import { AvailableLocalizations } from './Languages/languages'
+import { useAsync } from './hooks'
 
 export const LanguageNames: { [lang in LanguageType]: string } = {
   'ja-JP': '日本語',

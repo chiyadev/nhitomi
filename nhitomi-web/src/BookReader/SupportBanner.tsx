@@ -1,6 +1,6 @@
 import { Book, BookContent } from 'nhitomi-api'
 import React, { useEffect, useState } from 'react'
-import { useAsync } from 'react-use'
+import { useAsync } from '../hooks'
 import { useClient, useClientInfo } from '../ClientManager'
 import { useSpring, animated } from 'react-spring'
 import { HeartFilled } from '@ant-design/icons'

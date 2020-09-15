@@ -6,7 +6,7 @@ import { Tooltip } from './Tooltip'
 import { FormattedMessage } from 'react-intl'
 import { probeImage } from '../imageUtils'
 import { getColor } from '../theme'
-import { useAsync } from 'react-use'
+import { useAsync } from '../hooks'
 import { getCachedImageRef, createCachedImageRef, returnCachedImageRef } from '../imageCache'
 
 function formatAspect(x: number) {

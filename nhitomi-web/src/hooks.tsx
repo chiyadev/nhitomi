@@ -1,4 +1,17 @@
-import { useLayoutEffect, useState } from 'react'
+import { DependencyList, useLayoutEffect, useState } from 'react'
+import { useAsyncFn } from 'react-use'
+import { FnReturningPromise } from 'react-use/lib/util'
+
+// equivalent to react-use's useAsync except callback runs synchronously
+export function useAsync<T extends FnReturningPromise>(fn: T, deps: DependencyList = []) {
+  const [state, callback] = useAsyncFn(fn, deps, {
+    loading: true
+  })
+
+  useLayoutEffect(() => { callback() }, [callback])
+
+  return state
+}
 
 export function useWindowSize() {
   const [state, setState] = useState<{

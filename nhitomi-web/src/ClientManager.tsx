@@ -1,7 +1,7 @@
 import React, { ReactNode, useMemo, createContext, useState, useContext, Dispatch, useLayoutEffect, useRef } from 'react'
 import { ConfigurationParameters, ValidationProblemArrayResult, ValidationProblem, UserApi, InfoApi, BookApi, CollectionApi, Configuration, GetInfoResponse, GetInfoAuthenticatedResponse, BASE_PATH, User, UserPermissions, Collection, InternalApi, UserBase, SpecialCollection, ObjectType, CollectionInsertPosition } from 'nhitomi-api'
 import { CustomError } from 'ts-custom-error'
-import { useAsync, useInterval } from 'react-use'
+import { useInterval } from 'react-use'
 import { useProgress } from './ProgressManager'
 import { ConfigSource, useConfigManager, useConfig } from './ConfigManager'
 import { Container } from './Components/Container'
@@ -14,6 +14,7 @@ import { JSONex } from './jsonEx'
 import { useAlert } from './NotificationManager'
 import { FormattedMessage } from 'react-intl'
 import { CollectionContentLink } from './CollectionContent'
+import { useAsync } from './hooks'
 
 const gaApiIgnorePaths = [
   /books\/.*\/contents\/.*\/pages\/.*/g

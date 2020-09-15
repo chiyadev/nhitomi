@@ -20,7 +20,7 @@ import { useTabTitle } from '../TitleSetter'
 import { useLocalized } from '../LocaleManager'
 import { EmptyIndicator } from '../Components/EmptyIndicator'
 import { FormattedMessage } from 'react-intl'
-import { useAsync } from 'react-use'
+import { useAsync } from '../hooks'
 
 export type PrefetchResult = BookSearchResult & { nextOffset: number }
 export type PrefetchOptions = { query?: SearchQuery }

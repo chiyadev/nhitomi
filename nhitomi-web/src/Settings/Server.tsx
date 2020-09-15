@@ -1,7 +1,7 @@
 import React, { useMemo, useRef } from 'react'
 import { SettingsFocusContainer } from './SettingsFocusContainer'
 import { Loading3QuartersOutlined } from '@ant-design/icons'
-import { useAsync } from 'react-use'
+import { useAsync } from '../hooks'
 import { useClient } from '../ClientManager'
 import { useNotify } from '../NotificationManager'
 import { ConfigEntry } from 'nhitomi-api'
