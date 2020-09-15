@@ -134,7 +134,7 @@ export const ContextMenu = ({ className, overlayClassName, moveTransition = fals
 type ContextMenuTrigger = 'mouse' | 'touch'
 
 export function useContextMenu(ref: RefObject<HTMLElement>, callback: (target: HTMLElement, trigger: ContextMenuTrigger, position: { x: number, y: number }) => void) {
-  const touch = useRef<{ x: number, y: number, triggered: boolean }>()
+  const touch = useRef<{ x: number, y: number, triggered: boolean, time: number }>()
 
   useLayoutEffect(() => {
     const element = ref.current
@@ -154,12 +154,13 @@ export function useContextMenu(ref: RefObject<HTMLElement>, callback: (target: H
       touch.current = {
         x: e.touches[0].clientX,
         y: e.touches[0].clientY,
-        triggered: false
+        triggered: false,
+        time: performance.now()
       }
     }
 
     const touchmove = (e: TouchEvent) => {
-      if (!touch.current || touch.current.triggered || e.touches.length !== 1)
+      if (!touch.current || touch.current.triggered || e.touches.length !== 1 || performance.now() - touch.current.time >= 200)
         return
 
       const deltaX = e.touches[0].clientX - touch.current.x
