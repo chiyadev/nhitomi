@@ -12,9 +12,9 @@ import { useLocalized } from '../LocaleManager'
 import { Input } from '../Components/Input'
 
 const keyGroups: Record<string, ShortcutConfigKey[]> = {
+  general: [],
   bookListing: [],
-  bookReader: [],
-  general: []
+  bookReader: []
 }
 
 for (const key of ShortcutConfigKeys) {
@@ -38,15 +38,17 @@ export const Shortcuts = () => {
     <SettingsFocusContainer focus='shortcuts'>
       <div><FormattedMessage id='pages.settings.keyboard.shortcuts.name' /></div>
       <div className='text-sm text-gray-darker'><FormattedMessage id='pages.settings.keyboard.shortcuts.description' /></div>
-      <br />
 
-      <div className='divide-y divide-gray-darkest'>
+      <div className='divide-y divide-gray-darkest space-y-4'>
         {Object.keys(keyGroups).filter(group => keyGroups[group].length).map(group => (
-          <div className='pb-4 space-y-1'>
+          <div className='pt-4 space-y-2'>
             <div><FormattedMessage id={`pages.settings.keyboard.shortcuts.${group}.name`} /></div>
-            {keyGroups[group].map(key => (
-              <Shortcut group={group} shortcutKey={key} />
-            ))}
+
+            <div className='pl-4 space-y-1'>
+              {keyGroups[group].map(key => (
+                <Shortcut group={group} shortcutKey={key} />
+              ))}
+            </div>
           </div>
         ))}
       </div>
@@ -73,14 +75,14 @@ const Shortcut = ({ group, shortcutKey }: { group: string, shortcutKey: Shortcut
   const [shortcuts, setShortcuts] = useConfig(shortcutKey)
 
   return (
-    <div className='space-x-1 ml-4'>
+    <div className='space-x-1'>
       <span><FormattedMessage id={`pages.settings.keyboard.shortcuts.${group}.${shortcutKey}`} /> </span>
 
       {shortcuts.map(shortcut => (
         <ItemPart>
-          <span className='align-middle'>{stringifyShortcut(shortcut)}</span>
+          <span className='align-middle mr-2'>{stringifyShortcut(shortcut)}</span>
 
-          <CloseOutlined className='ml-1 text-gray-darker cursor-pointer' onClick={() => setShortcuts(shortcuts.filter(s => s !== shortcut))} />
+          <CloseOutlined className='text-gray-darker cursor-pointer' onClick={() => setShortcuts(shortcuts.filter(s => s !== shortcut))} />
         </ItemPart>
       ))}
 
