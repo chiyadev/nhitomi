@@ -37,6 +37,11 @@ namespace nhitomi.Controllers
             /// </summary>
             [Required]
             public ObjectType Type { get; set; }
+
+            /// <summary>
+            /// Items to add into this collection after creation.
+            /// </summary>
+            public string[] Items { get; set; }
         }
 
         /// <summary>
@@ -46,7 +51,7 @@ namespace nhitomi.Controllers
         [HttpPost(Name = "createCollection"), RequireUser(Unrestricted = true), RequireDbWrite]
         public async Task<ActionResult<Collection>> CreateAsync(CreateCollectionRequest request)
         {
-            var result = await _collections.CreateAsync(request.Type, request.Collection, UserId);
+            var result = await _collections.CreateAsync(request.Type, request.Collection, UserId, request.Items);
 
             return result.AsT0.Convert(_services);
         }

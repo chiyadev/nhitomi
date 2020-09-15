@@ -28,7 +28,7 @@ namespace nhitomi.Controllers
 
     public interface ICollectionService
     {
-        Task<OneOf<DbCollection>> CreateAsync(ObjectType type, CollectionBase model, string userId, CancellationToken cancellationToken = default);
+        Task<OneOf<DbCollection>> CreateAsync(ObjectType type, CollectionBase model, string userId, string[] items, CancellationToken cancellationToken = default);
         Task<OneOf<DbCollection, NotFound>> GetAsync(string id, CancellationToken cancellationToken = default);
 
         Task<SearchResult<DbCollection>> GetUserCollectionsAsync(string id, CancellationToken cancellationToken = default);
@@ -57,13 +57,30 @@ namespace nhitomi.Controllers
             _client   = client;
         }
 
-        public async Task<OneOf<DbCollection>> CreateAsync(ObjectType type, CollectionBase model, string userId, CancellationToken cancellationToken = default)
+        public async Task<OneOf<DbCollection>> CreateAsync(ObjectType type, CollectionBase model, string userId, string[] items = null, CancellationToken cancellationToken = default)
         {
+            if (items != null && items.Length != 0)
+            {
+                var newItems = new string[items.Length];
+                var set      = new HashSet<string>(items.Length, StringComparer.Ordinal);
+                var count    = 0;
+
+                foreach (var item in items)
+                {
+                    if (set.Add(item))
+                        newItems[count++] = item;
+                }
+
+                Array.Resize(ref newItems, count);
+
+                items = newItems;
+            }
+
             var collection = new DbCollection
             {
                 Type     = type,
                 OwnerIds = new[] { userId },
-                Items    = Array.Empty<string>()
+                Items    = items ?? Array.Empty<string>()
             }.ApplyBase(model, _services);
 
             return await _client.Entry(collection).CreateAsync(cancellationToken);
@@ -204,7 +221,7 @@ namespace nhitomi.Controllers
                     break;
 
                 var result = new string[entry.Value.Items.Length + items.Length];
-                var set    = new HashSet<string>(result.Length);
+                var set    = new HashSet<string>(result.Length, StringComparer.Ordinal);
 
                 foreach (var item in entry.Value.Items)
                     set.Add(item);
@@ -250,7 +267,7 @@ namespace nhitomi.Controllers
                     break;
 
                 var result = new string[entry.Value.Items.Length];
-                var set    = new HashSet<string>(items.Length);
+                var set    = new HashSet<string>(items.Length, StringComparer.Ordinal);
 
                 foreach (var item in items)
                     set.Add(item);
