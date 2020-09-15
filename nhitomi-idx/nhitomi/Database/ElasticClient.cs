@@ -1119,7 +1119,7 @@ namespace nhitomi.Database
 
         public async IAsyncEnumerable<IDbEntry<T>> SearchEntriesStreamAsync<T>(IQueryProcessor<T> processor, [EnumeratorCancellation] CancellationToken cancellationToken = default) where T : class, IDbObject
         {
-            var ids = new HashSet<string>();
+            var ids = new HashSet<string>(StringComparer.Ordinal);
 
             for (var i = 0;;)
             {

@@ -60,7 +60,7 @@ namespace nhitomi
             if (array == null)
                 return null;
 
-            var set = new HashSet<string>(array.Length);
+            var set = new HashSet<string>(array.Length, StringComparer.Ordinal);
 
             foreach (var item in array)
             {
