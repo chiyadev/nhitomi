@@ -274,9 +274,9 @@ namespace nhitomi
                     .AddSingleton<ILinkGenerator, LinkGenerator>()
                     .AddSingleton(MemoryStreamManager);
 
-            services.Configure<ProxyOptions>(_configuration.GetSection("Proxy"))
+            services.Configure<HttpMessageHandlerOptions>(_configuration.GetSection("Proxy"))
                     .AddHttpClient()
-                    .AddTransient<HttpMessageHandlerBuilder, ChiyaProxyHttp2HandlerBuilder>();
+                    .AddTransient<HttpMessageHandlerBuilder, HttpProxiedMessageHandlerBuilder>();
 
             services.Configure<RecaptchaOptions>(_configuration.GetSection("Recaptcha"))
                     .AddSingleton<IRecaptchaValidator, RecaptchaValidator>();
