@@ -84,7 +84,7 @@ namespace nhitomi.Scrapers
         });
     }
 
-    public abstract class ScraperBase<TState> : BackgroundService, IScraper
+    public abstract class ScraperBase<TState> : BackgroundService, IScraper where TState : class, new()
     {
         readonly IResourceLocker _locker;
         readonly IStorage _storage;
@@ -132,7 +132,7 @@ namespace nhitomi.Scrapers
                         await TestAsync(stoppingToken);
 
                         // load last state from storage
-                        var state = await _storage.ReadObjectAsync<TState>($"scrapers/{Type}/state", stoppingToken);
+                        var state = await _storage.ReadObjectAsync<TState>($"scrapers/{Type}/state", stoppingToken) ?? new TState();
 
                         // execute scraper
                         using (ScraperMetrics.ScrapingTime.Labels(Type.ToString()).Measure())

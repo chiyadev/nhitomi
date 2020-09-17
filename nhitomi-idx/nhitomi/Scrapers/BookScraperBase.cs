@@ -76,7 +76,7 @@ namespace nhitomi.Scrapers
         Task<DbBook> RetrieveAsync(DbBookContent content, CancellationToken cancellationToken = default);
     }
 
-    public abstract class BookScraperBase<TState> : ScraperBase<TState>, IBookScraper
+    public abstract class BookScraperBase<TState> : ScraperBase<TState>, IBookScraper where TState : class, new()
     {
         readonly IServiceProvider _services;
         readonly IElasticClient _client;

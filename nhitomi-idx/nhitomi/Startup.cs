@@ -274,7 +274,7 @@ namespace nhitomi
                     .AddSingleton<ILinkGenerator, LinkGenerator>()
                     .AddSingleton(MemoryStreamManager);
 
-            services.Configure<HttpMessageHandlerOptions>(_configuration.GetSection("Proxy"))
+            services.Configure<HttpMessageHandlerOptions>(_configuration.GetSection("HttpHandler"))
                     .AddHttpClient()
                     .AddTransient<HttpMessageHandlerBuilder, HttpProxiedMessageHandlerBuilder>();
 

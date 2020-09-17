@@ -91,7 +91,7 @@ namespace nhitomi
         {
             protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
             {
-                if (request.RequestUri.Scheme == "https")
+                if (request.RequestUri?.Scheme == "https")
                     request.RequestUri = new UriBuilder(request.RequestUri) { Scheme = "http", Port = -1 }.Uri;
 
                 return base.SendAsync(request, cancellationToken);
