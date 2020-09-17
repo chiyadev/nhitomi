@@ -6,7 +6,7 @@ RUN apk add --no-cache git
 RUN git log -1 --date=iso-strict > version.txt
 
 # build backend
-FROM mcr.microsoft.com/dotnet/core/sdk:latest AS idx
+FROM mcr.microsoft.com/dotnet/sdk:5.0 AS idx
 WORKDIR /app
 
 COPY nhitomi-idx/nhitomi/nhitomi.csproj ./
@@ -36,9 +36,7 @@ COPY nhitomi-web ./
 RUN yarn build
 
 # build final image
-# (temporarily using sdk image to diagnose memory leaks in prod)
-FROM mcr.microsoft.com/dotnet/core/sdk:latest as app
-# FROM mcr.microsoft.com/dotnet/core/aspnet:latest as app
+FROM mcr.microsoft.com/dotnet/aspnet:5.0 as app
 WORKDIR /app
 
 COPY --from=git version.txt ./
