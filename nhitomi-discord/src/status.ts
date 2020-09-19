@@ -13,7 +13,10 @@ export function beginPresenceRotation(): void {
       const noun = nouns[Math.floor(Math.random() * nouns.length)];
 
       // replace adjective and noun with random selection
-      let text = config.get<string>("status.format").replace("adjective", adj).replace("noun", noun);
+      let text = config
+        .get<string>("status.format")
+        .replace("adjective", adj)
+        .replace("noun", noun);
 
       // help command hint
       text = `${text} [${config.get<string>("prefix")}help]`;
@@ -22,8 +25,8 @@ export function beginPresenceRotation(): void {
         await Discord.user?.setPresence({
           activity: {
             name: text,
-            type: "PLAYING"
-          }
+            type: "PLAYING",
+          },
         });
       } catch (e) {
         console.debug("could not update presence", e);

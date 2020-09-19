@@ -1,7 +1,9 @@
 import { useLayoutEffect, useMemo } from "react";
 import { useConfig } from "./ConfigManager";
 
-function css(s: TemplateStringsArray) { return s.toString(); }
+function css(s: TemplateStringsArray) {
+  return s.toString();
+}
 
 export const BlurSetter = () => {
   const style = useMemo(() => {
@@ -9,7 +11,8 @@ export const BlurSetter = () => {
 
     element.type = "text/css";
     element.innerText = css`
-      .bg-blur.bg-blur { /** double specificity to override bg-color opacities */
+      .bg-blur.bg-blur {
+        /** double specificity to override bg-color opacities */
         -webkit-backdrop-filter: blur(1em);
         -moz-backdrop-filter: blur(1em);
         backdrop-filter: blur(1em);
@@ -25,10 +28,8 @@ export const BlurSetter = () => {
   useLayoutEffect(() => {
     const head = document.head;
 
-    if (!head.contains(style) && blur)
-      document.head.appendChild(style);
-    else if (head.contains(style) && !blur)
-      document.head.removeChild(style);
+    if (!head.contains(style) && blur) document.head.appendChild(style);
+    else if (head.contains(style) && !blur) document.head.removeChild(style);
   }, [blur, style]);
 
   return null;

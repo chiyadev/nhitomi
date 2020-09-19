@@ -1,7 +1,17 @@
 import { CommandFunc } from ".";
-import { InteractiveMessage, ReactionTrigger, RenderResult } from "../interactive";
+import {
+  InteractiveMessage,
+  ReactionTrigger,
+  RenderResult,
+} from "../interactive";
 import { Locale } from "../locales";
-import { Book, BookContent, BookTag, ObjectType, SpecialCollection } from "nhitomi-api";
+import {
+  Book,
+  BookContent,
+  BookTag,
+  ObjectType,
+  SpecialCollection,
+} from "nhitomi-api";
 import { Api } from "../api";
 import { DestroyTrigger } from "../Triggers/destroy";
 import { MessageContext } from "../context";
@@ -11,10 +21,7 @@ import { FavoriteTrigger, FavoriteTriggerTarget } from "../Triggers/favorite";
 import { SourcesTrigger } from "../Triggers/sources";
 
 export class BookMessage extends InteractiveMessage {
-  constructor(
-    readonly book: Book,
-    public content: BookContent
-  ) {
+  constructor(readonly book: Book, public content: BookContent) {
     super();
   }
 
@@ -22,36 +29,51 @@ export class BookMessage extends InteractiveMessage {
     return BookMessage.renderStatic(locale, this.book, this.content);
   }
 
-  static renderStatic(locale: Locale, book: Book, content: BookContent): RenderResult {
+  static renderStatic(
+    locale: Locale,
+    book: Book,
+    content: BookContent
+  ): RenderResult {
     return {
       embed: {
         title: book.primaryName,
-        description: book.englishName === book.primaryName ? undefined : book.englishName,
+        description:
+          book.englishName === book.primaryName ? undefined : book.englishName,
         url: Api.getWebLink(`books/${book.id}/contents/${content.id}`),
         image: {
-          url: Api.getApiLink(`books/${book.id}/contents/${content.id}/pages/-1`)
+          url: Api.getApiLink(
+            `books/${book.id}/contents/${content.id}/pages/-1`
+          ),
         },
         color: "GREEN",
         author: {
-          name: (book.tags.artist || book.tags.circle || [content.source]).sort().join(", "),
-          iconURL: Api.getWebLink(`assets/icons/${content.source}.jpg`)
+          name: (book.tags.artist || book.tags.circle || [content.source])
+            .sort()
+            .join(", "),
+          iconURL: Api.getWebLink(`assets/icons/${content.source}.jpg`),
         },
         footer: {
-          text: `${book.id}/${content.id} (${locale.get(`get.book.categories.${book.category}`)}, ${locale.get("get.book.pageCount", { count: content.pageCount })})`
+          text: `${book.id}/${content.id} (${locale.get(
+            `get.book.categories.${book.category}`
+          )}, ${locale.get("get.book.pageCount", {
+            count: content.pageCount,
+          })})`,
         },
-        fields: Object.values(BookTag).filter(t => book.tags[t]?.length).map(t => ({
-          name: locale.get(`get.book.tags.${t}`),
-          value: book.tags[t]?.sort().join(", "),
-          inline: true
-        }))
-      }
+        fields: Object.values(BookTag)
+          .filter((t) => book.tags[t]?.length)
+          .map((t) => ({
+            name: locale.get(`get.book.tags.${t}`),
+            value: book.tags[t]?.sort().join(", "),
+            inline: true,
+          })),
+      },
     };
   }
 
   get favoriteObject(): FavoriteTriggerTarget["favoriteObject"] {
     return {
       id: this.book.id,
-      name: this.book.primaryName
+      name: this.book.primaryName,
     };
   }
 
@@ -62,41 +84,58 @@ export class BookMessage extends InteractiveMessage {
       new FavoriteTrigger(this, ObjectType.Book, SpecialCollection.Favorites),
       new ReadTrigger(this),
       new SourcesTrigger(this),
-      new DestroyTrigger()
+      new DestroyTrigger(),
     ];
   }
 }
 
-export async function handleGetLink(context: MessageContext, link: string | undefined): Promise<{
-  type: ObjectType.Book
-  book: Book
-  content: BookContent
-} | {
-  type: "notFound"
-}> {
+export async function handleGetLink(
+  context: MessageContext,
+  link: string | undefined
+): Promise<
+  | {
+      type: ObjectType.Book;
+      book: Book;
+      content: BookContent;
+    }
+  | {
+      type: "notFound";
+    }
+> {
   if (link) {
     // try finding books
-    const { matches: [bookMatch] } = await context.api.book.getBooksByLink({ strict: true, getBookByLinkRequest: { link } });
+    const {
+      matches: [bookMatch],
+    } = await context.api.book.getBooksByLink({
+      strict: true,
+      getBookByLinkRequest: { link },
+    });
 
     if (bookMatch) {
       const { book, selectedContentId } = bookMatch;
-      const content = book.contents.find(c => c.id === selectedContentId);
+      const content = book.contents.find((c) => c.id === selectedContentId);
 
-      if (content)
-        return { type: ObjectType.Book, book, content };
+      if (content) return { type: ObjectType.Book, book, content };
     }
   }
 
   return { type: "notFound" };
 }
 
-export function replyNotFound(context: MessageContext, input: string): Promise<Message> {
-  return context.reply(`
+export function replyNotFound(
+  context: MessageContext,
+  input: string
+): Promise<Message> {
+  return context.reply(
+    `
 ${input && context.locale.get("get.notFound.message", { input })}
 
-> - ${context.locale.get("get.notFound.usageLink", { example: "https://nhentai.net/g/123/" })}
+> - ${context.locale.get("get.notFound.usageLink", {
+      example: "https://nhentai.net/g/123/",
+    })}
 > - ${context.locale.get("get.notFound.usageSource", { example: "hitomi 123" })}
-`.trim());
+`.trim()
+  );
 }
 
 export const run: CommandFunc = async (context, link) => {

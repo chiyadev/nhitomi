@@ -4,15 +4,18 @@ import { atou, utoa } from "../base64";
 import { useCallback } from "react";
 
 export type OAuthState = {
-  redirect: Partial<Omit<NavigationLocation, "state">>
-  xsrf: string
-}
+  redirect: Partial<Omit<NavigationLocation, "state">>;
+  xsrf: string;
+};
 
 export function useXsrfToken(): [string, () => void] {
   let token = localStorage.getItem("xsrf");
 
   if (!token) {
-    localStorage.setItem("xsrf", token = [...Array(16)].map(() => Math.random().toString(36)[2]).join(""));
+    localStorage.setItem(
+      "xsrf",
+      (token = [...Array(16)].map(() => Math.random().toString(36)[2]).join(""))
+    );
   }
 
   const reset = useCallback(() => localStorage.removeItem("xsrf"), []);
@@ -20,7 +23,10 @@ export function useXsrfToken(): [string, () => void] {
   return [token, reset];
 }
 
-export function stringifyOAuthState({ xsrf, redirect: { path, query, hash } }: OAuthState) {
+export function stringifyOAuthState({
+  xsrf,
+  redirect: { path, query, hash },
+}: OAuthState) {
   return utoa(stringify([xsrf, path, query, hash]));
 }
 

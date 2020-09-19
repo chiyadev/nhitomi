@@ -7,7 +7,7 @@ import config from "config";
 import { HeadlessInteractiveMessage, InteractiveMessage } from "./interactive";
 
 const tokenCache = new NodeCache({
-  stdTTL: config.get<number>("api.cachedTokenExpiry")
+  stdTTL: config.get<number>("api.cachedTokenExpiry"),
 });
 
 /** Context in which messages are handled. */
@@ -53,15 +53,19 @@ export class MessageContext {
   reply: Message["channel"]["send"];
 
   /** Schedules the deletion of the given message and returns a promise that resolves when it is deleted. Promise will never reject. */
-  async scheduleDelete(message: Message, timeout = config.get<number>("interactive.notifTimeout")): Promise<void> {
-    await new Promise(r => setTimeout(r, timeout * 1000));
+  async scheduleDelete(
+    message: Message,
+    timeout = config.get<number>("interactive.notifTimeout")
+  ): Promise<void> {
+    await new Promise((r) => setTimeout(r, timeout * 1000));
 
-    if (message.deletable)
+    if (message.deletable) {
       try {
         await message.delete();
       } catch (e) {
         console.debug("could not delete message", message.id, e);
       }
+    }
   }
 
   /** Creates a headless interactive and calls waitInput on it. */
@@ -91,7 +95,11 @@ export class MessageContext {
         return new MessageContext(message, api, user);
       } catch (e) {
         api.destroy();
-        console.debug("message context error using cached token", cachedToken, e);
+        console.debug(
+          "message context error using cached token",
+          cachedToken,
+          e
+        );
       }
     }
 
@@ -99,8 +107,8 @@ export class MessageContext {
       getOrCreateDiscordUserRequest: {
         id: author.id,
         username: author.username,
-        discriminator: parseInt(author.discriminator)
-      }
+        discriminator: parseInt(author.discriminator),
+      },
     });
 
     tokenCache.set(author.id, token);

@@ -1,4 +1,10 @@
-import React, { ComponentProps, RefObject, useLayoutEffect, useRef, useState } from "react";
+import React, {
+  ComponentProps,
+  RefObject,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 import { Dropdown, DropdownDivider, DropdownItem } from "./Dropdown";
 import { cx } from "emotion";
 import mergeRefs from "react-merge-refs";
@@ -22,8 +28,7 @@ function getTrueBoundingRect(element: HTMLElement) {
       if (child instanceof HTMLElement) {
         const rect = getTrueBoundingRect(child);
 
-        if (rect)
-          rects.push(rect);
+        if (rect) rects.push(rect);
       }
     }
   }
@@ -47,23 +52,38 @@ function getTrueBoundingRect(element: HTMLElement) {
   return new DOMRect(left, top, right - left, bottom - top);
 }
 
-export const ContextMenu = ({ className, overlayClassName, moveTransition = false, offset = [0, 0], wrapperProps, overlayProps, overlay, ...props }: Omit<ComponentProps<typeof Dropdown>, "placement" | "trigger" | "hideOnClick" | "visible" | "getReferenceClientRect">) => {
+export const ContextMenu = ({
+  className,
+  overlayClassName,
+  moveTransition = false,
+  offset = [0, 0],
+  wrapperProps,
+  overlayProps,
+  overlay,
+  ...props
+}: Omit<
+  ComponentProps<typeof Dropdown>,
+  "placement" | "trigger" | "hideOnClick" | "visible" | "getReferenceClientRect"
+>) => {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const overlayRef = useRef<HTMLDivElement>(null);
 
   const [visible, setVisible] = useState(false);
-  const [{ x, y, trigger }, setPosition] = useState<{ x: number, y: number, trigger: ContextMenuTrigger }>({ x: 0, y: 0, trigger: "mouse" });
+  const [{ x, y, trigger }, setPosition] = useState<{
+    x: number;
+    y: number;
+    trigger: ContextMenuTrigger;
+  }>({ x: 0, y: 0, trigger: "mouse" });
 
   useContextMenu(wrapperRef, (target, trigger, { x, y }) => {
-    if (trigger === "touch" && visible)
-      return;
+    if (trigger === "touch" && visible) return;
 
     const { left, top } = getTrueBoundingRect(target) || { left: 0, top: 0 };
 
     setPosition({
       x: x - left,
       y: y - top,
-      trigger
+      trigger,
     });
     setVisible(true);
 
@@ -78,33 +98,39 @@ export const ContextMenu = ({ className, overlayClassName, moveTransition = fals
     <Dropdown
       className={cx("display-contents", className)}
       overlayClassName={cx("select-none", overlayClassName)}
-      placement='bottom-start'
+      placement="bottom-start"
       visible={visible}
       moveTransition={moveTransition}
       offset={offset}
       wrapperProps={{
         ...wrapperProps,
-        ref: wrapperProps?.ref ? mergeRefs([wrapperRef, wrapperProps.ref]) : wrapperRef
+        ref: wrapperProps?.ref
+          ? mergeRefs([wrapperRef, wrapperProps.ref])
+          : wrapperRef,
       }}
       overlayProps={{
         tabIndex: -1,
 
         ...overlayProps,
-        ref: overlayProps?.ref ? mergeRefs([overlayRef, overlayProps.ref]) : overlayRef,
+        ref: overlayProps?.ref
+          ? mergeRefs([overlayRef, overlayProps.ref])
+          : overlayRef,
 
         onBlur: () => {
           setTimeout(() => {
             // hack: bring focus back to overlay if an overlay descendant stole focus
-            if (overlayRef.current && overlayRef.current.contains(document.activeElement))
+            if (
+              overlayRef.current &&
+              overlayRef.current.contains(document.activeElement)
+            )
               overlayRef.current.focus();
-
-            else
-              setVisible(false);
+            else setVisible(false);
           });
-        }
+        },
       }}
       getReferenceClientRect={() => {
-        const { left, top } = (wrapperRef.current && getTrueBoundingRect(wrapperRef.current)) || { left: 0, top: 0 };
+        const { left, top } = (wrapperRef.current &&
+          getTrueBoundingRect(wrapperRef.current)) || { left: 0, top: 0 };
 
         return {
           width: 0,
@@ -112,35 +138,49 @@ export const ContextMenu = ({ className, overlayClassName, moveTransition = fals
           top: y + top,
           bottom: y + top,
           left: x + left,
-          right: x + left
+          right: x + left,
         };
       }}
+      overlay={
+        <>
+          <div className="display-contents">{overlay}</div>
 
-      overlay={<>
-        <div className='display-contents' children={overlay} />
-
-        {trigger === "touch" && <>
-          <DropdownDivider />
-          <DropdownItem icon={<CloseOutlined />} onClick={close}>
-            <FormattedMessage id='components.contextMenu.close' />
-          </DropdownItem>
-        </>}
-      </>}
-
-      {...props} />
+          {trigger === "touch" && (
+            <>
+              <DropdownDivider />
+              <DropdownItem icon={<CloseOutlined />} onClick={close}>
+                <FormattedMessage id="components.contextMenu.close" />
+              </DropdownItem>
+            </>
+          )}
+        </>
+      }
+      {...props}
+    />
   );
 };
 
-type ContextMenuTrigger = "mouse" | "touch"
+type ContextMenuTrigger = "mouse" | "touch";
 
-export function useContextMenu(ref: RefObject<HTMLElement>, callback: (target: HTMLElement, trigger: ContextMenuTrigger, position: { x: number, y: number }) => void) {
-  const touch = useRef<{ x: number, y: number, triggered: boolean, time: number }>();
+export function useContextMenu(
+  ref: RefObject<HTMLElement>,
+  callback: (
+    target: HTMLElement,
+    trigger: ContextMenuTrigger,
+    position: { x: number; y: number }
+  ) => void
+) {
+  const touch = useRef<{
+    x: number;
+    y: number;
+    triggered: boolean;
+    time: number;
+  }>();
 
   useLayoutEffect(() => {
     const element = ref.current;
 
-    if (!element)
-      return;
+    if (!element) return;
 
     const contextmenu = (e: MouseEvent) => {
       callback(element, "mouse", { x: e.clientX, y: e.clientY });
@@ -148,19 +188,23 @@ export function useContextMenu(ref: RefObject<HTMLElement>, callback: (target: H
     };
 
     const touchstart = (e: TouchEvent) => {
-      if (touch.current)
-        return;
+      if (touch.current) return;
 
       touch.current = {
         x: e.touches[0].clientX,
         y: e.touches[0].clientY,
         triggered: false,
-        time: performance.now()
+        time: performance.now(),
       };
     };
 
     const touchmove = (e: TouchEvent) => {
-      if (!touch.current || touch.current.triggered || e.touches.length !== 1 || performance.now() - touch.current.time >= 200)
+      if (
+        !touch.current ||
+        touch.current.triggered ||
+        e.touches.length !== 1 ||
+        performance.now() - touch.current.time >= 200
+      )
         return;
 
       const deltaX = e.touches[0].clientX - touch.current.x;
@@ -174,7 +218,7 @@ export function useContextMenu(ref: RefObject<HTMLElement>, callback: (target: H
       }
     };
 
-    const touchend = () => touch.current = undefined;
+    const touchend = () => (touch.current = undefined);
 
     element.addEventListener("contextmenu", contextmenu);
     element.addEventListener("touchstart", touchstart, { passive: true });

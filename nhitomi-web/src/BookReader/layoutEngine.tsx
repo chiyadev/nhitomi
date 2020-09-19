@@ -1,29 +1,29 @@
 export type ImageBase = {
-  width: number
-  height: number
-}
+  width: number;
+  height: number;
+};
 
 export type LayoutImage = {
-  image?: ImageBase
-  x: number
-  y: number
-  width: number
-  height: number
-}
+  image?: ImageBase;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+};
 
 export type LayoutRow = {
-  images: LayoutImage[]
-}
+  images: LayoutImage[];
+};
 
 export type LayoutResult = {
-  images: LayoutImage[]
-  rows: LayoutRow[]
-  width: number
-  height: number
+  images: LayoutImage[];
+  rows: LayoutRow[];
+  width: number;
+  height: number;
 
   /** What caused the layout to be recomputed */
-  cause: "variable" | "images"
-}
+  cause: "variable" | "images";
+};
 
 export class LayoutEngine {
   private cache: LayoutImage[] = [];
@@ -37,38 +37,41 @@ export class LayoutEngine {
     }
   }
 
-  recompute(images: (ImageBase | undefined)[], {
-    viewportWidth,
-    viewportHeight,
-    viewportBound = true,
-    defaultImageAspect = 5 / 7,
-    leftToRight = false,
-    itemsPerRow = 2,
-    similarAspectMargin = 0.1,
-    initialRowLimit
-  }: {
-    viewportWidth: number
-    viewportHeight: number
-    viewportBound?: boolean
-    defaultImageAspect?: number
-    leftToRight?: boolean
-    itemsPerRow?: number
-    similarAspectMargin?: number
-    initialRowLimit?: number
-  }): LayoutResult {
+  recompute(
+    images: (ImageBase | undefined)[],
+    {
+      viewportWidth,
+      viewportHeight,
+      viewportBound = true,
+      defaultImageAspect = 5 / 7,
+      leftToRight = false,
+      itemsPerRow = 2,
+      similarAspectMargin = 0.1,
+      initialRowLimit,
+    }: {
+      viewportWidth: number;
+      viewportHeight: number;
+      viewportBound?: boolean;
+      defaultImageAspect?: number;
+      leftToRight?: boolean;
+      itemsPerRow?: number;
+      similarAspectMargin?: number;
+      initialRowLimit?: number;
+    }
+  ): LayoutResult {
     const result = this.cache.slice();
     const length = result.length;
 
     const rows: LayoutRow[] = [];
 
     const row: {
-      width: number
-      height: number
-      images: LayoutImage[]
+      width: number;
+      height: number;
+      images: LayoutImage[];
     } = {
       width: 0,
       height: 0,
-      images: []
+      images: [],
     };
 
     const rowAdd = (image: LayoutImage) => {
@@ -81,8 +84,7 @@ export class LayoutEngine {
     let flushed = 0;
 
     const rowFlush = () => {
-      if (!row.images.length)
-        return;
+      if (!row.images.length) return;
 
       let scale = 1;
 
@@ -114,7 +116,13 @@ export class LayoutEngine {
           current.x = viewportWidth - (current.x + current.width);
 
         // only change layout identity if layout changed
-        if (current.image !== last.image || current.x !== last.x || current.y !== last.y || current.width !== last.width || current.height !== last.height)
+        if (
+          current.image !== last.image ||
+          current.x !== last.x ||
+          current.y !== last.y ||
+          current.width !== last.width ||
+          current.height !== last.height
+        )
           result[flushed] = current;
 
         x += current.width;
@@ -163,7 +171,12 @@ export class LayoutEngine {
         height *= scale;
 
         // flush row if full
-        if (row.images.length >= itemsPerRow || (flushed === 0 && initialRowLimit && row.images.length >= initialRowLimit))
+        if (
+          row.images.length >= itemsPerRow ||
+          (flushed === 0 &&
+            initialRowLimit &&
+            row.images.length >= initialRowLimit)
+        )
           rowFlush();
 
         // add to row if empty
@@ -188,10 +201,8 @@ export class LayoutEngine {
 
     let cause: LayoutResult["cause"];
 
-    if (images === this.lastImages)
-      cause = "variable";
-    else
-      cause = "images";
+    if (images === this.lastImages) cause = "variable";
+    else cause = "images";
 
     this.cache = result;
     this.lastImages = images;
@@ -201,7 +212,7 @@ export class LayoutEngine {
       height: y,
       images: result,
       rows,
-      cause
+      cause,
     };
   }
 }

@@ -20,17 +20,26 @@ export const LanguageNames: { [lang in LanguageType]: string } = {
   "nl-NL": "Nederlands",
   "ru-RU": "русский",
   "id-ID": "Bahasa Indonesia",
-  "vi-VN": "Tiếng Việt"
+  "vi-VN": "Tiếng Việt",
 };
 
 export const CJKLanguages: LanguageType[] = [
   LanguageType.JaJP,
   LanguageType.ZhCN,
-  LanguageType.KoKR
+  LanguageType.KoKR,
 ];
 
-export function useLocalized(id: string, values?: Record<string, string | number | boolean | null | undefined | Date>): string
-export function useLocalized(id: string, values?: Record<string, string | number | boolean | null | undefined | Date | ReactNode>): ReactNode
+export function useLocalized(
+  id: string,
+  values?: Record<string, string | number | boolean | null | undefined | Date>
+): string;
+export function useLocalized(
+  id: string,
+  values?: Record<
+    string,
+    string | number | boolean | null | undefined | Date | ReactNode
+  >
+): ReactNode;
 
 export function useLocalized(id: string, values: any) {
   const { formatMessage } = useIntl();
@@ -39,7 +48,11 @@ export function useLocalized(id: string, values: any) {
 }
 
 export const LocaleManager = ({ children }: { children?: ReactNode }) => {
-  const { info: { version: { shortHash: version } } } = useClientInfo();
+  const {
+    info: {
+      version: { shortHash: version },
+    },
+  } = useClientInfo();
   const { updateUser } = useClientUtils();
   const [messages, setMessages] = useState<Record<string, string>>();
   const { begin, end } = useProgress();
@@ -65,13 +78,15 @@ export const LocaleManager = ({ children }: { children?: ReactNode }) => {
     try {
       if (id > 1) {
         // synchronize language setting on change
-        await updateUser(user => ({ ...user, language }));
+        await updateUser((user) => ({ ...user, language }));
 
         // prefer english name for non-CJK languages
         setPreferEnglishName(CJKLanguages.indexOf(language) === -1);
 
         // add new interface language as search language
-        setSearchLanguages([...searchLanguages, language].filter((v, i, a) => a.indexOf(v) === i));
+        setSearchLanguages(
+          [...searchLanguages, language].filter((v, i, a) => a.indexOf(v) === i)
+        );
       }
     } catch (e) {
       console.error("could not synchronize language", e);
@@ -81,7 +96,11 @@ export const LocaleManager = ({ children }: { children?: ReactNode }) => {
       let messages = getLanguageCached(language, version);
 
       if (!messages)
-        setLanguageCached(language, version, messages = await loadLanguage(language));
+        setLanguageCached(
+          language,
+          version,
+          (messages = await loadLanguage(language))
+        );
 
       if (loadId.current === id) {
         setMessages(messages);
@@ -95,19 +114,25 @@ export const LocaleManager = ({ children }: { children?: ReactNode }) => {
     }
   }, [language]);
 
-  if (!messages)
-    return null;
+  if (!messages) return null;
 
   return (
     <IntlProvider locale={language} messages={messages} children={children} />
   );
 };
 
-async function loadLanguage(language: LanguageType): Promise<Record<string, string>> {
-  let data = JSON.parse(JSON.stringify((await import("./Languages/en-US.json")).default)); // use "en-US" constant! webpack seems to break with LanguageType.EnUS string interpolation
+async function loadLanguage(
+  language: LanguageType
+): Promise<Record<string, string>> {
+  let data = JSON.parse(
+    JSON.stringify((await import("./Languages/en-US.json")).default)
+  ); // use "en-US" constant! webpack seems to break with LanguageType.EnUS string interpolation
 
   // layer other languages on top of the default English
-  if (language !== LanguageType.EnUS && AvailableLocalizations.indexOf(language) !== -1) {
+  if (
+    language !== LanguageType.EnUS &&
+    AvailableLocalizations.indexOf(language) !== -1
+  ) {
     try {
       const overlay = (await import(`./Languages/${language}.json`)).default;
 
@@ -121,17 +146,21 @@ async function loadLanguage(language: LanguageType): Promise<Record<string, stri
 }
 
 type LocalizationCache = {
-  value: Record<string, string>
-  version: string
-}
+  value: Record<string, string>;
+  version: string;
+};
 
-function getLanguageCached(language: LanguageType, version: string): Record<string, string> | undefined {
+function getLanguageCached(
+  language: LanguageType,
+  version: string
+): Record<string, string> | undefined {
   // ignore cache in dev
-  if (process.env.NODE_ENV === "development")
-    return;
+  if (process.env.NODE_ENV === "development") return;
 
   try {
-    const cache: Partial<LocalizationCache> = JSON.parse(localStorage.getItem(`lang_cache_${language}`) || "");
+    const cache: Partial<LocalizationCache> = JSON.parse(
+      localStorage.getItem(`lang_cache_${language}`) || ""
+    );
 
     if (typeof cache.value === "object" && cache.version === version)
       return cache.value;
@@ -140,10 +169,14 @@ function getLanguageCached(language: LanguageType, version: string): Record<stri
   }
 }
 
-function setLanguageCached(language: LanguageType, version: string, messages: Record<string, string>) {
+function setLanguageCached(
+  language: LanguageType,
+  version: string,
+  messages: Record<string, string>
+) {
   const cache: LocalizationCache = {
     value: messages,
-    version
+    version,
   };
 
   localStorage.setItem(`lang_cache_${language}`, JSON.stringify(cache));
@@ -152,9 +185,7 @@ function setLanguageCached(language: LanguageType, version: string, messages: Re
 function mergeObjects(a: { [k: string]: any }, b: { [k: string]: any }) {
   for (const key in b) {
     try {
-      if (b[key].constructor === Object)
-        a[key] = mergeObjects(a[key], b[key]);
-
+      if (b[key].constructor === Object) a[key] = mergeObjects(a[key], b[key]);
       else a[key] = b[key];
     } catch {
       a[key] = b[key];
@@ -166,12 +197,18 @@ function mergeObjects(a: { [k: string]: any }, b: { [k: string]: any }) {
 
 function flattenObject(data: { [k: string]: any }): Record<string, string> {
   const flat = (res: {}, key: string, val: any, prefix = ""): {} => {
-    const pre = [prefix, key].filter(v => v).join(".");
+    const pre = [prefix, key].filter((v) => v).join(".");
 
     return typeof val === "object"
-      ? Object.keys(val).reduce((prev, curr) => flat(prev, curr, val[curr], pre), res)
+      ? Object.keys(val).reduce(
+          (prev, curr) => flat(prev, curr, val[curr], pre),
+          res
+        )
       : Object.assign(res, { [pre]: val });
   };
 
-  return Object.keys(data).reduce((prev, curr) => flat(prev, curr, data[curr]), {});
+  return Object.keys(data).reduce(
+    (prev, curr) => flat(prev, curr, data[curr]),
+    {}
+  );
 }

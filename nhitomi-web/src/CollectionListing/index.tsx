@@ -1,5 +1,10 @@
 import React, { ComponentProps } from "react";
-import { PrefetchGenerator, PrefetchLink, TypedPrefetchLinkProps, usePostfetch } from "../Prefetch";
+import {
+  PrefetchGenerator,
+  PrefetchLink,
+  TypedPrefetchLinkProps,
+  usePostfetch,
+} from "../Prefetch";
 import { Book, Collection, ObjectType, User } from "nhitomi-api";
 import { useClient, useClientInfo } from "../ClientManager";
 import { PageContainer } from "../Components/PageContainer";
@@ -9,43 +14,61 @@ import { BookSection } from "./Book";
 import { useTabTitle } from "../TitleSetter";
 import { useLocalized } from "../LocaleManager";
 
-export type PrefetchResult = { user: User, books: BookCollection[] }
-export type PrefetchOptions = { id: string }
+export type PrefetchResult = { user: User; books: BookCollection[] };
+export type PrefetchOptions = { id: string };
 
-export type BookCollection = { collection: Collection, cover?: Book }
+export type BookCollection = { collection: Collection; cover?: Book };
 
-export const useCollectionListingPrefetch: PrefetchGenerator<PrefetchResult, PrefetchOptions> = ({ id }) => {
+export const useCollectionListingPrefetch: PrefetchGenerator<
+  PrefetchResult,
+  PrefetchOptions
+> = ({ id }) => {
   const client = useClient();
   const { info, setInfo } = useClientInfo();
 
   return {
     destination: {
-      path: `/users/${id}/collections`
+      path: `/users/${id}/collections`,
     },
 
     fetch: async () => {
       const [user, collections] = await Promise.all([
         client.user.getUser({ id }),
-        client.user.getUserCollections({ id }).then(x => x.items)
+        client.user.getUserCollections({ id }).then((x) => x.items),
       ]);
 
       if (info.authenticated && info.user.id === user.id)
         setInfo({ ...info, user });
 
-      const bookCollections = collections.filter(c => c.type === ObjectType.Book);
-      const bookCoverIds = bookCollections.map(c => c.items[0]).filter(x => x);
-      const bookCovers = bookCoverIds.length ? (await client.book.getBooks({ getBookManyRequest: { ids: bookCoverIds } })).reduce((x, book) => {
-        x[book.id] = book;
-        return x;
-      }, {} as { [key: string]: Book }) : {};
-      const books = bookCollections.map(c => ({ collection: c, cover: bookCovers[c.items[0]] }));
+      const bookCollections = collections.filter(
+        (c) => c.type === ObjectType.Book
+      );
+      const bookCoverIds = bookCollections
+        .map((c) => c.items[0])
+        .filter((x) => x);
+      const bookCovers = bookCoverIds.length
+        ? (
+            await client.book.getBooks({
+              getBookManyRequest: { ids: bookCoverIds },
+            })
+          ).reduce((x, book) => {
+            x[book.id] = book;
+            return x;
+          }, {} as { [key: string]: Book })
+        : {};
+      const books = bookCollections.map((c) => ({
+        collection: c,
+        cover: bookCovers[c.items[0]],
+      }));
 
       return { user, books };
-    }
+    },
   };
 };
 
-export const SelfCollectionListingLink = (props: Omit<ComponentProps<typeof CollectionListingLink>, "id">) => {
+export const SelfCollectionListingLink = (
+  props: Omit<ComponentProps<typeof CollectionListingLink>, "id">
+) => {
   const { info } = useClientInfo();
 
   if (info.authenticated)
@@ -54,15 +77,24 @@ export const SelfCollectionListingLink = (props: Omit<ComponentProps<typeof Coll
   return <>{props.children}</>;
 };
 
-export const CollectionListingLink = ({ id, ...props }: TypedPrefetchLinkProps & PrefetchOptions) => (
-  <PrefetchLink fetch={useCollectionListingPrefetch} options={{ id }} {...props} />
+export const CollectionListingLink = ({
+  id,
+  ...props
+}: TypedPrefetchLinkProps & PrefetchOptions) => (
+  <PrefetchLink
+    fetch={useCollectionListingPrefetch}
+    options={{ id }}
+    {...props}
+  />
 );
 
 export const CollectionListing = (options: PrefetchOptions) => {
-  const { result } = usePostfetch(useCollectionListingPrefetch, { requireAuth: true, ...options });
+  const { result } = usePostfetch(useCollectionListingPrefetch, {
+    requireAuth: true,
+    ...options,
+  });
 
-  if (!result)
-    return null;
+  if (!result) return null;
 
   return (
     <PageContainer>
@@ -77,13 +109,23 @@ const Loaded = ({ user, books }: PrefetchResult) => {
   const { permissions } = useClientInfo();
 
   return (
-    <Container className='divide-y divide-gray-darkest'>
-      <div className='p-4'>
-        <div className='text-2xl'><FormattedMessage id='pages.collectionListing.title' /></div>
-        <div className='text-sm text-gray-darker'><FormattedMessage id='pages.collectionListing.subtitle' values={{ user: user.username, mode: permissions.canManageCollections(user) ? "manage" : "view" }} /></div>
+    <Container className="divide-y divide-gray-darkest">
+      <div className="p-4">
+        <div className="text-2xl">
+          <FormattedMessage id="pages.collectionListing.title" />
+        </div>
+        <div className="text-sm text-gray-darker">
+          <FormattedMessage
+            id="pages.collectionListing.subtitle"
+            values={{
+              user: user.username,
+              mode: permissions.canManageCollections(user) ? "manage" : "view",
+            }}
+          />
+        </div>
       </div>
 
-      <div className='py-4 space-y-8'>
+      <div className="py-4 space-y-8">
         <BookSection user={user} collections={books} />
       </div>
     </Container>

@@ -48,13 +48,13 @@ export const App = () => {
                   <ShortcutHintDisplay />
 
                   <Sidebar>
-                    <div className='flex flex-col min-h-screen'>
-                      <div className='relative w-full flex-1'>
+                    <div className="flex flex-col min-h-screen">
+                      <div className="relative w-full flex-1">
                         <MaintenanceHeader />
 
                         <Routing />
                       </div>
-                      <div className='mt-4'>
+                      <div className="mt-4">
                         <Footer />
                       </div>
                     </div>
@@ -71,33 +71,87 @@ export const App = () => {
 
 const Routing = () => {
   const { path, query, stringify, evaluate } = useNavigator();
-  const gapath = useMemo(() => stringify(evaluate({ path, query })), [evaluate, path, query, stringify]);
+  const gapath = useMemo(() => stringify(evaluate({ path, query })), [
+    evaluate,
+    path,
+    query,
+    stringify,
+  ]);
 
-  useLayoutEffect(() => { pageview(gapath); }, [gapath]);
+  useLayoutEffect(() => {
+    pageview(gapath);
+  }, [gapath]);
 
-  return useMemo(() => (
-    <Switch location={{ pathname: path, search: "", hash: "", state: undefined }}>
-      <Route path='/' exact><Redirect to='/books' /></Route>
-      <Route path='/about' exact component={About} />
+  return useMemo(
+    () => (
+      <Switch
+        location={{ pathname: path, search: "", hash: "", state: undefined }}
+      >
+        <Route path="/" exact>
+          <Redirect to="/books" />
+        </Route>
+        <Route path="/about" exact component={About} />
 
-      <Route path='/support' exact component={Support} />
-      <Route path='/support/pending' exact component={SupportPending} />
+        <Route path="/support" exact component={Support} />
+        <Route path="/support/pending" exact component={SupportPending} />
 
-      <Route path='/auth' exact component={Authentication} />
-      <Route path='/oauth/:service' exact render={({ match: { params: { service } } }) => <OAuthCallback service={service} />} />
+        <Route path="/auth" exact component={Authentication} />
+        <Route
+          path="/oauth/:service"
+          exact
+          render={({
+            match: {
+              params: { service },
+            },
+          }) => <OAuthCallback service={service} />}
+        />
 
-      <Route path='/books' exact component={BookListing} />
-      <Route path='/books/:id/contents/:contentId' exact render={({ match: { params: { id, contentId } } }) => <BookReader id={id} contentId={contentId} />} />
+        <Route path="/books" exact component={BookListing} />
+        <Route
+          path="/books/:id/contents/:contentId"
+          exact
+          render={({
+            match: {
+              params: { id, contentId },
+            },
+          }) => <BookReader id={id} contentId={contentId} />}
+        />
 
-      <Route path='/collections/:id' exact render={({ match: { params: { id } } }) => <CollectionContent id={id} />} />
-      <Route path='/collections/:id/edit' exact render={({ match: { params: { id } } }) => <CollectionEdit id={id} />} />
+        <Route
+          path="/collections/:id"
+          exact
+          render={({
+            match: {
+              params: { id },
+            },
+          }) => <CollectionContent id={id} />}
+        />
+        <Route
+          path="/collections/:id/edit"
+          exact
+          render={({
+            match: {
+              params: { id },
+            },
+          }) => <CollectionEdit id={id} />}
+        />
 
-      <Route path='/users/:id/collections' exact render={({ match: { params: { id } } }) => <CollectionListing id={id} />} />
+        <Route
+          path="/users/:id/collections"
+          exact
+          render={({
+            match: {
+              params: { id },
+            },
+          }) => <CollectionListing id={id} />}
+        />
 
-      <Route path='/settings' exact component={Settings} />
-      <Route path='/settings/debug' exact component={Debug} />
+        <Route path="/settings" exact component={Settings} />
+        <Route path="/settings/debug" exact component={Debug} />
 
-      <Route component={NotFound} />
-    </Switch>
-  ), [path]);
+        <Route component={NotFound} />
+      </Switch>
+    ),
+    [path]
+  );
 };

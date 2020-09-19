@@ -10,13 +10,19 @@ export const Account = () => {
   const { info, setInfo } = useClientInfo();
   const [, setToken] = useConfig("token");
 
-  if (!info.authenticated)
-    return null;
+  if (!info.authenticated) return null;
 
   return (
-    <SettingsFocusContainer focus='account'>
-      <div><FormattedMessage id='pages.settings.user.account.name' /></div>
-      <div className='text-sm text-gray-darker'><FormattedMessage id='pages.settings.user.account.description' values={{ name: info.user.username }} /></div>
+    <SettingsFocusContainer focus="account">
+      <div>
+        <FormattedMessage id="pages.settings.user.account.name" />
+      </div>
+      <div className="text-sm text-gray-darker">
+        <FormattedMessage
+          id="pages.settings.user.account.description"
+          values={{ name: info.user.username }}
+        />
+      </div>
       <br />
 
       <FlatButton
@@ -24,9 +30,9 @@ export const Account = () => {
         onClick={() => {
           setToken(undefined);
           setInfo({ ...info, authenticated: false });
-        }}>
-
-        <FormattedMessage id='pages.settings.user.account.logout' />
+        }}
+      >
+        <FormattedMessage id="pages.settings.user.account.logout" />
       </FlatButton>
     </SettingsFocusContainer>
   );

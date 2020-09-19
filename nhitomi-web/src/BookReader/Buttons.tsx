@@ -14,7 +14,7 @@ import { Disableable } from "../Components/Disableable";
 
 export const Buttons = ({ book }: PrefetchResult) => {
   return (
-    <div className='flex flex-row space-x-2'>
+    <div className="flex flex-row space-x-2">
       <FavoriteButton book={book} />
       <CollectionAddButton book={book} />
     </div>
@@ -32,22 +32,26 @@ const FavoriteButton = ({ book }: { book: Book }) => {
       <FilledButton
         icon={<HeartFilled />}
         color={getColor("red", "darker")}
-        className='py-1'
+        className="py-1"
         onClick={async () => {
           setLoading(true);
           begin();
 
           try {
-            await addToSpecialCollection(book.id, ObjectType.Book, SpecialCollection.Favorites);
+            await addToSpecialCollection(
+              book.id,
+              ObjectType.Book,
+              SpecialCollection.Favorites
+            );
           } catch (e) {
             notifyError(e);
           } finally {
             setLoading(false);
             end();
           }
-        }}>
-
-        <FormattedMessage id='pages.bookReader.buttons.favorite' />
+        }}
+      >
+        <FormattedMessage id="pages.bookReader.buttons.favorite" />
       </FilledButton>
     </Disableable>
   );
@@ -57,15 +61,16 @@ const CollectionAddButton = ({ book }: { book: Book }) => {
   const [load, setLoad] = useState(false);
 
   return (
-    <Dropdown onShow={() => setLoad(true)} overlay={load && (
-      <CollectionAddBookDropdownMenu book={book} />
-    )}>
+    <Dropdown
+      onShow={() => setLoad(true)}
+      overlay={load && <CollectionAddBookDropdownMenu book={book} />}
+    >
       <FilledButton
         icon={<PlusOutlined />}
         color={getColor("gray", "darkest")}
-        className='py-1'>
-
-        <FormattedMessage id='pages.bookReader.buttons.collectionAdd' />
+        className="py-1"
+      >
+        <FormattedMessage id="pages.bookReader.buttons.collectionAdd" />
       </FilledButton>
     </Dropdown>
   );

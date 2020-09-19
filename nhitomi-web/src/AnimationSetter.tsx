@@ -20,7 +20,7 @@ export const AnimationSetter = () => {
       now: () => {
         const now = Date.now();
         return offset.current + (now - changed.current) * speed;
-      }
+      },
     });
   }, [mode]);
 

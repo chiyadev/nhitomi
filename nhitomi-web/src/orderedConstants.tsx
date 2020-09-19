@@ -8,13 +8,10 @@ export const BookTags = [
   BookTag.Series,
   BookTag.Convention,
   BookTag.Metadata,
-  BookTag.Tag
+  BookTag.Tag,
 ];
 
-export const ScraperTypes = [
-  ScraperType.Nhentai,
-  ScraperType.Hitomi
-];
+export const ScraperTypes = [ScraperType.Nhentai, ScraperType.Hitomi];
 
 export const LanguageTypes = [
   LanguageType.JaJP,
@@ -29,5 +26,5 @@ export const LanguageTypes = [
   LanguageType.NlNL,
   LanguageType.RuRU,
   LanguageType.IdID,
-  LanguageType.ViVN
+  LanguageType.ViVN,
 ];

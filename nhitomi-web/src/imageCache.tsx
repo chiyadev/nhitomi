@@ -1,14 +1,14 @@
 type ImageData = {
-  blob: Blob
-  width: number
-  height: number
-}
+  blob: Blob;
+  width: number;
+  height: number;
+};
 
 type CacheEntry = ImageData & {
-  url: string
-  refs: number
-  time: number
-}
+  url: string;
+  refs: number;
+  time: number;
+};
 
 const cache: Record<string, CacheEntry> = {};
 
@@ -20,7 +20,7 @@ export function createCachedImageRef(key: string, image: ImageData): string {
     ...image,
     url,
     refs: 1,
-    time: Date.now()
+    time: Date.now(),
   };
 
   return url;
@@ -56,7 +56,7 @@ setInterval(() => {
   for (const key of keys) {
     const entry = cache[key];
 
-    if ((totalSize + entry.blob.size) <= CacheSize) {
+    if (totalSize + entry.blob.size <= CacheSize) {
       totalSize += entry.blob.size;
     } else if (!entry.refs) {
       URL.revokeObjectURL(entry.url);

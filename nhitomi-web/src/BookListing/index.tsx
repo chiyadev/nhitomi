@@ -1,7 +1,17 @@
 import React, { Dispatch, useLayoutEffect, useMemo, useRef } from "react";
-import { convertQuery, DefaultQueryLimit, performQuery, SearchQuery } from "./search";
+import {
+  convertQuery,
+  DefaultQueryLimit,
+  performQuery,
+  SearchQuery,
+} from "./search";
 import { usePageState, useQueryState } from "../state";
-import { PrefetchGenerator, PrefetchLink, TypedPrefetchLinkProps, usePostfetch } from "../Prefetch";
+import {
+  PrefetchGenerator,
+  PrefetchLink,
+  TypedPrefetchLinkProps,
+  usePostfetch,
+} from "../Prefetch";
 import { Book, BookSearchResult, BookSort, SortDirection } from "nhitomi-api";
 import { SearchInput } from "./SearchInput";
 import { BookList } from "../Components/BookList";
@@ -22,10 +32,13 @@ import { EmptyIndicator } from "../Components/EmptyIndicator";
 import { FormattedMessage } from "react-intl";
 import { useAsync } from "../hooks";
 
-export type PrefetchResult = BookSearchResult & { nextOffset: number }
-export type PrefetchOptions = { query?: SearchQuery }
+export type PrefetchResult = BookSearchResult & { nextOffset: number };
+export type PrefetchOptions = { query?: SearchQuery };
 
-export const useBookListingPrefetch: PrefetchGenerator<PrefetchResult, PrefetchOptions> = ({ mode, query: targetQuery }) => {
+export const useBookListingPrefetch: PrefetchGenerator<
+  PrefetchResult,
+  PrefetchOptions
+> = ({ mode, query: targetQuery }) => {
   const client = useClient();
   const { info } = useClientInfo();
   const [languages] = useConfig("searchLanguages");
@@ -47,31 +60,36 @@ export const useBookListingPrefetch: PrefetchGenerator<PrefetchResult, PrefetchO
     destination: {
       path: "/books",
       query,
-      state: s => ({
+      state: (s) => ({
         ...s,
-        query: { value: query, version: Math.random() } // synchronize effective query immediately
-      })
+        query: { value: query, version: Math.random() }, // synchronize effective query immediately
+      }),
     },
 
     fetch: async () => {
       const result = await performQuery(client, info, query);
 
       return { ...result, nextOffset: DefaultQueryLimit };
-    }
+    },
   };
 };
 
-export const BookListingLink = ({ query, ...props }: TypedPrefetchLinkProps & PrefetchOptions) => (
+export const BookListingLink = ({
+  query,
+  ...props
+}: TypedPrefetchLinkProps & PrefetchOptions) => (
   <PrefetchLink fetch={useBookListingPrefetch} options={{ query }} {...props} />
 );
 
 export const BookListing = (options: PrefetchOptions) => {
-  const { result, setResult } = usePostfetch(useBookListingPrefetch, { requireAuth: true, ...options });
+  const { result, setResult } = usePostfetch(useBookListingPrefetch, {
+    requireAuth: true,
+    ...options,
+  });
 
   useScrollShortcut();
 
-  if (!result)
-    return null;
+  if (!result) return null;
 
   return (
     <PageContainer>
@@ -80,7 +98,13 @@ export const BookListing = (options: PrefetchOptions) => {
   );
 };
 
-const Loaded = ({ result, setResult }: { result: PrefetchResult, setResult: Dispatch<PrefetchResult> }) => {
+const Loaded = ({
+  result,
+  setResult,
+}: {
+  result: PrefetchResult;
+  setResult: Dispatch<PrefetchResult>;
+}) => {
   const [query] = useQueryState<SearchQuery>();
   const queryId = useRef(0);
 
@@ -92,16 +116,20 @@ const Loaded = ({ result, setResult }: { result: PrefetchResult, setResult: Disp
   const { begin, end } = useProgress();
 
   // displayed results may not represent the current query if we navigated before storing the results
-  const [effectiveQuery, setEffectiveQuery] = usePageState<SearchQuery>("query", query);
+  const [effectiveQuery, setEffectiveQuery] = usePageState<SearchQuery>(
+    "query",
+    query
+  );
 
   // serialized query string is used for comparison
   const queryCmp = useMemo(() => stringify(query), [query]);
-  const effectiveQueryCmp = useMemo(() => stringify(effectiveQuery || {}), [effectiveQuery]);
+  const effectiveQueryCmp = useMemo(() => stringify(effectiveQuery || {}), [
+    effectiveQuery,
+  ]);
 
   // perform search when query changes
   useAsync(async () => {
-    if (queryCmp === effectiveQueryCmp)
-      return;
+    if (queryCmp === effectiveQueryCmp) return;
 
     begin();
 
@@ -127,16 +155,20 @@ const Loaded = ({ result, setResult }: { result: PrefetchResult, setResult: Disp
 
       <BookList
         items={result.items}
-        menu={(
-          <Menu />
-        )}
-        empty={(
+        menu={<Menu />}
+        empty={
           <EmptyIndicator>
-            <FormattedMessage id='pages.bookListing.empty' />
+            <FormattedMessage id="pages.bookListing.empty" />
           </EmptyIndicator>
-        )} />
+        }
+      />
 
-      <Loader key={effectiveQueryCmp} query={query} result={result} setResult={setResult} />
+      <Loader
+        key={effectiveQueryCmp}
+        query={query}
+        result={result}
+        setResult={setResult}
+      />
     </Container>
   );
 };
@@ -144,19 +176,27 @@ const Loaded = ({ result, setResult }: { result: PrefetchResult, setResult: Disp
 const Input = ({ result }: { result: PrefetchResult }) => {
   const style = useSpring({
     from: { opacity: 0, marginTop: -5 },
-    to: { opacity: 1, marginTop: 0 }
+    to: { opacity: 1, marginTop: 0 },
   });
 
   return (
-    <div className='mx-auto p-4 w-full max-w-2xl sticky top-0 z-20'>
-      <animated.div style={style} className='w-full'>
-        <SearchInput result={result} className='shadow-lg w-full' />
+    <div className="mx-auto p-4 w-full max-w-2xl sticky top-0 z-20">
+      <animated.div style={style} className="w-full">
+        <SearchInput result={result} className="shadow-lg w-full" />
       </animated.div>
     </div>
   );
 };
 
-const Loader = ({ query, result, setResult }: { query: SearchQuery, result: PrefetchResult, setResult: Dispatch<PrefetchResult> }) => {
+const Loader = ({
+  query,
+  result,
+  setResult,
+}: {
+  query: SearchQuery;
+  result: PrefetchResult;
+  setResult: Dispatch<PrefetchResult>;
+}) => {
   const client = useClient();
   const { notifyError } = useNotify();
   const { begin, end: endProgress } = useProgress();
@@ -164,28 +204,33 @@ const Loader = ({ query, result, setResult }: { query: SearchQuery, result: Pref
   const loadId = useRef(result.nextOffset >= result.total ? -1 : 0);
 
   // unmount means query changed, so prevent setting irrelevant results
-  useLayoutEffect(() => () => { loadId.current = -1; }, []);
+  useLayoutEffect(
+    () => () => {
+      loadId.current = -1;
+    },
+    []
+  );
 
   const style = useSpring({
-    opacity: loadId.current < 0 ? 0 : 1
+    opacity: loadId.current < 0 ? 0 : 1,
   });
 
   return (
     <animated.div style={style}>
       <LoadContainer
         key={loadId.current} // recreate load container for each load
-        className='w-full h-20'
+        className="w-full h-20"
         onLoad={async () => {
-          if (loadId.current < 0)
-            return;
+          if (loadId.current < 0) return;
 
           begin();
 
           try {
-            const moreResult = await client.book.searchBooks({ bookQuery: { ...convertQuery(query), offset: result.nextOffset } });
+            const moreResult = await client.book.searchBooks({
+              bookQuery: { ...convertQuery(query), offset: result.nextOffset },
+            });
 
-            if (loadId.current < 0)
-              return;
+            if (loadId.current < 0) return;
 
             if (!moreResult.items.length) {
               loadId.current = -1;
@@ -197,8 +242,7 @@ const Loader = ({ query, result, setResult }: { query: SearchQuery, result: Pref
             const exists: { [id: string]: true } = {};
 
             for (const item of [...result.items, ...moreResult.items]) {
-              if (!exists[item.id])
-                items.push(item);
+              if (!exists[item.id]) items.push(item);
 
               exists[item.id] = true;
             }
@@ -208,7 +252,7 @@ const Loader = ({ query, result, setResult }: { query: SearchQuery, result: Pref
               ...moreResult,
 
               items,
-              nextOffset: result.nextOffset + DefaultQueryLimit
+              nextOffset: result.nextOffset + DefaultQueryLimit,
             });
 
             ++loadId.current;
@@ -217,7 +261,8 @@ const Loader = ({ query, result, setResult }: { query: SearchQuery, result: Pref
           } finally {
             endProgress();
           }
-        }} />
+        }}
+      />
     </animated.div>
   );
 };

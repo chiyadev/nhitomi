@@ -11,5 +11,5 @@ export const BookTagColors: { [key in BookTag]: ColorHue } = {
   // pool: 'cyan',
   convention: "grape",
   metadata: "violet",
-  tag: "blue"
+  tag: "blue",
 };

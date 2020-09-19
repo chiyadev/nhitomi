@@ -25,23 +25,20 @@ export const Checkout = ({ supporterPrice, apiKey }: PrefetchResult) => {
     setLoading(true);
 
     try {
-      if (!info.authenticated)
-        throw Error("Unauthorized.");
+      if (!info.authenticated) throw Error("Unauthorized.");
 
       const stripe = await loadStripe(apiKey);
 
-      if (!stripe)
-        throw Error("Could not load Stripe.");
+      if (!stripe) throw Error("Could not load Stripe.");
 
       const { sessionId } = await client.user.createUserSupporterCheckout({
         id: info.user.id,
-        createSupporterCheckoutRequest: { amount }
+        createSupporterCheckoutRequest: { amount },
       });
 
       const { error } = await stripe.redirectToCheckout({ sessionId });
 
-      if (error)
-        throw Error(error.message || "Unknown Stripe error.");
+      if (error) throw Error(error.message || "Unknown Stripe error.");
     } catch (e) {
       notifyError(e);
     } finally {
@@ -51,78 +48,104 @@ export const Checkout = ({ supporterPrice, apiKey }: PrefetchResult) => {
 
   return (
     <Disableable disabled={loading}>
-      <div className='max-w-xs mx-auto p-4 space-y-4'>
+      <div className="max-w-xs mx-auto p-4 space-y-4">
         <CheckoutButton duration={duration} loading={loading} submit={submit} />
 
-        <div className='space-y-1'>
-          <div className='text-center text-sm'>{amount} USD</div>
+        <div className="space-y-1">
+          <div className="text-center text-sm">{amount} USD</div>
 
           <Slider
-            className='w-full'
+            className="w-full"
             color={getColor("pink")}
             min={0}
             max={12}
             value={duration}
-            setValue={v => setDuration(Math.max(1, v))}
-            overlay={`${amount} USD`} />
+            setValue={(v) => setDuration(Math.max(1, v))}
+            overlay={`${amount} USD`}
+          />
         </div>
 
-        <ul className='list-disc list-inside text-sm'>
+        <ul className="list-disc list-inside text-sm">
           <li>nhitomi supporter is a non-recurring payment.</li>
-          <li>If you are already a supporter, your supporter period will be extended.</li>
+          <li>
+            If you are already a supporter, your supporter period will be
+            extended.
+          </li>
         </ul>
       </div>
     </Disableable>
   );
 };
 
-const CheckoutButton = ({ duration, loading, submit }: { duration: number, loading: boolean, submit: () => void }) => {
+const CheckoutButton = ({
+  duration,
+  loading,
+  submit,
+}: {
+  duration: number;
+  loading: boolean;
+  submit: () => void;
+}) => {
   const { info } = useClientInfo();
   const supporter = info.authenticated && info.user.isSupporter;
   const [hover, setHover] = useState(false);
 
   const imageStyle = useSpring({
     opacity: hover || loading ? 0.6 : 0.5,
-    transform: `translate(-50%, -50%) scale(${hover || loading ? 1.1 : 1})`
+    transform: `translate(-50%, -50%) scale(${hover || loading ? 1.1 : 1})`,
   });
 
   const textStyle = useSpring({
     opacity: loading ? 0 : 1,
-    transform: `scale(${loading ? 1.1 : 1})`
+    transform: `scale(${loading ? 1.1 : 1})`,
   });
 
   const loadingStyle = useSpring({
     opacity: loading ? 1 : 0,
-    transform: `scale(${loading ? 1 : 0.9})`
+    transform: `scale(${loading ? 1 : 0.9})`,
   });
 
   return (
     <div
-      className='h-32 bg-black rounded-lg relative overflow-hidden cursor-pointer shadow-lg border border-pink'
+      className="h-32 bg-black rounded-lg relative overflow-hidden cursor-pointer shadow-lg border border-pink"
       onClick={submit}
       onMouseEnter={() => setHover(true)}
-      onMouseLeave={() => setHover(false)}>
-
+      onMouseLeave={() => setHover(false)}
+    >
       <animated.img
         style={imageStyle}
-        alt='buttonbg'
-        src='/assets/images/megumi_button_bg.jpg'
-        className={cx("absolute w-full object-cover select-none pointer-events-none", css`left: 50%; top: 50%;`)} />
+        alt="buttonbg"
+        src="/assets/images/megumi_button_bg.jpg"
+        className={cx(
+          "absolute w-full object-cover select-none pointer-events-none",
+          css`
+            left: 50%;
+            top: 50%;
+          `
+        )}
+      />
 
-      <div className='absolute transform-center w-full text-center'>
+      <div className="absolute transform-center w-full text-center">
         <animated.div style={textStyle}>
-          <div className='text-xl'>
-            <FormattedMessage id='pages.support.buy' />
+          <div className="text-xl">
+            <FormattedMessage id="pages.support.buy" />
           </div>
-          <div className='text-sm'>
-            <FormattedMessage id={supporter ? "pages.support.duration_supporter" : "pages.support.duration"} values={{ duration }} />
+          <div className="text-sm">
+            <FormattedMessage
+              id={
+                supporter
+                  ? "pages.support.duration_supporter"
+                  : "pages.support.duration"
+              }
+              values={{ duration }}
+            />
           </div>
         </animated.div>
       </div>
 
       <animated.span style={loadingStyle}>
-        <span className='absolute transform-center text-xl'>
-          <Loading3QuartersOutlined className='animate-spin' />
+        <span className="absolute transform-center text-xl">
+          <Loading3QuartersOutlined className="animate-spin" />
         </span>
       </animated.span>
     </div>

@@ -1,10 +1,11 @@
 /** An array that loads items asynchronously in chunks and caches them in memory. Used to display paginated search results. */
 export class AsyncArray<T> {
-  readonly cache: ({ loaded: true, value: T | undefined } | undefined)[] = [];
+  readonly cache: ({ loaded: true; value: T | undefined } | undefined)[] = [];
 
   get loadedLength(): number {
     for (let i = this.cache.length; i > 0; i--)
-      if (this.cache[i - 1]?.value) // value must be set (not loaded=true)
+      if (this.cache[i - 1]?.value)
+        // value must be set (not loaded=true)
         return i;
 
     return 0;
@@ -13,7 +14,7 @@ export class AsyncArray<T> {
   constructor(
     readonly chunkSize: number,
     readonly fetch: (offset: number, limit: number) => Promise<T[]>
-  ) { }
+  ) {}
 
   /** Creates a preloaded AsyncArray<T> with no fetch function. */
   static fromArray<T>(array: T[]): AsyncArray<T> {
@@ -30,8 +31,7 @@ export class AsyncArray<T> {
 
     let current = this.cache[index];
 
-    if (current)
-      return current.value;
+    if (current) return current.value;
 
     const start = Math.floor(index / this.chunkSize) * this.chunkSize;
     const loaded = await this.fetch(start, this.chunkSize);
@@ -41,8 +41,7 @@ export class AsyncArray<T> {
 
     current = this.cache[index];
 
-    if (current)
-      return current.value;
+    if (current) return current.value;
 
     this.cache[index] = { loaded: true, value: undefined };
   }
@@ -50,9 +49,10 @@ export class AsyncArray<T> {
   getCached(index: number): T | undefined {
     const current = this.cache[index];
 
-    if (current)
-      return current.value;
+    if (current) return current.value;
   }
 
-  reset(): void { this.cache.length = 0; }
+  reset(): void {
+    this.cache.length = 0;
+  }
 }

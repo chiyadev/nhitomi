@@ -6,8 +6,7 @@ export class DestroyTrigger extends ReactionTrigger {
   protected async run(): Promise<boolean> {
     const interactive = this.interactive;
 
-    if (!interactive)
-      return false;
+    if (!interactive) return false;
 
     // schedule destroy to avoid deadlock (triggers are automatically locked)
     setTimeout(() => interactive.destroy(), 0);

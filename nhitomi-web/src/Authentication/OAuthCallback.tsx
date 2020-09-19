@@ -10,7 +10,7 @@ import { useClient, useClientInfo } from "../ClientManager";
 import { AuthenticateResponse } from "nhitomi-api";
 import { useConfig } from "../ConfigManager";
 
-export type OAuthService = "discord"
+export type OAuthService = "discord";
 
 export const OAuthCallback = ({ service }: { service: OAuthService }) => {
   const client = useClient();
@@ -24,26 +24,31 @@ export const OAuthCallback = ({ service }: { service: OAuthService }) => {
 
   const [validXsrf, resetXsrf] = useXsrfToken();
   const [, setToken] = useConfig("token");
-  const [, navigateAuth] = usePrefetch(useAuthenticationPrefetch, { redirect: useMemo(() => state ? parseOAuthState(state).redirect : { path: "/" }, [state]) });
+  const [, navigateAuth] = usePrefetch(useAuthenticationPrefetch, {
+    redirect: useMemo(
+      () => (state ? parseOAuthState(state).redirect : { path: "/" }),
+      [state]
+    ),
+  });
 
   useAsync(async () => {
     begin();
 
     try {
-      if (!state)
-        throw Error("Missing OAuth state query.");
+      if (!state) throw Error("Missing OAuth state query.");
 
       const { xsrf: currentXsrf, redirect } = parseOAuthState(state);
 
       // verify xsrf token
-      if (currentXsrf !== validXsrf)
-        throw Error("Invalid XSRF token.");
+      if (currentXsrf !== validXsrf) throw Error("Invalid XSRF token.");
 
       let result: AuthenticateResponse;
 
       switch (service) {
         case "discord":
-          result = await client.user.authenticateUserDiscord({ authenticateDiscordRequest: { code: query.code as string } });
+          result = await client.user.authenticateUserDiscord({
+            authenticateDiscordRequest: { code: query.code as string },
+          });
           break;
 
         default:
@@ -53,7 +58,7 @@ export const OAuthCallback = ({ service }: { service: OAuthService }) => {
       setInfo({
         ...info,
         authenticated: true,
-        user: result.user
+        user: result.user,
       });
 
       setToken(result.token);

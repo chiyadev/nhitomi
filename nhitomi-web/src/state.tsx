@@ -1,36 +1,62 @@
-import { Dispatch, useCallback, useLayoutEffect, useRef, useState } from "react";
-import { createBrowserHistory, Hash, History as Hisotry, Location, Pathname, Search } from "history";
+import {
+  Dispatch,
+  useCallback,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
+import {
+  createBrowserHistory,
+  Hash,
+  History as Hisotry,
+  Location,
+  Pathname,
+  Search,
+} from "history";
 import { parse, stringify } from "qs";
 import { EventEmitter } from "events";
 import StrictEventEmitter from "strict-event-emitter-types";
 import { useUpdate } from "react-use";
 
-export type NavigationMode = "push" | "replace"
+export type NavigationMode = "push" | "replace";
 export type NavigationLocation = {
-  path: Pathname
-  query: QueryState
-  hash: HashState
-  state: HistoryState
-}
-export type NavigationArgs = Partial<{
-  [key in keyof NavigationLocation]: NavigationLocation[key] | ((value: NavigationLocation[key]) => NavigationLocation[key])
-}>
+  path: Pathname;
+  query: QueryState;
+  hash: HashState;
+  state: HistoryState;
+};
+export type NavigationArgs = Partial<
+  {
+    [key in keyof NavigationLocation]:
+      | NavigationLocation[key]
+      | ((value: NavigationLocation[key]) => NavigationLocation[key]);
+  }
+>;
 
-export type HistoryState = Record<string, { value: unknown, version: number } | undefined>
-export type QueryState = Record<string, number | string | object | null | undefined>
-export type HashState = Hash // consistency
+export type HistoryState = Record<
+  string,
+  { value: unknown; version: number } | undefined
+>;
+export type QueryState = Record<
+  string,
+  number | string | object | null | undefined
+>;
+export type HashState = Hash; // consistency
 
 export const Navigator: NavigationLocation & {
   /** History object responsible for managing all internal navigations. */
-  history: Hisotry<HistoryState | null>
+  history: Hisotry<HistoryState | null>;
 
-  events: StrictEventEmitter<EventEmitter, {
-    navigated: (location: NavigationLocation) => void
-  }>
+  events: StrictEventEmitter<
+    EventEmitter,
+    {
+      navigated: (location: NavigationLocation) => void;
+    }
+  >;
 
-  navigate: (mode: NavigationMode, args: NavigationArgs) => void
-  evaluate: (location: NavigationArgs) => NavigationLocation
-  stringify: (location: Omit<NavigationLocation, "state">) => string
+  navigate: (mode: NavigationMode, args: NavigationArgs) => void;
+  evaluate: (location: NavigationArgs) => NavigationLocation;
+  stringify: (location: Omit<NavigationLocation, "state">) => string;
 } = {
   history: createBrowserHistory() as any,
   events: new EventEmitter(),
@@ -77,7 +103,7 @@ export const Navigator: NavigationLocation & {
 
   stringify: ({ path, query, hash }) => {
     return path + serializeQuery(query) + hash;
-  }
+  },
 };
 
 Navigator.events.setMaxListeners(0);
@@ -88,7 +114,7 @@ function serializeQuery(query: QueryState): Search {
     allowDots: true,
     arrayFormat: "brackets",
     skipNulls: true,
-    sort: (a, b) => a.localeCompare(b)
+    sort: (a, b) => a.localeCompare(b),
   });
 }
 
@@ -97,7 +123,7 @@ function deserializeQuery(query: Search): QueryState {
     ignoreQueryPrefix: true,
     allowDots: true,
     arrayLimit: 100,
-    depth: 10
+    depth: 10,
   }) as any;
 }
 
@@ -119,9 +145,14 @@ try {
   // https://stackoverflow.com/a/53307588/13160620
   const entry = performance.getEntriesByType("navigation")[0];
 
-  refreshed = entry instanceof PerformanceNavigationTiming && entry.type === "reload";
+  refreshed =
+    entry instanceof PerformanceNavigationTiming && entry.type === "reload";
 } catch {
-  try { refreshed = performance.navigation.type === 1; } catch { /* ignored */ }
+  try {
+    refreshed = performance.navigation.type === 1;
+  } catch {
+    /* ignored */
+  }
 }
 
 if (refreshed) {
@@ -141,71 +172,122 @@ export function useNavigator() {
 export function useNavigated(handler: (location: NavigationLocation) => void) {
   useLayoutEffect(() => {
     Navigator.events.on("navigated", handler);
-    return () => { Navigator.events.off("navigated", handler); };
+    return () => {
+      Navigator.events.off("navigated", handler);
+    };
   }, [handler]);
 }
 
 /** Similar to useState but stores the data in window.history.state. */
-export function usePageState<T>(key: string): [T | undefined, Dispatch<T | undefined>]
-export function usePageState<T>(key: string, initialState: T): [T, Dispatch<T>]
+export function usePageState<T>(
+  key: string
+): [T | undefined, Dispatch<T | undefined>];
+export function usePageState<T>(key: string, initialState: T): [T, Dispatch<T>];
 
 export function usePageState(key: string, initialState?: any) {
-  if (typeof initialState !== "undefined" && typeof Navigator.state[key]?.value === "undefined") {
-    Navigator.navigate("replace", { state: s => ({ ...s, [key]: { value: initialState, version: Math.random() } }) });
+  if (
+    typeof initialState !== "undefined" &&
+    typeof Navigator.state[key]?.value === "undefined"
+  ) {
+    Navigator.navigate("replace", {
+      state: (s) => ({
+        ...s,
+        [key]: { value: initialState, version: Math.random() },
+      }),
+    });
   }
 
   const [state, setState] = useState(Navigator.state[key]);
 
-  useNavigated(useCallback(location => {
-    const newState = location.state?.[key];
+  useNavigated(
+    useCallback(
+      (location) => {
+        const newState = location.state?.[key];
 
-    if (newState?.version !== state?.version)
-      setState(newState);
-  }, [key, state]));
+        if (newState?.version !== state?.version) setState(newState);
+      },
+      [key, state]
+    )
+  );
 
   const mounted = useRef(true);
-  useLayoutEffect(() => () => { mounted.current = false; }, []);
+  useLayoutEffect(
+    () => () => {
+      mounted.current = false;
+    },
+    []
+  );
 
   return [
     state?.value,
-    useCallback((value: any) => { mounted.current && Navigator.navigate("replace", { state: s => ({ ...s, [key]: { value, version: Math.random() } }) }); }, [key])
+    useCallback(
+      (value: any) => {
+        mounted.current &&
+          Navigator.navigate("replace", {
+            state: (s) => ({ ...s, [key]: { value, version: Math.random() } }),
+          });
+      },
+      [key]
+    ),
   ];
 }
 
 /** Deserializes the query part of the current url and returns a function that can update it. */
-export function useQuery(mode: NavigationMode = "replace"): [QueryState, Dispatch<QueryState>] {
+export function useQuery(
+  mode: NavigationMode = "replace"
+): [QueryState, Dispatch<QueryState>] {
   const [state, setState] = useState(Navigator.query);
 
-  useNavigated(useCallback(location => {
-    const newState = location.query;
+  useNavigated(
+    useCallback((location) => {
+      const newState = location.query;
 
-    setState(newState);
-  }, []));
+      setState(newState);
+    }, [])
+  );
 
   const mounted = useRef(true);
-  useLayoutEffect(() => () => { mounted.current = false; }, []);
+  useLayoutEffect(
+    () => () => {
+      mounted.current = false;
+    },
+    []
+  );
 
   return [
     state,
-    useCallback((value: QueryState) => { mounted.current && Navigator.navigate(mode, { query: value }); }, [mode])
+    useCallback(
+      (value: QueryState) => {
+        mounted.current && Navigator.navigate(mode, { query: value });
+      },
+      [mode]
+    ),
   ];
 }
 
 /** Similar to useState but stores data in the query part of window.location. */
-export function useQueryState<T extends {}>(mode?: NavigationMode): [T, Dispatch<T>]
-export function useQueryState<T>(mode?: NavigationMode, name?: string): [T | undefined, Dispatch<T | undefined>]
+export function useQueryState<T extends {}>(
+  mode?: NavigationMode
+): [T, Dispatch<T>];
+export function useQueryState<T>(
+  mode?: NavigationMode,
+  name?: string
+): [T | undefined, Dispatch<T | undefined>];
 
 export function useQueryState(mode: NavigationMode = "replace", name?: string) {
   const [query, setQuery] = useQuery(mode);
 
   const state = name ? query[name] : query;
 
-  const setState = useCallback((value: any) => {
-    if (name) // always use the latest query value so that changes from other url states aren't overwritten
-      setQuery({ ...Navigator.query, [name]: value });
-    else
-      setQuery(value);
-  }, [name, setQuery]);
+  const setState = useCallback(
+    (value: any) => {
+      if (name)
+        // always use the latest query value so that changes from other url states aren't overwritten
+        setQuery({ ...Navigator.query, [name]: value });
+      else setQuery(value);
+    },
+    [name, setQuery]
+  );
 
   return [state, setState];
 }

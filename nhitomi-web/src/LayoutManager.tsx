@@ -1,7 +1,7 @@
 import React, { createContext, ReactNode, useContext, useMemo } from "react";
 import { useWindowSize } from "./hooks";
 
-export type ScreenType = "sm" | "lg"
+export type ScreenType = "sm" | "lg";
 
 /** On large screens there is a sidebar. */
 export const SidebarStripWidth = 64;
@@ -10,14 +10,16 @@ export const SidebarStripWidth = 64;
 export const ScreenBreakpoint = 768;
 
 export const SmallBreakpoints = [320, 480, 640];
-export const LargeBreakpoints = [640, 768, 1024, 1280].map(n => n - SidebarStripWidth);
+export const LargeBreakpoints = [640, 768, 1024, 1280].map(
+  (n) => n - SidebarStripWidth
+);
 
 /** Layout information context. */
 const LayoutContext = createContext<{
-  width: number
-  height: number
-  screen: ScreenType
-  breakpoint?: number
+  width: number;
+  height: number;
+  screen: ScreenType;
+  breakpoint?: number;
 }>(undefined as any);
 
 export function useLayout() {
@@ -42,7 +44,8 @@ export const LayoutManager = ({ children }: { children?: ReactNode }) => {
         }
 
         return { screen, width, height, breakpoint };
-      }, [windowWidth, height])} />
+      }, [windowWidth, height])}
+    />
   );
 };
 
@@ -50,9 +53,7 @@ export function getBreakpoint(breakpoints: number[], value: number) {
   let breakpoint: number | undefined;
 
   for (const br of breakpoints) {
-    if (value >= br)
-      breakpoint = br;
-
+    if (value >= br) breakpoint = br;
     else break;
   }
 

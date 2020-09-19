@@ -1,15 +1,23 @@
-import React, { createContext, ReactNode, useContext, useLayoutEffect, useMemo, useRef, useState } from "react";
+import React, {
+  createContext,
+  ReactNode,
+  useContext,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import nprogress from "nprogress";
 import { AnimationMode } from "./ConfigManager";
 
 import "./Progress.css";
 
 const ProgressContext = createContext<{
-  begin: () => void
-  end: () => void
+  begin: () => void;
+  end: () => void;
 
-  mode: AnimationMode
-  setMode: (mode: AnimationMode) => void
+  mode: AnimationMode;
+  setMode: (mode: AnimationMode) => void;
 }>(undefined as any);
 
 export function useProgress() {
@@ -47,7 +55,7 @@ export const ProgressManager = ({ children }: { children?: ReactNode }) => {
           <div class="spinner-icon"></div>
         </div>
       `,
-      easing
+      easing,
     });
   }, [mode]);
 
@@ -57,19 +65,22 @@ export const ProgressManager = ({ children }: { children?: ReactNode }) => {
   return (
     <ProgressContext.Provider
       children={children}
-      value={useMemo(() => ({
-        begin: () => {
-          clearTimeout(done.current);
+      value={useMemo(
+        () => ({
+          begin: () => {
+            clearTimeout(done.current);
 
-          if (count.current++ === 0)
-            nprogress.start();
-        },
-        end: () => {
-          if (--count.current === 0)
-            done.current = window.setTimeout(() => nprogress.done(), 200);
-        },
-        mode,
-        setMode
-      }), [mode])} />
+            if (count.current++ === 0) nprogress.start();
+          },
+          end: () => {
+            if (--count.current === 0)
+              done.current = window.setTimeout(() => nprogress.done(), 200);
+          },
+          mode,
+          setMode,
+        }),
+        [mode]
+      )}
+    />
   );
 };

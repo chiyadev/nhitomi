@@ -3,20 +3,26 @@ import { animated, useSpring } from "react-spring";
 import { InboxOutlined } from "@ant-design/icons";
 import { cx } from "emotion";
 
-export const EmptyIndicator = ({ children, className }: { children?: ReactNode, className?: string }) => {
+export const EmptyIndicator = ({
+  children,
+  className,
+}: {
+  children?: ReactNode;
+  className?: string;
+}) => {
   const style = useSpring({
     from: { opacity: 0 },
-    to: { opacity: 1 }
+    to: { opacity: 1 },
   });
 
   return (
     <animated.div
       style={style}
-      className={cx("flex flex-col justify-center space-y-2", className)}>
+      className={cx("flex flex-col justify-center space-y-2", className)}
+    >
+      <InboxOutlined className="text-2xl" />
 
-      <InboxOutlined className='text-2xl' />
-
-      <div children={children} />
+      <div>{children}</div>
     </animated.div>
   );
 };

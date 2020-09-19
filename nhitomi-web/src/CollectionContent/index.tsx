@@ -1,5 +1,10 @@
 import React, { Dispatch } from "react";
-import { PrefetchGenerator, PrefetchLink, TypedPrefetchLinkProps, usePostfetch } from "../Prefetch";
+import {
+  PrefetchGenerator,
+  PrefetchLink,
+  TypedPrefetchLinkProps,
+  usePostfetch,
+} from "../Prefetch";
 import { Book, Collection, ObjectType } from "nhitomi-api";
 import { useClient } from "../ClientManager";
 import { PageContainer } from "../Components/PageContainer";
@@ -8,23 +13,26 @@ import { BookDisplay } from "./Book";
 import { useScrollShortcut } from "../shortcut";
 
 export type PrefetchResult =
-  ({ type: "book" } & BookPrefetchResult) |
-  ({ type: "other" })
+  | ({ type: "book" } & BookPrefetchResult)
+  | { type: "other" };
 
 export type BookPrefetchResult = {
-  collection: Collection
-  items: Book[]
-  nextOffset: number
-}
+  collection: Collection;
+  items: Book[];
+  nextOffset: number;
+};
 
-export type PrefetchOptions = { id: string }
+export type PrefetchOptions = { id: string };
 
-export const useCollectionContentPrefetch: PrefetchGenerator<PrefetchResult, PrefetchOptions> = ({ id }) => {
+export const useCollectionContentPrefetch: PrefetchGenerator<
+  PrefetchResult,
+  PrefetchOptions
+> = ({ id }) => {
   const client = useClient();
 
   return {
     destination: {
-      path: `/collections/${id}`
+      path: `/collections/${id}`,
     },
 
     fetch: async () => {
@@ -37,29 +45,40 @@ export const useCollectionContentPrefetch: PrefetchGenerator<PrefetchResult, Pre
           return {
             type: "book",
             collection,
-            items: ids.length ? await client.book.getBooks({ getBookManyRequest: { ids } }) : [],
-            nextOffset: DefaultQueryLimit
+            items: ids.length
+              ? await client.book.getBooks({ getBookManyRequest: { ids } })
+              : [],
+            nextOffset: DefaultQueryLimit,
           };
         }
 
         default:
           return { type: "other" };
       }
-    }
+    },
   };
 };
 
-export const CollectionContentLink = ({ id, ...props }: TypedPrefetchLinkProps & PrefetchOptions) => (
-  <PrefetchLink fetch={useCollectionContentPrefetch} options={{ id }} {...props} />
+export const CollectionContentLink = ({
+  id,
+  ...props
+}: TypedPrefetchLinkProps & PrefetchOptions) => (
+  <PrefetchLink
+    fetch={useCollectionContentPrefetch}
+    options={{ id }}
+    {...props}
+  />
 );
 
 export const CollectionContent = (options: PrefetchOptions) => {
-  const { result, setResult } = usePostfetch(useCollectionContentPrefetch, { requireAuth: true, ...options });
+  const { result, setResult } = usePostfetch(useCollectionContentPrefetch, {
+    requireAuth: true,
+    ...options,
+  });
 
   useScrollShortcut();
 
-  if (!result)
-    return null;
+  if (!result) return null;
 
   return (
     <PageContainer>
@@ -68,13 +87,20 @@ export const CollectionContent = (options: PrefetchOptions) => {
   );
 };
 
-const Loaded = ({ result, setResult }: { result: PrefetchResult, setResult: Dispatch<PrefetchResult> }) => {
+const Loaded = ({
+  result,
+  setResult,
+}: {
+  result: PrefetchResult;
+  setResult: Dispatch<PrefetchResult>;
+}) => {
   switch (result.type) {
     case "book":
       return (
         <BookDisplay
           result={result}
-          setResult={result => setResult({ type: "book", ...result })} />
+          setResult={(result) => setResult({ type: "book", ...result })}
+        />
       );
 
     case "other":

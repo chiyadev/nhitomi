@@ -1,5 +1,10 @@
 import React, { useRef, useState } from "react";
-import { PrefetchGenerator, PrefetchLink, TypedPrefetchLinkProps, usePostfetch } from "../Prefetch";
+import {
+  PrefetchGenerator,
+  PrefetchLink,
+  TypedPrefetchLinkProps,
+  usePostfetch,
+} from "../Prefetch";
 import { Book, BookContent } from "nhitomi-api";
 import { useClient } from "../ClientManager";
 import { useScrollShortcut } from "../shortcut";
@@ -15,40 +20,53 @@ import { useTabTitle } from "../TitleSetter";
 import { useConfig } from "../ConfigManager";
 import { SupportBanner } from "./SupportBanner";
 
-export type PrefetchResult = { book: Book, content: BookContent }
-export type PrefetchOptions = { id: string, contentId: string }
+export type PrefetchResult = { book: Book; content: BookContent };
+export type PrefetchOptions = { id: string; contentId: string };
 
-export const useBookReaderPrefetch: PrefetchGenerator<PrefetchResult, PrefetchOptions> = ({ id, contentId }) => {
+export const useBookReaderPrefetch: PrefetchGenerator<
+  PrefetchResult,
+  PrefetchOptions
+> = ({ id, contentId }) => {
   const client = useClient();
 
   return {
     destination: {
-      path: `/books/${id}/contents/${contentId}`
+      path: `/books/${id}/contents/${contentId}`,
     },
 
     fetch: async () => {
       const book = await client.book.getBook({ id });
-      const content = book.contents.find(c => c.id === contentId);
+      const content = book.contents.find((c) => c.id === contentId);
 
       if (!content)
         throw Error(`Content ${contentId} does not exist in book ${id}.`);
 
       return { book, content };
-    }
+    },
   };
 };
 
-export const BookReaderLink = ({ id, contentId, ...props }: TypedPrefetchLinkProps & PrefetchOptions) => (
-  <PrefetchLink fetch={useBookReaderPrefetch} options={{ id, contentId }} {...props} />
+export const BookReaderLink = ({
+  id,
+  contentId,
+  ...props
+}: TypedPrefetchLinkProps & PrefetchOptions) => (
+  <PrefetchLink
+    fetch={useBookReaderPrefetch}
+    options={{ id, contentId }}
+    {...props}
+  />
 );
 
 export const BookReader = (options: PrefetchOptions) => {
-  const { result } = usePostfetch(useBookReaderPrefetch, { requireAuth: true, ...options });
+  const { result } = usePostfetch(useBookReaderPrefetch, {
+    requireAuth: true,
+    ...options,
+  });
 
   useScrollShortcut();
 
-  if (!result)
-    return null;
+  if (!result) return null;
 
   return (
     <PageContainer key={`${result.book.id}/${result.content.id}`}>
@@ -63,26 +81,31 @@ const Loaded = ({ book, content }: PrefetchResult) => {
   useTabTitle((preferEnglishName && book.englishName) || book.primaryName);
 
   const infoRef = useRef(null);
-  const [{ width: infoWidth, height: infoHeight }, setInfoSize] = useState<{ width: number, height: number }>({ width: 0, height: 0 });
+  const [{ width: infoWidth, height: infoHeight }, setInfoSize] = useState<{
+    width: number;
+    height: number;
+  }>({ width: 0, height: 0 });
 
   useResizeObserver(infoRef, ({ contentRect }) => setInfoSize(contentRect));
 
-  return <>
-    <LayoutSetter />
-    <Background book={book} content={content} scrollHeight={infoHeight} />
+  return (
+    <>
+      <LayoutSetter />
+      <Background book={book} content={content} scrollHeight={infoHeight} />
 
-    <div className='space-y-8'>
-      <div ref={infoRef}>
-        <Container>
-          <Info book={book} content={content} />
-        </Container>
+      <div className="space-y-8">
+        <div ref={infoRef}>
+          <Container>
+            <Info book={book} content={content} />
+          </Container>
+        </div>
+
+        <SupportBanner book={book} content={content} />
+
+        <CursorVisibility>
+          <Reader book={book} content={content} viewportWidth={infoWidth} />
+        </CursorVisibility>
       </div>
-
-      <SupportBanner book={book} content={content} />
-
-      <CursorVisibility>
-        <Reader book={book} content={content} viewportWidth={infoWidth} />
-      </CursorVisibility>
-    </div>
-  </>;
+    </>
+  );
 };

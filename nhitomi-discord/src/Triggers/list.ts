@@ -2,8 +2,8 @@ import { ReactionTrigger } from "../interactive";
 import { MessageContext } from "../context";
 
 export type ListTriggerTarget = {
-  position: number
-}
+  position: number;
+};
 
 export class ListTrigger extends ReactionTrigger {
   get emoji(): string {
@@ -39,8 +39,8 @@ export class ListTrigger extends ReactionTrigger {
 }
 
 export type ListJumpTriggerTarget = ListTriggerTarget & {
-  end: number
-}
+  end: number;
+};
 
 export class ListJumpTrigger extends ReactionTrigger {
   get emoji(): string {
@@ -73,7 +73,11 @@ export class ListJumpTrigger extends ReactionTrigger {
         break;
 
       case "input": {
-        const result = parseInt(await this.interactive?.waitInput(context.locale.get("reaction.list.jump")) || "");
+        const result = parseInt(
+          (await this.interactive?.waitInput(
+            context.locale.get("reaction.list.jump")
+          )) || ""
+        );
 
         if (isNaN(result)) return false;
         this.target.position = result - 1;

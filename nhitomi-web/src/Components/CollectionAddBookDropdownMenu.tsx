@@ -15,24 +15,30 @@ import { useDynamicPrefetch } from "../Prefetch";
 import { useCollectionEditPrefetch } from "../CollectionListing/Edit";
 
 type BasicBook = {
-  id: string
-}
+  id: string;
+};
 
-export const CollectionAddBookDropdownMenu = ({ book }: { book: BasicBook }) => {
+export const CollectionAddBookDropdownMenu = ({
+  book,
+}: {
+  book: BasicBook;
+}) => {
   const client = useClient();
   const { info } = useClientInfo();
   const { notifyError } = useNotify();
-  const [collections, setCollections] = usePageState<Collection[]>("userCollections");
+  const [collections, setCollections] = usePageState<Collection[]>(
+    "userCollections"
+  );
 
   useAsync(async () => {
-    if (collections)
-      return;
+    if (collections) return;
 
     try {
-      if (!info.authenticated)
-        throw Error("Unauthenticated.");
+      if (!info.authenticated) throw Error("Unauthenticated.");
 
-      const { items } = await client.user.getUserCollections({ id: info.user.id });
+      const { items } = await client.user.getUserCollections({
+        id: info.user.id,
+      });
 
       setCollections(items);
     } catch (e) {
@@ -41,30 +47,40 @@ export const CollectionAddBookDropdownMenu = ({ book }: { book: BasicBook }) => 
     }
   }, []);
 
-  return <>
-    {collections
-      ? <>
-        {collections.map(collection => (
-          <Add book={book} collection={collection} />
-        ))}
+  return (
+    <>
+      {collections ? (
+        <>
+          {collections.map((collection) => (
+            <Add
+              key={`${book.id}/${collection.id}`}
+              book={book}
+              collection={collection}
+            />
+          ))}
 
-        {collections.length && (
-          <DropdownDivider />
-        )}
+          {collections.length && <DropdownDivider />}
 
-        <Create book={book} />
-      </>
-      : (
+          <Create book={book} />
+        </>
+      ) : (
         <Disableable disabled>
           <DropdownItem>
-            <Loading3QuartersOutlined className='animate-spin' />
+            <Loading3QuartersOutlined className="animate-spin" />
           </DropdownItem>
         </Disableable>
       )}
-  </>;
+    </>
+  );
 };
 
-const Add = ({ book, collection }: { book: BasicBook, collection: Collection }) => {
+const Add = ({
+  book,
+  collection,
+}: {
+  book: BasicBook;
+  collection: Collection;
+}) => {
   const client = useClient();
   const { begin, end } = useProgress();
   const { alert } = useAlert();
@@ -73,38 +89,44 @@ const Add = ({ book, collection }: { book: BasicBook, collection: Collection }) 
 
   return (
     <Disableable disabled={loading}>
-      <DropdownItem onClick={async () => {
-        begin();
-        setLoading(true);
+      <DropdownItem
+        onClick={async () => {
+          begin();
+          setLoading(true);
 
-        try {
-          await client.collection.addCollectionItems({
-            id: collection.id,
-            addCollectionItemsRequest: {
-              items: [book.id],
-              position: CollectionInsertPosition.Start
-            }
-          });
+          try {
+            await client.collection.addCollectionItems({
+              id: collection.id,
+              addCollectionItemsRequest: {
+                items: [book.id],
+                position: CollectionInsertPosition.Start,
+              },
+            });
 
-          alert((
-            <FormattedMessage
-              id='components.collections.added'
-              values={{
-                name: (
-                  <CollectionContentLink id={collection.id} className='text-blue'>
-                    {collection.name}
-                  </CollectionContentLink>
-                )
-              }} />
-          ), "success");
-        } catch (e) {
-          notifyError(e);
-        } finally {
-          end();
-          setLoading(false);
-        }
-      }}>
-
+            alert(
+              <FormattedMessage
+                id="components.collections.added"
+                values={{
+                  name: (
+                    <CollectionContentLink
+                      id={collection.id}
+                      className="text-blue"
+                    >
+                      {collection.name}
+                    </CollectionContentLink>
+                  ),
+                }}
+              />,
+              "success"
+            );
+          } catch (e) {
+            notifyError(e);
+          } finally {
+            end();
+            setLoading(false);
+          }
+        }}
+      >
         {collection.name}
       </DropdownItem>
     </Disableable>
@@ -117,46 +139,53 @@ const Create = ({ book }: { book: BasicBook }) => {
   const { notifyError } = useNotify();
   const { alert } = useAlert();
   const [loading, setLoading] = useState(false);
-  const [prefetchNode, navigate] = useDynamicPrefetch(useCollectionEditPrefetch);
+  const [prefetchNode, navigate] = useDynamicPrefetch(
+    useCollectionEditPrefetch
+  );
 
   const dummyName = useLocalized("components.collections.created.dummyName");
 
   return (
     <Disableable disabled={loading}>
-      <DropdownItem icon={<PlusOutlined />} onClick={async () => {
-        begin();
-        setLoading(true);
+      <DropdownItem
+        icon={<PlusOutlined />}
+        onClick={async () => {
+          begin();
+          setLoading(true);
 
-        try {
-          let collection = await client.collection.createCollection({
-            createCollectionRequest: {
-              type: ObjectType.Book,
-              collection: {
-                name: dummyName
-              }
-            }
-          });
+          try {
+            let collection = await client.collection.createCollection({
+              createCollectionRequest: {
+                type: ObjectType.Book,
+                collection: {
+                  name: dummyName,
+                },
+              },
+            });
 
-          collection = await client.collection.addCollectionItems({
-            id: collection.id,
-            addCollectionItemsRequest: {
-              items: [book.id],
-              position: CollectionInsertPosition.Start
-            }
-          });
+            collection = await client.collection.addCollectionItems({
+              id: collection.id,
+              addCollectionItemsRequest: {
+                items: [book.id],
+                position: CollectionInsertPosition.Start,
+              },
+            });
 
-          await navigate({ id: collection.id });
+            await navigate({ id: collection.id });
 
-          alert(<FormattedMessage id='components.collections.created.success' />, "success");
-        } catch (e) {
-          notifyError(e);
-        } finally {
-          end();
-          setLoading(false);
-        }
-      }}>
-
-        <FormattedMessage id='components.collections.created.name' />
+            alert(
+              <FormattedMessage id="components.collections.created.success" />,
+              "success"
+            );
+          } catch (e) {
+            notifyError(e);
+          } finally {
+            end();
+            setLoading(false);
+          }
+        }}
+      >
+        <FormattedMessage id="components.collections.created.name" />
       </DropdownItem>
 
       {prefetchNode}

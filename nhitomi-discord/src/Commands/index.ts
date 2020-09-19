@@ -3,8 +3,11 @@ import { promisify } from "util";
 import fs from "fs";
 import path from "path";
 
-export type CommandFunc = (context: MessageContext, arg?: string) => Promise<boolean>
-export type CommandModule = { name: string, run: CommandFunc }
+export type CommandFunc = (
+  context: MessageContext,
+  arg?: string
+) => Promise<boolean>;
+export type CommandModule = { name: string; run: CommandFunc };
 
 export const modules: CommandModule[] = [];
 
@@ -14,8 +17,7 @@ export async function loadCommands(): Promise<void> {
   for (const x of await promisify(fs.readdir)("Commands")) {
     const xp = path.parse(x);
 
-    if (xp.ext !== ".js")
-      continue;
+    if (xp.ext !== ".js") continue;
 
     try {
       const module = await import(`./${xp.name}`);
@@ -23,7 +25,7 @@ export async function loadCommands(): Promise<void> {
       if ("run" in module) {
         modules.push({
           name: xp.name,
-          run: module.run
+          run: module.run,
         });
       }
     } catch (e) {
@@ -33,5 +35,5 @@ export async function loadCommands(): Promise<void> {
 }
 
 export function matchCommand(command: string): CommandModule | undefined {
-  return modules.find(m => m.name.startsWith(command.toLowerCase()));
+  return modules.find((m) => m.name.startsWith(command.toLowerCase()));
 }

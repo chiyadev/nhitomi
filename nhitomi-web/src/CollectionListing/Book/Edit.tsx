@@ -10,9 +10,11 @@ import { useDynamicPrefetch } from "../../Prefetch";
 import { useCollectionContentPrefetch } from "../../CollectionContent";
 import { Disableable } from "../../Components/Disableable";
 
-export const Edit = ({ collection }: { collection: Collection }) => <>
-  <Duplicate collection={collection} />
-</>;
+export const Edit = ({ collection }: { collection: Collection }) => (
+  <>
+    <Duplicate collection={collection} />
+  </>
+);
 
 const Duplicate = ({ collection }: { collection: Collection }) => {
   const client = useClient();
@@ -20,13 +22,19 @@ const Duplicate = ({ collection }: { collection: Collection }) => {
   const { notifyError } = useNotify();
   const { alert } = useAlert();
   const [loading, setLoading] = useState(false);
-  const [prefetchNode, navigate] = useDynamicPrefetch(useCollectionContentPrefetch);
+  const [prefetchNode, navigate] = useDynamicPrefetch(
+    useCollectionContentPrefetch
+  );
 
   return (
-    <div className='p-4 space-y-4'>
+    <div className="p-4 space-y-4">
       <div>
-        <div><FormattedMessage id='pages.collectionListing.edit.book.duplicate.name' /></div>
-        <div className='text-sm text-gray-darker'><FormattedMessage id='pages.collectionListing.edit.book.duplicate.description' /></div>
+        <div>
+          <FormattedMessage id="pages.collectionListing.edit.book.duplicate.name" />
+        </div>
+        <div className="text-sm text-gray-darker">
+          <FormattedMessage id="pages.collectionListing.edit.book.duplicate.description" />
+        </div>
       </div>
 
       <Disableable disabled={loading}>
@@ -40,8 +48,8 @@ const Duplicate = ({ collection }: { collection: Collection }) => {
               let created = await client.collection.createCollection({
                 createCollectionRequest: {
                   type: collection.type,
-                  collection
-                }
+                  collection,
+                },
               });
 
               if (collection.items.length) {
@@ -49,23 +57,26 @@ const Duplicate = ({ collection }: { collection: Collection }) => {
                   id: created.id,
                   addCollectionItemsRequest: {
                     items: collection.items,
-                    position: CollectionInsertPosition.Start
-                  }
+                    position: CollectionInsertPosition.Start,
+                  },
                 });
               }
 
               await navigate({ id: created.id });
 
-              alert(<FormattedMessage id='pages.collectionListing.edit.book.duplicate.success' />, "success");
+              alert(
+                <FormattedMessage id="pages.collectionListing.edit.book.duplicate.success" />,
+                "success"
+              );
             } catch (e) {
               notifyError(e);
             } finally {
               end();
               setLoading(false);
             }
-          }}>
-
-          <FormattedMessage id='pages.collectionListing.edit.book.duplicate.name' />
+          }}
+        >
+          <FormattedMessage id="pages.collectionListing.edit.book.duplicate.name" />
         </FlatButton>
       </Disableable>
 

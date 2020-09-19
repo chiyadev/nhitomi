@@ -3,33 +3,41 @@ import { useAsyncFn } from "react-use";
 import { FnReturningPromise } from "react-use/lib/util";
 
 // equivalent to react-use's useAsync except callback runs synchronously
-export function useAsync<T extends FnReturningPromise>(fn: T, deps: DependencyList = []) {
+export function useAsync<T extends FnReturningPromise>(
+  fn: T,
+  deps: DependencyList = []
+) {
   const [state, callback] = useAsyncFn(fn, deps, {
-    loading: true
+    loading: true,
   });
 
-  useLayoutEffect(() => { callback(); }, [callback]);
+  useLayoutEffect(() => {
+    callback();
+  }, [callback]);
 
   return state;
 }
 
 export function useWindowSize() {
   const [state, setState] = useState<{
-    width: number
-    height: number
+    width: number;
+    height: number;
   }>({
     width: window.innerWidth,
-    height: window.innerHeight
+    height: window.innerHeight,
   });
 
   useLayoutEffect(() => {
-    const handler = () => setState({
-      width: window.innerWidth,
-      height: window.innerHeight
-    });
+    const handler = () =>
+      setState({
+        width: window.innerWidth,
+        height: window.innerHeight,
+      });
 
     window.addEventListener("resize", handler);
-    return () => { window.removeEventListener("resize", handler); };
+    return () => {
+      window.removeEventListener("resize", handler);
+    };
   }, []);
 
   return state;
@@ -37,21 +45,24 @@ export function useWindowSize() {
 
 export function useWindowScroll() {
   const [state, setState] = useState<{
-    x: number
-    y: number
+    x: number;
+    y: number;
   }>({
     x: window.scrollX,
-    y: window.scrollY
+    y: window.scrollY,
   });
 
   useLayoutEffect(() => {
-    const handler = () => setState({
-      x: window.scrollX,
-      y: window.scrollY
-    });
+    const handler = () =>
+      setState({
+        x: window.scrollX,
+        y: window.scrollY,
+      });
 
     window.addEventListener("scroll", handler);
-    return () => { window.removeEventListener("scroll", handler); };
+    return () => {
+      window.removeEventListener("scroll", handler);
+    };
   }, []);
 
   return state;

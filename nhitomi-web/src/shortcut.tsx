@@ -1,20 +1,37 @@
 import { RefObject, useCallback, useRef } from "react";
 import { useKey, useKeyPress } from "react-use";
 import keycode from "keycode";
-import { KeyModifiers, ShortcutConfig, ShortcutConfigKey, useConfig } from "./ConfigManager";
+import {
+  KeyModifiers,
+  ShortcutConfig,
+  ShortcutConfigKey,
+  useConfig,
+} from "./ConfigManager";
 import { useLayout } from "./LayoutManager";
 import { useSpring } from "react-spring";
 import { event } from "react-ga";
 
 /** Returns all modifier keys pressed in the given event. */
-export function getEventModifiers(e: { altKey: boolean, ctrlKey: boolean, metaKey: boolean, shiftKey: boolean }) {
-  return KeyModifiers.filter(key => e[key + "Key" as keyof typeof e]);
+export function getEventModifiers(e: {
+  altKey: boolean;
+  ctrlKey: boolean;
+  metaKey: boolean;
+  shiftKey: boolean;
+}) {
+  return KeyModifiers.filter((key) => e[(key + "Key") as keyof typeof e]);
 }
 
 export const FocusIgnoreElements: typeof HTMLElement[] = [HTMLAnchorElement];
 
-function matchShortcut(shortcuts: ShortcutConfig[], event: KeyboardEvent, targetFocus = document.body) {
-  if (FocusIgnoreElements.findIndex(e => event.target instanceof e) === -1 && event.target !== targetFocus)
+function matchShortcut(
+  shortcuts: ShortcutConfig[],
+  event: KeyboardEvent,
+  targetFocus = document.body
+) {
+  if (
+    FocusIgnoreElements.findIndex((e) => event.target instanceof e) === -1 &&
+    event.target !== targetFocus
+  )
     return false;
 
   const key = event.keyCode;
@@ -22,21 +39,17 @@ function matchShortcut(shortcuts: ShortcutConfig[], event: KeyboardEvent, target
 
   for (const shortcut of shortcuts) {
     // match key
-    if (shortcut.key !== key)
-      continue;
+    if (shortcut.key !== key) continue;
 
     // match either all or no modifiers
     if (shortcut.modifiers?.length) {
-      if (shortcut.modifiers.length !== modifiers.length)
-        continue;
+      if (shortcut.modifiers.length !== modifiers.length) continue;
 
       for (const modifier of shortcut.modifiers) {
-        if (modifiers.indexOf(modifier) === -1)
-          continue;
+        if (modifiers.indexOf(modifier) === -1) continue;
       }
     } else {
-      if (modifiers.length)
-        continue;
+      if (modifiers.length) continue;
     }
 
     event.preventDefault();
@@ -47,28 +60,39 @@ function matchShortcut(shortcuts: ShortcutConfig[], event: KeyboardEvent, target
 }
 
 /** Callback when a configured key is pressed. */
-export function useShortcut(key: ShortcutConfigKey, callback: (event: KeyboardEvent) => void, ref?: RefObject<HTMLElement>) {
+export function useShortcut(
+  key: ShortcutConfigKey,
+  callback: (event: KeyboardEvent) => void,
+  ref?: RefObject<HTMLElement>
+) {
   const [shortcuts] = useConfig(key);
 
-  const callback2 = useCallback((e: KeyboardEvent) => {
-    callback(e);
-    event({
-      action: key,
-      category: "shortcut"
-    });
-  }, [callback, key]);
+  const callback2 = useCallback(
+    (e: KeyboardEvent) => {
+      callback(e);
+      event({
+        action: key,
+        category: "shortcut",
+      });
+    },
+    [callback, key]
+  );
 
-  useKey(e => matchShortcut(shortcuts, e, ref?.current || undefined), callback2, {
-    event: "keydown",
-    target: ref?.current || undefined
-  });
+  useKey(
+    (e) => matchShortcut(shortcuts, e, ref?.current || undefined),
+    callback2,
+    {
+      event: "keydown",
+      target: ref?.current || undefined,
+    }
+  );
 }
 
 /** Keyboard state when of a configured key. */
 export function useShortcutPress(key: ShortcutConfigKey) {
   const [shortcuts] = useConfig(key);
 
-  return useKeyPress(e => matchShortcut(shortcuts, e));
+  return useKeyPress((e) => matchShortcut(shortcuts, e));
 }
 
 /** Hook to scroll window using shortcut keys. */
@@ -85,19 +109,22 @@ export function useScrollShortcut() {
   useSpring({
     config: {
       bounce: 0,
-      duration: 100 // slow scroll causes motion sickness...
+      duration: 100, // slow scroll causes motion sickness...
     },
     speed: scrollDown || scrollUp ? height / 500 : 0,
 
     onChange: {
-      speed: speed => {
+      speed: (speed) => {
         timeout.current && cancelAnimationFrame(timeout.current);
 
         if (speed) {
-          if (!timeout.current)
-            timestamp.current = performance.now();
+          if (!timeout.current) timestamp.current = performance.now();
 
-          const dir = direction.current = scrollDown ? 1 : scrollUp ? -1 : direction.current || 0;
+          const dir = (direction.current = scrollDown
+            ? 1
+            : scrollUp
+            ? -1
+            : direction.current || 0);
 
           const frame = (time: number) => {
             const elapsed = time - timestamp.current;
@@ -113,8 +140,8 @@ export function useScrollShortcut() {
           timeout.current = undefined;
           direction.current = undefined;
         }
-      }
-    }
+      },
+    },
   });
 }
 

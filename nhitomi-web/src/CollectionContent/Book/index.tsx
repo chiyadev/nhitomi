@@ -15,34 +15,44 @@ import { EmptyIndicator } from "../../Components/EmptyIndicator";
 import { Menu } from "./Menu";
 import { Overlay } from "./Overlay";
 
-export const BookDisplay = ({ result, setResult }: { result: BookPrefetchResult, setResult: Dispatch<BookPrefetchResult> }) => {
+export const BookDisplay = ({
+  result,
+  setResult,
+}: {
+  result: BookPrefetchResult;
+  setResult: Dispatch<BookPrefetchResult>;
+}) => {
   const { collection, items } = result;
 
   useTabTitle(collection.name);
 
   return (
-    <Container className='divide-y divide-gray-darkest'>
-      {useMemo(() => (
-        <div className='p-4'>
-          <div className='text-2xl'>{collection.name}</div>
-          <div className='text-sm text-gray-darker'>{collection.description}</div>
-        </div>
-      ), [collection.description, collection.name])}
+    <Container className="divide-y divide-gray-darkest">
+      {useMemo(
+        () => (
+          <div className="p-4">
+            <div className="text-2xl">{collection.name}</div>
+            <div className="text-sm text-gray-darker">
+              {collection.description}
+            </div>
+          </div>
+        ),
+        [collection.description, collection.name]
+      )}
 
-      <div className='py-4'>
+      <div className="py-4">
         <BookList
           items={items}
-          menu={(
-            <Menu collection={collection} />
-          )}
-          empty={(
+          menu={<Menu collection={collection} />}
+          empty={
             <EmptyIndicator>
-              <FormattedMessage id='pages.collectionContent.book.empty' />
+              <FormattedMessage id="pages.collectionContent.book.empty" />
             </EmptyIndicator>
-          )}
-          OverlayComponent={props => (
+          }
+          OverlayComponent={(props) => (
             <Overlay collection={collection} {...props} />
-          )} />
+          )}
+        />
 
         <Loader result={result} setResult={setResult} />
       </div>
@@ -50,7 +60,13 @@ export const BookDisplay = ({ result, setResult }: { result: BookPrefetchResult,
   );
 };
 
-const Loader = ({ result, setResult }: { result: BookPrefetchResult, setResult: Dispatch<BookPrefetchResult> }) => {
+const Loader = ({
+  result,
+  setResult,
+}: {
+  result: BookPrefetchResult;
+  setResult: Dispatch<BookPrefetchResult>;
+}) => {
   const { collection } = result;
 
   const client = useClient();
@@ -60,26 +76,29 @@ const Loader = ({ result, setResult }: { result: BookPrefetchResult, setResult: 
   const loadId = useRef(result.nextOffset >= collection.items.length ? -1 : 0);
 
   const style = useSpring({
-    opacity: loadId.current < 0 ? 0 : 1
+    opacity: loadId.current < 0 ? 0 : 1,
   });
 
   return (
     <animated.div style={style}>
       <LoadContainer
         key={loadId.current} // recreate load container for each load
-        className='w-full h-20'
+        className="w-full h-20"
         onLoad={async () => {
-          if (loadId.current < 0)
-            return;
+          if (loadId.current < 0) return;
 
           begin();
 
           try {
-            const ids = collection.items.slice(result.nextOffset, result.nextOffset + DefaultQueryLimit);
-            const moreResult = ids.length ? await client.book.getBooks({ getBookManyRequest: { ids } }) : [];
+            const ids = collection.items.slice(
+              result.nextOffset,
+              result.nextOffset + DefaultQueryLimit
+            );
+            const moreResult = ids.length
+              ? await client.book.getBooks({ getBookManyRequest: { ids } })
+              : [];
 
-            if (loadId.current < 0)
-              return;
+            if (loadId.current < 0) return;
 
             if (!moreResult.length) {
               loadId.current = -1;
@@ -91,8 +110,7 @@ const Loader = ({ result, setResult }: { result: BookPrefetchResult, setResult: 
             const exists: { [id: string]: true } = {};
 
             for (const item of [...result.items, ...moreResult]) {
-              if (!exists[item.id])
-                items.push(item);
+              if (!exists[item.id]) items.push(item);
 
               exists[item.id] = true;
             }
@@ -101,7 +119,7 @@ const Loader = ({ result, setResult }: { result: BookPrefetchResult, setResult: 
               ...result,
 
               items,
-              nextOffset: result.nextOffset + DefaultQueryLimit
+              nextOffset: result.nextOffset + DefaultQueryLimit,
             });
 
             ++loadId.current;
@@ -110,7 +128,8 @@ const Loader = ({ result, setResult }: { result: BookPrefetchResult, setResult: 
           } finally {
             endProgress();
           }
-        }} />
+        }}
+      />
     </animated.div>
   );
 };

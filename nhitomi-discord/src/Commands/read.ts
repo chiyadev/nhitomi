@@ -1,5 +1,9 @@
 import { CommandFunc } from ".";
-import { InteractiveMessage, ReactionTrigger, RenderResult } from "../interactive";
+import {
+  InteractiveMessage,
+  ReactionTrigger,
+  RenderResult,
+} from "../interactive";
 import { Locale } from "../locales";
 import { Book, BookContent, ObjectType } from "nhitomi-api";
 import { handleGetLink, replyNotFound } from "./get";
@@ -8,16 +12,15 @@ import { ListJumpTrigger, ListTrigger } from "../Triggers/list";
 import { Api } from "../api";
 
 export class BookReadMessage extends InteractiveMessage {
-  constructor(
-    readonly book: Book,
-    readonly content: BookContent
-  ) {
+  constructor(readonly book: Book, readonly content: BookContent) {
     super();
   }
 
   position = 0;
 
-  get end(): number { return this.content.pageCount - 1; }
+  get end(): number {
+    return this.content.pageCount - 1;
+  }
 
   protected async render(locale: Locale): Promise<RenderResult> {
     this.position = Math.max(0, Math.min(this.end, this.position));
@@ -29,20 +32,27 @@ export class BookReadMessage extends InteractiveMessage {
       message: content.sourceUrl,
       embed: {
         title: book.primaryName,
-        description: locale.get("read.pagination", { current: this.position + 1, total: this.end + 1 }),
+        description: locale.get("read.pagination", {
+          current: this.position + 1,
+          total: this.end + 1,
+        }),
         url: Api.getWebLink(`books/${book.id}/contents/${content.id}`),
         image: {
-          url: Api.getApiLink(`books/${book.id}/contents/${content.id}/pages/${this.position}`)
+          url: Api.getApiLink(
+            `books/${book.id}/contents/${content.id}/pages/${this.position}`
+          ),
         },
         color: "DARK_GREEN",
         author: {
-          name: (book.tags.artist || book.tags.circle || [content.source]).sort().join(", "),
-          iconURL: Api.getWebLink(`assets/icons/${content.source}.jpg`)
+          name: (book.tags.artist || book.tags.circle || [content.source])
+            .sort()
+            .join(", "),
+          iconURL: Api.getWebLink(`assets/icons/${content.source}.jpg`),
         },
         footer: {
-          text: `${book.id}/${content.id}`
-        }
-      }
+          text: `${book.id}/${content.id}`,
+        },
+      },
     };
   }
 
@@ -53,7 +63,7 @@ export class BookReadMessage extends InteractiveMessage {
       new ListTrigger(this, "left"),
       new ListTrigger(this, "right"),
       new ListJumpTrigger(this, "input"),
-      new DestroyTrigger()
+      new DestroyTrigger(),
     ];
   }
 }

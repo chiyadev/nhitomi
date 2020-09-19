@@ -12,9 +12,11 @@ import { useCollectionEditPrefetch } from "../Edit";
 import { useLocalized } from "../../LocaleManager";
 import { useDynamicPrefetch } from "../../Prefetch";
 
-export const Menu = () => <>
-  <NewButton />
-</>;
+export const Menu = () => (
+  <>
+    <NewButton />
+  </>
+);
 
 const NewButton = () => {
   const client = useClient();
@@ -22,38 +24,49 @@ const NewButton = () => {
   const { notifyError } = useNotify();
   const { alert } = useAlert();
   const [loading, setLoading] = useState(false);
-  const [prefetchNode, navigate] = useDynamicPrefetch(useCollectionEditPrefetch);
+  const [prefetchNode, navigate] = useDynamicPrefetch(
+    useCollectionEditPrefetch
+  );
 
   const dummyName = useLocalized("components.collections.created.dummyName");
 
   return (
-    <Tooltip placement='bottom' overlay={<FormattedMessage id='pages.collectionListing.book.menu.create' />}>
+    <Tooltip
+      placement="bottom"
+      overlay={
+        <FormattedMessage id="pages.collectionListing.book.menu.create" />
+      }
+    >
       <Disableable disabled={loading}>
-        <RoundIconButton onClick={async () => {
-          begin();
-          setLoading(true);
+        <RoundIconButton
+          onClick={async () => {
+            begin();
+            setLoading(true);
 
-          try {
-            const collection = await client.collection.createCollection({
-              createCollectionRequest: {
-                type: ObjectType.Book,
-                collection: {
-                  name: dummyName
-                }
-              }
-            });
+            try {
+              const collection = await client.collection.createCollection({
+                createCollectionRequest: {
+                  type: ObjectType.Book,
+                  collection: {
+                    name: dummyName,
+                  },
+                },
+              });
 
-            await navigate({ id: collection.id });
+              await navigate({ id: collection.id });
 
-            alert(<FormattedMessage id='components.collections.created.success' />, "success");
-          } catch (e) {
-            notifyError(e);
-          } finally {
-            end();
-            setLoading(false);
-          }
-        }}>
-
+              alert(
+                <FormattedMessage id="components.collections.created.success" />,
+                "success"
+              );
+            } catch (e) {
+              notifyError(e);
+            } finally {
+              end();
+              setLoading(false);
+            }
+          }}
+        >
           <PlusOutlined />
         </RoundIconButton>
       </Disableable>

@@ -3,10 +3,19 @@ import { CurrentPage } from "./ScrollManager";
 import { usePageState } from "../state";
 import { css, cx } from "emotion";
 
-export const CursorVisibility = ({ children, className }: { children?: ReactNode, className?: string }) => {
+export const CursorVisibility = ({
+  children,
+  className,
+}: {
+  children?: ReactNode;
+  className?: string;
+}) => {
   const [visible, setVisible] = useState(true);
 
-  const [currentPage] = usePageState<CurrentPage>("page", { rowPassive: 0, pagePassive: 0 });
+  const [currentPage] = usePageState<CurrentPage>("page", {
+    rowPassive: 0,
+    pagePassive: 0,
+  });
   const lastPage = useRef(currentPage);
 
   useLayoutEffect(() => {
@@ -19,9 +28,14 @@ export const CursorVisibility = ({ children, className }: { children?: ReactNode
   return (
     <div
       onMouseMove={() => setVisible(true)}
-      className={cx(className, css`
-        cursor: ${visible ? "inherit" : "none"};
-      `)}
-      children={children} />
+      className={cx(
+        className,
+        css`
+          cursor: ${visible ? "inherit" : "none"};
+        `
+      )}
+    >
+      {children}
+    </div>
   );
 };

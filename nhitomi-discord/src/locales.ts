@@ -10,18 +10,22 @@ configure({
   logDebugFn: console.debug,
   logWarnFn: console.warn,
   logErrorFn: console.error,
-  updateFiles: false
+  updateFiles: false,
 });
 
 /** Contains localized strings that can be formatted. */
 export class Locale {
   static default: Locale = Locale.get(LanguageType.EnUS);
 
-  static get(language: LanguageType): Locale { return new Locale(language); }
+  static get(language: LanguageType): Locale {
+    return new Locale(language);
+  }
 
-  get default(): boolean { return this.language === Locale.default.language; }
+  get default(): boolean {
+    return this.language === Locale.default.language;
+  }
 
-  constructor(readonly language: LanguageType) { }
+  constructor(readonly language: LanguageType) {}
 
   /** Selects a message given a message key and formats it using the given replacements. */
   get(key: string, values?: Record<string, any>): string {

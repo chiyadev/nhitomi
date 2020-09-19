@@ -1,4 +1,10 @@
-import React, { Dispatch, useLayoutEffect, useMemo, useRef, useState } from "react";
+import React, {
+  Dispatch,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { Book, BookContent } from "nhitomi-api";
 import { ImageBase, LayoutEngine, LayoutImage } from "./layoutEngine";
 import { useLayout } from "../LayoutManager";
@@ -12,7 +18,15 @@ import { KeyHandler } from "./KeyHandler";
 import { useShortcutPress } from "../shortcut";
 import { animated, useSpring } from "react-spring";
 
-export const Reader = ({ book, content, viewportWidth }: { book: Book, content: BookContent, viewportWidth: number }) => {
+export const Reader = ({
+  book,
+  content,
+  viewportWidth,
+}: {
+  book: Book;
+  content: BookContent;
+  viewportWidth: number;
+}) => {
   const { height: viewportHeight } = useLayout();
 
   const layoutEngine = useMemo(() => new LayoutEngine(), []);
@@ -37,9 +51,18 @@ export const Reader = ({ book, content, viewportWidth }: { book: Book, content: 
       viewportBound,
       leftToRight,
       itemsPerRow: imagesPerRow,
-      initialRowLimit: singleCover ? 1 : imagesPerRow
+      initialRowLimit: singleCover ? 1 : imagesPerRow,
     });
-  }, [images, imagesPerRow, layoutEngine, leftToRight, singleCover, viewportBound, viewportHeight, viewportWidth]);
+  }, [
+    images,
+    imagesPerRow,
+    layoutEngine,
+    leftToRight,
+    singleCover,
+    viewportBound,
+    viewportHeight,
+    viewportWidth,
+  ]);
 
   const setImage = useMemo(() => {
     const list: Dispatch<ImageBase | undefined>[] = [];
@@ -47,10 +70,9 @@ export const Reader = ({ book, content, viewportWidth }: { book: Book, content: 
     for (let i = 0; i < content.pageCount; i++) {
       const index = i;
 
-      list.push(image => {
-        setImages(images => {
-          if (!images)
-            return;
+      list.push((image) => {
+        setImages((images) => {
+          if (!images) return;
 
           const array = images.slice();
           array[index] = image;
@@ -67,49 +89,68 @@ export const Reader = ({ book, content, viewportWidth }: { book: Book, content: 
   return (
     <div
       ref={ref}
-      className='relative select-none'
+      className="relative select-none"
       style={{
         width: layout.width,
-        height: layout.height
-      }}>
+        height: layout.height,
+      }}
+    >
+      {useMemo(
+        () => (
+          <>
+            <KeyHandler layout={layout} />
+            <ScrollManager containerRef={ref} layout={layout} />
+            <ScrollPreserver containerRef={ref} layout={layout} />
+          </>
+        ),
+        [layout]
+      )}
 
-      {useMemo(() => <>
-        <KeyHandler layout={layout} />
-        <ScrollManager containerRef={ref} layout={layout} />
-        <ScrollPreserver containerRef={ref} layout={layout} />
-      </>, [layout])}
-
-      {useMemo(() => (
-        layout.images.map((image, i) => (
-          <Page
-            book={book}
-            content={content}
-            index={i}
-            image={image}
-            setImage={setImage[i]} />
-        ))
-      ), [book, content, layout, setImage])}
+      {useMemo(
+        () =>
+          layout.images.map((image, i) => (
+            <Page
+              book={book}
+              content={content}
+              index={i}
+              image={image}
+              setImage={setImage[i]}
+            />
+          )),
+        [book, content, layout, setImage]
+      )}
     </div>
   );
 };
 
-const Page = ({ book, content, index, image: { x, y, width, height }, setImage }: {
-  book: Book
-  content: BookContent
-  index: number
-  image: LayoutImage
-  setImage: Dispatch<ImageBase | undefined>
+const Page = ({
+  book,
+  content,
+  index,
+  image: { x, y, width, height },
+  setImage,
+}: {
+  book: Book;
+  content: BookContent;
+  index: number;
+  image: LayoutImage;
+  setImage: Dispatch<ImageBase | undefined>;
 }) => {
   const { screen, height: screenHeight } = useLayout();
   const [showImage, setShowImage] = useState(false);
 
-  const image = useMemo(() => showImage && (
-    <PageImage
-      book={book}
-      content={content}
-      index={index}
-      setImage={setImage} />
-  ), [book, content, index, setImage, showImage]);
+  const image = useMemo(
+    () =>
+      showImage && (
+        <PageImage
+          book={book}
+          content={content}
+          index={index}
+          setImage={setImage}
+        />
+      ),
+    [book, content, index, setImage, showImage]
+  );
 
   let preload: number;
 
@@ -122,40 +163,57 @@ const Page = ({ book, content, index, image: { x, y, width, height }, setImage }
       break;
   }
 
-  return useMemo(() => (
-    <VisibilitySensor
-      onChange={v => { v && setShowImage(true); }}
-      partialVisibility
-      offset={{ top: -preload, bottom: -preload }}>
-
-      <div
-        children={image}
-        className='absolute'
-        style={{
-          top: y,
-          left: x,
-          width,
-          height
-        }} />
-    </VisibilitySensor>
-  ), [height, image, preload, width, x, y]);
+  return useMemo(
+    () => (
+      <VisibilitySensor
+        onChange={(v) => {
+          v && setShowImage(true);
+        }}
+        partialVisibility
+        offset={{ top: -preload, bottom: -preload }}
+      >
+        <div
+          children={image}
+          className="absolute"
+          style={{
+            top: y,
+            left: x,
+            width,
+            height,
+          }}
+        />
+      </VisibilitySensor>
+    ),
+    [height, image, preload, width, x, y]
+  );
 };
 
-const PageImage = ({ book: { id }, content: { id: contentId }, index, setImage }: {
-  book: Book
-  content: BookContent
-  index: number
-  setImage: Dispatch<ImageBase | undefined>
+const PageImage = ({
+  book: { id },
+  content: { id: contentId },
+  index,
+  setImage,
+}: {
+  book: Book;
+  content: BookContent;
+  index: number;
+  setImage: Dispatch<ImageBase | undefined>;
 }) => {
   const client = useClient();
-  const image = useMemo(() => (
-    <CoverImage
-      cacheKey={`books/${id}/contents/${contentId}/pages/${index}`}
-      className='w-full h-full'
-      sizing='contain'
-      onLoad={async () => await client.book.getBookImage({ id, contentId, index })}
-      onLoaded={setImage} />
-  ), [client.book, contentId, id, index, setImage]);
+  const image = useMemo(
+    () => (
+      <CoverImage
+        cacheKey={`books/${id}/contents/${contentId}/pages/${index}`}
+        className="w-full h-full"
+        sizing="contain"
+        onLoad={async () =>
+          await client.book.getBookImage({ id, contentId, index })
+        }
+        onLoaded={setImage}
+      />
+    ),
+    [client.book, contentId, id, index, setImage]
+  );
 
   const [pageNumber] = useShortcutPress("bookReaderPageNumberKey");
   const [pageNumberVisible, setPageNumberVisible] = useState(false);
@@ -164,20 +222,22 @@ const PageImage = ({ book: { id }, content: { id: contentId }, index, setImage }
     opacity: pageNumber ? 0.75 : 0,
     fontSize: pageNumber ? 120 : 108,
     onChange: {
-      opacity: v => setPageNumberVisible(v > 0)
-    }
+      opacity: (v) => setPageNumberVisible(v > 0),
+    },
   });
 
-  return <>
-    {image}
+  return (
+    <>
+      {image}
 
-    {pageNumberVisible && (
-      <animated.div
-        style={numberStyle}
-        className='absolute top-0 w-full h-full bg-black pointer-events-none font-bold flex items-center justify-center'>
-
-        <span className='opacity-50'>{index + 1}</span>
-      </animated.div>
-    )}
-  </>;
+      {pageNumberVisible && (
+        <animated.div
+          style={numberStyle}
+          className="absolute top-0 w-full h-full bg-black pointer-events-none font-bold flex items-center justify-center"
+        >
+          <span className="opacity-50">{index + 1}</span>
+        </animated.div>
+      )}
+    </>
+  );
 };

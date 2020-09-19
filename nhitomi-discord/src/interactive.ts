@@ -1,4 +1,12 @@
-import { Message, MessageEmbed, MessageEmbedOptions, MessageReaction, PartialMessage, PartialUser, User } from "discord.js-light";
+import {
+  Message,
+  MessageEmbed,
+  MessageEmbedOptions,
+  MessageReaction,
+  PartialMessage,
+  PartialUser,
+  User,
+} from "discord.js-light";
 import { Lock } from "semaphore-async-await";
 import deepEqual from "fast-deep-equal";
 import config from "config";
@@ -8,35 +16,39 @@ import { Counter, Gauge, Histogram } from "prom-client";
 import { getBuckets } from "./metrics";
 
 type InteractiveInput = {
-  userId: string
-  channelId: string
-  resolve(message: Message): void
-  resolveDirect(message: string): void
-  reject(error?: Error): void
-}
+  userId: string;
+  channelId: string;
+  resolve(message: Message): void;
+  resolveDirect(message: string): void;
+  reject(error?: Error): void;
+};
 
 const pendingInputs: InteractiveInput[] = [];
 
 const interactives: { [id: string]: InteractiveMessage } = {};
 
-export function getInteractive(message: Message | PartialMessage): InteractiveMessage | undefined { return interactives[message.id]; }
+export function getInteractive(
+  message: Message | PartialMessage
+): InteractiveMessage | undefined {
+  return interactives[message.id];
+}
 
 const interactiveCount = new Gauge({
   name: "discord_interactives",
-  help: "Number of active interactive messages."
+  help: "Number of active interactive messages.",
 });
 
 const interactiveRenderTime = new Histogram({
   name: "discord_interactive_render",
   help: "Time spent on rendering interactive messages.",
   buckets: getBuckets(0.05, 2, 6),
-  labelNames: ["type"]
+  labelNames: ["type"],
 });
 
 export type RenderResult = {
-  message?: string
-  embed?: MessageEmbedOptions
-}
+  message?: string;
+  embed?: MessageEmbedOptions;
+};
 
 /** Represents an interactive, stateful message. */
 export abstract class InteractiveMessage {
@@ -44,7 +56,10 @@ export abstract class InteractiveMessage {
   readonly lock: Lock = new Lock();
 
   /** Timeout responsible for destroying this interactive after a delay. */
-  readonly timeout = setTimeout(() => this.destroy(true), config.get<number>("interactive.timeout") * 1000);
+  readonly timeout = setTimeout(
+    () => this.destroy(true),
+    config.get<number>("interactive.timeout") * 1000
+  );
 
   /** Context of the command message. */
   context?: MessageContext;
@@ -56,8 +71,8 @@ export abstract class InteractiveMessage {
   triggers?: ReactionTrigger[];
 
   private lastView: {
-    message?: string
-    embed?: MessageEmbed
+    message?: string;
+    embed?: MessageEmbed;
   } = {};
 
   /** Initializes this interactive message. Context need not be ref'ed. */
@@ -84,7 +99,9 @@ export abstract class InteractiveMessage {
   async update(): Promise<boolean> {
     await this.lock.wait();
 
-    const measure = interactiveRenderTime.startTimer({ type: this.constructor.name });
+    const measure = interactiveRenderTime.startTimer({
+      type: this.constructor.name,
+    });
 
     try {
       this.timeout.refresh();
@@ -92,17 +109,20 @@ export abstract class InteractiveMessage {
       const result = await this.render(this.context?.locale ?? Locale.default);
       const view = {
         message: result.message,
-        embed: result.embed ? new MessageEmbed(result.embed) : undefined
+        embed: result.embed ? new MessageEmbed(result.embed) : undefined,
       };
 
-      if (!view.message && !view.embed)
-        return false;
+      if (!view.message && !view.embed) return false;
 
       const lastRendered = this.rendered;
 
       if (this.rendered?.editable) {
         if (deepEqual(this.lastView, view)) {
-          console.debug("skipping rendering for interactive", this.constructor.name, this.rendered.id);
+          console.debug(
+            "skipping rendering for interactive",
+            this.constructor.name,
+            this.rendered.id
+          );
           return false;
         }
 
@@ -115,19 +135,26 @@ export abstract class InteractiveMessage {
       if (this.rendered) {
         interactives[this.rendered.id] = this;
 
-        console.debug("rendered interactive", this.constructor.name, this.rendered.id);
+        console.debug(
+          "rendered interactive",
+          this.constructor.name,
+          this.rendered.id
+        );
 
         if (this.rendered.id !== lastRendered?.id) {
-          const triggers = this.triggers = this.createTriggers();
+          const triggers = (this.triggers = this.createTriggers());
           const rendered = this.rendered;
 
-          for (const trigger of triggers)
-            trigger.interactive = this;
+          for (const trigger of triggers) trigger.interactive = this;
 
           // attach triggers outside lock
           setTimeout(async () => {
             for (const trigger of triggers)
-              try { trigger.reaction = await rendered.react(trigger.emoji); } catch { /* ignored */ }
+              try {
+                trigger.reaction = await rendered.react(trigger.emoji);
+              } catch {
+                /* ignored */
+              }
           }, 0);
         }
       }
@@ -142,10 +169,12 @@ export abstract class InteractiveMessage {
   }
 
   /** Creates a list of triggers that alter the state of this interactive. */
-  protected createTriggers(): ReactionTrigger[] { return []; }
+  protected createTriggers(): ReactionTrigger[] {
+    return [];
+  }
 
   /** Constructs a new view of this interactive. */
-  protected abstract render(locale: Locale): Promise<RenderResult>
+  protected abstract render(locale: Locale): Promise<RenderResult>;
 
   readonly ownedInputs: InteractiveInput[] = [];
 
@@ -153,17 +182,16 @@ export abstract class InteractiveMessage {
   async waitInput(content: string, timeout?: number): Promise<string> {
     const context = this.context;
 
-    if (!context)
-      return "";
+    if (!context) return "";
 
     const sent = await context.reply(content);
 
-    return new Promise<string>(resolve => {
+    return new Promise<string>((resolve) => {
       const input: InteractiveInput = {
         userId: context.message.author.id,
         channelId: context.message.channel.id,
 
-        resolveDirect: async message => {
+        resolveDirect: async (message) => {
           const i1 = pendingInputs.indexOf(input);
           if (i1 !== -1) pendingInputs.splice(i1, 1);
 
@@ -172,22 +200,33 @@ export abstract class InteractiveMessage {
 
           resolve(message);
 
-          try { if (sent.deletable) await sent.delete(); } catch { /* ignored */ }
+          try {
+            if (sent.deletable) await sent.delete();
+          } catch {
+            /* ignored */
+          }
         },
 
-        resolve: async received => {
+        resolve: async (received) => {
           input.resolveDirect(received.content);
 
-          try { if (received.deletable) await received.delete(); } catch { /* ignored */ }
+          try {
+            if (received.deletable) await received.delete();
+          } catch {
+            /* ignored */
+          }
         },
 
-        reject: () => input.resolveDirect("")
+        reject: () => input.resolveDirect(""),
       };
 
       pendingInputs.push(input);
       this.ownedInputs.push(input);
 
-      setTimeout(input.reject, (timeout || config.get<number>("interactive.inputTimeout")) * 1000);
+      setTimeout(
+        input.reject,
+        (timeout || config.get<number>("interactive.inputTimeout")) * 1000
+      );
     });
   }
 
@@ -202,10 +241,16 @@ export abstract class InteractiveMessage {
     await this.lock.wait();
 
     try {
-      if (this.rendered) console.debug("destroying interactive", this.constructor.name, this.rendered.id, "expiring", expiring || false);
+      if (this.rendered)
+        console.debug(
+          "destroying interactive",
+          this.constructor.name,
+          this.rendered.id,
+          "expiring",
+          expiring || false
+        );
 
-      for (const input of this.ownedInputs)
-        input.reject();
+      for (const input of this.ownedInputs) input.reject();
 
       if (this.context) {
         delete interactives[this.context.message.id];
@@ -216,7 +261,11 @@ export abstract class InteractiveMessage {
         interactiveCount.dec();
       }
 
-      try { if (!expiring && this.rendered?.deletable) await this.rendered.delete(); } catch { /* ignored */ }
+      try {
+        if (!expiring && this.rendered?.deletable) await this.rendered.delete();
+      } catch {
+        /* ignored */
+      }
 
       if (this.rendered) {
         delete interactives[this.rendered.id];
@@ -232,10 +281,14 @@ export abstract class InteractiveMessage {
 
 /** Implements InteractiveMessage without any visible interface. */
 export class HeadlessInteractiveMessage extends InteractiveMessage {
-  protected async render(): Promise<RenderResult> { return {}; }
+  protected async render(): Promise<RenderResult> {
+    return {};
+  }
 }
 
-export async function handleInteractiveMessage(message: Message): Promise<boolean> {
+export async function handleInteractiveMessage(
+  message: Message
+): Promise<boolean> {
   const userId = message.author.id;
   const channelId = message.channel.id;
 
@@ -248,34 +301,37 @@ export async function handleInteractiveMessage(message: Message): Promise<boolea
   return false;
 }
 
-export async function handleInteractiveMessageDeleted(message: Message | PartialMessage): Promise<boolean> {
+export async function handleInteractiveMessageDeleted(
+  message: Message | PartialMessage
+): Promise<boolean> {
   const interactive = getInteractive(message);
 
-  if (!interactive || message.id !== interactive.rendered?.id)
-    return false;
+  if (!interactive || message.id !== interactive.rendered?.id) return false;
 
   await interactive.destroy();
   return true;
 }
 
-export async function handleInteractiveReaction(reaction: MessageReaction, user: User | PartialUser): Promise<boolean> {
+export async function handleInteractiveReaction(
+  reaction: MessageReaction,
+  user: User | PartialUser
+): Promise<boolean> {
   const interactive = getInteractive(reaction.message);
 
   if (!interactive || reaction.message.id !== interactive.rendered?.id)
     return false;
 
   // reactor must be command author
-  if (user.id !== interactive.context?.message.author.id)
-    return false;
+  if (user.id !== interactive.context?.message.author.id) return false;
 
   // prevent triggers while pending inputs
-  if (interactive.ownedInputs.length)
-    return false;
+  if (interactive.ownedInputs.length) return false;
 
-  const trigger = interactive.triggers?.find(t => t.emoji === reaction.emoji.name);
+  const trigger = interactive.triggers?.find(
+    (t) => t.emoji === reaction.emoji.name
+  );
 
-  if (!trigger)
-    return false;
+  if (!trigger) return false;
 
   return await trigger.invoke();
 }
@@ -283,7 +339,7 @@ export async function handleInteractiveReaction(reaction: MessageReaction, user:
 const reactionTriggerInvokeCount = new Counter({
   name: "discord_interactive_trigger_invocations",
   help: "Number of times interactive reaction triggers were invoked.",
-  labelNames: ["type"]
+  labelNames: ["type"],
 });
 
 /** Represents an interactive trigger that is invoked via reactions. */
@@ -297,17 +353,21 @@ export abstract class ReactionTrigger {
   async invoke(): Promise<boolean> {
     const interactive = this.interactive;
 
-    if (!interactive)
-      return false;
+    if (!interactive) return false;
 
     let result: boolean;
 
     await interactive.lock.wait();
     try {
-      if (!interactive.rendered || !interactive.context)
-        return false;
+      if (!interactive.rendered || !interactive.context) return false;
 
-      console.debug("invoking trigger", this.emoji, "for interactive", interactive.constructor.name, interactive.rendered.id);
+      console.debug(
+        "invoking trigger",
+        this.emoji,
+        "for interactive",
+        interactive.constructor.name,
+        interactive.rendered.id
+      );
 
       reactionTriggerInvokeCount.inc({ type: this.constructor.name });
 
@@ -316,12 +376,11 @@ export abstract class ReactionTrigger {
       interactive.lock.signal();
     }
 
-    if (result)
-      result = await interactive.update();
+    if (result) result = await interactive.update();
 
     return result;
   }
 
   /** Alters the state of the interactive while the message is locked. Returning true will rerender the interactive. */
-  protected abstract run(context: MessageContext): Promise<boolean>
+  protected abstract run(context: MessageContext): Promise<boolean>;
 }

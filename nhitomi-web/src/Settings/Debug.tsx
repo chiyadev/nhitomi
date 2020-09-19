@@ -5,10 +5,12 @@ import { LinkOutlined } from "@ant-design/icons";
 
 export const Debug = () => {
   return (
-    <SettingsFocusContainer focus='debug'>
+    <SettingsFocusContainer focus="debug">
       <div>Debug</div>
 
-      <Link to='/settings/debug' className='text-sm text-blue'><LinkOutlined /> Debug helper</Link>
+      <Link to="/settings/debug" className="text-sm text-blue">
+        <LinkOutlined /> Debug helper
+      </Link>
     </SettingsFocusContainer>
   );
 };

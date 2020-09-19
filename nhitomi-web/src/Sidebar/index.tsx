@@ -8,8 +8,8 @@ export const Sidebar = ({ children }: { children?: ReactNode }) => {
 
   switch (screen) {
     case "sm":
-      return <Overlay children={children} />;
+      return <Overlay>{children}</Overlay>;
     case "lg":
-      return <Strip children={children} />;
+      return <Strip>{children}</Strip>;
   }
 };

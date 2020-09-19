@@ -4,7 +4,13 @@ import { isSafari, safariResizeDelay } from "../fuckSafari";
 import { useLayout } from "../LayoutManager";
 import { LayoutResult } from "./layoutEngine";
 
-export const ScrollPreserver = ({ containerRef, layout }: { containerRef: RefObject<HTMLDivElement>, layout: LayoutResult }) => {
+export const ScrollPreserver = ({
+  containerRef,
+  layout,
+}: {
+  containerRef: RefObject<HTMLDivElement>;
+  layout: LayoutResult;
+}) => {
   const container = containerRef.current;
 
   // rerender on scroll
@@ -18,19 +24,21 @@ export const ScrollPreserver = ({ containerRef, layout }: { containerRef: RefObj
   const scrolling = useRef<number>();
 
   if (!scrolling.current) {
-    if (layout.cause !== "images" && (layout.width !== lastLayout.width || layout.height !== lastLayout.height)) {
+    if (
+      layout.cause !== "images" &&
+      (layout.width !== lastLayout.width || layout.height !== lastLayout.height)
+    ) {
       const scroll = () => {
         visible.current?.scrollIntoView({
           block: "center",
-          inline: "center"
+          inline: "center",
         });
         scrolling.current = undefined;
       };
 
       if (isSafari)
         scrolling.current = window.setTimeout(scroll, safariResizeDelay);
-      else
-        scrolling.current = requestAnimationFrame(scroll);
+      else scrolling.current = requestAnimationFrame(scroll);
     } else if (container) {
       let visibleElement: HTMLElement | undefined;
 
