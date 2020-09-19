@@ -34,7 +34,8 @@
     "nhitomi-api": "link:nhitomi-api"
   },
   "scripts": {
-    "start": "node prestart && tsc && cd build && node index.js",
+    "prestart": "node prestart && tsc",
+    "start": "cd build && node index.js",
     "build": "tsc && node prestart",
     "genclient": "node ../scripts/genclient typescript-fetch"
   }
