@@ -1,10 +1,13 @@
 {
   "extends": [
     "../.eslintrc.json",
-    "plugin:react/recommended",
     "plugin:@typescript-eslint/recommended",
+    "plugin:react/recommended",
     "prettier",
-    "prettier/react",
-    "prettier/@typescript-eslint"
-  ]
+    "prettier/@typescript-eslint",
+    "prettier/react"
+  ],
+  "rules": {
+    "@typescript-eslint/explicit-function-return-type": "off"
+  }
 }
