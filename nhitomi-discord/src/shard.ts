@@ -56,7 +56,7 @@ const guildCount = new Gauge({
   help: "Number of guilds invited to."
 });
 
-const updateGuildsMetric = () => guildCount.set(Discord.guilds.cache.size);
+function updateGuildsMetric(): void { guildCount.set(Discord.guilds.cache.size);}
 
 Discord.on("ready", updateGuildsMetric);
 Discord.on("guildCreate", updateGuildsMetric);

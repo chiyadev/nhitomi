@@ -38,7 +38,7 @@ function rentCore(token: string): ApiClientCore {
       basePath: config.get<string>("api.baseUrl") || BASE_PATH,
       fetchApi: fetch,
       middleware: [{
-        pre: async () => {
+        pre: async (): Promise<void> => {
           requestCount.inc();
         },
         post: async (context): Promise<void> => {

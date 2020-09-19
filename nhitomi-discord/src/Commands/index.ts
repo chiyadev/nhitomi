@@ -8,7 +8,7 @@ export type CommandModule = { name: string, run: CommandFunc }
 
 export const modules: CommandModule[] = [];
 
-export async function loadCommands() {
+export async function loadCommands(): Promise<void> {
   modules.length = 0;
 
   for (const x of await promisify(fs.readdir)("Commands")) {
@@ -32,6 +32,6 @@ export async function loadCommands() {
   }
 }
 
-export function matchCommand(command: string) {
+export function matchCommand(command: string): CommandModule | undefined {
   return modules.find(m => m.name.startsWith(command.toLowerCase()));
 }

@@ -73,7 +73,7 @@ export class MessageContext {
 
       return await interactive.waitInput(content, timeout);
     } finally {
-      interactive.destroy();
+      await interactive.destroy();
     }
   };
 

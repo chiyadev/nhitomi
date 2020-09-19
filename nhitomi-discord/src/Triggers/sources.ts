@@ -69,7 +69,7 @@ export class SourcesTrigger extends ReactionTrigger {
 
   constructor(readonly target: SourcesTriggerTarget) { super(); }
 
-  protected async run(context: MessageContext) {
+  protected async run(context: MessageContext): Promise<boolean> {
     const book = this.target.book;
     const content = this.target.content;
 
