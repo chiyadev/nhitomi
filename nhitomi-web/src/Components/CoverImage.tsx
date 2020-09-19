@@ -32,16 +32,18 @@ export const CoverImage = ({
   defaultAspect?: number;
   sizing?: "cover" | "contain";
 }) => {
-  const [prolongedLoad, setProlongedLoad] = useState(false); // if load is prolonged, show loading indicator
-
   const [loaded, setLoaded] = useState<{ url: string; width: number; height: number } | undefined>(() => {
     if (cacheKey) return getCachedImageRef(cacheKey);
   });
 
-  const { loading, error } = useAsync(async () => {
+  const [loading, setLoading] = useState(!loaded);
+  const [loadingProlonged, setLoadingProlonged] = useState(false); // if load is prolonged, show loading indicator
+
+  const { error } = useAsync(async () => {
     if (loaded) return;
 
-    const timer = window.setTimeout(() => setProlongedLoad(true), 2000);
+    setLoading(true);
+    const timer = window.setTimeout(() => setLoadingProlonged(true), 2000);
 
     try {
       const blob = await onLoad();
@@ -57,6 +59,7 @@ export const CoverImage = ({
       onLoaded?.(loaded);
       setLoaded(loaded);
     } finally {
+      setLoading(false);
       clearTimeout(timer);
     }
   }, []);
@@ -81,9 +84,9 @@ export const CoverImage = ({
     },
   });
 
-  const [showLoading, setShowLoading] = useState(prolongedLoad && loading);
+  const [showLoading, setShowLoading] = useState(loading && loadingProlonged);
   const loadingStyle = useSpring({
-    opacity: prolongedLoad && loading ? 1 : 0,
+    opacity: loadingProlonged && loading ? 1 : 0,
     onChange: {
       opacity: (v) => setShowLoading(v > 0),
     },
