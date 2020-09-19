@@ -1,6 +1,6 @@
 # nhitomi-web
 
-This is nhitomi browser frontend written in Typescript using Preact.
+This is nhitomi browser frontend written in Typescript using React.
 
 ### Prerequisites
 
