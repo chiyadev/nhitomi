@@ -56,7 +56,7 @@
   },
   "scripts": {
     "start": "react-app-rewired start",
-    "build": "GENERATE_SOURCEMAP=false react-app-rewired build",
+    "build": "react-app-rewired build",
     "genclient": "node ../scripts/genclient typescript-fetch"
   },
   "browserslist": {
