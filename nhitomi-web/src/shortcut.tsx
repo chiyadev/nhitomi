@@ -101,10 +101,17 @@ export function useScrollShortcut() {
 
           const dir = (direction.current = scrollDown ? 1 : scrollUp ? -1 : direction.current || 0);
 
+          let cumulative = 0;
+
           const frame = (time: number) => {
             const elapsed = time - timestamp.current;
 
-            window.scrollBy({ top: Math.round(elapsed * speed * dir) });
+            cumulative += elapsed * speed * dir;
+
+            const delta = Math.floor(cumulative);
+            cumulative -= delta;
+
+            window.scrollBy({ top: delta });
 
             timestamp.current = time;
             timeout.current = requestAnimationFrame(frame);
