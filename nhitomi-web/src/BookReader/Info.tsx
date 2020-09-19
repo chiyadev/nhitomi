@@ -70,9 +70,7 @@ export const Info = ({ book, content }: PrefetchResult) => {
                   query: (preferEnglishName && book.englishName) || book.primaryName,
                 }}
               >
-                <div className="text-3xl font-bold">
-                  {(preferEnglishName && book.englishName) || book.primaryName}
-                </div>
+                <div className="text-3xl font-bold">{(preferEnglishName && book.englishName) || book.primaryName}</div>
               </BookListingLink>
 
               <BookListingLink
@@ -80,9 +78,7 @@ export const Info = ({ book, content }: PrefetchResult) => {
                   query: (!preferEnglishName && book.englishName) || book.primaryName,
                 }}
               >
-                <div className="text-gray-darker">
-                  {(!preferEnglishName && book.englishName) || book.primaryName}
-                </div>
+                <div className="text-gray-darker">{(!preferEnglishName && book.englishName) || book.primaryName}</div>
               </BookListingLink>
             </div>
           ),
@@ -103,10 +99,7 @@ export const Info = ({ book, content }: PrefetchResult) => {
                   </div>
                   <div className="leading-tight">
                     {tags.sort().map((value) => (
-                      <BookListingLink
-                        key={`${tag}:${value}`}
-                        query={{ query: `${tag}:${value.replace(/\s/g, "_")}` }}
-                      >
+                      <BookListingLink key={`${tag}:${value}`} query={{ query: `${tag}:${value.replace(/\s/g, "_")}` }}>
                         <Tag type={tag} value={value} />
                       </BookListingLink>
                     ))}
@@ -128,8 +121,7 @@ export const Info = ({ book, content }: PrefetchResult) => {
                   const sourceContents = book.contents
                     .filter((c) => c.source === type)
                     .sort((a, b) => b.id.localeCompare(a.id));
-                  const linkContent =
-                    content.source === type ? content : selectContent(sourceContents);
+                  const linkContent = content.source === type ? content : selectContent(sourceContents);
 
                   if (!linkContent) return null;
 
@@ -138,9 +130,7 @@ export const Info = ({ book, content }: PrefetchResult) => {
                       key={type}
                       className="inline-flex"
                       overlay={LanguageTypes.map((language) => {
-                        const languageContents = sourceContents.filter(
-                          (c) => c.language === language
-                        );
+                        const languageContents = sourceContents.filter((c) => c.language === language);
 
                         if (!languageContents.length) return null;
 
@@ -182,10 +172,7 @@ export const Info = ({ book, content }: PrefetchResult) => {
             <div className="text-sm text-gray">
               <div>
                 <ReadOutlined className="w-4 text-center" />{" "}
-                <FormattedMessage
-                  id="pages.bookReader.pageCount"
-                  values={{ count: content.pageCount }}
-                />
+                <FormattedMessage id="pages.bookReader.pageCount" values={{ count: content.pageCount }} />
               </div>
               <div>
                 <UploadOutlined className="w-4 text-center" />{" "}
@@ -252,13 +239,7 @@ const SourceButton = ({ type }: { type: ScraperType }) => {
 
   return (
     <FlatButton
-      icon={
-        <img
-          className="rounded-full h-6 w-auto align-middle"
-          alt={type}
-          src={`/assets/icons/${type}.jpg`}
-        />
-      }
+      icon={<img className="rounded-full h-6 w-auto align-middle" alt={type} src={`/assets/icons/${type}.jpg`} />}
     >
       <span className="text-gray">{scrapers.find((s) => s.type === type)?.name}</span>
     </FlatButton>
@@ -290,13 +271,11 @@ const RefreshStatus = ({ book, content }: PrefetchResult) => {
     </div>
   ) : error ? (
     <div className="text-red cursor-pointer" onClick={() => notifyError(error)}>
-      <WarningOutlined className="w-4 text-center" />{" "}
-      <FormattedMessage id="pages.bookReader.available.error" />
+      <WarningOutlined className="w-4 text-center" /> <FormattedMessage id="pages.bookReader.available.error" />
     </div>
   ) : value ? null : (
     <div className="text-red">
-      <WarningOutlined className="w-4 text-center" />{" "}
-      <FormattedMessage id="pages.bookReader.available.false" />
+      <WarningOutlined className="w-4 text-center" /> <FormattedMessage id="pages.bookReader.available.false" />
     </div>
   );
 };

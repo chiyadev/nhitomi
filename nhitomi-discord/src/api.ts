@@ -58,9 +58,7 @@ function rentCore(token: string): ApiClientCore {
             if (!response.ok) {
               responseErrorCount.inc();
 
-              throw Error(
-                (await response.json())?.message || response.statusText
-              );
+              throw Error((await response.json())?.message || response.statusText);
             }
           },
         },

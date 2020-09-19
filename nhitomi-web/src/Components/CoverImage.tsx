@@ -34,11 +34,9 @@ export const CoverImage = ({
 }) => {
   const [prolongedLoad, setProlongedLoad] = useState(false); // if load is prolonged, show loading indicator
 
-  const [loaded, setLoaded] = useState<{ url: string; width: number; height: number } | undefined>(
-    () => {
-      if (cacheKey) return getCachedImageRef(cacheKey);
-    }
-  );
+  const [loaded, setLoaded] = useState<{ url: string; width: number; height: number } | undefined>(() => {
+    if (cacheKey) return getCachedImageRef(cacheKey);
+  });
 
   const { loading, error } = useAsync(async () => {
     if (loaded) return;
@@ -140,9 +138,7 @@ export const CoverImage = ({
                   <FormattedMessage id="components.coverImage.error" />
                 </div>
                 <div>
-                  <code>
-                    {error?.message || <FormattedMessage id="components.coverImage.errorUnknown" />}
-                  </code>
+                  <code>{error?.message || <FormattedMessage id="components.coverImage.errorUnknown" />}</code>
                 </div>
               </>
             }

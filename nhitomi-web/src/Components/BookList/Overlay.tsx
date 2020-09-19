@@ -144,10 +144,7 @@ const CopyToClipboardItem = ({
       onClick={() => {
         setClipboard(value);
         alert(
-          <FormattedMessage
-            id="components.bookList.overlay.copy.success"
-            values={{ value: displayValue || value }}
-          />,
+          <FormattedMessage id="components.bookList.overlay.copy.success" values={{ value: displayValue || value }} />,
           "info"
         );
       }}
@@ -157,13 +154,7 @@ const CopyToClipboardItem = ({
   );
 };
 
-const CollectionQuickAddItem = ({
-  book,
-  type,
-}: {
-  book: BookListItem;
-  type: SpecialCollection;
-}) => {
+const CollectionQuickAddItem = ({ book, type }: { book: BookListItem; type: SpecialCollection }) => {
   const { begin, end } = useProgress();
   const { addToSpecialCollection } = useClientUtils();
   const { notifyError } = useNotify();

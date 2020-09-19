@@ -32,8 +32,7 @@ export const Tooltip = ({
   scaleTransition?: boolean;
   blurred?: boolean;
   flip?: boolean;
-  overlayProps?: Omit<ComponentProps<"div">, "ref"> &
-    Pick<ComponentProps<typeof animated.div>, "ref">;
+  overlayProps?: Omit<ComponentProps<"div">, "ref"> & Pick<ComponentProps<typeof animated.div>, "ref">;
   wrapperProps?: ComponentProps<"div">;
 } & Omit<
   ComponentProps<typeof Tippy>,

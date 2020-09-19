@@ -1,9 +1,5 @@
 import { CommandFunc } from ".";
-import {
-  InteractiveMessage,
-  ReactionTrigger,
-  RenderResult,
-} from "../interactive";
+import { InteractiveMessage, ReactionTrigger, RenderResult } from "../interactive";
 import { Locale } from "../locales";
 import { ListTrigger } from "../Triggers/list";
 import { Api } from "../api";
@@ -23,9 +19,7 @@ class HelpMessage extends InteractiveMessage {
   }
 
   get page(): Page {
-    return Pages[
-      (this.position = Math.max(0, Math.min(this.end, this.position)))
-    ];
+    return Pages[(this.position = Math.max(0, Math.min(this.end, this.position)))];
   }
 
   protected async render(locale: Locale): Promise<RenderResult> {
@@ -36,17 +30,15 @@ class HelpMessage extends InteractiveMessage {
         url: "https://github.com/chiyadev/nhitomi/raw/master/nhitomi.png",
       },
       footer: {
-        text: `b.${Api.currentInfo.version.shortHash} — ${locale.get(
-          "help.owner"
-        )}`,
+        text: `b.${Api.currentInfo.version.shortHash} — ${locale.get("help.owner")}`,
       },
     };
 
     const invite = locale.get("help.invite", {
       serverInvite: `https://discord.gg/${config.get<string>("serverInvite")}`,
-      botInvite: `https://discord.com/oauth2/authorize?client_id=${
-        Discord.user?.id
-      }&scope=bot&permissions=${config.get<string>("botInvitePerms")}`,
+      botInvite: `https://discord.com/oauth2/authorize?client_id=${Discord.user?.id}&scope=bot&permissions=${config.get<
+        string
+      >("botInvitePerms")}`,
     });
 
     const prefix = config.get<string>("prefix");
@@ -84,12 +76,8 @@ class HelpMessage extends InteractiveMessage {
 - \`${prefix}collection\` — ${locale.get("help.collections.list")}
 - \`${prefix}collection {name}\` — ${locale.get("help.collections.show")}
 - \`${prefix}collection {name} add\` — ${locale.get("help.collections.add")}
-- \`${prefix}collection {name} remove\` — ${locale.get(
-              "help.collections.remove"
-            )}
-- \`${prefix}collection {name} delete\` — ${locale.get(
-              "help.collections.delete"
-            )}
+- \`${prefix}collection {name} remove\` — ${locale.get("help.collections.remove")}
+- \`${prefix}collection {name} delete\` — ${locale.get("help.collections.delete")}
 `.trim(),
           },
         ];
@@ -112,14 +100,8 @@ ${locale.get("help.oss.license")}
   }
 
   protected createTriggers(): ReactionTrigger[] {
-    return [
-      ...super.createTriggers(),
-
-      new ListTrigger(this, "left"),
-      new ListTrigger(this, "right"),
-    ];
+    return [...super.createTriggers(), new ListTrigger(this, "left"), new ListTrigger(this, "right")];
   }
 }
 
-export const run: CommandFunc = (context) =>
-  new HelpMessage().initialize(context);
+export const run: CommandFunc = (context) => new HelpMessage().initialize(context);

@@ -3,13 +3,7 @@ import { CurrentPage } from "./ScrollManager";
 import { usePageState } from "../state";
 import { css, cx } from "emotion";
 
-export const CursorVisibility = ({
-  children,
-  className,
-}: {
-  children?: ReactNode;
-  className?: string;
-}) => {
+export const CursorVisibility = ({ children, className }: { children?: ReactNode; className?: string }) => {
   const [visible, setVisible] = useState(true);
 
   const [currentPage] = usePageState<CurrentPage>("page", {

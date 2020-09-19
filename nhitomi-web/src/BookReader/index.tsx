@@ -18,10 +18,7 @@ import { SupportBanner } from "./SupportBanner";
 export type PrefetchResult = { book: Book; content: BookContent };
 export type PrefetchOptions = { id: string; contentId: string };
 
-export const useBookReaderPrefetch: PrefetchGenerator<PrefetchResult, PrefetchOptions> = ({
-  id,
-  contentId,
-}) => {
+export const useBookReaderPrefetch: PrefetchGenerator<PrefetchResult, PrefetchOptions> = ({ id, contentId }) => {
   const client = useClient();
 
   return {
@@ -40,11 +37,7 @@ export const useBookReaderPrefetch: PrefetchGenerator<PrefetchResult, PrefetchOp
   };
 };
 
-export const BookReaderLink = ({
-  id,
-  contentId,
-  ...props
-}: TypedPrefetchLinkProps & PrefetchOptions) => (
+export const BookReaderLink = ({ id, contentId, ...props }: TypedPrefetchLinkProps & PrefetchOptions) => (
   <PrefetchLink fetch={useBookReaderPrefetch} options={{ id, contentId }} {...props} />
 );
 

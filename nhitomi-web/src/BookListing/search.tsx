@@ -1,11 +1,4 @@
-import {
-  BookQuery,
-  BookSort,
-  LanguageType,
-  QueryMatchMode,
-  ScraperType,
-  SortDirection,
-} from "nhitomi-api";
+import { BookQuery, BookSort, LanguageType, QueryMatchMode, ScraperType, SortDirection } from "nhitomi-api";
 import { tokenize } from "./SearchInput";
 import { Client, ClientInfo } from "../ClientManager";
 
@@ -48,9 +41,7 @@ export function convertQuery({ query, order, sort, langs, sources }: SearchQuery
     switch (token.type) {
       case "other": {
         if (token.display)
-          (result.all || (result.all = { values: [], mode: QueryMatchMode.All })).values.push(
-            token.display
-          );
+          (result.all || (result.all = { values: [], mode: QueryMatchMode.All })).values.push(token.display);
 
         break;
       }
@@ -59,10 +50,9 @@ export function convertQuery({ query, order, sort, langs, sources }: SearchQuery
         const value = token.display.substring(token.display.indexOf(":"));
 
         if (value)
-          (
-            result.tags![token.tag] ||
-            (result.tags![token.tag] = { values: [], mode: QueryMatchMode.All })
-          ).values.push(wrapTag(value));
+          (result.tags![token.tag] || (result.tags![token.tag] = { values: [], mode: QueryMatchMode.All })).values.push(
+            wrapTag(value)
+          );
 
         break;
       }

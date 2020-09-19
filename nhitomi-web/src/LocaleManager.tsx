@@ -23,11 +23,7 @@ export const LanguageNames: { [lang in LanguageType]: string } = {
   "vi-VN": "Tiếng Việt",
 };
 
-export const CJKLanguages: LanguageType[] = [
-  LanguageType.JaJP,
-  LanguageType.ZhCN,
-  LanguageType.KoKR,
-];
+export const CJKLanguages: LanguageType[] = [LanguageType.JaJP, LanguageType.ZhCN, LanguageType.KoKR];
 
 export function useLocalized(
   id: string,
@@ -90,8 +86,7 @@ export const LocaleManager = ({ children }: { children?: ReactNode }) => {
     try {
       let messages = getLanguageCached(language, version);
 
-      if (!messages)
-        setLanguageCached(language, version, (messages = await loadLanguage(language)));
+      if (!messages) setLanguageCached(language, version, (messages = await loadLanguage(language)));
 
       if (loadId.current === id) {
         setMessages(messages);
@@ -136,17 +131,12 @@ type LocalizationCache = {
   version: string;
 };
 
-function getLanguageCached(
-  language: LanguageType,
-  version: string
-): Record<string, string> | undefined {
+function getLanguageCached(language: LanguageType, version: string): Record<string, string> | undefined {
   // ignore cache in dev
   if (process.env.NODE_ENV === "development") return;
 
   try {
-    const cache: Partial<LocalizationCache> = JSON.parse(
-      localStorage.getItem(`lang_cache_${language}`) || ""
-    );
+    const cache: Partial<LocalizationCache> = JSON.parse(localStorage.getItem(`lang_cache_${language}`) || "");
 
     if (typeof cache.value === "object" && cache.version === version) return cache.value;
   } catch {
@@ -154,11 +144,7 @@ function getLanguageCached(
   }
 }
 
-function setLanguageCached(
-  language: LanguageType,
-  version: string,
-  messages: Record<string, string>
-) {
+function setLanguageCached(language: LanguageType, version: string, messages: Record<string, string>) {
   const cache: LocalizationCache = {
     value: messages,
     version,

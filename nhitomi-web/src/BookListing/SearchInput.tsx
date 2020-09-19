@@ -112,13 +112,7 @@ export function assemble(tokens: QueryToken[]): string {
   return tokens.map((token) => token.text).join("");
 }
 
-export const SearchInput = ({
-  result,
-  className,
-}: {
-  result: BookSearchResult;
-  className?: string;
-}) => {
+export const SearchInput = ({ result, className }: { result: BookSearchResult; className?: string }) => {
   const [query, setQuery] = useQueryState<SearchQuery>("push");
   const [text, setText] = useState("");
   const [focused, setFocused] = useState(false);
@@ -171,11 +165,7 @@ export const SearchInput = ({
             placeholder={placeholder}
           />
 
-          <Highlighter
-            tokens={tokens}
-            inputRef={inputRef}
-            className="pl-4 w-full h-full absolute top-0 left-0"
-          />
+          <Highlighter tokens={tokens} inputRef={inputRef} className="pl-4 w-full h-full absolute top-0 left-0" />
         </div>
       </Suggestor>
     ),
@@ -187,11 +177,7 @@ export const SearchInput = ({
       <div className={cx("flex flex-row bg-white text-black rounded overflow-hidden", className)}>
         {input}
 
-        <ClearButton
-          onClick={() => setTextWithSearch("")}
-          visible={!!text && !focused}
-          className="right-0"
-        />
+        <ClearButton onClick={() => setTextWithSearch("")} visible={!!text && !focused} className="right-0" />
         <SearchButton onClick={() => setTextWithSearch(text)} />
       </div>
     ),
@@ -284,10 +270,7 @@ const Highlighter = ({
   }, [inputRef]);
 
   return (
-    <div
-      style={{ marginLeft: offset }}
-      className={cx("leading-8 flex items-center whitespace-pre", className)}
-    >
+    <div style={{ marginLeft: offset }} className={cx("leading-8 flex items-center whitespace-pre", className)}>
       {useMemo(
         () =>
           tokens.map((token) => {
@@ -360,10 +343,8 @@ const Suggestor = ({
 
     const tag = suggestions?.find((s) => s.items.indexOf(selected) !== -1)?.tag;
 
-    const remove = (s: string, start: number, end: number) =>
-      s.substring(0, start) + s.substring(end);
-    const insert = (s: string, index: number, value: string) =>
-      s.substring(0, index) + value + s.substring(index);
+    const remove = (s: string, start: number, end: number) => s.substring(0, start) + s.substring(end);
+    const insert = (s: string, index: number, value: string) => s.substring(0, index) + value + s.substring(index);
 
     const replacement = `${tag}:${selected.text.replace(/\s/g, "_")}`;
 
@@ -437,8 +418,7 @@ const Suggestor = ({
     const handler = (e: KeyboardEvent) => {
       const moveSelected = (move: number) => {
         const items = suggestions?.flatMap(({ items }) => items) || [];
-        const newItem =
-          items[(items.length + (selected ? items.indexOf(selected) : 0) + move) % items.length];
+        const newItem = items[(items.length + (selected ? items.indexOf(selected) : 0) + move) % items.length];
 
         setSelected(newItem);
       };
@@ -447,8 +427,7 @@ const Suggestor = ({
         if (!tokens.length) return;
 
         const tokenns = tokens.filter((token) => token.display);
-        const newToken =
-          tokenns[(tokenns.length + (token ? tokenns.indexOf(token) : 0) + move) % tokenns.length];
+        const newToken = tokenns[(tokenns.length + (token ? tokenns.indexOf(token) : 0) + move) % tokenns.length];
 
         input.selectionStart = newToken.begin;
         input.selectionEnd = newToken.end;
@@ -526,10 +505,7 @@ const Suggestor = ({
           .filter((x) => x.items.length);
 
         setSuggestions(suggestions);
-        setSelected(
-          suggestions.flatMap((s) => s.items).find((s) => s.id === selected?.id) ||
-            suggestions[0]?.items[0]
-        );
+        setSelected(suggestions.flatMap((s) => s.items).find((s) => s.id === selected?.id) || suggestions[0]?.items[0]);
         setSuggestLoading(false);
       } catch (e) {
         notifyError(e);
@@ -572,12 +548,7 @@ const Suggestor = ({
             <FormattedMessage id={`types.bookTag.${tag}`} />
           </li>
 
-          <SuggestorSection
-            items={items}
-            complete={complete}
-            selected={selected}
-            setSelected={setSelected}
-          />
+          <SuggestorSection items={items} complete={complete} selected={selected} setSelected={setSelected} />
         </animated.ul>
       ))}
     </>
@@ -624,17 +595,11 @@ const SuggestorSection = ({
   return (
     <>
       {transitions((style, item) => (
-        <animated.li
-          key={item.id}
-          style={style}
-          onMouseDown={complete}
-          onMouseEnter={() => setSelected(item)}
-        >
+        <animated.li key={item.id} style={style} onMouseDown={complete} onMouseEnter={() => setSelected(item)}>
           <span
-            className={cx(
-              "block bg-opacity-50 rounded-sm overflow-hidden cursor-pointer px-10 -mx-10",
-              { "bg-black": selected === item }
-            )}
+            className={cx("block bg-opacity-50 rounded-sm overflow-hidden cursor-pointer px-10 -mx-10", {
+              "bg-black": selected === item,
+            })}
           >
             {item.text}
           </span>

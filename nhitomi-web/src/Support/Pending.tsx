@@ -48,10 +48,7 @@ export const Pending = () => {
         </div>
 
         <div className="flex flex-row justify-center">
-          <Tooltip
-            placement="bottom"
-            overlay={<FormattedMessage id="pages.support.pending.home" />}
-          >
+          <Tooltip placement="bottom" overlay={<FormattedMessage id="pages.support.pending.home" />}>
             <BookListingLink>
               <RoundIconButton>
                 <HomeOutlined />

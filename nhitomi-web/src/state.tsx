@@ -1,12 +1,5 @@
 import { Dispatch, useCallback, useLayoutEffect, useRef, useState } from "react";
-import {
-  createBrowserHistory,
-  Hash,
-  History as Hisotry,
-  Location,
-  Pathname,
-  Search,
-} from "history";
+import { createBrowserHistory, Hash, History as Hisotry, Location, Pathname, Search } from "history";
 import { parse, stringify } from "qs";
 import { EventEmitter } from "events";
 import StrictEventEmitter from "strict-event-emitter-types";
@@ -247,10 +240,7 @@ export function useQuery(mode: NavigationMode = "replace"): [QueryState, Dispatc
 
 /** Similar to useState but stores data in the query part of window.location. */
 export function useQueryState<T extends {}>(mode?: NavigationMode): [T, Dispatch<T>];
-export function useQueryState<T>(
-  mode?: NavigationMode,
-  name?: string
-): [T | undefined, Dispatch<T | undefined>];
+export function useQueryState<T>(mode?: NavigationMode, name?: string): [T | undefined, Dispatch<T | undefined>];
 
 export function useQueryState(mode: NavigationMode = "replace", name?: string) {
   const [query, setQuery] = useQuery(mode);

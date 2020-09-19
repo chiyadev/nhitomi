@@ -1,10 +1,6 @@
 /** btoa with unicode support. */
 export function utoa(data: string) {
-  return btoa(
-    encodeURIComponent(data).replace(/%([0-9A-F]{2})/g, (_, p1) =>
-      String.fromCharCode(parseInt(p1, 16))
-    )
-  );
+  return btoa(encodeURIComponent(data).replace(/%([0-9A-F]{2})/g, (_, p1) => String.fromCharCode(parseInt(p1, 16))));
 }
 
 /** atob with unicode support. */

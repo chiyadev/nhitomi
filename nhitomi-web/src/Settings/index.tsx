@@ -7,13 +7,7 @@ import { Language } from "./Language";
 import { Animation } from "./Animation";
 import { SettingsFocusContainer } from "./SettingsFocusContainer";
 import { useQueryState } from "../state";
-import {
-  MacCommandFilled,
-  PictureOutlined,
-  ReadOutlined,
-  ToolOutlined,
-  UserOutlined,
-} from "@ant-design/icons";
+import { MacCommandFilled, PictureOutlined, ReadOutlined, ToolOutlined, UserOutlined } from "@ant-design/icons";
 import { PageContainer } from "../Components/PageContainer";
 import { Blur } from "./Blur";
 import { Shortcuts } from "./Shortcuts";

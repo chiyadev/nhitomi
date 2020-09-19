@@ -9,13 +9,7 @@ import { Menu } from "./Menu";
 import { Overlay } from "./Overlay";
 
 // instead of reimplementing a new list for book collections, adapt BookList for code reuse
-export const BookSection = ({
-  user,
-  collections,
-}: {
-  user: User;
-  collections: BookCollection[];
-}) => {
+export const BookSection = ({ user, collections }: { user: User; collections: BookCollection[] }) => {
   const items = useMemo(
     () =>
       collections.map(({ collection, cover }) => ({

@@ -3,24 +3,14 @@ import { Client, Message } from "discord.js-light";
 import config from "config";
 import { loadCommands, matchCommand } from "./Commands";
 import { shouldHandleMessage, shouldHandleReaction } from "./filter";
-import {
-  handleInteractiveMessage,
-  handleInteractiveMessageDeleted,
-  handleInteractiveReaction,
-} from "./interactive";
+import { handleInteractiveMessage, handleInteractiveMessageDeleted, handleInteractiveReaction } from "./interactive";
 import { MessageContext } from "./context";
 import { Api } from "./api";
 import { beginPresenceRotation } from "./status";
 import { BookListMessage } from "./Commands/search";
 import { AsyncArray } from "./asyncArray";
 import { BookMessage } from "./Commands/get";
-import {
-  collectDefaultMetrics,
-  Counter,
-  Gauge,
-  Histogram,
-  register,
-} from "prom-client";
+import { collectDefaultMetrics, Counter, Gauge, Histogram, register } from "prom-client";
 import { getBuckets } from "./metrics";
 import { RegExpCache } from "./regex";
 
@@ -44,13 +34,7 @@ export const Discord = new Client({
   //   'USER'
   // ],
   ws: {
-    intents: [
-      "GUILDS",
-      "GUILD_MESSAGES",
-      "GUILD_MESSAGE_REACTIONS",
-      "DIRECT_MESSAGES",
-      "DIRECT_MESSAGE_REACTIONS",
-    ],
+    intents: ["GUILDS", "GUILD_MESSAGES", "GUILD_MESSAGE_REACTIONS", "DIRECT_MESSAGES", "DIRECT_MESSAGE_REACTIONS"],
     large_threshold: 1,
   },
 });
@@ -59,9 +43,7 @@ Discord.on("debug", console.debug);
 Discord.on("warn", console.warn);
 Discord.on("error", console.error);
 
-Discord.on("ready", () =>
-  register.setDefaultLabels({ shard: Discord.shard?.ids[0]?.toString() })
-);
+Discord.on("ready", () => register.setDefaultLabels({ shard: Discord.shard?.ids[0]?.toString() }));
 
 const guildCount = new Gauge({
   name: "discord_guilds",
@@ -86,10 +68,7 @@ function wrapHandler<T extends Function>(name: string, func: T): T {
   }) as unknown) as T;
 }
 
-async function whileTyping<T>(
-  channel: Message["channel"],
-  action: () => Promise<T>
-): Promise<T> {
+async function whileTyping<T>(channel: Message["channel"], action: () => Promise<T>): Promise<T> {
   // make channel fields (specifically 'nsfw') availble for the code within action
   await channel.fetch();
 
@@ -144,8 +123,7 @@ Discord.on(
       const content = message.content.substring(prefix.length).trim();
       const space = content.indexOf(" ");
       const command = space === -1 ? content : content.substring(0, space);
-      const arg =
-        space === -1 ? undefined : content.substring(space + 1).trim();
+      const arg = space === -1 ? undefined : content.substring(space + 1).trim();
 
       const module = matchCommand(command);
 
@@ -167,9 +145,9 @@ Discord.on(
             }
 
             console.debug(
-              `user ${context.user.id} '${
-                context.user.username
-              }' executing command '${command}' with args '${arg || ""}'`
+              `user ${context.user.id} '${context.user.username}' executing command '${command}' with args '${
+                arg || ""
+              }'`
             );
 
             await run(context, arg);
@@ -177,8 +155,7 @@ Discord.on(
             if (e instanceof Error) {
               let stack = e.stack;
 
-              if (stack && stack.length > 1920)
-                stack = stack.substring(0, 1920) + "...";
+              if (stack && stack.length > 1920) stack = stack.substring(0, 1920) + "...";
 
               await context.reply({
                 embed: {
@@ -218,9 +195,7 @@ ${stack}
       const shouldScan =
         content &&
         Api.currentInfo.scrapers.some(
-          (s) =>
-            !s.galleryRegexLax ||
-            content.match(RegExpCache.get(s.galleryRegexLax))?.length
+          (s) => !s.galleryRegexLax || content.match(RegExpCache.get(s.galleryRegexLax))?.length
         );
 
       if (!shouldScan) return;
@@ -247,13 +222,10 @@ ${stack}
 
             await new BookMessage(
               book,
-              book.contents.find((c) => c.id === selectedContentId) ||
-                book.contents[0]
+              book.contents.find((c) => c.id === selectedContentId) || book.contents[0]
             ).initialize(context);
           } else {
-            await new BookListMessage(
-              AsyncArray.fromArray(result.matches.map((m) => m.book))
-            ).initialize(context);
+            await new BookListMessage(AsyncArray.fromArray(result.matches.map((m) => m.book))).initialize(context);
           }
         } finally {
           context.destroy();
@@ -273,16 +245,14 @@ Discord.on(
 Discord.on(
   "messageReactionAdd",
   wrapHandler("messageReactionAdd", async (reaction, user) => {
-    if (await shouldHandleReaction(reaction))
-      await handleInteractiveReaction(reaction, user);
+    if (await shouldHandleReaction(reaction)) await handleInteractiveReaction(reaction, user);
   })
 );
 
 Discord.on(
   "messageReactionRemove",
   wrapHandler("messageReactionRemove", async (reaction, user) => {
-    if (await shouldHandleReaction(reaction))
-      await handleInteractiveReaction(reaction, user);
+    if (await shouldHandleReaction(reaction)) await handleInteractiveReaction(reaction, user);
   })
 );
 

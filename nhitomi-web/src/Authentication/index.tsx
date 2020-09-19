@@ -51,10 +51,7 @@ export const useAuthenticationPrefetch: PrefetchGenerator<PrefetchResult, Prefet
   };
 };
 
-export const AuthenticationLink = ({
-  redirect,
-  ...props
-}: TypedPrefetchLinkProps & PrefetchOptions) => (
+export const AuthenticationLink = ({ redirect, ...props }: TypedPrefetchLinkProps & PrefetchOptions) => (
   <PrefetchLink fetch={useAuthenticationPrefetch} options={{ redirect }} {...props} />
 );
 
@@ -170,11 +167,7 @@ const GitHubButtons = () => {
       >
         Watch
       </GitHubButton>
-      <GitHubButton
-        href="https://github.com/chiyadev/nhitomi"
-        data-icon="octicon-star"
-        data-show-count={true}
-      >
+      <GitHubButton href="https://github.com/chiyadev/nhitomi" data-icon="octicon-star" data-show-count={true}>
         Star
       </GitHubButton>
       <GitHubButton

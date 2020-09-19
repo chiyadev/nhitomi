@@ -1,8 +1,4 @@
-import {
-  InteractiveMessage,
-  ReactionTrigger,
-  RenderResult,
-} from "../interactive";
+import { InteractiveMessage, ReactionTrigger, RenderResult } from "../interactive";
 import { MessageContext } from "../context";
 import { Locale } from "../locales";
 import { Book, BookContent } from "nhitomi-api";
@@ -23,15 +19,11 @@ export class BookSourcesMessage extends InteractiveMessage {
         title: book.primaryName,
         url: Api.getWebLink(`books/${book.id}/contents/${content.id}`),
         thumbnail: {
-          url: Api.getApiLink(
-            `books/${book.id}/contents/${content.id}/pages/-1`
-          ),
+          url: Api.getApiLink(`books/${book.id}/contents/${content.id}/pages/-1`),
         },
         color: "GREEN",
         author: {
-          name: (book.tags.artist || book.tags.circle || [content.source])
-            .sort()
-            .join(", "),
+          name: (book.tags.artist || book.tags.circle || [content.source]).sort().join(", "),
           iconURL: Api.getWebLink(`assets/icons/${content.source}.jpg`),
         },
         footer: {
@@ -41,9 +33,9 @@ export class BookSourcesMessage extends InteractiveMessage {
         },
         fields: Object.entries(
           book.contents.reduce((a, b) => {
-            const k = `${
-              Api.currentInfo.scrapers.find((s) => s.type === b.source)?.name
-            } (${b.language.split("-")[0]})`;
+            const k = `${Api.currentInfo.scrapers.find((s) => s.type === b.source)?.name} (${
+              b.language.split("-")[0]
+            })`;
             (a[k] = a[k] || []).push(b);
             return a;
           }, {} as Record<string, BookContent[]>)
@@ -88,8 +80,7 @@ export class SourcesTrigger extends ReactionTrigger {
     const book = this.target.book;
     const content = this.target.content;
 
-    if (book && content)
-      return await new BookSourcesMessage(book, content).initialize(context);
+    if (book && content) return await new BookSourcesMessage(book, content).initialize(context);
 
     return false;
   }

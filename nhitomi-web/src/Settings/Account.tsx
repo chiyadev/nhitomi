@@ -18,10 +18,7 @@ export const Account = () => {
         <FormattedMessage id="pages.settings.user.account.name" />
       </div>
       <div className="text-sm text-gray-darker">
-        <FormattedMessage
-          id="pages.settings.user.account.description"
-          values={{ name: info.user.username }}
-        />
+        <FormattedMessage id="pages.settings.user.account.description" values={{ name: info.user.username }} />
       </div>
       <br />
 

@@ -109,8 +109,7 @@ export const ContextMenu = ({
         onBlur: () => {
           setTimeout(() => {
             // hack: bring focus back to overlay if an overlay descendant stole focus
-            if (overlayRef.current && overlayRef.current.contains(document.activeElement))
-              overlayRef.current.focus();
+            if (overlayRef.current && overlayRef.current.contains(document.activeElement)) overlayRef.current.focus();
             else setVisible(false);
           });
         },
@@ -153,11 +152,7 @@ type ContextMenuTrigger = "mouse" | "touch";
 
 export function useContextMenu(
   ref: RefObject<HTMLElement>,
-  callback: (
-    target: HTMLElement,
-    trigger: ContextMenuTrigger,
-    position: { x: number; y: number }
-  ) => void
+  callback: (target: HTMLElement, trigger: ContextMenuTrigger, position: { x: number; y: number }) => void
 ) {
   const touch = useRef<{
     x: number;

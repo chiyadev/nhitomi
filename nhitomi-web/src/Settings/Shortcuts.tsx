@@ -122,10 +122,7 @@ const ItemPart = ({
   return (
     <animated.div
       style={style}
-      className={cx(
-        "inline-block align-middle text-sm px-1 rounded overflow-hidden cursor-default",
-        className
-      )}
+      className={cx("inline-block align-middle text-sm px-1 rounded overflow-hidden cursor-default", className)}
       onClick={onClick}
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}

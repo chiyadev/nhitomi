@@ -29,10 +29,7 @@ const NewButton = () => {
   const dummyName = useLocalized("components.collections.created.dummyName");
 
   return (
-    <Tooltip
-      placement="bottom"
-      overlay={<FormattedMessage id="pages.collectionListing.book.menu.create" />}
-    >
+    <Tooltip placement="bottom" overlay={<FormattedMessage id="pages.collectionListing.book.menu.create" />}>
       <Disableable disabled={loading}>
         <RoundIconButton
           onClick={async () => {

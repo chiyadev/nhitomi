@@ -106,11 +106,7 @@ const Content = ({ info }: PrefetchResult) => {
         <ul className="list-disc list-inside">
           <li>
             Completele free and{" "}
-            <Anchor
-              target="_blank"
-              className="font-bold"
-              href="https://github.com/chiyadev/nhitomi"
-            >
+            <Anchor target="_blank" className="font-bold" href="https://github.com/chiyadev/nhitomi">
               open-source
             </Anchor>
           </li>
@@ -122,11 +118,7 @@ const Content = ({ info }: PrefetchResult) => {
 
         <div>
           Missing a feature?{" "}
-          <Anchor
-            target="_blank"
-            className="text-blue"
-            href="https://github.com/chiyadev/nhitomi/issues/new"
-          >
+          <Anchor target="_blank" className="text-blue" href="https://github.com/chiyadev/nhitomi/issues/new">
             Suggest one!
           </Anchor>
         </div>
@@ -144,10 +136,7 @@ const Content = ({ info }: PrefetchResult) => {
 
       <div className="space-y-2">
         <div className="text-2xl">Sources</div>
-        <div>
-          Doujinshi are regularly scraped from the below sources and aggregated for convenient
-          browsing.
-        </div>
+        <div>Doujinshi are regularly scraped from the below sources and aggregated for convenient browsing.</div>
 
         <ul className="list-disc list-inside">
           {info.scrapers
@@ -174,10 +163,7 @@ const Content = ({ info }: PrefetchResult) => {
 
       <div className="space-y-2">
         <div className="text-2xl">Discord</div>
-        <div>
-          nhitomi began its life as a Discord bot and evolved into a website after an year of
-          development.
-        </div>
+        <div>nhitomi began its life as a Discord bot and evolved into a website after an year of development.</div>
 
         <ul className="list-disc list-inside">
           <li>Read books directly in your server</li>
@@ -215,11 +201,7 @@ const Content = ({ info }: PrefetchResult) => {
         <ul className="list-disc list-inside">
           <li>
             nhitomi provides an HTTP API service, complete with{" "}
-            <Anchor
-              target="_blank"
-              className="text-blue"
-              href="https://github.com/chiyadev/nhitomi/wiki/API"
-            >
+            <Anchor target="_blank" className="text-blue" href="https://github.com/chiyadev/nhitomi/wiki/API">
               documentation
             </Anchor>{" "}
             and an{" "}

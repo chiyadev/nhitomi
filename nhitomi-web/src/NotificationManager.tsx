@@ -1,11 +1,5 @@
 import React, { createContext, ReactNode, useContext, useMemo, useState } from "react";
-import {
-  AppearanceTypes,
-  ToastContainerProps,
-  ToastProps,
-  ToastProvider,
-  useToasts,
-} from "react-toast-notifications";
+import { AppearanceTypes, ToastContainerProps, ToastProps, ToastProvider, useToasts } from "react-toast-notifications";
 import {
   CheckCircleTwoTone,
   CloseCircleTwoTone,
@@ -192,8 +186,7 @@ const NotifyManager = ({ children }: { children?: ReactNode }) => {
             addToast(<NotifyToastContent type={type} title={title} description={description} />);
           },
           notifyError: (error, title) => {
-            if (!(error instanceof Error))
-              error = Error((error as any)?.message || "Unknown error.");
+            if (!(error instanceof Error)) error = Error((error as any)?.message || "Unknown error.");
 
             if (error instanceof ValidationError) {
               addToast(

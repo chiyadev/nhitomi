@@ -1,19 +1,11 @@
 import { CommandFunc } from ".";
 import { Api } from "../api";
-import {
-  BookQuery,
-  BookSort,
-  ScraperCategory,
-  SortDirection,
-} from "nhitomi-api";
+import { BookQuery, BookSort, ScraperCategory, SortDirection } from "nhitomi-api";
 import { BookSearchMessage } from "./search";
 import { MessageContext } from "../context";
 import { Message } from "discord.js-light";
 
-export function sourceInvalid(
-  context: MessageContext,
-  input: string
-): Promise<Message> {
+export function sourceInvalid(context: MessageContext, input: string): Promise<Message> {
   return context.reply(
     `
 ${input && context.locale.get("from.badSource.message", { input })}
@@ -28,9 +20,7 @@ ${Api.currentInfo.scrapers
 }
 
 export const run: CommandFunc = async (context, source) => {
-  const scraper = Api.currentInfo.scrapers.find(
-    (s) => source && s.type.toLowerCase().startsWith(source.toLowerCase())
-  );
+  const scraper = Api.currentInfo.scrapers.find((s) => source && s.type.toLowerCase().startsWith(source.toLowerCase()));
 
   switch (scraper?.category) {
     case ScraperCategory.Book: {

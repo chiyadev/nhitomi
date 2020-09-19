@@ -27,9 +27,7 @@ const pendingInputs: InteractiveInput[] = [];
 
 const interactives: { [id: string]: InteractiveMessage } = {};
 
-export function getInteractive(
-  message: Message | PartialMessage
-): InteractiveMessage | undefined {
+export function getInteractive(message: Message | PartialMessage): InteractiveMessage | undefined {
   return interactives[message.id];
 }
 
@@ -56,10 +54,7 @@ export abstract class InteractiveMessage {
   readonly lock: Lock = new Lock();
 
   /** Timeout responsible for destroying this interactive after a delay. */
-  readonly timeout = setTimeout(
-    () => this.destroy(true),
-    config.get<number>("interactive.timeout") * 1000
-  );
+  readonly timeout = setTimeout(() => this.destroy(true), config.get<number>("interactive.timeout") * 1000);
 
   /** Context of the command message. */
   context?: MessageContext;
@@ -118,11 +113,7 @@ export abstract class InteractiveMessage {
 
       if (this.rendered?.editable) {
         if (deepEqual(this.lastView, view)) {
-          console.debug(
-            "skipping rendering for interactive",
-            this.constructor.name,
-            this.rendered.id
-          );
+          console.debug("skipping rendering for interactive", this.constructor.name, this.rendered.id);
           return false;
         }
 
@@ -135,11 +126,7 @@ export abstract class InteractiveMessage {
       if (this.rendered) {
         interactives[this.rendered.id] = this;
 
-        console.debug(
-          "rendered interactive",
-          this.constructor.name,
-          this.rendered.id
-        );
+        console.debug("rendered interactive", this.constructor.name, this.rendered.id);
 
         if (this.rendered.id !== lastRendered?.id) {
           const triggers = (this.triggers = this.createTriggers());
@@ -223,10 +210,7 @@ export abstract class InteractiveMessage {
       pendingInputs.push(input);
       this.ownedInputs.push(input);
 
-      setTimeout(
-        input.reject,
-        (timeout || config.get<number>("interactive.inputTimeout")) * 1000
-      );
+      setTimeout(input.reject, (timeout || config.get<number>("interactive.inputTimeout")) * 1000);
     });
   }
 
@@ -242,13 +226,7 @@ export abstract class InteractiveMessage {
 
     try {
       if (this.rendered)
-        console.debug(
-          "destroying interactive",
-          this.constructor.name,
-          this.rendered.id,
-          "expiring",
-          expiring || false
-        );
+        console.debug("destroying interactive", this.constructor.name, this.rendered.id, "expiring", expiring || false);
 
       for (const input of this.ownedInputs) input.reject();
 
@@ -286,9 +264,7 @@ export class HeadlessInteractiveMessage extends InteractiveMessage {
   }
 }
 
-export async function handleInteractiveMessage(
-  message: Message
-): Promise<boolean> {
+export async function handleInteractiveMessage(message: Message): Promise<boolean> {
   const userId = message.author.id;
   const channelId = message.channel.id;
 
@@ -301,9 +277,7 @@ export async function handleInteractiveMessage(
   return false;
 }
 
-export async function handleInteractiveMessageDeleted(
-  message: Message | PartialMessage
-): Promise<boolean> {
+export async function handleInteractiveMessageDeleted(message: Message | PartialMessage): Promise<boolean> {
   const interactive = getInteractive(message);
 
   if (!interactive || message.id !== interactive.rendered?.id) return false;
@@ -312,14 +286,10 @@ export async function handleInteractiveMessageDeleted(
   return true;
 }
 
-export async function handleInteractiveReaction(
-  reaction: MessageReaction,
-  user: User | PartialUser
-): Promise<boolean> {
+export async function handleInteractiveReaction(reaction: MessageReaction, user: User | PartialUser): Promise<boolean> {
   const interactive = getInteractive(reaction.message);
 
-  if (!interactive || reaction.message.id !== interactive.rendered?.id)
-    return false;
+  if (!interactive || reaction.message.id !== interactive.rendered?.id) return false;
 
   // reactor must be command author
   if (user.id !== interactive.context?.message.author.id) return false;
@@ -327,9 +297,7 @@ export async function handleInteractiveReaction(
   // prevent triggers while pending inputs
   if (interactive.ownedInputs.length) return false;
 
-  const trigger = interactive.triggers?.find(
-    (t) => t.emoji === reaction.emoji.name
-  );
+  const trigger = interactive.triggers?.find((t) => t.emoji === reaction.emoji.name);
 
   if (!trigger) return false;
 

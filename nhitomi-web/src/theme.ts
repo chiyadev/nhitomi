@@ -40,10 +40,7 @@ export class Color {
 }
 
 /** Retrieves a color instance from the current theme. */
-export function getColor(
-  color: ColorHue | "white" | "black" | "transparent",
-  luminance: ColorLuminance = "default"
-) {
+export function getColor(color: ColorHue | "white" | "black" | "transparent", luminance: ColorLuminance = "default") {
   switch (color) {
     case "white":
       return createColor(colors.white);

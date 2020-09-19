@@ -12,10 +12,7 @@ export function useXsrfToken(): [string, () => void] {
   let token = localStorage.getItem("xsrf");
 
   if (!token) {
-    localStorage.setItem(
-      "xsrf",
-      (token = [...Array(16)].map(() => Math.random().toString(36)[2]).join(""))
-    );
+    localStorage.setItem("xsrf", (token = [...Array(16)].map(() => Math.random().toString(36)[2]).join("")));
   }
 
   const reset = useCallback(() => localStorage.removeItem("xsrf"), []);

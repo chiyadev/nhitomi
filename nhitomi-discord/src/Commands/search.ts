@@ -1,9 +1,5 @@
 import { CommandFunc } from ".";
-import {
-  InteractiveMessage,
-  ReactionTrigger,
-  RenderResult,
-} from "../interactive";
+import { InteractiveMessage, ReactionTrigger, RenderResult } from "../interactive";
 import { Locale } from "../locales";
 import {
   Book,
@@ -40,10 +36,7 @@ export class BookListMessage extends InteractiveMessage {
     if (
       !this.book &&
       !(this.book = this.items.getCached(
-        (this.position = Math.max(
-          0,
-          Math.min(this.items.loadedLength - 1, this.position)
-        ))
+        (this.position = Math.max(0, Math.min(this.items.loadedLength - 1, this.position)))
       ))
     ) {
       return {
@@ -56,13 +49,9 @@ export class BookListMessage extends InteractiveMessage {
     }
 
     this.content =
-      this.book.contents.filter(
-        (c) => c.language === this.context?.user.language
-      )[0] || this.book.contents[0];
+      this.book.contents.filter((c) => c.language === this.context?.user.language)[0] || this.book.contents[0];
 
-    return this.processRenderResult(
-      BookMessage.renderStatic(locale, this.book, this.content)
-    );
+    return this.processRenderResult(BookMessage.renderStatic(locale, this.book, this.content));
   }
 
   get favoriteObject(): FavoriteTriggerTarget["favoriteObject"] {
@@ -97,20 +86,17 @@ export class BookListMessage extends InteractiveMessage {
 export class BookSearchMessage extends BookListMessage {
   constructor(query: BookQuery) {
     super(
-      new AsyncArray<Book>(
-        config.get("search.chunkSize"),
-        async (offset, limit) => {
-          const results = await this.context?.api.book.searchBooks({
-            bookQuery: {
-              ...query,
-              offset,
-              limit,
-            },
-          });
+      new AsyncArray<Book>(config.get("search.chunkSize"), async (offset, limit) => {
+        const results = await this.context?.api.book.searchBooks({
+          bookQuery: {
+            ...query,
+            offset,
+            limit,
+          },
+        });
 
-          return results?.items || [];
-        }
-      )
+        return results?.items || [];
+      })
     );
   }
 }

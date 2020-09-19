@@ -56,10 +56,7 @@ const Check = ({ value, hover, color }: { value?: boolean; hover?: boolean; colo
   });
 
   return (
-    <animated.div
-      style={boxStyle}
-      className="w-4 h-4 flex items-center text-center rounded border box-content"
-    >
+    <animated.div style={boxStyle} className="w-4 h-4 flex items-center text-center rounded border box-content">
       <animated.span style={checkStyle} className="flex-1 text-xs">
         <CheckOutlined />
       </animated.span>

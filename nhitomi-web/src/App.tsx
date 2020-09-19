@@ -71,12 +71,7 @@ export const App = () => {
 
 const Routing = () => {
   const { path, query, stringify, evaluate } = useNavigator();
-  const gapath = useMemo(() => stringify(evaluate({ path, query })), [
-    evaluate,
-    path,
-    query,
-    stringify,
-  ]);
+  const gapath = useMemo(() => stringify(evaluate({ path, query })), [evaluate, path, query, stringify]);
 
   useLayoutEffect(() => {
     pageview(gapath);

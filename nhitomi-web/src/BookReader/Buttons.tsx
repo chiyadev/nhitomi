@@ -57,10 +57,7 @@ const CollectionAddButton = ({ book }: { book: Book }) => {
   const [load, setLoad] = useState(false);
 
   return (
-    <Dropdown
-      onShow={() => setLoad(true)}
-      overlay={load && <CollectionAddBookDropdownMenu book={book} />}
-    >
+    <Dropdown onShow={() => setLoad(true)} overlay={load && <CollectionAddBookDropdownMenu book={book} />}>
       <FilledButton icon={<PlusOutlined />} color={getColor("gray", "darkest")} className="py-1">
         <FormattedMessage id="pages.bookReader.buttons.collectionAdd" />
       </FilledButton>

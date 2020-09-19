@@ -3,13 +3,7 @@ import { animated, useSpring } from "react-spring";
 import { InboxOutlined } from "@ant-design/icons";
 import { cx } from "emotion";
 
-export const EmptyIndicator = ({
-  children,
-  className,
-}: {
-  children?: ReactNode;
-  className?: string;
-}) => {
+export const EmptyIndicator = ({ children, className }: { children?: ReactNode; className?: string }) => {
   const style = useSpring({
     from: { opacity: 0 },
     to: { opacity: 1 },

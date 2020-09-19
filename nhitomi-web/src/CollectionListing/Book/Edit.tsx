@@ -62,10 +62,7 @@ const Duplicate = ({ collection }: { collection: Collection }) => {
 
               await navigate({ id: created.id });
 
-              alert(
-                <FormattedMessage id="pages.collectionListing.edit.book.duplicate.success" />,
-                "success"
-              );
+              alert(<FormattedMessage id="pages.collectionListing.edit.book.duplicate.success" />, "success");
             } catch (e) {
               notifyError(e);
             } finally {

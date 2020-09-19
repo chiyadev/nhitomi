@@ -1,17 +1,7 @@
 import { CommandFunc } from ".";
-import {
-  InteractiveMessage,
-  ReactionTrigger,
-  RenderResult,
-} from "../interactive";
+import { InteractiveMessage, ReactionTrigger, RenderResult } from "../interactive";
 import { Locale } from "../locales";
-import {
-  Book,
-  BookContent,
-  BookTag,
-  ObjectType,
-  SpecialCollection,
-} from "nhitomi-api";
+import { Book, BookContent, BookTag, ObjectType, SpecialCollection } from "nhitomi-api";
 import { Api } from "../api";
 import { DestroyTrigger } from "../Triggers/destroy";
 import { MessageContext } from "../context";
@@ -29,35 +19,27 @@ export class BookMessage extends InteractiveMessage {
     return BookMessage.renderStatic(locale, this.book, this.content);
   }
 
-  static renderStatic(
-    locale: Locale,
-    book: Book,
-    content: BookContent
-  ): RenderResult {
+  static renderStatic(locale: Locale, book: Book, content: BookContent): RenderResult {
     return {
       embed: {
         title: book.primaryName,
-        description:
-          book.englishName === book.primaryName ? undefined : book.englishName,
+        description: book.englishName === book.primaryName ? undefined : book.englishName,
         url: Api.getWebLink(`books/${book.id}/contents/${content.id}`),
         image: {
-          url: Api.getApiLink(
-            `books/${book.id}/contents/${content.id}/pages/-1`
-          ),
+          url: Api.getApiLink(`books/${book.id}/contents/${content.id}/pages/-1`),
         },
         color: "GREEN",
         author: {
-          name: (book.tags.artist || book.tags.circle || [content.source])
-            .sort()
-            .join(", "),
+          name: (book.tags.artist || book.tags.circle || [content.source]).sort().join(", "),
           iconURL: Api.getWebLink(`assets/icons/${content.source}.jpg`),
         },
         footer: {
-          text: `${book.id}/${content.id} (${locale.get(
-            `get.book.categories.${book.category}`
-          )}, ${locale.get("get.book.pageCount", {
-            count: content.pageCount,
-          })})`,
+          text: `${book.id}/${content.id} (${locale.get(`get.book.categories.${book.category}`)}, ${locale.get(
+            "get.book.pageCount",
+            {
+              count: content.pageCount,
+            }
+          )})`,
         },
         fields: Object.values(BookTag)
           .filter((t) => book.tags[t]?.length)
@@ -122,10 +104,7 @@ export async function handleGetLink(
   return { type: "notFound" };
 }
 
-export function replyNotFound(
-  context: MessageContext,
-  input: string
-): Promise<Message> {
+export function replyNotFound(context: MessageContext, input: string): Promise<Message> {
   return context.reply(
     `
 ${input && context.locale.get("get.notFound.message", { input })}

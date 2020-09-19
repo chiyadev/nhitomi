@@ -17,10 +17,7 @@ export class ListTrigger extends ReactionTrigger {
     }
   }
 
-  constructor(
-    readonly target: ListTriggerTarget,
-    readonly direction: "left" | "right"
-  ) {
+  constructor(readonly target: ListTriggerTarget, readonly direction: "left" | "right") {
     super();
   }
 
@@ -56,10 +53,7 @@ export class ListJumpTrigger extends ReactionTrigger {
     }
   }
 
-  constructor(
-    readonly target: ListJumpTriggerTarget,
-    readonly direction: "start" | "end" | "input"
-  ) {
+  constructor(readonly target: ListJumpTriggerTarget, readonly direction: "start" | "end" | "input") {
     super();
   }
 
@@ -73,11 +67,7 @@ export class ListJumpTrigger extends ReactionTrigger {
         break;
 
       case "input": {
-        const result = parseInt(
-          (await this.interactive?.waitInput(
-            context.locale.get("reaction.list.jump")
-          )) || ""
-        );
+        const result = parseInt((await this.interactive?.waitInput(context.locale.get("reaction.list.jump"))) || "");
 
         if (isNaN(result)) return false;
         this.target.position = result - 1;

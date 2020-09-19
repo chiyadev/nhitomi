@@ -17,9 +17,7 @@ export type BookPrefetchResult = {
 
 export type PrefetchOptions = { id: string };
 
-export const useCollectionContentPrefetch: PrefetchGenerator<PrefetchResult, PrefetchOptions> = ({
-  id,
-}) => {
+export const useCollectionContentPrefetch: PrefetchGenerator<PrefetchResult, PrefetchOptions> = ({ id }) => {
   const client = useClient();
 
   return {
@@ -49,10 +47,7 @@ export const useCollectionContentPrefetch: PrefetchGenerator<PrefetchResult, Pre
   };
 };
 
-export const CollectionContentLink = ({
-  id,
-  ...props
-}: TypedPrefetchLinkProps & PrefetchOptions) => (
+export const CollectionContentLink = ({ id, ...props }: TypedPrefetchLinkProps & PrefetchOptions) => (
   <PrefetchLink fetch={useCollectionContentPrefetch} options={{ id }} {...props} />
 );
 
@@ -73,21 +68,10 @@ export const CollectionContent = (options: PrefetchOptions) => {
   );
 };
 
-const Loaded = ({
-  result,
-  setResult,
-}: {
-  result: PrefetchResult;
-  setResult: Dispatch<PrefetchResult>;
-}) => {
+const Loaded = ({ result, setResult }: { result: PrefetchResult; setResult: Dispatch<PrefetchResult> }) => {
   switch (result.type) {
     case "book":
-      return (
-        <BookDisplay
-          result={result}
-          setResult={(result) => setResult({ type: "book", ...result })}
-        />
-      );
+      return <BookDisplay result={result} setResult={(result) => setResult({ type: "book", ...result })} />;
 
     case "other":
       return null;

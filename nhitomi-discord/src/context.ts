@@ -53,10 +53,7 @@ export class MessageContext {
   reply: Message["channel"]["send"];
 
   /** Schedules the deletion of the given message and returns a promise that resolves when it is deleted. Promise will never reject. */
-  async scheduleDelete(
-    message: Message,
-    timeout = config.get<number>("interactive.notifTimeout")
-  ): Promise<void> {
+  async scheduleDelete(message: Message, timeout = config.get<number>("interactive.notifTimeout")): Promise<void> {
     await new Promise((r) => setTimeout(r, timeout * 1000));
 
     if (message.deletable) {
@@ -95,11 +92,7 @@ export class MessageContext {
         return new MessageContext(message, api, user);
       } catch (e) {
         api.destroy();
-        console.debug(
-          "message context error using cached token",
-          cachedToken,
-          e
-        );
+        console.debug("message context error using cached token", cachedToken, e);
       }
     }
 

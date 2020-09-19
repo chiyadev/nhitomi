@@ -1,19 +1,10 @@
 import { CommandFunc } from ".";
 import { handleGetLink, replyNotFound } from "./get";
-import {
-  Book,
-  Collection,
-  CollectionInsertPosition,
-  ObjectType,
-} from "nhitomi-api";
+import { Book, Collection, CollectionInsertPosition, ObjectType } from "nhitomi-api";
 import { BookListMessage } from "./search";
 import { AsyncArray } from "../asyncArray";
 import config from "config";
-import {
-  InteractiveMessage,
-  ReactionTrigger,
-  RenderResult,
-} from "../interactive";
+import { InteractiveMessage, ReactionTrigger, RenderResult } from "../interactive";
 import { Locale } from "../locales";
 import { Api } from "../api";
 import { ListTrigger } from "../Triggers/list";
@@ -30,10 +21,7 @@ export class CollectionListMessage extends InteractiveMessage {
   protected async render(locale: Locale): Promise<RenderResult> {
     if (
       !(this.collection = this.collections[
-        (this.position = Math.max(
-          0,
-          Math.min(this.collections.length - 1, this.position)
-        ))
+        (this.position = Math.max(0, Math.min(this.collections.length - 1, this.position)))
       ])
     ) {
       return {
@@ -56,12 +44,9 @@ export class CollectionListMessage extends InteractiveMessage {
         url: Api.getWebLink(`collections/${collection.id}`),
         color: "AQUA",
         footer: {
-          text: `${collection.id} (${collection.type}, ${locale.get(
-            "collection.list.itemCount",
-            {
-              count: collection.items.length,
-            }
-          )})`,
+          text: `${collection.id} (${collection.type}, ${locale.get("collection.list.itemCount", {
+            count: collection.items.length,
+          })})`,
         },
       },
     };
@@ -83,21 +68,18 @@ export class CollectionListMessage extends InteractiveMessage {
 export class BookCollectionContentMessage extends BookListMessage {
   constructor(readonly collection: Collection) {
     super(
-      new AsyncArray<Book>(
-        config.get("search.chunkSize"),
-        async (offset, limit) => {
-          const ids = collection.items.slice(offset, offset + limit);
+      new AsyncArray<Book>(config.get("search.chunkSize"), async (offset, limit) => {
+        const ids = collection.items.slice(offset, offset + limit);
 
-          if (!ids.length) return [];
+        if (!ids.length) return [];
 
-          const results = await this.context?.api.book.getBooks({
-            getBookManyRequest: { ids },
-          });
+        const results = await this.context?.api.book.getBooks({
+          getBookManyRequest: { ids },
+        });
 
-          // collections can contain ids of deleted items
-          return results?.filter((b) => b) || [];
-        }
-      )
+        // collections can contain ids of deleted items
+        return results?.filter((b) => b) || [];
+      })
     );
   }
 
@@ -105,9 +87,7 @@ export class BookCollectionContentMessage extends BookListMessage {
     return {
       ...super.processRenderResult(result),
 
-      message: `> ${this.collection.name} — ${Api.getWebLink(
-        `collections/${this.collection.id}`
-      )}`,
+      message: `> ${this.collection.name} — ${Api.getWebLink(`collections/${this.collection.id}`)}`,
     };
   }
 }
@@ -124,9 +104,7 @@ export const run: CommandFunc = async (context, arg) => {
     id: context.user.id,
   });
   collections = collections.filter(
-    (c) =>
-      !collectionName ||
-      c.name.toLowerCase().startsWith(collectionName.toLowerCase())
+    (c) => !collectionName || c.name.toLowerCase().startsWith(collectionName.toLowerCase())
   );
 
   let collection: Collection | undefined;
@@ -142,8 +120,7 @@ ${collections
   .map((c, i) => {
     let name = `${i + 1}. \`${c.name}\``;
 
-    if (collections.some((c2) => c !== c2 && c.name === c2.name))
-      name = `${name} (${c.id} ${c.type})`;
+    if (collections.some((c2) => c !== c2 && c.name === c2.name)) name = `${name} (${c.id} ${c.type})`;
 
     return name;
   })
@@ -153,13 +130,8 @@ ${collections
 
       const index = parseInt(selected) - 1;
 
-      if (isNaN(index))
-        collection = collections.find((c) =>
-          c.name.toLowerCase().startsWith(selected.toLowerCase())
-        );
-      else
-        collection =
-          collections[Math.max(0, Math.min(collections.length - 1, index))];
+      if (isNaN(index)) collection = collections.find((c) => c.name.toLowerCase().startsWith(selected.toLowerCase()));
+      else collection = collections[Math.max(0, Math.min(collections.length - 1, index))];
 
       if (!collection) return true;
     } else {
@@ -277,8 +249,7 @@ ${collections
           })
         );
 
-        if (!"yes".startsWith(confirm.trim().toLowerCase() || "no"))
-          return true;
+        if (!"yes".startsWith(confirm.trim().toLowerCase() || "no")) return true;
 
         await context.api.collection.deleteCollection({ id: collection.id });
 
@@ -294,9 +265,7 @@ ${collections
 
   switch (collection?.type) {
     case ObjectType.Book:
-      return await new BookCollectionContentMessage(collection).initialize(
-        context
-      );
+      return await new BookCollectionContentMessage(collection).initialize(context);
   }
 
   return await new CollectionListMessage(collections).initialize(context);

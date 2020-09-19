@@ -53,10 +53,7 @@ const DeleteItem = ({ collection, book }: { collection: Collection; book: BookLi
               },
             });
 
-            alert(
-              <FormattedMessage id="pages.collectionContent.book.overlay.delete.success" />,
-              "success"
-            );
+            alert(<FormattedMessage id="pages.collectionContent.book.overlay.delete.success" />, "success");
           } catch (e) {
             notifyError(e);
           } finally {

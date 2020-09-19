@@ -3,13 +3,7 @@ import { cx } from "emotion";
 import useResizeObserver from "@react-hook/resize-observer";
 import { getBreakpoint, LargeBreakpoints } from "../LayoutManager";
 
-export const Container = ({
-  children,
-  className,
-}: {
-  children?: ReactNode;
-  className?: string;
-}) => {
+export const Container = ({ children, className }: { children?: ReactNode; className?: string }) => {
   const measureRef = useRef<HTMLDivElement>(null);
   const [parentWidth, setParentWidth] = useState(0);
 

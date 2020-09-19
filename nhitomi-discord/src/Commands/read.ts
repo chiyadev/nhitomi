@@ -1,9 +1,5 @@
 import { CommandFunc } from ".";
-import {
-  InteractiveMessage,
-  ReactionTrigger,
-  RenderResult,
-} from "../interactive";
+import { InteractiveMessage, ReactionTrigger, RenderResult } from "../interactive";
 import { Locale } from "../locales";
 import { Book, BookContent, ObjectType } from "nhitomi-api";
 import { handleGetLink, replyNotFound } from "./get";
@@ -38,15 +34,11 @@ export class BookReadMessage extends InteractiveMessage {
         }),
         url: Api.getWebLink(`books/${book.id}/contents/${content.id}`),
         image: {
-          url: Api.getApiLink(
-            `books/${book.id}/contents/${content.id}/pages/${this.position}`
-          ),
+          url: Api.getApiLink(`books/${book.id}/contents/${content.id}/pages/${this.position}`),
         },
         color: "DARK_GREEN",
         author: {
-          name: (book.tags.artist || book.tags.circle || [content.source])
-            .sort()
-            .join(", "),
+          name: (book.tags.artist || book.tags.circle || [content.source]).sort().join(", "),
           iconURL: Api.getWebLink(`assets/icons/${content.source}.jpg`),
         },
         footer: {

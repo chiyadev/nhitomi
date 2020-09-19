@@ -56,13 +56,7 @@ export const BookDisplay = ({
   );
 };
 
-const Loader = ({
-  result,
-  setResult,
-}: {
-  result: BookPrefetchResult;
-  setResult: Dispatch<BookPrefetchResult>;
-}) => {
+const Loader = ({ result, setResult }: { result: BookPrefetchResult; setResult: Dispatch<BookPrefetchResult> }) => {
   const { collection } = result;
 
   const client = useClient();
@@ -86,13 +80,8 @@ const Loader = ({
           begin();
 
           try {
-            const ids = collection.items.slice(
-              result.nextOffset,
-              result.nextOffset + DefaultQueryLimit
-            );
-            const moreResult = ids.length
-              ? await client.book.getBooks({ getBookManyRequest: { ids } })
-              : [];
+            const ids = collection.items.slice(result.nextOffset, result.nextOffset + DefaultQueryLimit);
+            const moreResult = ids.length ? await client.book.getBooks({ getBookManyRequest: { ids } }) : [];
 
             if (loadId.current < 0) return;
 

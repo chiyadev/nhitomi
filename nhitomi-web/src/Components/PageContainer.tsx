@@ -2,13 +2,7 @@ import React, { ReactNode, useLayoutEffect } from "react";
 import { animated, useSpring } from "react-spring";
 import { usePageState } from "../state";
 
-export const PageContainer = ({
-  children,
-  className,
-}: {
-  children?: ReactNode;
-  className?: string;
-}) => {
+export const PageContainer = ({ children, className }: { children?: ReactNode; className?: string }) => {
   const [shown, setShown] = usePageState<boolean>("pageShown");
 
   // prevents fade-in on back navigate

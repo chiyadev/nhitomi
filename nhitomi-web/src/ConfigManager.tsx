@@ -1,11 +1,4 @@
-import React, {
-  createContext,
-  ReactNode,
-  useCallback,
-  useContext,
-  useLayoutEffect,
-  useMemo,
-} from "react";
+import React, { createContext, ReactNode, useCallback, useContext, useLayoutEffect, useMemo } from "react";
 import { EventEmitter } from "events";
 import StrictEventEmitter from "strict-event-emitter-types";
 import { useUpdate } from "react-use";
@@ -81,20 +74,15 @@ export const BlurSupported = CSS.supports("backdrop-filter", "blur(0)");
 export const UserPreferredLanguages = navigator.languages
   .map(
     (lang) =>
-      Object.values(LanguageType).find((l) => l === lang) ||
-      Object.values(LanguageType).find((l) => l.startsWith(lang))
+      Object.values(LanguageType).find((l) => l === lang) || Object.values(LanguageType).find((l) => l.startsWith(lang))
   )
   .filter((l) => l) as LanguageType[];
 
 const DefaultStore: ConfigStore = {
   token: undefined,
   baseUrl: undefined,
-  language:
-    UserPreferredLanguages.find((lang) => AvailableLocalizations.indexOf(lang) !== -1) ||
-    LanguageType.EnUS,
-  searchLanguages: [...UserPreferredLanguages, LanguageType.JaJP].filter(
-    (v, i, a) => a.indexOf(v) === i
-  ),
+  language: UserPreferredLanguages.find((lang) => AvailableLocalizations.indexOf(lang) !== -1) || LanguageType.EnUS,
+  searchLanguages: [...UserPreferredLanguages, LanguageType.JaJP].filter((v, i, a) => a.indexOf(v) === i),
   animation: "normal",
   blur: BlurSupported,
 
@@ -131,9 +119,7 @@ export type ShortcutConfigKey = {
 export const KeyModifiers: KeyModifier[] = ["alt", "ctrl", "meta", "shift"];
 
 export const ConfigKeys = Object.keys(DefaultStore) as ConfigKey[];
-export const ShortcutConfigKeys = ConfigKeys.filter((k) =>
-  k.toLowerCase().endsWith("key")
-) as ShortcutConfigKey[];
+export const ShortcutConfigKeys = ConfigKeys.filter((k) => k.toLowerCase().endsWith("key")) as ShortcutConfigKey[];
 
 export class ConfigSource
   extends (EventEmitter as new () => StrictEventEmitter<

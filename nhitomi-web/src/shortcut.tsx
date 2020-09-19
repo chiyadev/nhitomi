@@ -7,26 +7,14 @@ import { useSpring } from "react-spring";
 import { event } from "react-ga";
 
 /** Returns all modifier keys pressed in the given event. */
-export function getEventModifiers(e: {
-  altKey: boolean;
-  ctrlKey: boolean;
-  metaKey: boolean;
-  shiftKey: boolean;
-}) {
+export function getEventModifiers(e: { altKey: boolean; ctrlKey: boolean; metaKey: boolean; shiftKey: boolean }) {
   return KeyModifiers.filter((key) => e[(key + "Key") as keyof typeof e]);
 }
 
 export const FocusIgnoreElements: typeof HTMLElement[] = [HTMLAnchorElement];
 
-function matchShortcut(
-  shortcuts: ShortcutConfig[],
-  event: KeyboardEvent,
-  targetFocus = document.body
-) {
-  if (
-    FocusIgnoreElements.findIndex((e) => event.target instanceof e) === -1 &&
-    event.target !== targetFocus
-  )
+function matchShortcut(shortcuts: ShortcutConfig[], event: KeyboardEvent, targetFocus = document.body) {
+  if (FocusIgnoreElements.findIndex((e) => event.target instanceof e) === -1 && event.target !== targetFocus)
     return false;
 
   const key = event.keyCode;

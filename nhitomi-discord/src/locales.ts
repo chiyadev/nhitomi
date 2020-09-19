@@ -34,8 +34,7 @@ export class Locale {
     // until key-level fallback is implemented, we use this hack for fallback to default language.
     // https://github.com/mashpie/i18n-node/issues/80
     // https://github.com/mashpie/i18n-node/issues/167
-    if (result === key && !this.default)
-      result = Locale.default.get(key, values);
+    if (result === key && !this.default) result = Locale.default.get(key, values);
 
     return result;
   }

@@ -19,8 +19,7 @@ export class ReadTrigger extends ReactionTrigger {
     const book = this.target.book;
     const content = this.target.content;
 
-    if (book && content)
-      return await new BookReadMessage(book, content).initialize(context);
+    if (book && content) return await new BookReadMessage(book, content).initialize(context);
 
     return false;
   }

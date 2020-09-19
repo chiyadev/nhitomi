@@ -12,9 +12,7 @@ export const LocaleFlag = ({
   className?: string;
   size?: number;
 }) => {
-  return (
-    <FlagIcon code={language.split("-")[1] as FlagIconCode} className={className} size={size} />
-  );
+  return <FlagIcon code={language.split("-")[1] as FlagIconCode} className={className} size={size} />;
 };
 
 export const CurrentLocaleFlag = (props: Omit<ComponentProps<typeof LocaleFlag>, "language">) => {

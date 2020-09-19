@@ -25,15 +25,9 @@ const Notifications = () => {
     <div>
       <div>Notifications</div>
       <div className="space-x-1">
-        <FlatButton onClick={() => notify("info", "message", "description")}>
-          Notify info
-        </FlatButton>
-        <FlatButton onClick={() => notify("success", "message", "description")}>
-          Notify success
-        </FlatButton>
-        <FlatButton onClick={() => notify("warning", "message", "description")}>
-          Notify warning
-        </FlatButton>
+        <FlatButton onClick={() => notify("info", "message", "description")}>Notify info</FlatButton>
+        <FlatButton onClick={() => notify("success", "message", "description")}>Notify success</FlatButton>
+        <FlatButton onClick={() => notify("warning", "message", "description")}>Notify warning</FlatButton>
         <FlatButton onClick={() => notifyError(Error("notify error"))}>Notify error</FlatButton>
       </div>
     </div>

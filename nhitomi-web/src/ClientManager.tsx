@@ -263,8 +263,7 @@ export const ClientManager = ({ children }: { children?: ReactNode }) => {
   useLayoutEffect(() => {
     if (info && !(info instanceof Error)) {
       // reload if version changes
-      if (lastVersion.current && lastVersion.current !== info.version.hash)
-        window.location.reload();
+      if (lastVersion.current && lastVersion.current !== info.version.hash) window.location.reload();
 
       lastVersion.current = info.version.hash;
     }
@@ -305,9 +304,7 @@ export const ClientManager = ({ children }: { children?: ReactNode }) => {
   if (info instanceof Error) {
     return (
       <Container className="p-4">
-        <div className="mb-2">
-          nhitomi could not contact the API server. Please try again later.
-        </div>
+        <div className="mb-2">nhitomi could not contact the API server. Please try again later.</div>
         <code>{info.stack}</code>
         <div className="mt-4 space-x-1">
           <FilledButton
@@ -445,11 +442,7 @@ export function useClientUtils() {
       });
     },
 
-    addToSpecialCollection: async (
-      itemId: string,
-      type: ObjectType,
-      special: SpecialCollection
-    ) => {
+    addToSpecialCollection: async (itemId: string, type: ObjectType, special: SpecialCollection) => {
       if (!info.authenticated) throw Error("Unauthenticated.");
 
       // get special collection id from user object

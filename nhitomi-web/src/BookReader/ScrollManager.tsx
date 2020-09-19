@@ -55,16 +55,14 @@ export const ScrollManager = ({
     }
 
     if (typeof current.pageInduced === "number" && last.pageInduced !== current.pageInduced) {
-      const page =
-        layout.images[Math.max(0, Math.min(layout.images.length - 1, current.pageInduced || 0))];
+      const page = layout.images[Math.max(0, Math.min(layout.images.length - 1, current.pageInduced || 0))];
       const pageMid = page.y + page.height / 2;
 
       window.scrollTo({ top: layoutOffset + pageMid - height / 2 });
     }
 
     if (typeof current.rowInduced === "number" && last.rowInduced !== current.rowInduced) {
-      const row =
-        layout.rows[Math.max(0, Math.min(layout.rows.length - 1, current.rowInduced || 0))];
+      const row = layout.rows[Math.max(0, Math.min(layout.rows.length - 1, current.rowInduced || 0))];
 
       let rowMid = 0;
 

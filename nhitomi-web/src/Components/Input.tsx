@@ -169,18 +169,7 @@ export const Input = ({
           />
         );
     }
-  }, [
-    autoFocus,
-    onBlur,
-    onFocus,
-    onKeyDown,
-    onSubmit,
-    padding,
-    selectionColor.hex,
-    setValue,
-    type,
-    value,
-  ]);
+  }, [autoFocus, onBlur, onFocus, onKeyDown, onSubmit, padding, selectionColor.hex, setValue, type, value]);
 
   return (
     <div className={cx("inline-flex flex-col text-white", className)}>

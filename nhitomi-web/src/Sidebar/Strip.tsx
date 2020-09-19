@@ -26,13 +26,7 @@ import { AboutLink } from "../About";
 import { SupportLink } from "../Support";
 import { SidebarStripWidth } from "../LayoutManager";
 
-export const Strip = ({
-  children,
-  additionalMenu,
-}: {
-  children?: ReactNode;
-  additionalMenu?: ReactNode;
-}) => {
+export const Strip = ({ children, additionalMenu }: { children?: ReactNode; additionalMenu?: ReactNode }) => {
   const { info } = useClientInfo();
 
   const style = useSpring({
@@ -120,10 +114,7 @@ const Buttons = () => {
           </BookListingLink>
         </Tooltip>
 
-        <Tooltip
-          overlay={<FormattedMessage id="pages.collectionListing.title" />}
-          placement="right"
-        >
+        <Tooltip overlay={<FormattedMessage id="pages.collectionListing.title" />} placement="right">
           <SelfCollectionListingLink>
             <RoundIconButton>
               <Switch>

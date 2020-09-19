@@ -1,12 +1,4 @@
-import React, {
-  createContext,
-  ReactNode,
-  useContext,
-  useLayoutEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import React, { createContext, ReactNode, useContext, useLayoutEffect, useMemo, useRef, useState } from "react";
 import nprogress from "nprogress";
 import { AnimationMode } from "./ConfigManager";
 
@@ -72,8 +64,7 @@ export const ProgressManager = ({ children }: { children?: ReactNode }) => {
             if (count.current++ === 0) nprogress.start();
           },
           end: () => {
-            if (--count.current === 0)
-              done.current = window.setTimeout(() => nprogress.done(), 200);
+            if (--count.current === 0) done.current = window.setTimeout(() => nprogress.done(), 200);
           },
           mode,
           setMode,

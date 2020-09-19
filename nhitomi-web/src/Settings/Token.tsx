@@ -22,11 +22,7 @@ export const Token = () => {
       <br />
 
       <div className="mb-2">
-        <Anchor
-          target="_blank"
-          className="text-sm text-blue"
-          href="https://github.com/chiyadev/nhitomi/wiki/API"
-        >
+        <Anchor target="_blank" className="text-sm text-blue" href="https://github.com/chiyadev/nhitomi/wiki/API">
           <LinkOutlined /> <FormattedMessage id="pages.settings.user.token.docs" />
         </Anchor>
       </div>

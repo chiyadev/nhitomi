@@ -1,12 +1,7 @@
 import React from "react";
 import { RoundIconButton } from "../Components/RoundIconButton";
 import { CurrentLocaleFlag } from "../Components/LocaleFlag";
-import {
-  FilterFilled,
-  FilterOutlined,
-  SortAscendingOutlined,
-  SortDescendingOutlined,
-} from "@ant-design/icons";
+import { FilterFilled, FilterOutlined, SortAscendingOutlined, SortDescendingOutlined } from "@ant-design/icons";
 import { useQueryState } from "../state";
 import { SearchQuery } from "./search";
 import { BookSort, ScraperType, SortDirection } from "nhitomi-api";
@@ -61,11 +56,7 @@ const SortButton = () => {
         <>
           <DropdownGroup name={<FormattedMessage id="pages.bookListing.menu.order" />}>
             {Object.values(SortDirection).map((direction) => (
-              <BookListingLink
-                key={direction}
-                mode="replace"
-                query={{ ...query, order: direction }}
-              >
+              <BookListingLink key={direction} mode="replace" query={{ ...query, order: direction }}>
                 <DropdownItem padding={false}>
                   <CheckBox type="radio" value={query.order === direction}>
                     <FormattedMessage id={`types.sortDirection.${direction}`} />
@@ -90,11 +81,7 @@ const SortButton = () => {
       }
     >
       <RoundIconButton>
-        {query.order === SortDirection.Ascending ? (
-          <SortAscendingOutlined />
-        ) : (
-          <SortDescendingOutlined />
-        )}
+        {query.order === SortDirection.Ascending ? <SortAscendingOutlined /> : <SortDescendingOutlined />}
       </RoundIconButton>
     </Dropdown>
   );
@@ -133,11 +120,7 @@ const FilterButton = () => {
                   >
                     <DropdownItem padding={false}>
                       <CheckBox type="check" value={active}>
-                        <img
-                          className="rounded-full h-5 w-auto inline"
-                          alt={type}
-                          src={`/assets/icons/${type}.jpg`}
-                        />{" "}
+                        <img className="rounded-full h-5 w-auto inline" alt={type} src={`/assets/icons/${type}.jpg`} />{" "}
                         {name}
                       </CheckBox>
                     </DropdownItem>
@@ -149,9 +132,7 @@ const FilterButton = () => {
       }
     >
       <RoundIconButton>
-        <animated.span style={iconStyle}>
-          {filterActive ? <FilterFilled /> : <FilterOutlined />}
-        </animated.span>
+        <animated.span style={iconStyle}>{filterActive ? <FilterFilled /> : <FilterOutlined />}</animated.span>
       </RoundIconButton>
     </Dropdown>
   );

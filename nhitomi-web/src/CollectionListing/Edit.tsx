@@ -15,12 +15,7 @@ import { Container } from "../Components/Container";
 import { FormattedMessage } from "react-intl";
 import { Input } from "../Components/Input";
 import { FilledButton } from "../Components/FilledButton";
-import {
-  CheckOutlined,
-  DeleteOutlined,
-  LeftOutlined,
-  Loading3QuartersOutlined,
-} from "@ant-design/icons";
+import { CheckOutlined, DeleteOutlined, LeftOutlined, Loading3QuartersOutlined } from "@ant-design/icons";
 import { FlatButton } from "../Components/FlatButton";
 import { Disableable } from "../Components/Disableable";
 import { useNotify } from "../NotificationManager";
@@ -34,9 +29,7 @@ import { Edit as BookEdit } from "./Book/Edit";
 export type PrefetchResult = { collection: Collection; owner: User };
 export type PrefetchOptions = { id: string };
 
-export const useCollectionEditPrefetch: PrefetchGenerator<PrefetchResult, PrefetchOptions> = ({
-  id,
-}) => {
+export const useCollectionEditPrefetch: PrefetchGenerator<PrefetchResult, PrefetchOptions> = ({ id }) => {
   const client = useClient();
 
   return {
@@ -109,15 +102,7 @@ const Loaded = ({ collection, owner }: PrefetchResult) => {
     } finally {
       setLoading(false);
     }
-  }, [
-    client.collection,
-    collection.id,
-    description,
-    loading,
-    name,
-    navigateCollection,
-    notifyError,
-  ]);
+  }, [client.collection, collection.id, description, loading, name, navigateCollection, notifyError]);
 
   const delette = useCallback(async () => {
     if (loading) return;
@@ -204,24 +189,14 @@ const Loaded = ({ collection, owner }: PrefetchResult) => {
                     </FlatButton>
                   </BackLink>
 
-                  <FlatButton
-                    color={getColor("red", "darker")}
-                    onClick={delette}
-                    icon={<DeleteOutlined />}
-                  >
+                  <FlatButton color={getColor("red", "darker")} onClick={delette} icon={<DeleteOutlined />}>
                     <FormattedMessage id="pages.collectionListing.edit.delete" />
                   </FlatButton>
 
                   <FilledButton
                     color={getColor("blue")}
                     onClick={submit}
-                    icon={
-                      loading ? (
-                        <Loading3QuartersOutlined className="animate-spin" />
-                      ) : (
-                        <CheckOutlined />
-                      )
-                    }
+                    icon={loading ? <Loading3QuartersOutlined className="animate-spin" /> : <CheckOutlined />}
                   >
                     <FormattedMessage id="pages.collectionListing.edit.submit" />
                   </FilledButton>
@@ -231,10 +206,7 @@ const Loaded = ({ collection, owner }: PrefetchResult) => {
             )}
           </div>
 
-          {useMemo(
-            () => collection.type === ObjectType.Book && <BookEdit collection={collection} />,
-            [collection]
-          )}
+          {useMemo(() => collection.type === ObjectType.Book && <BookEdit collection={collection} />, [collection])}
         </div>
       </Disableable>
     </Container>

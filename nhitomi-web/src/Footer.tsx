@@ -23,10 +23,7 @@ export const Footer = () => {
           () => (
             <>
               <VersionTooltip version={info.version}>
-                <Anchor
-                  target="_blank"
-                  href={`https://github.com/chiyadev/nhitomi/commit/${info.version.hash}`}
-                >
+                <Anchor target="_blank" href={`https://github.com/chiyadev/nhitomi/commit/${info.version.hash}`}>
                   <LinkText>b.{info.version.shortHash}</LinkText>
                 </Anchor>
               </VersionTooltip>
@@ -83,11 +80,7 @@ const LinkText = ({ children }: { children?: ReactNode }) => {
   });
 
   return (
-    <animated.span
-      style={style}
-      onMouseEnter={() => setHover(true)}
-      onMouseLeave={() => setHover(false)}
-    >
+    <animated.span style={style} onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}>
       {children}
     </animated.span>
   );

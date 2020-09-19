@@ -11,8 +11,7 @@ export const TimeDisplay = ({ value, className }: { value: Date; className?: str
         placement="top"
         overlay={
           <>
-            {value.toDateString()}{" "}
-            <span className="text-blue font-bold">{value.toTimeString()}</span>
+            {value.toDateString()} <span className="text-blue font-bold">{value.toTimeString()}</span>
           </>
         }
       >

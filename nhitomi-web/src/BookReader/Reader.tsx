@@ -47,16 +47,7 @@ export const Reader = ({
       itemsPerRow: imagesPerRow,
       initialRowLimit: singleCover ? 1 : imagesPerRow,
     });
-  }, [
-    images,
-    imagesPerRow,
-    layoutEngine,
-    leftToRight,
-    singleCover,
-    viewportBound,
-    viewportHeight,
-    viewportWidth,
-  ]);
+  }, [images, imagesPerRow, layoutEngine, leftToRight, singleCover, viewportBound, viewportHeight, viewportWidth]);
 
   const setImage = useMemo(() => {
     const list: Dispatch<ImageBase | undefined>[] = [];
@@ -103,14 +94,7 @@ export const Reader = ({
       {useMemo(
         () =>
           layout.images.map((image, i) => (
-            <Page
-              key={i}
-              book={book}
-              content={content}
-              index={i}
-              image={image}
-              setImage={setImage[i]}
-            />
+            <Page key={i} book={book} content={content} index={i} image={image} setImage={setImage[i]} />
           )),
         [book, content, layout, setImage]
       )}
@@ -135,8 +119,7 @@ const Page = ({
   const [showImage, setShowImage] = useState(false);
 
   const image = useMemo(
-    () =>
-      showImage && <PageImage book={book} content={content} index={index} setImage={setImage} />,
+    () => showImage && <PageImage book={book} content={content} index={index} setImage={setImage} />,
     [book, content, index, setImage, showImage]
   );
 

@@ -85,13 +85,7 @@ export const BookListing = (options: PrefetchOptions) => {
   );
 };
 
-const Loaded = ({
-  result,
-  setResult,
-}: {
-  result: PrefetchResult;
-  setResult: Dispatch<PrefetchResult>;
-}) => {
+const Loaded = ({ result, setResult }: { result: PrefetchResult; setResult: Dispatch<PrefetchResult> }) => {
   const [query] = useQueryState<SearchQuery>();
   const queryId = useRef(0);
 

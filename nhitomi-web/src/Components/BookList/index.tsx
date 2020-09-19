@@ -58,14 +58,7 @@ export const BookList = ({
 
   useResizeObserver(containerRef, ({ contentRect: { width } }) => setWidth(width));
 
-  const {
-    items,
-    getCoverRequest,
-    preferEnglishName,
-    overlayVisible,
-    LinkComponent,
-    OverlayComponent,
-  } = context;
+  const { items, getCoverRequest, preferEnglishName, overlayVisible, LinkComponent, OverlayComponent } = context;
   context = useMemo(
     () => ({
       items,
@@ -90,10 +83,10 @@ export const BookList = ({
 export function useContentSelector(): (contents: BookContent[]) => BookContent | undefined {
   const [language] = useConfig("language");
   const [searchLanguages] = useConfig("searchLanguages");
-  const languages = useMemo(
-    () => [language, ...searchLanguages].filter((v, i, a) => a.indexOf(v) === i),
-    [language, searchLanguages]
-  );
+  const languages = useMemo(() => [language, ...searchLanguages].filter((v, i, a) => a.indexOf(v) === i), [
+    language,
+    searchLanguages,
+  ]);
 
   return useCallback(
     (contents) =>

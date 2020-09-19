@@ -8,8 +8,8 @@ export const SupportDescription = () => {
   return (
     <div className="space-y-2">
       <div>
-        nhitomi is a free service, but serving thousands of visitors everyday and maintaining our
-        infrastructure is costly.
+        nhitomi is a free service, but serving thousands of visitors everyday and maintaining our infrastructure is
+        costly.
       </div>
       <div>We are an open-source project and do not rely on any advertisements.</div>
       <div>Please help us keep going.</div>
@@ -40,9 +40,8 @@ export const ThanksDescription = () => {
         <strong className="text-pink"> {expireDays} days</strong>.
       </div>
       <div>
-        It is thanks to generous people like you that nhitomi can afford its server infrastructure,
-        allocate more development time for new features, and deliver a service without annoying
-        popups and advertisements.
+        It is thanks to generous people like you that nhitomi can afford its server infrastructure, allocate more
+        development time for new features, and deliver a service without annoying popups and advertisements.
       </div>
       <div>Thank you. — chiya.dev</div>
     </div>
@@ -83,9 +82,7 @@ export const MainCard = ({ children }: { children?: ReactNode }) => {
             />
           </animated.div>
 
-          <div className="bg-white text-black rounded-lg p-4 z-10 shadow-lg border-t border-pink">
-            {children}
-          </div>
+          <div className="bg-white text-black rounded-lg p-4 z-10 shadow-lg border-t border-pink">{children}</div>
         </div>
       );
 

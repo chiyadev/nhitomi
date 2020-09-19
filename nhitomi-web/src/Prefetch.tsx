@@ -1,12 +1,4 @@
-import React, {
-  ComponentProps,
-  ReactNode,
-  useCallback,
-  useLayoutEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import React, { ComponentProps, ReactNode, useCallback, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useAsync } from "./hooks";
 import { useProgress } from "./ProgressManager";
 import { getEventModifiers } from "./shortcut";
@@ -77,9 +69,10 @@ export function usePrefetch<T, U extends {}>(
   const navigator = useNavigator();
 
   // generator can call hooks so memoize it
-  const { destination, showProgress = true, restoreScroll = true, fetch, done } = useRef(
-    generator
-  ).current({ mode: "prefetch", ...options });
+  const { destination, showProgress = true, restoreScroll = true, fetch, done } = useRef(generator).current({
+    mode: "prefetch",
+    ...options,
+  });
 
   // unlike postfetch, prefetch moves to another location so treat unspecified query and hash as empty
   destination.query = destination.query || {};
@@ -214,9 +207,10 @@ export function usePostfetch<T, U extends {}>(
   const navigator = useNavigator();
 
   // generator can call hooks so memoize it
-  const { destination, showProgress = true, restoreScroll = true, fetch, done } = useRef(
-    generator
-  ).current({ mode: "postfetch", ...options });
+  const { destination, showProgress = true, restoreScroll = true, fetch, done } = useRef(generator).current({
+    mode: "postfetch",
+    ...options,
+  });
   const { requireAuth } = options;
 
   const [result, setResult] = usePageState<T>("fetch");
@@ -286,11 +280,7 @@ export function usePostfetch<T, U extends {}>(
     } finally {
       if (showProgress) end();
     } // we want to reload when the authenticated user changes
-  }, [
-    info.authenticated && info.user.id,
-    result,
-    navigator.stringify(navigator.evaluate(destination)),
-  ]);
+  }, [info.authenticated && info.user.id, result, navigator.stringify(navigator.evaluate(destination))]);
 
   return { result, setResult, error, loading };
 }
@@ -378,10 +368,7 @@ export const PrefetchScrollPreserver = () => {
   useLayoutEffect(() => {
     const handler = () => {
       clearTimeout(flush.current);
-      flush.current = window.setTimeout(
-        () => setRetainedScroll(navigator.history.location.key!, window.scrollY),
-        20
-      );
+      flush.current = window.setTimeout(() => setRetainedScroll(navigator.history.location.key!, window.scrollY), 20);
     };
 
     window.addEventListener("scroll", handler);

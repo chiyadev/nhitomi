@@ -124,10 +124,7 @@ const RandomButton = ({ collection }: { collection: Collection }) => {
   if (!collection.items.length) return null;
 
   return (
-    <Tooltip
-      placement="bottom"
-      overlay={<FormattedMessage id="pages.collectionContent.book.menu.random" />}
-    >
+    <Tooltip placement="bottom" overlay={<FormattedMessage id="pages.collectionContent.book.menu.random" />}>
       <Disableable disabled={loading}>
         <RoundIconButton
           onClick={async () => {
@@ -157,10 +154,7 @@ const RandomButton = ({ collection }: { collection: Collection }) => {
 };
 
 const EditButton = ({ collection }: { collection: Collection }) => (
-  <Tooltip
-    placement="bottom"
-    overlay={<FormattedMessage id="pages.collectionContent.book.menu.edit" />}
-  >
+  <Tooltip placement="bottom" overlay={<FormattedMessage id="pages.collectionContent.book.menu.edit" />}>
     <CollectionEditLink id={collection.id}>
       <RoundIconButton>
         <EditOutlined />
@@ -224,14 +218,8 @@ const DeleteButton = ({ collection }: { collection: Collection }) => {
 };
 
 const HelpButton = () => (
-  <Tooltip
-    placement="bottom"
-    overlay={<FormattedMessage id="pages.collectionContent.book.menu.help" />}
-  >
-    <Anchor
-      target="_blank"
-      href="https://github.com/chiyadev/nhitomi/wiki/Managing-collections-on-the-website"
-    >
+  <Tooltip placement="bottom" overlay={<FormattedMessage id="pages.collectionContent.book.menu.help" />}>
+    <Anchor target="_blank" href="https://github.com/chiyadev/nhitomi/wiki/Managing-collections-on-the-website">
       <RoundIconButton>
         <InfoCircleOutlined />
       </RoundIconButton>

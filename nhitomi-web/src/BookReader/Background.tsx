@@ -8,11 +8,7 @@ import { PrefetchResult } from ".";
 import { useConfig } from "../ConfigManager";
 import { createPortal } from "react-dom";
 
-export const Background = ({
-  book,
-  content,
-  scrollHeight,
-}: PrefetchResult & { scrollHeight: number }) => {
+export const Background = ({ book, content, scrollHeight }: PrefetchResult & { scrollHeight: number }) => {
   const client = useClient();
   const { y: scroll } = useWindowScroll();
 

@@ -1,11 +1,5 @@
 import React, { ReactNode, useMemo, useState } from "react";
-import {
-  getBreakpoint,
-  LargeBreakpoints,
-  ScreenBreakpoint,
-  SmallBreakpoints,
-  useLayout,
-} from "../../LayoutManager";
+import { getBreakpoint, LargeBreakpoints, ScreenBreakpoint, SmallBreakpoints, useLayout } from "../../LayoutManager";
 import { css, cx } from "emotion";
 import { CoverImage } from "../CoverImage";
 import { useClient } from "../../ClientManager";
@@ -18,15 +12,7 @@ import { useConfig } from "../../ConfigManager";
 import { ContextMenu } from "../ContextMenu";
 import { Overlay } from "./Overlay";
 
-export const Grid = ({
-  width,
-  menu,
-  empty,
-}: {
-  width: number;
-  menu?: ReactNode;
-  empty?: ReactNode;
-}) => {
+export const Grid = ({ width, menu, empty }: { width: number; menu?: ReactNode; empty?: ReactNode }) => {
   const { items } = useBookList();
 
   const { spacing, rowWidth, itemWidth, itemHeight } = useMemo(() => {
@@ -128,11 +114,7 @@ const Item = ({
 
   const overlay = useMemo(() => <ItemOverlay book={book} hover={hover} />, [book, hover]);
 
-  const image = useMemo(() => showImage && <ItemCover book={book} content={content} />, [
-    book,
-    content,
-    showImage,
-  ]);
+  const image = useMemo(() => showImage && <ItemCover book={book} content={content} />, [book, content, showImage]);
 
   const inner = useMemo(() => {
     const children = (
@@ -229,8 +211,7 @@ const ItemOverlay = ({ book, hover }: { book: BookListItem; hover?: boolean }) =
   const { overlayVisible, preferEnglishName: preferEnglishNameOverride } = useBookList();
   hover = overlayVisible || hover;
 
-  if (typeof preferEnglishNameOverride !== "undefined")
-    preferEnglishName = preferEnglishNameOverride;
+  if (typeof preferEnglishNameOverride !== "undefined") preferEnglishName = preferEnglishNameOverride;
 
   const [visible, setVisible] = useState(hover);
   const style = useSpring({

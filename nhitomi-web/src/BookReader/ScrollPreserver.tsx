@@ -24,10 +24,7 @@ export const ScrollPreserver = ({
   const scrolling = useRef<number>();
 
   if (!scrolling.current) {
-    if (
-      layout.cause !== "images" &&
-      (layout.width !== lastLayout.width || layout.height !== lastLayout.height)
-    ) {
+    if (layout.cause !== "images" && (layout.width !== lastLayout.width || layout.height !== lastLayout.height)) {
       const scroll = () => {
         visible.current?.scrollIntoView({
           block: "center",

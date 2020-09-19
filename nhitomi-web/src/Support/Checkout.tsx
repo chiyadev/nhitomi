@@ -74,15 +74,7 @@ export const Checkout = ({ supporterPrice, apiKey }: PrefetchResult) => {
   );
 };
 
-const CheckoutButton = ({
-  duration,
-  loading,
-  submit,
-}: {
-  duration: number;
-  loading: boolean;
-  submit: () => void;
-}) => {
+const CheckoutButton = ({ duration, loading, submit }: { duration: number; loading: boolean; submit: () => void }) => {
   const { info } = useClientInfo();
   const supporter = info.authenticated && info.user.isSupporter;
   const [hover, setHover] = useState(false);

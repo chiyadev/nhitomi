@@ -65,8 +65,7 @@ export const Server = () => {
                 <div
                   key={key}
                   className={cx({
-                    "rounded-sm bg-gray-darkest font-bold":
-                      key.toLowerCase() === updatingKey.toLowerCase(),
+                    "rounded-sm bg-gray-darkest font-bold": key.toLowerCase() === updatingKey.toLowerCase(),
                   })}
                 >
                   <code

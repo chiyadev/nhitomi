@@ -3,10 +3,7 @@ import { promisify } from "util";
 import fs from "fs";
 import path from "path";
 
-export type CommandFunc = (
-  context: MessageContext,
-  arg?: string
-) => Promise<boolean>;
+export type CommandFunc = (context: MessageContext, arg?: string) => Promise<boolean>;
 export type CommandModule = { name: string; run: CommandFunc };
 
 export const modules: CommandModule[] = [];

@@ -1,11 +1,7 @@
 import { ShardingManager } from "discord.js-light";
 import config from "config";
 import polka from "polka";
-import {
-  AggregatorRegistry,
-  collectDefaultMetrics,
-  register,
-} from "prom-client";
+import { AggregatorRegistry, collectDefaultMetrics, register } from "prom-client";
 
 collectDefaultMetrics({ register });
 
@@ -22,9 +18,7 @@ polka()
   .get("/metrics", async (_, response) => {
     try {
       // collect all shard metrics
-      const metrics: ReturnType<
-        typeof register["getMetricsAsJSON"]
-      >[] = await shards.broadcastEval(
+      const metrics: ReturnType<typeof register["getMetricsAsJSON"]>[] = await shards.broadcastEval(
         "require('prom-client').register.getMetricsAsJSON()"
       );
 

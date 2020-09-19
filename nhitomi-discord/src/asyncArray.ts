@@ -11,17 +11,13 @@ export class AsyncArray<T> {
     return 0;
   }
 
-  constructor(
-    readonly chunkSize: number,
-    readonly fetch: (offset: number, limit: number) => Promise<T[]>
-  ) {}
+  constructor(readonly chunkSize: number, readonly fetch: (offset: number, limit: number) => Promise<T[]>) {}
 
   /** Creates a preloaded AsyncArray<T> with no fetch function. */
   static fromArray<T>(array: T[]): AsyncArray<T> {
     const a = new AsyncArray<T>(1, async () => []);
 
-    for (let i = 0; i < array.length; i++)
-      a.cache[i] = { loaded: true, value: array[i] };
+    for (let i = 0; i < array.length; i++) a.cache[i] = { loaded: true, value: array[i] };
 
     return a;
   }

@@ -14,9 +14,7 @@ export type PrefetchOptions = { id: string };
 
 export type BookCollection = { collection: Collection; cover?: Book };
 
-export const useCollectionListingPrefetch: PrefetchGenerator<PrefetchResult, PrefetchOptions> = ({
-  id,
-}) => {
+export const useCollectionListingPrefetch: PrefetchGenerator<PrefetchResult, PrefetchOptions> = ({ id }) => {
   const client = useClient();
   const { info, setInfo } = useClientInfo();
 
@@ -55,9 +53,7 @@ export const useCollectionListingPrefetch: PrefetchGenerator<PrefetchResult, Pre
   };
 };
 
-export const SelfCollectionListingLink = (
-  props: Omit<ComponentProps<typeof CollectionListingLink>, "id">
-) => {
+export const SelfCollectionListingLink = (props: Omit<ComponentProps<typeof CollectionListingLink>, "id">) => {
   const { info } = useClientInfo();
 
   if (info.authenticated) return <CollectionListingLink id={info.user.id} {...props} />;
@@ -65,10 +61,7 @@ export const SelfCollectionListingLink = (
   return <>{props.children}</>;
 };
 
-export const CollectionListingLink = ({
-  id,
-  ...props
-}: TypedPrefetchLinkProps & PrefetchOptions) => (
+export const CollectionListingLink = ({ id, ...props }: TypedPrefetchLinkProps & PrefetchOptions) => (
   <PrefetchLink fetch={useCollectionListingPrefetch} options={{ id }} {...props} />
 );
 
