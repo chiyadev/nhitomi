@@ -24,6 +24,8 @@
     "auto-bind": "^4.0.0",
     "customize-cra": "^1.0.0",
     "emotion": "^10.0.27",
+    "eslint-config-prettier": "^6.11.0",
+    "eslint-plugin-react": "^7.20.6",
     "history": "4.10.1",
     "json-stable-stringify": "^1.0.1",
     "keycode": "^2.2.0",
@@ -54,13 +56,6 @@
     "start": "react-app-rewired start",
     "build": "GENERATE_SOURCEMAP=false react-app-rewired build",
     "genclient": "node ../scripts/genclient typescript-fetch"
-  },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "eslint:recommended",
-      "../eslint.json"
-    ]
   },
   "browserslist": {
     "production": [
