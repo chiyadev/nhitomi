@@ -16,17 +16,13 @@ import { RegExpCache } from './regex'
 
 collectDefaultMetrics({ register })
 
-const cacheConfig = {
+export const Discord = new Client({
   cacheGuilds: true, // required for prometheus guild metrics
   cacheChannels: false,
   cacheOverwrites: false,
   cacheRoles: false,
   cacheEmojis: false,
-  cachePresences: false
-}
-
-export const Discord = new Client({
-  ...cacheConfig,
+  cachePresences: false,
 
   fetchAllMembers: false,
   messageCacheMaxSize: 0,
@@ -78,6 +74,9 @@ function wrapHandler<T extends Function>(name: string, func: T): T {
 }
 
 async function whileTyping<T>(channel: Message['channel'], action: () => Promise<T>): Promise<T> {
+  // make channel fields (specifically 'nsfw') availble for the code within action
+  await channel.fetch()
+
   let typing = true
   channel.startTyping()
 
@@ -112,6 +111,8 @@ const commandErrorCount = new Counter({
 })
 
 Discord.on('message', wrapHandler('message', async message => {
+  if (message.channel.type !== 'text') return
+
   messageCount.inc()
 
   if (!await shouldHandleMessage(message)) return
@@ -140,6 +141,12 @@ Discord.on('message', wrapHandler('message', async message => {
         const context = await MessageContext.create(message)
 
         try {
+          // ensure nsfw channel
+          if (message.channel.type === 'text' && !message.channel.nsfw) {
+            await context.reply(context.locale.get('nsfw.notAllowed'))
+            return
+          }
+
           console.debug(`user ${context.user.id} '${context.user.username}' executing command '${command}' with args '${arg || ''}'`)
 
           await run(context, arg)
@@ -205,6 +212,12 @@ ${stack}
       const context = await MessageContext.create(message)
 
       try {
+        // ensure nsfw channel
+        if (message.channel.type === 'text' && !message.channel.nsfw) {
+          await context.reply(context.locale.get('nsfw.notAllowed'))
+          return
+        }
+
         if (result.matches.length === 1) {
           const { book, selectedContentId } = result.matches[0]
 

@@ -3,6 +3,9 @@
     "title": "An error occurred",
     "description": "This error has been reported to the developers. Please try again later!"
   },
+  "nsfw": {
+    "notAllowed": "nhitomi cannot send messages in a non-NSFW channel!"
+  },
   "reaction": {
     "list": {
       "jump": "Type the page number to jump to, or `cancel`:"

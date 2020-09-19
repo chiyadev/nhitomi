@@ -3,6 +3,9 @@
     "title": "에러가 발생했습니다",
     "description": "이 에러는 개발자에게 보고되었습니다. 다시 시도해 주세요."
   },
+  "nsfw": {
+    "notAllowed": "nhitomi는 NSFW로 표시되지 않은 채널에 메시지를 보낼 수 없습니다!"
+  },
   "reaction": {
     "list": {
       "jump": "페이지를 입력해 주세요 (`cancel`로 취소):"
