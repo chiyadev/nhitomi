@@ -1,4 +1,5 @@
 {
+  "parser": "@typescript-eslint/parser",
   "extends": [
     "../.eslintrc.json",
     "plugin:@typescript-eslint/recommended",
@@ -8,6 +9,7 @@
     "prettier/react"
   ],
   "rules": {
-    "@typescript-eslint/explicit-function-return-type": "off"
+    "@typescript-eslint/explicit-function-return-type": "off",
+    "@typescript-eslint/explicit-module-boundary-types": "off"
   }
 }
