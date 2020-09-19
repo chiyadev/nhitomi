@@ -1,17 +1,7 @@
 import React, { Dispatch, useLayoutEffect, useMemo, useRef } from "react";
-import {
-  convertQuery,
-  DefaultQueryLimit,
-  performQuery,
-  SearchQuery,
-} from "./search";
+import { convertQuery, DefaultQueryLimit, performQuery, SearchQuery } from "./search";
 import { usePageState, useQueryState } from "../state";
-import {
-  PrefetchGenerator,
-  PrefetchLink,
-  TypedPrefetchLinkProps,
-  usePostfetch,
-} from "../Prefetch";
+import { PrefetchGenerator, PrefetchLink, TypedPrefetchLinkProps, usePostfetch } from "../Prefetch";
 import { Book, BookSearchResult, BookSort, SortDirection } from "nhitomi-api";
 import { SearchInput } from "./SearchInput";
 import { BookList } from "../Components/BookList";
@@ -35,10 +25,10 @@ import { useAsync } from "../hooks";
 export type PrefetchResult = BookSearchResult & { nextOffset: number };
 export type PrefetchOptions = { query?: SearchQuery };
 
-export const useBookListingPrefetch: PrefetchGenerator<
-  PrefetchResult,
-  PrefetchOptions
-> = ({ mode, query: targetQuery }) => {
+export const useBookListingPrefetch: PrefetchGenerator<PrefetchResult, PrefetchOptions> = ({
+  mode,
+  query: targetQuery,
+}) => {
   const client = useClient();
   const { info } = useClientInfo();
   const [languages] = useConfig("searchLanguages");
@@ -74,10 +64,7 @@ export const useBookListingPrefetch: PrefetchGenerator<
   };
 };
 
-export const BookListingLink = ({
-  query,
-  ...props
-}: TypedPrefetchLinkProps & PrefetchOptions) => (
+export const BookListingLink = ({ query, ...props }: TypedPrefetchLinkProps & PrefetchOptions) => (
   <PrefetchLink fetch={useBookListingPrefetch} options={{ query }} {...props} />
 );
 
@@ -116,16 +103,11 @@ const Loaded = ({
   const { begin, end } = useProgress();
 
   // displayed results may not represent the current query if we navigated before storing the results
-  const [effectiveQuery, setEffectiveQuery] = usePageState<SearchQuery>(
-    "query",
-    query
-  );
+  const [effectiveQuery, setEffectiveQuery] = usePageState<SearchQuery>("query", query);
 
   // serialized query string is used for comparison
   const queryCmp = useMemo(() => stringify(query), [query]);
-  const effectiveQueryCmp = useMemo(() => stringify(effectiveQuery || {}), [
-    effectiveQuery,
-  ]);
+  const effectiveQueryCmp = useMemo(() => stringify(effectiveQuery || {}), [effectiveQuery]);
 
   // perform search when query changes
   useAsync(async () => {
@@ -163,12 +145,7 @@ const Loaded = ({
         }
       />
 
-      <Loader
-        key={effectiveQueryCmp}
-        query={query}
-        result={result}
-        setResult={setResult}
-      />
+      <Loader key={effectiveQueryCmp} query={query} result={result} setResult={setResult} />
     </Container>
   );
 };

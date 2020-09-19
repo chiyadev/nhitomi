@@ -1,10 +1,5 @@
 import React, { ComponentProps } from "react";
-import {
-  PrefetchGenerator,
-  PrefetchLink,
-  TypedPrefetchLinkProps,
-  usePostfetch,
-} from "../Prefetch";
+import { PrefetchGenerator, PrefetchLink, TypedPrefetchLinkProps, usePostfetch } from "../Prefetch";
 import { Book, Collection, ObjectType, User } from "nhitomi-api";
 import { useClient, useClientInfo } from "../ClientManager";
 import { PageContainer } from "../Components/PageContainer";
@@ -19,10 +14,9 @@ export type PrefetchOptions = { id: string };
 
 export type BookCollection = { collection: Collection; cover?: Book };
 
-export const useCollectionListingPrefetch: PrefetchGenerator<
-  PrefetchResult,
-  PrefetchOptions
-> = ({ id }) => {
+export const useCollectionListingPrefetch: PrefetchGenerator<PrefetchResult, PrefetchOptions> = ({
+  id,
+}) => {
   const client = useClient();
   const { info, setInfo } = useClientInfo();
 
@@ -37,15 +31,10 @@ export const useCollectionListingPrefetch: PrefetchGenerator<
         client.user.getUserCollections({ id }).then((x) => x.items),
       ]);
 
-      if (info.authenticated && info.user.id === user.id)
-        setInfo({ ...info, user });
+      if (info.authenticated && info.user.id === user.id) setInfo({ ...info, user });
 
-      const bookCollections = collections.filter(
-        (c) => c.type === ObjectType.Book
-      );
-      const bookCoverIds = bookCollections
-        .map((c) => c.items[0])
-        .filter((x) => x);
+      const bookCollections = collections.filter((c) => c.type === ObjectType.Book);
+      const bookCoverIds = bookCollections.map((c) => c.items[0]).filter((x) => x);
       const bookCovers = bookCoverIds.length
         ? (
             await client.book.getBooks({
@@ -71,8 +60,7 @@ export const SelfCollectionListingLink = (
 ) => {
   const { info } = useClientInfo();
 
-  if (info.authenticated)
-    return <CollectionListingLink id={info.user.id} {...props} />;
+  if (info.authenticated) return <CollectionListingLink id={info.user.id} {...props} />;
 
   return <>{props.children}</>;
 };
@@ -81,11 +69,7 @@ export const CollectionListingLink = ({
   id,
   ...props
 }: TypedPrefetchLinkProps & PrefetchOptions) => (
-  <PrefetchLink
-    fetch={useCollectionListingPrefetch}
-    options={{ id }}
-    {...props}
-  />
+  <PrefetchLink fetch={useCollectionListingPrefetch} options={{ id }} {...props} />
 );
 
 export const CollectionListing = (options: PrefetchOptions) => {

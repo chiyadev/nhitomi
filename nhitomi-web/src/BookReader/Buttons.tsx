@@ -38,11 +38,7 @@ const FavoriteButton = ({ book }: { book: Book }) => {
           begin();
 
           try {
-            await addToSpecialCollection(
-              book.id,
-              ObjectType.Book,
-              SpecialCollection.Favorites
-            );
+            await addToSpecialCollection(book.id, ObjectType.Book, SpecialCollection.Favorites);
           } catch (e) {
             notifyError(e);
           } finally {
@@ -65,11 +61,7 @@ const CollectionAddButton = ({ book }: { book: Book }) => {
       onShow={() => setLoad(true)}
       overlay={load && <CollectionAddBookDropdownMenu book={book} />}
     >
-      <FilledButton
-        icon={<PlusOutlined />}
-        color={getColor("gray", "darkest")}
-        className="py-1"
-      >
+      <FilledButton icon={<PlusOutlined />} color={getColor("gray", "darkest")} className="py-1">
         <FormattedMessage id="pages.bookReader.buttons.collectionAdd" />
       </FilledButton>
     </Dropdown>

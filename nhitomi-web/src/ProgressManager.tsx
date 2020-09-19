@@ -64,7 +64,6 @@ export const ProgressManager = ({ children }: { children?: ReactNode }) => {
 
   return (
     <ProgressContext.Provider
-      children={children}
       value={useMemo(
         () => ({
           begin: () => {
@@ -81,6 +80,8 @@ export const ProgressManager = ({ children }: { children?: ReactNode }) => {
         }),
         [mode]
       )}
-    />
+    >
+      {children}
+    </ProgressContext.Provider>
   );
 };

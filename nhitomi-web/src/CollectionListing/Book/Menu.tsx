@@ -24,18 +24,14 @@ const NewButton = () => {
   const { notifyError } = useNotify();
   const { alert } = useAlert();
   const [loading, setLoading] = useState(false);
-  const [prefetchNode, navigate] = useDynamicPrefetch(
-    useCollectionEditPrefetch
-  );
+  const [prefetchNode, navigate] = useDynamicPrefetch(useCollectionEditPrefetch);
 
   const dummyName = useLocalized("components.collections.created.dummyName");
 
   return (
     <Tooltip
       placement="bottom"
-      overlay={
-        <FormattedMessage id="pages.collectionListing.book.menu.create" />
-      }
+      overlay={<FormattedMessage id="pages.collectionListing.book.menu.create" />}
     >
       <Disableable disabled={loading}>
         <RoundIconButton
@@ -55,10 +51,7 @@ const NewButton = () => {
 
               await navigate({ id: collection.id });
 
-              alert(
-                <FormattedMessage id="components.collections.created.success" />,
-                "success"
-              );
+              alert(<FormattedMessage id="components.collections.created.success" />, "success");
             } catch (e) {
               notifyError(e);
             } finally {

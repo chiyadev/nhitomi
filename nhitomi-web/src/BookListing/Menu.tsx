@@ -37,7 +37,7 @@ const LanguageButton = () => {
       overlay={
         <div>
           {query.langs?.map((language) => (
-            <div>{LanguageNames[language]}</div>
+            <div key={language}>{LanguageNames[language]}</div>
           ))}
         </div>
       }
@@ -59,11 +59,10 @@ const SortButton = () => {
       placement="bottom"
       overlay={
         <>
-          <DropdownGroup
-            name={<FormattedMessage id="pages.bookListing.menu.order" />}
-          >
+          <DropdownGroup name={<FormattedMessage id="pages.bookListing.menu.order" />}>
             {Object.values(SortDirection).map((direction) => (
               <BookListingLink
+                key={direction}
                 mode="replace"
                 query={{ ...query, order: direction }}
               >
@@ -76,11 +75,9 @@ const SortButton = () => {
             ))}
           </DropdownGroup>
 
-          <DropdownGroup
-            name={<FormattedMessage id="pages.bookListing.menu.sort" />}
-          >
+          <DropdownGroup name={<FormattedMessage id="pages.bookListing.menu.sort" />}>
             {Object.values(BookSort).map((sort) => (
-              <BookListingLink mode="replace" query={{ ...query, sort }}>
+              <BookListingLink key={sort} mode="replace" query={{ ...query, sort }}>
                 <DropdownItem padding={false}>
                   <CheckBox type="radio" value={query.sort === sort}>
                     <FormattedMessage id={`types.bookSort.${sort}`} />
@@ -117,22 +114,20 @@ const FilterButton = () => {
       placement="bottom"
       overlay={
         <>
-          <DropdownGroup
-            name={<FormattedMessage id="pages.bookListing.menu.sources" />}
-          >
+          <DropdownGroup name={<FormattedMessage id="pages.bookListing.menu.sources" />}>
             {info.scrapers
               .filter((s) => s.type !== ScraperType.Unknown)
               .map(({ name, type }) => {
-                const active =
-                  query.sources && query.sources.indexOf(type) !== -1;
+                const active = query.sources && query.sources.indexOf(type) !== -1;
 
                 return (
                   <BookListingLink
+                    key={type}
                     mode="replace"
                     query={{
                       ...query,
                       sources: active
-                        ? query.sources!.filter((s) => s !== type)
+                        ? (query.sources || []).filter((s) => s !== type)
                         : [...(query.sources || []), type],
                     }}
                   >

@@ -1,10 +1,5 @@
 import React, { Dispatch } from "react";
-import {
-  PrefetchGenerator,
-  PrefetchLink,
-  TypedPrefetchLinkProps,
-  usePostfetch,
-} from "../Prefetch";
+import { PrefetchGenerator, PrefetchLink, TypedPrefetchLinkProps, usePostfetch } from "../Prefetch";
 import { Book, Collection, ObjectType } from "nhitomi-api";
 import { useClient } from "../ClientManager";
 import { PageContainer } from "../Components/PageContainer";
@@ -12,9 +7,7 @@ import { DefaultQueryLimit } from "../BookListing/search";
 import { BookDisplay } from "./Book";
 import { useScrollShortcut } from "../shortcut";
 
-export type PrefetchResult =
-  | ({ type: "book" } & BookPrefetchResult)
-  | { type: "other" };
+export type PrefetchResult = ({ type: "book" } & BookPrefetchResult) | { type: "other" };
 
 export type BookPrefetchResult = {
   collection: Collection;
@@ -24,10 +17,9 @@ export type BookPrefetchResult = {
 
 export type PrefetchOptions = { id: string };
 
-export const useCollectionContentPrefetch: PrefetchGenerator<
-  PrefetchResult,
-  PrefetchOptions
-> = ({ id }) => {
+export const useCollectionContentPrefetch: PrefetchGenerator<PrefetchResult, PrefetchOptions> = ({
+  id,
+}) => {
   const client = useClient();
 
   return {
@@ -45,9 +37,7 @@ export const useCollectionContentPrefetch: PrefetchGenerator<
           return {
             type: "book",
             collection,
-            items: ids.length
-              ? await client.book.getBooks({ getBookManyRequest: { ids } })
-              : [],
+            items: ids.length ? await client.book.getBooks({ getBookManyRequest: { ids } }) : [],
             nextOffset: DefaultQueryLimit,
           };
         }
@@ -63,11 +53,7 @@ export const CollectionContentLink = ({
   id,
   ...props
 }: TypedPrefetchLinkProps & PrefetchOptions) => (
-  <PrefetchLink
-    fetch={useCollectionContentPrefetch}
-    options={{ id }}
-    {...props}
-  />
+  <PrefetchLink fetch={useCollectionContentPrefetch} options={{ id }} {...props} />
 );
 
 export const CollectionContent = (options: PrefetchOptions) => {

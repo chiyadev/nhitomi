@@ -30,10 +30,7 @@ export const NotFound = () => {
       </div>
 
       <div className="flex flex-row justify-center">
-        <Tooltip
-          placement="bottom"
-          overlay={<FormattedMessage id="pages.notFound.back" />}
-        >
+        <Tooltip placement="bottom" overlay={<FormattedMessage id="pages.notFound.back" />}>
           <BackLink>
             <RoundIconButton>
               <LeftOutlined />
@@ -41,10 +38,7 @@ export const NotFound = () => {
           </BackLink>
         </Tooltip>
 
-        <Tooltip
-          placement="bottom"
-          overlay={<FormattedMessage id="pages.notFound.home" />}
-        >
+        <Tooltip placement="bottom" overlay={<FormattedMessage id="pages.notFound.home" />}>
           <BookListingLink>
             <RoundIconButton>
               <HomeOutlined />

@@ -1,10 +1,6 @@
 import React, { useState } from "react";
 import { BookListItem } from "../../Components/BookList";
-import {
-  DeleteOutlined,
-  EditOutlined,
-  ExpandAltOutlined,
-} from "@ant-design/icons";
+import { DeleteOutlined, EditOutlined, ExpandAltOutlined } from "@ant-design/icons";
 import { FormattedMessage } from "react-intl";
 import { DropdownItem, DropdownSubMenu } from "../../Components/Dropdown";
 import { usePrefetch } from "../../Prefetch";
@@ -17,13 +13,7 @@ import { useClient } from "../../ClientManager";
 import { CollectionContentLink } from "../../CollectionContent";
 import { CollectionEditLink } from "../Edit";
 
-export const Overlay = ({
-  user,
-  book: { id },
-}: {
-  user: User;
-  book: BookListItem;
-}) => {
+export const Overlay = ({ user, book: { id } }: { user: User; book: BookListItem }) => {
   return (
     <>
       <OpenInNewTabItem id={id} />
@@ -62,9 +52,7 @@ const DeleteItem = ({ user, id }: { user: User; id: string }) => {
   return (
     <DropdownSubMenu
       icon={<DeleteOutlined />}
-      name={
-        <FormattedMessage id="pages.collectionListing.book.overlay.delete.item" />
-      }
+      name={<FormattedMessage id="pages.collectionListing.book.overlay.delete.item" />}
     >
       <Disableable disabled={loading}>
         <DropdownItem

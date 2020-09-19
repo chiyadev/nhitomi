@@ -25,20 +25,15 @@ export const Overlay = ({ children }: { children?: ReactNode }) => {
 
         <Menu open={open} setOpen={setOpen} />
         <Anchor open={open} setOpen={setOpen} />
-        <Body open={open} children={children} />
+
+        <Body open={open}>{children}</Body>
       </>
     ),
     [children, open]
   );
 };
 
-const Anchor = ({
-  open,
-  setOpen,
-}: {
-  open: boolean;
-  setOpen: Dispatch<boolean>;
-}) => {
+const Anchor = ({ open, setOpen }: { open: boolean; setOpen: Dispatch<boolean> }) => {
   const [hover, setHover] = useState(false);
   const [visible, setVisible] = useState(!open);
 
@@ -82,27 +77,27 @@ const Body = ({ open, children }: { open: boolean; children?: ReactNode }) => {
     transform: open ? "scale(0.9)" : "scale(1)",
   });
 
+  const { x: originX, y: originY } = useMemo(() => {
+    return {
+      x: ((scrollX + width / 2) / document.body.clientWidth) * 100,
+      y: ((scrollY + height / 2) / document.body.clientHeight) * 100,
+    };
+  }, [scrollX, scrollY]);
+
   return (
     <animated.div
-      children={children}
       className={cx({ "pointer-events-none": open })}
       style={{
         ...style,
-        transformOrigin: `${
-          ((scrollX + width / 2) / document.body.clientWidth) * 100
-        }% ${((scrollY + height / 2) / document.body.clientHeight) * 100}%`,
+        transformOrigin: `${originX}% ${originY}%`,
       }}
-    />
+    >
+      {children}
+    </animated.div>
   );
 };
 
-const Menu = ({
-  open,
-  setOpen,
-}: {
-  open: boolean;
-  setOpen: Dispatch<boolean>;
-}) => {
+const Menu = ({ open, setOpen }: { open: boolean; setOpen: Dispatch<boolean> }) => {
   const [visible, setVisible] = useState(open);
 
   const style = useSpring({
@@ -117,18 +112,14 @@ const Menu = ({
     <TouchScrollable>
       <animated.div
         style={style}
-        className={cx(
-          "fixed top-0 left-0 z-10 w-screen h-screen bg-black bg-blur",
-          { "pointer-events-none": !visible }
-        )}
+        className={cx("fixed top-0 left-0 z-10 w-screen h-screen bg-black bg-blur", {
+          "pointer-events-none": !visible,
+        })}
         onClick={() => setOpen(false)}
       >
         <Strip
           additionalMenu={
-            <Tooltip
-              overlay={<FormattedMessage id="components.sidebar.close" />}
-              placement="right"
-            >
+            <Tooltip overlay={<FormattedMessage id="components.sidebar.close" />} placement="right">
               <RoundIconButton onClick={() => setOpen(false)}>
                 <LeftOutlined />
               </RoundIconButton>

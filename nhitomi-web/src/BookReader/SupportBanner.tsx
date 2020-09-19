@@ -10,13 +10,7 @@ import { SupportLink } from "../Support";
 import { usePageState } from "../state";
 import { SupportDescription } from "../Support/MainCard";
 
-export const SupportBanner = ({
-  book,
-  content,
-}: {
-  book: Book;
-  content: BookContent;
-}) => {
+export const SupportBanner = ({ book, content }: { book: Book; content: BookContent }) => {
   const client = useClient();
   const { info } = useClientInfo();
   const supporter = info.authenticated && info.user.isSupporter;
@@ -32,9 +26,7 @@ export const SupportBanner = ({
   }, []);
 
   // revocation can run async
-  useEffect(() => (thumb ? () => URL.revokeObjectURL(thumb) : undefined), [
-    thumb,
-  ]);
+  useEffect(() => (thumb ? () => URL.revokeObjectURL(thumb) : undefined), [thumb]);
 
   const style = useSpring({
     opacity: thumb ? 1 : 0,
@@ -69,9 +61,7 @@ const Inner = ({ thumb }: { thumb: string }) => {
   });
 
   const [description, setDescription] = useState<HTMLDivElement | null>();
-  const descriptionHeight = expanded
-    ? (description?.clientHeight || 0) + 10
-    : 0;
+  const descriptionHeight = expanded ? (description?.clientHeight || 0) + 10 : 0;
   const descriptionStyle = useSpring({
     opacity: expanded ? 1 : 0,
     marginTop: expanded ? 0 : -5,
@@ -105,10 +95,7 @@ const Inner = ({ thumb }: { thumb: string }) => {
             `
           )}
         >
-          <svg
-            viewBox="0 0 930 1315"
-            className="absolute transform-center w-full"
-          >
+          <svg viewBox="0 0 930 1315" className="absolute transform-center w-full">
             <image
               href={thumb}
               x={336}
@@ -128,32 +115,22 @@ const Inner = ({ thumb }: { thumb: string }) => {
             <animated.div className="inline-block" style={heartStyle}>
               <HeartFilled className="text-pink text-4xl" />
             </animated.div>
-            <animated.span
-              className={cx({ hidden: !headingVisible })}
-              style={headingStyle}
-            >
+            <animated.span className={cx({ hidden: !headingVisible })} style={headingStyle}>
               <FormattedMessage
                 id="pages.support.subtitle"
                 values={{
-                  nhitomi: (
-                    <span className="ml-2 text-lg font-bold">nhitomi</span>
-                  ),
+                  nhitomi: <span className="ml-2 text-lg font-bold">nhitomi</span>,
                 }}
               />
             </animated.span>
           </div>
 
-          <animated.div
-            style={descriptionStyle}
-            className="text-sm text-gray-darker"
-          >
+          <animated.div style={descriptionStyle} className="text-sm text-gray-darker">
             <div ref={setDescription} className="space-y-4">
               <SupportDescription />
 
               <div className="space-x-2">
-                <SupportLink className="text-blue">
-                  Support nhitomi!
-                </SupportLink>
+                <SupportLink className="text-blue">Support nhitomi!</SupportLink>
                 <span
                   className="cursor-pointer"
                   onClick={(e) => {

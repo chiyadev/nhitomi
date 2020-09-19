@@ -15,7 +15,7 @@ import { AvailableLocalizations } from "./Languages/languages";
 
 export function useUpdateOnEvent<
   TEmitter extends StrictEventEmitter<EventEmitter, TEventRecord>,
-  TEventRecord extends Object
+  TEventRecord extends Record<string, unknown>
 >(emitter: TEmitter, event: keyof TEventRecord) {
   const update = useUpdate();
 
@@ -34,10 +34,7 @@ export function useConfig<TKey extends keyof ConfigStore>(
 
   useUpdateOnEvent(config, key);
 
-  return [
-    config.get(key),
-    useCallback((v) => config.set(key, v), [config, key]),
-  ];
+  return [config.get(key), useCallback((v) => config.set(key, v), [config, key])];
 }
 
 export type AnimationMode = "normal" | "faster" | "none";
@@ -93,9 +90,8 @@ const DefaultStore: ConfigStore = {
   token: undefined,
   baseUrl: undefined,
   language:
-    UserPreferredLanguages.find(
-      (lang) => AvailableLocalizations.indexOf(lang) !== -1
-    ) || LanguageType.EnUS,
+    UserPreferredLanguages.find((lang) => AvailableLocalizations.indexOf(lang) !== -1) ||
+    LanguageType.EnUS,
   searchLanguages: [...UserPreferredLanguages, LanguageType.JaJP].filter(
     (v, i, a) => a.indexOf(v) === i
   ),
@@ -129,9 +125,7 @@ const DefaultStore: ConfigStore = {
 
 export type ConfigKey = keyof ConfigStore;
 export type ShortcutConfigKey = {
-  [key in keyof ConfigStore]: ConfigStore[key] extends ShortcutConfig[]
-    ? key
-    : never;
+  [key in keyof ConfigStore]: ConfigStore[key] extends ShortcutConfig[] ? key : never;
 }[keyof ConfigStore];
 
 export const KeyModifiers: KeyModifier[] = ["alt", "ctrl", "meta", "shift"];
@@ -187,10 +181,7 @@ export class ConfigSource
     window.addEventListener("storage", ({ key, newValue }) => {
       const [success, value] = this.parse(newValue);
 
-      this.emit(
-        key as any,
-        success ? value : DefaultStore[key as keyof ConfigStore]
-      );
+      this.emit(key as any, success ? value : DefaultStore[key as keyof ConfigStore]);
     });
 
     // define getter and setter properties
@@ -249,7 +240,5 @@ export function useConfigManager() {
 export const ConfigManager = ({ children }: { children?: ReactNode }) => {
   const config = useMemo(() => new ConfigSource(), []);
 
-  return (
-    <ConfigContext.Provider value={config}>{children}</ConfigContext.Provider>
-  );
+  return <ConfigContext.Provider value={config}>{children}</ConfigContext.Provider>;
 };

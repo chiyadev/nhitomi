@@ -30,22 +30,22 @@ export const Language = () => {
 
         {useMemo(
           () =>
-            LanguageTypes.filter(
-              (l) => AvailableLocalizations.indexOf(l) !== -1
-            ).map((language) => (
-              <CheckBox
-                type="radio"
-                value={language === interfaceLanguage}
-                setValue={(v) => {
-                  if (v) setInterfaceLanguage(language);
-                }}
-              >
-                <span>
-                  <LocaleFlag language={language} size={20} />{" "}
-                  {LanguageNames[language]}
-                </span>
-              </CheckBox>
-            )),
+            LanguageTypes.filter((l) => AvailableLocalizations.indexOf(l) !== -1).map(
+              (language) => (
+                <CheckBox
+                  key={language}
+                  type="radio"
+                  value={language === interfaceLanguage}
+                  setValue={(v) => {
+                    if (v) setInterfaceLanguage(language);
+                  }}
+                >
+                  <span>
+                    <LocaleFlag language={language} size={20} /> {LanguageNames[language]}
+                  </span>
+                </CheckBox>
+              )
+            ),
           [interfaceLanguage, setInterfaceLanguage]
         )}
       </div>
@@ -60,29 +60,21 @@ export const Language = () => {
           () =>
             LanguageTypes.map((language) => (
               <Disableable
-                disabled={
-                  searchLanguages.length === 1 &&
-                  searchLanguages[0] === language
-                }
+                key={language}
+                disabled={searchLanguages.length === 1 && searchLanguages[0] === language}
               >
                 <CheckBox
                   value={searchLanguages.indexOf(language) !== -1}
                   setValue={(v) => {
                     if (v)
                       setSearchLanguages(
-                        [...searchLanguages, language].filter(
-                          (v, i, a) => a.indexOf(v) === i
-                        )
+                        [...searchLanguages, language].filter((v, i, a) => a.indexOf(v) === i)
                       );
-                    else
-                      setSearchLanguages(
-                        searchLanguages.filter((l) => l !== language)
-                      );
+                    else setSearchLanguages(searchLanguages.filter((l) => l !== language));
                   }}
                 >
                   <span>
-                    <LocaleFlag language={language} size={20} />{" "}
-                    {LanguageNames[language]}
+                    <LocaleFlag language={language} size={20} /> {LanguageNames[language]}
                   </span>
                 </CheckBox>
               </Disableable>

@@ -39,12 +39,7 @@ export const Info = ({ book, content }: PrefetchResult) => {
   const [preferEnglishName] = useConfig("bookReaderPreferEnglishName");
 
   return (
-    <div
-      className={cx(
-        "flex p-4",
-        screen === "sm" ? "flex-col space-y-4" : "flex-row space-x-4"
-      )}
-    >
+    <div className={cx("flex p-4", screen === "sm" ? "flex-col space-y-4" : "flex-row space-x-4")}>
       {useMemo(
         () => (
           <div className={cx(screen === "sm" ? "flex-1" : "w-1/4")}>
@@ -72,8 +67,7 @@ export const Info = ({ book, content }: PrefetchResult) => {
             <div>
               <BookListingLink
                 query={{
-                  query:
-                    (preferEnglishName && book.englishName) || book.primaryName,
+                  query: (preferEnglishName && book.englishName) || book.primaryName,
                 }}
               >
                 <div className="text-3xl font-bold">
@@ -83,9 +77,7 @@ export const Info = ({ book, content }: PrefetchResult) => {
 
               <BookListingLink
                 query={{
-                  query:
-                    (!preferEnglishName && book.englishName) ||
-                    book.primaryName,
+                  query: (!preferEnglishName && book.englishName) || book.primaryName,
                 }}
               >
                 <div className="text-gray-darker">
@@ -105,13 +97,14 @@ export const Info = ({ book, content }: PrefetchResult) => {
               if (!tags) return null;
 
               return (
-                <div>
+                <div key={tag}>
                   <div className="text-sm text-gray-darker mb-1">
                     <FormattedMessage id={`types.bookTag.${tag}`} />
                   </div>
                   <div className="leading-tight">
                     {tags.sort().map((value) => (
                       <BookListingLink
+                        key={`${tag}:${value}`}
                         query={{ query: `${tag}:${value.replace(/\s/g, "_")}` }}
                       >
                         <Tag type={tag} value={value} />
@@ -136,14 +129,13 @@ export const Info = ({ book, content }: PrefetchResult) => {
                     .filter((c) => c.source === type)
                     .sort((a, b) => b.id.localeCompare(a.id));
                   const linkContent =
-                    content.source === type
-                      ? content
-                      : selectContent(sourceContents);
+                    content.source === type ? content : selectContent(sourceContents);
 
                   if (!linkContent) return null;
 
                   return (
                     <Dropdown
+                      key={type}
                       className="inline-flex"
                       overlay={LanguageTypes.map((language) => {
                         const languageContents = sourceContents.filter(
@@ -155,20 +147,12 @@ export const Info = ({ book, content }: PrefetchResult) => {
                         const displayContent = content;
 
                         return (
-                          <DropdownGroup name={LanguageNames[language]}>
+                          <DropdownGroup key={language} name={LanguageNames[language]}>
                             {languageContents.map((content) => (
-                              <Disableable
-                                disabled={content === displayContent}
-                              >
-                                <BookReaderLink
-                                  id={book.id}
-                                  contentId={content.id}
-                                >
+                              <Disableable key={content.id} disabled={content === displayContent}>
+                                <BookReaderLink id={book.id} contentId={content.id}>
                                   <DropdownItem>
-                                    <Anchor
-                                      target="_blank"
-                                      href={content.sourceUrl}
-                                    >
+                                    <Anchor target="_blank" href={content.sourceUrl}>
                                       <LinkOutlined className="pr-2 text-blue" />
                                     </Anchor>
 
@@ -276,9 +260,7 @@ const SourceButton = ({ type }: { type: ScraperType }) => {
         />
       }
     >
-      <span className="text-gray">
-        {scrapers.find((s) => s.type === type)?.name}
-      </span>
+      <span className="text-gray">{scrapers.find((s) => s.type === type)?.name}</span>
     </FlatButton>
   );
 };
@@ -288,10 +270,7 @@ const RefreshStatus = ({ book, content }: PrefetchResult) => {
   const { notifyError } = useNotify();
 
   const { loading, value, error } = useAsync(async () => {
-    if (
-      content.refreshTime &&
-      Date.now() - content.refreshTime.getTime() < 1000 * 60 * 60 * 24
-    )
+    if (content.refreshTime && Date.now() - content.refreshTime.getTime() < 1000 * 60 * 60 * 24)
       return content.isAvailable;
 
     const refreshed = await client.book.refreshBook({

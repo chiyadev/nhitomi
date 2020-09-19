@@ -30,7 +30,7 @@ export const BookSection = ({
 
   const getCoverRequest = useCallback(
     (book: BookListItem, content: BookContent) => ({
-      id: collections.find((c) => c.collection.id === book.id)?.cover?.id!, // convert collection id to cover id
+      id: collections.find((c) => c.collection.id === book.id)!.cover!.id, // convert collection id to cover id
       contentId: content.id,
       index: -1,
     }),

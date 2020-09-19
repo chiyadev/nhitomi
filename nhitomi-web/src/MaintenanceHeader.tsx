@@ -27,8 +27,7 @@ const Inner = () => {
         style={style}
         className="w-full px-4 py-2 text-sm bg-red-darkest text-white rounded-b"
       >
-        <WarningFilled />{" "}
-        <FormattedMessage id="components.maintenanceHeader.text" />
+        <WarningFilled /> <FormattedMessage id="components.maintenanceHeader.text" />
       </animated.div>
     </Container>
   );

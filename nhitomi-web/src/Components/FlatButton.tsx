@@ -21,9 +21,7 @@ export const FlatButton = ({
   const [click, setClick] = useState(false);
 
   const style = useSpring({
-    boxShadow: `inset 0 0 0 1px ${
-      color.tint(click || focus || hover ? 0.25 : 0.125).rgb
-    }`,
+    boxShadow: `inset 0 0 0 1px ${color.tint(click || focus || hover ? 0.25 : 0.125).rgb}`,
     backgroundColor: color.tint(click ? 0.25 : focus || hover ? 0.125 : 0).rgb,
   });
 
@@ -34,10 +32,7 @@ export const FlatButton = ({
   return (
     <animated.button
       style={style}
-      className={cx(
-        "text-white rounded-sm overflow-hidden cursor-pointer",
-        className
-      )}
+      className={cx("text-white rounded-sm overflow-hidden cursor-pointer", className)}
       onClick={onClick}
       onFocus={() => setFocus(true)}
       onBlur={() => setFocus(false)}

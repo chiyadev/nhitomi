@@ -1,26 +1,15 @@
 import React, { useLayoutEffect, useMemo, useState } from "react";
 import { NavigationArgs, useNavigator, useQueryState } from "../state";
-import {
-  PrefetchGenerator,
-  PrefetchLink,
-  TypedPrefetchLinkProps,
-  usePostfetch,
-} from "../Prefetch";
+import { PrefetchGenerator, PrefetchLink, TypedPrefetchLinkProps, usePostfetch } from "../Prefetch";
 import { ClientInfo, useClientInfo } from "../ClientManager";
 import { useTabTitle } from "../TitleSetter";
 import { useLocalized } from "../LocaleManager";
 import { parseOAuthState, stringifyOAuthState, useXsrfToken } from "./oauth";
 import { FormattedMessage } from "react-intl";
-import {
-  DiscordColor,
-  DiscordOutlined,
-} from "../Components/Icons/DiscordOutlined";
+import { DiscordColor, DiscordOutlined } from "../Components/Icons/DiscordOutlined";
 import { FilledButton } from "../Components/FilledButton";
 import { Disableable } from "../Components/Disableable";
-import {
-  TwitterColor,
-  TwitterOutlined,
-} from "../Components/Icons/TwitterOutlined";
+import { TwitterColor, TwitterOutlined } from "../Components/Icons/TwitterOutlined";
 import { animated, useSpring } from "react-spring";
 import GitHubButton from "react-github-btn";
 import { Anchor } from "../Components/Anchor";
@@ -28,10 +17,10 @@ import { Anchor } from "../Components/Anchor";
 export type PrefetchResult = { info: ClientInfo; state: string };
 export type PrefetchOptions = { redirect?: NavigationArgs };
 
-export const useAuthenticationPrefetch: PrefetchGenerator<
-  PrefetchResult,
-  PrefetchOptions
-> = ({ mode, redirect: targetRedirect }) => {
+export const useAuthenticationPrefetch: PrefetchGenerator<PrefetchResult, PrefetchOptions> = ({
+  mode,
+  redirect: targetRedirect,
+}) => {
   const { info } = useClientInfo();
   const [currentState] = useQueryState<string>("replace", "state");
   const navigator = useNavigator();
@@ -66,11 +55,7 @@ export const AuthenticationLink = ({
   redirect,
   ...props
 }: TypedPrefetchLinkProps & PrefetchOptions) => (
-  <PrefetchLink
-    fetch={useAuthenticationPrefetch}
-    options={{ redirect }}
-    {...props}
-  />
+  <PrefetchLink fetch={useAuthenticationPrefetch} options={{ redirect }} {...props} />
 );
 
 export const Authentication = (options: PrefetchOptions) => {
@@ -138,11 +123,7 @@ const Loaded = ({ info: { discordOAuthUrl }, state }: PrefetchResult) => {
           {useMemo(
             () => (
               <Anchor href={appendState(discordOAuthUrl, state)}>
-                <FilledButton
-                  className="text-sm"
-                  color={DiscordColor}
-                  icon={<DiscordOutlined />}
-                >
+                <FilledButton className="text-sm" color={DiscordColor} icon={<DiscordOutlined />}>
                   <FormattedMessage id="pages.authentication.connect.discord" />
                 </FilledButton>
               </Anchor>
@@ -153,11 +134,7 @@ const Loaded = ({ info: { discordOAuthUrl }, state }: PrefetchResult) => {
           {useMemo(
             () => (
               <Disableable disabled>
-                <FilledButton
-                  className="text-sm"
-                  color={TwitterColor}
-                  icon={<TwitterOutlined />}
-                >
+                <FilledButton className="text-sm" color={TwitterColor} icon={<TwitterOutlined />}>
                   <FormattedMessage id="pages.authentication.connect.twitter" />
                 </FilledButton>
               </Disableable>

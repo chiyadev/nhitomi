@@ -67,10 +67,7 @@ export const Checkout = ({ supporterPrice, apiKey }: PrefetchResult) => {
 
         <ul className="list-disc list-inside text-sm">
           <li>nhitomi supporter is a non-recurring payment.</li>
-          <li>
-            If you are already a supporter, your supporter period will be
-            extended.
-          </li>
+          <li>If you are already a supporter, your supporter period will be extended.</li>
         </ul>
       </div>
     </Disableable>
@@ -132,11 +129,7 @@ const CheckoutButton = ({
           </div>
           <div className="text-sm">
             <FormattedMessage
-              id={
-                supporter
-                  ? "pages.support.duration_supporter"
-                  : "pages.support.duration"
-              }
+              id={supporter ? "pages.support.duration_supporter" : "pages.support.duration"}
               values={{ duration }}
             />
           </div>

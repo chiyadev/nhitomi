@@ -32,9 +32,7 @@ export const BookDisplay = ({
         () => (
           <div className="p-4">
             <div className="text-2xl">{collection.name}</div>
-            <div className="text-sm text-gray-darker">
-              {collection.description}
-            </div>
+            <div className="text-sm text-gray-darker">{collection.description}</div>
           </div>
         ),
         [collection.description, collection.name]
@@ -49,9 +47,7 @@ export const BookDisplay = ({
               <FormattedMessage id="pages.collectionContent.book.empty" />
             </EmptyIndicator>
           }
-          OverlayComponent={(props) => (
-            <Overlay collection={collection} {...props} />
-          )}
+          OverlayComponent={(props) => <Overlay collection={collection} {...props} />}
         />
 
         <Loader result={result} setResult={setResult} />

@@ -12,12 +12,7 @@ import { useProgress } from "./ProgressManager";
 import { getEventModifiers } from "./shortcut";
 import { useNotify } from "./NotificationManager";
 import { Link, LinkProps } from "react-router-dom";
-import {
-  NavigationArgs,
-  NavigationMode,
-  useNavigator,
-  usePageState,
-} from "./state";
+import { NavigationArgs, NavigationMode, useNavigator, usePageState } from "./state";
 import { cx } from "emotion";
 import { useClientInfo } from "./ClientManager";
 import { useAuthenticationPrefetch } from "./Authentication";
@@ -82,13 +77,9 @@ export function usePrefetch<T, U extends {}>(
   const navigator = useNavigator();
 
   // generator can call hooks so memoize it
-  const {
-    destination,
-    showProgress = true,
-    restoreScroll = true,
-    fetch,
-    done,
-  } = useRef(generator).current({ mode: "prefetch", ...options });
+  const { destination, showProgress = true, restoreScroll = true, fetch, done } = useRef(
+    generator
+  ).current({ mode: "prefetch", ...options });
 
   // unlike postfetch, prefetch moves to another location so treat unspecified query and hash as empty
   destination.query = destination.query || {};
@@ -124,8 +115,7 @@ export function usePrefetch<T, U extends {}>(
         });
 
         // scroll to top after pushing
-        if (restoreScroll)
-          beginRetainedScrollTo(navigator.history.location.key!, 0);
+        if (restoreScroll) beginRetainedScrollTo(navigator.history.location.key || "", 0);
 
         await done?.(fetched);
 
@@ -136,17 +126,7 @@ export function usePrefetch<T, U extends {}>(
         end();
       }
     },
-    [
-      begin,
-      destination,
-      done,
-      end,
-      fetch,
-      navigator,
-      notifyError,
-      restoreScroll,
-      showProgress,
-    ]
+    [begin, destination, done, end, fetch, navigator, notifyError, restoreScroll, showProgress]
   );
 
   return [navigator.stringify(navigator.evaluate(destination)), run];
@@ -234,19 +214,15 @@ export function usePostfetch<T, U extends {}>(
   const navigator = useNavigator();
 
   // generator can call hooks so memoize it
-  const {
-    destination,
-    showProgress = true,
-    restoreScroll = true,
-    fetch,
-    done,
-  } = useRef(generator).current({ mode: "postfetch", ...options });
+  const { destination, showProgress = true, restoreScroll = true, fetch, done } = useRef(
+    generator
+  ).current({ mode: "postfetch", ...options });
   const { requireAuth } = options;
 
   const [result, setResult] = usePageState<T>("fetch");
 
   // prevents any scrolls after loading the page for the first time
-  const scroll = getRetainedScroll(navigator.history.location.key!);
+  const scroll = getRetainedScroll(navigator.history.location.key || "");
   const shouldScroll = useRef(restoreScroll);
 
   const [, navigateAuth] = usePrefetch(useAuthenticationPrefetch, {
@@ -264,7 +240,7 @@ export function usePostfetch<T, U extends {}>(
     if (result) {
       // restore scroll after popping
       if (shouldScroll.current) {
-        beginRetainedScrollTo(navigator.history.location.key!, scroll);
+        beginRetainedScrollTo(navigator.history.location.key || "", scroll);
         shouldScroll.current = false;
       }
 
@@ -300,7 +276,7 @@ export function usePostfetch<T, U extends {}>(
 
       // restore scroll after fetching
       if (restoreScroll) {
-        beginRetainedScrollTo(navigator.history.location.key!, scroll);
+        beginRetainedScrollTo(navigator.history.location.key || "", scroll);
         shouldScroll.current = false;
       }
 
@@ -320,10 +296,7 @@ export function usePostfetch<T, U extends {}>(
 }
 
 export type PrefetchLinkProps = ComponentProps<typeof PrefetchLink>;
-export type TypedPrefetchLinkProps = Omit<
-  ComponentProps<typeof PrefetchLink>,
-  "fetch" | "options"
->;
+export type TypedPrefetchLinkProps = Omit<ComponentProps<typeof PrefetchLink>, "fetch" | "options">;
 
 /** Link that fetches some data before navigating to a page. */
 export const PrefetchLink = <T extends any, U extends {} = {}>({
@@ -345,7 +318,7 @@ export const PrefetchLink = <T extends any, U extends {} = {}>({
     <Link
       to={destination}
       onClick={(e) => {
-        onClick?.call(e.target!, e);
+        if (e.target) onClick?.call(e.target, e);
 
         // don't handle modifiers
         if (getEventModifiers(e).length) return;
@@ -364,21 +337,13 @@ export const PrefetchLink = <T extends any, U extends {} = {}>({
   );
 };
 
-export const BackLink = ({
-  children,
-  className,
-}: {
-  children?: ReactNode;
-  className?: string;
-}) => {
+export const BackLink = ({ children, className }: { children?: ReactNode; className?: string }) => {
   const { history } = useNavigator();
 
   return (
-    <div
-      className={cx("display-contents", className)}
-      children={children}
-      onClick={() => history.goBack()}
-    />
+    <div className={cx("display-contents", className)} onClick={() => history.goBack()}>
+      {children}
+    </div>
   );
 };
 
@@ -393,11 +358,7 @@ export const PrefetchScrollPreserver = () => {
       const currentKey = navigator.history.location.key;
 
       // don't remember scroll positions for replaced pages
-      if (
-        lastKey &&
-        lastKey !== currentKey &&
-        navigator.history.action === "REPLACE"
-      ) {
+      if (lastKey && lastKey !== currentKey && navigator.history.action === "REPLACE") {
         const current = getRetainedScroll(lastKey);
         setRetainedScroll(lastKey, undefined);
         setRetainedScroll(currentKey!, current);
@@ -418,8 +379,7 @@ export const PrefetchScrollPreserver = () => {
     const handler = () => {
       clearTimeout(flush.current);
       flush.current = window.setTimeout(
-        () =>
-          setRetainedScroll(navigator.history.location.key!, window.scrollY),
+        () => setRetainedScroll(navigator.history.location.key!, window.scrollY),
         20
       );
     };

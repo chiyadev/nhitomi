@@ -9,8 +9,7 @@ export type ColorLuminance = keyof typeof colors[ColorHue];
 
 export class Color {
   constructor(readonly color: TinyColor) {
-    if (!color.isValid)
-      throw Error(`'${color.originalInput}' is not a valid color.`);
+    if (!color.isValid) throw Error(`'${color.originalInput}' is not a valid color.`);
 
     autoBind(this);
   }
@@ -28,9 +27,7 @@ export class Color {
   }
 
   opacity(value: number) {
-    return createColor(
-      this.color.clone().setAlpha(this.color.getAlpha() * value)
-    );
+    return createColor(this.color.clone().setAlpha(this.color.getAlpha() * value));
   }
 
   tint(value: number) {

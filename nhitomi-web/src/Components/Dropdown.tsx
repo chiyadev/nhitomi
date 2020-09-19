@@ -56,11 +56,7 @@ export const DropdownItem = ({
   return (
     <animated.div
       style={style}
-      className={cx(
-        "cursor-pointer flex flex-row",
-        { "px-2 py-1": padding },
-        className
-      )}
+      className={cx("cursor-pointer flex flex-row", { "px-2 py-1": padding }, className)}
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
       onMouseDown={() => setClick(true)}

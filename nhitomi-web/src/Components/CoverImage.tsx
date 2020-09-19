@@ -7,11 +7,7 @@ import { FormattedMessage } from "react-intl";
 import { probeImage } from "../imageUtils";
 import { getColor } from "../theme";
 import { useAsync } from "../hooks";
-import {
-  createCachedImageRef,
-  getCachedImageRef,
-  returnCachedImageRef,
-} from "../imageCache";
+import { createCachedImageRef, getCachedImageRef, returnCachedImageRef } from "../imageCache";
 
 function formatAspect(x: number) {
   return `${x * 100}%`;
@@ -38,11 +34,11 @@ export const CoverImage = ({
 }) => {
   const [prolongedLoad, setProlongedLoad] = useState(false); // if load is prolonged, show loading indicator
 
-  const [loaded, setLoaded] = useState<
-    { url: string; width: number; height: number } | undefined
-  >(() => {
-    if (cacheKey) return getCachedImageRef(cacheKey);
-  });
+  const [loaded, setLoaded] = useState<{ url: string; width: number; height: number } | undefined>(
+    () => {
+      if (cacheKey) return getCachedImageRef(cacheKey);
+    }
+  );
 
   const { loading, error } = useAsync(async () => {
     if (loaded) return;
@@ -55,8 +51,7 @@ export const CoverImage = ({
 
       let url: string;
 
-      if (cacheKey)
-        url = createCachedImageRef(cacheKey, { blob, width, height });
+      if (cacheKey) url = createCachedImageRef(cacheKey, { blob, width, height });
       else url = URL.createObjectURL(blob);
 
       const loaded = { url, width, height };
@@ -130,10 +125,7 @@ export const CoverImage = ({
       )}
 
       {showLoading && (
-        <animated.div
-          style={loadingStyle}
-          className="absolute transform-center"
-        >
+        <animated.div style={loadingStyle} className="absolute transform-center">
           <Loading3QuartersOutlined className="animate-spin" />
         </animated.div>
       )}
@@ -149,9 +141,7 @@ export const CoverImage = ({
                 </div>
                 <div>
                   <code>
-                    {error?.message || (
-                      <FormattedMessage id="components.coverImage.errorUnknown" />
-                    )}
+                    {error?.message || <FormattedMessage id="components.coverImage.errorUnknown" />}
                   </code>
                 </div>
               </>

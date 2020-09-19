@@ -84,9 +84,7 @@ const Routing = () => {
 
   return useMemo(
     () => (
-      <Switch
-        location={{ pathname: path, search: "", hash: "", state: undefined }}
-      >
+      <Switch location={{ pathname: path, search: "", hash: "", state: undefined }}>
         <Route path="/" exact>
           <Redirect to="/books" />
         </Route>

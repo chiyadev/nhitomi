@@ -30,8 +30,9 @@ export const RoundIconButton = ({
       <animated.div
         style={style}
         className="w-full h-full rounded-full overflow-hidden flex items-center justify-center"
-        children={children}
-      />
+      >
+        {children}
+      </animated.div>
     </div>
   );
 };

@@ -22,9 +22,7 @@ const Duplicate = ({ collection }: { collection: Collection }) => {
   const { notifyError } = useNotify();
   const { alert } = useAlert();
   const [loading, setLoading] = useState(false);
-  const [prefetchNode, navigate] = useDynamicPrefetch(
-    useCollectionContentPrefetch
-  );
+  const [prefetchNode, navigate] = useDynamicPrefetch(useCollectionContentPrefetch);
 
   return (
     <div className="p-4 space-y-4">

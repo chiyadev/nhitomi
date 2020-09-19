@@ -1,10 +1,4 @@
-import React, {
-  createContext,
-  ReactNode,
-  useContext,
-  useMemo,
-  useState,
-} from "react";
+import React, { createContext, ReactNode, useContext, useMemo, useState } from "react";
 import {
   AppearanceTypes,
   ToastContainerProps,
@@ -27,11 +21,7 @@ import { ColorHue, getColor } from "./theme";
 import { exception } from "react-ga";
 
 export const NotifyContext = createContext<{
-  notify: (
-    type: AppearanceTypes,
-    title: ReactNode,
-    description: ReactNode
-  ) => void;
+  notify: (type: AppearanceTypes, title: ReactNode, description: ReactNode) => void;
   notifyError: (error: Error, title?: ReactNode) => void;
 }>(undefined as any);
 
@@ -69,16 +59,11 @@ export const NotificationManager = ({ children }: { children?: ReactNode }) => {
   );
 };
 
-const ToastContainer = ({
-  children,
-  placement,
-  hasToasts,
-}: ToastContainerProps) => {
+const ToastContainer = ({ children, placement, hasToasts }: ToastContainerProps) => {
   const { screen } = useLayout();
 
   return (
     <animated.div
-      children={children}
       className={useMemo(
         () =>
           cx(
@@ -101,7 +86,9 @@ const ToastContainer = ({
           ),
         [hasToasts, placement, screen]
       )}
-    />
+    >
+      {children}
+    </animated.div>
   );
 };
 
@@ -116,8 +103,7 @@ const NotifyToast = ({
   const style = useSpring({
     config: { duration: transitionDuration },
     opacity: transitionState === "entered" ? 1 : 0,
-    transform:
-      transitionState === "entered" ? "translateX(0)" : "translateX(5px)",
+    transform: transitionState === "entered" ? "translateX(0)" : "translateX(5px)",
   });
 
   const [closeHover, setCloseHover] = useState(false);
@@ -134,10 +120,7 @@ const NotifyToast = ({
     >
       {children}
 
-      <animated.span
-        style={closeStyle}
-        className="absolute top-0 right-0 p-3 text-gray-darker"
-      >
+      <animated.span style={closeStyle} className="absolute top-0 right-0 p-3 text-gray-darker">
         <CloseOutlined
           className="cursor-pointer"
           onClick={() => onDismiss()}
@@ -203,17 +186,10 @@ const NotifyManager = ({ children }: { children?: ReactNode }) => {
 
   return (
     <NotifyContext.Provider
-      children={children}
       value={useMemo(
         () => ({
           notify: (type, title, description) => {
-            addToast(
-              <NotifyToastContent
-                type={type}
-                title={title}
-                description={description}
-              />
-            );
+            addToast(<NotifyToastContent type={type} title={title} description={description} />);
           },
           notifyError: (error, title) => {
             if (!(error instanceof Error))
@@ -227,7 +203,7 @@ const NotifyManager = ({ children }: { children?: ReactNode }) => {
                   description={
                     <ul className="list-disc list-inside">
                       {error.list.map((problem) => (
-                        <li>
+                        <li key={problem.field}>
                           <code>{problem.field} </code>
                           <span>{problem.messages.join(" ")}</span>
                         </li>
@@ -254,7 +230,9 @@ const NotifyManager = ({ children }: { children?: ReactNode }) => {
         }),
         [addToast]
       )}
-    />
+    >
+      {children}
+    </NotifyContext.Provider>
   );
 };
 
@@ -269,8 +247,7 @@ const AlertToast = ({
   const style = useSpring({
     config: { duration: transitionDuration },
     opacity: transitionState === "entered" ? 1 : 0,
-    transform:
-      transitionState === "entered" ? "translateY(0)" : "translateY(-1em)",
+    transform: transitionState === "entered" ? "translateY(0)" : "translateY(-1em)",
   });
 
   return (
@@ -291,7 +268,6 @@ const AlertManager = ({ children }: { children?: ReactNode }) => {
 
   return (
     <AlertContext.Provider
-      children={children}
       value={useMemo(
         () => ({
           alert: (message, type) => {
@@ -310,6 +286,8 @@ const AlertManager = ({ children }: { children?: ReactNode }) => {
         }),
         [addToast, removeAllToasts]
       )}
-    />
+    >
+      {children}
+    </AlertContext.Provider>
   );
 };

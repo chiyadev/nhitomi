@@ -27,8 +27,7 @@ export const Token = () => {
           className="text-sm text-blue"
           href="https://github.com/chiyadev/nhitomi/wiki/API"
         >
-          <LinkOutlined />{" "}
-          <FormattedMessage id="pages.settings.user.token.docs" />
+          <LinkOutlined /> <FormattedMessage id="pages.settings.user.token.docs" />
         </Anchor>
       </div>
 

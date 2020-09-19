@@ -1,10 +1,5 @@
 import React, { useMemo } from "react";
-import {
-  PrefetchGenerator,
-  PrefetchLink,
-  TypedPrefetchLinkProps,
-  usePostfetch,
-} from "../Prefetch";
+import { PrefetchGenerator, PrefetchLink, TypedPrefetchLinkProps, usePostfetch } from "../Prefetch";
 import { useClient, useClientInfo } from "../ClientManager";
 import { PageContainer } from "../Components/PageContainer";
 import { useTabTitle } from "../TitleSetter";
@@ -22,10 +17,7 @@ import { useNotify } from "../NotificationManager";
 export type PrefetchResult = GetStripeInfoResponse;
 export type PrefetchOptions = {};
 
-export const useSupportPrefetch: PrefetchGenerator<
-  PrefetchResult,
-  PrefetchOptions
-> = () => {
+export const useSupportPrefetch: PrefetchGenerator<PrefetchResult, PrefetchOptions> = () => {
   const client = useClient();
   const { notify } = useNotify();
   const [status] = useQueryState<"canceled">("replace", "checkout");
@@ -51,9 +43,7 @@ export const useSupportPrefetch: PrefetchGenerator<
   };
 };
 
-export const SupportLink = ({
-  ...props
-}: TypedPrefetchLinkProps & PrefetchOptions) => (
+export const SupportLink = ({ ...props }: TypedPrefetchLinkProps & PrefetchOptions) => (
   <PrefetchLink fetch={useSupportPrefetch} options={{}} {...props} />
 );
 
@@ -95,11 +85,7 @@ const Loaded = (result: PrefetchResult) => {
                 />
 
                 <FormattedMessage
-                  id={
-                    supporter
-                      ? "pages.support.subtitle_supporter"
-                      : "pages.support.subtitle"
-                  }
+                  id={supporter ? "pages.support.subtitle_supporter" : "pages.support.subtitle"}
                   values={{
                     nhitomi: <span className="text-lg font-bold">nhitomi</span>,
                   }}

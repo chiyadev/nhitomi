@@ -25,10 +25,7 @@ export const OAuthCallback = ({ service }: { service: OAuthService }) => {
   const [validXsrf, resetXsrf] = useXsrfToken();
   const [, setToken] = useConfig("token");
   const [, navigateAuth] = usePrefetch(useAuthenticationPrefetch, {
-    redirect: useMemo(
-      () => (state ? parseOAuthState(state).redirect : { path: "/" }),
-      [state]
-    ),
+    redirect: useMemo(() => (state ? parseOAuthState(state).redirect : { path: "/" }), [state]),
   });
 
   useAsync(async () => {

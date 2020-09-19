@@ -77,9 +77,7 @@ const SpecialButton = ({ collection }: { collection: Collection }) => {
             icon={
               <HeartOutlined
                 className={cx({
-                  "text-red":
-                    info.user.specialCollections?.book?.favorites ===
-                    collection.id,
+                  "text-red": info.user.specialCollections?.book?.favorites === collection.id,
                 })}
               />
             }
@@ -92,8 +90,7 @@ const SpecialButton = ({ collection }: { collection: Collection }) => {
             icon={
               <EyeOutlined
                 className={cx({
-                  "text-blue":
-                    info.user.specialCollections?.book?.later === collection.id,
+                  "text-blue": info.user.specialCollections?.book?.later === collection.id,
                 })}
               />
             }
@@ -129,9 +126,7 @@ const RandomButton = ({ collection }: { collection: Collection }) => {
   return (
     <Tooltip
       placement="bottom"
-      overlay={
-        <FormattedMessage id="pages.collectionContent.book.menu.random" />
-      }
+      overlay={<FormattedMessage id="pages.collectionContent.book.menu.random" />}
     >
       <Disableable disabled={loading}>
         <RoundIconButton
@@ -140,15 +135,11 @@ const RandomButton = ({ collection }: { collection: Collection }) => {
 
             try {
               const book = await client.book.getBook({
-                id:
-                  collection.items[
-                    Math.floor(Math.random() * collection.items.length)
-                  ],
+                id: collection.items[Math.floor(Math.random() * collection.items.length)],
               });
               const content = selectContent(book.contents);
 
-              if (content)
-                await navigate({ id: book.id, contentId: content.id });
+              if (content) await navigate({ id: book.id, contentId: content.id });
             } catch (e) {
               notifyError(e);
             } finally {

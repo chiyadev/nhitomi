@@ -34,10 +34,7 @@ export const LoadContainer = ({
       <div className={cx("relative", className)}>
         {children}
 
-        <animated.div
-          style={loadingStyle}
-          className="absolute transform-center"
-        >
+        <animated.div style={loadingStyle} className="absolute transform-center">
           <Loading3QuartersOutlined className="animate-spin" />
         </animated.div>
       </div>

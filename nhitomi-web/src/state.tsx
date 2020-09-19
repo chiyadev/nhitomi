@@ -1,10 +1,4 @@
-import {
-  Dispatch,
-  useCallback,
-  useLayoutEffect,
-  useRef,
-  useState,
-} from "react";
+import { Dispatch, useCallback, useLayoutEffect, useRef, useState } from "react";
 import {
   createBrowserHistory,
   Hash,
@@ -33,14 +27,8 @@ export type NavigationArgs = Partial<
   }
 >;
 
-export type HistoryState = Record<
-  string,
-  { value: unknown; version: number } | undefined
->;
-export type QueryState = Record<
-  string,
-  number | string | object | null | undefined
->;
+export type HistoryState = Record<string, { value: unknown; version: number } | undefined>;
+export type QueryState = Record<string, number | string | object | null | undefined>;
 export type HashState = Hash; // consistency
 
 export const Navigator: NavigationLocation & {
@@ -145,8 +133,7 @@ try {
   // https://stackoverflow.com/a/53307588/13160620
   const entry = performance.getEntriesByType("navigation")[0];
 
-  refreshed =
-    entry instanceof PerformanceNavigationTiming && entry.type === "reload";
+  refreshed = entry instanceof PerformanceNavigationTiming && entry.type === "reload";
 } catch {
   try {
     refreshed = performance.navigation.type === 1;
@@ -179,16 +166,11 @@ export function useNavigated(handler: (location: NavigationLocation) => void) {
 }
 
 /** Similar to useState but stores the data in window.history.state. */
-export function usePageState<T>(
-  key: string
-): [T | undefined, Dispatch<T | undefined>];
+export function usePageState<T>(key: string): [T | undefined, Dispatch<T | undefined>];
 export function usePageState<T>(key: string, initialState: T): [T, Dispatch<T>];
 
 export function usePageState(key: string, initialState?: any) {
-  if (
-    typeof initialState !== "undefined" &&
-    typeof Navigator.state[key]?.value === "undefined"
-  ) {
+  if (typeof initialState !== "undefined" && typeof Navigator.state[key]?.value === "undefined") {
     Navigator.navigate("replace", {
       state: (s) => ({
         ...s,
@@ -233,9 +215,7 @@ export function usePageState(key: string, initialState?: any) {
 }
 
 /** Deserializes the query part of the current url and returns a function that can update it. */
-export function useQuery(
-  mode: NavigationMode = "replace"
-): [QueryState, Dispatch<QueryState>] {
+export function useQuery(mode: NavigationMode = "replace"): [QueryState, Dispatch<QueryState>] {
   const [state, setState] = useState(Navigator.query);
 
   useNavigated(
@@ -266,9 +246,7 @@ export function useQuery(
 }
 
 /** Similar to useState but stores data in the query part of window.location. */
-export function useQueryState<T extends {}>(
-  mode?: NavigationMode
-): [T, Dispatch<T>];
+export function useQueryState<T extends {}>(mode?: NavigationMode): [T, Dispatch<T>];
 export function useQueryState<T>(
   mode?: NavigationMode,
   name?: string

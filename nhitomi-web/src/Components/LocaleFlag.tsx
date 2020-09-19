@@ -13,17 +13,11 @@ export const LocaleFlag = ({
   size?: number;
 }) => {
   return (
-    <FlagIcon
-      code={language.split("-")[1] as FlagIconCode}
-      className={className}
-      size={size}
-    />
+    <FlagIcon code={language.split("-")[1] as FlagIconCode} className={className} size={size} />
   );
 };
 
-export const CurrentLocaleFlag = (
-  props: Omit<ComponentProps<typeof LocaleFlag>, "language">
-) => {
+export const CurrentLocaleFlag = (props: Omit<ComponentProps<typeof LocaleFlag>, "language">) => {
   const [language] = useConfig("language");
 
   return <LocaleFlag language={language} {...props} />;

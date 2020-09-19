@@ -23,10 +23,7 @@ export function useXsrfToken(): [string, () => void] {
   return [token, reset];
 }
 
-export function stringifyOAuthState({
-  xsrf,
-  redirect: { path, query, hash },
-}: OAuthState) {
+export function stringifyOAuthState({ xsrf, redirect: { path, query, hash } }: OAuthState) {
   return utoa(stringify([xsrf, path, query, hash]));
 }
 

@@ -10,9 +10,7 @@ export const SidebarStripWidth = 64;
 export const ScreenBreakpoint = 768;
 
 export const SmallBreakpoints = [320, 480, 640];
-export const LargeBreakpoints = [640, 768, 1024, 1280].map(
-  (n) => n - SidebarStripWidth
-);
+export const LargeBreakpoints = [640, 768, 1024, 1280].map((n) => n - SidebarStripWidth);
 
 /** Layout information context. */
 const LayoutContext = createContext<{
@@ -31,7 +29,6 @@ export const LayoutManager = ({ children }: { children?: ReactNode }) => {
 
   return (
     <LayoutContext.Provider
-      children={children}
       value={useMemo(() => {
         let screen: ScreenType = "sm";
         let width = windowWidth;
@@ -45,7 +42,9 @@ export const LayoutManager = ({ children }: { children?: ReactNode }) => {
 
         return { screen, width, height, breakpoint };
       }, [windowWidth, height])}
-    />
+    >
+      {children}
+    </LayoutContext.Provider>
   );
 };
 

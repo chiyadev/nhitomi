@@ -20,6 +20,8 @@ export const PageContainer = ({
   });
 
   return (
-    <animated.div style={style} className={className} children={children} />
+    <animated.div style={style} className={className}>
+      {children}
+    </animated.div>
   );
 };

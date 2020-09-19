@@ -1,10 +1,5 @@
 import React, { ReactNode, useMemo } from "react";
-import {
-  PrefetchGenerator,
-  PrefetchLink,
-  TypedPrefetchLinkProps,
-  usePostfetch,
-} from "../Prefetch";
+import { PrefetchGenerator, PrefetchLink, TypedPrefetchLinkProps, usePostfetch } from "../Prefetch";
 import { ClientInfo, useClientInfo } from "../ClientManager";
 import { Container } from "../Components/Container";
 import { FormattedMessage } from "react-intl";
@@ -62,15 +57,14 @@ export type SettingsItem = {
 }[SettingsSection];
 export type SettingsFocus = SettingsSection | SettingsItem;
 
-export const useSettingsPrefetch: PrefetchGenerator<
-  PrefetchResult,
-  PrefetchOptions
-> = ({ mode, focus: targetFocus }) => {
+export const useSettingsPrefetch: PrefetchGenerator<PrefetchResult, PrefetchOptions> = ({
+  mode,
+  focus: targetFocus,
+}) => {
   const { fetchInfo } = useClientInfo();
   const [currentFocus] = useQueryState<SettingsFocus>("replace", "focus");
 
-  const focus =
-    targetFocus || (mode === "postfetch" && currentFocus) || undefined;
+  const focus = targetFocus || (mode === "postfetch" && currentFocus) || undefined;
 
   return {
     destination: {
@@ -90,10 +84,7 @@ export const useSettingsPrefetch: PrefetchGenerator<
   };
 };
 
-export const SettingsLink = ({
-  focus,
-  ...props
-}: TypedPrefetchLinkProps & PrefetchOptions) => (
+export const SettingsLink = ({ focus, ...props }: TypedPrefetchLinkProps & PrefetchOptions) => (
   <PrefetchLink fetch={useSettingsPrefetch} options={{ focus }} {...props} />
 );
 
@@ -134,8 +125,7 @@ const Loaded = () => {
             type="user"
             name={
               <span>
-                <UserOutlined />{" "}
-                <FormattedMessage id="pages.settings.user.header" />
+                <UserOutlined /> <FormattedMessage id="pages.settings.user.header" />
               </span>
             }
             items={[
@@ -154,39 +144,54 @@ const Loaded = () => {
             type="appearance"
             name={
               <span>
-                <PictureOutlined />{" "}
-                <FormattedMessage id="pages.settings.appearance.header" />
+                <PictureOutlined /> <FormattedMessage id="pages.settings.appearance.header" />
               </span>
             }
-          >
-            <Language />
-            <Animation />
-            <Blur />
-          </Section>
+            items={[
+              {
+                item: "language",
+                node: <Language />,
+              },
+              {
+                item: "animation",
+                node: <Animation />,
+              },
+              {
+                item: "blur",
+                node: <Blur />,
+              },
+            ]}
+          />
 
           <Section
             type="reader"
             name={
               <span>
-                <ReadOutlined />{" "}
-                <FormattedMessage id="pages.settings.reader.header" />
+                <ReadOutlined /> <FormattedMessage id="pages.settings.reader.header" />
               </span>
             }
-          >
-            {[<PreferEnglishName key="" />]}
-          </Section>
+            items={[
+              {
+                item: "preferEnglishName",
+                node: <PreferEnglishName />,
+              },
+            ]}
+          />
 
           <Section
             type="keyboard"
             name={
               <span>
-                <MacCommandFilled />{" "}
-                <FormattedMessage id="pages.settings.keyboard.header" />
+                <MacCommandFilled /> <FormattedMessage id="pages.settings.keyboard.header" />
               </span>
             }
-          >
-            {[<Shortcuts key="" />]}
-          </Section>
+            items={[
+              {
+                item: "shortcuts",
+                node: <Shortcuts />,
+              },
+            ]}
+          />
 
           <Section
             type="internal"
@@ -195,13 +200,17 @@ const Loaded = () => {
                 <ToolOutlined /> Internal
               </span>
             }
-          >
-            {process.env.NODE_ENV === "development" && <Debug />}
-
-            {permissions.hasPermissions(UserPermissions.ManageServer) && (
-              <Server />
-            )}
-          </Section>
+            items={[
+              {
+                item: "debug",
+                node: process.env.NODE_ENV === "development" && <Debug />,
+              },
+              {
+                item: "server",
+                node: permissions.hasPermissions(UserPermissions.ManageServer) && <Server />,
+              },
+            ]}
+          />
         </div>
       </Container>
     ),
@@ -220,7 +229,7 @@ const Section = ({
   items: { item: SettingsItem; node: ReactNode }[];
   className?: string;
 }) => {
-  items = items?.filter((c) => c);
+  items = items?.filter((c) => c.node);
 
   if (!items.length) return null;
 

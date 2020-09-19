@@ -3,13 +3,7 @@ import { FormattedDate, FormattedTime } from "react-intl";
 import { Tooltip } from "./Tooltip";
 import { cx } from "emotion";
 
-export const TimeDisplay = ({
-  value,
-  className,
-}: {
-  value: Date;
-  className?: string;
-}) => {
+export const TimeDisplay = ({ value, className }: { value: Date; className?: string }) => {
   return useMemo(
     () => (
       <Tooltip

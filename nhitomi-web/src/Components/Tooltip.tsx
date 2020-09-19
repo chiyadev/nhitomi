@@ -45,14 +45,10 @@ export const Tooltip = ({
   const style = useSpring({
     opacity: visible ? 1 : 0,
 
-    marginTop:
-      moveTransition && placement.indexOf("bottom") !== -1 && !visible ? -5 : 0,
-    marginRight:
-      moveTransition && placement.indexOf("left") !== -1 && !visible ? -5 : 0,
-    marginBottom:
-      moveTransition && placement.indexOf("top") !== -1 && !visible ? -5 : 0,
-    marginLeft:
-      moveTransition && placement.indexOf("right") !== -1 && !visible ? -5 : 0,
+    marginTop: moveTransition && placement.indexOf("bottom") !== -1 && !visible ? -5 : 0,
+    marginRight: moveTransition && placement.indexOf("left") !== -1 && !visible ? -5 : 0,
+    marginBottom: moveTransition && placement.indexOf("top") !== -1 && !visible ? -5 : 0,
+    marginLeft: moveTransition && placement.indexOf("right") !== -1 && !visible ? -5 : 0,
 
     transform: !scaleTransition || visible ? "scaleY(1)" : "scaleY(0.9)",
 
@@ -84,10 +80,8 @@ export const Tooltip = ({
                 "px-2 py-1": padding,
               },
               {
-                "origin-top":
-                  scaleTransition && placement.indexOf("bottom") !== -1,
-                "origin-bottom":
-                  scaleTransition && placement.indexOf("top") !== -1,
+                "origin-top": scaleTransition && placement.indexOf("bottom") !== -1,
+                "origin-bottom": scaleTransition && placement.indexOf("top") !== -1,
               }
             )}
           >
@@ -95,9 +89,7 @@ export const Tooltip = ({
           </animated.div>
         )
       }
-      hideOnClick={
-        typeof props.visible !== "undefined" ? undefined : hideOnClick
-      } // tippy complains if hideOnClick is specified while visible controlled
+      hideOnClick={typeof props.visible !== "undefined" ? undefined : hideOnClick} // tippy complains if hideOnClick is specified while visible controlled
       ignoreAttributes={ignoreAttributes}
       touch={touch}
       duration={duration}

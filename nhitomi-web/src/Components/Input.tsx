@@ -42,9 +42,7 @@ export const Input = ({
   padding?: boolean;
   className?: string;
   onSubmit?: (value: string) => void;
-  onKeyDown?: (
-    e: KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => void;
+  onKeyDown?: (e: KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
   onFocus?: (e: FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
   onBlur?: (e: FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
   help?: ReactNode;
@@ -61,9 +59,7 @@ export const Input = ({
   const [focus, setFocus] = useState(false);
 
   const inputStyle = useSpring({
-    boxShadow: `inset 0 0 0 1px ${
-      color.tint(focus || hover ? 0.25 : 0.125).rgb
-    }`,
+    boxShadow: `inset 0 0 0 1px ${color.tint(focus || hover ? 0.25 : 0.125).rgb}`,
     backgroundColor: color.tint(focus ? 0.125 : 0).rgb,
   });
 
@@ -188,27 +184,24 @@ export const Input = ({
 
   return (
     <div className={cx("inline-flex flex-col text-white", className)}>
-      <animated.div
-        className="w-full relative rounded-sm overflow-hidden"
-        style={inputStyle}
-      >
+      <animated.div className="w-full relative rounded-sm overflow-hidden" style={inputStyle}>
         {input}
 
         {!value && (
           <animated.div
             style={placeholderStyle}
             className="absolute top-0 left-0 w-full px-2 py-1 max-h-full align-top pointer-events-none truncate"
-            children={placeholder}
-          />
+          >
+            {placeholder}
+          </animated.div>
         )}
 
         {allowClear && (
           <animated.div
             style={clearStyle}
-            className={cx(
-              "absolute top-0 right-0 px-2 py-1 cursor-pointer h-8",
-              { "pointer-events-none": !clearVisible }
-            )}
+            className={cx("absolute top-0 right-0 px-2 py-1 cursor-pointer h-8", {
+              "pointer-events-none": !clearVisible,
+            })}
             onMouseEnter={() => setClearHover(true)}
             onMouseLeave={() => setClearHover(false)}
             onMouseDown={() => {
@@ -222,11 +215,9 @@ export const Input = ({
       </animated.div>
 
       {help && (
-        <animated.div
-          style={helpStyle}
-          className="text-sm truncate mt-1"
-          children={help}
-        />
+        <animated.div style={helpStyle} className="text-sm truncate mt-1">
+          {help}
+        </animated.div>
       )}
     </div>
   );

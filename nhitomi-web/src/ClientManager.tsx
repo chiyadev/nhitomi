@@ -60,9 +60,7 @@ export class Client {
         },
         post: async (context) => {
           if (gaApiIgnorePaths.findIndex((g) => context.url.match(g)) === -1) {
-            const time =
-              performance.now() -
-              ((context.init as unknown) as RequestInitEx).startTime;
+            const time = performance.now() - ((context.init as unknown) as RequestInitEx).startTime;
 
             ga.timing({
               variable: context.url.replace(this.httpConfig.basePath || "", ""),
@@ -87,9 +85,7 @@ export class Client {
             throw new ValidationError(result.message, result.value);
           }
 
-          const error = Error(
-            (await response.json())?.message || response.statusText
-          );
+          const error = Error((await response.json())?.message || response.statusText);
 
           console.error(error);
 
@@ -127,8 +123,7 @@ export class Client {
   }
 
   get token() {
-    if (typeof this.httpConfig.accessToken === "function")
-      return this.httpConfig.accessToken();
+    if (typeof this.httpConfig.accessToken === "function") return this.httpConfig.accessToken();
     else return this.httpConfig.accessToken;
   }
 
@@ -209,9 +204,7 @@ type CachedClientInfo = {
 /** Cached client info allows the site to load faster. */
 function getCachedInfo(): ClientInfo | undefined {
   try {
-    const cached: CachedClientInfo = JSONex.parse(
-      localStorage.getItem(cacheKey) || ""
-    );
+    const cached: CachedClientInfo = JSONex.parse(localStorage.getItem(cacheKey) || "");
     const now = Date.now();
 
     if (now - cached.time < 1000 * 60 * 60)
@@ -239,9 +232,7 @@ export const ClientManager = ({ children }: { children?: ReactNode }) => {
   const config = useConfigManager();
 
   const client = useMemo(() => new Client(config), [config]);
-  const [info, setInfo] = useState<ClientInfo | Error | undefined>(
-    getCachedInfo
-  );
+  const [info, setInfo] = useState<ClientInfo | Error | undefined>(getCachedInfo);
   const { begin, end } = useProgress();
 
   useLayoutEffect(() => {
@@ -363,9 +354,7 @@ const Loaded = ({
     value={useMemo(
       () => ({
         client,
-        permissions: new PermissionHelper(
-          info?.authenticated ? info.user : undefined
-        ),
+        permissions: new PermissionHelper(info?.authenticated ? info.user : undefined),
         info,
         setInfo,
         fetchInfo: async () => {

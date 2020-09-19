@@ -1,12 +1,7 @@
 import { RefObject, useCallback, useRef } from "react";
 import { useKey, useKeyPress } from "react-use";
 import keycode from "keycode";
-import {
-  KeyModifiers,
-  ShortcutConfig,
-  ShortcutConfigKey,
-  useConfig,
-} from "./ConfigManager";
+import { KeyModifiers, ShortcutConfig, ShortcutConfigKey, useConfig } from "./ConfigManager";
 import { useLayout } from "./LayoutManager";
 import { useSpring } from "react-spring";
 import { event } from "react-ga";
@@ -37,7 +32,7 @@ function matchShortcut(
   const key = event.keyCode;
   const modifiers = getEventModifiers(event);
 
-  for (const shortcut of shortcuts) {
+  shortcutLoop: for (const shortcut of shortcuts) {
     // match key
     if (shortcut.key !== key) continue;
 
@@ -46,7 +41,7 @@ function matchShortcut(
       if (shortcut.modifiers.length !== modifiers.length) continue;
 
       for (const modifier of shortcut.modifiers) {
-        if (modifiers.indexOf(modifier) === -1) continue;
+        if (modifiers.indexOf(modifier) === -1) continue shortcutLoop;
       }
     } else {
       if (modifiers.length) continue;
@@ -78,14 +73,10 @@ export function useShortcut(
     [callback, key]
   );
 
-  useKey(
-    (e) => matchShortcut(shortcuts, e, ref?.current || undefined),
-    callback2,
-    {
-      event: "keydown",
-      target: ref?.current || undefined,
-    }
-  );
+  useKey((e) => matchShortcut(shortcuts, e, ref?.current || undefined), callback2, {
+    event: "keydown",
+    target: ref?.current || undefined,
+  });
 }
 
 /** Keyboard state when of a configured key. */
@@ -120,11 +111,7 @@ export function useScrollShortcut() {
         if (speed) {
           if (!timeout.current) timestamp.current = performance.now();
 
-          const dir = (direction.current = scrollDown
-            ? 1
-            : scrollUp
-            ? -1
-            : direction.current || 0);
+          const dir = (direction.current = scrollDown ? 1 : scrollUp ? -1 : direction.current || 0);
 
           const frame = (time: number) => {
             const elapsed = time - timestamp.current;

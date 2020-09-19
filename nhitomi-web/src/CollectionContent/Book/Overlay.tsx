@@ -29,13 +29,7 @@ export const Overlay = ({
   );
 };
 
-const DeleteItem = ({
-  collection,
-  book,
-}: {
-  collection: Collection;
-  book: BookListItem;
-}) => {
+const DeleteItem = ({ collection, book }: { collection: Collection; book: BookListItem }) => {
   const client = useClient();
   const { begin, end } = useProgress();
   const { alert } = useAlert();

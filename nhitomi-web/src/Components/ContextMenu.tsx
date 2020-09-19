@@ -1,10 +1,4 @@
-import React, {
-  ComponentProps,
-  RefObject,
-  useLayoutEffect,
-  useRef,
-  useState,
-} from "react";
+import React, { ComponentProps, RefObject, useLayoutEffect, useRef, useState } from "react";
 import { Dropdown, DropdownDivider, DropdownItem } from "./Dropdown";
 import { cx } from "emotion";
 import mergeRefs from "react-merge-refs";
@@ -104,33 +98,28 @@ export const ContextMenu = ({
       offset={offset}
       wrapperProps={{
         ...wrapperProps,
-        ref: wrapperProps?.ref
-          ? mergeRefs([wrapperRef, wrapperProps.ref])
-          : wrapperRef,
+        ref: wrapperProps?.ref ? mergeRefs([wrapperRef, wrapperProps.ref]) : wrapperRef,
       }}
       overlayProps={{
         tabIndex: -1,
 
         ...overlayProps,
-        ref: overlayProps?.ref
-          ? mergeRefs([overlayRef, overlayProps.ref])
-          : overlayRef,
+        ref: overlayProps?.ref ? mergeRefs([overlayRef, overlayProps.ref]) : overlayRef,
 
         onBlur: () => {
           setTimeout(() => {
             // hack: bring focus back to overlay if an overlay descendant stole focus
-            if (
-              overlayRef.current &&
-              overlayRef.current.contains(document.activeElement)
-            )
+            if (overlayRef.current && overlayRef.current.contains(document.activeElement))
               overlayRef.current.focus();
             else setVisible(false);
           });
         },
       }}
       getReferenceClientRect={() => {
-        const { left, top } = (wrapperRef.current &&
-          getTrueBoundingRect(wrapperRef.current)) || { left: 0, top: 0 };
+        const { left, top } = (wrapperRef.current && getTrueBoundingRect(wrapperRef.current)) || {
+          left: 0,
+          top: 0,
+        };
 
         return {
           width: 0,

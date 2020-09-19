@@ -36,8 +36,7 @@ export const ScrollPreserver = ({
         scrolling.current = undefined;
       };
 
-      if (isSafari)
-        scrolling.current = window.setTimeout(scroll, safariResizeDelay);
+      if (isSafari) scrolling.current = window.setTimeout(scroll, safariResizeDelay);
       else scrolling.current = requestAnimationFrame(scroll);
     } else if (container) {
       let visibleElement: HTMLElement | undefined;

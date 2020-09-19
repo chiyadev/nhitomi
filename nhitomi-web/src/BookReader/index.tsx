@@ -1,10 +1,5 @@
 import React, { useRef, useState } from "react";
-import {
-  PrefetchGenerator,
-  PrefetchLink,
-  TypedPrefetchLinkProps,
-  usePostfetch,
-} from "../Prefetch";
+import { PrefetchGenerator, PrefetchLink, TypedPrefetchLinkProps, usePostfetch } from "../Prefetch";
 import { Book, BookContent } from "nhitomi-api";
 import { useClient } from "../ClientManager";
 import { useScrollShortcut } from "../shortcut";
@@ -23,10 +18,10 @@ import { SupportBanner } from "./SupportBanner";
 export type PrefetchResult = { book: Book; content: BookContent };
 export type PrefetchOptions = { id: string; contentId: string };
 
-export const useBookReaderPrefetch: PrefetchGenerator<
-  PrefetchResult,
-  PrefetchOptions
-> = ({ id, contentId }) => {
+export const useBookReaderPrefetch: PrefetchGenerator<PrefetchResult, PrefetchOptions> = ({
+  id,
+  contentId,
+}) => {
   const client = useClient();
 
   return {
@@ -38,8 +33,7 @@ export const useBookReaderPrefetch: PrefetchGenerator<
       const book = await client.book.getBook({ id });
       const content = book.contents.find((c) => c.id === contentId);
 
-      if (!content)
-        throw Error(`Content ${contentId} does not exist in book ${id}.`);
+      if (!content) throw Error(`Content ${contentId} does not exist in book ${id}.`);
 
       return { book, content };
     },
@@ -51,11 +45,7 @@ export const BookReaderLink = ({
   contentId,
   ...props
 }: TypedPrefetchLinkProps & PrefetchOptions) => (
-  <PrefetchLink
-    fetch={useBookReaderPrefetch}
-    options={{ id, contentId }}
-    {...props}
-  />
+  <PrefetchLink fetch={useBookReaderPrefetch} options={{ id, contentId }} {...props} />
 );
 
 export const BookReader = (options: PrefetchOptions) => {

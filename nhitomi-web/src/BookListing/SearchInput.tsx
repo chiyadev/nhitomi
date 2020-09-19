@@ -91,8 +91,7 @@ export function tokenize(text: string): QueryToken[] {
     const tag = (match.groups?.tag || "") as BookTag;
     const value = match.groups?.value || "";
 
-    if (BookTags.findIndex((t) => t.toLowerCase() === tag.toLowerCase()) === -1)
-      continue;
+    if (BookTags.findIndex((t) => t.toLowerCase() === tag.toLowerCase()) === -1) continue;
 
     if (start < match.index) {
       addOther(start, match.index);
@@ -144,11 +143,7 @@ export const SearchInput = ({
 
   const input = useMemo(
     () => (
-      <Suggestor
-        tokens={tokens}
-        inputRef={inputRef}
-        setText={setTextWithSearch}
-      >
+      <Suggestor tokens={tokens} inputRef={inputRef} setText={setTextWithSearch}>
         <div className="flex-grow relative overflow-hidden">
           <input
             ref={inputRef}
@@ -189,12 +184,7 @@ export const SearchInput = ({
 
   return useMemo(
     () => (
-      <div
-        className={cx(
-          "flex flex-row bg-white text-black rounded overflow-hidden",
-          className
-        )}
-      >
+      <div className={cx("flex flex-row bg-white text-black rounded overflow-hidden", className)}>
         {input}
 
         <ClearButton
@@ -304,10 +294,7 @@ const Highlighter = ({
             switch (token.type) {
               case "other":
                 return (
-                  <span
-                    className={cx({ "text-cyan": token.url })}
-                    key={token.index}
-                  >
+                  <span className={cx({ "text-cyan": token.url })} key={token.index}>
                     {token.text}
                   </span>
                 );
@@ -316,9 +303,7 @@ const Highlighter = ({
                 return (
                   <span key={token.index}>
                     <span className="text-gray">{token.tag}:</span>
-                    <span className={`text-${BookTagColors[token.tag]}`}>
-                      {token.value}
-                    </span>
+                    <span className={`text-${BookTagColors[token.tag]}`}>{token.value}</span>
                   </span>
                 );
 
@@ -341,13 +326,11 @@ const Suggestor = ({
   tokens: QueryToken[];
   setText: Dispatch<string>;
   inputRef: RefObject<HTMLInputElement>;
-  children?: ReactElement<any>;
+  children?: ReactElement;
 }) => {
   const [index, setIndex] = useState<number>();
   const [visible, setVisible] = useState(false);
-  const [suggestions, setSuggestions] = useState<
-    { tag: BookTag; items: SuggestItem[] }[]
-  >();
+  const [suggestions, setSuggestions] = useState<{ tag: BookTag; items: SuggestItem[] }[]>();
   const [selected, setSelected] = useState<SuggestItem>();
 
   const token = useMemo(() => {
@@ -455,10 +438,7 @@ const Suggestor = ({
       const moveSelected = (move: number) => {
         const items = suggestions?.flatMap(({ items }) => items) || [];
         const newItem =
-          items[
-            (items.length + (selected ? items.indexOf(selected) : 0) + move) %
-              items.length
-          ];
+          items[(items.length + (selected ? items.indexOf(selected) : 0) + move) % items.length];
 
         setSelected(newItem);
       };
@@ -468,10 +448,7 @@ const Suggestor = ({
 
         const tokenns = tokens.filter((token) => token.display);
         const newToken =
-          tokenns[
-            (tokenns.length + (token ? tokenns.indexOf(token) : 0) + move) %
-              tokenns.length
-          ];
+          tokenns[(tokenns.length + (token ? tokenns.indexOf(token) : 0) + move) % tokenns.length];
 
         input.selectionStart = newToken.begin;
         input.selectionEnd = newToken.end;
@@ -541,11 +518,7 @@ const Suggestor = ({
         if (id !== suggestId.current) return;
 
         const suggestions = [...BookTags]
-          .sort(
-            (a, b) =>
-              (result.tags[b]?.[0]?.score || 0) -
-              (result.tags[a]?.[0]?.score || 0)
-          )
+          .sort((a, b) => (result.tags[b]?.[0]?.score || 0) - (result.tags[a]?.[0]?.score || 0))
           .map((tag) => ({
             tag,
             items: result.tags[tag] || [],
@@ -554,9 +527,8 @@ const Suggestor = ({
 
         setSuggestions(suggestions);
         setSelected(
-          suggestions
-            .flatMap((s) => s.items)
-            .find((s) => s.id === selected?.id) || suggestions[0]?.items[0]
+          suggestions.flatMap((s) => s.items).find((s) => s.id === selected?.id) ||
+            suggestions[0]?.items[0]
         );
         setSuggestLoading(false);
       } catch (e) {
@@ -571,13 +543,9 @@ const Suggestor = ({
     marginTop: dropdownVisible ? 0 : -5,
   });
 
-  const [dropdownWidth, setDropdownWidth] = useState(
-    inputRef.current?.clientWidth
-  );
+  const [dropdownWidth, setDropdownWidth] = useState(inputRef.current?.clientWidth);
 
-  useResizeObserver(inputRef, ({ contentRect: { width } }) =>
-    setDropdownWidth(width)
-  );
+  useResizeObserver(inputRef, ({ contentRect: { width } }) => setDropdownWidth(width));
 
   const suggestionsTransitions = useTransition(suggestions || [], {
     from: { opacity: 0 },
@@ -591,11 +559,8 @@ const Suggestor = ({
         () =>
           token && (
             <span className="text-sm text-gray-darker">
-              "{token.display}" (
-              {suggestions && !suggestLoading
-                ? suggestions.flatMap((s) => s.items).length
-                : "*"}
-              )
+              &quot;{token.display}&quot; (
+              {suggestions && !suggestLoading ? suggestions.flatMap((s) => s.items).length : "*"})
             </span>
           ),
         [suggestLoading, suggestions, token]
@@ -633,8 +598,9 @@ const Suggestor = ({
           {dropdownContent}
         </animated.div>
       )}
-      children={children}
-    />
+    >
+      {children}
+    </Tippy>
   );
 };
 

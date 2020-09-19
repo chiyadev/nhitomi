@@ -1,10 +1,4 @@
-import React, {
-  Dispatch,
-  useLayoutEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import React, { Dispatch, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { Book, BookContent } from "nhitomi-api";
 import { ImageBase, LayoutEngine, LayoutImage } from "./layoutEngine";
 import { useLayout } from "../LayoutManager";
@@ -110,6 +104,7 @@ export const Reader = ({
         () =>
           layout.images.map((image, i) => (
             <Page
+              key={i}
               book={book}
               content={content}
               index={i}
@@ -141,14 +136,7 @@ const Page = ({
 
   const image = useMemo(
     () =>
-      showImage && (
-        <PageImage
-          book={book}
-          content={content}
-          index={index}
-          setImage={setImage}
-        />
-      ),
+      showImage && <PageImage book={book} content={content} index={index} setImage={setImage} />,
     [book, content, index, setImage, showImage]
   );
 
@@ -173,7 +161,6 @@ const Page = ({
         offset={{ top: -preload, bottom: -preload }}
       >
         <div
-          children={image}
           className="absolute"
           style={{
             top: y,
@@ -181,7 +168,9 @@ const Page = ({
             width,
             height,
           }}
-        />
+        >
+          {image}
+        </div>
       </VisibilitySensor>
     ),
     [height, image, preload, width, x, y]
@@ -206,9 +195,7 @@ const PageImage = ({
         cacheKey={`books/${id}/contents/${contentId}/pages/${index}`}
         className="w-full h-full"
         sizing="contain"
-        onLoad={async () =>
-          await client.book.getBookImage({ id, contentId, index })
-        }
+        onLoad={async () => await client.book.getBookImage({ id, contentId, index })}
         onLoaded={setImage}
       />
     ),

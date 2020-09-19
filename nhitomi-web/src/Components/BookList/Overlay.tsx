@@ -1,12 +1,7 @@
 import React, { ReactNode, useState } from "react";
 import { DropdownDivider, DropdownItem, DropdownSubMenu } from "../Dropdown";
 import { BookListItem, useBookList } from ".";
-import {
-  BookContent,
-  BookTag,
-  ObjectType,
-  SpecialCollection,
-} from "nhitomi-api";
+import { BookContent, BookTag, ObjectType, SpecialCollection } from "nhitomi-api";
 import { BookReaderLink } from "../../BookReader";
 import { FormattedMessage } from "react-intl";
 import {
@@ -27,13 +22,7 @@ import { Disableable } from "../Disableable";
 import { Anchor } from "../Anchor";
 import { CollectionAddBookDropdownMenu } from "../CollectionAddBookDropdownMenu";
 
-export const Overlay = ({
-  book,
-  content,
-}: {
-  book: BookListItem;
-  content?: BookContent;
-}) => {
+export const Overlay = ({ book, content }: { book: BookListItem; content?: BookContent }) => {
   const { OverlayComponent } = useBookList();
 
   let rendered = (
@@ -48,10 +37,7 @@ export const Overlay = ({
 
       <DropdownDivider />
 
-      <CopyToClipboardItem
-        value={book.id}
-        displayValue={<code>{book.id}</code>}
-      >
+      <CopyToClipboardItem value={book.id} displayValue={<code>{book.id}</code>}>
         <FormattedMessage id="components.bookList.overlay.copy.id" />
       </CopyToClipboardItem>
 
@@ -60,11 +46,7 @@ export const Overlay = ({
           <CopyToClipboardItem
             value={content.sourceUrl}
             displayValue={
-              <Anchor
-                target="_blank"
-                className="text-blue"
-                href={content.sourceUrl}
-              >
+              <Anchor target="_blank" className="text-blue" href={content.sourceUrl}>
                 {content.sourceUrl}
               </Anchor>
             }
@@ -84,26 +66,17 @@ export const Overlay = ({
 
   if (OverlayComponent) {
     rendered = (
-      <OverlayComponent book={book} content={content} children={rendered} />
+      <OverlayComponent book={book} content={content}>
+        {rendered}
+      </OverlayComponent>
     );
   }
 
   return rendered;
 };
 
-const OpenInNewTabItem = ({
-  book,
-  content,
-}: {
-  book: BookListItem;
-  content: BookContent;
-}) => (
-  <BookReaderLink
-    id={book.id}
-    contentId={content.id}
-    target="_blank"
-    rel="noopener noreferrer"
-  >
+const OpenInNewTabItem = ({ book, content }: { book: BookListItem; content: BookContent }) => (
+  <BookReaderLink id={book.id} contentId={content.id} target="_blank" rel="noopener noreferrer">
     <DropdownItem icon={<ExpandAltOutlined />}>
       <FormattedMessage id="components.bookList.overlay.openNewTab" />
     </DropdownItem>
@@ -129,22 +102,13 @@ const SearchItem = ({ book }: { book: BookListItem }) => {
       </BookListingLink>
 
       <SearchItemPart type={BookTag.Artist} values={book.tags?.artist || []} />
-      <SearchItemPart
-        type={BookTag.Character}
-        values={book.tags?.character || []}
-      />
+      <SearchItemPart type={BookTag.Character} values={book.tags?.character || []} />
       <SearchItemPart type={BookTag.Tag} values={book.tags?.tag || []} />
     </DropdownSubMenu>
   );
 };
 
-const SearchItemPart = ({
-  type,
-  values,
-}: {
-  type: BookTag;
-  values: string[];
-}) =>
+const SearchItemPart = ({ type, values }: { type: BookTag; values: string[] }) =>
   !values.length ? null : (
     <BookListingLink
       query={{
@@ -176,7 +140,6 @@ const CopyToClipboardItem = ({
 
   return (
     <DropdownItem
-      children={children}
       icon={<LinkOutlined />}
       onClick={() => {
         setClipboard(value);
@@ -188,7 +151,9 @@ const CopyToClipboardItem = ({
           "info"
         );
       }}
-    />
+    >
+      {children}
+    </DropdownItem>
   );
 };
 
@@ -234,9 +199,7 @@ const CollectionQuickAddItem = ({
           }
         }}
       >
-        <FormattedMessage
-          id={`components.bookList.overlay.collections.${type}`}
-        />
+        <FormattedMessage id={`components.bookList.overlay.collections.${type}`} />
       </DropdownItem>
     </Disableable>
   );
@@ -247,9 +210,7 @@ const CollectionAddItem = ({ book }: { book: BookListItem }) => {
 
   return (
     <DropdownSubMenu
-      name={
-        <FormattedMessage id="components.bookList.overlay.collections.other" />
-      }
+      name={<FormattedMessage id="components.bookList.overlay.collections.other" />}
       icon={<PlusOutlined />}
       onShow={() => setLoad(true)}
     >

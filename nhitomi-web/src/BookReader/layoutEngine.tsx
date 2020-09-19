@@ -112,8 +112,7 @@ export class LayoutEngine {
         current.y = Math.round(y + (row.height - current.height) / 2);
 
         // reverse x if rtl
-        if (!leftToRight)
-          current.x = viewportWidth - (current.x + current.width);
+        if (!leftToRight) current.x = viewportWidth - (current.x + current.width);
 
         // only change layout identity if layout changed
         if (
@@ -173,9 +172,7 @@ export class LayoutEngine {
         // flush row if full
         if (
           row.images.length >= itemsPerRow ||
-          (flushed === 0 &&
-            initialRowLimit &&
-            row.images.length >= initialRowLimit)
+          (flushed === 0 && initialRowLimit && row.images.length >= initialRowLimit)
         )
           rowFlush();
 
@@ -187,8 +184,7 @@ export class LayoutEngine {
           const rowItemAspect = row.images[0].width / row.images[0].height;
 
           // flush row if item aspect ratios are too different
-          if (Math.abs(aspect - rowItemAspect) > similarAspectMargin)
-            rowFlush();
+          if (Math.abs(aspect - rowItemAspect) > similarAspectMargin) rowFlush();
 
           // add to row
           rowAdd({ x: 0, y: 0, width, height, image });

@@ -36,14 +36,10 @@ const Item = ({ mode }: { mode: AnimationMode }) => {
       }}
     >
       <div>
-        <FormattedMessage
-          id={`pages.settings.appearance.animation.${mode}.name`}
-        />
+        <FormattedMessage id={`pages.settings.appearance.animation.${mode}.name`} />
       </div>
       <div className="text-sm text-gray-darker">
-        <FormattedMessage
-          id={`pages.settings.appearance.animation.${mode}.description`}
-        />
+        <FormattedMessage id={`pages.settings.appearance.animation.${mode}.description`} />
       </div>
     </CheckBox>
   );

@@ -8,12 +8,10 @@ export const SupportDescription = () => {
   return (
     <div className="space-y-2">
       <div>
-        nhitomi is a free service, but serving thousands of visitors everyday
-        and maintaining our infrastructure is costly.
+        nhitomi is a free service, but serving thousands of visitors everyday and maintaining our
+        infrastructure is costly.
       </div>
-      <div>
-        We are an open-source project and do not rely on any advertisements.
-      </div>
+      <div>We are an open-source project and do not rely on any advertisements.</div>
       <div>Please help us keep going.</div>
     </div>
   );
@@ -27,23 +25,24 @@ export const ThanksDescription = () => {
 
   const months = Math.round((supportInfo.totalDays / 365) * 12);
   const spending = supportInfo.totalSpending;
-  const expireDays = Math.floor(
-    (supportInfo.endTime!.getTime() - Date.now()) / 1000 / 60 / 60 / 24
-  );
+
+  const endTime = supportInfo.endTime || new Date();
+  const expireDays = Math.floor((endTime.getTime() - Date.now()) / 1000 / 60 / 60 / 24);
 
   return (
     <div className="space-y-2">
       <div>
-        You are supporting nhitomi for{" "}
-        <strong className="text-pink">{months} months</strong> and have
-        contributed <strong className="text-pink">{spending} USD</strong> in
-        total. Your supporter period ends in{" "}
-        <strong className="text-pink">{expireDays} days</strong>.
+        You are supporting nhitomi for
+        <strong className="text-pink"> {months} months</strong>
+        and have contributed
+        <strong className="text-pink"> {spending} USD</strong>
+        in total. Your supporter period ends in
+        <strong className="text-pink"> {expireDays} days</strong>.
       </div>
       <div>
-        It is thanks to generous people like you that nhitomi can afford its
-        server infrastructure, allocate more development time for new features,
-        and deliver a service without annoying popups and advertisements.
+        It is thanks to generous people like you that nhitomi can afford its server infrastructure,
+        allocate more development time for new features, and deliver a service without annoying
+        popups and advertisements.
       </div>
       <div>Thank you. — chiya.dev</div>
     </div>
@@ -84,10 +83,9 @@ export const MainCard = ({ children }: { children?: ReactNode }) => {
             />
           </animated.div>
 
-          <div
-            className="bg-white text-black rounded-lg p-4 z-10 shadow-lg border-t border-pink"
-            children={children}
-          />
+          <div className="bg-white text-black rounded-lg p-4 z-10 shadow-lg border-t border-pink">
+            {children}
+          </div>
         </div>
       );
 
@@ -109,7 +107,7 @@ export const MainCard = ({ children }: { children?: ReactNode }) => {
           />
 
           <div className="bg-white text-black rounded-lg absolute transform-center w-full pl-64 shadow-lg">
-            <div className="ml-8 px-4 py-8" children={children} />
+            <div className="ml-8 px-4 py-8">{children}</div>
           </div>
         </div>
       );

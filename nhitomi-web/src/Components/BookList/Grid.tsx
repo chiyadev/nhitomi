@@ -99,10 +99,7 @@ const Menu = ({ children }: { children?: ReactNode }) => {
   return (
     <>
       {children && (
-        <animated.div
-          style={style}
-          className="w-full flex flex-row justify-end px-2 mb-2"
-        >
+        <animated.div style={style} className="w-full flex flex-row justify-end px-2 mb-2">
           {children}
         </animated.div>
       )}
@@ -127,20 +124,15 @@ const Item = ({
   const [hover, setHover] = useState(false);
   const [showImage, setShowImage] = useState(false);
 
-  const content = useMemo(() => contentSelector(book.contents), [
-    book.contents,
-    contentSelector,
-  ]);
+  const content = useMemo(() => contentSelector(book.contents), [book.contents, contentSelector]);
 
-  const overlay = useMemo(() => <ItemOverlay book={book} hover={hover} />, [
+  const overlay = useMemo(() => <ItemOverlay book={book} hover={hover} />, [book, hover]);
+
+  const image = useMemo(() => showImage && <ItemCover book={book} content={content} />, [
     book,
-    hover,
+    content,
+    showImage,
   ]);
-
-  const image = useMemo(
-    () => showImage && <ItemCover book={book} content={content} />,
-    [book, content, showImage]
-  );
 
   const inner = useMemo(() => {
     const children = (
@@ -170,16 +162,7 @@ const Item = ({
         )}
       </div>
     );
-  }, [
-    LinkComponent,
-    book.id,
-    className,
-    content,
-    height,
-    image,
-    overlay,
-    width,
-  ]);
+  }, [LinkComponent, book.id, className, content, height, image, overlay, width]);
 
   let preload: number;
 
@@ -211,13 +194,7 @@ const Item = ({
   );
 };
 
-const ItemCover = ({
-  book,
-  content,
-}: {
-  book: BookListItem;
-  content?: BookContent;
-}) => {
+const ItemCover = ({ book, content }: { book: BookListItem; content?: BookContent }) => {
   const client = useClient();
   const { getCoverRequest } = useBookList();
 
@@ -246,19 +223,10 @@ const ItemCover = ({
   );
 };
 
-const ItemOverlay = ({
-  book,
-  hover,
-}: {
-  book: BookListItem;
-  hover?: boolean;
-}) => {
+const ItemOverlay = ({ book, hover }: { book: BookListItem; hover?: boolean }) => {
   let [preferEnglishName] = useConfig("bookReaderPreferEnglishName");
 
-  const {
-    overlayVisible,
-    preferEnglishName: preferEnglishNameOverride,
-  } = useBookList();
+  const { overlayVisible, preferEnglishName: preferEnglishNameOverride } = useBookList();
   hover = overlayVisible || hover;
 
   if (typeof preferEnglishNameOverride !== "undefined")

@@ -3,10 +3,7 @@ import { useAsyncFn } from "react-use";
 import { FnReturningPromise } from "react-use/lib/util";
 
 // equivalent to react-use's useAsync except callback runs synchronously
-export function useAsync<T extends FnReturningPromise>(
-  fn: T,
-  deps: DependencyList = []
-) {
+export function useAsync<T extends FnReturningPromise>(fn: T, deps: DependencyList = []) {
   const [state, callback] = useAsyncFn(fn, deps, {
     loading: true,
   });

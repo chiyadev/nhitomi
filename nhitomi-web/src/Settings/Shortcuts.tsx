@@ -1,12 +1,7 @@
-import React, { ReactNode, useState } from "react";
+import React, { ReactNode, useMemo, useState } from "react";
 import { FormattedMessage } from "react-intl";
 import { SettingsFocusContainer } from "./SettingsFocusContainer";
-import {
-  ShortcutConfig,
-  ShortcutConfigKey,
-  ShortcutConfigKeys,
-  useConfig,
-} from "../ConfigManager";
+import { ShortcutConfig, ShortcutConfigKey, ShortcutConfigKeys, useConfig } from "../ConfigManager";
 import keycode from "keycode";
 import { animated, useSpring } from "react-spring";
 import { getColor } from "../theme";
@@ -51,16 +46,14 @@ export const Shortcuts = () => {
         {Object.keys(keyGroups)
           .filter((group) => keyGroups[group].length)
           .map((group) => (
-            <div className="pt-4 space-y-2">
+            <div key={group} className="pt-4 space-y-2">
               <div>
-                <FormattedMessage
-                  id={`pages.settings.keyboard.shortcuts.${group}.name`}
-                />
+                <FormattedMessage id={`pages.settings.keyboard.shortcuts.${group}.name`} />
               </div>
 
               <div className="pl-4 space-y-1">
                 {keyGroups[group].map((key) => (
-                  <Shortcut group={group} shortcutKey={key} />
+                  <Shortcut key={key} group={group} shortcutKey={key} />
                 ))}
               </div>
             </div>
@@ -83,34 +76,23 @@ function stringifyShortcut(shortcut: Partial<ShortcutConfig>) {
     .join("+");
 }
 
-const Shortcut = ({
-  group,
-  shortcutKey,
-}: {
-  group: string;
-  shortcutKey: ShortcutConfigKey;
-}) => {
+const Shortcut = ({ group, shortcutKey }: { group: string; shortcutKey: ShortcutConfigKey }) => {
   const [shortcuts, setShortcuts] = useConfig(shortcutKey);
+  const labels = useMemo(() => shortcuts.map(stringifyShortcut), [shortcuts]);
 
   return (
     <div className="space-x-1">
       <span>
-        <FormattedMessage
-          id={`pages.settings.keyboard.shortcuts.${group}.${shortcutKey}`}
-        />{" "}
+        <FormattedMessage id={`pages.settings.keyboard.shortcuts.${group}.${shortcutKey}`} />{" "}
       </span>
 
-      {shortcuts.map((shortcut) => (
-        <ItemPart>
-          <span className="align-middle mr-2">
-            {stringifyShortcut(shortcut)}
-          </span>
+      {shortcuts.map((shortcut, i) => (
+        <ItemPart key={labels[i]}>
+          <span className="align-middle mr-2">{labels[i]}</span>
 
           <CloseOutlined
             className="text-gray-darker cursor-pointer"
-            onClick={() =>
-              setShortcuts(shortcuts.filter((s) => s !== shortcut))
-            }
+            onClick={() => setShortcuts(shortcuts.filter((s) => s !== shortcut))}
           />
         </ItemPart>
       ))}
@@ -147,16 +129,15 @@ const ItemPart = ({
       onClick={onClick}
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
-      children={children}
-    />
+    >
+      {children}
+    </animated.div>
   );
 };
 
 const ItemNew = ({ onAdd }: { onAdd?: (shortcut: ShortcutConfig) => void }) => {
   const [current, setCurrent] = useState<Partial<ShortcutConfig>>();
-  const placeholder = useLocalized(
-    "pages.settings.keyboard.shortcuts.enterKey"
-  );
+  const placeholder = useLocalized("pages.settings.keyboard.shortcuts.enterKey");
 
   if (!current) {
     return (

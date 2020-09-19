@@ -21,9 +21,7 @@ export const FilledButton = ({
   const [click, setClick] = useState(false);
 
   const style = useSpring({
-    backgroundColor: click
-      ? color.tint(0.25).rgb
-      : color.shade(focus || hover ? 0.25 : 0).rgb,
+    backgroundColor: click ? color.tint(0.25).rgb : color.shade(focus || hover ? 0.25 : 0).rgb,
   });
 
   const iconStyle = useSpring({
@@ -33,10 +31,7 @@ export const FilledButton = ({
   return (
     <animated.button
       style={style}
-      className={cx(
-        "text-white rounded-sm overflow-hidden cursor-pointer",
-        className
-      )}
+      className={cx("text-white rounded-sm overflow-hidden cursor-pointer", className)}
       onClick={onClick}
       onFocus={() => setFocus(true)}
       onBlur={() => setFocus(false)}

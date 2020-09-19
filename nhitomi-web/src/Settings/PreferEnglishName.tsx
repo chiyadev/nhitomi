@@ -5,9 +5,7 @@ import { useConfig } from "../ConfigManager";
 import { CheckBox } from "../Components/Checkbox";
 
 export const PreferEnglishName = () => {
-  const [preferEnglishName, setPreferEnglishName] = useConfig(
-    "bookReaderPreferEnglishName"
-  );
+  const [preferEnglishName, setPreferEnglishName] = useConfig("bookReaderPreferEnglishName");
 
   return (
     <SettingsFocusContainer focus="preferEnglishName">

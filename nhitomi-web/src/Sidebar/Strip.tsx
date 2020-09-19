@@ -46,8 +46,9 @@ export const Strip = ({
         className={css`
           padding-left: ${SidebarStripWidth}px;
         `}
-        children={children}
-      />
+      >
+        {children}
+      </div>
 
       <animated.div
         style={style}
@@ -58,10 +59,7 @@ export const Strip = ({
           `
         )}
       >
-        <Disableable
-          disabled={!info.authenticated}
-          className="flex flex-col items-center"
-        >
+        <Disableable disabled={!info.authenticated} className="flex flex-col items-center">
           <Logo />
           <Buttons />
 
@@ -107,10 +105,7 @@ const Buttons = () => {
   return useMemo(
     () => (
       <>
-        <Tooltip
-          overlay={<FormattedMessage id="pages.bookListing.title" />}
-          placement="right"
-        >
+        <Tooltip overlay={<FormattedMessage id="pages.bookListing.title" />} placement="right">
           <BookListingLink>
             <RoundIconButton>
               <Switch>
@@ -146,10 +141,7 @@ const Buttons = () => {
           </SelfCollectionListingLink>
         </Tooltip>
 
-        <Tooltip
-          overlay={<FormattedMessage id="pages.settings.title" />}
-          placement="right"
-        >
+        <Tooltip overlay={<FormattedMessage id="pages.settings.title" />} placement="right">
           <SettingsLink>
             <RoundIconButton>
               <Switch>
@@ -164,10 +156,7 @@ const Buttons = () => {
           </SettingsLink>
         </Tooltip>
 
-        <Tooltip
-          overlay={<FormattedMessage id="pages.support.title" />}
-          placement="right"
-        >
+        <Tooltip overlay={<FormattedMessage id="pages.support.title" />} placement="right">
           <SupportLink>
             <RoundIconButton>
               <Switch>
@@ -182,10 +171,7 @@ const Buttons = () => {
           </SupportLink>
         </Tooltip>
 
-        <Tooltip
-          overlay={<FormattedMessage id="pages.about.title" />}
-          placement="right"
-        >
+        <Tooltip overlay={<FormattedMessage id="pages.about.title" />} placement="right">
           <AboutLink>
             <RoundIconButton>
               <Switch>

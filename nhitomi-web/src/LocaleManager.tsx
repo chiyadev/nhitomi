@@ -35,10 +35,7 @@ export function useLocalized(
 ): string;
 export function useLocalized(
   id: string,
-  values?: Record<
-    string,
-    string | number | boolean | null | undefined | Date | ReactNode
-  >
+  values?: Record<string, string | number | boolean | null | undefined | Date | ReactNode>
 ): ReactNode;
 
 export function useLocalized(id: string, values: any) {
@@ -84,9 +81,7 @@ export const LocaleManager = ({ children }: { children?: ReactNode }) => {
         setPreferEnglishName(CJKLanguages.indexOf(language) === -1);
 
         // add new interface language as search language
-        setSearchLanguages(
-          [...searchLanguages, language].filter((v, i, a) => a.indexOf(v) === i)
-        );
+        setSearchLanguages([...searchLanguages, language].filter((v, i, a) => a.indexOf(v) === i));
       }
     } catch (e) {
       console.error("could not synchronize language", e);
@@ -96,11 +91,7 @@ export const LocaleManager = ({ children }: { children?: ReactNode }) => {
       let messages = getLanguageCached(language, version);
 
       if (!messages)
-        setLanguageCached(
-          language,
-          version,
-          (messages = await loadLanguage(language))
-        );
+        setLanguageCached(language, version, (messages = await loadLanguage(language)));
 
       if (loadId.current === id) {
         setMessages(messages);
@@ -117,22 +108,17 @@ export const LocaleManager = ({ children }: { children?: ReactNode }) => {
   if (!messages) return null;
 
   return (
-    <IntlProvider locale={language} messages={messages} children={children} />
+    <IntlProvider locale={language} messages={messages}>
+      {children}
+    </IntlProvider>
   );
 };
 
-async function loadLanguage(
-  language: LanguageType
-): Promise<Record<string, string>> {
-  let data = JSON.parse(
-    JSON.stringify((await import("./Languages/en-US.json")).default)
-  ); // use "en-US" constant! webpack seems to break with LanguageType.EnUS string interpolation
+async function loadLanguage(language: LanguageType): Promise<Record<string, string>> {
+  let data = JSON.parse(JSON.stringify((await import("./Languages/en-US.json")).default)); // use "en-US" constant! webpack seems to break with LanguageType.EnUS string interpolation
 
   // layer other languages on top of the default English
-  if (
-    language !== LanguageType.EnUS &&
-    AvailableLocalizations.indexOf(language) !== -1
-  ) {
+  if (language !== LanguageType.EnUS && AvailableLocalizations.indexOf(language) !== -1) {
     try {
       const overlay = (await import(`./Languages/${language}.json`)).default;
 
@@ -162,8 +148,7 @@ function getLanguageCached(
       localStorage.getItem(`lang_cache_${language}`) || ""
     );
 
-    if (typeof cache.value === "object" && cache.version === version)
-      return cache.value;
+    if (typeof cache.value === "object" && cache.version === version) return cache.value;
   } catch {
     // ignored
   }
@@ -200,15 +185,9 @@ function flattenObject(data: { [k: string]: any }): Record<string, string> {
     const pre = [prefix, key].filter((v) => v).join(".");
 
     return typeof val === "object"
-      ? Object.keys(val).reduce(
-          (prev, curr) => flat(prev, curr, val[curr], pre),
-          res
-        )
+      ? Object.keys(val).reduce((prev, curr) => flat(prev, curr, val[curr], pre), res)
       : Object.assign(res, { [pre]: val });
   };
 
-  return Object.keys(data).reduce(
-    (prev, curr) => flat(prev, curr, data[curr]),
-    {}
-  );
+  return Object.keys(data).reduce((prev, curr) => flat(prev, curr, data[curr]), {});
 }

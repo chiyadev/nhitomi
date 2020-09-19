@@ -19,8 +19,7 @@ export const CursorVisibility = ({
   const lastPage = useRef(currentPage);
 
   useLayoutEffect(() => {
-    if (currentPage.pagePassive !== lastPage.current.pagePassive)
-      setVisible(false);
+    if (currentPage.pagePassive !== lastPage.current.pagePassive) setVisible(false);
 
     lastPage.current = currentPage;
   }, [currentPage]);

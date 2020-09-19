@@ -31,10 +31,7 @@ export const Footer = () => {
                 </Anchor>
               </VersionTooltip>
               <Split />
-              <Anchor
-                target="_blank"
-                href="https://github.com/chiyadev/nhitomi"
-              >
+              <Anchor target="_blank" href="https://github.com/chiyadev/nhitomi">
                 <LinkText>GitHub</LinkText>
               </Anchor>
               <Split />
@@ -42,10 +39,7 @@ export const Footer = () => {
                 <LinkText>Discord</LinkText>
               </Anchor>
               <Split />
-              <Anchor
-                target="_blank"
-                href="https://github.com/chiyadev/nhitomi/wiki/API"
-              >
+              <Anchor target="_blank" href="https://github.com/chiyadev/nhitomi/wiki/API">
                 <LinkText>API</LinkText>
               </Anchor>
               <Split />
@@ -63,13 +57,7 @@ export const Footer = () => {
 
 const Split = () => <span className="mx-2">·</span>;
 
-const VersionTooltip = ({
-  version,
-  children,
-}: {
-  version: GitCommit;
-  children?: ReactNode;
-}) => (
+const VersionTooltip = ({ version, children }: { version: GitCommit; children?: ReactNode }) => (
   <Tooltip
     className="inline-flex"
     overlayClassName="text-center"
@@ -78,8 +66,7 @@ const VersionTooltip = ({
       <>
         <div>{version.hash}</div>
         <div>
-          <FormattedDate value={version.time} />{" "}
-          <FormattedTime value={version.time} />
+          <FormattedDate value={version.time} /> <FormattedTime value={version.time} />
         </div>
       </>
     }

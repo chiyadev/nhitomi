@@ -18,17 +18,11 @@ type BasicBook = {
   id: string;
 };
 
-export const CollectionAddBookDropdownMenu = ({
-  book,
-}: {
-  book: BasicBook;
-}) => {
+export const CollectionAddBookDropdownMenu = ({ book }: { book: BasicBook }) => {
   const client = useClient();
   const { info } = useClientInfo();
   const { notifyError } = useNotify();
-  const [collections, setCollections] = usePageState<Collection[]>(
-    "userCollections"
-  );
+  const [collections, setCollections] = usePageState<Collection[]>("userCollections");
 
   useAsync(async () => {
     if (collections) return;
@@ -52,11 +46,7 @@ export const CollectionAddBookDropdownMenu = ({
       {collections ? (
         <>
           {collections.map((collection) => (
-            <Add
-              key={`${book.id}/${collection.id}`}
-              book={book}
-              collection={collection}
-            />
+            <Add key={`${book.id}/${collection.id}`} book={book} collection={collection} />
           ))}
 
           {collections.length && <DropdownDivider />}
@@ -74,13 +64,7 @@ export const CollectionAddBookDropdownMenu = ({
   );
 };
 
-const Add = ({
-  book,
-  collection,
-}: {
-  book: BasicBook;
-  collection: Collection;
-}) => {
+const Add = ({ book, collection }: { book: BasicBook; collection: Collection }) => {
   const client = useClient();
   const { begin, end } = useProgress();
   const { alert } = useAlert();
@@ -108,10 +92,7 @@ const Add = ({
                 id="components.collections.added"
                 values={{
                   name: (
-                    <CollectionContentLink
-                      id={collection.id}
-                      className="text-blue"
-                    >
+                    <CollectionContentLink id={collection.id} className="text-blue">
                       {collection.name}
                     </CollectionContentLink>
                   ),
@@ -139,9 +120,7 @@ const Create = ({ book }: { book: BasicBook }) => {
   const { notifyError } = useNotify();
   const { alert } = useAlert();
   const [loading, setLoading] = useState(false);
-  const [prefetchNode, navigate] = useDynamicPrefetch(
-    useCollectionEditPrefetch
-  );
+  const [prefetchNode, navigate] = useDynamicPrefetch(useCollectionEditPrefetch);
 
   const dummyName = useLocalized("components.collections.created.dummyName");
 
@@ -173,10 +152,7 @@ const Create = ({ book }: { book: BasicBook }) => {
 
             await navigate({ id: collection.id });
 
-            alert(
-              <FormattedMessage id="components.collections.created.success" />,
-              "success"
-            );
+            alert(<FormattedMessage id="components.collections.created.success" />, "success");
           } catch (e) {
             notifyError(e);
           } finally {

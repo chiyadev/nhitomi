@@ -1,10 +1,5 @@
 import React, { useMemo } from "react";
-import {
-  PrefetchGenerator,
-  PrefetchLink,
-  TypedPrefetchLinkProps,
-  usePostfetch,
-} from "../Prefetch";
+import { PrefetchGenerator, PrefetchLink, TypedPrefetchLinkProps, usePostfetch } from "../Prefetch";
 import { ClientInfo, useClientInfo } from "../ClientManager";
 import { PageContainer } from "../Components/PageContainer";
 import { useTabTitle } from "../TitleSetter";
@@ -13,10 +8,7 @@ import { Container } from "../Components/Container";
 import { animated, useSpring } from "react-spring";
 import { HeartFilled } from "@ant-design/icons";
 import { FilledButton } from "../Components/FilledButton";
-import {
-  DiscordColor,
-  DiscordOutlined,
-} from "../Components/Icons/DiscordOutlined";
+import { DiscordColor, DiscordOutlined } from "../Components/Icons/DiscordOutlined";
 import { FormattedMessage } from "react-intl";
 import { ScraperType } from "nhitomi-api";
 import { Anchor } from "../Components/Anchor";
@@ -24,10 +16,7 @@ import { Anchor } from "../Components/Anchor";
 export type PrefetchResult = { info: ClientInfo };
 export type PrefetchOptions = {};
 
-export const useAboutPrefetch: PrefetchGenerator<
-  PrefetchResult,
-  PrefetchOptions
-> = () => {
+export const useAboutPrefetch: PrefetchGenerator<PrefetchResult, PrefetchOptions> = () => {
   const { fetchInfo } = useClientInfo();
 
   return {
@@ -39,9 +28,7 @@ export const useAboutPrefetch: PrefetchGenerator<
   };
 };
 
-export const AboutLink = ({
-  ...props
-}: TypedPrefetchLinkProps & PrefetchOptions) => (
+export const AboutLink = ({ ...props }: TypedPrefetchLinkProps & PrefetchOptions) => (
   <PrefetchLink fetch={useAboutPrefetch} options={{}} {...props} />
 );
 
@@ -95,8 +82,7 @@ const Loaded = ({ info }: PrefetchResult) => {
           <br />
 
           <div>
-            <span className="font-bold">nhitomi</span> — Open-source doujinshi
-            aggregator
+            <span className="font-bold">nhitomi</span> — Open-source doujinshi aggregator
           </div>
         </div>
 
@@ -148,9 +134,7 @@ const Content = ({ info }: PrefetchResult) => {
 
       <div className="space-y-2">
         <div className="text-2xl">Accounts</div>
-        <div>
-          Registration is free and login integrates popular SSO services.
-        </div>
+        <div>Registration is free and login integrates popular SSO services.</div>
 
         <ul className="list-disc list-inside">
           <li>View any number of books without restrictions</li>
@@ -161,8 +145,8 @@ const Content = ({ info }: PrefetchResult) => {
       <div className="space-y-2">
         <div className="text-2xl">Sources</div>
         <div>
-          Doujinshi are regularly scraped from the below sources and aggregated
-          for convenient browsing.
+          Doujinshi are regularly scraped from the below sources and aggregated for convenient
+          browsing.
         </div>
 
         <ul className="list-disc list-inside">
@@ -178,11 +162,7 @@ const Content = ({ info }: PrefetchResult) => {
 
                 {scraper.name}
                 {" — "}
-                <Anchor
-                  target="_blank"
-                  className="text-blue"
-                  href={scraper.url}
-                >
+                <Anchor target="_blank" className="text-blue" href={scraper.url}>
                   {scraper.url}
                 </Anchor>
               </li>
@@ -195,8 +175,8 @@ const Content = ({ info }: PrefetchResult) => {
       <div className="space-y-2">
         <div className="text-2xl">Discord</div>
         <div>
-          nhitomi began its life as a Discord bot and evolved into a website
-          after an year of development.
+          nhitomi began its life as a Discord bot and evolved into a website after an year of
+          development.
         </div>
 
         <ul className="list-disc list-inside">
@@ -217,11 +197,7 @@ const Content = ({ info }: PrefetchResult) => {
         <div className="text-2xl">Development</div>
         <div>
           nhitomi is developed with <HeartFilled className="text-red" /> by{" "}
-          <Anchor
-            target="_blank"
-            className="font-bold"
-            href="https://chiya.dev"
-          >
+          <Anchor target="_blank" className="font-bold" href="https://chiya.dev">
             chiya.dev
           </Anchor>
           .
@@ -247,11 +223,7 @@ const Content = ({ info }: PrefetchResult) => {
               documentation
             </Anchor>{" "}
             and an{" "}
-            <Anchor
-              target="_blank"
-              className="text-blue"
-              href="/api/v1/docs.json"
-            >
+            <Anchor target="_blank" className="text-blue" href="/api/v1/docs.json">
               OpenAPI 3.0 specification
             </Anchor>
           </li>
@@ -259,8 +231,7 @@ const Content = ({ info }: PrefetchResult) => {
       </div>
 
       <div>
-        Thank you for visiting!{" "}
-        <span className="text-gray-darker">— chiya.dev 2018-2020</span>
+        Thank you for visiting! <span className="text-gray-darker">— chiya.dev 2018-2020</span>
       </div>
     </>
   );

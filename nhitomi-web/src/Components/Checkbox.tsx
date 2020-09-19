@@ -43,22 +43,10 @@ export const CheckBox = ({
   );
 };
 
-const Check = ({
-  value,
-  hover,
-  color,
-}: {
-  value?: boolean;
-  hover?: boolean;
-  color: Color;
-}) => {
+const Check = ({ value, hover, color }: { value?: boolean; hover?: boolean; color: Color }) => {
   const boxStyle = useSpring({
-    backgroundColor: color
-      .opacity(value ? 1 : 0)
-      .tint(value && hover ? 0.25 : 0).rgb,
-    borderColor: (value ? color : getColor("white").opacity(0.25)).tint(
-      hover ? 0.25 : 0
-    ).rgb,
+    backgroundColor: color.opacity(value ? 1 : 0).tint(value && hover ? 0.25 : 0).rgb,
+    borderColor: (value ? color : getColor("white").opacity(0.25)).tint(hover ? 0.25 : 0).rgb,
   });
 
   const checkStyle = useSpring({
@@ -79,19 +67,9 @@ const Check = ({
   );
 };
 
-const Radio = ({
-  value,
-  hover,
-  color,
-}: {
-  value?: boolean;
-  hover?: boolean;
-  color: Color;
-}) => {
+const Radio = ({ value, hover, color }: { value?: boolean; hover?: boolean; color: Color }) => {
   const circleStyle = useSpring({
-    borderColor: (value ? color : getColor("white").opacity(0.25)).tint(
-      hover ? 0.25 : 0
-    ).rgb,
+    borderColor: (value ? color : getColor("white").opacity(0.25)).tint(hover ? 0.25 : 0).rgb,
   });
 
   const dotStyle = useSpring({

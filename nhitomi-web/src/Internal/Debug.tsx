@@ -34,9 +34,7 @@ const Notifications = () => {
         <FlatButton onClick={() => notify("warning", "message", "description")}>
           Notify warning
         </FlatButton>
-        <FlatButton onClick={() => notifyError(Error("notify error"))}>
-          Notify error
-        </FlatButton>
+        <FlatButton onClick={() => notifyError(Error("notify error"))}>Notify error</FlatButton>
       </div>
     </div>
   );
@@ -50,31 +48,17 @@ const Alerts = () => {
       <div>Alerts</div>
       <div className="space-x-1">
         <FlatButton onClick={() => alert("message")}>Alert</FlatButton>
-        <FlatButton onClick={() => alert("message", "info")}>
-          Alert info
-        </FlatButton>
-        <FlatButton onClick={() => alert("message", "success")}>
-          Alert success
-        </FlatButton>
-        <FlatButton onClick={() => alert("message", "warning")}>
-          Alert warning
-        </FlatButton>
-        <FlatButton onClick={() => alert("message", "error")}>
-          Alert error
-        </FlatButton>
+        <FlatButton onClick={() => alert("message", "info")}>Alert info</FlatButton>
+        <FlatButton onClick={() => alert("message", "success")}>Alert success</FlatButton>
+        <FlatButton onClick={() => alert("message", "warning")}>Alert warning</FlatButton>
+        <FlatButton onClick={() => alert("message", "error")}>Alert error</FlatButton>
       </div>
     </div>
   );
 };
 
 const Colors = () => {
-  const luminances: ColorLuminance[] = [
-    "lightest",
-    "lighter",
-    "default",
-    "darker",
-    "darkest",
-  ];
+  const luminances: ColorLuminance[] = ["lightest", "lighter", "default", "darker", "darkest"];
 
   return (
     <div>

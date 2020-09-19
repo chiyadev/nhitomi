@@ -32,15 +32,14 @@ export const Slider = ({
       onChange={setValue}
       className={className}
       handle={(props) => {
-        const { index, dragging } = props;
+        // eslint-disable-next-line react/prop-types
+        const { index, dragging } = props as {
+          index: number;
+          dragging: boolean;
+        };
 
         return (
-          <Tooltip
-            key={index}
-            overlay={overlay}
-            visible={!!overlay && dragging}
-            placement="top"
-          >
+          <Tooltip key={index} overlay={overlay} visible={!!overlay && dragging} placement="top">
             <RcHandle {...props} />
           </Tooltip>
         );

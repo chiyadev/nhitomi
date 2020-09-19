@@ -16,10 +16,7 @@ export const EmptyIndicator = ({
   });
 
   return (
-    <animated.div
-      style={style}
-      className={cx("flex flex-col justify-center space-y-2", className)}
-    >
+    <animated.div style={style} className={cx("flex flex-col justify-center space-y-2", className)}>
       <InboxOutlined className="text-2xl" />
 
       <div>{children}</div>

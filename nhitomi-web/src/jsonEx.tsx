@@ -6,8 +6,7 @@ export class JSONex {
   static parse(text: string) {
     return JSON.parse(text, (_, value) => {
       // https://weblog.west-wind.com/posts/2014/jan/06/javascript-json-date-parsing-and-real-dates
-      if (typeof value === "string" && value.match(dateRegex))
-        return new Date(value);
+      if (typeof value === "string" && value.match(dateRegex)) return new Date(value);
 
       return value;
     });

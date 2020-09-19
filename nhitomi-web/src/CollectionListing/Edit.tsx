@@ -34,10 +34,9 @@ import { Edit as BookEdit } from "./Book/Edit";
 export type PrefetchResult = { collection: Collection; owner: User };
 export type PrefetchOptions = { id: string };
 
-export const useCollectionEditPrefetch: PrefetchGenerator<
-  PrefetchResult,
-  PrefetchOptions
-> = ({ id }) => {
+export const useCollectionEditPrefetch: PrefetchGenerator<PrefetchResult, PrefetchOptions> = ({
+  id,
+}) => {
   const client = useClient();
 
   return {
@@ -54,10 +53,7 @@ export const useCollectionEditPrefetch: PrefetchGenerator<
   };
 };
 
-export const CollectionEditLink = ({
-  id,
-  ...props
-}: TypedPrefetchLinkProps & PrefetchOptions) => (
+export const CollectionEditLink = ({ id, ...props }: TypedPrefetchLinkProps & PrefetchOptions) => (
   <PrefetchLink fetch={useCollectionEditPrefetch} options={{ id }} {...props} />
 );
 
@@ -77,10 +73,7 @@ export const CollectionEdit = (options: PrefetchOptions) => {
 };
 
 const Loaded = ({ collection, owner }: PrefetchResult) => {
-  useTabTitle(
-    collection.name,
-    useLocalized("pages.collectionListing.edit.title")
-  );
+  useTabTitle(collection.name, useLocalized("pages.collectionListing.edit.title"));
 
   const [loading, setLoading] = useState(false);
 
@@ -94,10 +87,7 @@ const Loaded = ({ collection, owner }: PrefetchResult) => {
   });
 
   const [name, setName] = usePageState("name", collection.name);
-  const [description, setDescription] = usePageState(
-    "description",
-    collection.description
-  );
+  const [description, setDescription] = usePageState("description", collection.description);
 
   const submit = useCallback(async () => {
     if (loading) return;
@@ -242,10 +232,7 @@ const Loaded = ({ collection, owner }: PrefetchResult) => {
           </div>
 
           {useMemo(
-            () =>
-              collection.type === ObjectType.Book && (
-                <BookEdit collection={collection} />
-              ),
+            () => collection.type === ObjectType.Book && <BookEdit collection={collection} />,
             [collection]
           )}
         </div>

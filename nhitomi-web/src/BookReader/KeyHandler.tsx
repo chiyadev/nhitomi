@@ -12,9 +12,7 @@ export const KeyHandler = ({ layout }: { layout: LayoutResult }) => {
 
   // config keys
   const [imagesPerRow, setImagesPerRow] = useConfig("bookReaderImagesPerRow");
-  const [viewportBound, setViewportBound] = useConfig(
-    "bookReaderViewportBound"
-  );
+  const [viewportBound, setViewportBound] = useConfig("bookReaderViewportBound");
   const [leftToRight, setLeftToRight] = useConfig("bookReaderLeftToRight");
   const [singleCover, setSingleCover] = useConfig("bookReaderSingleCover");
 
@@ -22,10 +20,7 @@ export const KeyHandler = ({ layout }: { layout: LayoutResult }) => {
     const v = imagesPerRow === 1 ? 2 : 1;
     setImagesPerRow(v);
     alert(
-      <FormattedMessage
-        id="pages.bookReader.alerts.imagesPerRow"
-        values={{ value: v }}
-      />,
+      <FormattedMessage id="pages.bookReader.alerts.imagesPerRow" values={{ value: v }} />,
       "info"
     );
   });
@@ -34,10 +29,7 @@ export const KeyHandler = ({ layout }: { layout: LayoutResult }) => {
     const v = !viewportBound;
     setViewportBound(v);
     alert(
-      <FormattedMessage
-        id="pages.bookReader.alerts.viewportBound"
-        values={{ value: v }}
-      />,
+      <FormattedMessage id="pages.bookReader.alerts.viewportBound" values={{ value: v }} />,
       "info"
     );
   });
@@ -46,10 +38,7 @@ export const KeyHandler = ({ layout }: { layout: LayoutResult }) => {
     const v = !leftToRight;
     setLeftToRight(v);
     alert(
-      <FormattedMessage
-        id="pages.bookReader.alerts.leftToRight"
-        values={{ value: v }}
-      />,
+      <FormattedMessage id="pages.bookReader.alerts.leftToRight" values={{ value: v }} />,
       "info"
     );
   });
@@ -58,10 +47,7 @@ export const KeyHandler = ({ layout }: { layout: LayoutResult }) => {
     const v = !singleCover;
     setSingleCover(v);
     alert(
-      <FormattedMessage
-        id="pages.bookReader.alerts.singleCover"
-        values={{ value: v }}
-      />,
+      <FormattedMessage id="pages.bookReader.alerts.singleCover" values={{ value: v }} />,
       "info"
     );
   });
@@ -72,9 +58,7 @@ export const KeyHandler = ({ layout }: { layout: LayoutResult }) => {
     pagePassive: 0,
   });
 
-  useShortcut("bookReaderFirstPageKey", () =>
-    setCurrent({ ...current, rowInduced: 0 })
-  );
+  useShortcut("bookReaderFirstPageKey", () => setCurrent({ ...current, rowInduced: 0 }));
   useShortcut("bookReaderLastPageKey", () =>
     setCurrent({ ...current, rowInduced: layout.rows.length - 1 })
   );
