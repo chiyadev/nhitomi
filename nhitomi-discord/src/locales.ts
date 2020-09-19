@@ -34,21 +34,4 @@ export class Locale {
 
     return result
   }
-
-  section(name: string): Locale {
-    // eslint-disable-next-line @typescript-eslint/no-use-before-define
-    return new LocaleSection(this, name + '.')
-  }
-}
-
-class LocaleSection extends Locale {
-  constructor(readonly inner: Locale, readonly prefix: string) { super(inner.language) }
-
-  get(key: string, values?: Record<string, any>): string {
-    return this.inner.get(this.prefix + key, values)
-  }
-
-  section(name: string): Locale {
-    return new LocaleSection(this.inner, this.prefix + name + '.')
-  }
 }

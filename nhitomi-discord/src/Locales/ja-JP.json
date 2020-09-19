@@ -89,6 +89,8 @@
     }
   },
   "collection": {
+    "unnamed": "<名無し>",
+    "noDesc": "<説明なし>",
     "notFound": "`{input}`というコレクションが探せませんでした。",
     "select": {
       "message": "似た名前のコレクションがあります。コレクション選択:"

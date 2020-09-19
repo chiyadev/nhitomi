@@ -11,9 +11,7 @@ export class BookSourcesMessage extends InteractiveMessage {
     readonly content: BookContent
   ) { super() }
 
-  protected async render(l: Locale): Promise<RenderResult> {
-    l = l.section('get.sources')
-
+  protected async render(locale: Locale): Promise<RenderResult> {
     const book = this.book
     const content = this.content
 
@@ -30,7 +28,7 @@ export class BookSourcesMessage extends InteractiveMessage {
           iconURL: Api.getWebLink(`assets/icons/${content.source}.jpg`)
         },
         footer: {
-          text: l.get('footer', { count: book.contents.length })
+          text: locale.get('get.sources.footer', { count: book.contents.length })
         },
         fields: Object.entries(
           book.contents.reduce((a, b) => {

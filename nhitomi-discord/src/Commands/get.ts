@@ -18,13 +18,11 @@ export class BookMessage extends InteractiveMessage {
     super()
   }
 
-  protected async render(l: Locale): Promise<RenderResult> {
-    return BookMessage.renderStatic(l, this.book, this.content)
+  protected async render(locale: Locale): Promise<RenderResult> {
+    return BookMessage.renderStatic(locale, this.book, this.content)
   }
 
-  static renderStatic(l: Locale, book: Book, content: BookContent): RenderResult {
-    l = l.section('get.book')
-
+  static renderStatic(locale: Locale, book: Book, content: BookContent): RenderResult {
     return {
       embed: {
         title: book.primaryName,
@@ -39,10 +37,10 @@ export class BookMessage extends InteractiveMessage {
           iconURL: Api.getWebLink(`assets/icons/${content.source}.jpg`)
         },
         footer: {
-          text: `${book.id}/${content.id} (${l.section('categories').get(book.category)}, ${l.get('pageCount', { count: content.pageCount })})`
+          text: `${book.id}/${content.id} (${locale.get(`get.book.categories.${book.category}`)}, ${locale.get('get.book.pageCount', { count: content.pageCount })})`
         },
         fields: Object.values(BookTag).filter(t => book.tags[t]?.length).map(t => ({
-          name: l.section('tags').get(t),
+          name: locale.get(`get.book.tags.${t}`),
           value: book.tags[t]?.sort().join(', '),
           inline: true
         }))
@@ -93,13 +91,11 @@ export async function handleGetLink(context: MessageContext, link: string | unde
 }
 
 export function replyNotFound(context: MessageContext, input: string): Promise<Message> {
-  const l = context.locale.section('get.notFound')
-
   return context.reply(`
-${input && l.get('message', { input })}
+${input && context.locale.get('get.notFound.message', { input })}
 
-> - ${l.get('usageLink', { example: 'https://nhentai.net/g/123/' })}
-> - ${l.get('usageSource', { example: 'hitomi 123' })}
+> - ${context.locale.get('get.notFound.usageLink', { example: 'https://nhentai.net/g/123/' })}
+> - ${context.locale.get('get.notFound.usageSource', { example: 'hitomi 123' })}
 `.trim())
 }
 

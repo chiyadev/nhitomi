@@ -89,6 +89,8 @@
     }
   },
   "collection": {
+    "unnamed": "<이름없음>",
+    "noDesc": "<설명없음>",
     "notFound": "`{input}`이라는 컬렉션을 찾을 수 없었습니다.",
     "select": {
       "message": "이름이 비슷한 컬렉션들이 있습니다. 컬렉션 선택:"

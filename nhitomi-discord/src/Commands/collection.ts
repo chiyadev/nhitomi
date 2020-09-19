@@ -16,33 +16,29 @@ export class CollectionListMessage extends InteractiveMessage {
   position = 0
   collection?: Collection
 
-  protected async render(l: Locale): Promise<RenderResult> {
+  protected async render(locale: Locale): Promise<RenderResult> {
     if (!(this.collection = this.collections[this.position = Math.max(0, Math.min(this.collections.length - 1, this.position))])) {
-      l = l.section('list.empty')
-
       return {
         embed: {
-          title: l.get('title'),
-          description: l.get('message'),
+          title: locale.get('list.empty.title'),
+          description: locale.get('list.empty.message'),
           color: 'AQUA'
         }
       }
     }
 
-    return CollectionListMessage.renderStatic(l, this.collection)
+    return CollectionListMessage.renderStatic(locale, this.collection)
   }
 
-  static renderStatic(l: Locale, collection: Collection): RenderResult {
-    l = l.section('collection.list')
-
+  static renderStatic(locale: Locale, collection: Collection): RenderResult {
     return {
       embed: {
-        title: collection.name || '<unnamed>',
-        description: collection.description || '<no description>',
+        title: collection.name || locale.get('collection.unnamed'),
+        description: collection.description || locale.get('collection.noDesc'),
         url: Api.getWebLink(`collections/${collection.id}`),
         color: 'AQUA',
         footer: {
-          text: `${collection.id} (${collection.type}, ${l.get('itemCount', { count: collection.items.length })})`
+          text: `${collection.id} (${collection.type}, ${locale.get('collection.list.itemCount', { count: collection.items.length })})`
         }
       }
     }
@@ -101,10 +97,8 @@ export const run: CommandFunc = async (context, arg) => {
   if (collectionName) {
     // ambiguous collection match
     if (collections.length > 1) {
-      const l = context.locale.section('collection.select')
-
       const selected = await context.waitInput(`
-${l.get('message')}
+${context.locale.get('collection.select.message')}
 
 ${collections.map((c, i) => {
         let name = `${i + 1}. \`${c.name}\``
@@ -163,17 +157,13 @@ ${collections.map((c, i) => {
 
       switch (command) {
         case 'add': {
-          const l = context.locale.section('collection.add')
-
           if (collection.items.includes(itemId))
-            await context.reply(l.get('exists', { item: itemName, collection: collection.name }))
+            await context.reply(context.locale.get('collection.add.exists', { item: itemName, collection: collection.name }))
 
           else {
             // ensure item type is the same as collection type
             if (collection.type !== linkResult.type) {
-              const l = context.locale.section('collection.add.typeIncompatible')
-
-              await context.reply(l.get('typeIncompatible', { item: itemName, itemType: linkResult.type, collection: collection.name, collectionType: collection.type }))
+              await context.reply(context.locale.get('collection.add.typeIncompatible', { item: itemName, itemType: linkResult.type, collection: collection.name, collectionType: collection.type }))
             }
 
             else {
@@ -185,7 +175,7 @@ ${collections.map((c, i) => {
                 }
               })
 
-              await context.reply(l.get('success', { item: itemName, collection: collection.name }))
+              await context.reply(context.locale.get('collection.add.success', { item: itemName, collection: collection.name }))
             }
           }
 
@@ -193,10 +183,8 @@ ${collections.map((c, i) => {
         }
 
         case 'remove': {
-          const l = context.locale.section('collection.remove')
-
           if (!collection.items.includes(itemId))
-            await context.reply(l.get('notExists', { item: itemName, collection: collection.name }))
+            await context.reply(context.locale.get('collection.remove.notExists', { item: itemName, collection: collection.name }))
 
           else {
             await context.api.collection.removeCollectionItems({
@@ -206,7 +194,7 @@ ${collections.map((c, i) => {
               }
             })
 
-            await context.reply(l.get('success', { item: itemName, collection: collection.name }))
+            await context.reply(context.locale.get('collection.remove.success', { item: itemName, collection: collection.name }))
           }
 
           break
@@ -218,16 +206,14 @@ ${collections.map((c, i) => {
 
     case 'delete':
       if (collection) {
-        const l = context.locale.section('collection.delete')
-
-        const confirm = await context.waitInput(l.get('confirm', { collection: collection.name }))
+        const confirm = await context.waitInput(context.locale.get('collection.delete.confirm', { collection: collection.name }))
 
         if (!'yes'.startsWith(confirm.trim().toLowerCase() || 'no'))
           return true
 
         await context.api.collection.deleteCollection({ id: collection.id })
 
-        await context.reply(l.get('success', { collection: collection.name }))
+        await context.reply(context.locale.get('collection.delete.success', { collection: collection.name }))
       }
 
       return true

@@ -16,26 +16,23 @@ class HelpMessage extends InteractiveMessage {
   get end(): number { return Pages.length - 1 }
   get page(): Page { return Pages[this.position = Math.max(0, Math.min(this.end, this.position))] }
 
-  protected async render(l: Locale): Promise<RenderResult> {
-    l = l.section('help')
-
+  protected async render(locale: Locale): Promise<RenderResult> {
     const embed: MessageEmbedOptions = {
-      title: `**nhitomi**: ${l.get('title')}`,
+      title: `**nhitomi**: ${locale.get('help.title')}`,
       color: 'PURPLE',
       thumbnail: {
         url: 'https://github.com/chiyadev/nhitomi/raw/master/nhitomi.png'
       },
       footer: {
-        text: `b.${Api.currentInfo.version.shortHash} — ${l.get('owner')}`
+        text: `b.${Api.currentInfo.version.shortHash} — ${locale.get('help.owner')}`
       }
     }
 
-    const invite = l.get('invite', {
+    const invite = locale.get('help.invite', {
       serverInvite: `https://discord.gg/${config.get<string>('serverInvite')}`,
       botInvite: `https://discord.com/oauth2/authorize?client_id=${Discord.user?.id}&scope=bot&permissions=${config.get<string>('botInvitePerms')}`
     })
 
-    l = l.section(this.page)
     const prefix = config.get<string>('prefix')
 
     switch (this.page) {
@@ -43,37 +40,37 @@ class HelpMessage extends InteractiveMessage {
         embed.description = invite
 
         embed.fields = [{
-          name: l.get('title'),
+          name: locale.get('help.doujinshi.title'),
           value: `
-- \`${prefix}get\` — ${l.get('get')}
-- \`${prefix}from\` — ${l.get('from')}
-- \`${prefix}search\` — ${l.get('search')}
-- \`${prefix}read\` — ${l.get('read')}
+- \`${prefix}get\` — ${locale.get('help.doujinshi.get')}
+- \`${prefix}from\` — ${locale.get('help.doujinshi.from')}
+- \`${prefix}search\` — ${locale.get('help.doujinshi.search')}
+- \`${prefix}read\` — ${locale.get('help.doujinshi.read')}
 `.trim()
         }, {
-          name: l.get('sources.title'),
+          name: locale.get('help.doujinshi.sources.title'),
           value: Api.currentInfo.scrapers.filter(s => s.type !== ScraperType.Unknown).map(s => `- ${s.name} — ${s.url}`).sort().join('\n')
         }]
         break
 
       case 'collections':
         embed.fields = [{
-          name: l.get('title'),
+          name: locale.get('help.collections.title'),
           value: `
-- \`${prefix}collection\` — ${l.get('list')}
-- \`${prefix}collection {name}\` — ${l.get('show')}
-- \`${prefix}collection {name} add\` — ${l.get('add')}
-- \`${prefix}collection {name} remove\` — ${l.get('remove')}
-- \`${prefix}collection {name} delete\` — ${l.get('delete')}
+- \`${prefix}collection\` — ${locale.get('help.collections.list')}
+- \`${prefix}collection {name}\` — ${locale.get('help.collections.show')}
+- \`${prefix}collection {name} add\` — ${locale.get('help.collections.add')}
+- \`${prefix}collection {name} remove\` — ${locale.get('help.collections.remove')}
+- \`${prefix}collection {name} delete\` — ${locale.get('help.collections.delete')}
 `.trim()
         }]
         break
 
       case 'oss':
         embed.fields = [{
-          name: l.get('title'),
+          name: locale.get('help.oss.title'),
           value: `
-${l.get('license')}
+${locale.get('help.oss.license')}
 [GitHub](https://github.com/chiyadev/nhitomi) / [License](https://github.com/chiyadev/nhitomi/blob/master/LICENSE)
 `.trim()
         }]

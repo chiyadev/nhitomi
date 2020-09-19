@@ -19,16 +19,14 @@ export class BookListMessage extends InteractiveMessage {
   book?: Book
   content?: BookContent
 
-  protected async render(l: Locale): Promise<RenderResult> {
+  protected async render(locale: Locale): Promise<RenderResult> {
     this.book = await this.items.get(this.position)
 
     if (!this.book && !(this.book = this.items.getCached(this.position = Math.max(0, Math.min(this.items.loadedLength - 1, this.position))))) {
-      l = l.section('list.empty')
-
       return {
         embed: {
-          title: l.get('title'),
-          description: l.get('message'),
+          title: locale.get('list.empty.title'),
+          description: locale.get('list.empty.message'),
           color: 'AQUA'
         }
       }
@@ -36,7 +34,7 @@ export class BookListMessage extends InteractiveMessage {
 
     this.content = this.book.contents.filter(c => c.language === this.context?.user.language)[0] || this.book.contents[0]
 
-    return this.processRenderResult(BookMessage.renderStatic(l, this.book, this.content))
+    return this.processRenderResult(BookMessage.renderStatic(locale, this.book, this.content))
   }
 
   get favoriteObject(): FavoriteTriggerTarget['favoriteObject'] {

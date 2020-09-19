@@ -147,7 +147,7 @@ export abstract class InteractiveMessage {
   protected createTriggers(): ReactionTrigger[] { return [] }
 
   /** Constructs a new view of this interactive. */
-  protected abstract render(l: Locale): Promise<RenderResult>
+  protected abstract render(locale: Locale): Promise<RenderResult>
 
   readonly ownedInputs: InteractiveInput[] = []
 

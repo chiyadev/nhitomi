@@ -6,12 +6,10 @@ import { MessageContext } from '../context'
 import { Message } from 'discord.js-light'
 
 export function sourceInvalid(context: MessageContext, input: string): Promise<Message> {
-  const l = context.locale.section('from.badSource')
-
   return context.reply(`
-${input && l.get('message', { input })}
+${input && context.locale.get('from.badSource.message', { input })}
 
-${l.get('list')}
+${context.locale.get('from.badSource.list')}
 ${Api.currentInfo.scrapers.map(s => `> - ${s.name} — <${s.url}>`).sort().join('\n')}
 `.trim())
 }

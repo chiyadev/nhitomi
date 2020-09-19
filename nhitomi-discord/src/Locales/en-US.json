@@ -89,6 +89,8 @@
     }
   },
   "collection": {
+    "unnamed": "<unnamed>",
+    "noDesc": "<no description>",
     "notFound": "Could not find collection `{input}`.",
     "select": {
       "message": "There are multiple collections with similar names. Select collection:"

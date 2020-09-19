@@ -53,14 +53,12 @@ export class ListJumpTrigger extends ReactionTrigger {
   }
 
   protected async run(context: MessageContext): Promise<boolean> {
-    const l = context.locale.section('reaction.list')
-
     switch (this.direction) {
       case 'start': this.target.position = 0; break
       case 'end': this.target.position = this.target.end; break
 
       case 'input': {
-        const result = parseInt(await this.interactive?.waitInput(l.get('jump')) || '')
+        const result = parseInt(await this.interactive?.waitInput(context.locale.get('reaction.list.jump')) || '')
 
         if (isNaN(result)) return false
         this.target.position = result - 1

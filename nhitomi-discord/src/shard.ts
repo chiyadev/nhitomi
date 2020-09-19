@@ -153,8 +153,6 @@ Discord.on('message', wrapHandler('message', async message => {
         }
         catch (e) {
           if (e instanceof Error) {
-            const l = context.locale.section('error')
-
             let stack = e.stack
 
             if (stack && stack.length > 1920)
@@ -162,10 +160,10 @@ Discord.on('message', wrapHandler('message', async message => {
 
             await context.reply({
               embed: {
-                title: l.get('title'),
+                title: context.locale.get('error.title'),
                 color: 'RED',
                 description: `
-${l.get('description')}
+${context.locale.get('error.description')}
 
 \`\`\`
 ${stack}

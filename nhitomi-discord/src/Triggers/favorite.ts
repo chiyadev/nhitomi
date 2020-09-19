@@ -27,7 +27,6 @@ export class FavoriteTrigger extends ReactionTrigger {
     const itemId = this.target.favoriteObject.id
     const itemName = this.target.favoriteObject.name
 
-    const l = context.locale.section('reaction.favorite')
     const { id: collectionId, items } = await context.api.user.getUserSpecialCollection({
       id: context.user.id,
       type: this.type,
@@ -42,7 +41,7 @@ export class FavoriteTrigger extends ReactionTrigger {
         }
       })
 
-      context.scheduleDelete(await context.reply(l.get('remove', { name: itemName })))
+      context.scheduleDelete(await context.reply(context.locale.get('reaction.favorite.remove', { name: itemName })))
     }
     else {
       await context.api.collection.addCollectionItems({
@@ -53,7 +52,7 @@ export class FavoriteTrigger extends ReactionTrigger {
         }
       })
 
-      context.scheduleDelete(await context.reply(l.get('add', { name: itemName })))
+      context.scheduleDelete(await context.reply(context.locale.get('reaction.favorite.add', { name: itemName })))
     }
 
     return true
