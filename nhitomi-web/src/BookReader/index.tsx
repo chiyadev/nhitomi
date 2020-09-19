@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useMemo, useRef, useState } from "react";
 import { PrefetchGenerator, PrefetchLink, TypedPrefetchLinkProps, usePostfetch } from "../Prefetch";
 import { Book, BookContent } from "nhitomi-api";
 import { useClient } from "../ClientManager";
@@ -49,13 +49,15 @@ export const BookReader = (options: PrefetchOptions) => {
 
   useScrollShortcut();
 
-  if (!result) return null;
+  return useMemo(() => {
+    if (!result) return null;
 
-  return (
-    <PageContainer key={`${result.book.id}/${result.content.id}`}>
-      <Loaded book={result.book} content={result.content} />
-    </PageContainer>
-  );
+    return (
+      <PageContainer key={`${result.book.id}/${result.content.id}`}>
+        <Loaded book={result.book} content={result.content} />
+      </PageContainer>
+    );
+  }, [result]);
 };
 
 const Loaded = ({ book, content }: PrefetchResult) => {

@@ -76,13 +76,15 @@ export const BookListing = (options: PrefetchOptions) => {
 
   useScrollShortcut();
 
-  if (!result) return null;
+  return useMemo(() => {
+    if (!result) return null;
 
-  return (
-    <PageContainer>
-      <Loaded result={result} setResult={setResult} />
-    </PageContainer>
-  );
+    return (
+      <PageContainer>
+        <Loaded result={result} setResult={setResult} />
+      </PageContainer>
+    );
+  }, [result]);
 };
 
 const Loaded = ({ result, setResult }: { result: PrefetchResult; setResult: Dispatch<PrefetchResult> }) => {

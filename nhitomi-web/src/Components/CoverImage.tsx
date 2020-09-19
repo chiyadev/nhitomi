@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { animated, useSpring } from "react-spring";
 import { cx } from "emotion";
 import { Loading3QuartersOutlined, WarningTwoTone } from "@ant-design/icons";
@@ -100,19 +100,9 @@ export const CoverImage = ({
     },
   });
 
-  return (
-    <div
-      style={{
-        paddingTop:
-          loaded && autoSize
-            ? formatAspect(loaded.height / loaded.width)
-            : defaultAspect
-            ? formatAspect(defaultAspect)
-            : undefined,
-      }}
-      className={cx("relative select-none", className)}
-    >
-      {showImage && (
+  const imageNode = useMemo(
+    () =>
+      showImage && (
         <animated.div
           style={{
             ...imageStyle,
@@ -123,15 +113,23 @@ export const CoverImage = ({
           }}
           className="absolute top-0 left-0 w-full h-full"
         />
-      )}
+      ),
+    [showImage, imageStyle, loaded, sizing]
+  );
 
-      {showLoading && (
+  const loadingNode = useMemo(
+    () =>
+      showLoading && (
         <animated.div style={loadingStyle} className="absolute transform-center">
           <Loading3QuartersOutlined className="animate-spin" />
         </animated.div>
-      )}
+      ),
+    [showLoading, loadingStyle]
+  );
 
-      {showError && (
+  const errorNode = useMemo(
+    () =>
+      showError && (
         <animated.div style={errorStyle} className="absolute transform-center">
           <Tooltip
             placement="bottom"
@@ -149,7 +147,32 @@ export const CoverImage = ({
             <WarningTwoTone twoToneColor={getColor("red").hex} />
           </Tooltip>
         </animated.div>
-      )}
-    </div>
+      ),
+    [showError, errorStyle, error]
+  );
+
+  const style = useMemo(
+    () => ({
+      paddingTop:
+        loaded && autoSize
+          ? formatAspect(loaded.height / loaded.width)
+          : defaultAspect
+          ? formatAspect(defaultAspect)
+          : undefined,
+    }),
+    [loaded, autoSize, defaultAspect]
+  );
+
+  const cname = useMemo(() => cx("relative select-none", className), [className]);
+
+  return useMemo(
+    () => (
+      <div style={style} className={cname}>
+        {imageNode}
+        {loadingNode}
+        {errorNode}
+      </div>
+    ),
+    [style, cname, imageNode, loadingNode, errorNode]
   );
 };

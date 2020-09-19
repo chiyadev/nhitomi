@@ -1,4 +1,4 @@
-import React, { Dispatch } from "react";
+import React, { Dispatch, useMemo } from "react";
 import { PrefetchGenerator, PrefetchLink, TypedPrefetchLinkProps, usePostfetch } from "../Prefetch";
 import { Book, Collection, ObjectType } from "nhitomi-api";
 import { useClient } from "../ClientManager";
@@ -59,13 +59,15 @@ export const CollectionContent = (options: PrefetchOptions) => {
 
   useScrollShortcut();
 
-  if (!result) return null;
+  return useMemo(() => {
+    if (!result) return null;
 
-  return (
-    <PageContainer>
-      <Loaded result={result} setResult={setResult} />
-    </PageContainer>
-  );
+    return (
+      <PageContainer>
+        <Loaded result={result} setResult={setResult} />
+      </PageContainer>
+    );
+  }, [result]);
 };
 
 const Loaded = ({ result, setResult }: { result: PrefetchResult; setResult: Dispatch<PrefetchResult> }) => {
