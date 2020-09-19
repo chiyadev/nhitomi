@@ -307,6 +307,7 @@ export const PrefetchLink = <T extends any, U extends {} = {}>({
   return (
     <Link
       to={destination}
+      className={className}
       onClick={(e) => {
         if (e.target) onClick?.call(e.target, e);
 
@@ -345,13 +346,13 @@ export const PrefetchScrollPreserver = () => {
     let lastKey: string | undefined;
 
     const handler = () => {
-      const currentKey = navigator.history.location.key;
+      const currentKey = navigator.history.location.key || "";
 
       // don't remember scroll positions for replaced pages
       if (lastKey && lastKey !== currentKey && navigator.history.action === "REPLACE") {
         const current = getRetainedScroll(lastKey);
         setRetainedScroll(lastKey, undefined);
-        setRetainedScroll(currentKey!, current);
+        setRetainedScroll(currentKey, current);
       }
 
       lastKey = currentKey;
@@ -368,7 +369,10 @@ export const PrefetchScrollPreserver = () => {
   useLayoutEffect(() => {
     const handler = () => {
       clearTimeout(flush.current);
-      flush.current = window.setTimeout(() => setRetainedScroll(navigator.history.location.key!, window.scrollY), 20);
+      flush.current = window.setTimeout(
+        () => setRetainedScroll(navigator.history.location.key || "", window.scrollY),
+        20
+      );
     };
 
     window.addEventListener("scroll", handler);

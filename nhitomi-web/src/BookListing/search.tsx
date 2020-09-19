@@ -49,8 +49,8 @@ export function convertQuery({ query, order, sort, langs, sources }: SearchQuery
       case "tag": {
         const value = token.display.substring(token.display.indexOf(":"));
 
-        if (value)
-          (result.tags![token.tag] || (result.tags![token.tag] = { values: [], mode: QueryMatchMode.All })).values.push(
+        if (value && result.tags)
+          (result.tags[token.tag] || (result.tags[token.tag] = { values: [], mode: QueryMatchMode.All })).values.push(
             wrapTag(value)
           );
 
