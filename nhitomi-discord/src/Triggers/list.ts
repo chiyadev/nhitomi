@@ -1,5 +1,5 @@
-import { ReactionTrigger } from '../interactive'
-import { MessageContext } from '../context'
+import { ReactionTrigger } from "../interactive";
+import { MessageContext } from "../context";
 
 export type ListTriggerTarget = {
   position: number
@@ -8,26 +8,33 @@ export type ListTriggerTarget = {
 export class ListTrigger extends ReactionTrigger {
   get emoji(): string {
     switch (this.direction) {
-      case 'left': return '\u25c0'
-      case 'right': return '\u25b6'
-      default: return ''
+      case "left":
+        return "\u25c0";
+      case "right":
+        return "\u25b6";
+      default:
+        return "";
     }
   }
 
   constructor(
     readonly target: ListTriggerTarget,
-    readonly direction: 'left' | 'right'
+    readonly direction: "left" | "right"
   ) {
-    super()
+    super();
   }
 
   protected async run(): Promise<boolean> {
     switch (this.direction) {
-      case 'left': --this.target.position; break
-      case 'right': ++this.target.position; break
+      case "left":
+        --this.target.position;
+        break;
+      case "right":
+        ++this.target.position;
+        break;
     }
 
-    return true
+    return true;
   }
 }
 
@@ -38,34 +45,42 @@ export type ListJumpTriggerTarget = ListTriggerTarget & {
 export class ListJumpTrigger extends ReactionTrigger {
   get emoji(): string {
     switch (this.direction) {
-      case 'start': return '\u23EA'
-      case 'end': return '\u23E9'
-      case 'input': return '\ud83d\udcd1'
-      default: return ''
+      case "start":
+        return "\u23EA";
+      case "end":
+        return "\u23E9";
+      case "input":
+        return "\ud83d\udcd1";
+      default:
+        return "";
     }
   }
 
   constructor(
     readonly target: ListJumpTriggerTarget,
-    readonly direction: 'start' | 'end' | 'input'
+    readonly direction: "start" | "end" | "input"
   ) {
-    super()
+    super();
   }
 
   protected async run(context: MessageContext): Promise<boolean> {
     switch (this.direction) {
-      case 'start': this.target.position = 0; break
-      case 'end': this.target.position = this.target.end; break
+      case "start":
+        this.target.position = 0;
+        break;
+      case "end":
+        this.target.position = this.target.end;
+        break;
 
-      case 'input': {
-        const result = parseInt(await this.interactive?.waitInput(context.locale.get('reaction.list.jump')) || '')
+      case "input": {
+        const result = parseInt(await this.interactive?.waitInput(context.locale.get("reaction.list.jump")) || "");
 
-        if (isNaN(result)) return false
-        this.target.position = result - 1
-        break
+        if (isNaN(result)) return false;
+        this.target.position = result - 1;
+        break;
       }
     }
 
-    return true
+    return true;
   }
 }

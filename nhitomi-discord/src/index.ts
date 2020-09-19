@@ -1,38 +1,37 @@
-import { ShardingManager } from 'discord.js-light'
-import config from 'config'
-import polka from 'polka'
-import { register, collectDefaultMetrics, AggregatorRegistry } from 'prom-client'
+import { ShardingManager } from "discord.js-light";
+import config from "config";
+import polka from "polka";
+import { AggregatorRegistry, collectDefaultMetrics, register } from "prom-client";
 
-collectDefaultMetrics({ register })
+collectDefaultMetrics({ register });
 
-const shards = new ShardingManager('shard.js', {
-  token: config.get('token'),
+const shards = new ShardingManager("shard.js", {
+  token: config.get("token"),
   respawn: true,
-  mode: 'worker'
-})
+  mode: "worker"
+});
 
-shards.spawn()
+shards.spawn();
 
 polka()
   .listen(9801)
-  .get('/metrics', async (_, response) => {
+  .get("/metrics", async (_, response) => {
     try {
       // collect all shard metrics
-      const metrics: ReturnType<typeof register['getMetricsAsJSON']>[] = await shards.broadcastEval("require('prom-client').register.getMetricsAsJSON()")
+      const metrics: ReturnType<typeof register["getMetricsAsJSON"]>[] = await shards.broadcastEval("require('prom-client').register.getMetricsAsJSON()");
 
       // add our (sharding manager process) own metrics
-      metrics.unshift(register.getMetricsAsJSON())
+      metrics.unshift(register.getMetricsAsJSON());
 
       // return aggregation
-      const aggregate = AggregatorRegistry.aggregate(metrics)
+      const aggregate = AggregatorRegistry.aggregate(metrics);
 
-      response.setHeader('Content-Type', aggregate.contentType)
-      response.end(aggregate.metrics())
-    }
-    catch (e) {
-      console.warn('could not export metrics', e)
+      response.setHeader("Content-Type", aggregate.contentType);
+      response.end(aggregate.metrics());
+    } catch (e) {
+      console.warn("could not export metrics", e);
 
-      response.statusCode = 500
-      response.end(e.stack || e.message || 'Internal Server Error')
+      response.statusCode = 500;
+      response.end(e.stack || e.message || "Internal Server Error");
     }
-  })
+  });

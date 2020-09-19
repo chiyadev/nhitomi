@@ -1,7 +1,7 @@
-if (process.env.NODE_ENV === 'production') {
-  const noop = (): void => { /* nothing */ }
+if (process.env.NODE_ENV === "production") {
+  const noop = (): void => { /* nothing */ };
 
-  console.debug = noop
-  console.info = noop
-  console.log = noop
+  console.debug = noop;
+  console.info = noop;
+  console.log = noop;
 }
