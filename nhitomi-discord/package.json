@@ -16,7 +16,8 @@
     "config": "^3.3.1",
     "discord.js": "^12.2.0",
     "discord.js-light": "^3.2.3",
-    "eslint": "^7.0.0",
+    "eslint": "^7.9.0",
+    "eslint-config-prettier": "^6.11.0",
     "fast-deep-equal": "^3.1.1",
     "fs-extra": "^9.0.0",
     "i18n": "^0.9.1",
@@ -36,20 +37,5 @@
     "start": "node prestart && tsc && cd build && node index.js",
     "build": "tsc && node prestart",
     "genclient": "node ../scripts/genclient typescript-fetch"
-  },
-  "eslintConfig": {
-    "extends": [
-      "eslint:recommended",
-      "plugin:@typescript-eslint/recommended",
-      "../eslint.json"
-    ],
-    "parserOptions": {
-      "ecmaVersion": 2017,
-      "sourceType": "module"
-    },
-    "env": {
-      "node": true,
-      "es6": true
-    }
   }
 }
