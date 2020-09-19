@@ -1,8 +1,8 @@
-import React, { ReactNode } from 'react'
-import { useLayout } from '../LayoutManager'
-import { animated, useSpring } from 'react-spring'
-import { css, cx } from 'emotion'
-import { useClientInfo } from '../ClientManager'
+import React, { ReactNode } from "react";
+import { useLayout } from "../LayoutManager";
+import { animated, useSpring } from "react-spring";
+import { css, cx } from "emotion";
+import { useClientInfo } from "../ClientManager";
 
 export const SupportDescription = () => {
   return (
@@ -11,19 +11,19 @@ export const SupportDescription = () => {
       <div>We are an open-source project and do not rely on any advertisements.</div>
       <div>Please help us keep going.</div>
     </div>
-  )
-}
+  );
+};
 
 export const ThanksDescription = () => {
-  const { info } = useClientInfo()
-  const supportInfo = info.authenticated && info.user.supporterInfo
+  const { info } = useClientInfo();
+  const supportInfo = info.authenticated && info.user.supporterInfo;
 
   if (!supportInfo)
-    return null
+    return null;
 
-  const months = Math.round(supportInfo.totalDays / 365 * 12)
-  const spending = supportInfo.totalSpending
-  const expireDays = Math.floor((supportInfo.endTime!.getTime() - Date.now()) / 1000 / 60 / 60 / 24)
+  const months = Math.round(supportInfo.totalDays / 365 * 12);
+  const spending = supportInfo.totalSpending;
+  const expireDays = Math.floor((supportInfo.endTime!.getTime() - Date.now()) / 1000 / 60 / 60 / 24);
 
   return (
     <div className='space-y-2'>
@@ -31,26 +31,26 @@ export const ThanksDescription = () => {
       <div>It is thanks to generous people like you that nhitomi can afford its server infrastructure, allocate more development time for new features, and deliver a service without annoying popups and advertisements.</div>
       <div>Thank you. — chiya.dev</div>
     </div>
-  )
-}
+  );
+};
 
 export const MainCard = ({ children }: { children?: ReactNode }) => {
-  const { screen } = useLayout()
+  const { screen } = useLayout();
 
   const imageStyle = useSpring({
-    from: { transform: 'translateY(5px)' },
-    to: { transform: 'translateY(0)' }
-  })
+    from: { transform: "translateY(5px)" },
+    to: { transform: "translateY(0)" }
+  });
 
   switch (screen) {
-    case 'sm':
+    case "sm":
       return (
         <div className='flex flex-col'>
-          <animated.div style={imageStyle} className={cx('relative overflow-hidden', css`height: 300px;`)}>
+          <animated.div style={imageStyle} className={cx("relative overflow-hidden", css`height: 300px;`)}>
             <img
               alt='megumi'
               src='/assets/images/megumi_happy.png'
-              className={cx('select-none pointer-events-none rounded absolute w-full max-w-xs', css`
+              className={cx("select-none pointer-events-none rounded absolute w-full max-w-xs", css`
                 top: 50%;
                 transform: translateY(-50%);
               `)} />
@@ -58,11 +58,11 @@ export const MainCard = ({ children }: { children?: ReactNode }) => {
 
           <div className='bg-white text-black rounded-lg p-4 z-10 shadow-lg border-t border-pink' children={children} />
         </div>
-      )
+      );
 
-    case 'lg':
+    case "lg":
       return (
-        <div className={cx('relative', css`height: 350px;`)}>
+        <div className={cx("relative", css`height: 350px;`)}>
           <animated.img
             style={imageStyle}
             alt='megumi'
@@ -73,6 +73,6 @@ export const MainCard = ({ children }: { children?: ReactNode }) => {
             <div className='ml-8 px-4 py-8' children={children} />
           </div>
         </div>
-      )
+      );
   }
-}
+};

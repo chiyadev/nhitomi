@@ -22,18 +22,18 @@ export type LayoutResult = {
   height: number
 
   /** What caused the layout to be recomputed */
-  cause: 'variable' | 'images'
+  cause: "variable" | "images"
 }
 
 export class LayoutEngine {
-  private cache: LayoutImage[] = []
-  private lastImages?: (ImageBase | undefined)[]
+  private cache: LayoutImage[] = [];
+  private lastImages?: (ImageBase | undefined)[];
 
   initialize(size: number) {
-    this.cache.length = 0
+    this.cache.length = 0;
 
     for (let i = 0; i < size; i++) {
-      this.cache.push({ x: 0, y: 0, width: 0, height: 0 })
+      this.cache.push({ x: 0, y: 0, width: 0, height: 0 });
     }
   }
 
@@ -56,10 +56,10 @@ export class LayoutEngine {
     similarAspectMargin?: number
     initialRowLimit?: number
   }): LayoutResult {
-    const result = this.cache.slice()
-    const length = result.length
+    const result = this.cache.slice();
+    const length = result.length;
 
-    const rows: LayoutRow[] = []
+    const rows: LayoutRow[] = [];
 
     const row: {
       width: number
@@ -69,137 +69,132 @@ export class LayoutEngine {
       width: 0,
       height: 0,
       images: []
-    }
+    };
 
     const rowAdd = (image: LayoutImage) => {
-      row.width += image.width
-      row.height = Math.max(row.height, image.height)
-      row.images.push(image)
-    }
+      row.width += image.width;
+      row.height = Math.max(row.height, image.height);
+      row.images.push(image);
+    };
 
-    let y = 0
-    let flushed = 0
+    let y = 0;
+    let flushed = 0;
 
     const rowFlush = () => {
       if (!row.images.length)
-        return
+        return;
 
-      let scale = 1
+      let scale = 1;
 
       // scale to fit height
       if (viewportBound) {
-        scale = Math.min(1, viewportHeight / row.height)
+        scale = Math.min(1, viewportHeight / row.height);
 
-        row.width *= scale
-        row.height = viewportHeight // when viewport-bound, we want rows to use the entire viewport height
+        row.width *= scale;
+        row.height = viewportHeight; // when viewport-bound, we want rows to use the entire viewport height
       }
 
-      row.width = Math.round(row.width)
-      row.height = Math.round(row.height)
+      row.width = Math.round(row.width);
+      row.height = Math.round(row.height);
 
-      let x = (viewportWidth - row.width) / 2
+      let x = (viewportWidth - row.width) / 2;
 
       for (let i = 0; i < row.images.length; i++) {
-        const current = row.images[i]
-        const last = result[flushed]
+        const current = row.images[i];
+        const last = result[flushed];
 
-        current.width = Math.round(current.width * scale)
-        current.height = Math.round(current.height * scale)
+        current.width = Math.round(current.width * scale);
+        current.height = Math.round(current.height * scale);
 
-        current.x = Math.round(x)
-        current.y = Math.round(y + (row.height - current.height) / 2)
+        current.x = Math.round(x);
+        current.y = Math.round(y + (row.height - current.height) / 2);
 
         // reverse x if rtl
         if (!leftToRight)
-          current.x = viewportWidth - (current.x + current.width)
+          current.x = viewportWidth - (current.x + current.width);
 
         // only change layout identity if layout changed
         if (current.image !== last.image || current.x !== last.x || current.y !== last.y || current.width !== last.width || current.height !== last.height)
-          result[flushed] = current
+          result[flushed] = current;
 
-        x += current.width
-        flushed++
+        x += current.width;
+        flushed++;
       }
 
       // overflow to next row
-      y += row.height
+      y += row.height;
 
-      rows.push({ images: row.images.slice() })
+      rows.push({ images: row.images.slice() });
 
-      row.width = 0
-      row.height = 0
-      row.images = []
-    }
+      row.width = 0;
+      row.height = 0;
+      row.images = [];
+    };
 
     for (let i = 0; i < length; i++) {
-      const image = images[i]
+      const image = images[i];
 
       // find image dimensions
-      let width: number
-      let height: number
+      let width: number;
+      let height: number;
 
       if (image) {
-        width = image.width
-        height = image.height
-      }
-      else {
-        width = defaultImageAspect
-        height = 1
+        width = image.width;
+        height = image.height;
+      } else {
+        width = defaultImageAspect;
+        height = 1;
       }
 
       // put landscapes in their own row
       if (width >= height) {
-        const scale = Math.min(1, viewportWidth / width)
+        const scale = Math.min(1, viewportWidth / width);
 
-        width *= scale
-        height *= scale
+        width *= scale;
+        height *= scale;
 
-        rowFlush()
-        rowAdd({ x: 0, y: 0, width, height, image })
-        rowFlush()
-      }
+        rowFlush();
+        rowAdd({ x: 0, y: 0, width, height, image });
+        rowFlush();
+      } else {
+        const scale = viewportWidth / itemsPerRow / width;
 
-      else {
-        const scale = viewportWidth / itemsPerRow / width
-
-        width *= scale
-        height *= scale
+        width *= scale;
+        height *= scale;
 
         // flush row if full
         if (row.images.length >= itemsPerRow || (flushed === 0 && initialRowLimit && row.images.length >= initialRowLimit))
-          rowFlush()
+          rowFlush();
 
         // add to row if empty
         if (!row.images.length) {
-          rowAdd({ x: 0, y: 0, width, height, image })
-        }
-
-        else {
-          const aspect = width / height
-          const rowItemAspect = row.images[0].width / row.images[0].height
+          rowAdd({ x: 0, y: 0, width, height, image });
+        } else {
+          const aspect = width / height;
+          const rowItemAspect = row.images[0].width / row.images[0].height;
 
           // flush row if item aspect ratios are too different
           if (Math.abs(aspect - rowItemAspect) > similarAspectMargin)
-            rowFlush()
+            rowFlush();
 
           // add to row
-          rowAdd({ x: 0, y: 0, width, height, image })
+          rowAdd({ x: 0, y: 0, width, height, image });
         }
       }
     }
 
     // flush remaining
-    rowFlush()
+    rowFlush();
 
-    let cause: LayoutResult['cause']
+    let cause: LayoutResult["cause"];
 
     if (images === this.lastImages)
-      cause = 'variable'
+      cause = "variable";
     else
-      cause = 'images'
+      cause = "images";
 
-    this.cache = result
-    this.lastImages = images
+    this.cache = result;
+    this.lastImages = images;
 
     return {
       width: viewportWidth,
@@ -207,6 +202,6 @@ export class LayoutEngine {
       images: result,
       rows,
       cause
-    }
+    };
   }
 }

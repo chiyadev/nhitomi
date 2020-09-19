@@ -1,12 +1,12 @@
-import React from 'react'
-import { FormattedMessage } from 'react-intl'
-import { SettingsFocusContainer } from './SettingsFocusContainer'
-import { useConfig, BlurSupported } from '../ConfigManager'
-import { CheckBox } from '../Components/Checkbox'
-import { Disableable } from '../Components/Disableable'
+import React from "react";
+import { FormattedMessage } from "react-intl";
+import { SettingsFocusContainer } from "./SettingsFocusContainer";
+import { BlurSupported, useConfig } from "../ConfigManager";
+import { CheckBox } from "../Components/Checkbox";
+import { Disableable } from "../Components/Disableable";
 
 export const Blur = () => {
-  const [blur, setBlur] = useConfig('blur')
+  const [blur, setBlur] = useConfig("blur");
 
   return (
     <SettingsFocusContainer focus='blur'>
@@ -25,5 +25,5 @@ export const Blur = () => {
         </CheckBox>
       </Disableable>
     </SettingsFocusContainer>
-  )
-}
+  );
+};

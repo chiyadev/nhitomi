@@ -1,23 +1,23 @@
-import React, { useState } from 'react'
-import { useClient, useClientInfo, useClientUtils } from '../../ClientManager'
-import { useNotify } from '../../NotificationManager'
-import { useProgress } from '../../ProgressManager'
-import { Collection, SpecialCollection } from 'nhitomi-api'
-import { Dropdown, DropdownItem } from '../../Components/Dropdown'
-import { usePrefetch, useDynamicPrefetch } from '../../Prefetch'
-import { useCollectionListingPrefetch } from '../../CollectionListing'
-import { RoundIconButton } from '../../Components/RoundIconButton'
-import { DeleteOutlined, EditOutlined, HeartOutlined, EyeOutlined, StarOutlined, InfoCircleOutlined } from '@ant-design/icons'
-import { FormattedMessage } from 'react-intl'
-import { FlatButton } from '../../Components/FlatButton'
-import { Disableable } from '../../Components/Disableable'
-import { CollectionEditLink } from '../../CollectionListing/Edit'
-import { Tooltip } from '../../Components/Tooltip'
-import { cx } from 'emotion'
-import { Anchor } from '../../Components/Anchor'
-import { useBookReaderPrefetch } from '../../BookReader'
-import { useContentSelector } from '../../Components/BookList'
-import { RandomOutlined } from '../../Components/Icons/RandomOutlined'
+import React, { useState } from "react";
+import { useClient, useClientInfo, useClientUtils } from "../../ClientManager";
+import { useNotify } from "../../NotificationManager";
+import { useProgress } from "../../ProgressManager";
+import { Collection, SpecialCollection } from "nhitomi-api";
+import { Dropdown, DropdownItem } from "../../Components/Dropdown";
+import { useDynamicPrefetch, usePrefetch } from "../../Prefetch";
+import { useCollectionListingPrefetch } from "../../CollectionListing";
+import { RoundIconButton } from "../../Components/RoundIconButton";
+import { DeleteOutlined, EditOutlined, EyeOutlined, HeartOutlined, InfoCircleOutlined, StarOutlined } from "@ant-design/icons";
+import { FormattedMessage } from "react-intl";
+import { FlatButton } from "../../Components/FlatButton";
+import { Disableable } from "../../Components/Disableable";
+import { CollectionEditLink } from "../../CollectionListing/Edit";
+import { Tooltip } from "../../Components/Tooltip";
+import { cx } from "emotion";
+import { Anchor } from "../../Components/Anchor";
+import { useBookReaderPrefetch } from "../../BookReader";
+import { useContentSelector } from "../../Components/BookList";
+import { RandomOutlined } from "../../Components/Icons/RandomOutlined";
 
 export const Menu = ({ collection }: { collection: Collection }) => <>
   <SpecialButton collection={collection} />
@@ -25,21 +25,21 @@ export const Menu = ({ collection }: { collection: Collection }) => <>
   <EditButton collection={collection} />
   <DeleteButton collection={collection} />
   <HelpButton />
-</>
+</>;
 
 const SpecialButton = ({ collection }: { collection: Collection }) => {
-  const { info } = useClientInfo()
-  const { updateUser } = useClientUtils()
-  const { begin, end } = useProgress()
-  const { notifyError } = useNotify()
-  const [loading, setLoading] = useState(false)
+  const { info } = useClientInfo();
+  const { updateUser } = useClientUtils();
+  const { begin, end } = useProgress();
+  const { notifyError } = useNotify();
+  const [loading, setLoading] = useState(false);
 
   if (!info.authenticated)
-    return null
+    return null;
 
   const setSpecial = async (special: SpecialCollection) => {
-    begin()
-    setLoading(true)
+    begin();
+    setLoading(true);
 
     try {
       await updateUser(user => ({
@@ -51,27 +51,25 @@ const SpecialButton = ({ collection }: { collection: Collection }) => {
             [special]: collection.id
           }
         }
-      }))
+      }));
+    } catch (e) {
+      notifyError(e);
+    } finally {
+      end();
+      setLoading(false);
     }
-    catch (e) {
-      notifyError(e)
-    }
-    finally {
-      end()
-      setLoading(false)
-    }
-  }
+  };
 
   return (
     <Dropdown
       placement='bottom'
       overlay={(
         <Disableable disabled={loading}>
-          <DropdownItem icon={<HeartOutlined className={cx({ 'text-red': info.user.specialCollections?.book?.favorites === collection.id })} />} onClick={() => setSpecial(SpecialCollection.Favorites)}>
+          <DropdownItem icon={<HeartOutlined className={cx({ "text-red": info.user.specialCollections?.book?.favorites === collection.id })} />} onClick={() => setSpecial(SpecialCollection.Favorites)}>
             <FormattedMessage id='pages.collectionContent.book.menu.special.favorites' />
           </DropdownItem>
 
-          <DropdownItem icon={<EyeOutlined className={cx({ 'text-blue': info.user.specialCollections?.book?.later === collection.id })} />} onClick={() => setSpecial(SpecialCollection.Later)}>
+          <DropdownItem icon={<EyeOutlined className={cx({ "text-blue": info.user.specialCollections?.book?.later === collection.id })} />} onClick={() => setSpecial(SpecialCollection.Later)}>
             <FormattedMessage id='pages.collectionContent.book.menu.special.later' />
           </DropdownItem>
         </Disableable>
@@ -83,37 +81,35 @@ const SpecialButton = ({ collection }: { collection: Collection }) => {
             : <StarOutlined />}
       </RoundIconButton>
     </Dropdown>
-  )
-}
+  );
+};
 
 const RandomButton = ({ collection }: { collection: Collection }) => {
-  const client = useClient()
-  const { notifyError } = useNotify()
-  const selectContent = useContentSelector()
-  const [prefetchNode, navigate] = useDynamicPrefetch(useBookReaderPrefetch)
-  const [loading, setLoading] = useState(false)
+  const client = useClient();
+  const { notifyError } = useNotify();
+  const selectContent = useContentSelector();
+  const [prefetchNode, navigate] = useDynamicPrefetch(useBookReaderPrefetch);
+  const [loading, setLoading] = useState(false);
 
   if (!collection.items.length)
-    return null
+    return null;
 
   return (
     <Tooltip placement='bottom' overlay={<FormattedMessage id='pages.collectionContent.book.menu.random' />}>
       <Disableable disabled={loading}>
         <RoundIconButton onClick={async () => {
-          setLoading(true)
+          setLoading(true);
 
           try {
-            const book = await client.book.getBook({ id: collection.items[Math.floor(Math.random() * collection.items.length)] })
-            const content = selectContent(book.contents)
+            const book = await client.book.getBook({ id: collection.items[Math.floor(Math.random() * collection.items.length)] });
+            const content = selectContent(book.contents);
 
             if (content)
-              await navigate({ id: book.id, contentId: content.id })
-          }
-          catch (e) {
-            notifyError(e)
-          }
-          finally {
-            setLoading(false)
+              await navigate({ id: book.id, contentId: content.id });
+          } catch (e) {
+            notifyError(e);
+          } finally {
+            setLoading(false);
           }
         }}>
 
@@ -123,8 +119,8 @@ const RandomButton = ({ collection }: { collection: Collection }) => {
 
       {prefetchNode}
     </Tooltip>
-  )
-}
+  );
+};
 
 const EditButton = ({ collection }: { collection: Collection }) => (
   <Tooltip placement='bottom' overlay={<FormattedMessage id='pages.collectionContent.book.menu.edit' />}>
@@ -134,14 +130,14 @@ const EditButton = ({ collection }: { collection: Collection }) => (
       </RoundIconButton>
     </CollectionEditLink>
   </Tooltip>
-)
+);
 
 const DeleteButton = ({ collection }: { collection: Collection }) => {
-  const client = useClient()
-  const { begin, end } = useProgress()
-  const { notifyError } = useNotify()
-  const [loading, setLoading] = useState(false)
-  const [, navigateListing] = usePrefetch(useCollectionListingPrefetch, { id: collection.ownerIds[0] })
+  const client = useClient();
+  const { begin, end } = useProgress();
+  const { notifyError } = useNotify();
+  const [loading, setLoading] = useState(false);
+  const [, navigateListing] = usePrefetch(useCollectionListingPrefetch, { id: collection.ownerIds[0] });
 
   return (
     <Dropdown
@@ -156,19 +152,17 @@ const DeleteButton = ({ collection }: { collection: Collection }) => {
             icon={<DeleteOutlined />}
             className='w-full text-red'
             onClick={async () => {
-              begin()
-              setLoading(true)
+              begin();
+              setLoading(true);
 
               try {
-                await client.collection.deleteCollection({ id: collection.id })
-                await navigateListing()
-              }
-              catch (e) {
-                notifyError(e)
-              }
-              finally {
-                end()
-                setLoading(false)
+                await client.collection.deleteCollection({ id: collection.id });
+                await navigateListing();
+              } catch (e) {
+                notifyError(e);
+              } finally {
+                end();
+                setLoading(false);
               }
             }}>
 
@@ -181,8 +175,8 @@ const DeleteButton = ({ collection }: { collection: Collection }) => {
         <DeleteOutlined />
       </RoundIconButton>
     </Dropdown>
-  )
-}
+  );
+};
 
 const HelpButton = () => (
   <Tooltip placement='bottom' overlay={<FormattedMessage id='pages.collectionContent.book.menu.help' />}>
@@ -192,4 +186,4 @@ const HelpButton = () => (
       </RoundIconButton>
     </Anchor>
   </Tooltip>
-)
+);

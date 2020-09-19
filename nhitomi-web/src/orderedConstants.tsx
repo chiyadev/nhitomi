@@ -1,4 +1,4 @@
-import { BookTag, ScraperType, LanguageType } from 'nhitomi-api'
+import { BookTag, LanguageType, ScraperType } from "nhitomi-api";
 
 export const BookTags = [
   BookTag.Artist,
@@ -9,12 +9,12 @@ export const BookTags = [
   BookTag.Convention,
   BookTag.Metadata,
   BookTag.Tag
-]
+];
 
 export const ScraperTypes = [
   ScraperType.Nhentai,
   ScraperType.Hitomi
-]
+];
 
 export const LanguageTypes = [
   LanguageType.JaJP,
@@ -30,4 +30,4 @@ export const LanguageTypes = [
   LanguageType.RuRU,
   LanguageType.IdID,
   LanguageType.ViVN
-]
+];

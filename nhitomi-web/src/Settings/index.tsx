@@ -1,24 +1,24 @@
-import React, { ReactNode, useMemo } from 'react'
-import { TypedPrefetchLinkProps, PrefetchLink, usePostfetch, PrefetchGenerator } from '../Prefetch'
-import { useClientInfo, ClientInfo } from '../ClientManager'
-import { Container } from '../Components/Container'
-import { FormattedMessage } from 'react-intl'
-import { Language } from './Language'
-import { Animation } from './Animation'
-import { SettingsFocusContainer } from './SettingsFocusContainer'
-import { useQueryState } from '../state'
-import { MacCommandFilled, ReadOutlined, UserOutlined, PictureOutlined, ToolOutlined } from '@ant-design/icons'
-import { PageContainer } from '../Components/PageContainer'
-import { Blur } from './Blur'
-import { Shortcuts } from './Shortcuts'
-import { useTabTitle } from '../TitleSetter'
-import { useLocalized } from '../LocaleManager'
-import { PreferEnglishName } from './PreferEnglishName'
-import { Account } from './Account'
-import { Token } from './Token'
-import { Debug } from './Debug'
-import { Server } from './Server'
-import { UserPermissions } from 'nhitomi-api'
+import React, { ReactNode, useMemo } from "react";
+import { PrefetchGenerator, PrefetchLink, TypedPrefetchLinkProps, usePostfetch } from "../Prefetch";
+import { ClientInfo, useClientInfo } from "../ClientManager";
+import { Container } from "../Components/Container";
+import { FormattedMessage } from "react-intl";
+import { Language } from "./Language";
+import { Animation } from "./Animation";
+import { SettingsFocusContainer } from "./SettingsFocusContainer";
+import { useQueryState } from "../state";
+import { MacCommandFilled, PictureOutlined, ReadOutlined, ToolOutlined, UserOutlined } from "@ant-design/icons";
+import { PageContainer } from "../Components/PageContainer";
+import { Blur } from "./Blur";
+import { Shortcuts } from "./Shortcuts";
+import { useTabTitle } from "../TitleSetter";
+import { useLocalized } from "../LocaleManager";
+import { PreferEnglishName } from "./PreferEnglishName";
+import { Account } from "./Account";
+import { Token } from "./Token";
+import { Debug } from "./Debug";
+import { Server } from "./Server";
+import { UserPermissions } from "nhitomi-api";
 
 export type PrefetchResult = ClientInfo
 export type PrefetchOptions = { focus?: SettingsFocus }
@@ -50,51 +50,51 @@ export type SettingsItem = { [key in SettingsSection]: keyof SettingsStructure[k
 export type SettingsFocus = SettingsSection | SettingsItem
 
 export const useSettingsPrefetch: PrefetchGenerator<PrefetchResult, PrefetchOptions> = ({ mode, focus: targetFocus }) => {
-  const { fetchInfo } = useClientInfo()
-  const [currentFocus] = useQueryState<SettingsFocus>('replace', 'focus')
+  const { fetchInfo } = useClientInfo();
+  const [currentFocus] = useQueryState<SettingsFocus>("replace", "focus");
 
-  const focus = targetFocus || (mode === 'postfetch' && currentFocus) || undefined
+  const focus = targetFocus || (mode === "postfetch" && currentFocus) || undefined;
 
   return {
     destination: {
-      path: '/settings',
+      path: "/settings",
       query: { focus }
     },
 
     restoreScroll: !focus,
 
     fetch: async () => {
-      const info = await fetchInfo()
+      const info = await fetchInfo();
 
       if (!info.authenticated)
-        throw Error('Unauthorized.')
+        throw Error("Unauthorized.");
 
-      return info
+      return info;
     }
-  }
-}
+  };
+};
 
 export const SettingsLink = ({ focus, ...props }: TypedPrefetchLinkProps & PrefetchOptions) => (
   <PrefetchLink fetch={useSettingsPrefetch} options={{ focus }} {...props} />
-)
+);
 
 export const Settings = (options: PrefetchOptions) => {
-  const { result } = usePostfetch(useSettingsPrefetch, { requireAuth: true, ...options })
+  const { result } = usePostfetch(useSettingsPrefetch, { requireAuth: true, ...options });
 
   if (!result)
-    return null
+    return null;
 
   return (
     <PageContainer>
       <Loaded />
     </PageContainer>
-  )
-}
+  );
+};
 
 const Loaded = () => {
-  const { permissions } = useClientInfo()
+  const { permissions } = useClientInfo();
 
-  useTabTitle(useLocalized('pages.settings.title'))
+  useTabTitle(useLocalized("pages.settings.title"));
 
   return useMemo(() => (
     <Container className='divide-y divide-gray-darkest'>
@@ -139,7 +139,7 @@ const Loaded = () => {
           type='internal'
           name={<span><ToolOutlined /> Internal</span>}>
 
-          {process.env.NODE_ENV === 'development' && (
+          {process.env.NODE_ENV === "development" && (
             <Debug />
           )}
 
@@ -149,14 +149,14 @@ const Loaded = () => {
         </Section>
       </div>
     </Container>
-  ), [permissions])
-}
+  ), [permissions]);
+};
 
 const Section = ({ name, type, children, className }: { name?: ReactNode, type: SettingsSection, children?: ReactNode[], className?: string }) => {
-  children = children?.filter(c => c)
+  children = children?.filter(c => c);
 
   if (!children?.length)
-    return null
+    return null;
 
   return (
     <SettingsFocusContainer
@@ -169,5 +169,5 @@ const Section = ({ name, type, children, className }: { name?: ReactNode, type: 
         {children?.map(child => <div className='py-4' children={child} />)}
       </div>
     </SettingsFocusContainer>
-  )
-}
+  );
+};

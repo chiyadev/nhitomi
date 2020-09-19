@@ -1,8 +1,8 @@
-import React, { createContext, ReactNode, useRef, useLayoutEffect, useMemo, useContext, useState } from 'react'
-import nprogress from 'nprogress'
-import { AnimationMode } from './ConfigManager'
+import React, { createContext, ReactNode, useContext, useLayoutEffect, useMemo, useRef, useState } from "react";
+import nprogress from "nprogress";
+import { AnimationMode } from "./ConfigManager";
 
-import './Progress.css'
+import "./Progress.css";
 
 const ProgressContext = createContext<{
   begin: () => void
@@ -10,26 +10,32 @@ const ProgressContext = createContext<{
 
   mode: AnimationMode
   setMode: (mode: AnimationMode) => void
-}>(undefined as any)
+}>(undefined as any);
 
 export function useProgress() {
-  return useContext(ProgressContext)
+  return useContext(ProgressContext);
 }
 
 export const ProgressManager = ({ children }: { children?: ReactNode }) => {
-  const count = useRef(0)
+  const count = useRef(0);
 
   // do not rely on useConfig('animation') to allow for code splitting
   // see AnimationSetter, where this state is actually synchronized with the config entry
-  const [mode, setMode] = useState<AnimationMode>('normal')
+  const [mode, setMode] = useState<AnimationMode>("normal");
 
   useLayoutEffect(() => {
-    let easing: string
+    let easing: string;
 
     switch (mode) {
-      case 'normal': easing = 'ease'; break
-      case 'faster': easing = 'cubic-bezier(0, 1, 0, 1)'; break
-      case 'none': easing = 'steps-start'; break
+      case "normal":
+        easing = "ease";
+        break;
+      case "faster":
+        easing = "cubic-bezier(0, 1, 0, 1)";
+        break;
+      case "none":
+        easing = "steps-start";
+        break;
     }
 
     nprogress.configure({
@@ -42,28 +48,28 @@ export const ProgressManager = ({ children }: { children?: ReactNode }) => {
         </div>
       `,
       easing
-    })
-  }, [mode])
+    });
+  }, [mode]);
 
   // timeout prevents flickering when fetching multiple resources in a short time
-  const done = useRef<number>()
+  const done = useRef<number>();
 
   return (
     <ProgressContext.Provider
       children={children}
       value={useMemo(() => ({
         begin: () => {
-          clearTimeout(done.current)
+          clearTimeout(done.current);
 
           if (count.current++ === 0)
-            nprogress.start()
+            nprogress.start();
         },
         end: () => {
           if (--count.current === 0)
-            done.current = window.setTimeout(() => nprogress.done(), 200)
+            done.current = window.setTimeout(() => nprogress.done(), 200);
         },
         mode,
         setMode
       }), [mode])} />
-  )
-}
+  );
+};

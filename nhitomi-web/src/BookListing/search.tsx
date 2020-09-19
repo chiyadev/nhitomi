@@ -1,8 +1,8 @@
-import { SortDirection, BookSort, BookQuery, QueryMatchMode, LanguageType, ScraperType } from 'nhitomi-api'
-import { tokenize } from './SearchInput'
-import { Client, ClientInfo } from '../ClientManager'
+import { BookQuery, BookSort, LanguageType, QueryMatchMode, ScraperType, SortDirection } from "nhitomi-api";
+import { tokenize } from "./SearchInput";
+import { Client, ClientInfo } from "../ClientManager";
 
-export const DefaultQueryLimit = 50
+export const DefaultQueryLimit = 50;
 
 export type SearchQuery = {
   query?: string
@@ -29,62 +29,62 @@ export function convertQuery({ query, order, sort, langs, sources }: SearchQuery
       value: sort || BookSort.UpdatedTime,
       direction: order || SortDirection.Descending
     }]
-  }
+  };
 
-  for (const token of tokenize(query || '')) {
+  for (const token of tokenize(query || "")) {
     switch (token.type) {
-      case 'other': {
+      case "other": {
         if (token.display)
-          (result.all || (result.all = { values: [], mode: QueryMatchMode.All })).values.push(token.display)
+          (result.all || (result.all = { values: [], mode: QueryMatchMode.All })).values.push(token.display);
 
-        break
+        break;
       }
 
-      case 'tag': {
-        const value = token.display.substring(token.display.indexOf(':'))
+      case "tag": {
+        const value = token.display.substring(token.display.indexOf(":"));
 
         if (value)
-          (result.tags![token.tag] || (result.tags![token.tag] = { values: [], mode: QueryMatchMode.All })).values.push(wrapTag(value))
+          (result.tags![token.tag] || (result.tags![token.tag] = { values: [], mode: QueryMatchMode.All })).values.push(wrapTag(value));
 
-        break
+        break;
       }
     }
   }
 
-  return result
+  return result;
 }
 
 function wrapTag(tag: string) {
-  let negated = false
+  let negated = false;
 
-  if (tag.startsWith('-')) {
-    negated = true
-    tag = tag.substring(1)
+  if (tag.startsWith("-")) {
+    negated = true;
+    tag = tag.substring(1);
   }
 
   // tags are wrapped in quotes for phrase match
-  tag = `"${tag}"`
+  tag = `"${tag}"`;
 
   if (negated)
-    tag = '-' + tag
+    tag = "-" + tag;
 
-  return tag
+  return tag;
 }
 
 export async function performQuery(client: Client, info: ClientInfo, query: SearchQuery) {
   // try scanning for links first
-  if (query.query && info.scrapers.findIndex(s => !s.galleryRegexLax || query.query?.match(new RegExp(s.galleryRegexLax, 'gi'))?.length) !== -1) {
-    const { matches } = await client.book.getBooksByLink({ getBookByLinkRequest: { link: query.query } })
+  if (query.query && info.scrapers.findIndex(s => !s.galleryRegexLax || query.query?.match(new RegExp(s.galleryRegexLax, "gi"))?.length) !== -1) {
+    const { matches } = await client.book.getBooksByLink({ getBookByLinkRequest: { link: query.query } });
 
     if (matches.length) {
       return {
         items: matches.map(match => match.book),
-        took: '',
+        took: "",
         total: matches.length
-      }
+      };
     }
   }
 
   // if not, perform an actual search
-  return await client.book.searchBooks({ bookQuery: convertQuery(query) })
+  return await client.book.searchBooks({ bookQuery: convertQuery(query) });
 }

@@ -1,39 +1,38 @@
-import React, { useMemo, useRef } from 'react'
-import { SettingsFocusContainer } from './SettingsFocusContainer'
-import { Loading3QuartersOutlined } from '@ant-design/icons'
-import { useAsync } from '../hooks'
-import { useClient } from '../ClientManager'
-import { useNotify } from '../NotificationManager'
-import { ConfigEntry } from 'nhitomi-api'
-import { cx } from 'emotion'
-import { Input } from '../Components/Input'
-import { useProgress } from '../ProgressManager'
-import { usePageState } from '../state'
+import React, { useMemo, useRef } from "react";
+import { SettingsFocusContainer } from "./SettingsFocusContainer";
+import { Loading3QuartersOutlined } from "@ant-design/icons";
+import { useAsync } from "../hooks";
+import { useClient } from "../ClientManager";
+import { useNotify } from "../NotificationManager";
+import { ConfigEntry } from "nhitomi-api";
+import { cx } from "emotion";
+import { Input } from "../Components/Input";
+import { useProgress } from "../ProgressManager";
+import { usePageState } from "../state";
 
 export const Server = () => {
-  const client = useClient()
-  const { begin, end } = useProgress()
-  const { notifyError } = useNotify()
-  const [config, setConfig] = usePageState<ConfigEntry[]>('config')
+  const client = useClient();
+  const { begin, end } = useProgress();
+  const { notifyError } = useNotify();
+  const [config, setConfig] = usePageState<ConfigEntry[]>("config");
 
   useAsync(async () => {
     if (config)
-      return
+      return;
 
     try {
-      setConfig(await client.internal.getServerConfig())
+      setConfig(await client.internal.getServerConfig());
+    } catch (e) {
+      notifyError(e);
     }
-    catch (e) {
-      notifyError(e)
-    }
-  }, [])
+  }, []);
 
-  const updatingRef = useRef<HTMLDivElement>(null)
-  const [updatingKey, setUpdatingKey] = usePageState('updatingKey', '')
-  const [updatingValue, setUpdatingValue] = usePageState('updatingValue', '')
+  const updatingRef = useRef<HTMLDivElement>(null);
+  const [updatingKey, setUpdatingKey] = usePageState("updatingKey", "");
+  const [updatingValue, setUpdatingValue] = usePageState("updatingValue", "");
 
   const submitChange = async () => {
-    begin()
+    begin();
 
     try {
       setConfig(await client.internal.setServerConfig({
@@ -41,18 +40,16 @@ export const Server = () => {
           key: updatingKey,
           value: updatingValue
         }
-      }))
+      }));
 
-      setUpdatingKey('')
-      setUpdatingValue('')
+      setUpdatingKey("");
+      setUpdatingValue("");
+    } catch (e) {
+      notifyError(e);
+    } finally {
+      end();
     }
-    catch (e) {
-      notifyError(e)
-    }
-    finally {
-      end()
-    }
-  }
+  };
 
   return (
     <SettingsFocusContainer focus='server'>
@@ -63,24 +60,24 @@ export const Server = () => {
         {useMemo(() => config
           ? config.map(({ key, value }) => (
             <div key={key} className={cx({
-              'rounded-sm bg-gray-darkest font-bold': key.toLowerCase() === updatingKey.toLowerCase()
+              "rounded-sm bg-gray-darkest font-bold": key.toLowerCase() === updatingKey.toLowerCase()
             })}>
               <code className='text-sm text-gray-darker cursor-pointer' onClick={() => {
-                setUpdatingKey(key)
-                setUpdatingValue(value)
+                setUpdatingKey(key);
+                setUpdatingValue(value);
 
                 updatingRef.current?.scrollIntoView({
-                  block: 'nearest',
-                  inline: 'nearest'
-                })
+                  block: "nearest",
+                  inline: "nearest"
+                });
               }}>
                 <span>{key}: </span>
               </code>
 
-              <code className={cx('text-sm', {
-                'text-blue': !isNaN(parseInt(value)),
-                'text-orange': typeof parseBoolean(value) === 'boolean',
-                'text-green': !!parseURL(value)
+              <code className={cx("text-sm", {
+                "text-blue": !isNaN(parseInt(value)),
+                "text-orange": typeof parseBoolean(value) === "boolean",
+                "text-green": !!parseURL(value)
               })}>
                 {value}
               </code>
@@ -98,21 +95,20 @@ export const Server = () => {
         <Input className='flex-1' placeholder='Value' value={updatingValue} setValue={setUpdatingValue} onSubmit={submitChange} />
       </div>
     </SettingsFocusContainer>
-  )
-}
+  );
+};
 
 function parseBoolean(s: string): boolean | undefined {
-  s = s.toLowerCase()
+  s = s.toLowerCase();
 
-  if (s === 'true') return true
-  if (s === 'false') return false
+  if (s === "true") return true;
+  if (s === "false") return false;
 }
 
 function parseURL(s: string): URL | undefined {
   try {
-    return new URL(s)
-  }
-  catch{
+    return new URL(s);
+  } catch {
     // ignored
   }
 }

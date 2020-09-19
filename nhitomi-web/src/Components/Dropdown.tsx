@@ -1,11 +1,11 @@
-import React, { ComponentProps, ReactNode, useState } from 'react'
-import { Tooltip } from './Tooltip'
-import { useSpring, animated } from 'react-spring'
-import { convertHex } from '../theme'
-import { cx, css } from 'emotion'
-import { RightOutlined } from '@ant-design/icons'
+import React, { ComponentProps, ReactNode, useState } from "react";
+import { Tooltip } from "./Tooltip";
+import { animated, useSpring } from "react-spring";
+import { convertHex } from "../theme";
+import { css, cx } from "emotion";
+import { RightOutlined } from "@ant-design/icons";
 
-export const Dropdown = ({ interactive = true, placement = 'bottom-start', touch = true, padding = true, scaleTransition = true, flip = false, overlayClassName, ...props }: ComponentProps<typeof Tooltip>) => {
+export const Dropdown = ({ interactive = true, placement = "bottom-start", touch = true, padding = true, scaleTransition = true, flip = false, overlayClassName, ...props }: ComponentProps<typeof Tooltip>) => {
   return (
     <Tooltip
       interactive={interactive}
@@ -14,28 +14,28 @@ export const Dropdown = ({ interactive = true, placement = 'bottom-start', touch
       padding={false}
       scaleTransition={scaleTransition}
       flip={flip}
-      overlayClassName={cx({ 'py-2': padding }, overlayClassName)}
+      overlayClassName={cx({ "py-2": padding }, overlayClassName)}
 
       {...props} />
-  )
-}
+  );
+};
 
 export const DropdownItem = ({ children, className, padding = true, icon, onClick }: { children?: ReactNode, className?: string, padding?: boolean, icon?: ReactNode, onClick?: () => void }) => {
-  const [hover, setHover] = useState(false)
-  const [click, setClick] = useState(false)
+  const [hover, setHover] = useState(false);
+  const [click, setClick] = useState(false);
 
   const style = useSpring({
-    backgroundColor: convertHex('#fff', click ? 0.25 : hover ? 0.125 : 0)
-  })
+    backgroundColor: convertHex("#fff", click ? 0.25 : hover ? 0.125 : 0)
+  });
 
   const iconStyle = useSpring({
     opacity: icon ? 1 : 0
-  })
+  });
 
   return (
     <animated.div
       style={style}
-      className={cx('cursor-pointer flex flex-row', { 'px-2 py-1': padding }, className)}
+      className={cx("cursor-pointer flex flex-row", { "px-2 py-1": padding }, className)}
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
       onMouseDown={() => setClick(true)}
@@ -48,20 +48,20 @@ export const DropdownItem = ({ children, className, padding = true, icon, onClic
 
       <div className='flex-1 truncate' children={children} />
     </animated.div>
-  )
-}
+  );
+};
 
 export const DropdownGroup = ({ name, children, className }: { name?: ReactNode, children?: ReactNode, className?: string }) => (
-  <div className={cx('pl-2', className)}>
+  <div className={cx("pl-2", className)}>
     <div className='text-gray-darker cursor-default py-1 truncate'>{name}</div>
 
     <div
       className='rounded-l-sm overflow-hidden'
       children={children} />
   </div>
-)
+);
 
-export const DropdownSubMenu = ({ name, children, onShow, onHide, ...props }: { name?: ReactNode } & ComponentProps<typeof DropdownItem> & Pick<ComponentProps<typeof Dropdown>, 'onShow' | 'onHide'>) => (
+export const DropdownSubMenu = ({ name, children, onShow, onHide, ...props }: { name?: ReactNode } & ComponentProps<typeof DropdownItem> & Pick<ComponentProps<typeof Dropdown>, "onShow" | "onHide">) => (
   <Dropdown
     appendTo='parent'
     overlay={children}
@@ -84,8 +84,8 @@ export const DropdownSubMenu = ({ name, children, onShow, onHide, ...props }: { 
       </>)}
       {...props} />
   </Dropdown>
-)
+);
 
 export const DropdownDivider = ({ className }: { className?: string }) => (
-  <div className={cx('mx-2 my-2 bg-gray', className, css`height: 1px; opacity: 15%;`)} />
-)
+  <div className={cx("mx-2 my-2 bg-gray", className, css`height: 1px; opacity: 15%;`)} />
+);

@@ -1,17 +1,17 @@
-import React from 'react'
-import { FormattedMessage } from 'react-intl'
-import { SettingsFocusContainer } from './SettingsFocusContainer'
-import { useConfig } from '../ConfigManager'
-import { useClientInfo } from '../ClientManager'
-import { LogoutOutlined } from '@ant-design/icons'
-import { FlatButton } from '../Components/FlatButton'
+import React from "react";
+import { FormattedMessage } from "react-intl";
+import { SettingsFocusContainer } from "./SettingsFocusContainer";
+import { useConfig } from "../ConfigManager";
+import { useClientInfo } from "../ClientManager";
+import { LogoutOutlined } from "@ant-design/icons";
+import { FlatButton } from "../Components/FlatButton";
 
 export const Account = () => {
-  const { info, setInfo } = useClientInfo()
-  const [, setToken] = useConfig('token')
+  const { info, setInfo } = useClientInfo();
+  const [, setToken] = useConfig("token");
 
   if (!info.authenticated)
-    return null
+    return null;
 
   return (
     <SettingsFocusContainer focus='account'>
@@ -22,12 +22,12 @@ export const Account = () => {
       <FlatButton
         icon={<LogoutOutlined />}
         onClick={() => {
-          setToken(undefined)
-          setInfo({ ...info, authenticated: false })
+          setToken(undefined);
+          setInfo({ ...info, authenticated: false });
         }}>
 
         <FormattedMessage id='pages.settings.user.account.logout' />
       </FlatButton>
     </SettingsFocusContainer>
-  )
-}
+  );
+};

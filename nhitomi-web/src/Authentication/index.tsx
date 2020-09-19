@@ -1,97 +1,95 @@
-import React, { useLayoutEffect, useMemo, useState } from 'react'
-import { useQueryState, useNavigator, NavigationArgs } from '../state'
-import { TypedPrefetchLinkProps, PrefetchLink, usePostfetch, PrefetchGenerator } from '../Prefetch'
-import { ClientInfo, useClientInfo } from '../ClientManager'
-import { useTabTitle } from '../TitleSetter'
-import { useLocalized } from '../LocaleManager'
-import { stringifyOAuthState, useXsrfToken, parseOAuthState } from './oauth'
-import { FormattedMessage } from 'react-intl'
-import { DiscordOutlined, DiscordColor } from '../Components/Icons/DiscordOutlined'
-import { FilledButton } from '../Components/FilledButton'
-import { Disableable } from '../Components/Disableable'
-import { TwitterOutlined, TwitterColor } from '../Components/Icons/TwitterOutlined'
-import { useSpring, animated } from 'react-spring'
-import GitHubButton from 'react-github-btn'
-import { Anchor } from '../Components/Anchor'
+import React, { useLayoutEffect, useMemo, useState } from "react";
+import { NavigationArgs, useNavigator, useQueryState } from "../state";
+import { PrefetchGenerator, PrefetchLink, TypedPrefetchLinkProps, usePostfetch } from "../Prefetch";
+import { ClientInfo, useClientInfo } from "../ClientManager";
+import { useTabTitle } from "../TitleSetter";
+import { useLocalized } from "../LocaleManager";
+import { parseOAuthState, stringifyOAuthState, useXsrfToken } from "./oauth";
+import { FormattedMessage } from "react-intl";
+import { DiscordColor, DiscordOutlined } from "../Components/Icons/DiscordOutlined";
+import { FilledButton } from "../Components/FilledButton";
+import { Disableable } from "../Components/Disableable";
+import { TwitterColor, TwitterOutlined } from "../Components/Icons/TwitterOutlined";
+import { animated, useSpring } from "react-spring";
+import GitHubButton from "react-github-btn";
+import { Anchor } from "../Components/Anchor";
 
 export type PrefetchResult = { info: ClientInfo, state: string }
 export type PrefetchOptions = { redirect?: NavigationArgs }
 
 export const useAuthenticationPrefetch: PrefetchGenerator<PrefetchResult, PrefetchOptions> = ({ mode, redirect: targetRedirect }) => {
-  const { info } = useClientInfo()
-  const [currentState] = useQueryState<string>('replace', 'state')
-  const navigator = useNavigator()
-  const [xsrf] = useXsrfToken()
+  const { info } = useClientInfo();
+  const [currentState] = useQueryState<string>("replace", "state");
+  const navigator = useNavigator();
+  const [xsrf] = useXsrfToken();
 
-  let state: string
+  let state: string;
 
   if (targetRedirect) {
-    state = stringifyOAuthState({ xsrf, redirect: navigator.evaluate(targetRedirect) })
-  }
-  else if (mode === 'postfetch' && currentState) {
-    const { redirect } = parseOAuthState(currentState)
-    state = stringifyOAuthState({ xsrf, redirect })
-  }
-  else {
-    state = stringifyOAuthState({ xsrf, redirect: { path: '/' } })
+    state = stringifyOAuthState({ xsrf, redirect: navigator.evaluate(targetRedirect) });
+  } else if (mode === "postfetch" && currentState) {
+    const { redirect } = parseOAuthState(currentState);
+    state = stringifyOAuthState({ xsrf, redirect });
+  } else {
+    state = stringifyOAuthState({ xsrf, redirect: { path: "/" } });
   }
 
   return {
     destination: {
-      path: '/auth',
+      path: "/auth",
       query: { state }
     },
 
     // info is always assumed to be up-to-date
     fetch: async () => ({ info, state })
-  }
-}
+  };
+};
 
 export const AuthenticationLink = ({ redirect, ...props }: TypedPrefetchLinkProps & PrefetchOptions) => (
   <PrefetchLink fetch={useAuthenticationPrefetch} options={{ redirect }} {...props} />
-)
+);
 
 export const Authentication = (options: PrefetchOptions) => {
-  const { result } = usePostfetch(useAuthenticationPrefetch, options)
+  const { result } = usePostfetch(useAuthenticationPrefetch, options);
 
   if (!result)
-    return null
+    return null;
 
   return (
     <Loaded {...result} />
-  )
-}
+  );
+};
 
 function appendState(url: string, state: string) {
-  const u = new URL(url)
-  u.searchParams.append('state', state)
-  return u.href
+  const u = new URL(url);
+  u.searchParams.append("state", state);
+  return u.href;
 }
 
 const Loaded = ({ info: { discordOAuthUrl }, state }: PrefetchResult) => {
-  useTabTitle(useLocalized('pages.authentication.title'))
+  useTabTitle(useLocalized("pages.authentication.title"));
 
-  const navigator = useNavigator()
-  const { info } = useClientInfo()
+  const navigator = useNavigator();
+  const { info } = useClientInfo();
 
   useLayoutEffect(() => {
     // redirect immediately if already authenticated
     if (info.authenticated) {
-      const { redirect } = parseOAuthState(state)
+      const { redirect } = parseOAuthState(state);
 
-      navigator.navigate('replace', { state: {}, ...redirect })
+      navigator.navigate("replace", { state: {}, ...redirect });
     }
-  }, [info.authenticated, navigator, state])
+  }, [info.authenticated, navigator, state]);
 
   const logoStyle = useSpring({
-    from: { opacity: 0, transform: 'scale(0.9)' },
-    to: { opacity: 1, transform: 'scale(1)' }
-  })
+    from: { opacity: 0, transform: "scale(0.9)" },
+    to: { opacity: 1, transform: "scale(1)" }
+  });
 
   const infoStyle = useSpring({
     from: { opacity: 0, marginTop: -5 },
     to: { opacity: 1, marginTop: 0 }
-  })
+  });
 
   return <>
     <animated.img style={logoStyle} alt='logo' className='w-48 h-48 pointer-events-none select-none mx-auto mb-4 mt-8' src='/logo-192x192.png' />
@@ -124,15 +122,15 @@ const Loaded = ({ info: { discordOAuthUrl }, state }: PrefetchResult) => {
 
       <GitHubButtons />
     </animated.div>
-  </>
-}
+  </>;
+};
 
 const GitHubButtons = () => {
-  const [hover, setHover] = useState(false)
+  const [hover, setHover] = useState(false);
 
   const style = useSpring({
     opacity: hover ? 1 : 0.5
-  })
+  });
 
   return (
     <animated.div
@@ -145,5 +143,5 @@ const GitHubButtons = () => {
       <GitHubButton href='https://github.com/chiyadev/nhitomi' data-icon='octicon-star' data-show-count={true}>Star</GitHubButton>
       <GitHubButton href='https://github.com/chiyadev/nhitomi/fork' data-icon='octicon-repo-forked' data-show-count={true}>Fork</GitHubButton>
     </animated.div>
-  )
-}
+  );
+};

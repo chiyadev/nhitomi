@@ -1,5 +1,5 @@
 // @ts-ignore
-import { sync as probe } from 'probe-image-size'
+import { sync as probe } from "probe-image-size";
 
 export async function probeImage(data: Blob): Promise<{
   width: number
@@ -9,5 +9,5 @@ export async function probeImage(data: Blob): Promise<{
   wUnits: string
   hUnits: string
 }> {
-  return probe(new Uint8Array(await new Response(data).arrayBuffer()))
+  return probe(new Uint8Array(await new Response(data).arrayBuffer()));
 }

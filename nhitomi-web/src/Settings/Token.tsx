@@ -1,15 +1,15 @@
-import React, { useState } from 'react'
-import { FormattedMessage } from 'react-intl'
-import { SettingsFocusContainer } from './SettingsFocusContainer'
-import { useConfig } from '../ConfigManager'
-import { cx } from 'emotion'
-import { LinkOutlined } from '@ant-design/icons'
-import { getColor } from '../theme'
-import { Anchor } from '../Components/Anchor'
+import React, { useState } from "react";
+import { FormattedMessage } from "react-intl";
+import { SettingsFocusContainer } from "./SettingsFocusContainer";
+import { useConfig } from "../ConfigManager";
+import { cx } from "emotion";
+import { LinkOutlined } from "@ant-design/icons";
+import { getColor } from "../theme";
+import { Anchor } from "../Components/Anchor";
 
 export const Token = () => {
-  const [token] = useConfig('token')
-  const [visible, setVisible] = useState(false)
+  const [token] = useConfig("token");
+  const [visible, setVisible] = useState(false);
 
   return (
     <SettingsFocusContainer focus='token'>
@@ -26,8 +26,8 @@ export const Token = () => {
           token: (
             <span
               onClick={() => setVisible(true)}
-              className={cx('bg-gray-darkest px-1 rounded', { 'cursor-pointer': !visible })}
-              style={{ color: visible ? undefined : getColor('transparent').rgb }}>
+              className={cx("bg-gray-darkest px-1 rounded", { "cursor-pointer": !visible })}
+              style={{ color: visible ? undefined : getColor("transparent").rgb }}>
 
               {token}
             </span>
@@ -39,5 +39,5 @@ export const Token = () => {
         <div className='text-sm text-red'><FormattedMessage id='pages.settings.user.token.warning' /></div>
       )}
     </SettingsFocusContainer>
-  )
-}
+  );
+};

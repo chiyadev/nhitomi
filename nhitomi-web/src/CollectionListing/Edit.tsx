@@ -1,29 +1,29 @@
-import React, { useState, useCallback, useMemo } from 'react'
-import { Collection, User, ObjectType } from 'nhitomi-api'
-import { PrefetchGenerator, usePostfetch, TypedPrefetchLinkProps, PrefetchLink, BackLink, usePrefetch } from '../Prefetch'
-import { useClient } from '../ClientManager'
-import { PageContainer } from '../Components/PageContainer'
-import { usePageState } from '../state'
-import { Container } from '../Components/Container'
-import { FormattedMessage } from 'react-intl'
-import { Input } from '../Components/Input'
-import { FilledButton } from '../Components/FilledButton'
-import { LeftOutlined, Loading3QuartersOutlined, DeleteOutlined, CheckOutlined } from '@ant-design/icons'
-import { FlatButton } from '../Components/FlatButton'
-import { Disableable } from '../Components/Disableable'
-import { useNotify } from '../NotificationManager'
-import { useTabTitle } from '../TitleSetter'
-import { useLocalized } from '../LocaleManager'
-import { getColor } from '../theme'
-import { useCollectionContentPrefetch } from '../CollectionContent'
-import { useCollectionListingPrefetch } from '.'
-import { Edit as BookEdit } from './Book/Edit'
+import React, { useCallback, useMemo, useState } from "react";
+import { Collection, ObjectType, User } from "nhitomi-api";
+import { BackLink, PrefetchGenerator, PrefetchLink, TypedPrefetchLinkProps, usePostfetch, usePrefetch } from "../Prefetch";
+import { useClient } from "../ClientManager";
+import { PageContainer } from "../Components/PageContainer";
+import { usePageState } from "../state";
+import { Container } from "../Components/Container";
+import { FormattedMessage } from "react-intl";
+import { Input } from "../Components/Input";
+import { FilledButton } from "../Components/FilledButton";
+import { CheckOutlined, DeleteOutlined, LeftOutlined, Loading3QuartersOutlined } from "@ant-design/icons";
+import { FlatButton } from "../Components/FlatButton";
+import { Disableable } from "../Components/Disableable";
+import { useNotify } from "../NotificationManager";
+import { useTabTitle } from "../TitleSetter";
+import { useLocalized } from "../LocaleManager";
+import { getColor } from "../theme";
+import { useCollectionContentPrefetch } from "../CollectionContent";
+import { useCollectionListingPrefetch } from ".";
+import { Edit as BookEdit } from "./Book/Edit";
 
 export type PrefetchResult = { collection: Collection, owner: User }
 export type PrefetchOptions = { id: string }
 
 export const useCollectionEditPrefetch: PrefetchGenerator<PrefetchResult, PrefetchOptions> = ({ id }) => {
-  const client = useClient()
+  const client = useClient();
 
   return {
     destination: {
@@ -31,49 +31,49 @@ export const useCollectionEditPrefetch: PrefetchGenerator<PrefetchResult, Prefet
     },
 
     fetch: async () => {
-      const collection = await client.collection.getCollection({ id })
-      const owner = await client.user.getUser({ id: collection.ownerIds[0] })
+      const collection = await client.collection.getCollection({ id });
+      const owner = await client.user.getUser({ id: collection.ownerIds[0] });
 
-      return { collection, owner }
+      return { collection, owner };
     }
-  }
-}
+  };
+};
 
 export const CollectionEditLink = ({ id, ...props }: TypedPrefetchLinkProps & PrefetchOptions) => (
   <PrefetchLink fetch={useCollectionEditPrefetch} options={{ id }} {...props} />
-)
+);
 
 export const CollectionEdit = (options: PrefetchOptions) => {
-  const { result } = usePostfetch(useCollectionEditPrefetch, { requireAuth: true, ...options })
+  const { result } = usePostfetch(useCollectionEditPrefetch, { requireAuth: true, ...options });
 
   if (!result)
-    return null
+    return null;
 
   return (
     <PageContainer>
       <Loaded {...result} />
     </PageContainer>
-  )
-}
+  );
+};
 
 const Loaded = ({ collection, owner }: PrefetchResult) => {
-  useTabTitle(collection.name, useLocalized('pages.collectionListing.edit.title'))
+  useTabTitle(collection.name, useLocalized("pages.collectionListing.edit.title"));
 
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(false);
 
-  const client = useClient()
-  const { notifyError } = useNotify()
-  const [, navigateListing] = usePrefetch(useCollectionListingPrefetch, { id: owner.id })
-  const [, navigateCollection] = usePrefetch(useCollectionContentPrefetch, { id: collection.id })
+  const client = useClient();
+  const { notifyError } = useNotify();
+  const [, navigateListing] = usePrefetch(useCollectionListingPrefetch, { id: owner.id });
+  const [, navigateCollection] = usePrefetch(useCollectionContentPrefetch, { id: collection.id });
 
-  const [name, setName] = usePageState('name', collection.name)
-  const [description, setDescription] = usePageState('description', collection.description)
+  const [name, setName] = usePageState("name", collection.name);
+  const [description, setDescription] = usePageState("description", collection.description);
 
   const submit = useCallback(async () => {
     if (loading)
-      return
+      return;
 
-    setLoading(true)
+    setLoading(true);
 
     try {
       await client.collection.updateCollection({
@@ -82,35 +82,31 @@ const Loaded = ({ collection, owner }: PrefetchResult) => {
           name,
           description
         }
-      })
+      });
 
-      await navigateCollection()
+      await navigateCollection();
+    } catch (e) {
+      notifyError(e);
+    } finally {
+      setLoading(false);
     }
-    catch (e) {
-      notifyError(e)
-    }
-    finally {
-      setLoading(false)
-    }
-  }, [client.collection, collection.id, description, loading, name, navigateCollection, notifyError])
+  }, [client.collection, collection.id, description, loading, name, navigateCollection, notifyError]);
 
   const delette = useCallback(async () => {
     if (loading)
-      return
+      return;
 
-    setLoading(true)
+    setLoading(true);
 
     try {
-      await client.collection.deleteCollection({ id: collection.id })
-      await navigateListing()
+      await client.collection.deleteCollection({ id: collection.id });
+      await navigateListing();
+    } catch (e) {
+      notifyError(e);
+    } finally {
+      setLoading(false);
     }
-    catch (e) {
-      notifyError(e)
-    }
-    finally {
-      setLoading(false)
-    }
-  }, [client.collection, collection.id, loading, navigateListing, notifyError])
+  }, [client.collection, collection.id, loading, navigateListing, notifyError]);
 
   return (
     <Container className='divide-y divide-gray-darkest'>
@@ -153,11 +149,11 @@ const Loaded = ({ collection, owner }: PrefetchResult) => {
                   </FlatButton>
                 </BackLink>
 
-                <FlatButton color={getColor('red', 'darker')} onClick={delette} icon={<DeleteOutlined />}>
+                <FlatButton color={getColor("red", "darker")} onClick={delette} icon={<DeleteOutlined />}>
                   <FormattedMessage id='pages.collectionListing.edit.delete' />
                 </FlatButton>
 
-                <FilledButton color={getColor('blue')} onClick={submit} icon={loading ? <Loading3QuartersOutlined className='animate-spin' /> : <CheckOutlined />}>
+                <FilledButton color={getColor("blue")} onClick={submit} icon={loading ? <Loading3QuartersOutlined className='animate-spin' /> : <CheckOutlined />}>
                   <FormattedMessage id='pages.collectionListing.edit.submit' />
                 </FilledButton>
               </div>
@@ -170,5 +166,5 @@ const Loaded = ({ collection, owner }: PrefetchResult) => {
         </div>
       </Disableable>
     </Container>
-  )
-}
+  );
+};

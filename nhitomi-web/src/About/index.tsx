@@ -1,57 +1,57 @@
-import React, { useMemo } from 'react'
-import { TypedPrefetchLinkProps, PrefetchLink, usePostfetch, PrefetchGenerator } from '../Prefetch'
-import { useClientInfo, ClientInfo } from '../ClientManager'
-import { PageContainer } from '../Components/PageContainer'
-import { useTabTitle } from '../TitleSetter'
-import { useLocalized } from '../LocaleManager'
-import { Container } from '../Components/Container'
-import { useSpring, animated } from 'react-spring'
-import { HeartFilled } from '@ant-design/icons'
-import { FilledButton } from '../Components/FilledButton'
-import { DiscordColor, DiscordOutlined } from '../Components/Icons/DiscordOutlined'
-import { FormattedMessage } from 'react-intl'
-import { ScraperType } from 'nhitomi-api'
-import { Anchor } from '../Components/Anchor'
+import React, { useMemo } from "react";
+import { PrefetchGenerator, PrefetchLink, TypedPrefetchLinkProps, usePostfetch } from "../Prefetch";
+import { ClientInfo, useClientInfo } from "../ClientManager";
+import { PageContainer } from "../Components/PageContainer";
+import { useTabTitle } from "../TitleSetter";
+import { useLocalized } from "../LocaleManager";
+import { Container } from "../Components/Container";
+import { animated, useSpring } from "react-spring";
+import { HeartFilled } from "@ant-design/icons";
+import { FilledButton } from "../Components/FilledButton";
+import { DiscordColor, DiscordOutlined } from "../Components/Icons/DiscordOutlined";
+import { FormattedMessage } from "react-intl";
+import { ScraperType } from "nhitomi-api";
+import { Anchor } from "../Components/Anchor";
 
 export type PrefetchResult = { info: ClientInfo }
 export type PrefetchOptions = {}
 
 export const useAboutPrefetch: PrefetchGenerator<PrefetchResult, PrefetchOptions> = () => {
-  const { fetchInfo } = useClientInfo()
+  const { fetchInfo } = useClientInfo();
 
   return {
     destination: {
-      path: '/about'
+      path: "/about"
     },
 
     fetch: async () => ({ info: await fetchInfo() })
-  }
-}
+  };
+};
 
 export const AboutLink = ({ ...props }: TypedPrefetchLinkProps & PrefetchOptions) => (
   <PrefetchLink fetch={useAboutPrefetch} options={{}} {...props} />
-)
+);
 
 export const About = (options: PrefetchOptions) => {
-  const { result } = usePostfetch(useAboutPrefetch, { requireAuth: true, ...options })
+  const { result } = usePostfetch(useAboutPrefetch, { requireAuth: true, ...options });
 
   if (!result)
-    return null
+    return null;
 
   return (
     <PageContainer>
       <Loaded {...result} />
     </PageContainer>
-  )
-}
+  );
+};
 
 const Loaded = ({ info }: PrefetchResult) => {
-  useTabTitle(useLocalized('pages.about.title'))
+  useTabTitle(useLocalized("pages.about.title"));
 
   const logoStyle = useSpring({
     from: { opacity: 0 },
     to: { opacity: 1 }
-  })
+  });
 
   return (
     <Container className='divide-y divide-gray-darkest'>
@@ -75,8 +75,8 @@ const Loaded = ({ info }: PrefetchResult) => {
         ), [info])}
       </div>
     </Container>
-  )
-}
+  );
+};
 
 const Content = ({ info }: PrefetchResult) => {
   return <>
@@ -114,7 +114,7 @@ const Content = ({ info }: PrefetchResult) => {
             <img className='inline rounded-full w-6 h-6 mr-2 align-middle' alt={scraper.type} src={`/assets/icons/${scraper.type}.jpg`} />
 
             {scraper.name}
-            {' — '}
+            {" — "}
             <Anchor target='_blank' className='text-blue' href={scraper.url}>{scraper.url}</Anchor>
           </li>
         ))}
@@ -158,5 +158,5 @@ const Content = ({ info }: PrefetchResult) => {
     </div>
 
     <div>Thank you for visiting! <span className='text-gray-darker'>— chiya.dev 2018-2020</span></div>
-  </>
-}
+  </>;
+};

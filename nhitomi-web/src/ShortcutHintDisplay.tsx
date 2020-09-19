@@ -1,11 +1,11 @@
-import { useShortcut } from './shortcut'
-import { usePrefetch } from './Prefetch'
-import { useSettingsPrefetch } from './Settings'
+import { useShortcut } from "./shortcut";
+import { usePrefetch } from "./Prefetch";
+import { useSettingsPrefetch } from "./Settings";
 
 export const ShortcutHintDisplay = () => {
-  const [, navigate] = usePrefetch(useSettingsPrefetch, { focus: 'shortcuts' })
+  const [, navigate] = usePrefetch(useSettingsPrefetch, { focus: "shortcuts" });
 
-  useShortcut('shortcutsKey', () => navigate('push'))
+  useShortcut("shortcutsKey", () => navigate("push"));
 
-  return null
-}
+  return null;
+};

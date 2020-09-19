@@ -1,24 +1,24 @@
-import React, { Dispatch, useRef, useMemo } from 'react'
-import { BookPrefetchResult } from '..'
-import { Container } from '../../Components/Container'
-import { useClient } from '../../ClientManager'
-import { useNotify } from '../../NotificationManager'
-import { useProgress } from '../../ProgressManager'
-import { useSpring, animated } from 'react-spring'
-import { LoadContainer } from '../../Components/LoadContainer'
-import { DefaultQueryLimit } from '../../BookListing/search'
-import { Book } from 'nhitomi-api'
-import { BookList } from '../../Components/BookList'
-import { useTabTitle } from '../../TitleSetter'
-import { FormattedMessage } from 'react-intl'
-import { EmptyIndicator } from '../../Components/EmptyIndicator'
-import { Menu } from './Menu'
-import { Overlay } from './Overlay'
+import React, { Dispatch, useMemo, useRef } from "react";
+import { BookPrefetchResult } from "..";
+import { Container } from "../../Components/Container";
+import { useClient } from "../../ClientManager";
+import { useNotify } from "../../NotificationManager";
+import { useProgress } from "../../ProgressManager";
+import { animated, useSpring } from "react-spring";
+import { LoadContainer } from "../../Components/LoadContainer";
+import { DefaultQueryLimit } from "../../BookListing/search";
+import { Book } from "nhitomi-api";
+import { BookList } from "../../Components/BookList";
+import { useTabTitle } from "../../TitleSetter";
+import { FormattedMessage } from "react-intl";
+import { EmptyIndicator } from "../../Components/EmptyIndicator";
+import { Menu } from "./Menu";
+import { Overlay } from "./Overlay";
 
 export const BookDisplay = ({ result, setResult }: { result: BookPrefetchResult, setResult: Dispatch<BookPrefetchResult> }) => {
-  const { collection, items } = result
+  const { collection, items } = result;
 
-  useTabTitle(collection.name)
+  useTabTitle(collection.name);
 
   return (
     <Container className='divide-y divide-gray-darkest'>
@@ -47,21 +47,21 @@ export const BookDisplay = ({ result, setResult }: { result: BookPrefetchResult,
         <Loader result={result} setResult={setResult} />
       </div>
     </Container>
-  )
-}
+  );
+};
 
 const Loader = ({ result, setResult }: { result: BookPrefetchResult, setResult: Dispatch<BookPrefetchResult> }) => {
-  const { collection } = result
+  const { collection } = result;
 
-  const client = useClient()
-  const { notifyError } = useNotify()
-  const { begin, end: endProgress } = useProgress()
+  const client = useClient();
+  const { notifyError } = useNotify();
+  const { begin, end: endProgress } = useProgress();
 
-  const loadId = useRef(result.nextOffset >= collection.items.length ? -1 : 0)
+  const loadId = useRef(result.nextOffset >= collection.items.length ? -1 : 0);
 
   const style = useSpring({
     opacity: loadId.current < 0 ? 0 : 1
-  })
+  });
 
   return (
     <animated.div style={style}>
@@ -70,31 +70,31 @@ const Loader = ({ result, setResult }: { result: BookPrefetchResult, setResult: 
         className='w-full h-20'
         onLoad={async () => {
           if (loadId.current < 0)
-            return
+            return;
 
-          begin()
+          begin();
 
           try {
-            const ids = collection.items.slice(result.nextOffset, result.nextOffset + DefaultQueryLimit)
-            const moreResult = ids.length ? await client.book.getBooks({ getBookManyRequest: { ids } }) : []
+            const ids = collection.items.slice(result.nextOffset, result.nextOffset + DefaultQueryLimit);
+            const moreResult = ids.length ? await client.book.getBooks({ getBookManyRequest: { ids } }) : [];
 
             if (loadId.current < 0)
-              return
+              return;
 
             if (!moreResult.length) {
-              loadId.current = -1
-              return
+              loadId.current = -1;
+              return;
             }
 
             // remove duplicates
-            const items: Book[] = []
-            const exists: { [id: string]: true } = {}
+            const items: Book[] = [];
+            const exists: { [id: string]: true } = {};
 
             for (const item of [...result.items, ...moreResult]) {
               if (!exists[item.id])
-                items.push(item)
+                items.push(item);
 
-              exists[item.id] = true
+              exists[item.id] = true;
             }
 
             setResult({
@@ -102,17 +102,15 @@ const Loader = ({ result, setResult }: { result: BookPrefetchResult, setResult: 
 
               items,
               nextOffset: result.nextOffset + DefaultQueryLimit
-            })
+            });
 
-            ++loadId.current
-          }
-          catch (e) {
-            notifyError(e)
-          }
-          finally {
-            endProgress()
+            ++loadId.current;
+          } catch (e) {
+            notifyError(e);
+          } finally {
+            endProgress();
           }
         }} />
     </animated.div>
-  )
-}
+  );
+};

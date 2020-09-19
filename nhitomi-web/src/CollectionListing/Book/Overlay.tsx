@@ -1,25 +1,25 @@
-import React, { useState } from 'react'
-import { BookListItem } from '../../Components/BookList'
-import { DeleteOutlined, ExpandAltOutlined, EditOutlined } from '@ant-design/icons'
-import { FormattedMessage } from 'react-intl'
-import { DropdownItem, DropdownSubMenu } from '../../Components/Dropdown'
-import { usePrefetch } from '../../Prefetch'
-import { useCollectionListingPrefetch } from '..'
-import { User } from 'nhitomi-api'
-import { useProgress } from '../../ProgressManager'
-import { Disableable } from '../../Components/Disableable'
-import { useNotify } from '../../NotificationManager'
-import { useClient } from '../../ClientManager'
-import { CollectionContentLink } from '../../CollectionContent'
-import { CollectionEditLink } from '../Edit'
+import React, { useState } from "react";
+import { BookListItem } from "../../Components/BookList";
+import { DeleteOutlined, EditOutlined, ExpandAltOutlined } from "@ant-design/icons";
+import { FormattedMessage } from "react-intl";
+import { DropdownItem, DropdownSubMenu } from "../../Components/Dropdown";
+import { usePrefetch } from "../../Prefetch";
+import { useCollectionListingPrefetch } from "..";
+import { User } from "nhitomi-api";
+import { useProgress } from "../../ProgressManager";
+import { Disableable } from "../../Components/Disableable";
+import { useNotify } from "../../NotificationManager";
+import { useClient } from "../../ClientManager";
+import { CollectionContentLink } from "../../CollectionContent";
+import { CollectionEditLink } from "../Edit";
 
 export const Overlay = ({ user, book: { id } }: { user: User, book: BookListItem }) => {
   return <>
     <OpenInNewTabItem id={id} />
     <EditItem id={id} />
     <DeleteItem user={user} id={id} />
-  </>
-}
+  </>;
+};
 
 const OpenInNewTabItem = ({ id }: { id: string }) => (
   <CollectionContentLink id={id} target='_blank' rel='noopener noreferrer'>
@@ -27,7 +27,7 @@ const OpenInNewTabItem = ({ id }: { id: string }) => (
       <FormattedMessage id='pages.collectionListing.book.overlay.openNewTab' />
     </DropdownItem>
   </CollectionContentLink>
-)
+);
 
 const EditItem = ({ id }: { id: string }) => (
   <CollectionEditLink id={id}>
@@ -35,15 +35,15 @@ const EditItem = ({ id }: { id: string }) => (
       <FormattedMessage id='pages.collectionListing.book.overlay.edit' />
     </DropdownItem>
   </CollectionEditLink>
-)
+);
 
 const DeleteItem = ({ user, id }: { user: User, id: string }) => {
-  const client = useClient()
-  const { begin, end } = useProgress()
-  const { notifyError } = useNotify()
-  const [loading, setLoading] = useState(false)
+  const client = useClient();
+  const { begin, end } = useProgress();
+  const { notifyError } = useNotify();
+  const [loading, setLoading] = useState(false);
 
-  const [, navigate] = usePrefetch(useCollectionListingPrefetch, { id: user.id })
+  const [, navigate] = usePrefetch(useCollectionListingPrefetch, { id: user.id });
 
   return (
     <DropdownSubMenu
@@ -55,19 +55,17 @@ const DeleteItem = ({ user, id }: { user: User, id: string }) => {
           icon={<DeleteOutlined />}
           className='text-red'
           onClick={async () => {
-            begin()
-            setLoading(true)
+            begin();
+            setLoading(true);
 
             try {
-              await client.collection.deleteCollection({ id })
-              await navigate('replace')
-            }
-            catch (e) {
-              notifyError(e)
-            }
-            finally {
-              end()
-              setLoading(false)
+              await client.collection.deleteCollection({ id });
+              await navigate("replace");
+            } catch (e) {
+              notifyError(e);
+            } finally {
+              end();
+              setLoading(false);
             }
           }}>
 
@@ -75,5 +73,5 @@ const DeleteItem = ({ user, id }: { user: User, id: string }) => {
         </DropdownItem>
       </Disableable>
     </DropdownSubMenu>
-  )
-}
+  );
+};

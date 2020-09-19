@@ -1,56 +1,55 @@
-import React, { useMemo, useState, ReactNode } from 'react'
-import { SmallBreakpoints, LargeBreakpoints, getBreakpoint, ScreenBreakpoint, useLayout } from '../../LayoutManager'
-import { cx, css } from 'emotion'
-import { CoverImage } from '../CoverImage'
-import { useClient } from '../../ClientManager'
-import { useSpring, animated } from 'react-spring'
-import { BookReaderLink } from '../../BookReader'
-import VisibilitySensor from 'react-visibility-sensor'
-import { useBookList, BookListItem, useContentSelector } from '.'
-import { BookContent } from 'nhitomi-api'
-import { useConfig } from '../../ConfigManager'
-import { ContextMenu } from '../ContextMenu'
-import { Overlay } from './Overlay'
+import React, { ReactNode, useMemo, useState } from "react";
+import { getBreakpoint, LargeBreakpoints, ScreenBreakpoint, SmallBreakpoints, useLayout } from "../../LayoutManager";
+import { css, cx } from "emotion";
+import { CoverImage } from "../CoverImage";
+import { useClient } from "../../ClientManager";
+import { animated, useSpring } from "react-spring";
+import { BookReaderLink } from "../../BookReader";
+import VisibilitySensor from "react-visibility-sensor";
+import { BookListItem, useBookList, useContentSelector } from ".";
+import { BookContent } from "nhitomi-api";
+import { useConfig } from "../../ConfigManager";
+import { ContextMenu } from "../ContextMenu";
+import { Overlay } from "./Overlay";
 
 export const Grid = ({ width, menu, empty }: {
   width: number
   menu?: ReactNode
   empty?: ReactNode
 }) => {
-  const { items } = useBookList()
+  const { items } = useBookList();
 
   const { spacing, rowWidth, itemWidth, itemHeight } = useMemo(() => {
-    let spacing: number
-    let rowItems: number
-    let rowWidth: number
+    let spacing: number;
+    let rowItems: number;
+    let rowWidth: number;
 
     if (width < ScreenBreakpoint) {
-      const breakpoint = getBreakpoint(SmallBreakpoints, width) || 0
+      const breakpoint = getBreakpoint(SmallBreakpoints, width) || 0;
 
-      spacing = 4
-      rowItems = SmallBreakpoints.indexOf(breakpoint) + 2
-      rowWidth = width
+      spacing = 4;
+      rowItems = SmallBreakpoints.indexOf(breakpoint) + 2;
+      rowWidth = width;
+    } else {
+      const breakpoint = getBreakpoint(LargeBreakpoints, width) || 0;
+
+      spacing = 6;
+      rowItems = LargeBreakpoints.indexOf(breakpoint) + 3;
+      rowWidth = breakpoint;
     }
-    else {
-      const breakpoint = getBreakpoint(LargeBreakpoints, width) || 0
 
-      spacing = 6
-      rowItems = LargeBreakpoints.indexOf(breakpoint) + 3
-      rowWidth = breakpoint
-    }
+    const itemWidth = (rowWidth - spacing * (rowItems + 1)) / rowItems;
+    const itemHeight = itemWidth * 7 / 5;
 
-    const itemWidth = (rowWidth - spacing * (rowItems + 1)) / rowItems
-    const itemHeight = itemWidth * 7 / 5
-
-    return { spacing, rowItems, rowWidth, itemWidth, itemHeight }
-  }, [width])
+    return { spacing, rowItems, rowWidth, itemWidth, itemHeight };
+  }, [width]);
 
   return (
     <div style={{ maxWidth: rowWidth }} className='mx-auto w-full'>
       <Menu children={menu} />
 
       {useMemo(() => (
-        <div className={cx('flex flex-row flex-wrap justify-center', css`
+        <div className={cx("flex flex-row flex-wrap justify-center", css`
           padding-left: ${spacing / 2}px;
           padding-right: ${spacing / 2}px;
         `)}>
@@ -68,14 +67,14 @@ export const Grid = ({ width, menu, empty }: {
         </div>
       ), [empty, itemHeight, itemWidth, items, spacing])}
     </div>
-  )
-}
+  );
+};
 
 const Menu = ({ children }: { children?: ReactNode }) => {
   const style = useSpring({
     from: { opacity: 0 },
     to: { opacity: 1 }
-  })
+  });
 
   return <>
     {children && (
@@ -84,8 +83,8 @@ const Menu = ({ children }: { children?: ReactNode }) => {
         className='w-full flex flex-row justify-end px-2 mb-2'
         children={children} />
     )}
-  </>
-}
+  </>;
+};
 
 const Item = ({ book, width, height, className }: {
   book: BookListItem
@@ -93,29 +92,29 @@ const Item = ({ book, width, height, className }: {
   height: number
   className?: string
 }) => {
-  const { screen, height: screenHeight } = useLayout()
-  const contentSelector = useContentSelector()
-  const { LinkComponent } = useBookList()
-  const [hover, setHover] = useState(false)
-  const [showImage, setShowImage] = useState(false)
+  const { screen, height: screenHeight } = useLayout();
+  const contentSelector = useContentSelector();
+  const { LinkComponent } = useBookList();
+  const [hover, setHover] = useState(false);
+  const [showImage, setShowImage] = useState(false);
 
-  const content = useMemo(() => contentSelector(book.contents), [book.contents, contentSelector])
+  const content = useMemo(() => contentSelector(book.contents), [book.contents, contentSelector]);
 
   const overlay = useMemo(() => (
     <ItemOverlay book={book} hover={hover} />
-  ), [book, hover])
+  ), [book, hover]);
 
   const image = useMemo(() => showImage && (
     <ItemCover book={book} content={content} />
-  ), [book, content, showImage])
+  ), [book, content, showImage]);
 
   const inner = useMemo(() => {
-    const children = <>{image}{overlay}</>
+    const children = <>{image}{overlay}</>;
 
     return (
       <div
         style={{ width, height }}
-        className={cx('rounded overflow-hidden relative', className)}
+        className={cx("rounded overflow-hidden relative", className)}
         onMouseEnter={() => setHover(true)}
         onMouseLeave={() => setHover(false)}>
 
@@ -125,14 +124,18 @@ const Item = ({ book, width, height, className }: {
             ? <BookReaderLink id={book.id} contentId={content.id} children={children} />
             : children}
       </div>
-    )
-  }, [LinkComponent, book.id, className, content, height, image, overlay, width])
+    );
+  }, [LinkComponent, book.id, className, content, height, image, overlay, width]);
 
-  let preload: number
+  let preload: number;
 
   switch (screen) {
-    case 'sm': preload = screenHeight * 2; break
-    case 'lg': preload = 400; break
+    case "sm":
+      preload = screenHeight * 2;
+      break;
+    case "lg":
+      preload = 400;
+      break;
   }
 
   return useMemo(() => (
@@ -143,15 +146,15 @@ const Item = ({ book, width, height, className }: {
         delayedCall
         partialVisibility
         offset={{ top: -preload, bottom: -preload }}
-        onChange={v => { v && setShowImage(true) }}
+        onChange={v => { v && setShowImage(true); }}
         children={inner} />
     </ContextMenu>
-  ), [book, content, inner, preload])
-}
+  ), [book, content, inner, preload]);
+};
 
 const ItemCover = ({ book, content }: { book: BookListItem, content?: BookContent }) => {
-  const client = useClient()
-  const { getCoverRequest } = useBookList()
+  const client = useClient();
+  const { getCoverRequest } = useBookList();
 
   return useMemo(() => content
     ? (
@@ -163,19 +166,19 @@ const ItemCover = ({ book, content }: { book: BookListItem, content?: BookConten
         onLoad={async () => await client.book.getBookImage(getCoverRequest?.(book, content) || { id: book.id, contentId: content.id, index: -1 })} />
     ) : (
       <div className='w-full h-full' />
-    ), [book, client.book, content, getCoverRequest])
-}
+    ), [book, client.book, content, getCoverRequest]);
+};
 
 const ItemOverlay = ({ book, hover }: { book: BookListItem, hover?: boolean }) => {
-  let [preferEnglishName] = useConfig('bookReaderPreferEnglishName')
+  let [preferEnglishName] = useConfig("bookReaderPreferEnglishName");
 
-  const { overlayVisible, preferEnglishName: preferEnglishNameOverride } = useBookList()
-  hover = overlayVisible || hover
+  const { overlayVisible, preferEnglishName: preferEnglishNameOverride } = useBookList();
+  hover = overlayVisible || hover;
 
-  if (typeof preferEnglishNameOverride !== 'undefined')
-    preferEnglishName = preferEnglishNameOverride
+  if (typeof preferEnglishNameOverride !== "undefined")
+    preferEnglishName = preferEnglishNameOverride;
 
-  const [visible, setVisible] = useState(hover)
+  const [visible, setVisible] = useState(hover);
   const style = useSpring({
     from: {
       opacity: 0
@@ -185,7 +188,7 @@ const ItemOverlay = ({ book, hover }: { book: BookListItem, hover?: boolean }) =
     onChange: {
       opacity: v => setVisible(v > 0)
     }
-  })
+  });
 
   const inner = useMemo(() => visible && (
     <div className='px-2 py-1 bg-white bg-blur text-black rounded-b'>
@@ -195,12 +198,12 @@ const ItemOverlay = ({ book, hover }: { book: BookListItem, hover?: boolean }) =
         <span className='block text-sm truncate'>{(!preferEnglishName && book.englishName) || book.primaryName}</span>
       )}
     </div>
-  ), [book.englishName, book.primaryName, preferEnglishName, visible])
+  ), [book.englishName, book.primaryName, preferEnglishName, visible]);
 
   if (!visible)
-    return null
+    return null;
 
   return (
     <animated.div style={style} className='absolute bottom-0 left-0 w-full' children={inner} />
-  )
-}
+  );
+};

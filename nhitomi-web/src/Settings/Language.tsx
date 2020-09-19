@@ -1,17 +1,17 @@
-import React, { useMemo } from 'react'
-import { FormattedMessage } from 'react-intl'
-import { SettingsFocusContainer } from './SettingsFocusContainer'
-import { CheckBox } from '../Components/Checkbox'
-import { AvailableLocalizations } from '../Languages/languages'
-import { LanguageNames } from '../LocaleManager'
-import { useConfig } from '../ConfigManager'
-import { LocaleFlag } from '../Components/LocaleFlag'
-import { LanguageTypes } from '../orderedConstants'
-import { Disableable } from '../Components/Disableable'
+import React, { useMemo } from "react";
+import { FormattedMessage } from "react-intl";
+import { SettingsFocusContainer } from "./SettingsFocusContainer";
+import { CheckBox } from "../Components/Checkbox";
+import { AvailableLocalizations } from "../Languages/languages";
+import { LanguageNames } from "../LocaleManager";
+import { useConfig } from "../ConfigManager";
+import { LocaleFlag } from "../Components/LocaleFlag";
+import { LanguageTypes } from "../orderedConstants";
+import { Disableable } from "../Components/Disableable";
 
 export const Language = () => {
-  const [interfaceLanguage, setInterfaceLanguage] = useConfig('language')
-  const [searchLanguages, setSearchLanguages] = useConfig('searchLanguages')
+  const [interfaceLanguage, setInterfaceLanguage] = useConfig("language");
+  const [searchLanguages, setSearchLanguages] = useConfig("searchLanguages");
 
   return (
     <SettingsFocusContainer focus='language'>
@@ -27,7 +27,7 @@ export const Language = () => {
             type='radio'
             value={language === interfaceLanguage}
             setValue={v => {
-              if (v) setInterfaceLanguage(language)
+              if (v) setInterfaceLanguage(language);
             }}>
 
             <span><LocaleFlag language={language} size={20} /> {LanguageNames[language]}</span>
@@ -44,8 +44,8 @@ export const Language = () => {
             <CheckBox
               value={searchLanguages.indexOf(language) !== -1}
               setValue={v => {
-                if (v) setSearchLanguages([...searchLanguages, language].filter((v, i, a) => a.indexOf(v) === i))
-                else setSearchLanguages(searchLanguages.filter(l => l !== language))
+                if (v) setSearchLanguages([...searchLanguages, language].filter((v, i, a) => a.indexOf(v) === i));
+                else setSearchLanguages(searchLanguages.filter(l => l !== language));
               }}>
 
               <span><LocaleFlag language={language} size={20} /> {LanguageNames[language]}</span>
@@ -54,5 +54,5 @@ export const Language = () => {
         )), [searchLanguages, setSearchLanguages])}
       </div>
     </SettingsFocusContainer>
-  )
-}
+  );
+};

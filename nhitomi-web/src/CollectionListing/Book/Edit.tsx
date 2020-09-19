@@ -1,26 +1,26 @@
-import React, { useState } from 'react'
-import { FormattedMessage } from 'react-intl'
-import { Collection, CollectionInsertPosition } from 'nhitomi-api'
-import { FlatButton } from '../../Components/FlatButton'
-import { CopyOutlined } from '@ant-design/icons'
-import { useClient } from '../../ClientManager'
-import { useProgress } from '../../ProgressManager'
-import { useNotify, useAlert } from '../../NotificationManager'
-import { useDynamicPrefetch } from '../../Prefetch'
-import { useCollectionContentPrefetch } from '../../CollectionContent'
-import { Disableable } from '../../Components/Disableable'
+import React, { useState } from "react";
+import { FormattedMessage } from "react-intl";
+import { Collection, CollectionInsertPosition } from "nhitomi-api";
+import { FlatButton } from "../../Components/FlatButton";
+import { CopyOutlined } from "@ant-design/icons";
+import { useClient } from "../../ClientManager";
+import { useProgress } from "../../ProgressManager";
+import { useAlert, useNotify } from "../../NotificationManager";
+import { useDynamicPrefetch } from "../../Prefetch";
+import { useCollectionContentPrefetch } from "../../CollectionContent";
+import { Disableable } from "../../Components/Disableable";
 
 export const Edit = ({ collection }: { collection: Collection }) => <>
   <Duplicate collection={collection} />
-</>
+</>;
 
 const Duplicate = ({ collection }: { collection: Collection }) => {
-  const client = useClient()
-  const { begin, end } = useProgress()
-  const { notifyError } = useNotify()
-  const { alert } = useAlert()
-  const [loading, setLoading] = useState(false)
-  const [prefetchNode, navigate] = useDynamicPrefetch(useCollectionContentPrefetch)
+  const client = useClient();
+  const { begin, end } = useProgress();
+  const { notifyError } = useNotify();
+  const { alert } = useAlert();
+  const [loading, setLoading] = useState(false);
+  const [prefetchNode, navigate] = useDynamicPrefetch(useCollectionContentPrefetch);
 
   return (
     <div className='p-4 space-y-4'>
@@ -33,8 +33,8 @@ const Duplicate = ({ collection }: { collection: Collection }) => {
         <FlatButton
           icon={<CopyOutlined />}
           onClick={async () => {
-            begin()
-            setLoading(true)
+            begin();
+            setLoading(true);
 
             try {
               let created = await client.collection.createCollection({
@@ -42,7 +42,7 @@ const Duplicate = ({ collection }: { collection: Collection }) => {
                   type: collection.type,
                   collection
                 }
-              })
+              });
 
               if (collection.items.length) {
                 created = await client.collection.addCollectionItems({
@@ -51,19 +51,17 @@ const Duplicate = ({ collection }: { collection: Collection }) => {
                     items: collection.items,
                     position: CollectionInsertPosition.Start
                   }
-                })
+                });
               }
 
-              await navigate({ id: created.id })
+              await navigate({ id: created.id });
 
-              alert(<FormattedMessage id='pages.collectionListing.edit.book.duplicate.success' />, 'success')
-            }
-            catch (e) {
-              notifyError(e)
-            }
-            finally {
-              end()
-              setLoading(false)
+              alert(<FormattedMessage id='pages.collectionListing.edit.book.duplicate.success' />, "success");
+            } catch (e) {
+              notifyError(e);
+            } finally {
+              end();
+              setLoading(false);
             }
           }}>
 
@@ -73,5 +71,5 @@ const Duplicate = ({ collection }: { collection: Collection }) => {
 
       {prefetchNode}
     </div>
-  )
-}
+  );
+};

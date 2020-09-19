@@ -1,36 +1,36 @@
-import React, { useState, ReactNode } from 'react'
-import { FormattedMessage } from 'react-intl'
-import { SettingsFocusContainer } from './SettingsFocusContainer'
-import { useConfig, ShortcutConfigKey, ShortcutConfigKeys, ShortcutConfig } from '../ConfigManager'
-import keycode from 'keycode'
-import { useSpring, animated } from 'react-spring'
-import { getColor } from '../theme'
-import { CloseOutlined, PlusOutlined } from '@ant-design/icons'
-import { cx } from 'emotion'
-import { getEventModifiers } from '../shortcut'
-import { useLocalized } from '../LocaleManager'
-import { Input } from '../Components/Input'
+import React, { ReactNode, useState } from "react";
+import { FormattedMessage } from "react-intl";
+import { SettingsFocusContainer } from "./SettingsFocusContainer";
+import { ShortcutConfig, ShortcutConfigKey, ShortcutConfigKeys, useConfig } from "../ConfigManager";
+import keycode from "keycode";
+import { animated, useSpring } from "react-spring";
+import { getColor } from "../theme";
+import { CloseOutlined, PlusOutlined } from "@ant-design/icons";
+import { cx } from "emotion";
+import { getEventModifiers } from "../shortcut";
+import { useLocalized } from "../LocaleManager";
+import { Input } from "../Components/Input";
 
 const keyGroups: Record<string, ShortcutConfigKey[]> = {
   general: [],
   bookListing: [],
   bookReader: []
-}
+};
 
 for (const key of ShortcutConfigKeys) {
-  let added = false
+  let added = false;
 
   for (const group in keyGroups) {
     if (key.startsWith(group)) {
-      keyGroups[group].push(key)
+      keyGroups[group].push(key);
 
-      added = true
-      break
+      added = true;
+      break;
     }
   }
 
   if (!added)
-    keyGroups.general.push(key)
+    keyGroups.general.push(key);
 }
 
 export const Shortcuts = () => {
@@ -53,26 +53,26 @@ export const Shortcuts = () => {
         ))}
       </div>
     </SettingsFocusContainer>
-  )
-}
+  );
+};
 
 function stringifyShortcut(shortcut: Partial<ShortcutConfig>) {
-  const parts: string[] = []
+  const parts: string[] = [];
 
   for (const modifier of shortcut.modifiers || [])
-    parts.push(modifier)
+    parts.push(modifier);
 
   if (shortcut.key)
-    parts.push(keycode(shortcut.key))
+    parts.push(keycode(shortcut.key));
 
   return parts
     .filter((v, i, a) => a.indexOf(v) === i)
     .map(v => v.substring(0, 1).toUpperCase() + v.substring(1)) // capitalize
-    .join('+')
+    .join("+");
 }
 
 const Shortcut = ({ group, shortcutKey }: { group: string, shortcutKey: ShortcutConfigKey }) => {
-  const [shortcuts, setShortcuts] = useConfig(shortcutKey)
+  const [shortcuts, setShortcuts] = useConfig(shortcutKey);
 
   return (
     <div className='space-x-1'>
@@ -88,39 +88,39 @@ const Shortcut = ({ group, shortcutKey }: { group: string, shortcutKey: Shortcut
 
       <ItemNew onAdd={s => setShortcuts([...shortcuts, s])} />
     </div>
-  )
-}
+  );
+};
 
 const ItemPart = ({ children, className, onClick }: { children?: ReactNode, className?: string, onClick?: () => void }) => {
-  const [hover, setHover] = useState(false)
-  const color = getColor('gray', 'darkest').opacity(0.5)
+  const [hover, setHover] = useState(false);
+  const color = getColor("gray", "darkest").opacity(0.5);
 
   const style = useSpring({
     boxShadow: `inset 0 0 0 1px ${color.tint(hover ? 0.25 : 0.125).rgb}`,
     backgroundColor: color.tint(hover ? 0.25 : 0).rgb
-  })
+  });
 
   return (
     <animated.div
       style={style}
-      className={cx('inline-block align-middle text-sm px-1 rounded overflow-hidden cursor-default', className)}
+      className={cx("inline-block align-middle text-sm px-1 rounded overflow-hidden cursor-default", className)}
       onClick={onClick}
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
       children={children} />
-  )
-}
+  );
+};
 
 const ItemNew = ({ onAdd }: { onAdd?: (shortcut: ShortcutConfig) => void }) => {
-  const [current, setCurrent] = useState<Partial<ShortcutConfig>>()
-  const placeholder = useLocalized('pages.settings.keyboard.shortcuts.enterKey')
+  const [current, setCurrent] = useState<Partial<ShortcutConfig>>();
+  const placeholder = useLocalized("pages.settings.keyboard.shortcuts.enterKey");
 
   if (!current) {
     return (
       <ItemPart className='cursor-pointer' onClick={() => setCurrent({})}>
         <PlusOutlined className='text-gray-darker' />
       </ItemPart>
-    )
+    );
   }
 
   return (
@@ -130,20 +130,20 @@ const ItemNew = ({ onAdd }: { onAdd?: (shortcut: ShortcutConfig) => void }) => {
       value={stringifyShortcut(current)}
       placeholder={placeholder}
       onKeyDown={e => {
-        const key = e.keyCode
-        const modifiers = getEventModifiers(e)
+        const key = e.keyCode;
+        const modifiers = getEventModifiers(e);
 
-        setCurrent({ key, modifiers })
+        setCurrent({ key, modifiers });
 
-        e.preventDefault()
+        e.preventDefault();
       }}
       onBlur={() => {
-        const { key, modifiers } = current
+        const { key, modifiers } = current;
 
         if (key)
-          onAdd?.({ key, modifiers })
+          onAdd?.({ key, modifiers });
 
-        setCurrent(undefined)
+        setCurrent(undefined);
       }} />
-  )
-}
+  );
+};

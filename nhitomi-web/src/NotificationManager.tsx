@@ -1,28 +1,28 @@
-import React, { ReactNode, createContext, useContext, useMemo, useState } from 'react'
-import { ToastProvider, useToasts, ToastProps, ToastContainerProps, AppearanceTypes } from 'react-toast-notifications'
-import { CloseOutlined, CheckCircleTwoTone, InfoCircleTwoTone, CloseCircleTwoTone, WarningTwoTone } from '@ant-design/icons'
-import { cx, css } from 'emotion'
-import { useSpring, animated } from 'react-spring'
-import { useLayout } from './LayoutManager'
-import { ValidationError } from './ClientManager'
-import { ColorHue, getColor } from './theme'
-import { exception } from 'react-ga'
+import React, { createContext, ReactNode, useContext, useMemo, useState } from "react";
+import { AppearanceTypes, ToastContainerProps, ToastProps, ToastProvider, useToasts } from "react-toast-notifications";
+import { CheckCircleTwoTone, CloseCircleTwoTone, CloseOutlined, InfoCircleTwoTone, WarningTwoTone } from "@ant-design/icons";
+import { css, cx } from "emotion";
+import { animated, useSpring } from "react-spring";
+import { useLayout } from "./LayoutManager";
+import { ValidationError } from "./ClientManager";
+import { ColorHue, getColor } from "./theme";
+import { exception } from "react-ga";
 
 export const NotifyContext = createContext<{
   notify: (type: AppearanceTypes, title: ReactNode, description: ReactNode) => void
   notifyError: (error: Error, title?: ReactNode) => void
-}>(undefined as any)
+}>(undefined as any);
 
 export const AlertContext = createContext<{
   alert: (message: ReactNode, type?: AppearanceTypes) => void
-}>(undefined as any)
+}>(undefined as any);
 
 export function useNotify() {
-  return useContext(NotifyContext)
+  return useContext(NotifyContext);
 }
 
 export function useAlert() {
-  return useContext(AlertContext)
+  return useContext(AlertContext);
 }
 
 export const NotificationManager = ({ children }: { children?: ReactNode }) => {
@@ -36,38 +36,38 @@ export const NotificationManager = ({ children }: { children?: ReactNode }) => {
         </ToastProvider>
       </NotifyManager>
     </ToastProvider>
-  )
-}
+  );
+};
 
 const ToastContainer = ({ children, placement, hasToasts }: ToastContainerProps) => {
-  const { screen } = useLayout()
+  const { screen } = useLayout();
 
   return (
     <animated.div
       children={children}
       className={useMemo(() => (
-        cx('w-screen fixed p-4 z-50 text-center', { 'max-w-md': screen === 'lg' }, { 'pointer-events-none': !hasToasts }, placement
-          .replace('-', ' ')
-          .replace('top', 'top-0')
-          .replace('bottom', 'bottom-0')
-          .replace('left', 'left-0')
-          .replace('right', 'right-0')
-          .replace('center', css`transform: translateX(-50%); left: 50%;`))
+        cx("w-screen fixed p-4 z-50 text-center", { "max-w-md": screen === "lg" }, { "pointer-events-none": !hasToasts }, placement
+          .replace("-", " ")
+          .replace("top", "top-0")
+          .replace("bottom", "bottom-0")
+          .replace("left", "left-0")
+          .replace("right", "right-0")
+          .replace("center", css`transform: translateX(-50%); left: 50%;`))
       ), [hasToasts, placement, screen])} />
-  )
-}
+  );
+};
 
 const NotifyToast = ({ children, onMouseEnter, onMouseLeave, transitionState, transitionDuration, onDismiss }: ToastProps) => {
   const style = useSpring({
     config: { duration: transitionDuration },
-    opacity: transitionState === 'entered' ? 1 : 0,
-    transform: transitionState === 'entered' ? 'translateX(0)' : 'translateX(5px)'
-  })
+    opacity: transitionState === "entered" ? 1 : 0,
+    transform: transitionState === "entered" ? "translateX(0)" : "translateX(5px)"
+  });
 
-  const [closeHover, setCloseHover] = useState(false)
+  const [closeHover, setCloseHover] = useState(false);
   const closeStyle = useSpring({
-    transform: closeHover ? 'scale(1.1)' : 'scale(1)'
-  })
+    transform: closeHover ? "scale(1.1)" : "scale(1)"
+  });
 
   return (
     <animated.div
@@ -89,52 +89,64 @@ const NotifyToast = ({ children, onMouseEnter, onMouseLeave, transitionState, tr
           onMouseLeave={() => setCloseHover(false)} />
       </animated.span>
     </animated.div>
-  )
-}
+  );
+};
 
 function convertTypeToIcon(type: AppearanceTypes) {
-  let Icon: typeof CloseCircleTwoTone
-  let color: ColorHue
+  let Icon: typeof CloseCircleTwoTone;
+  let color: ColorHue;
 
   switch (type) {
-    case 'error': Icon = CloseCircleTwoTone; color = 'red'; break
-    case 'info': Icon = InfoCircleTwoTone; color = 'blue'; break
-    case 'success': Icon = CheckCircleTwoTone; color = 'green'; break
-    case 'warning': Icon = WarningTwoTone; color = 'orange'; break
+    case "error":
+      Icon = CloseCircleTwoTone;
+      color = "red";
+      break;
+    case "info":
+      Icon = InfoCircleTwoTone;
+      color = "blue";
+      break;
+    case "success":
+      Icon = CheckCircleTwoTone;
+      color = "green";
+      break;
+    case "warning":
+      Icon = WarningTwoTone;
+      color = "orange";
+      break;
   }
 
   return (
     <Icon className='text-lg w-6' twoToneColor={getColor(color).hex} />
-  )
+  );
 }
 
 const NotifyToastContent = ({ type, title, description }: { type: AppearanceTypes, title?: ReactNode, description?: ReactNode }) => {
   return useMemo(() => <>
     <div className='mb-3'>
       {convertTypeToIcon(type)}
-      {' '}
+      {" "}
       {title}
     </div>
 
     <div className='text-sm overflow-auto'>
       {description}
     </div>
-  </>, [description, title, type])
-}
+  </>, [description, title, type]);
+};
 
 const NotifyManager = ({ children }: { children?: ReactNode }) => {
-  const { addToast } = useToasts()
+  const { addToast } = useToasts();
 
   return (
     <NotifyContext.Provider
       children={children}
       value={useMemo(() => ({
         notify: (type, title, description) => {
-          addToast(<NotifyToastContent type={type} title={title} description={description} />)
+          addToast(<NotifyToastContent type={type} title={title} description={description} />);
         },
         notifyError: (error, title) => {
           if (!(error instanceof Error))
-            error = Error((error as any)?.message || 'Unknown error.')
+            error = Error((error as any)?.message || "Unknown error.");
 
           if (error instanceof ValidationError) {
             addToast(
@@ -146,14 +158,13 @@ const NotifyManager = ({ children }: { children?: ReactNode }) => {
                     {error.list.map(problem => (
                       <li>
                         <code>{problem.field} </code>
-                        <span>{problem.messages.join(' ')}</span>
+                        <span>{problem.messages.join(" ")}</span>
                       </li>
                     ))}
                   </ul>
                 )} />
-            )
-          }
-          else {
+            );
+          } else {
             addToast(
               <NotifyToastContent
                 type='error'
@@ -161,24 +172,24 @@ const NotifyManager = ({ children }: { children?: ReactNode }) => {
                 description={(
                   <code>{error.stack}</code>
                 )} />
-            )
+            );
           }
 
           exception({
             description: error.message,
             fatal: false
-          })
+          });
         }
       }), [addToast])} />
-  )
-}
+  );
+};
 
 const AlertToast = ({ children, onMouseEnter, onMouseLeave, transitionState, transitionDuration, onDismiss }: ToastProps) => {
   const style = useSpring({
     config: { duration: transitionDuration },
-    opacity: transitionState === 'entered' ? 1 : 0,
-    transform: transitionState === 'entered' ? 'translateY(0)' : 'translateY(-1em)'
-  })
+    opacity: transitionState === "entered" ? 1 : 0,
+    transform: transitionState === "entered" ? "translateY(0)" : "translateY(-1em)"
+  });
 
   return (
     <animated.div
@@ -190,25 +201,25 @@ const AlertToast = ({ children, onMouseEnter, onMouseLeave, transitionState, tra
 
       {children}
     </animated.div>
-  )
-}
+  );
+};
 
 const AlertManager = ({ children }: { children?: ReactNode }) => {
-  const { addToast, removeAllToasts } = useToasts()
+  const { addToast, removeAllToasts } = useToasts();
 
   return (
     <AlertContext.Provider
       children={children}
       value={useMemo(() => ({
         alert: (message, type) => {
-          let content = <span>{message}</span>
+          let content = <span>{message}</span>;
 
           if (type)
-            content = <span>{convertTypeToIcon(type)} {content}</span>
+            content = <span>{convertTypeToIcon(type)} {content}</span>;
 
-          removeAllToasts()
-          addToast(content)
+          removeAllToasts();
+          addToast(content);
         }
       }), [addToast, removeAllToasts])} />
-  )
-}
+  );
+};

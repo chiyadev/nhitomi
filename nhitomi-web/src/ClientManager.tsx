@@ -1,100 +1,100 @@
-import React, { ReactNode, useMemo, createContext, useState, useContext, Dispatch, useLayoutEffect, useRef } from 'react'
-import { ConfigurationParameters, ValidationProblemArrayResult, ValidationProblem, UserApi, InfoApi, BookApi, CollectionApi, Configuration, GetInfoResponse, GetInfoAuthenticatedResponse, BASE_PATH, User, UserPermissions, Collection, InternalApi, UserBase, SpecialCollection, ObjectType, CollectionInsertPosition } from 'nhitomi-api'
-import { CustomError } from 'ts-custom-error'
-import { useInterval } from 'react-use'
-import { useProgress } from './ProgressManager'
-import { ConfigSource, useConfigManager, useConfig } from './ConfigManager'
-import { Container } from './Components/Container'
-import { FlatButton } from './Components/FlatButton'
-import { ReloadOutlined, ClearOutlined } from '@ant-design/icons'
-import { getColor } from './theme'
-import { FilledButton } from './Components/FilledButton'
-import * as ga from 'react-ga'
-import { JSONex } from './jsonEx'
-import { useAlert } from './NotificationManager'
-import { FormattedMessage } from 'react-intl'
-import { CollectionContentLink } from './CollectionContent'
-import { useAsync } from './hooks'
+import React, { createContext, Dispatch, ReactNode, useContext, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { BASE_PATH, BookApi, Collection, CollectionApi, CollectionInsertPosition, Configuration, ConfigurationParameters, GetInfoAuthenticatedResponse, GetInfoResponse, InfoApi, InternalApi, ObjectType, SpecialCollection, User, UserApi, UserBase, UserPermissions, ValidationProblem, ValidationProblemArrayResult } from "nhitomi-api";
+import { CustomError } from "ts-custom-error";
+import { useInterval } from "react-use";
+import { useProgress } from "./ProgressManager";
+import { ConfigSource, useConfig, useConfigManager } from "./ConfigManager";
+import { Container } from "./Components/Container";
+import { FlatButton } from "./Components/FlatButton";
+import { ClearOutlined, ReloadOutlined } from "@ant-design/icons";
+import { getColor } from "./theme";
+import { FilledButton } from "./Components/FilledButton";
+import * as ga from "react-ga";
+import { JSONex } from "./jsonEx";
+import { useAlert } from "./NotificationManager";
+import { FormattedMessage } from "react-intl";
+import { CollectionContentLink } from "./CollectionContent";
+import { useAsync } from "./hooks";
 
 const gaApiIgnorePaths = [
   /books\/.*\/contents\/.*\/pages\/.*/g
-]
+];
 
 export class Client {
   private readonly httpConfig: ConfigurationParameters = {
     middleware: [{
       pre: async context => {
-        (context.init as any).startTime = performance.now()
+        (context.init as any).startTime = performance.now();
       },
       post: async context => {
         if (gaApiIgnorePaths.findIndex(g => context.url.match(g)) === -1) {
-          const time = performance.now() - (context.init as any).startTime
+          const time = performance.now() - (context.init as any).startTime;
 
           ga.timing({
-            variable: context.url.replace(this.httpConfig.basePath || '', ''),
-            category: 'api',
+            variable: context.url.replace(this.httpConfig.basePath || "", ""),
+            category: "api",
             value: time
-          })
+          });
         }
 
-        const { response } = context
+        const { response } = context;
 
         if (response.ok)
-          return
+          return;
 
         // authorization failure when we should be authorized
         if (response.status === 401 && this.config.token) {
-          this.config.token = undefined // logout
+          this.config.token = undefined; // logout
         }
 
         // validation failure (unprocessable entity)
         else if (response.status === 422) {
-          const result: ValidationProblemArrayResult = await response.json()
+          const result: ValidationProblemArrayResult = await response.json();
 
-          throw new ValidationError(result.message, result.value)
+          throw new ValidationError(result.message, result.value);
         }
 
-        const error = Error((await response.json())?.message || response.statusText)
+        const error = Error((await response.json())?.message || response.statusText);
 
-        console.error(error)
+        console.error(error);
 
-        throw error
+        throw error;
       }
     }]
-  }
+  };
 
-  readonly user: UserApi
-  readonly info: InfoApi
-  readonly book: BookApi
-  readonly collection: CollectionApi
-  readonly internal: InternalApi
+  readonly user: UserApi;
+  readonly info: InfoApi;
+  readonly book: BookApi;
+  readonly collection: CollectionApi;
+  readonly internal: InternalApi;
 
   constructor(private readonly config: ConfigSource) {
-    this.user = new UserApi(new Configuration(this.httpConfig))
-    this.info = new InfoApi(new Configuration(this.httpConfig))
-    this.book = new BookApi(new Configuration(this.httpConfig))
-    this.collection = new CollectionApi(new Configuration(this.httpConfig))
-    this.internal = new InternalApi(new Configuration(this.httpConfig))
+    this.user = new UserApi(new Configuration(this.httpConfig));
+    this.info = new InfoApi(new Configuration(this.httpConfig));
+    this.book = new BookApi(new Configuration(this.httpConfig));
+    this.collection = new CollectionApi(new Configuration(this.httpConfig));
+    this.internal = new InternalApi(new Configuration(this.httpConfig));
 
-    const url = new URL(BASE_PATH)
+    const url = new URL(BASE_PATH);
 
     // use current hostname if default hostname is localhost
-    if (url.hostname === 'localhost' || url.hostname === '127.0.0.1') {
-      url.host = window.location.host
-      url.protocol = window.location.protocol
+    if (url.hostname === "localhost" || url.hostname === "127.0.0.1") {
+      url.host = window.location.host;
+      url.protocol = window.location.protocol;
     }
 
-    this.httpConfig.accessToken = () => this.config.token || ''
-    this.httpConfig.basePath = this.config.baseUrl || url.href
+    this.httpConfig.accessToken = () => this.config.token || "";
+    this.httpConfig.basePath = this.config.baseUrl || url.href;
 
-    console.log('api base path', this.httpConfig.basePath)
+    console.log("api base path", this.httpConfig.basePath);
   }
 
   get token() {
-    if (typeof this.httpConfig.accessToken === 'function')
-      return this.httpConfig.accessToken()
+    if (typeof this.httpConfig.accessToken === "function")
+      return this.httpConfig.accessToken();
     else
-      return this.httpConfig.accessToken
+      return this.httpConfig.accessToken;
   }
 
   async getInfo(): Promise<ClientInfo> {
@@ -102,47 +102,46 @@ export class Client {
       return {
         ...await this.info.getInfoAuthenticated(),
         authenticated: true
-      }
-    }
-    else {
+      };
+    } else {
       return {
         ...await this.info.getInfo(),
         authenticated: false
-      }
+      };
     }
   }
 }
 
 export class ValidationError extends CustomError {
-  list: ValidationProblem[]
+  list: ValidationProblem[];
 
   constructor(message: string, problems: ValidationProblem[]) {
-    super(message)
+    super(message);
 
-    this.list = problems
+    this.list = problems;
   }
 
   /** Finds the first validation problem with the given field prefix. */
   find(prefix: string) {
-    return this.list.find(p => this.isPrefixed(p, prefix))
+    return this.list.find(p => this.isPrefixed(p, prefix));
   }
 
   /** Removes all validation problems beginning with the given prefix. */
   remove(prefix: string) {
-    this.list = this.list.filter(p => !this.isPrefixed(p, prefix))
+    this.list = this.list.filter(p => !this.isPrefixed(p, prefix));
   }
 
   private isPrefixed(problem: ValidationProblem, prefix: string) {
-    const field = problem.field.split('.')
+    const field = problem.field.split(".");
 
     for (let i = 0; i < field.length; i++) {
-      const part = field.slice(i).join('.')
+      const part = field.slice(i).join(".");
 
       if (part.startsWith(prefix))
-        return true
+        return true;
     }
 
-    return false
+    return false;
   }
 }
 
@@ -156,18 +155,18 @@ const ClientContext = createContext<{
   info: ClientInfo
   setInfo: Dispatch<ClientInfo>
   fetchInfo: () => Promise<ClientInfo>
-}>(undefined as any)
+}>(undefined as any);
 
 export function useClient() {
-  return useContext(ClientContext).client
+  return useContext(ClientContext).client;
 }
 
 export function useClientInfo() {
-  const { permissions, info, setInfo, fetchInfo } = useContext(ClientContext)
-  return { permissions, info, setInfo, fetchInfo }
+  const { permissions, info, setInfo, fetchInfo } = useContext(ClientContext);
+  return { permissions, info, setInfo, fetchInfo };
 }
 
-const cacheKey = 'info_cached'
+const cacheKey = "info_cached";
 type CachedClientInfo = {
   time: number
   value: ClientInfo
@@ -176,13 +175,12 @@ type CachedClientInfo = {
 /** Cached client info allows the site to load faster. */
 function getCachedInfo(): ClientInfo | undefined {
   try {
-    const cached: CachedClientInfo = JSONex.parse(localStorage.getItem(cacheKey) || '')
-    const now = Date.now()
+    const cached: CachedClientInfo = JSONex.parse(localStorage.getItem(cacheKey) || "");
+    const now = Date.now();
 
     if (now - cached.time < 1000 * 60 * 60) // cache valid for a day
-      return cached.value
-  }
-  catch {
+      return cached.value;
+  } catch {
     // ignored
   }
 }
@@ -192,96 +190,92 @@ function setCachedInfo(value?: ClientInfo) {
     const cached: CachedClientInfo = {
       time: Date.now(),
       value
-    }
+    };
 
-    localStorage.setItem(cacheKey, JSON.stringify(cached))
-  }
-  else {
-    localStorage.removeItem(cacheKey)
+    localStorage.setItem(cacheKey, JSON.stringify(cached));
+  } else {
+    localStorage.removeItem(cacheKey);
   }
 }
 
 export const ClientManager = ({ children }: { children?: ReactNode }) => {
-  const config = useConfigManager()
+  const config = useConfigManager();
 
-  const client = useMemo(() => new Client(config), [config])
-  const [info, setInfo] = useState<ClientInfo | Error | undefined>(getCachedInfo)
-  const { begin, end } = useProgress()
+  const client = useMemo(() => new Client(config), [config]);
+  const [info, setInfo] = useState<ClientInfo | Error | undefined>(getCachedInfo);
+  const { begin, end } = useProgress();
 
   useLayoutEffect(() => {
     if (info && !(info instanceof Error))
-      setCachedInfo(info)
+      setCachedInfo(info);
     else
-      setCachedInfo(undefined)
-  }, [info])
+      setCachedInfo(undefined);
+  }, [info]);
 
-  const lastGtag = useRef<string>()
+  const lastGtag = useRef<string>();
 
   useLayoutEffect(() => {
     if (info && !(info instanceof Error)) {
       if (info.gTag && lastGtag.current !== info.gTag) {
         ga.initialize(info.gTag, {
-          debug: process.env.NODE_ENV === 'development',
+          debug: process.env.NODE_ENV === "development",
           titleCase: false,
           gaOptions: {
             userId: info.authenticated ? info.user.id : undefined
           }
-        })
+        });
       }
 
-      lastGtag.current = info.gTag
+      lastGtag.current = info.gTag;
     }
-  }, [info])
+  }, [info]);
 
-  const lastVersion = useRef<string>()
+  const lastVersion = useRef<string>();
 
   useLayoutEffect(() => {
     if (info && !(info instanceof Error)) {
       // reload if version changes
       if (lastVersion.current && lastVersion.current !== info.version.hash)
-        window.location.reload()
+        window.location.reload();
 
-      lastVersion.current = info.version.hash
+      lastVersion.current = info.version.hash;
     }
-  }, [info])
+  }, [info]);
 
   useAsync(async () => {
-    begin()
+    begin();
 
     try {
-      setInfo(await client.getInfo())
-    }
-    catch (e) {
+      setInfo(await client.getInfo());
+    } catch (e) {
       if (e instanceof Error)
-        setInfo(e)
+        setInfo(e);
       else
-        setInfo(Error(e?.message || 'Unknown error.'))
+        setInfo(Error(e?.message || "Unknown error."));
 
       ga.exception({
         description: e.message,
         fatal: true
-      })
+      });
+    } finally {
+      end();
     }
-    finally {
-      end()
-    }
-  }, [])
+  }, []);
 
   // periodically refresh info
   useInterval(async () => {
     try {
-      setInfo(await client.getInfo())
+      setInfo(await client.getInfo());
+    } catch (e) {
+      console.warn("could not refresh info", e);
     }
-    catch (e) {
-      console.warn('could not refresh info', e)
-    }
-  }, 1000 * 60)
+  }, 1000 * 60);
 
-  const [, setToken] = useConfig('token')
-  const [, setBaseUrl] = useConfig('baseUrl')
+  const [, setToken] = useConfig("token");
+  const [, setBaseUrl] = useConfig("baseUrl");
 
   if (!info)
-    return null
+    return null;
 
   if (info instanceof Error) {
     return (
@@ -289,17 +283,21 @@ export const ClientManager = ({ children }: { children?: ReactNode }) => {
         <div className='mb-2'>nhitomi could not contact the API server. Please try again later.</div>
         <code>{info.stack}</code>
         <div className='mt-4 space-x-1'>
-          <FilledButton icon={<ReloadOutlined />} onClick={() => window.location.reload()} color={getColor('red', 'darker')}>Retry</FilledButton>
-          <FlatButton icon={<ClearOutlined />} onClick={() => { setToken(undefined); setBaseUrl(undefined); window.location.reload() }}>Reset</FlatButton>
+          <FilledButton icon={<ReloadOutlined />} onClick={() => window.location.reload()} color={getColor("red", "darker")}>Retry</FilledButton>
+          <FlatButton icon={<ClearOutlined />} onClick={() => {
+            setToken(undefined);
+            setBaseUrl(undefined);
+            window.location.reload();
+          }}>Reset</FlatButton>
         </div>
       </Container>
-    )
+    );
   }
 
   return (
     <Loaded client={client} info={info} setInfo={setInfo} children={children} />
-  )
-}
+  );
+};
 
 const Loaded = ({ client, info, setInfo, children }: { client: Client, info: ClientInfo, setInfo: Dispatch<ClientInfo>, children?: ReactNode }) => (
   <ClientContext.Provider
@@ -310,97 +308,97 @@ const Loaded = ({ client, info, setInfo, children }: { client: Client, info: Cli
       info,
       setInfo,
       fetchInfo: async () => {
-        const info = await client.getInfo()
-        setInfo(info)
-        return info
+        const info = await client.getInfo();
+        setInfo(info);
+        return info;
       }
     }), [client, info, setInfo])} />
-)
+);
 
 export class PermissionHelper {
   constructor(readonly user?: User) { }
 
   get isAdministrator() {
-    return this.permissions.indexOf(UserPermissions.Administrator) !== -1
+    return this.permissions.indexOf(UserPermissions.Administrator) !== -1;
   }
 
   get permissions() {
-    return this.user?.permissions || []
+    return this.user?.permissions || [];
   }
 
   isSelf(user: User) {
-    return this.user?.id === user.id
+    return this.user?.id === user.id;
   }
 
   hasPermissions(...permissions: UserPermissions[]) {
     if (this.isAdministrator)
-      return true
+      return true;
 
     for (const permission of permissions) {
       if (this.permissions.indexOf(permission) === -1)
-        return false
+        return false;
     }
 
-    return true
+    return true;
   }
 
   hasAnyPermission(...permissions: UserPermissions[]) {
     if (this.isAdministrator)
-      return true
+      return true;
 
     for (const permission of permissions) {
       if (this.permissions.indexOf(permission) !== -1)
-        return true
+        return true;
     }
 
-    return false
+    return false;
   }
 
   canManageCollections(user: User) {
-    return this.isSelf(user)
+    return this.isSelf(user);
   }
 
   canManageCollection(collection: Collection) {
-    return this.hasPermissions(UserPermissions.ManageUsers) || (this.user && collection.ownerIds.indexOf(this.user.id) !== -1)
+    return this.hasPermissions(UserPermissions.ManageUsers) || (this.user && collection.ownerIds.indexOf(this.user.id) !== -1);
   }
 }
 
 export function usePermissions() {
-  return useClientInfo().permissions
+  return useClientInfo().permissions;
 }
 
 /** Provides commonly used client-related functions would otherwise be copy-pasted in several places. */
 export function useClientUtils() {
-  const client = useClient()
-  const { info, setInfo, fetchInfo } = useClientInfo()
+  const client = useClient();
+  const { info, setInfo, fetchInfo } = useClientInfo();
 
   // optional
-  const alertService: ReturnType<typeof useAlert> | undefined = useAlert()
+  const alertService: ReturnType<typeof useAlert> | undefined = useAlert();
 
   return {
     updateUser: async (update: (user: User) => UserBase) => {
-      const info = await fetchInfo()
+      const info = await fetchInfo();
 
       if (!info.authenticated)
-        throw Error('Unauthenticated.')
+        throw Error("Unauthenticated.");
 
       setInfo({
         ...info,
         authenticated: true,
         user: await client.user.updateUser({ id: info.user.id, userBase: update(info.user) })
-      })
+      });
     },
 
     addToSpecialCollection: async (itemId: string, type: ObjectType, special: SpecialCollection) => {
       if (!info.authenticated)
-        throw Error('Unauthenticated.')
+        throw Error("Unauthenticated.");
 
       // get special collection id from user object
       // note that it is possible for this id to be invalid
-      let collectionId = info.user.specialCollections?.book?.[special]
+      let collectionId = info.user.specialCollections?.book?.[special];
 
       if (!collectionId) {
-        collectionId = (await client.user.getUserSpecialCollection({ id: info.user.id, type, collection: special })).id
+        collectionId = (await client.user.getUserSpecialCollection({ id: info.user.id, type, collection: special })).id;
 
         setInfo({
           ...info,
@@ -414,10 +412,10 @@ export function useClientUtils() {
               }
             }
           }
-        })
+        });
       }
 
-      let collection: Collection
+      let collection: Collection;
 
       for (let i = 0; ; i++) {
         try {
@@ -427,16 +425,15 @@ export function useClientUtils() {
               items: [itemId],
               position: CollectionInsertPosition.Start
             }
-          })
+          });
 
-          break
-        }
-        catch (e) {
+          break;
+        } catch (e) {
           if (i === 1)
-            throw e
+            throw e;
 
           // id was invalid so collection was probably deleted; this time actually request it
-          collectionId = (await client.user.getUserSpecialCollection({ id: info.user.id, type, collection: special })).id
+          collectionId = (await client.user.getUserSpecialCollection({ id: info.user.id, type, collection: special })).id;
         }
       }
 
@@ -450,7 +447,7 @@ export function useClientUtils() {
               </CollectionContentLink>
             )
           }} />
-      ), 'success')
+      ), "success");
     }
-  }
+  };
 }

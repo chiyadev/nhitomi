@@ -1,47 +1,45 @@
-import React from 'react'
-import { useClient, useClientInfo } from '../ClientManager'
-import { useNotify, useAlert } from '../NotificationManager'
-import { useState } from 'react'
-import { Collection, CollectionInsertPosition, ObjectType } from 'nhitomi-api'
-import { useAsync } from '../hooks'
-import { Loading3QuartersOutlined, PlusOutlined } from '@ant-design/icons'
-import { FormattedMessage } from 'react-intl'
-import { DropdownItem, DropdownDivider } from './Dropdown'
-import { Disableable } from './Disableable'
-import { useProgress } from '../ProgressManager'
-import { CollectionContentLink } from '../CollectionContent'
-import { usePageState } from '../state'
-import { useLocalized } from '../LocaleManager'
-import { useDynamicPrefetch } from '../Prefetch'
-import { useCollectionEditPrefetch } from '../CollectionListing/Edit'
+import React, { useState } from "react";
+import { useClient, useClientInfo } from "../ClientManager";
+import { useAlert, useNotify } from "../NotificationManager";
+import { Collection, CollectionInsertPosition, ObjectType } from "nhitomi-api";
+import { useAsync } from "../hooks";
+import { Loading3QuartersOutlined, PlusOutlined } from "@ant-design/icons";
+import { FormattedMessage } from "react-intl";
+import { DropdownDivider, DropdownItem } from "./Dropdown";
+import { Disableable } from "./Disableable";
+import { useProgress } from "../ProgressManager";
+import { CollectionContentLink } from "../CollectionContent";
+import { usePageState } from "../state";
+import { useLocalized } from "../LocaleManager";
+import { useDynamicPrefetch } from "../Prefetch";
+import { useCollectionEditPrefetch } from "../CollectionListing/Edit";
 
 type BasicBook = {
   id: string
 }
 
 export const CollectionAddBookDropdownMenu = ({ book }: { book: BasicBook }) => {
-  const client = useClient()
-  const { info } = useClientInfo()
-  const { notifyError } = useNotify()
-  const [collections, setCollections] = usePageState<Collection[]>('userCollections')
+  const client = useClient();
+  const { info } = useClientInfo();
+  const { notifyError } = useNotify();
+  const [collections, setCollections] = usePageState<Collection[]>("userCollections");
 
   useAsync(async () => {
     if (collections)
-      return
+      return;
 
     try {
       if (!info.authenticated)
-        throw Error('Unauthenticated.')
+        throw Error("Unauthenticated.");
 
-      const { items } = await client.user.getUserCollections({ id: info.user.id })
+      const { items } = await client.user.getUserCollections({ id: info.user.id });
 
-      setCollections(items)
+      setCollections(items);
+    } catch (e) {
+      notifyError(e);
+      setCollections(undefined);
     }
-    catch (e) {
-      notifyError(e)
-      setCollections(undefined)
-    }
-  }, [])
+  }, []);
 
   return <>
     {collections
@@ -63,21 +61,21 @@ export const CollectionAddBookDropdownMenu = ({ book }: { book: BasicBook }) => 
           </DropdownItem>
         </Disableable>
       )}
-  </>
-}
+  </>;
+};
 
 const Add = ({ book, collection }: { book: BasicBook, collection: Collection }) => {
-  const client = useClient()
-  const { begin, end } = useProgress()
-  const { alert } = useAlert()
-  const { notifyError } = useNotify()
-  const [loading, setLoading] = useState(false)
+  const client = useClient();
+  const { begin, end } = useProgress();
+  const { alert } = useAlert();
+  const { notifyError } = useNotify();
+  const [loading, setLoading] = useState(false);
 
   return (
     <Disableable disabled={loading}>
       <DropdownItem onClick={async () => {
-        begin()
-        setLoading(true)
+        begin();
+        setLoading(true);
 
         try {
           await client.collection.addCollectionItems({
@@ -86,7 +84,7 @@ const Add = ({ book, collection }: { book: BasicBook, collection: Collection }) 
               items: [book.id],
               position: CollectionInsertPosition.Start
             }
-          })
+          });
 
           alert((
             <FormattedMessage
@@ -98,38 +96,36 @@ const Add = ({ book, collection }: { book: BasicBook, collection: Collection }) 
                   </CollectionContentLink>
                 )
               }} />
-          ), 'success')
-        }
-        catch (e) {
-          notifyError(e)
-        }
-        finally {
-          end()
-          setLoading(false)
+          ), "success");
+        } catch (e) {
+          notifyError(e);
+        } finally {
+          end();
+          setLoading(false);
         }
       }}>
 
         {collection.name}
       </DropdownItem>
     </Disableable>
-  )
-}
+  );
+};
 
 const Create = ({ book }: { book: BasicBook }) => {
-  const client = useClient()
-  const { begin, end } = useProgress()
-  const { notifyError } = useNotify()
-  const { alert } = useAlert()
-  const [loading, setLoading] = useState(false)
-  const [prefetchNode, navigate] = useDynamicPrefetch(useCollectionEditPrefetch)
+  const client = useClient();
+  const { begin, end } = useProgress();
+  const { notifyError } = useNotify();
+  const { alert } = useAlert();
+  const [loading, setLoading] = useState(false);
+  const [prefetchNode, navigate] = useDynamicPrefetch(useCollectionEditPrefetch);
 
-  const dummyName = useLocalized('components.collections.created.dummyName')
+  const dummyName = useLocalized("components.collections.created.dummyName");
 
   return (
     <Disableable disabled={loading}>
       <DropdownItem icon={<PlusOutlined />} onClick={async () => {
-        begin()
-        setLoading(true)
+        begin();
+        setLoading(true);
 
         try {
           let collection = await client.collection.createCollection({
@@ -139,7 +135,7 @@ const Create = ({ book }: { book: BasicBook }) => {
                 name: dummyName
               }
             }
-          })
+          });
 
           collection = await client.collection.addCollectionItems({
             id: collection.id,
@@ -147,18 +143,16 @@ const Create = ({ book }: { book: BasicBook }) => {
               items: [book.id],
               position: CollectionInsertPosition.Start
             }
-          })
+          });
 
-          await navigate({ id: collection.id })
+          await navigate({ id: collection.id });
 
-          alert(<FormattedMessage id='components.collections.created.success' />, 'success')
-        }
-        catch (e) {
-          notifyError(e)
-        }
-        finally {
-          end()
-          setLoading(false)
+          alert(<FormattedMessage id='components.collections.created.success' />, "success");
+        } catch (e) {
+          notifyError(e);
+        } finally {
+          end();
+          setLoading(false);
         }
       }}>
 
@@ -167,5 +161,5 @@ const Create = ({ book }: { book: BasicBook }) => {
 
       {prefetchNode}
     </Disableable>
-  )
-}
+  );
+};

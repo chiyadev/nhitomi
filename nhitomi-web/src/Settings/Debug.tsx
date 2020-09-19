@@ -1,7 +1,7 @@
-import React from 'react'
-import { SettingsFocusContainer } from './SettingsFocusContainer'
-import { Link } from 'react-router-dom'
-import { LinkOutlined } from '@ant-design/icons'
+import React from "react";
+import { SettingsFocusContainer } from "./SettingsFocusContainer";
+import { Link } from "react-router-dom";
+import { LinkOutlined } from "@ant-design/icons";
 
 export const Debug = () => {
   return (
@@ -10,5 +10,5 @@ export const Debug = () => {
 
       <Link to='/settings/debug' className='text-sm text-blue'><LinkOutlined /> Debug helper</Link>
     </SettingsFocusContainer>
-  )
-}
+  );
+};

@@ -1,55 +1,53 @@
-import React, { useState, useCallback } from 'react'
-import { Slider } from '../Components/Slider'
-import { usePageState } from '../state'
-import { getColor } from '../theme'
-import { FormattedMessage } from 'react-intl'
-import { animated, useSpring } from 'react-spring'
-import { cx, css } from 'emotion'
-import { PrefetchResult } from '.'
-import { Disableable } from '../Components/Disableable'
-import { Loading3QuartersOutlined } from '@ant-design/icons'
-import { useNotify } from '../NotificationManager'
-import { useClient, useClientInfo } from '../ClientManager'
-import { loadStripe } from '@stripe/stripe-js'
+import React, { useCallback, useState } from "react";
+import { Slider } from "../Components/Slider";
+import { usePageState } from "../state";
+import { getColor } from "../theme";
+import { FormattedMessage } from "react-intl";
+import { animated, useSpring } from "react-spring";
+import { css, cx } from "emotion";
+import { PrefetchResult } from ".";
+import { Disableable } from "../Components/Disableable";
+import { Loading3QuartersOutlined } from "@ant-design/icons";
+import { useNotify } from "../NotificationManager";
+import { useClient, useClientInfo } from "../ClientManager";
+import { loadStripe } from "@stripe/stripe-js";
 
 export const Checkout = ({ supporterPrice, apiKey }: PrefetchResult) => {
-  const client = useClient()
-  const { info } = useClientInfo()
-  const { notifyError } = useNotify()
+  const client = useClient();
+  const { info } = useClientInfo();
+  const { notifyError } = useNotify();
 
-  const [loading, setLoading] = useState(false)
-  const [duration, setDuration] = usePageState('duration', 1)
-  const amount = duration * supporterPrice
+  const [loading, setLoading] = useState(false);
+  const [duration, setDuration] = usePageState("duration", 1);
+  const amount = duration * supporterPrice;
 
   const submit = useCallback(async () => {
-    setLoading(true)
+    setLoading(true);
 
     try {
       if (!info.authenticated)
-        throw Error('Unauthorized.')
+        throw Error("Unauthorized.");
 
-      const stripe = await loadStripe(apiKey)
+      const stripe = await loadStripe(apiKey);
 
       if (!stripe)
-        throw Error('Could not load Stripe.')
+        throw Error("Could not load Stripe.");
 
       const { sessionId } = await client.user.createUserSupporterCheckout({
         id: info.user.id,
         createSupporterCheckoutRequest: { amount }
-      })
+      });
 
-      const { error } = await stripe.redirectToCheckout({ sessionId })
+      const { error } = await stripe.redirectToCheckout({ sessionId });
 
       if (error)
-        throw Error(error.message || 'Unknown Stripe error.')
+        throw Error(error.message || "Unknown Stripe error.");
+    } catch (e) {
+      notifyError(e);
+    } finally {
+      setLoading(false);
     }
-    catch (e) {
-      notifyError(e)
-    }
-    finally {
-      setLoading(false)
-    }
-  }, [amount, apiKey, client, info, notifyError])
+  }, [amount, apiKey, client, info, notifyError]);
 
   return (
     <Disableable disabled={loading}>
@@ -61,7 +59,7 @@ export const Checkout = ({ supporterPrice, apiKey }: PrefetchResult) => {
 
           <Slider
             className='w-full'
-            color={getColor('pink')}
+            color={getColor("pink")}
             min={0}
             max={12}
             value={duration}
@@ -75,28 +73,28 @@ export const Checkout = ({ supporterPrice, apiKey }: PrefetchResult) => {
         </ul>
       </div>
     </Disableable>
-  )
-}
+  );
+};
 
 const CheckoutButton = ({ duration, loading, submit }: { duration: number, loading: boolean, submit: () => void }) => {
-  const { info } = useClientInfo()
-  const supporter = info.authenticated && info.user.isSupporter
-  const [hover, setHover] = useState(false)
+  const { info } = useClientInfo();
+  const supporter = info.authenticated && info.user.isSupporter;
+  const [hover, setHover] = useState(false);
 
   const imageStyle = useSpring({
     opacity: hover || loading ? 0.6 : 0.5,
     transform: `translate(-50%, -50%) scale(${hover || loading ? 1.1 : 1})`
-  })
+  });
 
   const textStyle = useSpring({
     opacity: loading ? 0 : 1,
     transform: `scale(${loading ? 1.1 : 1})`
-  })
+  });
 
   const loadingStyle = useSpring({
     opacity: loading ? 1 : 0,
     transform: `scale(${loading ? 1 : 0.9})`
-  })
+  });
 
   return (
     <div
@@ -109,7 +107,7 @@ const CheckoutButton = ({ duration, loading, submit }: { duration: number, loadi
         style={imageStyle}
         alt='buttonbg'
         src='/assets/images/megumi_button_bg.jpg'
-        className={cx('absolute w-full object-cover select-none pointer-events-none', css`left: 50%; top: 50%;`)} />
+        className={cx("absolute w-full object-cover select-none pointer-events-none", css`left: 50%; top: 50%;`)} />
 
       <div className='absolute transform-center w-full text-center'>
         <animated.div style={textStyle}>
@@ -117,7 +115,7 @@ const CheckoutButton = ({ duration, loading, submit }: { duration: number, loadi
             <FormattedMessage id='pages.support.buy' />
           </div>
           <div className='text-sm'>
-            <FormattedMessage id={supporter ? 'pages.support.duration_supporter' : 'pages.support.duration'} values={{ duration }} />
+            <FormattedMessage id={supporter ? "pages.support.duration_supporter" : "pages.support.duration"} values={{ duration }} />
           </div>
         </animated.div>
       </div>
@@ -128,5 +126,5 @@ const CheckoutButton = ({ duration, loading, submit }: { duration: number, loadi
         </span>
       </animated.span>
     </div>
-  )
-}
+  );
+};

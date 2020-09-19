@@ -1,19 +1,19 @@
-import React, { useState, useEffect } from 'react'
-import { useSpring, animated } from 'react-spring'
-import { cx } from 'emotion'
-import { Loading3QuartersOutlined, WarningTwoTone } from '@ant-design/icons'
-import { Tooltip } from './Tooltip'
-import { FormattedMessage } from 'react-intl'
-import { probeImage } from '../imageUtils'
-import { getColor } from '../theme'
-import { useAsync } from '../hooks'
-import { getCachedImageRef, createCachedImageRef, returnCachedImageRef } from '../imageCache'
+import React, { useEffect, useState } from "react";
+import { animated, useSpring } from "react-spring";
+import { cx } from "emotion";
+import { Loading3QuartersOutlined, WarningTwoTone } from "@ant-design/icons";
+import { Tooltip } from "./Tooltip";
+import { FormattedMessage } from "react-intl";
+import { probeImage } from "../imageUtils";
+import { getColor } from "../theme";
+import { useAsync } from "../hooks";
+import { createCachedImageRef, getCachedImageRef, returnCachedImageRef } from "../imageCache";
 
 function formatAspect(x: number) {
-  return `${x * 100}%`
+  return `${x * 100}%`;
 }
 
-export const CoverImage = ({ cacheKey, onLoad, onLoaded, className, zoomIn, autoSize, defaultAspect, sizing = 'cover' }: {
+export const CoverImage = ({ cacheKey, onLoad, onLoaded, className, zoomIn, autoSize, defaultAspect, sizing = "cover" }: {
   cacheKey?: string
   onLoad: () => Promise<Blob> | Blob
   onLoaded?: (image: { url: string, width: number, height: number }) => void
@@ -21,76 +21,75 @@ export const CoverImage = ({ cacheKey, onLoad, onLoaded, className, zoomIn, auto
   zoomIn?: boolean
   autoSize?: boolean
   defaultAspect?: number
-  sizing?: 'cover' | 'contain'
+  sizing?: "cover" | "contain"
 }) => {
-  const [prolongedLoad, setProlongedLoad] = useState(false) // if load is prolonged, show loading indicator
+  const [prolongedLoad, setProlongedLoad] = useState(false); // if load is prolonged, show loading indicator
 
   const [loaded, setLoaded] = useState<{ url: string, width: number, height: number } | undefined>(() => {
     if (cacheKey)
-      return getCachedImageRef(cacheKey)
-  })
+      return getCachedImageRef(cacheKey);
+  });
 
   const { loading, error } = useAsync(async () => {
     if (loaded)
-      return
+      return;
 
-    const timer = window.setTimeout(() => setProlongedLoad(true), 2000)
+    const timer = window.setTimeout(() => setProlongedLoad(true), 2000);
 
     try {
-      const blob = await onLoad()
-      const { width, height } = await probeImage(blob)
+      const blob = await onLoad();
+      const { width, height } = await probeImage(blob);
 
-      let url: string
+      let url: string;
 
       if (cacheKey)
-        url = createCachedImageRef(cacheKey, { blob, width, height })
+        url = createCachedImageRef(cacheKey, { blob, width, height });
       else
-        url = URL.createObjectURL(blob)
+        url = URL.createObjectURL(blob);
 
-      const loaded = { url, width, height }
+      const loaded = { url, width, height };
 
-      onLoaded?.(loaded)
-      setLoaded(loaded)
+      onLoaded?.(loaded);
+      setLoaded(loaded);
+    } finally {
+      clearTimeout(timer);
     }
-    finally {
-      clearTimeout(timer)
-    }
-  }, [])
+  }, []);
 
   // revocation can run async
   useEffect(() => () => {
     if (loaded) {
       if (cacheKey)
-        returnCachedImageRef(cacheKey)
+        returnCachedImageRef(cacheKey);
       else
-        URL.revokeObjectURL(loaded.url)
+        URL.revokeObjectURL(loaded.url);
     }
-  }, [cacheKey, loaded])
+  }, [cacheKey, loaded]);
 
-  const [showImage, setShowImage] = useState(!!loaded)
+  const [showImage, setShowImage] = useState(!!loaded);
   const imageStyle = useSpring({
     opacity: loaded ? 1 : 0,
-    transform: loaded || !zoomIn ? 'scale(1)' : 'scale(0.9)',
+    transform: loaded || !zoomIn ? "scale(1)" : "scale(0.9)",
     onChange: {
       opacity: v => setShowImage(v > 0)
     }
-  })
+  });
 
-  const [showLoading, setShowLoading] = useState(prolongedLoad && loading)
+  const [showLoading, setShowLoading] = useState(prolongedLoad && loading);
   const loadingStyle = useSpring({
     opacity: prolongedLoad && loading ? 1 : 0,
     onChange: {
       opacity: v => setShowLoading(v > 0)
     }
-  })
+  });
 
-  const [showError, setShowError] = useState(!!error)
+  const [showError, setShowError] = useState(!!error);
   const errorStyle = useSpring({
     opacity: error ? 1 : 0,
     onChange: {
       opacity: v => setShowError(v)
     }
-  })
+  });
 
   return (
     <div
@@ -101,7 +100,7 @@ export const CoverImage = ({ cacheKey, onLoad, onLoaded, className, zoomIn, auto
             ? formatAspect(defaultAspect)
             : undefined
       }}
-      className={cx('relative select-none', className)}>
+      className={cx("relative select-none", className)}>
 
       {showImage && (
         <animated.div
@@ -109,8 +108,8 @@ export const CoverImage = ({ cacheKey, onLoad, onLoaded, className, zoomIn, auto
             ...imageStyle,
             backgroundImage: loaded ? `url(${loaded.url})` : undefined, // don't use emotion for perf
             backgroundSize: sizing,
-            backgroundPosition: 'center',
-            backgroundRepeat: 'no-repeat'
+            backgroundPosition: "center",
+            backgroundRepeat: "no-repeat"
           }}
           className='absolute top-0 left-0 w-full h-full' />
       )}
@@ -130,10 +129,10 @@ export const CoverImage = ({ cacheKey, onLoad, onLoaded, className, zoomIn, auto
               <div><code>{error?.message || <FormattedMessage id='components.coverImage.errorUnknown' />}</code></div>
             </>}>
 
-            <WarningTwoTone twoToneColor={getColor('red').hex} />
+            <WarningTwoTone twoToneColor={getColor("red").hex} />
           </Tooltip>
         </animated.div>
       )}
     </div>
-  )
-}
+  );
+};

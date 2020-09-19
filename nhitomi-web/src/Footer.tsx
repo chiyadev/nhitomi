@@ -1,20 +1,20 @@
-import React, { useState, ReactNode, useMemo } from 'react'
-import { Container } from './Components/Container'
-import { useSpring, animated } from 'react-spring'
-import { getColor } from './theme'
-import { useClientInfo } from './ClientManager'
-import { Tooltip } from './Components/Tooltip'
-import { FormattedDate, FormattedTime } from 'react-intl'
-import { GitCommit } from 'nhitomi-api'
-import { Anchor } from './Components/Anchor'
+import React, { ReactNode, useMemo, useState } from "react";
+import { Container } from "./Components/Container";
+import { animated, useSpring } from "react-spring";
+import { getColor } from "./theme";
+import { useClientInfo } from "./ClientManager";
+import { Tooltip } from "./Components/Tooltip";
+import { FormattedDate, FormattedTime } from "react-intl";
+import { GitCommit } from "nhitomi-api";
+import { Anchor } from "./Components/Anchor";
 
 export const Footer = () => {
-  const { info } = useClientInfo()
+  const { info } = useClientInfo();
 
   const style = useSpring({
     from: { marginBottom: -5, opacity: 0 },
     to: { marginBottom: 0, opacity: 1 }
-  })
+  });
 
   return (
     <Container className='text-sm text-gray-darker p-4 text-center space-y-1 overflow-hidden'>
@@ -44,10 +44,10 @@ export const Footer = () => {
         </>, [info.version])}
       </animated.div>
     </Container>
-  )
-}
+  );
+};
 
-const Split = () => <span className='mx-2'>·</span>
+const Split = () => <span className='mx-2'>·</span>;
 
 const VersionTooltip = ({ version, children }: { version: GitCommit, children?: ReactNode }) => (
   <Tooltip
@@ -59,14 +59,14 @@ const VersionTooltip = ({ version, children }: { version: GitCommit, children?: 
       <div><FormattedDate value={version.time} /> <FormattedTime value={version.time} /></div>
     </>}
     children={children} />
-)
+);
 
 const LinkText = ({ children }: { children?: ReactNode }) => {
-  const [hover, setHover] = useState(false)
+  const [hover, setHover] = useState(false);
 
   const style = useSpring({
-    color: hover ? getColor('white').rgb : getColor('gray', 'darker').rgb
-  })
+    color: hover ? getColor("white").rgb : getColor("gray", "darker").rgb
+  });
 
   return (
     <animated.span
@@ -74,5 +74,5 @@ const LinkText = ({ children }: { children?: ReactNode }) => {
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
       children={children} />
-  )
-}
+  );
+};
