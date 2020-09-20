@@ -23,6 +23,7 @@ FROM node:lts-alpine AS web
 WORKDIR /app
 
 COPY nhitomi-web/package.json nhitomi-web/yarn.lock ./
+COPY nhitomi-web/patches ./patches/
 COPY scripts ../scripts/
 RUN yarn
 
