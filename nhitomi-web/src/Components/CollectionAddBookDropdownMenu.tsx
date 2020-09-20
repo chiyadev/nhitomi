@@ -133,24 +133,17 @@ const Create = ({ book }: { book: BasicBook }) => {
           setLoading(true);
 
           try {
-            let collection = await client.collection.createCollection({
+            const created = await client.collection.createCollection({
               createCollectionRequest: {
                 type: ObjectType.Book,
                 collection: {
                   name: dummyName,
                 },
-              },
-            });
-
-            collection = await client.collection.addCollectionItems({
-              id: collection.id,
-              addCollectionItemsRequest: {
                 items: [book.id],
-                position: CollectionInsertPosition.Start,
               },
             });
 
-            await navigate({ id: collection.id });
+            await navigate({ id: created.id });
 
             alert(<FormattedMessage id="components.collections.created.success" />, "success");
           } catch (e) {

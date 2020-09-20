@@ -43,22 +43,13 @@ const Duplicate = ({ collection }: { collection: Collection }) => {
             setLoading(true);
 
             try {
-              let created = await client.collection.createCollection({
+              const created = await client.collection.createCollection({
                 createCollectionRequest: {
                   type: collection.type,
+                  items: collection.items,
                   collection,
                 },
               });
-
-              if (collection.items.length) {
-                created = await client.collection.addCollectionItems({
-                  id: created.id,
-                  addCollectionItemsRequest: {
-                    items: collection.items,
-                    position: CollectionInsertPosition.Start,
-                  },
-                });
-              }
 
               await navigate({ id: created.id });
 
