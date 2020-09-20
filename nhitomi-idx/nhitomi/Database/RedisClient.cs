@@ -276,7 +276,7 @@ namespace nhitomi.Database
             _keyMemory?.Add(key);
 
             using (_requestTime.Measure())
-                return await _database.KeyExpireAsync(key, delay);
+                return await _database.KeyExpireAsync(key.Prepend(_keyPrefix), delay);
         }
 
         public async Task<bool> DeleteAsync(RedisKey key, CancellationToken cancellationToken = default)
