@@ -30,6 +30,8 @@
     "json-stable-stringify": "^1.0.1",
     "keycode": "^2.2.0",
     "nprogress": "^0.2.0",
+    "patch-package": "^6.2.2",
+    "postinstall-postinstall": "^2.1.0",
     "preact": "^10.4.8",
     "prettier": "^2.1.2",
     "probe-image-size": "^5.0.0",
