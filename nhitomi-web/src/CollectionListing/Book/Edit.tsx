@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { FormattedMessage } from "react-intl";
-import { Collection, CollectionInsertPosition } from "nhitomi-api";
+import { Collection } from "nhitomi-api";
 import { FlatButton } from "../../Components/FlatButton";
 import { CopyOutlined } from "@ant-design/icons";
 import { useClient } from "../../ClientManager";
