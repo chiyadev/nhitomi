@@ -7,6 +7,7 @@ import { Loading3QuartersOutlined } from "@ant-design/icons";
 import { FormattedMessage } from "react-intl";
 import { stringify } from "qs";
 import { useConfig } from "../ConfigManager";
+import { Anchor } from "../Components/Anchor";
 
 type OAuthClientInfo = {
   id: string;
@@ -94,7 +95,13 @@ const Loaded = ({ client, state }: PrefetchResult) => {
         <span>
           <FormattedMessage
             id="pages.authentication.redirect.progress"
-            values={{ name: <span className="font-bold">{client.name}</span> }}
+            values={{
+              name: (
+                <Anchor className="font-bold" href={redirectUri}>
+                  {client.name}
+                </Anchor>
+              ),
+            }}
           />
         </span>
       </div>
