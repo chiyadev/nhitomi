@@ -6,10 +6,10 @@ import { useLocalized } from "../LocaleManager";
 import { Container } from "../Components/Container";
 import { useDownloads } from "../DownloadManager";
 import { FormattedMessage } from "react-intl";
-import { animated, useTransition } from "react-spring";
 import { cx } from "emotion";
 import { BookTaskDisplay } from "./BookTaskDisplay";
 import { useLayout } from "../LayoutManager";
+import { EmptyIndicator } from "../Components/EmptyIndicator";
 
 export type PrefetchResult = {};
 export type PrefetchOptions = {};
@@ -49,16 +49,6 @@ const Loaded = () => {
   const { screen } = useLayout();
   const { tasks } = useDownloads();
 
-  const [transitions] = useTransition(
-    tasks,
-    {
-      from: { opacity: 0 },
-      enter: { opacity: 1 },
-      leave: { opacity: 0 },
-    },
-    [tasks]
-  );
-
   return (
     <Container className="divide-y divide-gray-darkest">
       {useMemo(
@@ -79,21 +69,36 @@ const Loaded = () => {
       )}
 
       <div>
-        {transitions((style, task) => {
-          let node: ReactNode;
+        {!tasks.length && (
+          <div className="p-4">
+            <EmptyIndicator>
+              <FormattedMessage id="pages.downloads.empty" />
+            </EmptyIndicator>
+          </div>
+        )}
 
-          switch (task.target.type) {
-            case "book":
-              node = <BookTaskDisplay task={task} />;
-              break;
-          }
+        {useMemo(
+          () =>
+            tasks.map((task) => {
+              let node: ReactNode;
 
-          return (
-            <animated.div style={style} key={task.id} className={cx({ "w-1/2": screen === "lg" }, "inline-flex")}>
-              {node}
-            </animated.div>
-          );
-        })}
+              switch (task.target.type) {
+                case "book":
+                  node = <BookTaskDisplay task={task} />;
+                  break;
+              }
+
+              return (
+                <div
+                  key={task.id}
+                  className={cx({ "w-1/2": screen === "lg", "w-full": screen !== "lg" }, "inline-flex")}
+                >
+                  {node}
+                </div>
+              );
+            }),
+          [tasks]
+        )}
       </div>
     </Container>
   );

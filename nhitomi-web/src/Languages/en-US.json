@@ -224,6 +224,7 @@
     "downloads": {
       "title": "Downloads",
       "subtitle": "{count, plural, =0 {No downloads} one {# download} other {# downloads}} currently in progress.",
+      "empty": "No downloads",
       "started": {
         "one": "Download started for {name}.",
         "many": "Download started for {count} items."
