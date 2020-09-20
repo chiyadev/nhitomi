@@ -31,6 +31,7 @@ import { CollectionListing } from "./CollectionListing";
 import { Settings } from "./Settings";
 import { Debug } from "./Internal/Debug";
 import { NotFound } from "./NotFound";
+import { OAuthRedirect } from "./Authentication/OAuthRedirect";
 
 export const App = () => {
   return (
@@ -97,6 +98,15 @@ const Routing = () => {
               params: { service },
             },
           }) => <OAuthCallback service={service} />}
+        />
+        <Route
+          path="/oauth/redirect/:id"
+          exact
+          render={({
+            match: {
+              params: { id },
+            },
+          }) => <OAuthRedirect id={id} />}
         />
 
         <Route path="/books" exact component={BookListing} />

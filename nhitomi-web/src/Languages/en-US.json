@@ -36,6 +36,9 @@
       "connect": {
         "discord": "Continue with Discord",
         "twitter": "Continue with Twitter"
+      },
+      "redirect": {
+        "progress": "Redirecting back to {name}..."
       }
     },
     "bookListing": {

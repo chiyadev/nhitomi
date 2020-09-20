@@ -36,6 +36,9 @@
       "connect": {
         "discord": "Discordでログイン",
         "twitter": "Twitterでログイン"
+      },
+      "redirect": {
+        "progress": "{name}にリダイレクト中..."
       }
     },
     "bookListing": {
