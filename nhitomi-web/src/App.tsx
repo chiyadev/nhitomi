@@ -8,6 +8,7 @@ import { ConfigManager } from "./ConfigManager";
 import { LayoutManager } from "./LayoutManager";
 import { ClientManager } from "./ClientManager";
 import { LocaleManager } from "./LocaleManager";
+import { DownloadManager } from "./DownloadManager";
 import { NotificationManager } from "./NotificationManager";
 import { PrefetchScrollPreserver } from "./Prefetch";
 import { AnimationSetter } from "./AnimationSetter";
@@ -41,26 +42,28 @@ export const App = () => {
           <LayoutManager>
             <ClientManager>
               <LocaleManager>
-                <NotificationManager>
-                  <PrefetchScrollPreserver />
-                  <AnimationSetter />
-                  <BlurSetter />
-                  <TitleSetter />
-                  <ShortcutHintDisplay />
+                <DownloadManager>
+                  <NotificationManager>
+                    <PrefetchScrollPreserver />
+                    <AnimationSetter />
+                    <BlurSetter />
+                    <TitleSetter />
+                    <ShortcutHintDisplay />
 
-                  <Sidebar>
-                    <div className="flex flex-col min-h-screen">
-                      <div className="relative w-full flex-1">
-                        <MaintenanceHeader />
+                    <Sidebar>
+                      <div className="flex flex-col min-h-screen">
+                        <div className="relative w-full flex-1">
+                          <MaintenanceHeader />
 
-                        <Routing />
+                          <Routing />
+                        </div>
+                        <div className="mt-4">
+                          <Footer />
+                        </div>
                       </div>
-                      <div className="mt-4">
-                        <Footer />
-                      </div>
-                    </div>
-                  </Sidebar>
-                </NotificationManager>
+                    </Sidebar>
+                  </NotificationManager>
+                </DownloadManager>
               </LocaleManager>
             </ClientManager>
           </LayoutManager>
