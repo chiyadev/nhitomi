@@ -99,6 +99,7 @@ const Loaded = ({ result, setResult }: { result: PrefetchResult; setResult: Disp
   const { begin, end } = useProgress();
 
   // displayed results may not represent the current query if we navigated before storing the results
+  // another way to put it: user searches, page navigates but search is still happening so the current query and displayed results don't match
   const [effectiveQuery, setEffectiveQuery] = usePageState<SearchQuery>("query", query);
 
   // serialized query string is used for comparison
@@ -161,6 +162,7 @@ const Input = ({ result }: { result: PrefetchResult }) => {
   );
 };
 
+// infinite loader
 const Loader = ({
   query,
   result,

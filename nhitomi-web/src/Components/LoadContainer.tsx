@@ -4,6 +4,7 @@ import { useAsync } from "../hooks";
 import { cx } from "emotion";
 import { animated, useSpring } from "react-spring";
 import { Loading3QuartersOutlined } from "@ant-design/icons";
+import { waitDocumentVisible } from "../pageVisibility";
 
 export const LoadContainer = ({
   onLoad,
@@ -17,6 +18,9 @@ export const LoadContainer = ({
   const [load, setLoad] = useState(false);
 
   const { loading } = useAsync(async () => {
+    // prevents infinite search loop while tab is inactive
+    await waitDocumentVisible();
+
     if (load) await onLoad();
   }, [load]);
 
