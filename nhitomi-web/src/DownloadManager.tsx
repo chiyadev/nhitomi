@@ -1,12 +1,4 @@
-import React, {
-  createContext,
-  ReactNode,
-  useContext,
-  useLayoutEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import React, { createContext, ReactNode, useContext, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useConfig } from "./ConfigManager";
 import { EventEmitter } from "events";
 import StrictEventEmitter from "strict-event-emitter-types";
@@ -143,7 +135,20 @@ export const DownloadManager = ({ children }: { children: ReactNode }) => {
 
           add: (...addTargets) => {
             setTargets((targets) => [
-              ...addTargets.map((target) => ({ ...target, id: Math.random(), owner: currentOwnerId })),
+              ...addTargets
+                .filter(
+                  // prevent duplicates
+                  (target) =>
+                    targets.findIndex((other) => {
+                      if (target.type !== other.type) return false;
+
+                      switch (target.type) {
+                        case "book":
+                          return target.book.id === other.book.id && target.book.contentId === other.book.contentId;
+                      }
+                    }) === -1
+                )
+                .map((target) => ({ ...target, id: Math.random(), owner: currentOwnerId })),
               ...targets,
             ]);
           },
