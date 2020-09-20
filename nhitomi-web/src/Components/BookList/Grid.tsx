@@ -40,9 +40,43 @@ export const Grid = ({ width, menu, empty }: { width: number; menu?: ReactNode; 
     return { spacing, rowItems, rowWidth, itemWidth, itemHeight };
   }, [width]);
 
+  const { screen, height } = useLayout();
+  let preload: number;
+
+  switch (screen) {
+    case "sm":
+      preload = height * 2;
+      break;
+    case "lg":
+      preload = 400;
+      break;
+  }
+
+  const itemSpacingClass = useMemo(
+    () => css`
+      margin: ${spacing / 2}px;
+    `,
+    [spacing]
+  );
+
+  const itemsMemoized = useMemo(
+    () =>
+      items.map((item) => (
+        <ItemWrapper
+          key={item.id}
+          book={item}
+          preload={preload}
+          width={itemWidth}
+          height={itemHeight}
+          className={itemSpacingClass}
+        />
+      )),
+    [items, preload, itemWidth, itemHeight, itemSpacingClass]
+  );
+
   return (
     <div style={{ maxWidth: rowWidth }} className="mx-auto w-full">
-      <Menu>{menu}</Menu>
+      <MenuWrapper>{menu}</MenuWrapper>
 
       {useMemo(
         () => (
@@ -55,28 +89,17 @@ export const Grid = ({ width, menu, empty }: { width: number; menu?: ReactNode; 
               `
             )}
           >
-            {items.map((item) => (
-              <Item
-                key={item.id}
-                book={item}
-                width={itemWidth}
-                height={itemHeight}
-                className={css`
-                  margin: ${spacing / 2}px;
-                `}
-              />
-            ))}
-
+            {itemsMemoized}
             {items.length ? null : empty}
           </div>
         ),
-        [empty, itemHeight, itemWidth, items, spacing]
+        [empty, itemsMemoized, items]
       )}
     </div>
   );
 };
 
-const Menu = ({ children }: { children?: ReactNode }) => {
+const MenuWrapper = ({ children }: { children?: ReactNode }) => {
   const style = useSpring({
     from: { opacity: 0 },
     to: { opacity: 1 },
@@ -93,7 +116,50 @@ const Menu = ({ children }: { children?: ReactNode }) => {
   );
 };
 
-const Item = ({
+const ItemWrapper = ({
+  book,
+  preload,
+  width,
+  height,
+  className,
+}: {
+  book: BookListItem;
+  preload: number;
+  width: number;
+  height: number;
+  className?: string;
+}) => {
+  const [visible, setVisible] = useState(false);
+
+  const inner = useMemo(() => <ItemContent book={book} width={width} height={height} className={className} />, [
+    book,
+    width,
+    height,
+    className,
+  ]);
+
+  const placeholder = useMemo(() => <div style={{ width, height }} className={className} />, [
+    width,
+    height,
+    className,
+  ]);
+
+  return useMemo(
+    () => (
+      <VisibilitySensor
+        delayedCall
+        partialVisibility
+        offset={{ top: -preload, bottom: -preload }}
+        onChange={setVisible}
+      >
+        {visible ? inner : placeholder}
+      </VisibilitySensor>
+    ),
+    [visible, inner, placeholder]
+  );
+};
+
+const ItemContent = ({
   book,
   width,
   height,
@@ -104,33 +170,33 @@ const Item = ({
   height: number;
   className?: string;
 }) => {
-  const { screen, height: screenHeight } = useLayout();
   const contentSelector = useContentSelector();
   const { LinkComponent } = useBookList();
   const [hover, setHover] = useState(false);
-  const [showImage, setShowImage] = useState(false);
 
   const content = useMemo(() => contentSelector(book.contents), [book.contents, contentSelector]);
+  const contextOverlay = useMemo(() => <Overlay book={book} content={content} />, [book, content]);
+  const hoverOverlay = useMemo(() => <ItemOverlay book={book} hover={hover} />, [book, hover]);
+  const image = useMemo(() => <ItemCover book={book} content={content} />, [book, content]);
 
-  const overlay = useMemo(() => <ItemOverlay book={book} hover={hover} />, [book, hover]);
-
-  const image = useMemo(() => showImage && <ItemCover book={book} content={content} />, [book, content, showImage]);
-
-  const inner = useMemo(() => {
-    const children = (
+  const children = useMemo(
+    () => (
       <>
         {image}
-        {overlay}
+        {hoverOverlay}
       </>
-    );
+    ),
+    [image, hoverOverlay]
+  );
 
-    return (
-      <div
-        style={{ width, height }}
-        className={cx("rounded overflow-hidden relative", className)}
-        onMouseEnter={() => setHover(true)}
-        onMouseLeave={() => setHover(false)}
-      >
+  return (
+    <div
+      style={{ width, height }}
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+      className={cx("rounded overflow-hidden relative", className)}
+    >
+      <ContextMenu overlay={contextOverlay}>
         {LinkComponent ? (
           <LinkComponent id={book.id} contentId={content?.id}>
             {children}
@@ -142,37 +208,8 @@ const Item = ({
         ) : (
           children
         )}
-      </div>
-    );
-  }, [LinkComponent, book.id, className, content, height, image, overlay, width]);
-
-  let preload: number;
-
-  switch (screen) {
-    case "sm":
-      preload = screenHeight * 2;
-      break;
-    case "lg":
-      preload = 400;
-      break;
-  }
-
-  return useMemo(
-    () => (
-      <ContextMenu overlay={<Overlay book={book} content={content} />}>
-        <VisibilitySensor
-          delayedCall
-          partialVisibility
-          offset={{ top: -preload, bottom: -preload }}
-          onChange={(v) => {
-            v && setShowImage(true);
-          }}
-        >
-          {inner}
-        </VisibilitySensor>
       </ContextMenu>
-    ),
-    [book, content, inner, preload]
+    </div>
   );
 };
 

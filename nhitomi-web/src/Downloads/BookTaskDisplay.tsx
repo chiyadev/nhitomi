@@ -44,7 +44,7 @@ export const BookTaskDisplay = ({ task }: { task: DownloadTask }) => {
   const { book } = target;
 
   return (
-    <VisibilitySensor partialVisibility offset={{ top: -400, bottom: -400 }} onChange={setVisible}>
+    <VisibilitySensor delayedCall partialVisibility offset={{ top: -400, bottom: -400 }} onChange={setVisible}>
       {visible ? (
         <animated.div
           style={style}

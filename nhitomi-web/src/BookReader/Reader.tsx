@@ -21,7 +21,7 @@ export const Reader = ({
   content: BookContent;
   viewportWidth: number;
 }) => {
-  const { height: viewportHeight } = useLayout();
+  const { screen, height: viewportHeight } = useLayout();
 
   const layoutEngine = useMemo(() => new LayoutEngine(), []);
   const [images, setImages] = useState<(ImageBase | undefined)[]>();
@@ -69,6 +69,17 @@ export const Reader = ({
     return list;
   }, [content]);
 
+  let preload: number;
+
+  switch (screen) {
+    case "sm":
+      preload = viewportHeight * 4;
+      break;
+    case "lg":
+      preload = viewportHeight * 2;
+      break;
+  }
+
   const ref = useRef<HTMLDivElement>(null);
 
   return (
@@ -94,73 +105,59 @@ export const Reader = ({
       {useMemo(
         () =>
           layout.images.map((image, i) => (
-            <Page key={i} book={book} content={content} index={i} image={image} setImage={setImage[i]} />
+            <PageWrapper
+              key={i}
+              book={book}
+              content={content}
+              index={i}
+              preload={preload}
+              image={image}
+              setImage={setImage[i]}
+            />
           )),
-        [book, content, layout, setImage]
+        [book, content, layout, preload, setImage]
       )}
     </div>
   );
 };
 
-const Page = ({
+const PageWrapper = ({
   book,
   content,
   index,
-  image: { x, y, width, height },
+  preload,
+  image,
   setImage,
 }: {
   book: Book;
   content: BookContent;
   index: number;
+  preload: number;
   image: LayoutImage;
   setImage: Dispatch<ImageBase | undefined>;
 }) => {
-  const { screen, height: screenHeight } = useLayout();
-  const [showImage, setShowImage] = useState(false);
+  const [visible, setVisible] = useState(false);
 
-  const image = useMemo(
-    () => showImage && <PageImage book={book} content={content} index={index} setImage={setImage} />,
-    [book, content, index, setImage, showImage]
-  );
-
-  let preload: number;
-
-  switch (screen) {
-    case "sm":
-      preload = screenHeight * 4;
-      break;
-    case "lg":
-      preload = screenHeight * 2;
-      break;
-  }
+  const style = useMemo(() => ({ left: image.x, top: image.y, width: image.width, height: image.height }), [image]);
 
   return useMemo(
     () => (
       <VisibilitySensor
-        onChange={(v) => {
-          v && setShowImage(true);
-        }}
+        delayedCall
         partialVisibility
         offset={{ top: -preload, bottom: -preload }}
+        onChange={setVisible}
       >
-        <div
-          className="absolute"
-          style={{
-            top: y,
-            left: x,
-            width,
-            height,
-          }}
-        >
-          {image}
+        <div className="absolute" style={style}>
+          {visible && <PageContent book={book} content={content} index={index} setImage={setImage} />}
         </div>
       </VisibilitySensor>
     ),
-    [height, image, preload, width, x, y]
+    [visible, style]
   );
 };
 
-const PageImage = ({
+const PageContent = ({
   book: { id },
   content: { id: contentId },
   index,
