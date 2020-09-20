@@ -30,7 +30,7 @@ export const BookTaskDisplay = ({ task }: { task: DownloadTask }) => {
     opacity: hover || task.active ? 1 : 0.5,
   });
 
-  const deleteStyle = useSpring({
+  const buttonStyle = useSpring({
     opacity: hover ? 1 : 0,
   });
 
@@ -90,27 +90,21 @@ export const BookTaskDisplay = ({ task }: { task: DownloadTask }) => {
         )}
       </div>
 
-      <div className="absolute top-0 right-0 flex flex-row">
-        <Tooltip overlay={<FormattedMessage id="pages.downloads.task.restart" />} placement="bottom">
-          <animated.div
-            style={deleteStyle}
-            className="text-gray-darker text-sm cursor-pointer p-2"
-            onClick={() => task.restart()}
-          >
-            <ReloadOutlined />
-          </animated.div>
-        </Tooltip>
+      <animated.div style={buttonStyle} className="absolute top-0 right-0 flex flex-row bg-gray-darkest bg-blur rounded">
+        {(!task.active || task.state.type === "error") && (
+          <Tooltip overlay={<FormattedMessage id="pages.downloads.task.restart" />} placement="bottom">
+            <div className="text-gray-darker text-sm cursor-pointer p-2" onClick={() => task.restart()}>
+              <ReloadOutlined />
+            </div>
+          </Tooltip>
+        )}
 
         <Tooltip overlay={<FormattedMessage id="pages.downloads.task.delete" />} placement="bottom">
-          <animated.div
-            style={deleteStyle}
-            className="text-gray-darker text-sm cursor-pointer p-2"
-            onClick={() => remove(target.id)}
-          >
+          <div className="text-gray-darker text-sm cursor-pointer p-2" onClick={() => remove(target.id)}>
             <CloseOutlined />
-          </animated.div>
+          </div>
         </Tooltip>
-      </div>
+      </animated.div>
     </animated.div>
   );
 };

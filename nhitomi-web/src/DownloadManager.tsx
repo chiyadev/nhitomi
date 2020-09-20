@@ -67,8 +67,10 @@ export const DownloadManager = ({ children }: { children: ReactNode }) => {
 
         const newTasks = targets.map((target) => {
           const task = taskMap[target.id];
-
           if (task) return task;
+
+          // new task added, proceed
+          setProceed(true);
 
           switch (target.type) {
             case "book":
@@ -88,35 +90,26 @@ export const DownloadManager = ({ children }: { children: ReactNode }) => {
     [targets]
   );
 
-  // handle task events
   const [proceed, setProceed] = useState(true);
-  const handleUpdate = useCallback((task: DownloadTask) => {
-    switch (task.state.type) {
-      case "pending":
-      case "done":
-      case "error":
-        setProceed(true);
-        break;
-    }
-  }, []);
+  const proceeding = useRef(false);
 
-  // register task event handlers
   useLayoutEffect(() => {
-    setProceed(true);
+    const handle = (task: DownloadTask) => {
+      // process task if it became pending
+      if (task.state.type === "pending") setProceed(true);
+    };
 
-    for (const task of tasks) task.on("updated", handleUpdate);
+    for (const task of tasks) task.on("updated", handle);
     return () => {
-      for (const task of tasks) task.off("updated", handleUpdate);
+      for (const task of tasks) task.off("updated", handle);
     };
   }, [tasks]);
-
-  // assign download sessions to tasks
-  const proceeding = useRef(false);
 
   useAsync(async () => {
     if (!proceed) return;
     setProceed(false);
 
+    // prevent concurrent session creation
     if (proceeding.current) return;
     proceeding.current = true;
 
@@ -125,10 +118,14 @@ export const DownloadManager = ({ children }: { children: ReactNode }) => {
         if (task.state.type !== "pending") continue;
 
         try {
+          // create a session for each pending download
           const session = await client.download.createDownloadSession({ body: {} });
 
           task.setProgress("download", 0);
-          task.run(client, session, (task.cancellation = { requested: false }));
+
+          // run task with cancellation in the background
+          // when the task finishes, regardless of success, we will proceed to the next task
+          task.run(client, session, (task.cancellation = { requested: false })).finally(() => setProceed(true));
         } catch {
           break;
         }
@@ -225,12 +222,12 @@ export abstract class DownloadTask extends (EventEmitter as new () => StrictEven
   cancellation?: CancellationSignal;
 
   cancel() {
-    if (this.cancellation) {
-      this.cancellation.requested = true;
+    const cancellation = this.cancellation;
+
+    if (cancellation) {
+      cancellation.requested = true;
       this.cancellation = undefined;
     }
-
-    this.emit("updated", this);
   }
 
   restart() {
@@ -263,6 +260,12 @@ export abstract class DownloadTask extends (EventEmitter as new () => StrictEven
   }
 
   async run(client: Client, session: DownloadSession, cancellation: CancellationSignal) {
+    // interval to keep session alive
+    const sessionInterval = window.setInterval(
+      async () => (session = await client.download.getDownloadSession({ id: session.id })),
+      10000
+    );
+
     let resultFn: (() => Promise<Blob>) | undefined;
 
     try {
@@ -273,6 +276,8 @@ export abstract class DownloadTask extends (EventEmitter as new () => StrictEven
     } catch (e) {
       if (!cancellation.requested) this.setError(e);
     } finally {
+      clearInterval(sessionInterval);
+
       try {
         await client.download.deleteDownloadSession({ id: session.id });
       } catch {
@@ -311,8 +316,8 @@ class BookDownloadTask extends DownloadTask {
     const book = await client.book.getBook({ id });
     const content = book.contents.find((c) => c.id === contentId);
 
-    if (!content) throw Error(`'${contentId}' not found.`);
     if (cancellation.requested) return;
+    if (!content) throw Error(`'${contentId}' not found.`);
 
     const digits = content.pageCount.toString().length;
     const zip = new JSZip();
@@ -325,15 +330,19 @@ class BookDownloadTask extends DownloadTask {
         // user can cancel the download if deemed stuck
         while (!cancellation.requested) {
           try {
+            // download image using session
             const image = await client.book.getBookImage({ id, contentId, index, sessionId: session.id });
             const { type } = await probeImage(image);
 
             if (cancellation.requested) return;
 
+            // add image to zip
             zip.file(`${(index + 1).toString().padStart(digits, "0")}.${type}`);
+
+            // update progress
             this.setProgress("download", ++loaded / content.pageCount);
 
-            return;
+            return; // exit loop
           } catch (e) {
             console.warn("could not load image", index, "of book", id, contentId, e);
           }
@@ -344,9 +353,9 @@ class BookDownloadTask extends DownloadTask {
     if (cancellation.requested) return;
 
     return async () =>
+      // https://stuk.github.io/jszip/documentation/api_jszip/generate_async.html
       await zip.generateAsync(
         {
-          // https://stuk.github.io/jszip/documentation/api_jszip/generate_async.html
           type: "blob",
           comment: `Downloaded from nhitomi on ${new Date().toString()} (/books/${id}/contents/${contentId}).`,
           compression: "DEFLATE",
