@@ -105,12 +105,12 @@ const Content = ({ info }: PrefetchResult) => {
 
         <ul className="list-disc list-inside">
           <li>
-            Completele free and{" "}
+            Completely free and{" "}
             <Anchor target="_blank" className="font-bold" href="https://github.com/chiyadev/nhitomi">
               open-source
             </Anchor>
           </li>
-          <li>No advertisements whatsoever</li>
+          <li>No advertisements</li>
           <li>Beautiful interface with first-class mobile support</li>
           <li>Customizable reader</li>
           <li>More to come...</li>
@@ -126,7 +126,7 @@ const Content = ({ info }: PrefetchResult) => {
 
       <div className="space-y-2">
         <div className="text-2xl">Accounts</div>
-        <div>Registration is free and login integrates popular SSO services.</div>
+        <div>Registration is free and integrates popular SSO services.</div>
 
         <ul className="list-disc list-inside">
           <li>View any number of books without restrictions</li>
@@ -213,7 +213,7 @@ const Content = ({ info }: PrefetchResult) => {
       </div>
 
       <div>
-        Thank you for visiting! <span className="text-gray-darker">— chiya.dev 2018-2020</span>
+        Thank you for visiting!<span className="text-gray-darker"> — chiya.dev 2018-2020</span>
       </div>
     </>
   );

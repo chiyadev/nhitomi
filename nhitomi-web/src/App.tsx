@@ -24,15 +24,16 @@ import { Support } from "./Support";
 import { Pending as SupportPending } from "./Support/Pending";
 import { Authentication } from "./Authentication";
 import { OAuthCallback } from "./Authentication/OAuthCallback";
+import { OAuthRedirect } from "./Authentication/OAuthRedirect";
 import { BookListing } from "./BookListing";
 import { BookReader } from "./BookReader";
 import { CollectionContent } from "./CollectionContent";
 import { CollectionEdit } from "./CollectionListing/Edit";
 import { CollectionListing } from "./CollectionListing";
+import { Downloads } from "./Downloads";
 import { Settings } from "./Settings";
 import { Debug } from "./Internal/Debug";
 import { NotFound } from "./NotFound";
-import { OAuthRedirect } from "./Authentication/OAuthRedirect";
 
 export const App = () => {
   return (
@@ -151,6 +152,8 @@ const Routing = () => {
             },
           }) => <CollectionListing id={id} />}
         />
+
+        <Route path="/downloads" exact component={Downloads} />
 
         <Route path="/settings" exact component={Settings} />
         <Route path="/settings/debug" exact component={Debug} />

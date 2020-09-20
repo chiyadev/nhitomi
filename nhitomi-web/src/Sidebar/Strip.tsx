@@ -1,7 +1,9 @@
-import React, { ReactNode, useMemo } from "react";
+import React, { ReactNode, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { css, cx } from "emotion";
 import {
   BookOutlined,
+  CloudDownloadOutlined,
+  CloudFilled,
   FolderOpenFilled,
   FolderOutlined,
   HeartFilled,
@@ -25,6 +27,9 @@ import { Disableable } from "../Components/Disableable";
 import { AboutLink } from "../About";
 import { SupportLink } from "../Support";
 import { SidebarStripWidth } from "../LayoutManager";
+import { DownloadsLink } from "../Downloads";
+import { useDownloads } from "../DownloadManager";
+import { getColor } from "../theme";
 
 export const Strip = ({ children, additionalMenu }: { children?: ReactNode; additionalMenu?: ReactNode }) => {
   const { info } = useClientInfo();
@@ -95,8 +100,8 @@ const Logo = () =>
     []
   );
 
-const Buttons = () => {
-  return useMemo(
+const Buttons = () =>
+  useMemo(
     () => (
       <>
         <Tooltip overlay={<FormattedMessage id="pages.bookListing.title" />} placement="right">
@@ -131,6 +136,8 @@ const Buttons = () => {
             </RoundIconButton>
           </SelfCollectionListingLink>
         </Tooltip>
+
+        <DownloadsButton />
 
         <Tooltip overlay={<FormattedMessage id="pages.settings.title" />} placement="right">
           <SettingsLink>
@@ -179,5 +186,46 @@ const Buttons = () => {
       </>
     ),
     []
+  );
+
+const DownloadsButton = () => {
+  const { tasks } = useDownloads();
+  const [changed, setChanged] = useState(false);
+
+  const timeout = useRef<number>();
+
+  useLayoutEffect(
+    () => () => {
+      setChanged(true);
+
+      clearTimeout(timeout.current);
+      timeout.current = window.setTimeout(() => setChanged(false), 200);
+    },
+    [tasks.length]
+  );
+
+  const style = useSpring({
+    transform: changed ? "scale(1.1)" : "scale(1)",
+    color: changed ? getColor("blue").rgb : getColor("white").rgb,
+    immediate: changed,
+  });
+
+  return (
+    <animated.div style={style}>
+      <Tooltip overlay={<FormattedMessage id="pages.downloads.title" />} placement="right">
+        <DownloadsLink>
+          <RoundIconButton>
+            <Switch>
+              <Route path="/downloads">
+                <CloudFilled />
+              </Route>
+              <Route>
+                <CloudDownloadOutlined />
+              </Route>
+            </Switch>
+          </RoundIconButton>
+        </DownloadsLink>
+      </Tooltip>
+    </animated.div>
   );
 };

@@ -63,7 +63,8 @@
       "sources": "Sources",
       "buttons": {
         "favorite": "Favorite",
-        "collectionAdd": "Add to collection"
+        "collectionAdd": "Add to collection",
+        "download": "Download"
       },
       "alerts": {
         "imagesPerRow": "Switched to {value, select, 1 {single} 2 {double} other {{value}}} page mode.",
@@ -218,6 +219,27 @@
             "success": "Item successfully deleted."
           }
         }
+      }
+    },
+    "downloads": {
+      "title": "Downloads",
+      "subtitle": "{count, plural, =0 {No downloads} one {# download} other {# downloads}} currently in progress.",
+      "started": {
+        "one": "Download started for {name}.",
+        "many": "Download started for {count} items."
+      },
+      "done": {
+        "one": "Download completed for {name}."
+      },
+      "task": {
+        "state": {
+          "stalled": "Stalled",
+          "pending": "Pending",
+          "running": "Running",
+          "error": "Error"
+        },
+        "restart": "Restart",
+        "delete": "Cancel"
       }
     }
   },

@@ -63,7 +63,8 @@
       "sources": "サイト",
       "buttons": {
         "favorite": "いいね",
-        "collectionAdd": "コレクションに追加"
+        "collectionAdd": "コレクションに追加",
+        "download": "ダウンロード"
       },
       "alerts": {
         "imagesPerRow": "{value, select, 1 {シングル} 2 {ダブル} other {{value}}}ページモードに切り替えました。",
@@ -218,6 +219,27 @@
             "success": "項目を削除しました。"
           }
         }
+      }
+    },
+    "downloads": {
+      "title": "ダウンロード",
+      "subtitle": "現在{count, plural, =0 {何もダウンロードしていません。} other {#項目をダウンロードしています。}}",
+      "started": {
+        "one": "{name}のダウンロードを開始しました。",
+        "many": "{count}項目のダウンロードを開始しました。"
+      },
+      "done": {
+        "one": "{name}がダウンロードされました。"
+      },
+      "task": {
+        "state": {
+          "stalled": "停止",
+          "pending": "待機",
+          "running": "進行中",
+          "error": "エラー"
+        },
+        "restart": "再スタート",
+        "delete": "キャンセル"
       }
     }
   },

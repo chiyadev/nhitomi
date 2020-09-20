@@ -16,6 +16,7 @@ import {
   CollectionInsertPosition,
   Configuration,
   ConfigurationParameters,
+  DownloadApi,
   GetInfoAuthenticatedResponse,
   GetInfoResponse,
   InfoApi,
@@ -99,6 +100,7 @@ export class Client {
   readonly info: InfoApi;
   readonly book: BookApi;
   readonly collection: CollectionApi;
+  readonly download: DownloadApi;
   readonly internal: InternalApi;
 
   constructor(private readonly config: ConfigSource) {
@@ -106,6 +108,7 @@ export class Client {
     this.info = new InfoApi(new Configuration(this.httpConfig));
     this.book = new BookApi(new Configuration(this.httpConfig));
     this.collection = new CollectionApi(new Configuration(this.httpConfig));
+    this.download = new DownloadApi(new Configuration(this.httpConfig));
     this.internal = new InternalApi(new Configuration(this.httpConfig));
 
     const url = new URL(BASE_PATH);

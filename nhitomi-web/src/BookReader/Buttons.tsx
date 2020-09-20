@@ -1,22 +1,24 @@
 import React, { useState } from "react";
 import { useClientUtils } from "../ClientManager";
 import { useNotify } from "../NotificationManager";
-import { Book, ObjectType, SpecialCollection } from "nhitomi-api";
+import { Book, BookContent, ObjectType, SpecialCollection } from "nhitomi-api";
 import { PrefetchResult } from ".";
 import { FilledButton } from "../Components/FilledButton";
-import { HeartFilled, PlusOutlined } from "@ant-design/icons";
+import { CloudDownloadOutlined, HeartFilled, PlusOutlined } from "@ant-design/icons";
 import { getColor } from "../theme";
 import { FormattedMessage } from "react-intl";
 import { Dropdown } from "../Components/Dropdown";
 import { CollectionAddBookDropdownMenu } from "../Components/CollectionAddBookDropdownMenu";
 import { useProgress } from "../ProgressManager";
 import { Disableable } from "../Components/Disableable";
+import { useDownloads } from "../DownloadManager";
 
-export const Buttons = ({ book }: PrefetchResult) => {
+export const Buttons = ({ book, content }: PrefetchResult) => {
   return (
     <div className="flex flex-row space-x-2">
       <FavoriteButton book={book} />
       <CollectionAddButton book={book} />
+      <DownloadButton book={book} content={content} />
     </div>
   );
 };
@@ -62,5 +64,27 @@ const CollectionAddButton = ({ book }: { book: Book }) => {
         <FormattedMessage id="pages.bookReader.buttons.collectionAdd" />
       </FilledButton>
     </Dropdown>
+  );
+};
+
+const DownloadButton = ({ book, content }: { book: Book; content: BookContent }) => {
+  const { add } = useDownloads();
+
+  const click = () => {
+    add({
+      type: "book",
+      book: {
+        id: book.id,
+        contentId: content.id,
+        primaryName: book.primaryName,
+        englishName: book.englishName,
+      },
+    });
+  };
+
+  return (
+    <FilledButton icon={<CloudDownloadOutlined />} color={getColor("gray", "darkest")} className="py-1" onClick={click}>
+      <FormattedMessage id="pages.bookReader.buttons.download" />
+    </FilledButton>
   );
 };

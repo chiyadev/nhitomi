@@ -1,33 +1,51 @@
-import React, { createContext, ReactNode, useCallback, useContext, useLayoutEffect, useMemo } from "react";
+import React, {
+  createContext,
+  Dispatch,
+  ReactNode,
+  SetStateAction,
+  useCallback,
+  useContext,
+  useLayoutEffect,
+  useMemo,
+  useState,
+} from "react";
 import { EventEmitter } from "events";
 import StrictEventEmitter from "strict-event-emitter-types";
-import { useUpdate } from "react-use";
 import { LanguageType } from "nhitomi-api";
 import stringify from "json-stable-stringify";
 import { AvailableLocalizations } from "./Languages/languages";
-
-export function useUpdateOnEvent<
-  TEmitter extends StrictEventEmitter<EventEmitter, TEventRecord>,
-  TEventRecord extends Record<string, unknown>
->(emitter: TEmitter, event: keyof TEventRecord) {
-  const update = useUpdate();
-
-  useLayoutEffect(() => {
-    emitter.on(event, update);
-    return () => {
-      emitter.off(event as string, update);
-    };
-  }, [emitter, event, update]);
-}
+import { DownloadTarget } from "./DownloadManager";
 
 export function useConfig<TKey extends keyof ConfigStore>(
   key: TKey
-): [ConfigStore[TKey], (value: ConfigStore[TKey]) => void] {
+): [ConfigStore[TKey], Dispatch<SetStateAction<ConfigStore[TKey]>>] {
   const config = useConfigManager();
+  const [value, setValue] = useState(() => config.get(key));
 
-  useUpdateOnEvent(config, key);
+  useLayoutEffect(() => {
+    config.on(key as any, setValue);
 
-  return [config.get(key), useCallback((v) => config.set(key, v), [config, key])];
+    return () => {
+      config.off(key, setValue);
+    };
+  }, [key]);
+
+  const update = useCallback(
+    (v: SetStateAction<ConfigStore[TKey]>) => {
+      if (typeof v === "function") {
+        const previous = config.get(key);
+        const computed = v(previous);
+
+        if (computed === previous) return;
+        v = computed;
+      }
+
+      config.set(key, v);
+    },
+    [config, key]
+  );
+
+  return [value, update];
 }
 
 export type AnimationMode = "normal" | "faster" | "none";
@@ -44,6 +62,7 @@ export type ConfigStore = {
   searchLanguages: LanguageType[];
   animation: AnimationMode;
   blur: boolean;
+  downloads: DownloadTarget[];
 
   cancelKey: ShortcutConfig[];
   scrollDownKey: ShortcutConfig[];
@@ -85,6 +104,7 @@ const DefaultStore: ConfigStore = {
   searchLanguages: [...UserPreferredLanguages, LanguageType.JaJP].filter((v, i, a) => a.indexOf(v) === i),
   animation: "normal",
   blur: BlurSupported,
+  downloads: [],
 
   cancelKey: [{ key: 27 }], // esc
   scrollDownKey: [{ key: 83 }, { key: 40 }], // s down
@@ -134,6 +154,7 @@ export class ConfigSource
   searchLanguages!: LanguageType[];
   animation!: AnimationMode;
   blur!: boolean;
+  downloads!: DownloadTarget[];
 
   cancelKey!: ShortcutConfig[];
   scrollDownKey!: ShortcutConfig[];
