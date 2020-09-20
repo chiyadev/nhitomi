@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IO;
+using nhitomi.Controllers;
 using nhitomi.Storage;
 using Prometheus;
 
@@ -14,6 +15,11 @@ namespace nhitomi.Scrapers
     public abstract class ScraperImageResult : ActionResult
     {
         public abstract string Name { get; }
+
+        /// <summary>
+        /// Download session ID.
+        /// </summary>
+        public string SessionId { get; set; }
 
         static readonly Histogram _responseTime = Metrics.CreateHistogram("scraper_image_response_time", "Time spent on writing scraper image result to response body.", new HistogramConfiguration
         {
@@ -44,7 +50,27 @@ namespace nhitomi.Scrapers
         {
             var cancellationToken = context.HttpContext.RequestAborted;
             var storage           = context.HttpContext.RequestServices.GetService<IStorage>();
+            var downloads         = context.HttpContext.RequestServices.GetService<IDownloadService>();
             var memoryManager     = context.HttpContext.RequestServices.GetService<RecyclableMemoryStreamManager>();
+
+            var sessionId       = SessionId;
+            var resourceContext = null as IAsyncDisposable;
+
+            if (sessionId != null)
+            {
+                var sessionResult = await downloads.GetResourceContextAsync(sessionId, cancellationToken);
+
+                if (!sessionResult.TryPickT0(out resourceContext, out var sessionError))
+                {
+                    await sessionError.Match(
+                        _ => ResultUtilities.NotFound($"Session '{sessionId}' not found."),
+                        _ => ResultUtilities.BadRequest("Cannot exceed download concurrency limit.")).ExecuteResultAsync(context);
+
+                    return;
+                }
+            }
+
+            await using var __ = resourceContext;
 
             var result = await storage.ReadAsync(Name, cancellationToken);
 
@@ -148,6 +174,9 @@ namespace nhitomi.Scrapers
                                 _bufferPool.Return(buffer);
 
                                 await file.DisposeAsync(); // opportunistic dispose
+
+                                if (resourceContext != null)
+                                    await resourceContext.DisposeAsync(); // background storage upload outside session concurrency
                             }
 
                             // save to storage

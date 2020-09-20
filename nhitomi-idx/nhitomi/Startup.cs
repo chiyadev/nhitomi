@@ -237,14 +237,16 @@ namespace nhitomi
                     .Configure<UserServiceOptions>(_configuration.GetSection("User"))
                     .Configure<BookServiceOptions>(_configuration.GetSection("Book"))
                     .Configure<SnapshotServiceOptions>(_configuration.GetSection("Snapshot"))
-                    .Configure<VoteServiceOptions>(_configuration.GetSection("Vote"));
+                    .Configure<VoteServiceOptions>(_configuration.GetSection("Vote"))
+                    .Configure<DownloadServiceOptions>(_configuration.GetSection("Download"));
 
             services.AddSingleton<IElasticClient, ElasticClient>()
                     .AddSingleton<IUserService, UserService>()
                     .AddSingleton<IBookService, BookService>()
                     .AddSingleton<ISnapshotService, SnapshotService>()
                     .AddSingleton<IVoteService, VoteService>()
-                    .AddSingleton<ICollectionService, CollectionService>();
+                    .AddSingleton<ICollectionService, CollectionService>()
+                    .AddSingleton<IDownloadService, DownloadService>();
 
             services.AddSingleton<IWriteControl, WriteControl>()
                     .AddSingleton<IMigrationManager, MigrationManager>();

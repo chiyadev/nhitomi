@@ -23,13 +23,15 @@ namespace nhitomi.Controllers
         readonly IBookService _books;
         readonly ISnapshotService _snapshots;
         readonly IVoteService _votes;
+        readonly IDownloadService _downloads;
 
-        public BookController(IServiceProvider services, IBookService books, ISnapshotService snapshots, IVoteService votes)
+        public BookController(IServiceProvider services, IBookService books, ISnapshotService snapshots, IVoteService votes, IDownloadService downloads)
         {
             _services  = services;
             _books     = books;
             _snapshots = snapshots;
             _votes     = votes;
+            _downloads = downloads;
         }
 
         /// <summary>
@@ -244,13 +246,14 @@ namespace nhitomi.Controllers
         /// Retrieves book page image.
         /// </summary>
         /// <remarks>
-        /// An index of -1 indicates the thumbnail of the first image.
+        /// An index of -1 indicates the thumbnail of the cover image.
         /// </remarks>
         /// <param name="id">Book ID.</param>
         /// <param name="contentId">Content ID.</param>
         /// <param name="index">Zero-based page index.</param>
+        /// <param name="sessionId">Download session ID.</param>
         [HttpGet("{id}/contents/{contentId}/pages/{index}", Name = "getBookImage"), ProducesFile, AllowAnonymous]
-        public async Task<ActionResult> GetImageAsync(string id, string contentId, int index)
+        public async Task<ActionResult> GetImageAsync(string id, string contentId, int index, [FromQuery] string sessionId = null)
         {
             if (index < -1)
                 return ResultUtilities.NotFound(id, contentId, index);
@@ -262,7 +265,10 @@ namespace nhitomi.Controllers
 
             var (book, content) = value;
 
-            return new BookScraperImageResult(book, content, index);
+            return new BookScraperImageResult(book, content, index)
+            {
+                SessionId = sessionId
+            };
         }
 
         /// <summary>
