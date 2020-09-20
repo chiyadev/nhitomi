@@ -32,7 +32,7 @@ namespace nhitomi.Models
     }
 
     /// <summary>
-    /// Represents a reference to an object that supports snapshots.
+    /// Represents a reference to a generic nhitomi object.
     /// </summary>
     public readonly struct nhitomiObject : IEquatable<nhitomiObject>
     {
