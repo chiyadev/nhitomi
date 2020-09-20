@@ -49,7 +49,7 @@ export const CollectionAddBookDropdownMenu = ({ book }: { book: BasicBook }) => 
             <Add key={`${book.id}/${collection.id}`} book={book} collection={collection} />
           ))}
 
-          {collections.length && <DropdownDivider />}
+          {collections.length ? <DropdownDivider /> : null}
 
           <Create book={book} />
         </>

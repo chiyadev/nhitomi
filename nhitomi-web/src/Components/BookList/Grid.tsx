@@ -67,7 +67,7 @@ export const Grid = ({ width, menu, empty }: { width: number; menu?: ReactNode; 
               />
             ))}
 
-            {!items.length && empty}
+            {items.length ? null : empty}
           </div>
         ),
         [empty, itemHeight, itemWidth, items, spacing]
