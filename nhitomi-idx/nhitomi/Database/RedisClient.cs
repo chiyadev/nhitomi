@@ -33,7 +33,10 @@ namespace nhitomi.Database
         Task<bool> SetIfEqualAsync(RedisKey key, RedisValue value, RedisValue comparand, TimeSpan? expiry = null, When when = When.Always, CancellationToken cancellationToken = default);
         Task<long> IncrementIntegerAsync(RedisKey key, long delta, CancellationToken cancellationToken = default);
 
+        Task<bool> ExpireAsync(RedisKey key, TimeSpan delay, CancellationToken cancellationToken = default);
+
         Task<bool> DeleteAsync(RedisKey key, CancellationToken cancellationToken = default);
+        Task<int> DeleteManyAsync(RedisKey[] keys, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Deletes all keys created by this client. This is useful for unit testing.
@@ -268,12 +271,33 @@ namespace nhitomi.Database
                 return await _database.StringIncrementAsync(key.Prepend(_keyPrefix), delta);
         }
 
+        public async Task<bool> ExpireAsync(RedisKey key, TimeSpan delay, CancellationToken cancellationToken = default)
+        {
+            _keyMemory?.Add(key);
+
+            using (_requestTime.Measure())
+                return await _database.KeyExpireAsync(key, delay);
+        }
+
         public async Task<bool> DeleteAsync(RedisKey key, CancellationToken cancellationToken = default)
         {
             _keyMemory?.Add(key);
 
             using (_requestTime.Measure())
                 return await _database.KeyDeleteAsync(key.Prepend(_keyPrefix));
+        }
+
+        public async Task<int> DeleteManyAsync(RedisKey[] keys, CancellationToken cancellationToken = default)
+        {
+            _keyMemory?.Add(keys);
+
+            var keys2 = new RedisKey[keys.Length];
+
+            for (var i = 0; i < keys.Length; i++)
+                keys2[i] = keys[i].Prepend(_keyPrefix);
+
+            using (_requestTime.Measure())
+                return (int) await _database.KeyDeleteAsync(keys2);
         }
 
         public async Task ResetAsync(CancellationToken cancellationToken = default)
