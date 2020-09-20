@@ -235,8 +235,12 @@
         "state": {
           "stalled": "停止",
           "pending": "待機",
-          "running": "進行中",
-          "error": "エラー"
+          "running": {
+            "download": "ダウンロード中",
+            "process": "プロセシング中"
+          },
+          "error": "エラー",
+          "done": "成功"
         },
         "restart": "再スタート",
         "delete": "キャンセル"

@@ -9,6 +9,8 @@ import { CoverImage } from "../Components/CoverImage";
 import { FormattedMessage } from "react-intl";
 import { Tooltip } from "../Components/Tooltip";
 import { CloseOutlined, ReloadOutlined } from "@ant-design/icons";
+import { cx } from "emotion";
+import { useNotify } from "../NotificationManager";
 
 export const BookTaskDisplay = ({ task }: { task: DownloadTask }) => {
   const target = task.target;
@@ -23,6 +25,7 @@ export const BookTaskDisplay = ({ task }: { task: DownloadTask }) => {
   }, [task]);
 
   const { remove } = useDownloads();
+  const { notifyError } = useNotify();
   const [preferEnglishName] = useConfig("bookReaderPreferEnglishName");
   const [hover, setHover] = useState(false);
 
@@ -78,19 +81,34 @@ export const BookTaskDisplay = ({ task }: { task: DownloadTask }) => {
           []
         )}
 
-        {useMemo(
-          () => (
-            <div className="text-sm text-gray-darker">
-              <FormattedMessage id={`pages.downloads.task.state.${task.state.type}`} />
-              {" — "}
-              {Math.round(task.progress * 100)}%
-            </div>
-          ),
-          [task.state, task.progress]
-        )}
+        {useMemo(() => {
+          let labelKey = `pages.downloads.task.state.${task.state.type}`;
+          const error = task.state.type === "error" && task.state.error;
+
+          if (task.state.type === "running") labelKey = `${labelKey}.${task.state.stage}`;
+
+          return (
+            <>
+              <div className={cx("text-sm text-gray-darker", { "text-red-darker": !!error })}>
+                <FormattedMessage id={labelKey} />
+                {" — "}
+                {Math.round(task.progress * 100)}%
+              </div>
+
+              {error && (
+                <div className="text-sm text-gray-darker cursor-pointer" onClick={() => notifyError(error)}>
+                  {error.message}
+                </div>
+              )}
+            </>
+          );
+        }, [task.state, task.progress])}
       </div>
 
-      <animated.div style={buttonStyle} className="absolute top-0 right-0 flex flex-row bg-gray-darkest bg-blur rounded">
+      <animated.div
+        style={buttonStyle}
+        className="absolute top-0 right-0 flex flex-row bg-gray-darkest bg-blur rounded"
+      >
         {(!task.active || task.state.type === "error") && (
           <Tooltip overlay={<FormattedMessage id="pages.downloads.task.restart" />} placement="bottom">
             <div className="text-gray-darker text-sm cursor-pointer p-2" onClick={() => task.restart()}>

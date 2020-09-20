@@ -235,8 +235,12 @@
         "state": {
           "stalled": "Stalled",
           "pending": "Pending",
-          "running": "Running",
-          "error": "Error"
+          "running": {
+            "download": "Downloading",
+            "process": "Processing"
+          },
+          "error": "Error",
+          "done": "Success"
         },
         "restart": "Restart",
         "delete": "Cancel"
