@@ -63,6 +63,21 @@ export const LocaleManager = ({ children }: { children?: ReactNode }) => {
     }
   }, [language, searchLanguages, setSearchLanguages]);
 
+  // ensure search languages are sorted
+  useLayoutEffect(() => {
+    const sorted = Object.values(LanguageType).filter((l) => searchLanguages.indexOf(l) !== -1);
+    let good = true;
+
+    for (let i = 0; i < sorted.length; i++) {
+      if (searchLanguages[i] !== sorted[i]) {
+        good = false;
+        break;
+      }
+    }
+
+    if (!good) setSearchLanguages(sorted);
+  }, [searchLanguages, setSearchLanguages]);
+
   useAsync(async () => {
     const id = ++loadId.current;
 
