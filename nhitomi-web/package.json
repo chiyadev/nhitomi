@@ -57,6 +57,7 @@
     "typescript": "^4.0.3"
   },
   "scripts": {
+    "postinstall": "patch-package",
     "start": "react-app-rewired start",
     "build": "react-app-rewired build",
     "genclient": "node ../scripts/genclient typescript-fetch"
