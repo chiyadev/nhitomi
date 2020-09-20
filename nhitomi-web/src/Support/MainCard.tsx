@@ -32,12 +32,9 @@ export const ThanksDescription = () => {
   return (
     <div className="space-y-2">
       <div>
-        You are supporting nhitomi for
-        <strong className="text-pink"> {months} months</strong>
-        and have contributed
-        <strong className="text-pink"> {spending} USD</strong>
-        in total. Your supporter period ends in
-        <strong className="text-pink"> {expireDays} days</strong>.
+        You are supporting nhitomi for <strong className="text-pink">{months} months</strong> and have contributed{" "}
+        <strong className="text-pink">{spending} USD</strong> in total. Your supporter period ends in{" "}
+        <strong className="text-pink">{expireDays} days</strong>.
       </div>
       <div>
         It is thanks to generous people like you that nhitomi can afford its server infrastructure, allocate more
