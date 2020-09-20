@@ -13,7 +13,7 @@ export const EmptyIndicator = ({ children, className }: { children?: ReactNode; 
     <animated.div style={style} className={cx("flex flex-col justify-center space-y-2", className)}>
       <InboxOutlined className="text-2xl" />
 
-      <div>{children}</div>
+      <div className="text-center">{children}</div>
     </animated.div>
   );
 };
