@@ -178,6 +178,7 @@ const DownloadButton = ({ collection }: { collection: Collection }) => {
 
 const DownloadButtonInner = ({ collection }: { collection: Collection }) => {
   const client = useClient();
+  const { begin, end } = useProgress();
   const { notifyError } = useNotify();
   const selectContent = useContentSelector();
   const { add } = useDownloads();
@@ -191,6 +192,7 @@ const DownloadButtonInner = ({ collection }: { collection: Collection }) => {
         <RoundIconButton
           onClick={async () => {
             setLoading(true);
+            begin();
 
             try {
               // retrieve all books in chunks
@@ -230,6 +232,7 @@ const DownloadButtonInner = ({ collection }: { collection: Collection }) => {
               notifyError(e);
             } finally {
               setLoading(false);
+              end();
             }
           }}
         >
