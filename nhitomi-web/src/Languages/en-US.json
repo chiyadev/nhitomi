@@ -286,6 +286,7 @@
           "character": "By characters {value}",
           "tag": "By tags {value}"
         },
+        "download": "Download",
         "copy": {
           "id": "Copy ID",
           "source": "Copy source link",

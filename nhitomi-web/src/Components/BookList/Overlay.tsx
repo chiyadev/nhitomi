@@ -5,6 +5,7 @@ import { BookContent, BookTag, ObjectType, SpecialCollection } from "nhitomi-api
 import { BookReaderLink } from "../../BookReader";
 import { FormattedMessage } from "react-intl";
 import {
+  CloudDownloadOutlined,
   ExpandAltOutlined,
   EyeOutlined,
   HeartOutlined,
@@ -21,19 +22,18 @@ import { useProgress } from "../../ProgressManager";
 import { Disableable } from "../Disableable";
 import { Anchor } from "../Anchor";
 import { CollectionAddBookDropdownMenu } from "../CollectionAddBookDropdownMenu";
+import { useDownloads } from "../../DownloadManager";
 
 export const Overlay = ({ book, content }: { book: BookListItem; content?: BookContent }) => {
   const { OverlayComponent } = useBookList();
 
   let rendered = (
     <>
-      {content && (
-        <>
-          <OpenInNewTabItem book={book} content={content} />
-        </>
-      )}
+      {content && <OpenInNewTabItem book={book} content={content} />}
 
       <SearchItem book={book} />
+
+      {content && <DownloadItem book={book} content={content} />}
 
       <DropdownDivider />
 
@@ -42,18 +42,16 @@ export const Overlay = ({ book, content }: { book: BookListItem; content?: BookC
       </CopyToClipboardItem>
 
       {content && (
-        <>
-          <CopyToClipboardItem
-            value={content.sourceUrl}
-            displayValue={
-              <Anchor target="_blank" className="text-blue" href={content.sourceUrl}>
-                {content.sourceUrl}
-              </Anchor>
-            }
-          >
-            <FormattedMessage id="components.bookList.overlay.copy.source" />
-          </CopyToClipboardItem>
-        </>
+        <CopyToClipboardItem
+          value={content.sourceUrl}
+          displayValue={
+            <Anchor target="_blank" className="text-blue" href={content.sourceUrl}>
+              {content.sourceUrl}
+            </Anchor>
+          }
+        >
+          <FormattedMessage id="components.bookList.overlay.copy.source" />
+        </CopyToClipboardItem>
       )}
 
       <DropdownDivider />
@@ -125,6 +123,29 @@ const SearchItemPart = ({ type, values }: { type: BookTag; values: string[] }) =
       </DropdownItem>
     </BookListingLink>
   );
+
+const DownloadItem = ({ book, content }: { book: BookListItem; content: BookContent }) => {
+  const { add } = useDownloads();
+
+  return (
+    <DropdownItem
+      icon={<CloudDownloadOutlined />}
+      onClick={() => {
+        add({
+          type: "book",
+          book: {
+            id: book.id,
+            contentId: content.id,
+            primaryName: book.primaryName,
+            englishName: book.englishName,
+          },
+        });
+      }}
+    >
+      <FormattedMessage id="components.bookList.overlay.download" />
+    </DropdownItem>
+  );
+};
 
 const CopyToClipboardItem = ({
   children,

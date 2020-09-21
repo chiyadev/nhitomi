@@ -286,6 +286,7 @@
           "character": "キャラで {value}",
           "tag": "タグで {value}"
         },
+        "download": "ダウンロード",
         "copy": {
           "id": "IDをコピー",
           "source": "サイトリンクをコピー",
