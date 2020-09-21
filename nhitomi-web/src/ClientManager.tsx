@@ -130,17 +130,20 @@ export class Client {
     else return this.httpConfig.accessToken;
   }
 
+  /** Prefer useClientInfo instead. This only exists to allow info access from non-React component code. */
+  currentInfo!: ClientInfo;
+
   async getInfo(): Promise<ClientInfo> {
     if (this.token) {
-      return {
+      return (this.currentInfo = {
         ...(await this.info.getInfoAuthenticated()),
         authenticated: true,
-      };
+      });
     } else {
-      return {
+      return (this.currentInfo = {
         ...(await this.info.getInfo()),
         authenticated: false,
-      };
+      });
     }
   }
 }
@@ -210,9 +213,8 @@ function getCachedInfo(): ClientInfo | undefined {
     const cached: CachedClientInfo = JSONex.parse(localStorage.getItem(cacheKey) || "");
     const now = Date.now();
 
-    if (now - cached.time < 1000 * 60 * 60)
-      // cache valid for a day
-      return cached.value;
+    // cache valid for a day
+    if (now - cached.time < 1000 * 60 * 60) return cached.value;
   } catch {
     // ignored
   }
@@ -220,10 +222,7 @@ function getCachedInfo(): ClientInfo | undefined {
 
 function setCachedInfo(value?: ClientInfo) {
   if (value) {
-    const cached: CachedClientInfo = {
-      time: Date.now(),
-      value,
-    };
+    const cached: CachedClientInfo = { time: Date.now(), value };
 
     localStorage.setItem(cacheKey, JSON.stringify(cached));
   } else {
