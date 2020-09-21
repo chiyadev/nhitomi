@@ -8,6 +8,7 @@ import { useDynamicPrefetch, usePrefetch } from "../../Prefetch";
 import { useCollectionListingPrefetch } from "../../CollectionListing";
 import { RoundIconButton } from "../../Components/RoundIconButton";
 import {
+  CloudDownloadOutlined,
   DeleteOutlined,
   EditOutlined,
   EyeOutlined,
@@ -25,11 +26,15 @@ import { Anchor } from "../../Components/Anchor";
 import { useBookReaderPrefetch } from "../../BookReader";
 import { useContentSelector } from "../../Components/BookList";
 import { RandomOutlined } from "../../Components/Icons/RandomOutlined";
+import { DefaultQueryLimit } from "../../BookListing/search";
+import { DownloadTargetAddArgs, useDownloads } from "../../DownloadManager";
+import { SupportLink } from "../../Support";
 
 export const Menu = ({ collection }: { collection: Collection }) => (
   <>
     <SpecialButton collection={collection} />
     <RandomButton collection={collection} />
+    <DownloadButton collection={collection} />
     <EditButton collection={collection} />
     <DeleteButton collection={collection} />
     <HelpButton />
@@ -149,6 +154,88 @@ const RandomButton = ({ collection }: { collection: Collection }) => {
       </Disableable>
 
       {prefetchNode}
+    </Tooltip>
+  );
+};
+
+const DownloadButton = ({ collection }: { collection: Collection }) => {
+  const { info } = useClientInfo();
+
+  if (info.authenticated && info.user.isSupporter) {
+    return <DownloadButtonInner collection={collection} />;
+  }
+
+  return (
+    <Tooltip placement="bottom" overlay={<FormattedMessage id="pages.collectionContent.book.menu.download" />}>
+      <SupportLink>
+        <RoundIconButton>
+          <CloudDownloadOutlined />
+        </RoundIconButton>
+      </SupportLink>
+    </Tooltip>
+  );
+};
+
+const DownloadButtonInner = ({ collection }: { collection: Collection }) => {
+  const client = useClient();
+  const { notifyError } = useNotify();
+  const selectContent = useContentSelector();
+  const { add } = useDownloads();
+  const [loading, setLoading] = useState(false);
+
+  if (!collection.items.length) return null;
+
+  return (
+    <Tooltip placement="bottom" overlay={<FormattedMessage id="pages.collectionContent.book.menu.download" />}>
+      <Disableable disabled={loading}>
+        <RoundIconButton
+          onClick={async () => {
+            setLoading(true);
+
+            try {
+              // retrieve all books in chunks
+              const books = (
+                await Promise.all(
+                  [...Array(Math.ceil(collection.items.length / DefaultQueryLimit))].map((_, i) =>
+                    client.book.getBooks({
+                      getBookManyRequest: {
+                        ids: collection.items.slice(i * DefaultQueryLimit, (i + 1) * DefaultQueryLimit),
+                      },
+                    })
+                  )
+                )
+              ).flat();
+
+              const targets = books
+                .map((book) => ({
+                  book,
+                  content: selectContent(book.contents),
+                }))
+                .filter((x) => x.content)
+                .map(
+                  ({ book, content }) =>
+                    ({
+                      type: "book",
+                      book: {
+                        id: book.id,
+                        contentId: content?.id,
+                        primaryName: book.primaryName,
+                        englishName: book.englishName,
+                      },
+                    } as DownloadTargetAddArgs)
+                );
+
+              add(...targets);
+            } catch (e) {
+              notifyError(e);
+            } finally {
+              setLoading(false);
+            }
+          }}
+        >
+          <CloudDownloadOutlined />
+        </RoundIconButton>
+      </Disableable>
     </Tooltip>
   );
 };

@@ -36,7 +36,7 @@ export type DownloadTarget = DownloadTargetAddArgs & {
   owner: string;
 };
 
-type DownloadTargetAddArgs = {
+export type DownloadTargetAddArgs = {
   type: "book";
   book: Pick<Book, "primaryName" | "englishName"> & {
     id: string;

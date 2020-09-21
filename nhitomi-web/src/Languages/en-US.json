@@ -206,6 +206,7 @@
             "later": "Set as read later"
           },
           "random": "Random",
+          "download": "Download",
           "edit": "Edit",
           "delete": {
             "warning": "This collection will be deleted permanently.",
