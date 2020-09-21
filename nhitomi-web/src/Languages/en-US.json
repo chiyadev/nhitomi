@@ -262,6 +262,9 @@
     "sidebar": {
       "close": "Close"
     },
+    "footer": {
+      "supporter": "Thank you for your support!"
+    },
     "contextMenu": {
       "close": "Close"
     },

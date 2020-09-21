@@ -4,9 +4,11 @@ import { animated, useSpring } from "react-spring";
 import { getColor } from "./theme";
 import { useClientInfo } from "./ClientManager";
 import { Tooltip } from "./Components/Tooltip";
-import { FormattedDate, FormattedTime } from "react-intl";
+import { FormattedDate, FormattedMessage, FormattedTime } from "react-intl";
 import { GitCommit } from "nhitomi-api";
 import { Anchor } from "./Components/Anchor";
+import { HeartFilled } from "@ant-design/icons";
+import { SupportLink } from "./Support";
 
 export const Footer = () => {
   const { info } = useClientInfo();
@@ -17,11 +19,18 @@ export const Footer = () => {
   });
 
   return (
-    <Container className="text-sm text-gray-darker p-4 text-center space-y-1 overflow-hidden">
-      <animated.div style={style}>
+    <Container className="text-sm p-4 text-center space-y-1 overflow-hidden">
+      <animated.div style={style} className="space-y-4">
         {useMemo(
           () => (
-            <>
+            <SupporterText />
+          ),
+          []
+        )}
+
+        {useMemo(
+          () => (
+            <div className="text-gray-darker">
               <VersionTooltip version={info.version}>
                 <Anchor target="_blank" href={`https://github.com/chiyadev/nhitomi/commit/${info.version.hash}`}>
                   <LinkText>b.{info.version.shortHash}</LinkText>
@@ -43,7 +52,7 @@ export const Footer = () => {
               <Anchor target="_blank" href="https://chiya.dev">
                 <LinkText>chiya.dev</LinkText>
               </Anchor>
-            </>
+            </div>
           ),
           [info.version]
         )}
@@ -83,5 +92,31 @@ const LinkText = ({ children }: { children?: ReactNode }) => {
     <animated.span style={style} onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}>
       {children}
     </animated.span>
+  );
+};
+
+const SupporterText = () => {
+  const { info } = useClientInfo();
+
+  const heartStyle = useSpring({
+    to: async (next) => {
+      for (;;) {
+        await next({ transform: "scale(1) rotate(0deg)" });
+        await next({ transform: "scale(0.9) rotate(5deg)" });
+      }
+    },
+  });
+
+  if (!info.authenticated || !info.user.isSupporter) return null;
+
+  return (
+    <div>
+      <SupportLink>
+        <FormattedMessage id="components.footer.supporter" />{" "}
+        <animated.div className="inline-flex" style={heartStyle}>
+          <HeartFilled className="text-pink" />
+        </animated.div>
+      </SupportLink>
+    </div>
   );
 };

@@ -262,6 +262,9 @@
     "sidebar": {
       "close": "閉じる"
     },
+    "footer": {
+      "supporter": "ご支援ありがとうございます！"
+    },
     "contextMenu": {
       "close": "閉じる"
     },
