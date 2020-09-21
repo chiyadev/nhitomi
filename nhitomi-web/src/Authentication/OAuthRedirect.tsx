@@ -22,7 +22,7 @@ async function getOAuthClient(id: string): Promise<OAuthClientInfo | null> {
     case "Jg9YpDm6":
       return {
         id,
-        name: "nhitomi Android",
+        name: "nhitomi for Android",
         redirectUri: "com.ihsankl.nhitomi://nhitomi/auth/success",
       };
 
