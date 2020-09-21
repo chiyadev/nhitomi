@@ -197,8 +197,8 @@ const Loaded = ({ result, setResult }: { result: PrefetchResult; setResult: Disp
 
 const Input = ({ result }: { result: PrefetchResult }) => {
   const style = useSpring({
-    from: { opacity: 0, marginTop: -5 },
-    to: { opacity: 1, marginTop: 0 },
+    from: { opacity: 0, marginTop: -5, paddingBottom: 5 },
+    to: { opacity: 1, marginTop: 0, paddingBottom: 0 },
   });
 
   return (
