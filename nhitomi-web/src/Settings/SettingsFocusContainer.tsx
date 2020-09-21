@@ -26,7 +26,7 @@ export const SettingsFocusContainer = ({
           "rounded border border-blue border-opacity-50 p-2 -m-2": currentFocus === focus,
         },
         css`
-          scroll-margin: 0.5em;
+          scroll-margin: 1em;
         `
       )}
       {...props}
