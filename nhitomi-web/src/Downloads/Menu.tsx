@@ -19,7 +19,9 @@ const RestartAllButton = () => {
     <Tooltip placement="bottom" overlay={<FormattedMessage id="pages.downloads.menu.restartAll" />}>
       <RoundIconButton
         onClick={() => {
-          for (const task of tasks) task.restart();
+          for (const task of tasks) {
+            if (task.state.type !== "running") task.restart();
+          }
         }}
       >
         <ReloadOutlined />
