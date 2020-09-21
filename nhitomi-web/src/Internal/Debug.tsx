@@ -46,6 +46,8 @@ const Alerts = () => {
         <FlatButton onClick={() => alert("message", "success")}>Alert success</FlatButton>
         <FlatButton onClick={() => alert("message", "warning")}>Alert warning</FlatButton>
         <FlatButton onClick={() => alert("message", "error")}>Alert error</FlatButton>
+
+        <FlatButton onClick={() => alert("message".repeat(10), "info")}>Alert long</FlatButton>
       </div>
     </div>
   );

@@ -1,5 +1,13 @@
-import React, { createContext, ReactNode, useContext, useMemo, useState } from "react";
-import { AppearanceTypes, ToastContainerProps, ToastProps, ToastProvider, useToasts } from "react-toast-notifications";
+import React, {
+  createContext,
+  ReactNode,
+  useCallback,
+  useContext,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import {
   CheckCircleTwoTone,
   CloseCircleTwoTone,
@@ -8,125 +16,45 @@ import {
   WarningTwoTone,
 } from "@ant-design/icons";
 import { css, cx } from "emotion";
-import { animated, useSpring } from "react-spring";
+import { animated, useSpring, useTransition } from "react-spring";
 import { useLayout } from "./LayoutManager";
 import { ValidationError } from "./ClientManager";
 import { ColorHue, getColor } from "./theme";
 import { exception } from "react-ga";
 
-export const NotifyContext = createContext<{
-  notify: (type: AppearanceTypes, title: ReactNode, description: ReactNode) => void;
-  notifyError: (error: Error, title?: ReactNode) => void;
-}>(undefined as any);
-
-export const AlertContext = createContext<{
-  alert: (message: ReactNode, type?: AppearanceTypes) => void;
-}>(undefined as any);
-
-export function useNotify() {
-  return useContext(NotifyContext);
-}
-
-export function useAlert() {
-  return useContext(AlertContext);
-}
+type AppearanceTypes = "success" | "info" | "error" | "warning";
 
 export const NotificationManager = ({ children }: { children?: ReactNode }) => {
   return (
-    <ToastProvider
-      components={{ Toast: NotifyToast, ToastContainer: ToastContainer }}
-      placement="top-right"
-      autoDismiss
-      autoDismissTimeout={15000}
-    >
-      <NotifyManager>
-        <ToastProvider
-          components={{ Toast: AlertToast, ToastContainer: ToastContainer }}
-          placement="top-center"
-          autoDismiss
-          autoDismissTimeout={5000}
-        >
-          <AlertManager>{children}</AlertManager>
-        </ToastProvider>
-      </NotifyManager>
-    </ToastProvider>
+    <NotifyManager>
+      <AlertManager>
+        <NotifyDisplay />
+        <AlertDisplay />
+
+        {children}
+      </AlertManager>
+    </NotifyManager>
   );
 };
 
-const ToastContainer = ({ children, placement, hasToasts }: ToastContainerProps) => {
-  const { screen } = useLayout();
+function usePausableTimeout(duration: number, callback: () => void): [() => void, () => void] {
+  const timeout = useRef<number>();
 
-  return (
-    <animated.div
-      className={useMemo(
-        () =>
-          cx(
-            "w-screen fixed p-4 z-50 text-center",
-            { "max-w-md": screen === "lg" },
-            { "pointer-events-none": !hasToasts },
-            placement
-              .replace("-", " ")
-              .replace("top", "top-0")
-              .replace("bottom", "bottom-0")
-              .replace("left", "left-0")
-              .replace("right", "right-0")
-              .replace(
-                "center",
-                css`
-                  transform: translateX(-50%);
-                  left: 50%;
-                `
-              )
-          ),
-        [hasToasts, placement, screen]
-      )}
-    >
-      {children}
-    </animated.div>
-  );
-};
+  const pause = useCallback(() => clearTimeout(timeout.current), [timeout]);
+  const resume = useCallback(() => {
+    pause();
+    timeout.current = window.setTimeout(callback, duration);
+  }, [timeout, pause, callback, duration]);
 
-const NotifyToast = ({
-  children,
-  onMouseEnter,
-  onMouseLeave,
-  transitionState,
-  transitionDuration,
-  onDismiss,
-}: ToastProps) => {
-  const style = useSpring({
-    config: { duration: transitionDuration },
-    opacity: transitionState === "entered" ? 1 : 0,
-    transform: transitionState === "entered" ? "translateX(0)" : "translateX(5px)",
-  });
+  useLayoutEffect(() => {
+    resume();
+    return pause;
+  }, [pause, resume]);
 
-  const [closeHover, setCloseHover] = useState(false);
-  const closeStyle = useSpring({
-    transform: closeHover ? "scale(1.1)" : "scale(1)",
-  });
+  return [pause, resume];
+}
 
-  return (
-    <animated.div
-      style={style}
-      className="relative w-full rounded overflow-hidden bg-white text-left text-black shadow-lg p-3 mb-3"
-      onMouseEnter={onMouseEnter}
-      onMouseLeave={onMouseLeave}
-    >
-      {children}
-
-      <animated.span style={closeStyle} className="absolute top-0 right-0 p-3 text-gray-darker">
-        <CloseOutlined
-          className="cursor-pointer"
-          onClick={() => onDismiss()}
-          onMouseEnter={() => setCloseHover(true)}
-          onMouseLeave={() => setCloseHover(false)}
-        />
-      </animated.span>
-    </animated.div>
-  );
-};
-
-function convertTypeToIcon(type: AppearanceTypes) {
+function getTypeIcon(type: AppearanceTypes) {
   let Icon: typeof CloseCircleTwoTone;
   let color: ColorHue;
 
@@ -152,66 +80,72 @@ function convertTypeToIcon(type: AppearanceTypes) {
   return <Icon className="text-lg w-6" twoToneColor={getColor(color).hex} />;
 }
 
-const NotifyToastContent = ({
-  type,
-  title,
-  description,
-}: {
-  type: AppearanceTypes;
-  title?: ReactNode;
-  description?: ReactNode;
-}) => {
-  return useMemo(
-    () => (
-      <>
-        <div className="mb-3">
-          {convertTypeToIcon(type)} {title}
-        </div>
+const NotifyContext = createContext<{
+  items: NotifyItem[];
+  remove: (id: number) => void;
 
-        <div className="text-sm overflow-auto">{description}</div>
-      </>
-    ),
-    [description, title, type]
-  );
+  notify: (type: AppearanceTypes, title: ReactNode, description: ReactNode) => void;
+  notifyError: (error: Error, title?: ReactNode) => void;
+}>(undefined as any);
+
+type NotifyItem = {
+  id: number;
+  type: AppearanceTypes;
+  title: ReactNode;
+  description: ReactNode;
 };
 
+export function useNotify() {
+  return useContext(NotifyContext);
+}
+
 const NotifyManager = ({ children }: { children?: ReactNode }) => {
-  const { addToast } = useToasts();
+  const [items, setItems] = useState<NotifyItem[]>([]);
+
+  const notify = useCallback((type: AppearanceTypes, title: ReactNode, description: ReactNode) => {
+    setItems((items) => [{ id: Math.random(), type, title, description }, ...items]);
+  }, []);
 
   return (
     <NotifyContext.Provider
       value={useMemo(
         () => ({
-          notify: (type, title, description) => {
-            addToast(<NotifyToastContent type={type} title={title} description={description} />);
+          items,
+          remove: (id) => {
+            setItems((items) => items.filter((item) => item.id !== id));
           },
-          notifyError: (error, title) => {
+
+          notify,
+          notifyError: (error: any, title) => {
             if (!(error instanceof Error)) error = Error((error as any)?.message || "Unknown error.");
 
             if (error instanceof ValidationError) {
-              addToast(
-                <NotifyToastContent
-                  type="error"
-                  title={title || error.message}
-                  description={
-                    <ul className="list-disc list-inside">
-                      {error.list.map((problem) => (
-                        <li key={problem.field}>
-                          <code>{problem.field} </code>
-                          <span>{problem.messages.join(" ")}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  }
-                />
+              notify(
+                "error",
+                title || error.message,
+                <ul className="list-disc list-inside">
+                  {error.list.map((problem) => (
+                    <li key={problem.field}>
+                      <code>{problem.field} </code>
+                      <span>{problem.messages.join(" ")}</span>
+                    </li>
+                  ))}
+                </ul>
               );
             } else {
-              addToast(
-                <NotifyToastContent
-                  type="error"
-                  title={title || error.message}
-                  description={<code>{error.stack}</code>}
-                />
+              notify(
+                "error",
+                title || error.message,
+                <>
+                  {title && (
+                    <div>
+                      <code>{error.message}</code>
+                    </div>
+                  )}
+                  <div>
+                    <code>{error.stack}</code>
+                  </div>
+                </>
               );
             }
 
@@ -221,7 +155,7 @@ const NotifyManager = ({ children }: { children?: ReactNode }) => {
             });
           },
         }),
-        [addToast]
+        [notify, items]
       )}
     >
       {children}
@@ -229,58 +163,181 @@ const NotifyManager = ({ children }: { children?: ReactNode }) => {
   );
 };
 
-const AlertToast = ({
-  children,
-  onMouseEnter,
-  onMouseLeave,
-  transitionState,
-  transitionDuration,
-  onDismiss,
-}: ToastProps) => {
-  const style = useSpring({
-    config: { duration: transitionDuration },
-    opacity: transitionState === "entered" ? 1 : 0,
-    transform: transitionState === "entered" ? "translateY(0)" : "translateY(-1em)",
-  });
+const NotifyDisplay = () => {
+  const { screen } = useLayout();
+  const { items } = useNotify();
+
+  const [transitions] = useTransition(
+    items,
+    {
+      from: { opacity: 0, marginLeft: "1em", marginRight: "-1em" },
+      enter: { opacity: 1, marginLeft: "0em", marginRight: "0em" },
+      leave: { opacity: 0, marginLeft: "1em", marginRight: "-1em" },
+    },
+    [items]
+  );
 
   return (
-    <animated.div
-      style={style}
-      className="table mx-auto rounded overflow-hidden bg-gray-darkest bg-blur text-white shadow-lg p-3 cursor-pointer"
-      onClick={() => onDismiss()}
-      onMouseEnter={onMouseEnter}
-      onMouseLeave={onMouseLeave}
+    <div
+      className={useMemo(
+        () =>
+          cx("w-screen fixed top-0 right-0 p-4 z-50 space-y-4", {
+            "max-w-lg": screen === "lg",
+            "pointer-events-none": !items.length,
+          }),
+        [screen, items]
+      )}
     >
-      {children}
-    </animated.div>
+      {transitions((style, item) => (
+        <animated.div key={item.id} style={style}>
+          <NotifyItemDisplay {...item} />
+        </animated.div>
+      ))}
+    </div>
   );
 };
 
+const NotifyItemDisplay = ({ id, type, title, description }: NotifyItem) => {
+  const [closeHover, setCloseHover] = useState(false);
+  const closeStyle = useSpring({
+    transform: closeHover ? "scale(1.1)" : "scale(1)",
+  });
+
+  const { remove } = useNotify();
+  const close = useCallback(() => remove(id), [remove, id]);
+  const [pause, resume] = usePausableTimeout(15000, close);
+
+  return (
+    <div
+      className="relative w-full rounded overflow-hidden bg-white text-black shadow-lg p-3"
+      onMouseEnter={pause}
+      onMouseLeave={resume}
+    >
+      <div className="mb-3">
+        {getTypeIcon(type)} {title}
+      </div>
+
+      <div className="text-sm overflow-auto">{description}</div>
+
+      <animated.span style={closeStyle} className="absolute top-0 right-0 p-3 text-gray-darker">
+        <CloseOutlined
+          className="cursor-pointer"
+          onClick={close}
+          onMouseEnter={() => setCloseHover(true)}
+          onMouseLeave={() => setCloseHover(false)}
+        />
+      </animated.span>
+    </div>
+  );
+};
+
+const AlertContext = createContext<{
+  item?: AlertItem;
+  remove: (id: number) => void;
+
+  alert: (message: ReactNode, type?: AppearanceTypes) => void;
+}>(undefined as any);
+
+type AlertItem = {
+  id: number;
+  type?: AppearanceTypes;
+  message: ReactNode;
+};
+
+export function useAlert() {
+  return useContext(AlertContext);
+}
+
 const AlertManager = ({ children }: { children?: ReactNode }) => {
-  const { addToast, removeAllToasts } = useToasts();
+  const [item, setItem] = useState<AlertItem>();
 
   return (
     <AlertContext.Provider
       value={useMemo(
         () => ({
-          alert: (message, type) => {
-            let content = <span>{message}</span>;
-
-            if (type)
-              content = (
-                <span>
-                  {convertTypeToIcon(type)} {content}
-                </span>
-              );
-
-            removeAllToasts();
-            addToast(content);
-          },
+          item,
+          remove: (id) => setItem((item) => (item?.id === id ? undefined : item)),
+          alert: (message, type) => setItem({ id: Math.random(), type, message }),
         }),
-        [addToast, removeAllToasts]
+        [item]
       )}
     >
       {children}
     </AlertContext.Provider>
+  );
+};
+
+const AlertDisplay = () => {
+  const { screen } = useLayout();
+  const { item } = useAlert();
+
+  const [transitions] = useTransition(
+    item ? [item] : [],
+    {
+      from: { opacity: 0, marginTop: "-1em" },
+      enter: { opacity: 1, marginTop: "0em" },
+      leave: { opacity: 0, marginTop: "-1em" },
+    },
+    [item]
+  );
+
+  return transitions((style, item) => (
+    <animated.div
+      key={item.id}
+      style={style}
+      className={useMemo(
+        () =>
+          cx(
+            "fixed top-0 p-4 z-50",
+            {
+              "max-w-full": screen !== "lg",
+              "max-w-lg": screen === "lg",
+            },
+            css`
+              left: 50%;
+              transform: translateX(-50%);
+            `
+          ),
+        [screen, item]
+      )}
+    >
+      <AlertItemDisplay {...item} />
+    </animated.div>
+  ));
+};
+
+const AlertItemDisplay = ({ id, message, type }: AlertItem) => {
+  const { remove } = useAlert();
+  const close = useCallback(() => remove(id), [remove, id]);
+  const [pause, resume] = usePausableTimeout(5000, close);
+
+  const messageRef = useRef<HTMLSpanElement>(null);
+  const [truncate, setTruncate] = useState(true);
+
+  return (
+    <div
+      className="inline-flex max-w-full rounded bg-gray-darkest bg-blur text-white shadow-lg p-3 cursor-pointer"
+      onMouseEnter={pause}
+      onMouseLeave={resume}
+      onClick={() => {
+        if (truncate) {
+          // https://stackoverflow.com/a/10017343/13160620
+          const text = messageRef.current;
+
+          if (text && text.offsetWidth < text.scrollWidth) {
+            setTruncate(false);
+            return;
+          }
+        }
+
+        close();
+      }}
+    >
+      {type && <span>{getTypeIcon(type)} </span>}
+
+      <span ref={messageRef} className={cx("overflow-hidden break-words", { truncate: truncate })}>
+        {message}
+      </span>
+    </div>
   );
 };
