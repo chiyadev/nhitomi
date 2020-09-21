@@ -18,7 +18,7 @@ export const Checkout = ({ supporterPrice, apiKey }: PrefetchResult) => {
   const { notifyError } = useNotify();
 
   const [loading, setLoading] = useState(false);
-  const [duration, setDuration] = usePageState("duration", 1);
+  const [duration, setDuration] = usePageState("duration", 2);
   const amount = duration * supporterPrice;
 
   const submit = useCallback(async () => {
@@ -47,30 +47,36 @@ export const Checkout = ({ supporterPrice, apiKey }: PrefetchResult) => {
   }, [amount, apiKey, client, info, notifyError]);
 
   return (
-    <Disableable disabled={loading}>
-      <div className="max-w-xs mx-auto p-4 space-y-4">
-        <CheckoutButton duration={duration} loading={loading} submit={submit} />
-
-        <div className="space-y-1">
-          <div className="text-center text-sm">{amount} USD</div>
-
-          <Slider
-            className="w-full"
-            color={getColor("pink")}
-            min={0}
-            max={12}
-            value={duration}
-            setValue={(v) => setDuration(Math.max(1, v))}
-            overlay={`${amount} USD`}
-          />
-        </div>
-
-        <ul className="list-disc list-inside text-sm">
-          <li>nhitomi supporter is a non-recurring payment.</li>
-          <li>If you are already a supporter, your supporter period will be extended.</li>
-        </ul>
+    <div className="space-y-8">
+      <div className="text-lg text-center">
+        <span className="shadow-lg rounded bg-pink text-white p-2">— Let&apos;s become one! —</span>
       </div>
-    </Disableable>
+
+      <Disableable disabled={loading}>
+        <div className="max-w-xs mx-auto p-4 space-y-4">
+          <CheckoutButton duration={duration} loading={loading} submit={submit} />
+
+          <div className="space-y-1">
+            <div className="text-center text-sm">{amount} USD</div>
+
+            <Slider
+              className="w-full"
+              color={getColor("pink")}
+              min={0}
+              max={12}
+              value={duration}
+              setValue={(v) => setDuration(Math.max(1, v))}
+              overlay={`${amount} USD`}
+            />
+          </div>
+
+          <ul className="list-disc list-inside text-sm">
+            <li>nhitomi supporter is a non-recurring payment.</li>
+            <li>If you are already a supporter, your supporter period will be extended.</li>
+          </ul>
+        </div>
+      </Disableable>
+    </div>
   );
 };
 

@@ -56,7 +56,7 @@ export const MainCard = ({ children }: { children?: ReactNode }) => {
   switch (screen) {
     case "sm":
       return (
-        <div className="flex flex-col">
+        <div className="flex flex-col mb-8">
           <animated.div
             style={imageStyle}
             className={cx(

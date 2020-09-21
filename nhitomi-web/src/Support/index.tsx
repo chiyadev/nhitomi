@@ -13,6 +13,7 @@ import { Checkout } from "./Checkout";
 import { GetStripeInfoResponse } from "nhitomi-api";
 import { useQueryState } from "../state";
 import { useNotify } from "../NotificationManager";
+import { Benefits } from "./Benefits";
 
 export type PrefetchResult = GetStripeInfoResponse;
 export type PrefetchOptions = {};
@@ -69,7 +70,7 @@ const Loaded = (result: PrefetchResult) => {
   const supporter = info.authenticated && info.user.isSupporter;
 
   return (
-    <Container className="px-2 space-y-8">
+    <Container className="px-4">
       {useMemo(
         () => (
           <MainCard>
@@ -101,12 +102,21 @@ const Loaded = (result: PrefetchResult) => {
         [supporter]
       )}
 
-      {useMemo(
-        () => (
-          <Checkout {...result} />
-        ),
-        [result]
-      )}
+      <div className="space-y-16">
+        {useMemo(
+          () => (
+            <Benefits />
+          ),
+          []
+        )}
+
+        {useMemo(
+          () => (
+            <Checkout {...result} />
+          ),
+          [result]
+        )}
+      </div>
     </Container>
   );
 };
