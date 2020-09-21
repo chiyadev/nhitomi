@@ -1,4 +1,13 @@
-import React, { createContext, ReactNode, useContext, useLayoutEffect, useMemo, useRef, useState } from "react";
+import React, {
+  createContext,
+  ReactNode,
+  useCallback,
+  useContext,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { useConfig } from "./ConfigManager";
 import { EventEmitter } from "events";
 import StrictEventEmitter from "strict-event-emitter-types";
@@ -8,6 +17,7 @@ import { useAsync } from "./hooks";
 import { PromiseEx } from "./promiseEx";
 import JSZip from "jszip";
 import { probeImage } from "./imageUtils";
+import { saveAs } from "file-saver";
 
 // download tasks are "owned" by a specific instance/tab of nhitomi
 // sessionStorage is not used to store this. we want a new id every time an instance loads.
@@ -50,6 +60,36 @@ export const DownloadManager = ({ children }: { children: ReactNode }) => {
   const [targets, setTargets] = useConfig("downloads");
   const [tasks, setTasks] = useState<DownloadTask[]>([]);
 
+  const add = useCallback(
+    (...addTargets: DownloadTargetAddArgs[]) => {
+      setTargets((targets) => [
+        ...addTargets
+          .filter(
+            // prevent duplicates
+            (target) =>
+              targets.findIndex((other) => {
+                if (target.type !== other.type) return false;
+
+                switch (target.type) {
+                  case "book":
+                    return target.book.id === other.book.id && target.book.contentId === other.book.contentId;
+                }
+              }) === -1
+          )
+          .map((target) => ({ ...target, id: Math.random(), owner: currentOwnerId })),
+        ...targets,
+      ]);
+    },
+    [setTargets]
+  );
+
+  const remove = useCallback(
+    (...ids: number[]) => {
+      setTargets((targets) => targets.filter((target) => ids.indexOf(target.id) === -1));
+    },
+    [setTargets]
+  );
+
   useLayoutEffect(
     () =>
       setTasks((tasks) => {
@@ -86,8 +126,20 @@ export const DownloadManager = ({ children }: { children: ReactNode }) => {
 
   useLayoutEffect(() => {
     const handle = (task: DownloadTask) => {
-      // process task if it became pending
-      if (task.state.type === "pending") setProceed(true);
+      switch (task.state.type) {
+        // a task became pending, proceed
+        case "pending":
+          setProceed(true);
+          break;
+
+        // a task completed successfully, so save and remove
+        case "done":
+          setProceed(true);
+          remove(task.id);
+
+          saveAs(task.state.data, task.state.name);
+          break;
+      }
     };
 
     for (const task of tasks) task.on("updated", handle);
@@ -132,32 +184,10 @@ export const DownloadManager = ({ children }: { children: ReactNode }) => {
         () => ({
           targets,
           tasks,
-
-          add: (...addTargets) => {
-            setTargets((targets) => [
-              ...addTargets
-                .filter(
-                  // prevent duplicates
-                  (target) =>
-                    targets.findIndex((other) => {
-                      if (target.type !== other.type) return false;
-
-                      switch (target.type) {
-                        case "book":
-                          return target.book.id === other.book.id && target.book.contentId === other.book.contentId;
-                      }
-                    }) === -1
-                )
-                .map((target) => ({ ...target, id: Math.random(), owner: currentOwnerId })),
-              ...targets,
-            ]);
-          },
-
-          remove: (...ids) => {
-            setTargets((targets) => targets.filter((target) => ids.indexOf(target.id) === -1));
-          },
+          add,
+          remove,
         }),
-        [targets, tasks]
+        [targets, tasks, add, remove]
       )}
     >
       {children}
@@ -184,7 +214,8 @@ type TaskState =
     }
   | {
       type: "done";
-      result: Blob;
+      data: Blob;
+      name: string;
     };
 
 type TaskRunningStage = "download" | "process";
@@ -250,8 +281,8 @@ export abstract class DownloadTask extends (EventEmitter as new () => StrictEven
     this.emit("updated", this);
   }
 
-  setResult(result: Blob) {
-    this.state = { type: "done", result };
+  setResult(data: Blob, name: string) {
+    this.state = { type: "done", data, name };
     this.progress = 1;
 
     this.emit("updated", this);
@@ -270,7 +301,7 @@ export abstract class DownloadTask extends (EventEmitter as new () => StrictEven
       10000
     );
 
-    let resultFn: (() => Promise<Blob>) | undefined;
+    let resultFn: ResultBlobGenerator | undefined;
 
     try {
       const result = await this.runCore(client, session, cancellation);
@@ -293,9 +324,9 @@ export abstract class DownloadTask extends (EventEmitter as new () => StrictEven
 
     // result generation can be run outside session
     try {
-      const result = await resultFn();
+      const { data, name } = await resultFn();
 
-      if (!cancellation.requested) this.setResult(result);
+      if (!cancellation.requested) this.setResult(data, name);
     } catch (e) {
       if (!cancellation.requested) this.setError(e);
     }
@@ -305,8 +336,10 @@ export abstract class DownloadTask extends (EventEmitter as new () => StrictEven
     client: Client,
     session: DownloadSession,
     cancellation: CancellationSignal
-  ): Promise<(() => Promise<Blob>) | undefined>;
+  ): Promise<ResultBlobGenerator | undefined>;
 }
+
+type ResultBlobGenerator = () => Promise<{ data: Blob; name: string }>;
 
 class BookDownloadTask extends DownloadTask {
   constructor(target: DownloadTarget) {
@@ -325,6 +358,7 @@ class BookDownloadTask extends DownloadTask {
 
     const digits = content.pageCount.toString().length;
     const zip = new JSZip();
+
     let loaded = 0;
 
     await PromiseEx.allN(
@@ -341,7 +375,10 @@ class BookDownloadTask extends DownloadTask {
             if (cancellation.requested) return;
 
             // add image to zip
-            zip.file(`${(index + 1).toString().padStart(digits, "0")}.${type}`);
+            zip.file(`${(index + 1).toString().padStart(digits, "0")}.${type}`, image, {
+              binary: true,
+              date: book.updatedTime,
+            });
 
             // update progress
             this.setProgress("download", ++loaded / content.pageCount);
@@ -356,9 +393,9 @@ class BookDownloadTask extends DownloadTask {
 
     if (cancellation.requested) return;
 
-    return async () =>
-      // https://stuk.github.io/jszip/documentation/api_jszip/generate_async.html
-      await zip.generateAsync(
+    return async () => ({
+      data: await zip.generateAsync(
+        // https://stuk.github.io/jszip/documentation/api_jszip/generate_async.html
         {
           type: "blob",
           comment: `Downloaded from nhitomi on ${new Date().toString()} (/books/${id}/contents/${contentId}).`,
@@ -368,6 +405,8 @@ class BookDownloadTask extends DownloadTask {
           },
         },
         ({ percent }) => this.setProgress("process", percent / 100)
-      );
+      ),
+      name: `${id} ${book.primaryName}.zip`,
+    });
   }
 }

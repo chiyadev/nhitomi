@@ -12,6 +12,8 @@ import { CloseOutlined, ReloadOutlined } from "@ant-design/icons";
 import { cx } from "emotion";
 import { useNotify } from "../NotificationManager";
 import VisibilitySensor from "react-visibility-sensor";
+import { Progress } from "../Components/Progress";
+import { getColor } from "../theme";
 
 export const BookTaskDisplay = ({ task }: { task: DownloadTask }) => {
   const target = task.target;
@@ -109,9 +111,23 @@ export const BookTaskDisplay = ({ task }: { task: DownloadTask }) => {
                   </div>
 
                   {error && (
-                    <div className="text-sm text-gray-darker cursor-pointer" onClick={() => notifyError(error)}>
-                      {error.message}
+                    <div className="text-sm text-red-darker cursor-pointer" onClick={() => notifyError(error)}>
+                      <code>{error.message}</code>
                     </div>
+                  )}
+
+                  {(task.state.type === "running" || task.state.type === "error" || task.state.type === "done") && (
+                    <Progress
+                      className="my-1"
+                      value={task.progress}
+                      color={
+                        task.state.type === "running"
+                          ? getColor("blue")
+                          : task.state.type === "error"
+                          ? getColor("red", "darker")
+                          : getColor("green")
+                      }
+                    />
                   )}
                 </>
               );
