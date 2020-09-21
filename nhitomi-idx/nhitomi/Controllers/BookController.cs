@@ -123,7 +123,7 @@ namespace nhitomi.Controllers
         {
             var books = await _books.GetManyAsync(request.Ids);
 
-            return books.ToArray(b => b.Convert(_services));
+            return books.Where(b => b != null).ToArray(b => b.Convert(_services));
         }
 
         /// <summary>
