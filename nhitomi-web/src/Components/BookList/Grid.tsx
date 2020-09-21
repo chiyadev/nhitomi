@@ -265,7 +265,7 @@ const ItemOverlay = ({ book, hover }: { book: BookListItem; hover?: boolean }) =
   const inner = useMemo(
     () =>
       visible && (
-        <div className="px-2 py-1 bg-white bg-blur text-black rounded-b">
+        <div className="p-1 bg-white bg-blur text-black rounded-b">
           <span className="block truncate font-bold">
             {(preferEnglishName && book.englishName) || book.primaryName}
           </span>
