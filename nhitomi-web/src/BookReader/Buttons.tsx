@@ -15,7 +15,7 @@ import { useDownloads } from "../DownloadManager";
 
 export const Buttons = ({ book, content }: PrefetchResult) => {
   return (
-    <div className="flex flex-row space-x-2">
+    <div className="flex flex-row flex-wrap -m-1">
       <FavoriteButton book={book} />
       <CollectionAddButton book={book} />
       <DownloadButton book={book} content={content} />
@@ -34,7 +34,7 @@ const FavoriteButton = ({ book }: { book: Book }) => {
       <FilledButton
         icon={<HeartFilled />}
         color={getColor("red", "darker")}
-        className="py-1"
+        className="py-1 m-1"
         onClick={async () => {
           setLoading(true);
           begin();
@@ -60,7 +60,7 @@ const CollectionAddButton = ({ book }: { book: Book }) => {
 
   return (
     <Dropdown onShow={() => setLoad(true)} overlay={load && <CollectionAddBookDropdownMenu book={book} />}>
-      <FilledButton icon={<PlusOutlined />} color={getColor("gray", "darkest")} className="py-1">
+      <FilledButton icon={<PlusOutlined />} color={getColor("gray", "darkest")} className="py-1 m-1">
         <FormattedMessage id="pages.bookReader.buttons.collectionAdd" />
       </FilledButton>
     </Dropdown>
@@ -83,7 +83,12 @@ const DownloadButton = ({ book, content }: { book: Book; content: BookContent })
   };
 
   return (
-    <FilledButton icon={<CloudDownloadOutlined />} color={getColor("gray", "darkest")} className="py-1" onClick={click}>
+    <FilledButton
+      icon={<CloudDownloadOutlined />}
+      color={getColor("gray", "darkest")}
+      className="py-1 m-1"
+      onClick={click}
+    >
       <FormattedMessage id="pages.bookReader.buttons.download" />
     </FilledButton>
   );
