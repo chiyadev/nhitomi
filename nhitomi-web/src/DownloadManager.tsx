@@ -399,10 +399,16 @@ export abstract class DownloadTask extends (EventEmitter as new () => StrictEven
     this.setProgress("download", 0, true);
 
     // interval to keep session alive
-    const sessionInterval = window.setInterval(
-      async () => (session = await this.client.download.getDownloadSession({ id: session.id })),
-      10000
-    );
+    const sessionInterval = window.setInterval(async () => {
+      try {
+        session = await this.client.download.getDownloadSession({ id: session.id });
+      } catch (e) {
+        // session disappeared for some reason
+        cancellation.requested = true;
+
+        this.setError(e);
+      }
+    }, 10000);
 
     let resultFn: ResultBlobGenerator | undefined;
 
@@ -483,7 +489,7 @@ class BookDownloadTask extends DownloadTask {
       Array.from(Array(content.pageCount).keys()).map((index) => async () => {
         // retry failed requests indefinitely
         // user can cancel the download if deemed stuck
-        while (!cancellation.requested) {
+        for (let retry = 0; !cancellation.requested; retry++) {
           try {
             // download image using session
             const image = await this.client.book.getBookImage({ id, contentId, index, sessionId: session.id });
@@ -503,6 +509,8 @@ class BookDownloadTask extends DownloadTask {
             return; // exit loop
           } catch (e) {
             console.warn("could not load image", index, "of book", id, contentId, e);
+
+            await new Promise((resolve) => setTimeout(resolve, 1000 * Math.min(retry, session.concurrency)));
           }
         }
       })
