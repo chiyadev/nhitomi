@@ -2,6 +2,7 @@ import stringify from "json-stable-stringify";
 import { NavigationLocation } from "../state";
 import { atou, utoa } from "../base64";
 import { useCallback } from "react";
+import { randomStr } from "../random";
 
 export type OAuthState = {
   redirect: Partial<Omit<NavigationLocation, "state">>;
@@ -12,7 +13,7 @@ export function useXsrfToken(): [string, () => void] {
   let token = localStorage.getItem("xsrf");
 
   if (!token) {
-    localStorage.setItem("xsrf", (token = [...Array(16)].map(() => Math.random().toString(36)[2]).join("")));
+    localStorage.setItem("xsrf", (token = randomStr(16)));
   }
 
   const reset = useCallback(() => localStorage.removeItem("xsrf"), []);
