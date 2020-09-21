@@ -53,7 +53,7 @@ type RequestInitEx = RequestInit & {
 };
 
 export class Client {
-  private readonly httpConfig: ConfigurationParameters = {
+  readonly httpConfig: ConfigurationParameters = {
     middleware: [
       {
         pre: async (context) => {
@@ -103,7 +103,7 @@ export class Client {
   readonly download: DownloadApi;
   readonly internal: InternalApi;
 
-  constructor(private readonly config: ConfigSource) {
+  constructor(readonly config: ConfigSource) {
     this.user = new UserApi(new Configuration(this.httpConfig));
     this.info = new InfoApi(new Configuration(this.httpConfig));
     this.book = new BookApi(new Configuration(this.httpConfig));
