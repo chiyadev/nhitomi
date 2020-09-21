@@ -12,7 +12,7 @@ import { useConfig } from "./ConfigManager";
 import { EventEmitter } from "events";
 import StrictEventEmitter from "strict-event-emitter-types";
 import { Book, DownloadSession } from "nhitomi-api";
-import { Client, ClientInfo, useClient, useClientInfo } from "./ClientManager";
+import { Client, useClient } from "./ClientManager";
 import { useAsync } from "./hooks";
 import { PromiseEx } from "./promiseEx";
 import JSZip from "jszip";
@@ -27,6 +27,7 @@ import { BookReaderLink } from "./BookReader";
 import { TypedPrefetchLinkProps } from "./Prefetch";
 
 // download tasks are "owned" by a specific instance/tab of nhitomi
+// owned tasks are marked as pending immediately, and not owned tasks are stalled (possibly being downloaded by other tabs, or leftovers when tab was closed and downloads abruptly end)
 // sessionStorage is not used to store this. we want a new id every time an instance loads.
 const currentOwnerId = randomStr(6);
 
@@ -36,13 +37,20 @@ export type DownloadTarget = DownloadTargetAddArgs & {
 };
 
 type DownloadTargetAddArgs = {
-  displayName: string;
-} & {
   type: "book";
   book: Pick<Book, "primaryName" | "englishName"> & {
     id: string;
     contentId: string;
   };
+};
+
+const DownloadTargetName = ({ target }: { target: DownloadTarget }) => {
+  const [preferEnglishName] = useConfig("bookReaderPreferEnglishName");
+
+  switch (target.type) {
+    case "book":
+      return <>{(preferEnglishName && target.book.englishName) || target.book.primaryName}</>;
+  }
 };
 
 const DownloadContext = createContext<{
@@ -66,7 +74,6 @@ function createTaskMap(tasks: DownloadTask[]) {
 
 export const DownloadManager = ({ children }: { children: ReactNode }) => {
   const client = useClient();
-  const { info } = useClientInfo();
   const { alert } = useAlert();
   const { notifyError } = useNotify();
 
@@ -104,7 +111,7 @@ export const DownloadManager = ({ children }: { children: ReactNode }) => {
                 values={{
                   name: (
                     <DownloadsLink className="text-blue" focus={newTargets[0].id}>
-                      {newTargets[0].displayName}
+                      <DownloadTargetName target={newTargets[0]} />
                     </DownloadsLink>
                   ),
                 }}
@@ -130,7 +137,7 @@ export const DownloadManager = ({ children }: { children: ReactNode }) => {
                 values={{
                   name: (
                     <DownloadsLink className="text-blue" focus={duplicateTargets[0].id}>
-                      {duplicateTargets[0].displayName}
+                      <DownloadTargetName target={duplicateTargets[0]} />
                     </DownloadsLink>
                   ),
                 }}
@@ -177,7 +184,7 @@ export const DownloadManager = ({ children }: { children: ReactNode }) => {
 
           switch (target.type) {
             case "book":
-              return new BookDownloadTask(target);
+              return new BookDownloadTask(client, target);
           }
         });
 
@@ -226,7 +233,7 @@ export const DownloadManager = ({ children }: { children: ReactNode }) => {
               values={{
                 name: (
                   <DownloadsLink className="text-blue" focus={task.id}>
-                    {task.target.displayName}
+                    <DownloadTargetName target={task.target} />
                   </DownloadsLink>
                 ),
               }}
@@ -260,7 +267,7 @@ export const DownloadManager = ({ children }: { children: ReactNode }) => {
 
           // run task with cancellation in the background
           // when the task finishes, regardless of success, we will proceed to the next task
-          task.run(client, info, session, (task.cancellation = { requested: false })).finally(() => setProceed(true));
+          task.run(session, (task.cancellation = { requested: false })).finally(() => setProceed(true));
         } catch {
           break;
         }
@@ -339,7 +346,7 @@ export abstract class DownloadTask extends (EventEmitter as new () => StrictEven
   state: TaskState;
   progress = 0;
 
-  protected constructor(readonly target: DownloadTarget) {
+  protected constructor(readonly client: Client, readonly target: DownloadTarget) {
     super();
 
     if (this.owned) this.state = { type: "pending" };
@@ -388,19 +395,19 @@ export abstract class DownloadTask extends (EventEmitter as new () => StrictEven
     this.emit("updated", this);
   }
 
-  async run(client: Client, info: ClientInfo, session: DownloadSession, cancellation: CancellationSignal) {
+  async run(session: DownloadSession, cancellation: CancellationSignal) {
     this.setProgress("download", 0, true);
 
     // interval to keep session alive
     const sessionInterval = window.setInterval(
-      async () => (session = await client.download.getDownloadSession({ id: session.id })),
+      async () => (session = await this.client.download.getDownloadSession({ id: session.id })),
       10000
     );
 
     let resultFn: ResultBlobGenerator | undefined;
 
     try {
-      const result = await this.runCore(client, info, session, cancellation);
+      const result = await this.runCore(session, cancellation);
 
       if (cancellation.requested || !result) return;
       resultFn = result;
@@ -410,7 +417,7 @@ export abstract class DownloadTask extends (EventEmitter as new () => StrictEven
       clearInterval(sessionInterval);
 
       try {
-        await client.download.deleteDownloadSession({ id: session.id });
+        await this.client.download.deleteDownloadSession({ id: session.id });
       } catch {
         // ignored
       }
@@ -429,8 +436,6 @@ export abstract class DownloadTask extends (EventEmitter as new () => StrictEven
   }
 
   protected abstract runCore(
-    client: Client,
-    info: ClientInfo,
     session: DownloadSession,
     cancellation: CancellationSignal
   ): Promise<ResultBlobGenerator | undefined>;
@@ -441,20 +446,15 @@ export abstract class DownloadTask extends (EventEmitter as new () => StrictEven
 type ResultBlobGenerator = () => Promise<{ data: Blob; name: string }>;
 
 class BookDownloadTask extends DownloadTask {
-  constructor(target: DownloadTarget) {
-    super(target);
+  constructor(client: Client, target: DownloadTarget) {
+    super(client, target);
   }
 
-  protected async runCore(
-    client: Client,
-    info: ClientInfo,
-    session: DownloadSession,
-    cancellation: CancellationSignal
-  ) {
+  protected async runCore(session: DownloadSession, cancellation: CancellationSignal) {
     if (this.target.type !== "book") throw Error("Target must be book.");
     const { id, contentId } = this.target.book;
 
-    const book = await client.book.getBook({ id });
+    const book = await this.client.book.getBook({ id });
     const content = book.contents.find((c) => c.id === contentId);
 
     if (cancellation.requested) return;
@@ -470,7 +470,7 @@ class BookDownloadTask extends DownloadTask {
       stringify(
         {
           [content.source]: content.sourceUrl,
-          nhitomi: `${info.publicUrl}/books/${id}/contents/${contentId}`,
+          nhitomi: `${this.client.currentInfo.publicUrl}/books/${id}/contents/${contentId}`,
         },
         { space: 2 }
       )
@@ -486,7 +486,7 @@ class BookDownloadTask extends DownloadTask {
         while (!cancellation.requested) {
           try {
             // download image using session
-            const image = await client.book.getBookImage({ id, contentId, index, sessionId: session.id });
+            const image = await this.client.book.getBookImage({ id, contentId, index, sessionId: session.id });
             const { type } = await probeImage(image);
 
             if (cancellation.requested) return;
@@ -523,7 +523,7 @@ class BookDownloadTask extends DownloadTask {
         },
         ({ percent }) => this.setProgress("process", percent / 100)
       ),
-      name: `${id} ${this.target.displayName}.zip`,
+      name: `${id} ${(this.client.config.bookReaderPreferEnglishName && book.englishName) || book.primaryName}.zip`,
     });
   }
 
@@ -533,7 +533,7 @@ class BookDownloadTask extends DownloadTask {
 
     return (
       <BookReaderLink id={id} contentId={contentId} {...props}>
-        {this.target.displayName}
+        <DownloadTargetName target={this.target} />
       </BookReaderLink>
     );
   }
