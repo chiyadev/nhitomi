@@ -12,12 +12,13 @@ import { useConfig } from "./ConfigManager";
 import { EventEmitter } from "events";
 import StrictEventEmitter from "strict-event-emitter-types";
 import { Book, DownloadSession } from "nhitomi-api";
-import { Client, useClient } from "./ClientManager";
+import { Client, ClientInfo, useClient, useClientInfo } from "./ClientManager";
 import { useAsync } from "./hooks";
 import { PromiseEx } from "./promiseEx";
 import JSZip from "jszip";
 import { probeImage } from "./imageUtils";
 import { saveAs } from "file-saver";
+import stringify from "json-stable-stringify";
 
 // download tasks are "owned" by a specific instance/tab of nhitomi
 // sessionStorage is not used to store this. we want a new id every time an instance loads.
@@ -57,6 +58,8 @@ function createTaskMap(tasks: DownloadTask[]) {
 
 export const DownloadManager = ({ children }: { children: ReactNode }) => {
   const client = useClient();
+  const { info } = useClientInfo();
+
   const [targets, setTargets] = useConfig("downloads");
   const [tasks, setTasks] = useState<DownloadTask[]>([]);
 
@@ -168,7 +171,7 @@ export const DownloadManager = ({ children }: { children: ReactNode }) => {
 
           // run task with cancellation in the background
           // when the task finishes, regardless of success, we will proceed to the next task
-          task.run(client, session, (task.cancellation = { requested: false })).finally(() => setProceed(true));
+          task.run(client, info, session, (task.cancellation = { requested: false })).finally(() => setProceed(true));
         } catch {
           break;
         }
@@ -294,7 +297,7 @@ export abstract class DownloadTask extends (EventEmitter as new () => StrictEven
     this.emit("updated", this);
   }
 
-  async run(client: Client, session: DownloadSession, cancellation: CancellationSignal) {
+  async run(client: Client, info: ClientInfo, session: DownloadSession, cancellation: CancellationSignal) {
     // interval to keep session alive
     const sessionInterval = window.setInterval(
       async () => (session = await client.download.getDownloadSession({ id: session.id })),
@@ -304,7 +307,7 @@ export abstract class DownloadTask extends (EventEmitter as new () => StrictEven
     let resultFn: ResultBlobGenerator | undefined;
 
     try {
-      const result = await this.runCore(client, session, cancellation);
+      const result = await this.runCore(client, info, session, cancellation);
 
       if (cancellation.requested || !result) return;
       resultFn = result;
@@ -334,6 +337,7 @@ export abstract class DownloadTask extends (EventEmitter as new () => StrictEven
 
   abstract runCore(
     client: Client,
+    info: ClientInfo,
     session: DownloadSession,
     cancellation: CancellationSignal
   ): Promise<ResultBlobGenerator | undefined>;
@@ -346,7 +350,7 @@ class BookDownloadTask extends DownloadTask {
     super(target);
   }
 
-  async runCore(client: Client, session: DownloadSession, cancellation: CancellationSignal) {
+  async runCore(client: Client, info: ClientInfo, session: DownloadSession, cancellation: CancellationSignal) {
     if (this.target.type !== "book") throw Error("Target must be book.");
     const { id, contentId } = this.target.book;
 
@@ -358,6 +362,19 @@ class BookDownloadTask extends DownloadTask {
 
     const digits = content.pageCount.toString().length;
     const zip = new JSZip();
+
+    // add information files
+    zip.file("nhitomi.json", stringify(book, { space: 2 }));
+    zip.file(
+      "sources.json",
+      stringify(
+        {
+          [content.source]: content.sourceUrl,
+          nhitomi: `${info.publicUrl}/books/${id}/contents/${contentId}`,
+        },
+        { space: 2 }
+      )
+    );
 
     let loaded = 0;
 
