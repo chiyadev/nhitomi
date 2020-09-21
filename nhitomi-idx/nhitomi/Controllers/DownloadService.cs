@@ -28,12 +28,12 @@ namespace nhitomi.Controllers
         /// <summary>
         /// Maximum concurrency of download requests.
         /// </summary>
-        public int MaxConcurrency { get; set; } = 2;
+        public int MaxConcurrency { get; set; } = 3;
 
         /// <summary>
         /// <see cref="MaxConcurrency"/> for supporter users.
         /// </summary>
-        public int MaxConcurrencyForSupporters { get; set; } = 5;
+        public int MaxConcurrencyForSupporters { get; set; } = 6;
 
         /// <summary>
         /// Delay until automatic session expiry.
