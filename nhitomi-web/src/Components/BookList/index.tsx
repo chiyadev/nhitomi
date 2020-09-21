@@ -16,6 +16,7 @@ import { Grid } from "./Grid";
 import { ScraperTypes } from "../../orderedConstants";
 import { TypedPrefetchLinkProps } from "../../Prefetch";
 import { useConfig } from "../../ConfigManager";
+import { Loader } from "./Loader";
 
 export type BookListItem = {
   id: string;
@@ -47,11 +48,13 @@ export const BookList = ({
   className,
   menu,
   empty,
+  loadMore,
   ...context
 }: ContextType<typeof BookListContext> & {
   className?: string;
   menu?: ReactNode;
   empty?: ReactNode;
+  loadMore?: () => Promise<void>;
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [width, setWidth] = useState(containerRef.current?.clientWidth);
@@ -74,7 +77,12 @@ export const BookList = ({
   return (
     <div ref={containerRef} className={cx("w-full relative", className)}>
       <BookListContext.Provider value={context}>
-        {width && <Grid width={width} menu={menu} empty={empty} />}
+        {width && (
+          <>
+            <Grid width={width} menu={menu} empty={empty} />
+            <Loader loadMore={loadMore} />
+          </>
+        )}
       </BookListContext.Provider>
     </div>
   );

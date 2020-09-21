@@ -1,4 +1,4 @@
-import React, { Dispatch, useLayoutEffect, useMemo, useRef } from "react";
+import React, { Dispatch, useCallback, useMemo, useRef } from "react";
 import { convertQuery, DefaultQueryLimit, performQuery, SearchQuery } from "./search";
 import { usePageState, useQueryState } from "../state";
 import { PrefetchGenerator, PrefetchLink, TypedPrefetchLinkProps, usePostfetch } from "../Prefetch";
@@ -7,7 +7,6 @@ import { SearchInput } from "./SearchInput";
 import { BookList } from "../Components/BookList";
 import { useNotify } from "../NotificationManager";
 import { useClient, useClientInfo } from "../ClientManager";
-import { LoadContainer } from "../Components/LoadContainer";
 import { useProgress } from "../ProgressManager";
 import { useScrollShortcut } from "../shortcut";
 import { useConfig } from "../ConfigManager";
@@ -128,21 +127,70 @@ const Loaded = ({ result, setResult }: { result: PrefetchResult; setResult: Disp
     }
   }, [queryCmp, effectiveQueryCmp]);
 
+  const loadMore = useCallback(async () => {
+    const id = ++queryId.current;
+
+    try {
+      const moreResult = await client.book.searchBooks({
+        bookQuery: {
+          ...convertQuery(query),
+          offset: result.nextOffset,
+        },
+      });
+
+      if (queryId.current === id) {
+        // no more results
+        if (!moreResult.items.length) {
+          setResult({ ...result, nextOffset: result.total });
+          return;
+        }
+
+        // remove duplicates
+        const items: Book[] = [];
+        const exists: { [id: string]: true } = {};
+
+        for (const item of [...result.items, ...moreResult.items]) {
+          if (!exists[item.id]) items.push(item);
+          exists[item.id] = true;
+        }
+
+        setResult({
+          ...result,
+          ...moreResult,
+          items,
+          nextOffset: result.nextOffset + DefaultQueryLimit,
+        });
+      }
+    } catch (e) {
+      notifyError(e);
+      setResult({ ...result, nextOffset: result.total });
+    }
+  }, [client, result, setResult]);
+
   return (
     <Container>
-      <Input result={result} />
+      {useMemo(
+        () => (
+          <Input result={result} />
+        ),
+        [result]
+      )}
 
-      <BookList
-        items={result.items}
-        menu={<Menu />}
-        empty={
-          <EmptyIndicator>
-            <FormattedMessage id="pages.bookListing.empty" />
-          </EmptyIndicator>
-        }
-      />
-
-      <Loader key={effectiveQueryCmp} query={query} result={result} setResult={setResult} />
+      {useMemo(
+        () => (
+          <BookList
+            items={result.items}
+            menu={<Menu />}
+            empty={
+              <EmptyIndicator>
+                <FormattedMessage id="pages.bookListing.empty" />
+              </EmptyIndicator>
+            }
+            loadMore={result.nextOffset >= result.total ? undefined : loadMore}
+          />
+        ),
+        [result, setResult, loadMore]
+      )}
     </Container>
   );
 };
@@ -159,85 +207,5 @@ const Input = ({ result }: { result: PrefetchResult }) => {
         <SearchInput result={result} className="shadow-lg w-full" />
       </animated.div>
     </div>
-  );
-};
-
-// infinite loader
-const Loader = ({
-  query,
-  result,
-  setResult,
-}: {
-  query: SearchQuery;
-  result: PrefetchResult;
-  setResult: Dispatch<PrefetchResult>;
-}) => {
-  const client = useClient();
-  const { notifyError } = useNotify();
-  const { begin, end: endProgress } = useProgress();
-
-  const loadId = useRef(result.nextOffset >= result.total ? -1 : 0);
-
-  // unmount means query changed, so prevent setting irrelevant results
-  useLayoutEffect(
-    () => () => {
-      loadId.current = -1;
-    },
-    []
-  );
-
-  const style = useSpring({
-    opacity: loadId.current < 0 ? 0 : 1,
-  });
-
-  return (
-    <animated.div style={style}>
-      <LoadContainer
-        key={loadId.current} // recreate load container for each load
-        className="w-full h-20"
-        onLoad={async () => {
-          if (loadId.current < 0) return;
-
-          begin();
-
-          try {
-            const moreResult = await client.book.searchBooks({
-              bookQuery: { ...convertQuery(query), offset: result.nextOffset },
-            });
-
-            if (loadId.current < 0) return;
-
-            if (!moreResult.items.length) {
-              loadId.current = -1;
-              return;
-            }
-
-            // remove duplicates
-            const items: Book[] = [];
-            const exists: { [id: string]: true } = {};
-
-            for (const item of [...result.items, ...moreResult.items]) {
-              if (!exists[item.id]) items.push(item);
-
-              exists[item.id] = true;
-            }
-
-            setResult({
-              ...result,
-              ...moreResult,
-
-              items,
-              nextOffset: result.nextOffset + DefaultQueryLimit,
-            });
-
-            ++loadId.current;
-          } catch (e) {
-            notifyError(e);
-          } finally {
-            endProgress();
-          }
-        }}
-      />
-    </animated.div>
   );
 };
