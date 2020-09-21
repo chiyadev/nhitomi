@@ -225,12 +225,18 @@
       "title": "ダウンロード",
       "subtitle": "現在{count, plural, =0 {何もダウンロードしていません。} other {#項目をダウンロードしています。}}",
       "empty": "ダウンロードなし",
-      "started": {
-        "one": "{name}のダウンロードを開始しました。",
-        "many": "{count}項目のダウンロードを開始しました。"
+      "alert": {
+        "started": {
+          "one": "{name}のダウンロードを開始しました。",
+          "many": "{count}項目のダウンロードを開始しました。"
+        },
+        "done": {
+          "one": "{name}がダウンロードされました。"
+        }
       },
-      "done": {
-        "one": "{name}がダウンロードされました。"
+      "menu": {
+        "restartAll": "全て再スタート",
+        "deleteAll": "全てキャンセル"
       },
       "task": {
         "state": {

@@ -1,4 +1,4 @@
-import React, { ReactNode, useMemo } from "react";
+import React, { ReactNode, useLayoutEffect, useMemo, useState } from "react";
 import { PrefetchGenerator, PrefetchLink, TypedPrefetchLinkProps, usePostfetch } from "../Prefetch";
 import { PageContainer } from "../Components/PageContainer";
 import { useTabTitle } from "../TitleSetter";
@@ -10,6 +10,8 @@ import { cx } from "emotion";
 import { BookTaskDisplay } from "./BookTaskDisplay";
 import { useLayout } from "../LayoutManager";
 import { EmptyIndicator } from "../Components/EmptyIndicator";
+import { Menu } from "./Menu";
+import { animated, useSpring } from "react-spring";
 
 export type PrefetchResult = {};
 export type PrefetchOptions = {};
@@ -49,6 +51,20 @@ const Loaded = () => {
   const { screen } = useLayout();
   const { tasks } = useDownloads();
 
+  const [running, setRunning] = useState(0);
+
+  useLayoutEffect(() => {
+    const handle = () => {
+      setRunning(tasks.filter((t) => t.state.type === "running").length);
+    };
+
+    for (const task of tasks) task.on("updated", handle);
+
+    return () => {
+      for (const task of tasks) task.off("updated", handle);
+    };
+  }, [tasks]);
+
   return (
     <Container className="divide-y divide-gray-darkest">
       {useMemo(
@@ -58,17 +74,16 @@ const Loaded = () => {
               <FormattedMessage id="pages.downloads.title" />
             </div>
             <div className="text-sm text-gray-darker">
-              <FormattedMessage
-                id="pages.downloads.subtitle"
-                values={{ count: tasks.filter((t) => t.state.type === "running").length }}
-              />
+              <FormattedMessage id="pages.downloads.subtitle" values={{ count: running }} />
             </div>
           </div>
         ),
-        []
+        [running]
       )}
 
       <div>
+        <MenuWrapper>{!!tasks.length && <Menu />}</MenuWrapper>
+
         {!tasks.length && (
           <div className="p-4">
             <EmptyIndicator>
@@ -101,5 +116,18 @@ const Loaded = () => {
         )}
       </div>
     </Container>
+  );
+};
+
+const MenuWrapper = ({ children }: { children?: ReactNode }) => {
+  const style = useSpring({
+    from: { opacity: 0 },
+    to: { opacity: 1 },
+  });
+
+  return (
+    <animated.div style={style} className="w-full flex flex-row justify-end px-2 pt-4">
+      {children}
+    </animated.div>
   );
 };
