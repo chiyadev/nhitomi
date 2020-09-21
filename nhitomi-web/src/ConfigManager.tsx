@@ -23,6 +23,10 @@ export function useConfig<TKey extends keyof ConfigStore>(
   const [value, setValue] = useState(() => config.get(key));
 
   useLayoutEffect(() => {
+    // fix for change event not being received during the first render
+    const newValue = config.get(key);
+    if (value !== newValue) setValue(newValue);
+
     config.on(key as any, setValue);
 
     return () => {
