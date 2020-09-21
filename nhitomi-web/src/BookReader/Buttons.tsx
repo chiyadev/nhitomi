@@ -12,6 +12,7 @@ import { CollectionAddBookDropdownMenu } from "../Components/CollectionAddBookDr
 import { useProgress } from "../ProgressManager";
 import { Disableable } from "../Components/Disableable";
 import { useDownloads } from "../DownloadManager";
+import { useConfig } from "../ConfigManager";
 
 export const Buttons = ({ book, content }: PrefetchResult) => {
   return (
@@ -69,10 +70,12 @@ const CollectionAddButton = ({ book }: { book: Book }) => {
 
 const DownloadButton = ({ book, content }: { book: Book; content: BookContent }) => {
   const { add } = useDownloads();
+  const [preferEnglishName] = useConfig("bookReaderPreferEnglishName");
 
   const click = () => {
     add({
       type: "book",
+      displayName: (preferEnglishName && book.englishName) || book.primaryName,
       book: {
         id: book.id,
         contentId: content.id,

@@ -12,22 +12,31 @@ import { useLayout } from "../LayoutManager";
 import { EmptyIndicator } from "../Components/EmptyIndicator";
 import { Menu } from "./Menu";
 import { animated, useSpring } from "react-spring";
+import { useQueryState } from "../state";
 
 export type PrefetchResult = {};
-export type PrefetchOptions = {};
+export type PrefetchOptions = { focus?: string };
 
-export const useDownloadsPrefetch: PrefetchGenerator<PrefetchResult, PrefetchOptions> = () => {
+export const useDownloadsPrefetch: PrefetchGenerator<PrefetchResult, PrefetchOptions> = ({
+  mode,
+  focus: targetFocus,
+}) => {
+  const [currentFocus] = useQueryState<string>("replace", "focus");
+
+  const focus = targetFocus || (mode === "postfetch" && currentFocus) || undefined;
+
   return {
     destination: {
       path: "/downloads",
+      query: { focus },
     },
 
     fetch: async () => ({}),
   };
 };
 
-export const DownloadsLink = ({ ...props }: TypedPrefetchLinkProps & PrefetchOptions) => (
-  <PrefetchLink fetch={useDownloadsPrefetch} options={{}} {...props} />
+export const DownloadsLink = ({ focus, ...props }: TypedPrefetchLinkProps & PrefetchOptions) => (
+  <PrefetchLink fetch={useDownloadsPrefetch} options={{ focus }} {...props} />
 );
 
 export const Downloads = (options: PrefetchOptions) => {
@@ -54,10 +63,9 @@ const Loaded = () => {
   const [running, setRunning] = useState(0);
 
   useLayoutEffect(() => {
-    const handle = () => {
-      setRunning(tasks.filter((t) => t.state.type === "running").length);
-    };
+    const handle = () => setRunning(tasks.filter((t) => t.state.type === "running").length);
 
+    handle();
     for (const task of tasks) task.on("updated", handle);
 
     return () => {

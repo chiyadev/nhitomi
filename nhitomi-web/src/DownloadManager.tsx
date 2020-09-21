@@ -19,17 +19,25 @@ import JSZip from "jszip";
 import { probeImage } from "./imageUtils";
 import { saveAs } from "file-saver";
 import stringify from "json-stable-stringify";
+import { useAlert, useNotify } from "./NotificationManager";
+import { FormattedMessage } from "react-intl";
+import { randomStr } from "./random";
+import { DownloadsLink } from "./Downloads";
+import { BookReaderLink } from "./BookReader";
+import { TypedPrefetchLinkProps } from "./Prefetch";
 
 // download tasks are "owned" by a specific instance/tab of nhitomi
 // sessionStorage is not used to store this. we want a new id every time an instance loads.
-const currentOwnerId = Math.random();
+const currentOwnerId = randomStr(6);
 
 export type DownloadTarget = DownloadTargetAddArgs & {
-  id: number;
-  owner: number;
+  id: string;
+  owner: string;
 };
 
 type DownloadTargetAddArgs = {
+  displayName: string;
+} & {
   type: "book";
   book: Pick<Book, "primaryName" | "englishName"> & {
     id: string;
@@ -42,7 +50,7 @@ const DownloadContext = createContext<{
   tasks: DownloadTask[];
 
   add: (...targets: DownloadTargetAddArgs[]) => void;
-  remove: (...ids: number[]) => void;
+  remove: (...ids: string[]) => void;
 }>(undefined as any);
 
 export function useDownloads() {
@@ -53,41 +61,102 @@ function createTaskMap(tasks: DownloadTask[]) {
   return tasks.reduce((x, t) => {
     x[t.id] = t;
     return x;
-  }, {} as Record<number, DownloadTask>);
+  }, {} as Record<string, DownloadTask>);
 }
 
 export const DownloadManager = ({ children }: { children: ReactNode }) => {
   const client = useClient();
   const { info } = useClientInfo();
+  const { alert } = useAlert();
+  const { notifyError } = useNotify();
 
   const [targets, setTargets] = useConfig("downloads");
   const [tasks, setTasks] = useState<DownloadTask[]>([]);
 
   const add = useCallback(
-    (...addTargets: DownloadTargetAddArgs[]) => {
-      setTargets((targets) => [
-        ...addTargets
-          .filter(
-            // prevent duplicates
-            (target) =>
-              targets.findIndex((other) => {
-                if (target.type !== other.type) return false;
+    (...addTargets: DownloadTargetAddArgs[]) =>
+      setTargets((targets) => {
+        const newTargets: DownloadTarget[] = [];
+        const duplicateTargets: DownloadTarget[] = [];
 
-                switch (target.type) {
-                  case "book":
-                    return target.book.id === other.book.id && target.book.contentId === other.book.contentId;
-                }
-              }) === -1
-          )
-          .map((target) => ({ ...target, id: Math.random(), owner: currentOwnerId })),
-        ...targets,
-      ]);
-    },
+        for (const target of addTargets) {
+          const duplicate = targets.findIndex((other) => {
+            if (target.type !== other.type) return false;
+
+            switch (target.type) {
+              case "book":
+                return target.book.id === other.book.id && target.book.contentId === other.book.contentId;
+            }
+          });
+
+          if (duplicate === -1) {
+            newTargets.push({ ...target, id: randomStr(6), owner: currentOwnerId });
+          } else {
+            duplicateTargets.push(targets[duplicate]);
+          }
+        }
+
+        if (newTargets.length) {
+          if (newTargets.length === 1) {
+            alert(
+              <FormattedMessage
+                id="pages.downloads.alert.started.one"
+                values={{
+                  name: (
+                    <DownloadsLink className="text-blue" focus={newTargets[0].id}>
+                      {newTargets[0].displayName}
+                    </DownloadsLink>
+                  ),
+                }}
+              />,
+              "info"
+            );
+          } else {
+            alert(
+              <FormattedMessage
+                id="pages.downloads.alert.started.many"
+                values={{
+                  count: <DownloadsLink className="text-blue">{newTargets.length}</DownloadsLink>,
+                }}
+              />,
+              "success"
+            );
+          }
+        } else {
+          if (duplicateTargets.length === 1) {
+            alert(
+              <FormattedMessage
+                id="pages.downloads.alert.duplicate.one"
+                values={{
+                  name: (
+                    <DownloadsLink className="text-blue" focus={duplicateTargets[0].id}>
+                      {duplicateTargets[0].displayName}
+                    </DownloadsLink>
+                  ),
+                }}
+              />,
+              "info"
+            );
+          } else if (!duplicateTargets.length) {
+            alert(
+              <FormattedMessage
+                id="pages.downloads.alert.duplicate.many"
+                values={{
+                  count: <DownloadsLink className="text-blue">{duplicateTargets.length}</DownloadsLink>,
+                }}
+              />,
+              "error"
+            );
+          }
+        }
+
+        return [...newTargets, ...targets];
+      }),
     [setTargets]
   );
 
   const remove = useCallback(
-    (...ids: number[]) => {
+    (...ids: string[]) => {
       setTargets((targets) => targets.filter((target) => ids.indexOf(target.id) === -1));
     },
     [setTargets]
@@ -112,7 +181,7 @@ export const DownloadManager = ({ children }: { children: ReactNode }) => {
           }
         });
 
-        // abort all removed tasks
+        // cancel all removed tasks
         const newTaskMap = createTaskMap(newTasks);
 
         for (const task of tasks) {
@@ -130,17 +199,39 @@ export const DownloadManager = ({ children }: { children: ReactNode }) => {
   useLayoutEffect(() => {
     const handle = (task: DownloadTask) => {
       switch (task.state.type) {
-        // a task became pending, proceed
         case "pending":
           setProceed(true);
           break;
 
-        // a task completed successfully, so save and remove
         case "done":
           setProceed(true);
           remove(task.id);
 
           saveAs(task.state.data, task.state.name);
+
+          alert(
+            <FormattedMessage
+              id="pages.downloads.alert.done"
+              values={{ name: task.renderLink({ className: "text-blue" }) }}
+            />,
+            "success"
+          );
+          break;
+
+        case "error":
+          notifyError(
+            task.state.error,
+            <FormattedMessage
+              id="pages.downloads.alert.error"
+              values={{
+                name: (
+                  <DownloadsLink className="text-blue" focus={task.id}>
+                    {task.target.displayName}
+                  </DownloadsLink>
+                ),
+              }}
+            />
+          );
           break;
       }
     };
@@ -166,8 +257,6 @@ export const DownloadManager = ({ children }: { children: ReactNode }) => {
         try {
           // create a session for each pending download
           const session = await client.download.createDownloadSession({ body: {} });
-
-          task.setProgress("download", 0);
 
           // run task with cancellation in the background
           // when the task finishes, regardless of success, we will proceed to the next task
@@ -277,7 +366,9 @@ export abstract class DownloadTask extends (EventEmitter as new () => StrictEven
     this.emit("updated", this);
   }
 
-  setProgress(stage: TaskRunningStage, progress: number) {
+  setProgress(stage: TaskRunningStage, progress: number, force?: boolean) {
+    if (!force && this.state.type !== "running") return; // progress should only be updated during run
+
     this.state = { type: "running", stage };
     this.progress = progress;
 
@@ -298,6 +389,8 @@ export abstract class DownloadTask extends (EventEmitter as new () => StrictEven
   }
 
   async run(client: Client, info: ClientInfo, session: DownloadSession, cancellation: CancellationSignal) {
+    this.setProgress("download", 0, true);
+
     // interval to keep session alive
     const sessionInterval = window.setInterval(
       async () => (session = await client.download.getDownloadSession({ id: session.id })),
@@ -335,12 +428,14 @@ export abstract class DownloadTask extends (EventEmitter as new () => StrictEven
     }
   }
 
-  abstract runCore(
+  protected abstract runCore(
     client: Client,
     info: ClientInfo,
     session: DownloadSession,
     cancellation: CancellationSignal
   ): Promise<ResultBlobGenerator | undefined>;
+
+  abstract renderLink(props: TypedPrefetchLinkProps): ReactNode;
 }
 
 type ResultBlobGenerator = () => Promise<{ data: Blob; name: string }>;
@@ -350,7 +445,12 @@ class BookDownloadTask extends DownloadTask {
     super(target);
   }
 
-  async runCore(client: Client, info: ClientInfo, session: DownloadSession, cancellation: CancellationSignal) {
+  protected async runCore(
+    client: Client,
+    info: ClientInfo,
+    session: DownloadSession,
+    cancellation: CancellationSignal
+  ) {
     if (this.target.type !== "book") throw Error("Target must be book.");
     const { id, contentId } = this.target.book;
 
@@ -423,7 +523,18 @@ class BookDownloadTask extends DownloadTask {
         },
         ({ percent }) => this.setProgress("process", percent / 100)
       ),
-      name: `${id} ${book.primaryName}.zip`,
+      name: `${id} ${this.target.displayName}.zip`,
     });
+  }
+
+  renderLink(props: TypedPrefetchLinkProps) {
+    if (this.target.type !== "book") return null;
+    const { id, contentId } = this.target.book;
+
+    return (
+      <BookReaderLink id={id} contentId={contentId} {...props}>
+        {this.target.displayName}
+      </BookReaderLink>
+    );
   }
 }

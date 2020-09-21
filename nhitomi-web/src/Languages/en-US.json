@@ -43,7 +43,7 @@
     },
     "bookListing": {
       "title": "Books",
-      "search": "Search {total} books on nhitomi",
+      "search": "Search {total, plural, one {# book} other {# books}} on nhitomi",
       "empty": "No results",
       "menu": {
         "sort": "Sort",
@@ -52,7 +52,7 @@
       }
     },
     "bookReader": {
-      "pageCount": "{count} pages",
+      "pageCount": "{count, plural, one {# page} other {# pages}}",
       "uploadTime": "Uploaded on {time}",
       "updateTime": "Updated on {time}",
       "available": {
@@ -227,12 +227,15 @@
       "empty": "No downloads",
       "alert": {
         "started": {
-          "one": "Download started for {name}.",
-          "many": "Download started for {count} items."
+          "one": "Downloading {name}...",
+          "many": "Downloading {count} items..."
         },
-        "done": {
-          "one": "Download completed for {name}."
-        }
+        "duplicate": {
+          "one": "{name} is already being downloaded.",
+          "many": "{count} items are already being downloaded."
+        },
+        "done": "Downloaded {name}.",
+        "error": "Could not download {name}."
       },
       "menu": {
         "restartAll": "Restart all",

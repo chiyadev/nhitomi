@@ -8,8 +8,8 @@ import { ConfigManager } from "./ConfigManager";
 import { LayoutManager } from "./LayoutManager";
 import { ClientManager } from "./ClientManager";
 import { LocaleManager } from "./LocaleManager";
-import { DownloadManager } from "./DownloadManager";
 import { NotificationManager } from "./NotificationManager";
+import { DownloadManager } from "./DownloadManager";
 import { PrefetchScrollPreserver } from "./Prefetch";
 import { AnimationSetter } from "./AnimationSetter";
 import { BlurSetter } from "./BlurSetter";
@@ -43,8 +43,8 @@ export const App = () => {
           <LayoutManager>
             <ClientManager>
               <LocaleManager>
-                <DownloadManager>
-                  <NotificationManager>
+                <NotificationManager>
+                  <DownloadManager>
                     <PrefetchScrollPreserver />
                     <AnimationSetter />
                     <BlurSetter />
@@ -63,8 +63,8 @@ export const App = () => {
                         </div>
                       </div>
                     </Sidebar>
-                  </NotificationManager>
-                </DownloadManager>
+                  </DownloadManager>
+                </NotificationManager>
               </LocaleManager>
             </ClientManager>
           </LayoutManager>

@@ -1,7 +1,7 @@
 import { DownloadTask, useDownloads } from "../DownloadManager";
 import { useClient } from "../ClientManager";
 import { useUpdate } from "react-use";
-import React, { useLayoutEffect, useMemo, useState } from "react";
+import React, { useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useConfig } from "../ConfigManager";
 import { animated, useSpring } from "react-spring";
 import { BookReaderLink } from "../BookReader";
@@ -9,11 +9,12 @@ import { CoverImage } from "../Components/CoverImage";
 import { FormattedMessage } from "react-intl";
 import { Tooltip } from "../Components/Tooltip";
 import { CloseOutlined, ReloadOutlined } from "@ant-design/icons";
-import { cx } from "emotion";
+import { css, cx } from "emotion";
 import { useNotify } from "../NotificationManager";
 import VisibilitySensor from "react-visibility-sensor";
 import { Progress } from "../Components/Progress";
 import { getColor } from "../theme";
+import { useQueryState } from "../state";
 
 export const BookTaskDisplay = ({ task }: { task: DownloadTask }) => {
   const target = task.target;
@@ -42,6 +43,15 @@ export const BookTaskDisplay = ({ task }: { task: DownloadTask }) => {
     opacity: hover ? 1 : 0,
   });
 
+  const ref = useRef<HTMLDivElement>(null);
+  const [focus] = useQueryState<string>("replace", "focus");
+
+  useLayoutEffect(() => {
+    if (focus === task.id) {
+      ref.current?.scrollIntoView();
+    }
+  }, [focus, ref]);
+
   if (target.type !== "book") return null;
   const { book } = target;
 
@@ -49,8 +59,17 @@ export const BookTaskDisplay = ({ task }: { task: DownloadTask }) => {
     <VisibilitySensor delayedCall partialVisibility offset={{ top: -400, bottom: -400 }} onChange={setVisible}>
       {visible ? (
         <animated.div
+          ref={ref}
           style={style}
-          className="w-full m-2 p-2 flex flex-row relative"
+          className={cx(
+            "w-full m-2 p-2 flex flex-row relative",
+            {
+              "rounded border border-blue border-opacity-50": focus === task.id,
+            },
+            css`
+              scroll-margin: 1em;
+            `
+          )}
           onMouseEnter={() => setHover(true)}
           onMouseLeave={() => setHover(false)}
         >
