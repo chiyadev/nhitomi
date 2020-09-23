@@ -15,10 +15,10 @@ export function umami(url: string, websiteId: string) {
 }
 
 /** Collects an arbitrary Umami metric. */
-export async function collect(type: string, data: Record<string, any>) {
+export function collect(type: string, data: Record<string, any>) {
   if (!umamiInfo) return;
 
-  await fetch(umamiInfo.url, {
+  fetch(umamiInfo.url, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -41,18 +41,18 @@ export async function collect(type: string, data: Record<string, any>) {
 let currentPath: string | undefined;
 
 /** Collects a page view metric. */
-export async function trackView(path: string, referrer = document.referrer) {
-  await collect("pageview", {
+export function trackView(path: string, referrer = document.referrer) {
+  collect("pageview", {
     url: currentPath = path,
     referrer,
   });
 }
 
 /** Collects an event metric for the current page. */
-export async function trackEvent(type: string, value: string) {
+export function trackEvent(type: string, value: string) {
   if (!currentPath) return;
 
-  await collect("event", {
+  collect("event", {
     url: currentPath,
     event_type: type,
     event_value: value,
