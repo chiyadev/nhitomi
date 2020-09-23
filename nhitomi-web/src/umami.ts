@@ -18,7 +18,7 @@ export function umami(url: string, websiteId: string) {
 export function collect(type: string, data: Record<string, any>) {
   if (!umamiInfo) return;
 
-  fetch(umamiInfo.url, {
+  fetch(`${umamiInfo.url}/api/collect`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
