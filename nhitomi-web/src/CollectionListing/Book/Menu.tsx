@@ -11,6 +11,7 @@ import { Disableable } from "../../Components/Disableable";
 import { useCollectionEditPrefetch } from "../Edit";
 import { useLocalized } from "../../LocaleManager";
 import { useDynamicPrefetch } from "../../Prefetch";
+import { trackEvent } from "../../umami";
 
 export const Menu = () => (
   <>
@@ -33,6 +34,8 @@ const NewButton = () => {
       <Disableable disabled={loading}>
         <RoundIconButton
           onClick={async () => {
+            trackEvent("action", "collectionCreate");
+
             begin();
             setLoading(true);
 

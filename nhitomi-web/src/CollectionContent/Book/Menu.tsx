@@ -29,6 +29,7 @@ import { RandomOutlined } from "../../Components/Icons/RandomOutlined";
 import { DefaultQueryLimit } from "../../BookListing/search";
 import { DownloadTargetAddArgs, useDownloads } from "../../DownloadManager";
 import { SupportLink } from "../../Support";
+import { trackEvent } from "../../umami";
 
 export const Menu = ({ collection }: { collection: Collection }) => (
   <>
@@ -86,7 +87,10 @@ const SpecialButton = ({ collection }: { collection: Collection }) => {
                 })}
               />
             }
-            onClick={() => setSpecial(SpecialCollection.Favorites)}
+            onClick={() => {
+              trackEvent("action", "collectionSetFavorite");
+              setSpecial(SpecialCollection.Favorites);
+            }}
           >
             <FormattedMessage id="pages.collectionContent.book.menu.special.favorites" />
           </DropdownItem>
@@ -99,7 +103,10 @@ const SpecialButton = ({ collection }: { collection: Collection }) => {
                 })}
               />
             }
-            onClick={() => setSpecial(SpecialCollection.Later)}
+            onClick={() => {
+              trackEvent("action", "collectionSetLater");
+              setSpecial(SpecialCollection.Later);
+            }}
           >
             <FormattedMessage id="pages.collectionContent.book.menu.special.later" />
           </DropdownItem>
@@ -133,6 +140,8 @@ const RandomButton = ({ collection }: { collection: Collection }) => {
       <Disableable disabled={loading}>
         <RoundIconButton
           onClick={async () => {
+            trackEvent("action", "collectionRandom");
+
             setLoading(true);
 
             try {
@@ -191,6 +200,8 @@ const DownloadButtonInner = ({ collection }: { collection: Collection }) => {
       <Disableable disabled={loading}>
         <RoundIconButton
           onClick={async () => {
+            trackEvent("action", "collectionDownload");
+
             setLoading(true);
             begin();
 
@@ -278,6 +289,8 @@ const DeleteButton = ({ collection }: { collection: Collection }) => {
               icon={<DeleteOutlined />}
               className="w-full text-red"
               onClick={async () => {
+                trackEvent("action", "collectionDelete");
+
                 begin();
                 setLoading(true);
 

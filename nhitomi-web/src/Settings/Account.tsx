@@ -5,6 +5,7 @@ import { useConfig } from "../ConfigManager";
 import { useClientInfo } from "../ClientManager";
 import { LogoutOutlined } from "@ant-design/icons";
 import { FlatButton } from "../Components/FlatButton";
+import { trackEvent } from "../umami";
 
 export const Account = () => {
   const { info, setInfo } = useClientInfo();
@@ -25,6 +26,8 @@ export const Account = () => {
       <FlatButton
         icon={<LogoutOutlined />}
         onClick={() => {
+          trackEvent("action", "settingsLogOut");
+
           setToken(undefined);
           setInfo({ ...info, authenticated: false });
         }}

@@ -23,6 +23,7 @@ import { Disableable } from "../Disableable";
 import { Anchor } from "../Anchor";
 import { CollectionAddBookDropdownMenu } from "../CollectionAddBookDropdownMenu";
 import { useDownloads } from "../../DownloadManager";
+import { trackEvent } from "../../umami";
 
 export const Overlay = ({ book, content }: { book: BookListItem; content?: BookContent }) => {
   const { OverlayComponent } = useBookList();
@@ -131,6 +132,8 @@ const DownloadItem = ({ book, content }: { book: BookListItem; content: BookCont
     <DropdownItem
       icon={<CloudDownloadOutlined />}
       onClick={() => {
+        trackEvent("action", "bookDownload");
+
         add({
           type: "book",
           book: {
@@ -163,6 +166,8 @@ const CopyToClipboardItem = ({
     <DropdownItem
       icon={<LinkOutlined />}
       onClick={() => {
+        trackEvent("action", "bookCopyField");
+
         setClipboard(value);
         alert(
           <FormattedMessage id="components.bookList.overlay.copy.success" values={{ value: displayValue || value }} />,
@@ -198,6 +203,8 @@ const CollectionQuickAddItem = ({ book, type }: { book: BookListItem; type: Spec
       <DropdownItem
         icon={icon}
         onClick={async () => {
+          trackEvent("action", "collectionAddBook");
+
           begin();
           setLoading(true);
 

@@ -12,6 +12,7 @@ import { useNotify } from "../../NotificationManager";
 import { useClient } from "../../ClientManager";
 import { CollectionContentLink } from "../../CollectionContent";
 import { CollectionEditLink } from "../Edit";
+import { trackEvent } from "../../umami";
 
 export const Overlay = ({ user, book: { id } }: { user: User; book: BookListItem }) => {
   return (
@@ -59,6 +60,8 @@ const DeleteItem = ({ user, id }: { user: User; id: string }) => {
           icon={<DeleteOutlined />}
           className="text-red"
           onClick={async () => {
+            trackEvent("action", "collectionDelete");
+
             begin();
             setLoading(true);
 

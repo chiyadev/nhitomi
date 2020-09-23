@@ -8,6 +8,7 @@ import { Disableable } from "../../Components/Disableable";
 import { DropdownDivider, DropdownItem } from "../../Components/Dropdown";
 import { DeleteOutlined } from "@ant-design/icons";
 import { FormattedMessage } from "react-intl";
+import { trackEvent } from "../../umami";
 
 export const Overlay = ({
   collection,
@@ -42,6 +43,8 @@ const DeleteItem = ({ collection, book }: { collection: Collection; book: BookLi
         icon={<DeleteOutlined />}
         className="text-red"
         onClick={async () => {
+          trackEvent("action", "collectionDeleteBook");
+
           begin();
           setLoading(true);
 

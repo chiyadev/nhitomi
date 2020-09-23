@@ -12,6 +12,7 @@ import { Footer } from "../Footer";
 import { RoundIconButton } from "../Components/RoundIconButton";
 import { FormattedMessage } from "react-intl";
 import { Tooltip } from "../Components/Tooltip";
+import { trackEvent } from "../umami";
 
 export const Overlay = ({ children }: { children?: ReactNode }) => {
   const [open, setOpen] = useState(false);
@@ -55,13 +56,17 @@ const Anchor = ({ open, setOpen }: { open: boolean; setOpen: Dispatch<boolean> }
   return (
     <animated.div
       style={style}
-      className={cx( // todo: consider larger (w-12 h-12) anchor
+      className={cx(
+        // todo: consider larger (w-12 h-12) anchor
         "fixed top-0 left-0 z-10 mt-20 w-10 h-10 flex items-center justify-center rounded-r overflow-hidden shadow-md cursor-pointer",
         { "pointer-events-none": !visible }
       )}
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
-      onClick={() => setOpen(true)}
+      onClick={() => {
+        trackEvent("action", "overlayOpen");
+        setOpen(true);
+      }}
     >
       <MenuOutlined />
     </animated.div>

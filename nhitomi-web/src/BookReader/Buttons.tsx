@@ -12,6 +12,7 @@ import { CollectionAddBookDropdownMenu } from "../Components/CollectionAddBookDr
 import { useProgress } from "../ProgressManager";
 import { Disableable } from "../Components/Disableable";
 import { useDownloads } from "../DownloadManager";
+import { trackEvent } from "../umami";
 
 export const Buttons = ({ book, content }: PrefetchResult) => {
   return (
@@ -36,6 +37,8 @@ const FavoriteButton = ({ book }: { book: Book }) => {
         color={getColor("red", "darker")}
         className="py-1 m-1"
         onClick={async () => {
+          trackEvent("action", "bookFavorite");
+
           setLoading(true);
           begin();
 
@@ -70,24 +73,24 @@ const CollectionAddButton = ({ book }: { book: Book }) => {
 const DownloadButton = ({ book, content }: { book: Book; content: BookContent }) => {
   const { add } = useDownloads();
 
-  const click = () => {
-    add({
-      type: "book",
-      book: {
-        id: book.id,
-        contentId: content.id,
-        primaryName: book.primaryName,
-        englishName: book.englishName,
-      },
-    });
-  };
-
   return (
     <FilledButton
       icon={<CloudDownloadOutlined />}
       color={getColor("gray", "darkest")}
       className="py-1 m-1"
-      onClick={click}
+      onClick={() => {
+        trackEvent("action", "bookDownload");
+
+        add({
+          type: "book",
+          book: {
+            id: book.id,
+            contentId: content.id,
+            primaryName: book.primaryName,
+            englishName: book.englishName,
+          },
+        });
+      }}
     >
       <FormattedMessage id="pages.bookReader.buttons.download" />
     </FilledButton>

@@ -25,6 +25,7 @@ import { getColor } from "../theme";
 import { useCollectionContentPrefetch } from "../CollectionContent";
 import { useCollectionListingPrefetch } from ".";
 import { Edit as BookEdit } from "./Book/Edit";
+import { trackEvent } from "../umami";
 
 export type PrefetchResult = { collection: Collection; owner: User };
 export type PrefetchOptions = { id: string };
@@ -85,6 +86,7 @@ const Loaded = ({ collection, owner }: PrefetchResult) => {
   const submit = useCallback(async () => {
     if (loading) return;
 
+    trackEvent("action", "collectionUpdate");
     setLoading(true);
 
     try {
@@ -107,6 +109,7 @@ const Loaded = ({ collection, owner }: PrefetchResult) => {
   const delette = useCallback(async () => {
     if (loading) return;
 
+    trackEvent("action", "collectionDelete");
     setLoading(true);
 
     try {

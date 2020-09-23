@@ -11,6 +11,7 @@ import { Loading3QuartersOutlined } from "@ant-design/icons";
 import { useNotify } from "../NotificationManager";
 import { useClient, useClientInfo } from "../ClientManager";
 import { loadStripe } from "@stripe/stripe-js";
+import { trackEvent } from "../umami";
 
 export const Checkout = ({ supporterPrice, apiKey }: PrefetchResult) => {
   const client = useClient();
@@ -22,6 +23,7 @@ export const Checkout = ({ supporterPrice, apiKey }: PrefetchResult) => {
   const amount = duration * supporterPrice;
 
   const submit = useCallback(async () => {
+    trackEvent("action", "supportCheckout");
     setLoading(true);
 
     try {

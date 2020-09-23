@@ -9,6 +9,7 @@ import { useAlert, useNotify } from "../../NotificationManager";
 import { useDynamicPrefetch } from "../../Prefetch";
 import { useCollectionContentPrefetch } from "../../CollectionContent";
 import { Disableable } from "../../Components/Disableable";
+import { trackEvent } from "../../umami";
 
 export const Edit = ({ collection }: { collection: Collection }) => (
   <>
@@ -39,6 +40,8 @@ const Duplicate = ({ collection }: { collection: Collection }) => {
         <FlatButton
           icon={<CopyOutlined />}
           onClick={async () => {
+            trackEvent("action", "collectionDuplicate");
+
             begin();
             setLoading(true);
 

@@ -15,6 +15,7 @@ import VisibilitySensor from "react-visibility-sensor";
 import { Progress } from "../Components/Progress";
 import { getColor } from "../theme";
 import { useQueryState } from "../state";
+import { trackEvent } from "../umami";
 
 export const BookTaskDisplay = ({ task }: { task: DownloadTask }) => {
   const target = task.target;
@@ -159,14 +160,26 @@ export const BookTaskDisplay = ({ task }: { task: DownloadTask }) => {
           >
             {(!task.active || task.state.type === "error") && (
               <Tooltip overlay={<FormattedMessage id="pages.downloads.task.restart" />} placement="bottom">
-                <div className="text-gray-darker text-sm cursor-pointer p-2" onClick={() => task.restart()}>
+                <div
+                  className="text-gray-darker text-sm cursor-pointer p-2"
+                  onClick={() => {
+                    trackEvent("action", "downloadRestart");
+                    task.restart();
+                  }}
+                >
                   <ReloadOutlined />
                 </div>
               </Tooltip>
             )}
 
             <Tooltip overlay={<FormattedMessage id="pages.downloads.task.delete" />} placement="bottom">
-              <div className="text-gray-darker text-sm cursor-pointer p-2" onClick={() => remove(target.id)}>
+              <div
+                className="text-gray-darker text-sm cursor-pointer p-2"
+                onClick={() => {
+                  trackEvent("action", "downloadCancel");
+                  remove(target.id);
+                }}
+              >
                 <CloseOutlined />
               </div>
             </Tooltip>

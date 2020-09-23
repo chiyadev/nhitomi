@@ -6,6 +6,7 @@ import { cx } from "emotion";
 import { LinkOutlined } from "@ant-design/icons";
 import { getColor } from "../theme";
 import { Anchor } from "../Components/Anchor";
+import { trackEvent } from "../umami";
 
 export const Token = () => {
   const [token] = useConfig("token");
@@ -33,7 +34,10 @@ export const Token = () => {
           values={{
             token: (
               <span
-                onClick={() => setVisible(true)}
+                onClick={() => {
+                  trackEvent("action", "settingsViewToken");
+                  setVisible(true);
+                }}
                 className={cx("bg-gray-darkest px-1 rounded", {
                   "cursor-pointer": !visible,
                 })}

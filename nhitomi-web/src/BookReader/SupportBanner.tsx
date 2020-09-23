@@ -9,6 +9,7 @@ import { FormattedMessage } from "react-intl";
 import { SupportLink } from "../Support";
 import { usePageState } from "../state";
 import { SupportDescription } from "../Support/MainCard";
+import { trackEvent } from "../umami";
 
 export const SupportBanner = ({ book, content }: { book: Book; content: BookContent }) => {
   const client = useClient();
@@ -84,7 +85,10 @@ const Inner = ({ thumb }: { thumb: string }) => {
         })}
         onMouseEnter={() => setHover(true)}
         onMouseLeave={() => setHover(false)}
-        onClick={() => setExpanded(true)}
+        onClick={() => {
+          trackEvent("action", "supportImpression");
+          setExpanded(true);
+        }}
       >
         <div
           className={cx(

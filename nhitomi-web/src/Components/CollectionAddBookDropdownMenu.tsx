@@ -13,6 +13,7 @@ import { usePageState } from "../state";
 import { useLocalized } from "../LocaleManager";
 import { useDynamicPrefetch } from "../Prefetch";
 import { useCollectionEditPrefetch } from "../CollectionListing/Edit";
+import { trackEvent } from "../umami";
 
 type BasicBook = {
   id: string;
@@ -75,6 +76,8 @@ const Add = ({ book, collection }: { book: BasicBook; collection: Collection }) 
     <Disableable disabled={loading}>
       <DropdownItem
         onClick={async () => {
+          trackEvent("action", "collectionAddBook");
+
           begin();
           setLoading(true);
 
@@ -129,6 +132,8 @@ const Create = ({ book }: { book: BasicBook }) => {
       <DropdownItem
         icon={<PlusOutlined />}
         onClick={async () => {
+          trackEvent("action", "collectionCreate");
+
           begin();
           setLoading(true);
 

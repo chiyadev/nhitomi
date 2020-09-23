@@ -4,6 +4,7 @@ import { RoundIconButton } from "../Components/RoundIconButton";
 import { useDownloads } from "../DownloadManager";
 import { FormattedMessage } from "react-intl";
 import { CloseOutlined, ReloadOutlined } from "@ant-design/icons";
+import { trackEvent } from "../umami";
 
 export const Menu = () => (
   <>
@@ -19,6 +20,8 @@ const RestartAllButton = () => {
     <Tooltip placement="bottom" overlay={<FormattedMessage id="pages.downloads.menu.restartAll" />}>
       <RoundIconButton
         onClick={() => {
+          trackEvent("action", "downloadRestartAll");
+
           for (const task of tasks) {
             if (task.state.type !== "running") task.restart();
           }
@@ -35,7 +38,12 @@ const CancelAllButton = () => {
 
   return (
     <Tooltip placement="bottom" overlay={<FormattedMessage id="pages.downloads.menu.deleteAll" />}>
-      <RoundIconButton onClick={() => remove(...tasks.map((t) => t.id))}>
+      <RoundIconButton
+        onClick={() => {
+          trackEvent("action", "downloadCancelAll");
+          remove(...tasks.map((t) => t.id));
+        }}
+      >
         <CloseOutlined />
       </RoundIconButton>
     </Tooltip>
