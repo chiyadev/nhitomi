@@ -61,11 +61,5 @@ export function trackEvent(type: string, value: string) {
 
 /** Collects an error metric for the current page. */
 export function trackError(error: Error) {
-  let name = error.name;
-
-  if (name === "Error") {
-    name = "unknown";
-  }
-
-  trackEvent(`error-${name}`, error.message);
+  trackEvent("error", error.name);
 }
