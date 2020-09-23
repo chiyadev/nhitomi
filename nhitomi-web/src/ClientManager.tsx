@@ -39,37 +39,18 @@ import { FlatButton } from "./Components/FlatButton";
 import { ClearOutlined, ReloadOutlined } from "@ant-design/icons";
 import { getColor } from "./theme";
 import { FilledButton } from "./Components/FilledButton";
-import * as ga from "react-ga";
 import { JSONex } from "./jsonEx";
 import { useAlert } from "./NotificationManager";
 import { FormattedMessage } from "react-intl";
 import { CollectionContentLink } from "./CollectionContent";
 import { useAsync } from "./hooks";
-
-const gaApiIgnorePaths = [/books\/.*\/contents\/.*\/pages\/.*/g];
-
-type RequestInitEx = RequestInit & {
-  startTime: number;
-};
+import { trackError, umami } from "./umami";
 
 export class Client {
   readonly httpConfig: ConfigurationParameters = {
     middleware: [
       {
-        pre: async (context) => {
-          ((context.init as unknown) as RequestInitEx).startTime = performance.now();
-        },
         post: async (context) => {
-          if (gaApiIgnorePaths.findIndex((g) => context.url.match(g)) === -1) {
-            const time = performance.now() - ((context.init as unknown) as RequestInitEx).startTime;
-
-            ga.timing({
-              variable: context.url.replace(this.httpConfig.basePath || "", ""),
-              category: "api",
-              value: time,
-            });
-          }
-
           const { response } = context;
 
           if (response.ok) return;
@@ -242,21 +223,10 @@ export const ClientManager = ({ children }: { children?: ReactNode }) => {
     else setCachedInfo(undefined);
   }, [info]);
 
-  const lastGtag = useRef<string>();
-
   useLayoutEffect(() => {
-    if (info && !(info instanceof Error)) {
-      if (info.gTag && lastGtag.current !== info.gTag) {
-        ga.initialize(info.gTag, {
-          debug: process.env.NODE_ENV === "development",
-          titleCase: false,
-          gaOptions: {
-            userId: info.authenticated ? info.user.id : undefined,
-          },
-        });
-      }
-
-      lastGtag.current = info.gTag;
+    if (!(info instanceof Error) && info?.umami) {
+      const { url, websiteId } = info.umami;
+      umami(url, websiteId);
     }
   }, [info]);
 
@@ -280,10 +250,7 @@ export const ClientManager = ({ children }: { children?: ReactNode }) => {
       if (e instanceof Error) setInfo(e);
       else setInfo(Error(e?.message || "Unknown error."));
 
-      ga.exception({
-        description: e.message,
-        fatal: true,
-      });
+      trackError(e);
     } finally {
       end();
     }

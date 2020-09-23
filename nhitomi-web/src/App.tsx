@@ -2,7 +2,7 @@ import React, { useLayoutEffect, useMemo } from "react";
 import { Redirect, Route, Router, Switch } from "react-router-dom";
 import { Navigator, useNavigator } from "./state";
 import { ProgressManager } from "./ProgressManager";
-import { pageview } from "react-ga";
+import { trackView } from "./umami";
 
 import { ConfigManager } from "./ConfigManager";
 import { LayoutManager } from "./LayoutManager";
@@ -76,11 +76,9 @@ export const App = () => {
 
 const Routing = () => {
   const { path, query, stringify, evaluate } = useNavigator();
-  const gapath = useMemo(() => stringify(evaluate({ path, query })), [evaluate, path, query, stringify]);
+  const trackedPath = useMemo(() => stringify(evaluate({ path, query })), [evaluate, path, query, stringify]);
 
-  useLayoutEffect(() => {
-    pageview(gapath);
-  }, [gapath]);
+  useLayoutEffect(() => trackView(trackedPath), [trackedPath]);
 
   return useMemo(
     () => (

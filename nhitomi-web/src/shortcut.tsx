@@ -4,7 +4,7 @@ import keycode from "keycode";
 import { KeyModifiers, ShortcutConfig, ShortcutConfigKey, useConfig } from "./ConfigManager";
 import { useLayout } from "./LayoutManager";
 import { useSpring } from "react-spring";
-import { event } from "react-ga";
+import { trackEvent } from "./umami";
 
 /** Returns all modifier keys pressed in the given event. */
 export function getEventModifiers(e: { altKey: boolean; ctrlKey: boolean; metaKey: boolean; shiftKey: boolean }) {
@@ -52,11 +52,11 @@ export function useShortcut(
 
   const callback2 = useCallback(
     (e: KeyboardEvent) => {
+      // ignore repeat presses
+      if (e.repeat) return;
+
       callback(e);
-      event({
-        action: key,
-        category: "shortcut",
-      });
+      trackEvent("shortcut", key);
     },
     [callback, key]
   );

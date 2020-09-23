@@ -8,7 +8,6 @@ import { NavigationArgs, NavigationMode, useNavigator, usePageState } from "./st
 import { cx } from "emotion";
 import { useClientInfo } from "./ClientManager";
 import { useAuthenticationPrefetch } from "./Authentication";
-import { timing } from "react-ga";
 
 // in the past we used usePageState to store page-specific scroll positions
 // this was extremely bad in terms of performance, so we use sessionStorage instead, with history location key suffix to identify the page
@@ -84,8 +83,6 @@ export function usePrefetch<T, U extends {}>(
 
       if (showProgress) begin();
 
-      const startTime = performance.now();
-
       try {
         const fetched = await fetch();
         const location = navigator.evaluate(destination);
@@ -99,12 +96,6 @@ export function usePrefetch<T, U extends {}>(
             ...(mode === "push" ? {} : location.state), // clear previous states if pushing
             fetch: { value: fetched, version: Math.random() },
           },
-        });
-
-        timing({
-          variable: navigator.stringify(location),
-          category: "fetch",
-          value: performance.now() - startTime,
         });
 
         // scroll to top after pushing
@@ -245,8 +236,6 @@ export function usePostfetch<T, U extends {}>(
 
     if (showProgress) begin();
 
-    const startTime = performance.now();
-
     try {
       const fetched = await fetch();
       const location = navigator.evaluate(destination);
@@ -260,12 +249,6 @@ export function usePostfetch<T, U extends {}>(
           ...location.state,
           fetch: { value: fetched, version: Math.random() },
         },
-      });
-
-      timing({
-        variable: navigator.stringify(location),
-        category: "fetch",
-        value: performance.now() - startTime,
       });
 
       // restore scroll after fetching

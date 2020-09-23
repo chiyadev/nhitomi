@@ -20,7 +20,7 @@ import { animated, useSpring, useTransition } from "react-spring";
 import { useLayout } from "./LayoutManager";
 import { ValidationError } from "./ClientManager";
 import { ColorHue, getColor } from "./theme";
-import { exception } from "react-ga";
+import { trackError } from "./umami";
 
 type AppearanceTypes = "success" | "info" | "error" | "warning";
 
@@ -117,7 +117,9 @@ const NotifyManager = ({ children }: { children?: ReactNode }) => {
 
           notify,
           notifyError: (error: any, title) => {
-            if (!(error instanceof Error)) error = Error((error as any)?.message || "Unknown error.");
+            if (!(error instanceof Error)) {
+              error = Error((error as any)?.message || "Unknown error.");
+            }
 
             if (error instanceof ValidationError) {
               notify(
@@ -149,10 +151,7 @@ const NotifyManager = ({ children }: { children?: ReactNode }) => {
               );
             }
 
-            exception({
-              description: error.message,
-              fatal: false,
-            });
+            trackError(error);
           },
         }),
         [notify, items]

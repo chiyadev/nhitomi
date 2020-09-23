@@ -1,4 +1,4 @@
-import React, { ComponentProps, RefObject, useLayoutEffect, useRef, useState } from "react";
+import React, { ComponentProps, ReactNode, RefObject, useCallback, useLayoutEffect, useRef, useState } from "react";
 import { Dropdown, DropdownDivider, DropdownItem } from "./Dropdown";
 import { cx } from "emotion";
 import mergeRefs from "react-merge-refs";
@@ -84,9 +84,7 @@ export const ContextMenu = ({
     requestAnimationFrame(() => overlayRef.current?.focus());
   });
 
-  const close = () => overlayRef.current?.blur();
-
-  useShortcut("cancelKey", close, overlayRef);
+  const close = useCallback(() => overlayRef.current?.blur(), [overlayRef]);
 
   return (
     <Dropdown
@@ -130,7 +128,7 @@ export const ContextMenu = ({
         };
       }}
       overlay={
-        <>
+        <EscapableOverlay close={close} target={overlayRef}>
           <div className="display-contents">{overlay}</div>
 
           {trigger === "touch" && (
@@ -141,11 +139,25 @@ export const ContextMenu = ({
               </DropdownItem>
             </>
           )}
-        </>
+        </EscapableOverlay>
       }
       {...props}
     />
   );
+};
+
+const EscapableOverlay = ({
+  close,
+  target,
+  children,
+}: {
+  close: () => void;
+  target?: RefObject<HTMLElement>;
+  children?: ReactNode;
+}) => {
+  useShortcut("cancelKey", close, target);
+
+  return <>{children}</>;
 };
 
 type ContextMenuTrigger = "mouse" | "touch";
