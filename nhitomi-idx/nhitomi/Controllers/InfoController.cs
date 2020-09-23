@@ -23,9 +23,10 @@ namespace nhitomi.Controllers
         readonly ILinkGenerator _link;
         readonly IDiscordOAuthHandler _discordOAuth;
         readonly IScraperService _scrapers;
-        readonly RecaptchaOptions _recaptchaOptions;
+        readonly IOptionsMonitor<RecaptchaOptions> _recaptchaOptions;
+        readonly IOptionsMonitor<UmamiOptions> _umamiOptions;
 
-        public InfoController(IServiceProvider services, IOptionsMonitor<ServerOptions> serverOptions, IOptionsMonitor<StripeServiceOptions> stripeOptions, ILinkGenerator link, IOptionsSnapshot<RecaptchaOptions> recaptchaOptions, IDiscordOAuthHandler discordOAuth, IScraperService scrapers)
+        public InfoController(IServiceProvider services, IOptionsMonitor<ServerOptions> serverOptions, IOptionsMonitor<StripeServiceOptions> stripeOptions, ILinkGenerator link, IOptionsMonitor<RecaptchaOptions> recaptchaOptions, IDiscordOAuthHandler discordOAuth, IScraperService scrapers, IOptionsMonitor<UmamiOptions> umamiOptions)
         {
             _services         = services;
             _serverOptions    = serverOptions;
@@ -33,7 +34,8 @@ namespace nhitomi.Controllers
             _link             = link;
             _discordOAuth     = discordOAuth;
             _scrapers         = scrapers;
-            _recaptchaOptions = recaptchaOptions.Value;
+            _recaptchaOptions = recaptchaOptions;
+            _umamiOptions     = umamiOptions;
         }
 
         [HttpGet, AllowAnonymous, ApiExplorerSettings(IgnoreApi = true)]
@@ -76,6 +78,23 @@ namespace nhitomi.Controllers
             /// </summary>
             [Required]
             public bool Maintenance { get; set; }
+
+            /// <summary>
+            /// Umami information.
+            /// </summary>
+            /// <remarks>
+            /// This is provided only for internal use by nhitomi.chiya.dev.
+            /// </remarks>
+            public UmamiInfo Umami { get; set; }
+
+            public class UmamiInfo
+            {
+                [Required]
+                public string Url { get; set; }
+
+                [Required]
+                public Guid WebsiteId { get; set; }
+            }
         }
 
         /// <summary>
@@ -86,7 +105,7 @@ namespace nhitomi.Controllers
         {
             PublicUrl        = _link.GetWebLink("/"),
             Version          = VersionInfo.Commit,
-            RecaptchaSiteKey = _recaptchaOptions.SiteKey,
+            RecaptchaSiteKey = _recaptchaOptions.CurrentValue.SiteKey,
             DiscordOAuthUrl  = _discordOAuth.AuthorizeUrl,
 
             Scrapers = _scrapers.ToArray(s => new ScraperInfo
@@ -100,7 +119,15 @@ namespace nhitomi.Controllers
                 GalleryRegexStrict = s.UrlRegex?.Strict.ToString()
             }),
 
-            Maintenance = _serverOptions.CurrentValue.BlockDatabaseWrites
+            Maintenance = _serverOptions.CurrentValue.BlockDatabaseWrites,
+
+            Umami = _umamiOptions.CurrentValue.Url == null
+                ? null
+                : new GetInfoResponse.UmamiInfo
+                {
+                    Url       = _umamiOptions.CurrentValue.Url,
+                    WebsiteId = _umamiOptions.CurrentValue.WebsiteId
+                }
         };
 
         public class GetInfoAuthenticatedResponse : GetInfoResponse

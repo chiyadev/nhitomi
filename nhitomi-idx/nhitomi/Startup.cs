@@ -271,7 +271,7 @@ namespace nhitomi
             services.Configure<StripeServiceOptions>(_configuration.GetSection("Stripe"))
                     .AddSingleton<IStripeService, StripeService>();
 
-            // other
+            // miscellaneous
             services.AddSingleton<StartupInitializer>()
                     .AddSingleton<ILinkGenerator, LinkGenerator>()
                     .AddSingleton(MemoryStreamManager);
@@ -282,6 +282,8 @@ namespace nhitomi
 
             services.Configure<RecaptchaOptions>(_configuration.GetSection("Recaptcha"))
                     .AddSingleton<IRecaptchaValidator, RecaptchaValidator>();
+
+            services.Configure<UmamiOptions>(_configuration.GetSection("Umami"));
         }
 
         /// <summary>
