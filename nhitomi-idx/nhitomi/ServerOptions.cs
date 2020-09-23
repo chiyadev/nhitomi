@@ -66,10 +66,5 @@ namespace nhitomi
         /// This does NOT directly block any elasticsearch requests.
         /// </remarks>
         public bool BlockDatabaseWrites { get; set; }
-
-        /// <summary>
-        /// Google Analytics tag to pass to the frontend.
-        /// </summary>
-        public string GTag { get; set; }
     }
 }

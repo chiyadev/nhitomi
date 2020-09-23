@@ -76,11 +76,6 @@ namespace nhitomi.Controllers
             /// </summary>
             [Required]
             public bool Maintenance { get; set; }
-
-            /// <summary>
-            /// Google Analytics tag.
-            /// </summary>
-            public string GTag { get; set; }
         }
 
         /// <summary>
@@ -105,8 +100,7 @@ namespace nhitomi.Controllers
                 GalleryRegexStrict = s.UrlRegex?.Strict.ToString()
             }),
 
-            Maintenance = _serverOptions.CurrentValue.BlockDatabaseWrites,
-            GTag        = _serverOptions.CurrentValue.GTag
+            Maintenance = _serverOptions.CurrentValue.BlockDatabaseWrites
         };
 
         public class GetInfoAuthenticatedResponse : GetInfoResponse
