@@ -54,7 +54,18 @@ export function trackEvent(type: string, value: string) {
 
   collect("event", {
     url: currentPath,
-    event_type: type.toLowerCase(),
+    event_type: type.replace(" ", "-").toLowerCase(),
     event_value: value,
   });
+}
+
+/** Collects an error metric for the current page. */
+export function trackError(error: Error) {
+  let name = error.name;
+
+  if (name === "Error") {
+    name = "unknown";
+  }
+
+  trackEvent(`error-${name}`, error.message);
 }
