@@ -54,7 +54,7 @@ export function trackEvent(type: string, value: string) {
 
   collect("event", {
     url: currentPath,
-    event_type: type,
+    event_type: type.toLowerCase(),
     event_value: value,
   });
 }
