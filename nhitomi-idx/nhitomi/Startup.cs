@@ -282,8 +282,6 @@ namespace nhitomi
 
             services.Configure<RecaptchaOptions>(_configuration.GetSection("Recaptcha"))
                     .AddSingleton<IRecaptchaValidator, RecaptchaValidator>();
-
-            services.Configure<UmamiOptions>(_configuration.GetSection("Umami"));
         }
 
         /// <summary>

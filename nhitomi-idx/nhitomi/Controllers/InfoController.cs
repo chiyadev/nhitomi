@@ -24,9 +24,8 @@ namespace nhitomi.Controllers
         readonly IDiscordOAuthHandler _discordOAuth;
         readonly IScraperService _scrapers;
         readonly IOptionsMonitor<RecaptchaOptions> _recaptchaOptions;
-        readonly IOptionsMonitor<UmamiOptions> _umamiOptions;
 
-        public InfoController(IServiceProvider services, IOptionsMonitor<ServerOptions> serverOptions, IOptionsMonitor<StripeServiceOptions> stripeOptions, ILinkGenerator link, IOptionsMonitor<RecaptchaOptions> recaptchaOptions, IDiscordOAuthHandler discordOAuth, IScraperService scrapers, IOptionsMonitor<UmamiOptions> umamiOptions)
+        public InfoController(IServiceProvider services, IOptionsMonitor<ServerOptions> serverOptions, IOptionsMonitor<StripeServiceOptions> stripeOptions, ILinkGenerator link, IOptionsMonitor<RecaptchaOptions> recaptchaOptions, IDiscordOAuthHandler discordOAuth, IScraperService scrapers)
         {
             _services         = services;
             _serverOptions    = serverOptions;
@@ -35,7 +34,6 @@ namespace nhitomi.Controllers
             _discordOAuth     = discordOAuth;
             _scrapers         = scrapers;
             _recaptchaOptions = recaptchaOptions;
-            _umamiOptions     = umamiOptions;
         }
 
         [HttpGet, AllowAnonymous, ApiExplorerSettings(IgnoreApi = true)]
@@ -78,23 +76,6 @@ namespace nhitomi.Controllers
             /// </summary>
             [Required]
             public bool Maintenance { get; set; }
-
-            /// <summary>
-            /// Umami information.
-            /// </summary>
-            /// <remarks>
-            /// This is provided only for internal use by nhitomi.chiya.dev.
-            /// </remarks>
-            public UmamiInfo Umami { get; set; }
-
-            public class UmamiInfo
-            {
-                [Required]
-                public string Url { get; set; }
-
-                [Required]
-                public Guid WebsiteId { get; set; }
-            }
         }
 
         /// <summary>
@@ -119,15 +100,7 @@ namespace nhitomi.Controllers
                 GalleryRegexStrict = s.UrlRegex?.Strict.ToString()
             }),
 
-            Maintenance = _serverOptions.CurrentValue.BlockDatabaseWrites,
-
-            Umami = _umamiOptions.CurrentValue.Url == null
-                ? null
-                : new GetInfoResponse.UmamiInfo
-                {
-                    Url       = _umamiOptions.CurrentValue.Url,
-                    WebsiteId = _umamiOptions.CurrentValue.WebsiteId
-                }
+            Maintenance = _serverOptions.CurrentValue.BlockDatabaseWrites
         };
 
         public class GetInfoAuthenticatedResponse : GetInfoResponse
