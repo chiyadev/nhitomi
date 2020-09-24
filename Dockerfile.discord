@@ -24,7 +24,9 @@ COPY --from=discord /app/build ./
 COPY --from=discord /app/node_modules ./node_modules/
 
 ARG VERSION
+ARG SENTRY_DSN
 
 ENV NODE_ENV production
 ENV NODE_APP_VERSION $VERSION
+ENV SENTRY_DSN $SENTRY_DSN
 ENTRYPOINT ["node", "index.js"]

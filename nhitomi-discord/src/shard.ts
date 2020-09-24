@@ -1,4 +1,5 @@
-import "./logging";
+import "./sentry";
+
 import { Client, Message } from "discord.js-light";
 import config from "config";
 import { loadCommands, matchCommand } from "./Commands";
@@ -13,6 +14,7 @@ import { BookMessage } from "./Commands/get";
 import { collectDefaultMetrics, Counter, Gauge, Histogram, register } from "prom-client";
 import { getBuckets } from "./metrics";
 import { RegExpCache } from "./regex";
+import { captureException } from "@sentry/node";
 
 collectDefaultMetrics({ register });
 
@@ -64,6 +66,7 @@ function wrapHandler<T extends Function>(name: string, func: T): T {
       return await func(...args);
     } catch (e) {
       console.warn("unhandled error in", name, "handler", e);
+      captureException(e);
     }
   }) as unknown) as T;
 }
@@ -126,11 +129,9 @@ Discord.on(
       const arg = space === -1 ? undefined : content.substring(space + 1).trim();
 
       const module = matchCommand(command);
-
       if (!module) return;
 
       const { name, run } = module;
-
       const measure = commandTime.startTimer({ command: name });
 
       try {
@@ -152,10 +153,14 @@ Discord.on(
 
             await run(context, arg);
           } catch (e) {
+            captureException(e);
+
             if (e instanceof Error) {
               let stack = e.stack;
 
-              if (stack && stack.length > 1920) stack = stack.substring(0, 1920) + "...";
+              if (stack && stack.length > 1920) {
+                stack = stack.substring(0, 1920) + "...";
+              }
 
               await context.reply({
                 embed: {

@@ -34,7 +34,7 @@ jobs:
     executor: default
     steps:
       - checkout
-      - run: docker build -t $DOCKER_IMAGE_DISCORD -f Dockerfile.discord --build-arg VERSION=$CIRCLE_SHA1 .
+      - run: docker build -t $DOCKER_IMAGE_DISCORD -f Dockerfile.discord --build-arg VERSION=$CIRCLE_SHA1 --build-arg SENTRY_DSN .
       - run: echo "$DOCKER_PASSWORD" | docker login $DOCKER_REGISTRY -u "$DOCKER_USERNAME" --password-stdin
       - run: docker push $DOCKER_IMAGE_DISCORD
 

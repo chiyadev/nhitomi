@@ -1,5 +1,6 @@
 import { Discord } from "./shard";
 import config from "config";
+import { captureException } from "@sentry/node";
 
 // todo: random books as status
 
@@ -27,6 +28,7 @@ export function beginPresenceRotation(): void {
         });
       } catch (e) {
         console.debug("could not update presence", e);
+        captureException(e);
       }
     };
 

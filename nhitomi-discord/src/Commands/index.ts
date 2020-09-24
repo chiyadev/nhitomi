@@ -2,6 +2,7 @@ import { MessageContext } from "../context";
 import { promisify } from "util";
 import fs from "fs";
 import path from "path";
+import { captureException } from "@sentry/node";
 
 export type CommandFunc = (context: MessageContext, arg?: string) => Promise<boolean>;
 export type CommandModule = { name: string; run: CommandFunc };
@@ -27,6 +28,7 @@ export async function loadCommands(): Promise<void> {
       }
     } catch (e) {
       console.warn("could not import command module", x, module);
+      captureException(e);
     }
   }
 }
