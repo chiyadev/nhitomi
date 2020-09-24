@@ -6,8 +6,9 @@ namespace nhitomi
 {
     public enum CacheControlMode
     {
-        Aggressive = 0,
-        AllowWithRevalidate = 1
+        Never = 0,
+        Aggressive = 1,
+        AllowWithRevalidate = 2
     }
 
     public static class ResponseCacheHelper
@@ -16,6 +17,14 @@ namespace nhitomi
         {
             switch (mode)
             {
+                case CacheControlMode.Never:
+                    headers.CacheControl = new CacheControlHeaderValue
+                    {
+                        NoStore = true,
+                        MaxAge  = TimeSpan.Zero
+                    };
+                    break;
+
                 case CacheControlMode.Aggressive:
                     headers.CacheControl = new CacheControlHeaderValue
                     {

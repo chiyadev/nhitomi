@@ -356,10 +356,20 @@ namespace nhitomi
 
         void ConfigureBackend(IApplicationBuilder app)
         {
+            // redoc documentation
+            app.MapWhen(context => context.Request.Path == "/index.html" || context.Request.Path == "/redoc.standalone.js", ConfigureRedoc);
+
             // cors
             app.UseCors(o => o.AllowAnyHeader()
                               .AllowAnyMethod()
                               .AllowAnyOrigin());
+
+            // prevent api response caching
+            app.Use((context, next) =>
+            {
+                context.Response.GetTypedHeaders().SetCacheControl(CacheControlMode.Never);
+                return next();
+            });
 
             // authentication
             app.UseAuthentication();
@@ -377,7 +387,7 @@ namespace nhitomi
             // compression
             app.UseResponseCompression();
 
-            // swagger docs
+            // openapi docs
             app.UseSwagger(s =>
             {
                 var servers = new List<OpenApiServer>
@@ -392,6 +402,24 @@ namespace nhitomi
                 s.PreSerializeFilters.Add((document, request) => document.Servers = servers);
             });
 
+            // authorization
+            app.UseAuthorization();
+
+            // controllers
+            app.UseEndpoints(e => e.MapControllers());
+        }
+
+        void ConfigureRedoc(IApplicationBuilder app)
+        {
+            app.UseResponseCaching();
+            app.UseResponseCompression();
+
+            app.Use((context, next) =>
+            {
+                context.Response.GetTypedHeaders().SetCacheControl(CacheControlMode.AllowWithRevalidate);
+                return next();
+            });
+
             app.UseReDoc(r =>
             {
                 r.RoutePrefix   = "";
@@ -399,12 +427,6 @@ namespace nhitomi
                 r.ConfigObject  = new ConfigObject { RequiredPropsFirst = true };
                 r.DocumentTitle = "nhitomi API Documentation";
             });
-
-            // authorization
-            app.UseAuthorization();
-
-            // controllers
-            app.UseEndpoints(e => e.MapControllers());
         }
     }
 }
