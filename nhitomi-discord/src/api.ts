@@ -10,7 +10,7 @@ import {
   UserApi,
 } from "nhitomi-api";
 import config from "config";
-import fetch from "node-fetch";
+import fetch, { RequestInfo, RequestInit } from "node-fetch";
 import { URL } from "url";
 import { Counter, Gauge } from "prom-client";
 
@@ -46,7 +46,15 @@ function rentCore(token: string): ApiClientCore {
   if (!core) {
     const cfg: ConfigurationParameters = {
       basePath: config.get<string>("api.baseUrl") || BASE_PATH,
-      fetchApi: fetch,
+      fetchApi: (info: RequestInfo, init?: RequestInit) => {
+        return fetch(info, {
+          ...init,
+
+          // thanks PassThrough stream, wasting hours of my precious time!
+          // https://github.com/node-fetch/node-fetch/issues/665
+          highWaterMark: 32 * 1024 * 1024,
+        });
+      },
       middleware: [
         {
           pre: async (): Promise<void> => {
