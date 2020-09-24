@@ -12,6 +12,7 @@ import { useNotify } from "../NotificationManager";
 import { useClient, useClientInfo } from "../ClientManager";
 import { loadStripe } from "@stripe/stripe-js";
 import { trackEvent } from "../umami";
+import { PinkLabel } from "./PinkLabel";
 
 export const Checkout = ({ supporterPrice, apiKey }: PrefetchResult) => {
   const client = useClient();
@@ -50,9 +51,7 @@ export const Checkout = ({ supporterPrice, apiKey }: PrefetchResult) => {
 
   return (
     <div className="space-y-8">
-      <div className="text-lg text-center">
-        <span className="shadow-lg rounded bg-pink text-white p-2">— Let&apos;s become one! —</span>
-      </div>
+      <PinkLabel>Let&apos;s become one!</PinkLabel>
 
       <Disableable disabled={loading}>
         <div className="max-w-xs mx-auto p-4 space-y-4">

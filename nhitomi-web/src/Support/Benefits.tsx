@@ -3,13 +3,12 @@ import { css, cx } from "emotion";
 import { useLayout } from "../LayoutManager";
 import { getColor } from "../theme";
 import { FolderFilled, ThunderboltFilled } from "@ant-design/icons";
+import { PinkLabel } from "./PinkLabel";
 
 export const Benefits = () => {
   return (
     <div className="text-center space-y-8">
-      <div className="text-lg">
-        <span className="shadow-lg rounded bg-pink text-white p-2">— Benefits for supporters —</span>
-      </div>
+      <PinkLabel>Benefits for supporters</PinkLabel>
 
       <DownloadLimitless />
       <DownloadCollection />

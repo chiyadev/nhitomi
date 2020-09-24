@@ -70,7 +70,7 @@ const Loaded = (result: PrefetchResult) => {
   const supporter = info.authenticated && info.user.isSupporter;
 
   return (
-    <Container className="px-4">
+    <Container className="px-4 space-y-16">
       {useMemo(
         () => (
           <MainCard>
@@ -102,13 +102,18 @@ const Loaded = (result: PrefetchResult) => {
         [supporter]
       )}
 
-      <div className="space-y-16">
+      <div>
         {useMemo(
           () => (
             <Benefits />
           ),
           []
         )}
+
+        <div className="divide-y divide-gray-darkest">
+          <div className="h-16" />
+          <div className="h-16" />
+        </div>
 
         {useMemo(
           () => (
