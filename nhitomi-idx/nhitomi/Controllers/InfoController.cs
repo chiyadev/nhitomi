@@ -50,10 +50,10 @@ namespace nhitomi.Controllers
             public string PublicUrl { get; set; }
 
             /// <summary>
-            /// Backend version information.
+            /// Latest version identifier, which is the git commit hash.
             /// </summary>
             [Required]
-            public GitCommit Version { get; set; }
+            public string Version { get; set; }
 
             /// <summary>
             /// reCAPTCHA site key to use to obtain tokens for authorizing certain endpoints.

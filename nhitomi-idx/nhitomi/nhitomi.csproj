@@ -19,7 +19,7 @@
     </PropertyGroup>
 
     <Target Name="Git" BeforeTargets="BeforeBuild">
-        <Exec Command="git log -1 --date=iso-strict &gt; version.txt" ContinueOnError="true" />
+        <Exec Command="git rev-parse HEAD &gt; version.txt" ContinueOnError="true"/>
     </Target>
 
     <ItemGroup>

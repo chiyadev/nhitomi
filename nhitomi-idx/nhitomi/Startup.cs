@@ -192,13 +192,13 @@ namespace nhitomi
                 s.SwaggerDoc("docs", new OpenApiInfo
                 {
                     Title   = "☆.｡.:*　nhitomi API　.｡.:*☆",
-                    Version = VersionInfo.Version.ToString(),
+                    Version = VersionInfo.Commit,
                     License = new OpenApiLicense
                     {
                         Name = "MIT License",
                         Url  = new Uri("https://github.com/chiyadev/nhitomi/blob/master/LICENSE")
                     },
-                    Description = $"Commit: [{VersionInfo.Commit.Hash}](https://github.com/chiyadev/nhitomi/commit/{VersionInfo.Commit.Hash})".Trim()
+                    Description = $"Commit: [{VersionInfo.Commit}](https://github.com/chiyadev/nhitomi/commit/{VersionInfo.Commit})".Trim()
                 });
 
                 // https://github.com/domaindrivendev/Swashbuckle.AspNetCore/issues/1171#issuecomment-501342088
