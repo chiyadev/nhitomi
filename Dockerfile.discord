@@ -1,5 +1,15 @@
 ARG VERSION=Latest
 
+# build backend (for api specification file)
+FROM mcr.microsoft.com/dotnet/sdk:5.0 AS idx
+WORKDIR /app
+
+COPY nhitomi-idx/nhitomi/nhitomi.csproj ./
+RUN dotnet restore
+
+COPY nhitomi-idx/nhitomi ./
+RUN dotnet run --no-restore -- --generate-spec > apispec.json
+
 # build discord
 FROM node:lts-alpine as discord
 WORKDIR /app
@@ -11,7 +21,8 @@ COPY nhitomi-discord/package.json nhitomi-discord/yarn.lock ./
 COPY scripts ../scripts/
 RUN yarn
 
-RUN yarn genclient
+COPY --from=idx /app/apispec.json ./
+RUN yarn genclient apispec.json
 
 COPY nhitomi-discord ./
 RUN yarn build
