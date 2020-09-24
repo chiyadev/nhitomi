@@ -8,6 +8,8 @@
     "@ctrl/tinycolor": "^3.1.4",
     "@openapitools/openapi-generator-cli": "^1.0.15-4.3.1",
     "@react-hook/resize-observer": "^1.1.0",
+    "@sentry/react": "^5.24.2",
+    "@sentry/tracing": "^5.24.2",
     "@stripe/stripe-js": "^1.9.0",
     "@tippyjs/react": "^4.1.0",
     "@types/file-saver": "^2.0.1",

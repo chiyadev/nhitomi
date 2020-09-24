@@ -20,7 +20,6 @@ import { animated, useSpring, useTransition } from "react-spring";
 import { useLayout } from "./LayoutManager";
 import { ValidationError } from "./ClientManager";
 import { ColorHue, getColor } from "./theme";
-import { trackError } from "./umami";
 
 type AppearanceTypes = "success" | "info" | "error" | "warning";
 
@@ -150,8 +149,6 @@ const NotifyManager = ({ children }: { children?: ReactNode }) => {
                 </>
               );
             }
-
-            trackError(error);
           },
         }),
         [notify, items]

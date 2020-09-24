@@ -44,7 +44,7 @@ import { useAlert } from "./NotificationManager";
 import { FormattedMessage } from "react-intl";
 import { CollectionContentLink } from "./CollectionContent";
 import { useAsync } from "./hooks";
-import { trackError, umami } from "./umami";
+import { umami } from "./umami";
 
 export class Client {
   readonly httpConfig: ConfigurationParameters = {
@@ -249,8 +249,6 @@ export const ClientManager = ({ children }: { children?: ReactNode }) => {
     } catch (e) {
       if (e instanceof Error) setInfo(e);
       else setInfo(Error(e?.message || "Unknown error."));
-
-      trackError(e);
     } finally {
       end();
     }

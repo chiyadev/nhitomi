@@ -58,8 +58,3 @@ export function trackEvent(type: string, value: string) {
     event_value: value,
   });
 }
-
-/** Collects an error metric for the current page. */
-export function trackError(error: Error) {
-  trackEvent("error", error.name);
-}
