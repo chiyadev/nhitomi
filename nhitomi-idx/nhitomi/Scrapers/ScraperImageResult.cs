@@ -85,7 +85,7 @@ namespace nhitomi.Scrapers
                 {
                     await using (file)
                     {
-                        StorageFileResult.SetHeaders(context, file);
+                        StorageFileResult.SetHeaders(context, file, CacheControlMode.Aggressive);
 
                         var response = context.HttpContext.Response;
 
@@ -136,7 +136,7 @@ namespace nhitomi.Scrapers
 
                         await using (file)
                         {
-                            StorageFileResult.SetHeaders(context, file);
+                            StorageFileResult.SetHeaders(context, file, CacheControlMode.Aggressive);
 
                             // pipe data to response stream while buffering in memory
                             // buffering is required because certain storage implementations (s3) need to know stream length in advance

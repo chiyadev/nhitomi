@@ -39,7 +39,7 @@ namespace nhitomi.Storage
             }
         }
 
-        public static void SetHeaders(ActionContext context, StorageFile file)
+        public static void SetHeaders(ActionContext context, StorageFile file, CacheControlMode? mode = default)
         {
             var headers = context.HttpContext.Response.GetTypedHeaders();
 
@@ -49,6 +49,10 @@ namespace nhitomi.Storage
             // content-length
             if (file.Stream.CanSeek)
                 headers.ContentLength = file.Stream.Length;
+
+            // cache-control
+            if (mode != null)
+                headers.SetCacheControl(mode.Value);
         }
     }
 }

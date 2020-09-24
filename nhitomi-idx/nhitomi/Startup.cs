@@ -103,11 +103,10 @@ namespace nhitomi
                      })
                     .AddResponseCaching(o =>
                      {
-                         o.UseCaseSensitivePaths = false;
-
                          // this is for static files
-                         o.SizeLimit       = long.MaxValue;
-                         o.MaximumBodySize = long.MaxValue;
+                         o.UseCaseSensitivePaths = false;
+                         o.SizeLimit             = long.MaxValue;
+                         o.MaximumBodySize       = long.MaxValue;
                      });
 
             // mvc
@@ -303,6 +302,8 @@ namespace nhitomi
             ConfigureFrontend(app);
         }
 
+        static readonly string[] _aggressiveCachedPaths = { "/static", "/assets" };
+
         void ConfigureFrontend(IApplicationBuilder app)
         {
             // route rewrite
@@ -326,10 +327,27 @@ namespace nhitomi
             // caching
             app.UseResponseCaching();
 
+            // compression
+            app.UseResponseCompression();
+
             // static files
             app.UseStaticFiles(new StaticFileOptions
             {
-                HttpsCompression = HttpsCompressionMode.Compress
+                HttpsCompression      = HttpsCompressionMode.Compress,
+                ServeUnknownFileTypes = true,
+                OnPrepareResponse = context =>
+                {
+                    if (context.Context.Response.StatusCode != 200)
+                        return;
+
+                    var headers = context.Context.Response.GetTypedHeaders();
+
+                    // aggressively cache files in static folder (cache-busted by webpack)
+                    if (Array.FindIndex(_aggressiveCachedPaths, p => context.Context.Request.Path.StartsWithSegments(p)) != -1)
+                        headers.SetCacheControl(CacheControlMode.Aggressive);
+                    else
+                        headers.SetCacheControl(CacheControlMode.AllowWithRevalidate);
+                }
             });
 
             if (_environment.IsDevelopment())
