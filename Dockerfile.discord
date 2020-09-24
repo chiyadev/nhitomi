@@ -22,6 +22,7 @@ WORKDIR /app
 
 COPY --from=discord /app/build ./
 COPY --from=discord /app/node_modules ./node_modules/
+COPY --from=discord /app/nhitomi-api ./nhitomi-api/
 
 ARG VERSION
 ARG SENTRY_DSN
