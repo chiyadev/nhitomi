@@ -1,19 +1,30 @@
+ARG VERSION=Latest
+
+# build discord
 FROM node:lts-alpine as discord
 WORKDIR /app
+
+# genclient requires jre
+RUN apk add --no-cache openjdk8-jre
 
 COPY nhitomi-discord/package.json nhitomi-discord/yarn.lock ./
 COPY scripts ../scripts/
 RUN yarn
 
-# java 8 required by openapi-generator
-RUN apk add --no-cache openjdk8-jre
 RUN yarn genclient
 
 COPY nhitomi-discord ./
 RUN yarn build
 
-RUN apk del openjdk8-jre
+# build final image
+FROM node:lts-alpine as app
+WORKDIR /app
 
-WORKDIR /app/build
+COPY --from=discord /app/build ./
+COPY --from=discord /app/node_modules ./node_modules/
+
+ARG VERSION
+
 ENV NODE_ENV production
+ENV NODE_APP_VERSION $VERSION
 ENTRYPOINT ["node", "index.js"]

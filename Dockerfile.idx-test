@@ -1,8 +1,11 @@
 FROM mcr.microsoft.com/dotnet/sdk:5.0
-
 WORKDIR /app
-COPY nhitomi-idx ./
 
+COPY nhitomi-idx/nhitomi/nhitomi.csproj ./nhitomi/
+COPY nhitomi-idx/nhitomi.Tests/nhitomi.Tests.csproj ./nhitomi.Tests/
+RUN dotnet restore nhitomi.Tests
+
+COPY nhitomi-idx ./
 RUN dotnet build nhitomi.Tests
 
 ENTRYPOINT ["dotnet", "test", "--no-build", "--no-restore", "--list-tests", "--verbosity", "normal", "nhitomi.Tests"]

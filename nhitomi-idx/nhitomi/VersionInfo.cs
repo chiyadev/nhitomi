@@ -7,6 +7,6 @@ namespace nhitomi
         /// <summary>
         /// Git commit hash of the current version.
         /// </summary>
-        public static string Version { get; } = Environment.GetEnvironmentVariable("ASPNETCORE_COMMIT") ?? "Latest";
+        public static string Version { get; } = Environment.GetEnvironmentVariable("ASPNETCORE_APP_VERSION") ?? "Latest";
     }
 }

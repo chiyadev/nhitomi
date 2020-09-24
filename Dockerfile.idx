@@ -1,9 +1,4 @@
-# retrieve git commit information
-FROM alpine:latest AS git
-COPY .git ./.git
-
-RUN apk add --no-cache git
-RUN git log -1 --date=iso-strict > version.txt
+ARG VERSION=Latest
 
 # build backend
 FROM mcr.microsoft.com/dotnet/sdk:5.0 AS idx
@@ -22,27 +17,31 @@ RUN dotnet "build/nhitomi.dll" -- --generate-spec > apispec.json
 FROM node:lts-alpine AS web
 WORKDIR /app
 
+# genclient requires jre
+RUN apk add --no-cache openjdk8-jre
+
 COPY nhitomi-web/package.json nhitomi-web/yarn.lock ./
 COPY nhitomi-web/patches ./patches/
 COPY scripts ../scripts/
 RUN yarn
 
 COPY --from=idx /app/apispec.json ./
-
-# java 8 required by openapi-generator
-RUN apk add --no-cache openjdk8-jre
 RUN yarn genclient apispec.json
 
+ARG VERSION
+
 COPY nhitomi-web ./
-RUN yarn build
+RUN REACT_APP_VERSION=$VERSION yarn build
 
 # build final image
 FROM mcr.microsoft.com/dotnet/aspnet:5.0 as app
 WORKDIR /app
 
-COPY --from=git version.txt ./
 COPY --from=idx /app/build ./
 COPY --from=web /app/build ./static/
 
+ARG VERSION
+
 ENV ASPNETCORE_ENVIRONMENT Production
+ENV ASPNETCORE_APP_VERSION $VERSION
 ENTRYPOINT ["dotnet", "nhitomi.dll"]
