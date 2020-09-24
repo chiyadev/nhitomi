@@ -29,9 +29,14 @@ COPY --from=idx /app/apispec.json ./
 RUN yarn genclient apispec.json
 
 ARG VERSION
+ARG UMAMI_URL
+ARG SENTRY_DSN
+ENV REACT_APP_VERSION $VERSION
+ENV REACT_APP_UMAMI_URL $UMAMI_URL
+ENV REACT_APP_SENTRY_DSN $SENTRY_DSN
 
 COPY nhitomi-web ./
-RUN REACT_APP_VERSION=$VERSION yarn build
+RUN yarn build
 
 # build final image
 FROM mcr.microsoft.com/dotnet/aspnet:5.0 as app
@@ -41,7 +46,8 @@ COPY --from=idx /app/build ./
 COPY --from=web /app/build ./static/
 
 ARG VERSION
-
+ARG SENTRY_DSN
 ENV ASPNETCORE_ENVIRONMENT Production
 ENV ASPNETCORE_APP_VERSION $VERSION
+ENV ASPNETCORE_APP_SENTRY_DSN $SENTRY_DSN
 ENTRYPOINT ["dotnet", "nhitomi.dll"]

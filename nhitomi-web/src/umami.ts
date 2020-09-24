@@ -1,4 +1,4 @@
-const connectionStr = process.env.REACT_APP_UMAMI; // connection format "https://umami.is/{websiteId}"
+const connectionStr = process.env.REACT_APP_UMAMI_URL; // connection format "https://umami.is/{websiteId}"
 let connection: undefined | { collectUrl: string; websiteId: string };
 
 if (connectionStr) {

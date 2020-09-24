@@ -6,6 +6,8 @@ executors:
     environment:
       DOCKER_IMAGE_IDX: registry.digitalocean.com/chiyadev/nhitomi:latest
       DOCKER_IMAGE_DISCORD: registry.digitalocean.com/chiyadev/nhitomi-discord:latest
+      UMAMI_URL: https://a.chiya.dev/c4b642b9-515a-4159-8efc-b74bffb1ca89
+      SENTRY_DSN: https://a768b944b93b4c70be91bf4df488c978@o452268.ingest.sentry.io/5439405
 
 jobs:
   test-idx:
@@ -24,7 +26,7 @@ jobs:
     executor: default
     steps:
       - checkout
-      - run: docker build -t $DOCKER_IMAGE_IDX -f Dockerfile.idx --build-arg VERSION=$CIRCLE_SHA1 .
+      - run: docker build -t $DOCKER_IMAGE_IDX -f Dockerfile.idx --build-arg VERSION=$CIRCLE_SHA1 --build-arg UMAMI_URL --build-arg SENTRY_DSN .
       - run: echo "$DOCKER_PASSWORD" | docker login $DOCKER_REGISTRY -u "$DOCKER_USERNAME" --password-stdin
       - run: docker push $DOCKER_IMAGE_IDX
 
