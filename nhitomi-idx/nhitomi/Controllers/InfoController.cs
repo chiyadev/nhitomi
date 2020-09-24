@@ -85,7 +85,7 @@ namespace nhitomi.Controllers
         public GetInfoResponse GetInfo() => new GetInfoResponse
         {
             PublicUrl        = _link.GetWebLink("/"),
-            Version          = VersionInfo.Commit,
+            Version          = VersionInfo.Version,
             RecaptchaSiteKey = _recaptchaOptions.CurrentValue.SiteKey,
             DiscordOAuthUrl  = _discordOAuth.AuthorizeUrl,
 

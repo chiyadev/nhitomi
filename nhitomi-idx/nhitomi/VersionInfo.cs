@@ -1,4 +1,4 @@
-using System.IO;
+using System;
 
 namespace nhitomi
 {
@@ -7,15 +7,6 @@ namespace nhitomi
         /// <summary>
         /// Git commit hash of the current version.
         /// </summary>
-        public static string Commit { get; } = "Unknown";
-
-        static VersionInfo()
-        {
-            try
-            {
-                Commit = File.ReadAllText("version.txt");
-            }
-            catch (IOException) { }
-        }
+        public static string Version { get; } = Environment.GetEnvironmentVariable("ASPNETCORE_COMMIT") ?? "Latest";
     }
 }

@@ -198,7 +198,7 @@ namespace nhitomi
                         Name = "MIT License",
                         Url  = new Uri("https://github.com/chiyadev/nhitomi/blob/master/LICENSE")
                     },
-                    Description = $"Commit: [{VersionInfo.Commit}](https://github.com/chiyadev/nhitomi/commit/{VersionInfo.Commit})".Trim()
+                    Description = $"Commit: [{VersionInfo.Version}](https://github.com/chiyadev/nhitomi/commit/{VersionInfo.Version})".Trim()
                 });
 
                 // https://github.com/domaindrivendev/Swashbuckle.AspNetCore/issues/1171#issuecomment-501342088
