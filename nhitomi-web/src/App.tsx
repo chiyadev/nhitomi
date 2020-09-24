@@ -1,4 +1,4 @@
-import React, { useLayoutEffect, useMemo } from "react";
+import React, { useEffect, useLayoutEffect, useMemo, useRef } from "react";
 import { Redirect, Route, Router, Switch } from "react-router-dom";
 import { Navigator, useNavigator } from "./state";
 import { ProgressManager } from "./ProgressManager";
@@ -76,9 +76,16 @@ export const App = () => {
 
 const Routing = () => {
   const { path, query, stringify, evaluate } = useNavigator();
-  const trackedPath = useMemo(() => stringify(evaluate({ path, query })), [evaluate, path, query, stringify]);
 
-  useLayoutEffect(() => trackView(trackedPath), [trackedPath]);
+  const trackedPath = useMemo(() => stringify(evaluate({ path, query })), [evaluate, path, query, stringify]);
+  const tracked = useRef<number>();
+
+  useEffect(() => {
+    // timeout prevents multiple page views being tracked for redirects
+    clearTimeout(tracked.current);
+
+    tracked.current = window.setTimeout(() => trackView(trackedPath), 100);
+  }, [trackedPath]);
 
   return useMemo(
     () => (
