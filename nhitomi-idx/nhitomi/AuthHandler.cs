@@ -62,16 +62,16 @@ namespace nhitomi
                 // pass payload down the pipeline
                 Context.Items[PayloadItemKey] = payload;
 
+                // we don't use asp.net claims, but integrations like Sentry do
+                var ticket = new AuthenticationTicket(new ClaimsPrincipal(new ClaimsIdentity(new[] { new Claim(ClaimTypes.NameIdentifier, payload.UserId) }, SchemeName)), SchemeName);
+
                 _results.Labels("success").Inc();
-                return AuthenticateResult.Success(_successTicket);
+                return AuthenticateResult.Success(ticket);
             }
             catch (Exception e)
             {
                 return AuthenticateResult.Fail($"Authentication failed. {e.Message}");
             }
         }
-
-        // we don't use identities
-        static readonly AuthenticationTicket _successTicket = new AuthenticationTicket(new ClaimsPrincipal(new ClaimsIdentity(null, SchemeName)), SchemeName);
     }
 }

@@ -33,6 +33,7 @@
         <PackageReference Include="OneOf" Version="2.1.155" />
         <PackageReference Include="prometheus-net.AspNetCore" Version="3.6.0" />
         <PackageReference Include="prometheus-net.DotNetRuntime" Version="3.4.0" />
+        <PackageReference Include="Sentry.AspNetCore" Version="2.1.6"/>
         <PackageReference Include="StackExchange.Redis" Version="2.1.58" />
         <PackageReference Include="Stripe.net" Version="39.2.0" />
         <PackageReference Include="Swashbuckle.AspNetCore.Newtonsoft" Version="5.6.1" />

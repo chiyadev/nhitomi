@@ -46,8 +46,6 @@ COPY --from=idx /app/build ./
 COPY --from=web /app/build ./static/
 
 ARG VERSION
-ARG SENTRY_DSN
 ENV ASPNETCORE_ENVIRONMENT Production
 ENV ASPNETCORE_APP_VERSION $VERSION
-ENV ASPNETCORE_APP_SENTRY_DSN $SENTRY_DSN
 ENTRYPOINT ["dotnet", "nhitomi.dll"]

@@ -13,6 +13,7 @@ using nhitomi.Models;
 using nhitomi.Scrapers.Tests;
 using nhitomi.Storage;
 using Prometheus;
+using Sentry;
 
 namespace nhitomi.Scrapers
 {
@@ -149,6 +150,7 @@ namespace nhitomi.Scrapers
                 }
                 catch (Exception e)
                 {
+                    SentrySdk.CaptureException(e);
                     ScraperMetrics.ScrapeErrors.Labels(Type.ToString()).Inc();
 
                     _logger.LogWarning(e, $"Exception while scraping {Type}.");
