@@ -175,7 +175,7 @@ export function useClientInfo() {
 
 const cacheKey = "info_cached";
 type CachedClientInfo = {
-  time: number;
+  version?: string;
   value: ClientInfo;
 };
 
@@ -183,10 +183,11 @@ type CachedClientInfo = {
 function getCachedInfo(): ClientInfo | undefined {
   try {
     const cached: CachedClientInfo = JSONex.parse(localStorage.getItem(cacheKey) || "");
-    const now = Date.now();
 
-    // cache valid for a day
-    if (now - cached.time < 1000 * 60 * 60) return cached.value;
+    // only use cached value if we are the version that saved this cache
+    if (cached.version === process.env.REACT_APP_VERSION) {
+      return cached.value;
+    }
   } catch {
     // ignored
   }
@@ -194,7 +195,7 @@ function getCachedInfo(): ClientInfo | undefined {
 
 function setCachedInfo(value?: ClientInfo) {
   if (value) {
-    const cached: CachedClientInfo = { time: Date.now(), value };
+    const cached: CachedClientInfo = { version: process.env.REACT_APP_VERSION, value };
 
     localStorage.setItem(cacheKey, JSON.stringify(cached));
   } else {
