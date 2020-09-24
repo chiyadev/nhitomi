@@ -61,7 +61,7 @@ namespace nhitomi
 
         public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
             WebHost.CreateDefaultBuilder<Startup>(args)
-                   .UseSentry(sentry => sentry.Release = $"nhitomi@{VersionInfo.Version}")
+                   .UseSentry(sentry => sentry.Release = $"nhitomi-idx@{VersionInfo.Version}")
                    .UseContentRoot(AppContext.BaseDirectory)
                    .UseWebRoot(Path.Combine(AppContext.BaseDirectory, "static"))
                    .ConfigureAppConfiguration(config =>
