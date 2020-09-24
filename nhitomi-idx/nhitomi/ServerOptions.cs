@@ -43,13 +43,7 @@ namespace nhitomi
         public string CertificatePassword { get; set; }
 
         /// <summary>
-        /// Whether HTTP response compression is enabled or not. This is only valid for static files.
-        /// See https://docs.microsoft.com/en-us/aspnet/core/performance/response-compression about response compression guidelines.
-        /// </summary>
-        public bool ResponseCompression { get; set; }
-
-        /// <summary>
-        /// True to enable dynamic server configuration stored in Elasticsearch.
+        /// True to enable dynamic server configuration stored in the database.
         /// </summary>
         public bool DynamicConfigEnabled { get; set; } = true;
 

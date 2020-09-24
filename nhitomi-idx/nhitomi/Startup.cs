@@ -1,12 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Net;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.AspNetCore.ResponseCompression;
@@ -98,8 +98,8 @@ namespace nhitomi
                      })
                     .AddResponseCompression(o =>
                      {
-                         o.Providers.Add<GzipCompressionProvider>();
                          o.Providers.Add<BrotliCompressionProvider>();
+                         o.Providers.Add<GzipCompressionProvider>();
                      })
                     .AddResponseCaching(o =>
                      {
@@ -108,6 +108,9 @@ namespace nhitomi
                          o.SizeLimit             = long.MaxValue;
                          o.MaximumBodySize       = long.MaxValue;
                      });
+
+            services.Configure<BrotliCompressionProviderOptions>(o => o.Level = CompressionLevel.Fastest)
+                    .Configure<GzipCompressionProviderOptions>(o => o.Level   = CompressionLevel.Fastest);
 
             // mvc
             services.AddMvcCore(m =>
@@ -290,11 +293,6 @@ namespace nhitomi
 
         public void Configure(IApplicationBuilder app)
         {
-            var serverOptions = app.ApplicationServices.GetService<IOptionsMonitor<ServerOptions>>().CurrentValue;
-
-            if (serverOptions.ResponseCompression)
-                app.UseResponseCompression();
-
             // backend
             app.Map(ApiBasePath, ConfigureBackend);
 
@@ -333,8 +331,8 @@ namespace nhitomi
             // static files
             app.UseStaticFiles(new StaticFileOptions
             {
-                HttpsCompression      = HttpsCompressionMode.Compress,
                 ServeUnknownFileTypes = true,
+
                 OnPrepareResponse = context =>
                 {
                     if (context.Context.Response.StatusCode != 200)
@@ -375,6 +373,9 @@ namespace nhitomi
 
             // http metrics
             app.UseHttpMetrics();
+
+            // compression
+            app.UseResponseCompression();
 
             // swagger docs
             app.UseSwagger(s =>
