@@ -30,6 +30,7 @@ import { DefaultQueryLimit } from "../../BookListing/search";
 import { DownloadTargetAddArgs, useDownloads } from "../../DownloadManager";
 import { SupportLink } from "../../Support";
 import { trackEvent } from "../../umami";
+import { captureException } from "@sentry/react";
 
 export const Menu = ({ collection }: { collection: Collection }) => (
   <>
@@ -151,6 +152,7 @@ const RandomButton = ({ collection }: { collection: Collection }) => {
               await navigate({ id: book.id });
             } catch (e) {
               notifyError(e);
+              captureException(e);
             } finally {
               setLoading(false);
             }
@@ -239,6 +241,7 @@ const DownloadButtonInner = ({ collection }: { collection: Collection }) => {
               add(...targets);
             } catch (e) {
               notifyError(e);
+              captureException(e);
             } finally {
               setLoading(false);
               end();

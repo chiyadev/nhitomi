@@ -24,6 +24,7 @@ import { FormattedMessage } from "react-intl";
 import { BookTags } from "../orderedConstants";
 import { convertHex, getColor } from "../theme";
 import { useShortcut } from "../shortcut";
+import { captureException } from "@sentry/react";
 
 export type QueryToken =
   | {
@@ -509,6 +510,7 @@ const Suggestor = ({
         setSuggestLoading(false);
       } catch (e) {
         notifyError(e);
+        captureException(e);
       }
     }, 200);
   }, [suggestPrefix]); // eslint-disable-line

@@ -20,6 +20,7 @@ import { useLocalized } from "../LocaleManager";
 import { EmptyIndicator } from "../Components/EmptyIndicator";
 import { FormattedMessage } from "react-intl";
 import { useAsync } from "../hooks";
+import { captureException } from "@sentry/react";
 
 export type PrefetchResult = BookSearchResult & { nextOffset: number };
 export type PrefetchOptions = { query?: SearchQuery };
@@ -122,6 +123,7 @@ const Loaded = ({ result, setResult }: { result: PrefetchResult; setResult: Disp
       }
     } catch (e) {
       notifyError(e);
+      captureException(e);
     } finally {
       end();
     }
@@ -163,6 +165,8 @@ const Loaded = ({ result, setResult }: { result: PrefetchResult; setResult: Disp
       }
     } catch (e) {
       notifyError(e);
+      captureException(e);
+
       setResult({ ...result, nextOffset: result.total });
     }
   }, [client, result, setResult]);

@@ -14,6 +14,7 @@ import { useLocalized } from "../LocaleManager";
 import { useDynamicPrefetch } from "../Prefetch";
 import { useCollectionEditPrefetch } from "../CollectionListing/Edit";
 import { trackEvent } from "../umami";
+import { captureException } from "@sentry/react";
 
 type BasicBook = {
   id: string;
@@ -38,6 +39,8 @@ export const CollectionAddBookDropdownMenu = ({ book }: { book: BasicBook }) => 
       setCollections(items);
     } catch (e) {
       notifyError(e);
+      captureException(e);
+
       setCollections(undefined);
     }
   }, []);

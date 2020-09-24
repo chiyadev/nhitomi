@@ -6,6 +6,7 @@ import { useConfig } from "./ConfigManager";
 import { useClientInfo, useClientUtils } from "./ClientManager";
 import { AvailableLocalizations } from "./Languages/languages";
 import { useAsync } from "./hooks";
+import { captureException } from "@sentry/react";
 
 export const LanguageNames: { [lang in LanguageType]: string } = {
   "ja-JP": "日本語",
@@ -99,7 +100,6 @@ export const LocaleManager = ({ children }: { children?: ReactNode }) => {
 
     try {
       let messages = getLanguageCached(language, version);
-
       if (!messages) setLanguageCached(language, version, (messages = await loadLanguage(language)));
 
       if (loadId.current === id) {
@@ -107,8 +107,6 @@ export const LocaleManager = ({ children }: { children?: ReactNode }) => {
 
         console.log("loaded language", language, messages);
       }
-    } catch (e) {
-      console.error("could not load language", e);
     } finally {
       end();
     }
@@ -134,6 +132,7 @@ async function loadLanguage(language: LanguageType): Promise<Record<string, stri
       data = mergeObjects(data, overlay);
     } catch (e) {
       console.warn("could not load language", language, e);
+      captureException(e);
     }
   }
 

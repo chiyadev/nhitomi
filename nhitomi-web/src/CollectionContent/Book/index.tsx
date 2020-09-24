@@ -11,6 +11,7 @@ import { FormattedMessage } from "react-intl";
 import { EmptyIndicator } from "../../Components/EmptyIndicator";
 import { Menu } from "./Menu";
 import { Overlay } from "./Overlay";
+import { captureException } from "@sentry/react";
 
 export const BookDisplay = ({
   result,
@@ -58,6 +59,8 @@ export const BookDisplay = ({
       }
     } catch (e) {
       notifyError(e);
+      captureException(e);
+
       setResult({ ...result, nextOffset: result.collection.items.length });
     }
   }, [result, setResult]);
