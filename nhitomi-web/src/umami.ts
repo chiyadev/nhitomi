@@ -1,24 +1,20 @@
-let umamiInfo:
-  | undefined
-  | {
-      url: string;
-      websiteId: string;
-    };
+const connectionStr = process.env.REACT_APP_UMAMI; // connection format "https://umami.is/{websiteId}"
+let connection: undefined | { collectUrl: string; websiteId: string };
 
-/** Initializes Umami for the current session. */
-export function umami(url: string, websiteId: string) {
-  if (url.endsWith("/")) {
-    url = url.slice(0, -1);
-  }
+if (connectionStr) {
+  const url = new URL(connectionStr, new URL(window.location.href));
 
-  umamiInfo = { url, websiteId };
+  connection = {
+    collectUrl: new URL("/api/collect", url).href,
+    websiteId: url.pathname.substring(1),
+  };
 }
 
 /** Collects an arbitrary Umami metric. */
 export function collect(type: string, data: Record<string, any>) {
-  if (!umamiInfo) return;
+  if (!connection) return;
 
-  fetch(`${umamiInfo.url}/api/collect`, {
+  fetch(connection.collectUrl, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -27,7 +23,7 @@ export function collect(type: string, data: Record<string, any>) {
       type,
 
       payload: {
-        website: umamiInfo.websiteId,
+        website: connection.websiteId,
         hostname: location.hostname,
         screen: `${window.screen.width}x${window.screen.height}`,
         language: navigator.language,

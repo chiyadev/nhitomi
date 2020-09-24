@@ -42,10 +42,9 @@ export function useLocalized(id: string, values: any) {
 
 export const LocaleManager = ({ children }: { children?: ReactNode }) => {
   const {
-    info: {
-      version: { shortHash: version },
-    },
+    info: { version },
   } = useClientInfo();
+
   const { updateUser } = useClientUtils();
   const [messages, setMessages] = useState<Record<string, string>>();
   const { begin, end } = useProgress();

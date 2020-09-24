@@ -1,25 +1,21 @@
 import "preact/debug";
-import React from "react";
-import { init as sentryInit, withProfiler } from "@sentry/react";
-import { Integrations } from "@sentry/tracing";
-import { render } from "react-dom";
-import { App } from "./App";
+import "./sentry";
+import "./umami";
 
-sentryInit({
-  dsn: "https://a768b944b93b4c70be91bf4df488c978@o452268.ingest.sentry.io/5439405",
-  integrations: [new Integrations.BrowserTracing()],
-  tracesSampleRate: 0.01,
-});
-
-import "./theme.css";
 import "./theme";
+import "./theme.css";
 import "./index.css";
 
-const ProfiledApp = withProfiler(App);
+import React, { StrictMode } from "react";
+import { render } from "react-dom";
+import { App } from "./App";
+import { withProfiler } from "@sentry/react";
+
+const Root = withProfiler(App);
 
 render(
-  <React.StrictMode>
-    <ProfiledApp />
-  </React.StrictMode>,
+  <StrictMode>
+    <Root />
+  </StrictMode>,
   document.getElementById("root")
 );

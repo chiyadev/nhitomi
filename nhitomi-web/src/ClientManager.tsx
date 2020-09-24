@@ -1,13 +1,4 @@
-import React, {
-  createContext,
-  Dispatch,
-  ReactNode,
-  useContext,
-  useLayoutEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import React, { createContext, Dispatch, ReactNode, useContext, useMemo, useState } from "react";
 import {
   BASE_PATH,
   BookApi,
@@ -44,7 +35,6 @@ import { useAlert } from "./NotificationManager";
 import { FormattedMessage } from "react-intl";
 import { CollectionContentLink } from "./CollectionContent";
 import { useAsync } from "./hooks";
-import { umami } from "./umami";
 
 export class Client {
   readonly httpConfig: ConfigurationParameters = {
@@ -218,35 +208,24 @@ export const ClientManager = ({ children }: { children?: ReactNode }) => {
   const [info, setInfo] = useState<ClientInfo | Error | undefined>(getCachedInfo);
   const { begin, end } = useProgress();
 
-  useLayoutEffect(() => {
-    if (info && !(info instanceof Error)) setCachedInfo(info);
-    else setCachedInfo(undefined);
-  }, [info]);
-
-  useLayoutEffect(() => {
-    if (!(info instanceof Error) && info?.umami) {
-      const { url, websiteId } = info.umami;
-      umami(url, websiteId);
-    }
-  }, [info]);
-
-  const lastVersion = useRef<string>();
-
-  useLayoutEffect(() => {
-    if (info && !(info instanceof Error)) {
-      // reload if version changes
-      if (lastVersion.current && lastVersion.current !== info.version.hash) window.location.reload();
-
-      lastVersion.current = info.version.hash;
-    }
-  }, [info]);
-
   useAsync(async () => {
     begin();
 
     try {
-      setInfo(await client.getInfo());
+      const info = await client.getInfo();
+
+      // reload if frontend version doesn't match with backend version
+      const version = process.env.REACT_APP_VERSION;
+
+      if (version && version !== info.version) {
+        window.location.reload();
+      }
+
+      setCachedInfo(info);
+      setInfo(info);
     } catch (e) {
+      setCachedInfo(undefined);
+
       if (e instanceof Error) setInfo(e);
       else setInfo(Error(e?.message || "Unknown error."));
     } finally {

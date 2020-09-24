@@ -192,7 +192,7 @@ namespace nhitomi
                 s.SwaggerDoc("docs", new OpenApiInfo
                 {
                     Title   = "☆.｡.:*　nhitomi API　.｡.:*☆",
-                    Version = VersionInfo.Commit,
+                    Version = "0.0.0",
                     License = new OpenApiLicense
                     {
                         Name = "MIT License",

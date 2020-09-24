@@ -4,8 +4,7 @@ import { animated, useSpring } from "react-spring";
 import { getColor } from "./theme";
 import { useClientInfo } from "./ClientManager";
 import { Tooltip } from "./Components/Tooltip";
-import { FormattedDate, FormattedMessage, FormattedTime } from "react-intl";
-import { GitCommit } from "nhitomi-api";
+import { FormattedMessage } from "react-intl";
 import { Anchor } from "./Components/Anchor";
 import { HeartFilled } from "@ant-design/icons";
 import { SupportLink } from "./Support";
@@ -31,11 +30,7 @@ export const Footer = () => {
         {useMemo(
           () => (
             <div className="text-gray-darker">
-              <VersionTooltip version={info.version}>
-                <Anchor target="_blank" href={`https://github.com/chiyadev/nhitomi/commit/${info.version.hash}`}>
-                  <LinkText>b.{info.version.shortHash}</LinkText>
-                </Anchor>
-              </VersionTooltip>
+              <VersionTooltip version={info.version} />
               <Split />
               <Anchor target="_blank" href="https://github.com/chiyadev/nhitomi">
                 <LinkText>GitHub</LinkText>
@@ -63,21 +58,11 @@ export const Footer = () => {
 
 const Split = () => <span className="mx-2">·</span>;
 
-const VersionTooltip = ({ version, children }: { version: GitCommit; children?: ReactNode }) => (
-  <Tooltip
-    className="inline-flex"
-    overlayClassName="text-center"
-    placement="top"
-    overlay={
-      <>
-        <div>{version.hash}</div>
-        <div>
-          <FormattedDate value={version.time} /> <FormattedTime value={version.time} />
-        </div>
-      </>
-    }
-  >
-    {children}
+const VersionTooltip = ({ version }: { version: string }) => (
+  <Tooltip className="inline-flex" overlayClassName="text-center" placement="top" overlay={version}>
+    <Anchor target="_blank" href={`https://github.com/chiyadev/nhitomi/commit/${version}`}>
+      <LinkText>b.{version.substring(0, 7)}</LinkText>
+    </Anchor>
   </Tooltip>
 );
 
