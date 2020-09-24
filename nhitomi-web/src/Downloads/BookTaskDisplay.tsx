@@ -90,16 +90,12 @@ export const BookTaskDisplay = ({ task }: { task: DownloadTask }) => {
           <div className="pl-2 flex-1 flex flex-col">
             {useMemo(
               () => (
-                <div>
-                  <BookReaderLink id={book.id} contentId={book.contentId}>
-                    <div className="text-lg font-bold">
-                      {(preferEnglishName && book.englishName) || book.primaryName}
-                    </div>
-                    <div className="text-sm text-gray-darker">
-                      {(!preferEnglishName && book.englishName) || book.primaryName}
-                    </div>
-                  </BookReaderLink>
-                </div>
+                <>
+                  <div className="text-lg font-bold">{(preferEnglishName && book.englishName) || book.primaryName}</div>
+                  <div className="text-sm text-gray-darker">
+                    {(!preferEnglishName && book.englishName) || book.primaryName}
+                  </div>
+                </>
               ),
               [book]
             )}

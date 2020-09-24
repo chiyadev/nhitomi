@@ -129,7 +129,6 @@ const SpecialButton = ({ collection }: { collection: Collection }) => {
 const RandomButton = ({ collection }: { collection: Collection }) => {
   const client = useClient();
   const { notifyError } = useNotify();
-  const selectContent = useContentSelector();
   const [prefetchNode, navigate] = useDynamicPrefetch(useBookReaderPrefetch);
   const [loading, setLoading] = useState(false);
 
@@ -148,9 +147,8 @@ const RandomButton = ({ collection }: { collection: Collection }) => {
               const book = await client.book.getBook({
                 id: collection.items[Math.floor(Math.random() * collection.items.length)],
               });
-              const content = selectContent(book.contents);
 
-              if (content) await navigate({ id: book.id, contentId: content.id });
+              await navigate({ id: book.id });
             } catch (e) {
               notifyError(e);
             } finally {

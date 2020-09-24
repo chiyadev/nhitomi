@@ -14,23 +14,27 @@ import { CursorVisibility } from "./CursorVisibility";
 import { useTabTitle } from "../TitleSetter";
 import { useConfig } from "../ConfigManager";
 import { SupportBanner } from "./SupportBanner";
+import { useContentSelector } from "../Components/BookList";
 
 export type PrefetchResult = { book: Book; content: BookContent };
-export type PrefetchOptions = { id: string; contentId: string };
+export type PrefetchOptions = { id: string; contentId?: string };
 
 export const useBookReaderPrefetch: PrefetchGenerator<PrefetchResult, PrefetchOptions> = ({ id, contentId }) => {
   const client = useClient();
+  const selectContent = useContentSelector();
 
   return {
     destination: {
-      path: `/books/${id}/contents/${contentId}`,
+      path: contentId ? `/books/${id}/contents/${contentId}` : `/books/${id}`,
     },
 
     fetch: async () => {
       const book = await client.book.getBook({ id });
-      const content = book.contents.find((c) => c.id === contentId);
+      const content = contentId ? book.contents.find((c) => c.id === contentId) : selectContent(book.contents);
 
-      if (!content) throw Error(`Content ${contentId} does not exist in book ${id}.`);
+      if (!content) {
+        throw Error(`'${contentId}' not found.`);
+      }
 
       return { book, content };
     },

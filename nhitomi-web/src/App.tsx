@@ -1,4 +1,4 @@
-import React, { useEffect, useLayoutEffect, useMemo, useRef } from "react";
+import React, { useEffect, useMemo, useRef } from "react";
 import { Redirect, Route, Router, Switch } from "react-router-dom";
 import { Navigator, useNavigator } from "./state";
 import { ProgressManager } from "./ProgressManager";
@@ -84,7 +84,7 @@ const Routing = () => {
     // timeout prevents multiple page views being tracked for redirects
     clearTimeout(tracked.current);
 
-    tracked.current = window.setTimeout(() => trackView(trackedPath), 100);
+    tracked.current = window.setTimeout(() => trackView(trackedPath), 1000);
   }, [trackedPath]);
 
   return useMemo(
@@ -119,6 +119,15 @@ const Routing = () => {
         />
 
         <Route path="/books" exact component={BookListing} />
+        <Route
+          path="/books/:id"
+          exact
+          render={({
+            match: {
+              params: { id },
+            },
+          }) => <BookReader id={id} />}
+        />
         <Route
           path="/books/:id/contents/:contentId"
           exact
