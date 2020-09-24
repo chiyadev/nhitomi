@@ -1,4 +1,4 @@
-import React, { createContext, Dispatch, ReactNode, useContext, useMemo, useState } from "react";
+import React, { createContext, Dispatch, ReactNode, useContext, useLayoutEffect, useMemo, useState } from "react";
 import {
   BASE_PATH,
   BookApi,
@@ -208,24 +208,31 @@ export const ClientManager = ({ children }: { children?: ReactNode }) => {
   const [info, setInfo] = useState<ClientInfo | Error | undefined>(getCachedInfo);
   const { begin, end } = useProgress();
 
+  useLayoutEffect(() => {
+    if (info && !(info instanceof Error)) {
+      setCachedInfo(info);
+    } else {
+      setCachedInfo(undefined);
+    }
+  });
+
+  useLayoutEffect(() => {
+    if (info && !(info instanceof Error)) {
+      const version = process.env.REACT_APP_VERSION;
+
+      // reload if frontend version doesn't match with backend version
+      if (version && version !== info.version) {
+        window.location.reload();
+      }
+    }
+  }, [info]);
+
   useAsync(async () => {
     begin();
 
     try {
-      const info = await client.getInfo();
-
-      // reload if frontend version doesn't match with backend version
-      const version = process.env.REACT_APP_VERSION;
-
-      if (version && version !== info.version) {
-        window.location.reload();
-      }
-
-      setCachedInfo(info);
-      setInfo(info);
+      setInfo(await client.getInfo());
     } catch (e) {
-      setCachedInfo(undefined);
-
       if (e instanceof Error) setInfo(e);
       else setInfo(Error(e?.message || "Unknown error."));
     } finally {
