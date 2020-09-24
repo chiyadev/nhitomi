@@ -35,6 +35,7 @@ import { useAlert } from "./NotificationManager";
 import { FormattedMessage } from "react-intl";
 import { CollectionContentLink } from "./CollectionContent";
 import { useAsync } from "./hooks";
+import { reloadWithoutCache } from "./cacheBuster";
 
 export class Client {
   readonly httpConfig: ConfigurationParameters = {
@@ -222,7 +223,7 @@ export const ClientManager = ({ children }: { children?: ReactNode }) => {
 
       // reload if frontend version doesn't match with backend version
       if (version && version !== info.version) {
-        window.location.reload(true);
+        reloadWithoutCache();
       }
     }
   }, [info]);
@@ -262,7 +263,7 @@ export const ClientManager = ({ children }: { children?: ReactNode }) => {
         <div className="mt-4 space-x-1">
           <FilledButton
             icon={<ReloadOutlined />}
-            onClick={() => window.location.reload(true)}
+            onClick={() => reloadWithoutCache()}
             color={getColor("red", "darker")}
           >
             Retry
@@ -272,7 +273,7 @@ export const ClientManager = ({ children }: { children?: ReactNode }) => {
             onClick={() => {
               setToken(undefined);
               setBaseUrl(undefined);
-              window.location.reload(true);
+              reloadWithoutCache();
             }}
           >
             Reset

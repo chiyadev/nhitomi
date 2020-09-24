@@ -1,6 +1,7 @@
 import "preact/debug";
 import "./sentry";
 import "./umami";
+import "./cacheBuster"
 
 import "./theme";
 import "./theme.css";
