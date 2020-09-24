@@ -30,7 +30,10 @@ class HelpMessage extends InteractiveMessage {
         url: "https://github.com/chiyadev/nhitomi/raw/master/nhitomi.png",
       },
       footer: {
-        text: `b.${Api.currentInfo.version.shortHash} — ${locale.get("help.owner")}`,
+        // version object with shortHash is legacy, version is a string now
+        text: `b.${(Api.currentInfo.version as any).shortHash || (Api.currentInfo.version as any)} — ${locale.get(
+          "help.owner"
+        )}`,
       },
     };
 
