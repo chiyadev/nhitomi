@@ -6,8 +6,8 @@ import { getBreakpoint, LargeBreakpoints } from "../LayoutManager";
 export const Container = ({ children, className }: { children?: ReactNode; className?: string }) => {
   const measureRef = useRef<HTMLDivElement>(null);
 
-  const parentWidth = useSize(measureRef)?.width || 0;
-  const width = getBreakpoint(LargeBreakpoints, parentWidth);
+  const parentWidth = useSize(measureRef)?.width;
+  const width = parentWidth && getBreakpoint(LargeBreakpoints, parentWidth);
 
   return (
     <div ref={measureRef} className="w-full">

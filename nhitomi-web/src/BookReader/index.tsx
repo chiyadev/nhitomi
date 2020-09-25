@@ -70,13 +70,13 @@ const Loaded = ({ book, content }: PrefetchResult) => {
   useTabTitle((preferEnglishName && book.englishName) || book.primaryName);
 
   const infoRef = useRef(null);
-  const { width: infoWidth, height: infoHeight } = useSize(infoRef) || { width: 0, height: 0 };
+  const { width: infoWidth, height: infoHeight } = useSize(infoRef) || {};
 
   return (
     <>
       <LayoutSetter />
 
-      {infoHeight && <Background book={book} content={content} scrollHeight={infoHeight} />}
+      {!!infoHeight && <Background book={book} content={content} scrollHeight={infoHeight} />}
 
       <div className="space-y-8">
         <div ref={infoRef}>
@@ -86,11 +86,9 @@ const Loaded = ({ book, content }: PrefetchResult) => {
           </Container>
         </div>
 
-        {infoWidth && (
-          <CursorVisibility>
-            <Reader book={book} content={content} viewportWidth={infoWidth} />
-          </CursorVisibility>
-        )}
+        <CursorVisibility>
+          <Reader book={book} content={content} viewportWidth={infoWidth} />
+        </CursorVisibility>
       </div>
     </>
   );

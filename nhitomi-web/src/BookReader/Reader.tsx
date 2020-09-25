@@ -19,7 +19,7 @@ export const Reader = ({
 }: {
   book: Book;
   content: BookContent;
-  viewportWidth: number;
+  viewportWidth?: number;
 }) => {
   const { screen, height: viewportHeight } = useLayout();
 
@@ -39,6 +39,10 @@ export const Reader = ({
   const [singleCover] = useConfig("bookReaderSingleCover");
 
   const layout = useMemo(() => {
+    if (!viewportWidth) {
+      return;
+    }
+
     return layoutEngine.recompute(images || [], {
       viewportWidth,
       viewportHeight,
@@ -81,6 +85,10 @@ export const Reader = ({
   }
 
   const ref = useRef<HTMLDivElement>(null);
+
+  if (!layout) {
+    return null;
+  }
 
   return (
     <div

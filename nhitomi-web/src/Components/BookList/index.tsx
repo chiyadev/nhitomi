@@ -74,7 +74,7 @@ export const BookList = ({
   return (
     <div ref={containerRef} className={cx("w-full relative", className)}>
       <BookListContext.Provider value={context}>
-        {width && (
+        {!!width && (
           <>
             <Grid width={width} menu={menu} empty={empty} />
             <Loader loadMore={loadMore} />

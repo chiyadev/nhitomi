@@ -27,11 +27,9 @@ export function useWindowSize() {
 
   useLayoutEffect(() => {
     const handler = () => {
-      requestAnimationFrame(() => {
-        setState({
-          width: window.innerWidth,
-          height: window.innerHeight,
-        });
+      setState({
+        width: window.innerWidth,
+        height: window.innerHeight,
       });
     };
 
@@ -54,11 +52,12 @@ export function useWindowScroll() {
   });
 
   useLayoutEffect(() => {
-    const handler = () =>
+    const handler = () => {
       setState({
         x: window.scrollX,
         y: window.scrollY,
       });
+    };
 
     window.addEventListener("scroll", handler);
     return () => {
@@ -72,12 +71,10 @@ export function useWindowScroll() {
 const resizeCallbacks = new WeakMap<Element, (entry: ResizeObserverEntry) => void>();
 const resizeObserver = new ResizeObserver((entries) => {
   // https://stackoverflow.com/a/58701523/13160620
-  requestAnimationFrame(() => {
-    for (const entry of entries) {
-      const callback = resizeCallbacks.get(entry.target);
-      callback?.(entry);
-    }
-  });
+  for (const entry of entries) {
+    const callback = resizeCallbacks.get(entry.target);
+    callback?.(entry);
+  }
 });
 
 export function useSize<T extends Element>(target: RefObject<T>) {

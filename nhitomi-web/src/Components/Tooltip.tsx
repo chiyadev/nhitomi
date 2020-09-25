@@ -71,7 +71,7 @@ export const Tooltip = ({
             }}
             // no overflow-hidden as dropdowns can be nested
             className={cx(
-              "rounded text-sm bg-gray-darkest text-white max-w-lg",
+              "rounded text-sm bg-gray-darkest text-white max-w-lg shadow-lg",
               overlayClassName,
               overlayProps?.className,
               {
