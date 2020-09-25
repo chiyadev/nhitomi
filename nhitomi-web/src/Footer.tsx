@@ -1,4 +1,4 @@
-import React, { ReactNode, useMemo, useState } from "react";
+import React, { ReactNode, useMemo, useRef, useState } from "react";
 import { Container } from "./Components/Container";
 import { animated, useSpring } from "react-spring";
 import { getColor } from "./theme";
@@ -8,6 +8,7 @@ import { FormattedMessage } from "react-intl";
 import { Anchor } from "./Components/Anchor";
 import { HeartFilled } from "@ant-design/icons";
 import { SupportLink } from "./Support";
+import { useConfig } from "./ConfigManager";
 
 export const Footer = () => {
   const { info } = useClientInfo();
@@ -83,9 +84,13 @@ const LinkText = ({ children }: { children?: ReactNode }) => {
 const SupporterText = () => {
   const { info } = useClientInfo();
 
+  // until https://github.com/pmndrs/react-spring/issues/1160 gets resolved...
+  const animationDisabled = useRef(false);
+  animationDisabled.current = useConfig("animation")[0] === "none";
+
   const heartStyle = useSpring({
     to: async (next) => {
-      for (;;) {
+      while (!animationDisabled.current) {
         await next({ transform: "scale(1) rotate(0deg)" });
         await next({ transform: "scale(0.9) rotate(5deg)" });
       }
