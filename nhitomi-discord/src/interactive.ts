@@ -15,6 +15,40 @@ import { Locale } from "./locales";
 import { Counter, Gauge, Histogram } from "prom-client";
 import { getBuckets } from "./metrics";
 
+// https://discordjs.guide/popular-topics/embeds.html#embed-limits
+export function truncateEmbed(embed: MessageEmbedOptions) {
+  const truncate = (max: number, s?: string) => {
+    if (s && s.length > max) {
+      return s.substring(0, max - 3) + "...";
+    }
+
+    return s;
+  };
+
+  embed.title = truncate(256, embed.title);
+  embed.description = truncate(2048, embed.description);
+
+  if (embed.author) {
+    embed.author.name = truncate(256, embed.author.name);
+  }
+
+  if (embed.footer) {
+    embed.footer.text = truncate(2048, embed.footer.text);
+  }
+
+  if (embed.fields) {
+    embed.fields = embed.fields.slice(0, 25);
+
+    for (const field of embed.fields) {
+      field.name = truncate(256, field.name);
+      field.value = truncate(1024, field.value);
+    }
+  }
+
+  // todo: a nice way to truncate 6000 characters limit
+  return embed;
+}
+
 type InteractiveInput = {
   userId: string;
   channelId: string;
@@ -24,7 +58,6 @@ type InteractiveInput = {
 };
 
 const pendingInputs: InteractiveInput[] = [];
-
 const interactives: { [id: string]: InteractiveMessage } = {};
 
 export function getInteractive(message: Message | PartialMessage): InteractiveMessage | undefined {
@@ -65,11 +98,6 @@ export abstract class InteractiveMessage {
   /** List of triggers that alter interactive state. */
   triggers?: ReactionTrigger[];
 
-  private lastView: {
-    message?: string;
-    embed?: MessageEmbed;
-  } = {};
-
   /** Initializes this interactive message. Context need not be ref'ed. */
   initialize(context: MessageContext): Promise<boolean> {
     if (this.context) {
@@ -90,6 +118,11 @@ export abstract class InteractiveMessage {
     return this.update();
   }
 
+  private lastView: {
+    message?: string;
+    embed?: MessageEmbedOptions;
+  } = {};
+
   /** Renders this interactive immediately. */
   async update(): Promise<boolean> {
     await this.lock.wait();
@@ -104,10 +137,12 @@ export abstract class InteractiveMessage {
       const result = await this.render(this.context?.locale ?? Locale.default);
       const view = {
         message: result.message,
-        embed: result.embed ? new MessageEmbed(result.embed) : undefined,
+        embed: result.embed ? truncateEmbed(result.embed) : undefined,
       };
 
-      if (!view.message && !view.embed) return false;
+      if (!view.message && !view.embed) {
+        return false;
+      }
 
       const lastRendered = this.rendered;
 
@@ -117,12 +152,15 @@ export abstract class InteractiveMessage {
           return false;
         }
 
-        this.rendered = await this.rendered.edit(view.message, view.embed);
+        this.rendered = await this.rendered.edit(view.message, new MessageEmbed(view.embed));
       } else {
         this.rendered = await this.context?.reply(view.message, view.embed);
       }
 
-      if (lastRendered) delete interactives[lastRendered.id];
+      if (lastRendered) {
+        delete interactives[lastRendered.id];
+      }
+
       if (this.rendered) {
         interactives[this.rendered.id] = this;
 
@@ -132,7 +170,9 @@ export abstract class InteractiveMessage {
           const triggers = (this.triggers = this.createTriggers());
           const rendered = this.rendered;
 
-          for (const trigger of triggers) trigger.interactive = this;
+          for (const trigger of triggers) {
+            trigger.interactive = this;
+          }
 
           // attach triggers outside lock
           setTimeout(async () => {
@@ -220,7 +260,9 @@ export abstract class InteractiveMessage {
    */
   async destroy(expiring?: boolean): Promise<void> {
     // reject pending inputs before entering lock to ensure it gets freed
-    for (const input of this.ownedInputs) input.reject();
+    for (const input of this.ownedInputs) {
+      input.reject();
+    }
 
     await this.lock.wait();
 
@@ -228,7 +270,9 @@ export abstract class InteractiveMessage {
       if (this.rendered)
         console.debug("destroying interactive", this.constructor.name, this.rendered.id, "expiring", expiring || false);
 
-      for (const input of this.ownedInputs) input.reject();
+      for (const input of this.ownedInputs) {
+        input.reject();
+      }
 
       if (this.context) {
         delete interactives[this.context.message.id];
@@ -280,7 +324,9 @@ export async function handleInteractiveMessage(message: Message): Promise<boolea
 export async function handleInteractiveMessageDeleted(message: Message | PartialMessage): Promise<boolean> {
   const interactive = getInteractive(message);
 
-  if (!interactive || message.id !== interactive.rendered?.id) return false;
+  if (!interactive || message.id !== interactive.rendered?.id) {
+    return false;
+  }
 
   await interactive.destroy();
   return true;
@@ -298,7 +344,6 @@ export async function handleInteractiveReaction(reaction: MessageReaction, user:
   if (interactive.ownedInputs.length) return false;
 
   const trigger = interactive.triggers?.find((t) => t.emoji === reaction.emoji.name);
-
   if (!trigger) return false;
 
   return await trigger.invoke();
@@ -320,7 +365,6 @@ export abstract class ReactionTrigger {
   /** Runs this trigger immediately. */
   async invoke(): Promise<boolean> {
     const interactive = this.interactive;
-
     if (!interactive) return false;
 
     let result: boolean;
@@ -344,7 +388,9 @@ export abstract class ReactionTrigger {
       interactive.lock.signal();
     }
 
-    if (result) result = await interactive.update();
+    if (result) {
+      result = await interactive.update();
+    }
 
     return result;
   }

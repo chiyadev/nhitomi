@@ -165,26 +165,18 @@ Discord.on(
             captureException(e);
 
             if (e instanceof Error) {
-              let stack = e.stack;
-
-              if (stack && stack.length > 1920) {
-                stack = stack.substring(0, 1920) + "...";
-              }
-
-              await context.reply({
-                embed: {
-                  title: context.locale.get("error.title"),
-                  color: "RED",
-                  description: `
+              await context.reply("", {
+                title: context.locale.get("error.title"),
+                color: "RED",
+                description: `
 ${context.locale.get("error.description")}
 
 \`\`\`
-${stack}
+${e.stack}
 \`\`\`
 `.trim(),
-                  footer: {
-                    text: `${context.user.username} (${context.user.id})`,
-                  },
+                footer: {
+                  text: `${context.user.username} (${context.user.id})`,
                 },
               });
             }

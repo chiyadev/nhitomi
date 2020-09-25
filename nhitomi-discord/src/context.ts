@@ -4,7 +4,8 @@ import { Api, ApiClient } from "./api";
 import { Message } from "discord.js-light";
 import NodeCache from "node-cache";
 import config from "config";
-import { HeadlessInteractiveMessage, InteractiveMessage } from "./interactive";
+import { HeadlessInteractiveMessage, InteractiveMessage, truncateEmbed } from "./interactive";
+import { MessageEmbedOptions } from "discord.js";
 
 const tokenCache = new NodeCache({
   stdTTL: config.get<number>("api.cachedTokenExpiry"),
@@ -24,7 +25,6 @@ export class MessageContext {
     readonly user: User
   ) {
     this.locale = Locale.get(user.language);
-    this.reply = message.channel.send.bind(message.channel);
   }
 
   refCount = 1;
@@ -50,7 +50,16 @@ export class MessageContext {
   }
 
   /** Shorthand for `message.channel.send(...)`. */
-  reply: Message["channel"]["send"];
+  async reply(content: string | undefined, embed?: MessageEmbedOptions) {
+    if (embed) {
+      return await this.message.channel.send({
+        content: content || undefined,
+        embed: truncateEmbed(embed),
+      });
+    } else {
+      return await this.message.channel.send(content);
+    }
+  }
 
   /** Schedules the deletion of the given message and returns a promise that resolves when it is deleted. Promise will never reject. */
   async scheduleDelete(message: Message, timeout = config.get<number>("interactive.notifTimeout")): Promise<void> {

@@ -130,8 +130,11 @@ ${collections
 
       const index = parseInt(selected) - 1;
 
-      if (isNaN(index)) collection = collections.find((c) => c.name.toLowerCase().startsWith(selected.toLowerCase()));
-      else collection = collections[Math.max(0, Math.min(collections.length - 1, index))];
+      if (isNaN(index)) {
+        collection = collections.find((c) => c.name.toLowerCase().startsWith(selected.toLowerCase()));
+      } else {
+        collection = collections[Math.max(0, Math.min(collections.length - 1, index))];
+      }
 
       if (!collection) return true;
     } else {
@@ -171,14 +174,14 @@ ${collections
 
       switch (command) {
         case "add": {
-          if (collection.items.includes(itemId))
+          if (collection.items.includes(itemId)) {
             await context.reply(
               context.locale.get("collection.add.exists", {
                 item: itemName,
                 collection: collection.name,
               })
             );
-          else {
+          } else {
             // ensure item type is the same as collection type
             if (collection.type !== linkResult.type) {
               await context.reply(
@@ -211,14 +214,14 @@ ${collections
         }
 
         case "remove": {
-          if (!collection.items.includes(itemId))
+          if (!collection.items.includes(itemId)) {
             await context.reply(
               context.locale.get("collection.remove.notExists", {
                 item: itemName,
                 collection: collection.name,
               })
             );
-          else {
+          } else {
             await context.api.collection.removeCollectionItems({
               id: collection.id,
               collectionItemsRequest: {
@@ -249,9 +252,13 @@ ${collections
           })
         );
 
-        if (!"yes".startsWith(confirm.trim().toLowerCase() || "no")) return true;
+        if (!"yes".startsWith(confirm.trim().toLowerCase() || "no")) {
+          return true;
+        }
 
-        await context.api.collection.deleteCollection({ id: collection.id });
+        await context.api.collection.deleteCollection({
+          id: collection.id,
+        });
 
         await context.reply(
           context.locale.get("collection.delete.success", {
