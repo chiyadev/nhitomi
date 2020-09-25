@@ -11,7 +11,7 @@ import React, {
 } from "react";
 import { BookApiGetBookImageRequest, BookContent, BookTags } from "nhitomi-api";
 import { cx } from "emotion";
-import useResizeObserver from "@react-hook/resize-observer";
+import { useResizeObserver } from "../../hooks";
 import { Grid } from "./Grid";
 import { ScraperTypes } from "../../orderedConstants";
 import { TypedPrefetchLinkProps } from "../../Prefetch";

@@ -1,6 +1,6 @@
 import React, { ReactNode, useRef, useState } from "react";
 import { cx } from "emotion";
-import useResizeObserver from "@react-hook/resize-observer";
+import { useResizeObserver } from "../hooks";
 import { getBreakpoint, LargeBreakpoints } from "../LayoutManager";
 
 export const Container = ({ children, className }: { children?: ReactNode; className?: string }) => {

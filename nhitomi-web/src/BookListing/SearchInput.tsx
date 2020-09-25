@@ -18,7 +18,7 @@ import Tippy from "@tippyjs/react";
 import { useClient } from "../ClientManager";
 import { useNotify } from "../NotificationManager";
 import { animated, useSpring, useTransition } from "react-spring";
-import useResizeObserver from "@react-hook/resize-observer";
+import { useResizeObserver } from "../hooks";
 import { useLocalized } from "../LocaleManager";
 import { FormattedMessage } from "react-intl";
 import { BookTags } from "../orderedConstants";

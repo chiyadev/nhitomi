@@ -5,7 +5,7 @@ import { useClient } from "../ClientManager";
 import { useScrollShortcut } from "../shortcut";
 import { PageContainer } from "../Components/PageContainer";
 import { Container } from "../Components/Container";
-import useResizeObserver from "@react-hook/resize-observer";
+import { useResizeObserver } from "../hooks";
 import { Info } from "./Info";
 import { Background } from "./Background";
 import { Reader } from "./Reader";
