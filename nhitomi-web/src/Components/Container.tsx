@@ -1,14 +1,12 @@
-import React, { ReactNode, useRef, useState } from "react";
+import React, { ReactNode, useRef } from "react";
 import { cx } from "emotion";
-import { useResizeObserver } from "../hooks";
+import { useSize } from "../hooks";
 import { getBreakpoint, LargeBreakpoints } from "../LayoutManager";
 
 export const Container = ({ children, className }: { children?: ReactNode; className?: string }) => {
   const measureRef = useRef<HTMLDivElement>(null);
-  const [parentWidth, setParentWidth] = useState(0);
 
-  useResizeObserver(measureRef, ({ contentRect: { width } }) => setParentWidth(width));
-
+  const parentWidth = useSize(measureRef)?.width || 0;
   const width = getBreakpoint(LargeBreakpoints, parentWidth);
 
   return (

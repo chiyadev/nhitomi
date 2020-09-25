@@ -1,8 +1,7 @@
-import { DependencyList, RefObject, useLayoutEffect, useMemo, useState } from "react";
-import { useAsyncFn, useLatest } from "react-use";
+import { DependencyList, RefObject, useLayoutEffect, useState } from "react";
+import { useAsyncFn } from "react-use";
 import { FnReturningPromise } from "react-use/lib/util";
-import ResizeObserver from "resize-observer-polyfill";
-import { randomStr } from "./random";
+import { ResizeObserver, ResizeObserverEntry } from "@juggle/resize-observer";
 
 // equivalent to react-use's useAsync except callback runs synchronously
 export function useAsync<T extends FnReturningPromise>(fn: T, deps: DependencyList = []) {
@@ -67,30 +66,28 @@ export function useWindowScroll() {
   return state;
 }
 
-type ResizeObserverSingleCallback = (entry: ResizeObserverEntry, observer: ResizeObserver) => void;
-
-const resizeCallbacks = new WeakMap<Element, ResizeObserverSingleCallback>();
-const resizeObserver = new ResizeObserver((entries, observer) => {
+const resizeCallbacks = new WeakMap<Element, (entry: ResizeObserverEntry) => void>();
+const resizeObserver = new ResizeObserver((entries) => {
   for (const entry of entries) {
     const callback = resizeCallbacks.get(entry.target);
-    callback?.(entry, observer);
+    callback?.(entry);
   }
 });
 
-/** Resize observer hook inspired by @react-hooks/resize-observer. */
-export function useResizeObserver<T extends HTMLElement>(
-  target: RefObject<T>,
-  callback: ResizeObserverSingleCallback
-): ResizeObserver {
+export function useSize<T extends Element>(target: RefObject<T>) {
+  const [size, setSize] = useState<ResizeObserverEntry["contentRect"] | undefined>(() =>
+    target.current?.getBoundingClientRect()
+  );
+
   useLayoutEffect(() => {
     const element = target.current;
     if (!element) return;
 
-    resizeCallbacks.set(element, callback);
+    resizeCallbacks.set(element, (entry) => setSize(entry.contentRect));
     return () => {
       resizeCallbacks.delete(element);
     };
-  }, [target.current, callback]);
+  }, [target.current]);
 
   useLayoutEffect(() => {
     const element = target.current;
@@ -100,5 +97,5 @@ export function useResizeObserver<T extends HTMLElement>(
     return () => resizeObserver.unobserve(element);
   }, [target.current]);
 
-  return resizeObserver;
+  return size;
 }

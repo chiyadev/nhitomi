@@ -7,11 +7,10 @@ import React, {
   useContext,
   useMemo,
   useRef,
-  useState,
 } from "react";
 import { BookApiGetBookImageRequest, BookContent, BookTags } from "nhitomi-api";
 import { cx } from "emotion";
-import { useResizeObserver } from "../../hooks";
+import { useSize } from "../../hooks";
 import { Grid } from "./Grid";
 import { ScraperTypes } from "../../orderedConstants";
 import { TypedPrefetchLinkProps } from "../../Prefetch";
@@ -57,9 +56,7 @@ export const BookList = ({
   loadMore?: () => Promise<void>;
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [width, setWidth] = useState(containerRef.current?.clientWidth);
-
-  useResizeObserver(containerRef, ({ contentRect: { width } }) => setWidth(width));
+  const width = useSize(containerRef)?.width;
 
   const { items, getCoverRequest, preferEnglishName, overlayVisible, LinkComponent, OverlayComponent } = context;
   context = useMemo(

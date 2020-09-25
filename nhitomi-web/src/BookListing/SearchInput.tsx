@@ -18,13 +18,13 @@ import Tippy from "@tippyjs/react";
 import { useClient } from "../ClientManager";
 import { useNotify } from "../NotificationManager";
 import { animated, useSpring, useTransition } from "react-spring";
-import { useResizeObserver } from "../hooks";
 import { useLocalized } from "../LocaleManager";
 import { FormattedMessage } from "react-intl";
 import { BookTags } from "../orderedConstants";
 import { convertHex, getColor } from "../theme";
 import { useShortcut } from "../shortcut";
 import { captureException } from "@sentry/react";
+import { useSize } from "../hooks";
 
 export type QueryToken =
   | {
@@ -521,10 +521,6 @@ const Suggestor = ({
     marginTop: dropdownVisible ? 0 : -5,
   });
 
-  const [dropdownWidth, setDropdownWidth] = useState(inputRef.current?.clientWidth);
-
-  useResizeObserver(inputRef, ({ contentRect: { width } }) => setDropdownWidth(width));
-
   const suggestionsTransitions = useTransition(suggestions || [], {
     from: { opacity: 0 },
     enter: { opacity: 1 },
@@ -556,12 +552,14 @@ const Suggestor = ({
     </>
   );
 
+  const inputSize = useSize(inputRef);
+
   return (
     <Tippy
       visible={dropdownVisible}
       interactive
       placement="bottom-start"
-      maxWidth={dropdownWidth}
+      maxWidth={inputSize?.width}
       render={(props) => (
         <animated.div
           {...props}

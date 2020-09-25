@@ -1,11 +1,11 @@
-import React, { useMemo, useRef, useState } from "react";
+import React, { useMemo, useRef } from "react";
 import { PrefetchGenerator, PrefetchLink, TypedPrefetchLinkProps, usePostfetch } from "../Prefetch";
 import { Book, BookContent } from "nhitomi-api";
 import { useClient } from "../ClientManager";
 import { useScrollShortcut } from "../shortcut";
 import { PageContainer } from "../Components/PageContainer";
 import { Container } from "../Components/Container";
-import { useResizeObserver } from "../hooks";
+import { useSize } from "../hooks";
 import { Info } from "./Info";
 import { Background } from "./Background";
 import { Reader } from "./Reader";
@@ -70,30 +70,27 @@ const Loaded = ({ book, content }: PrefetchResult) => {
   useTabTitle((preferEnglishName && book.englishName) || book.primaryName);
 
   const infoRef = useRef(null);
-  const [{ width: infoWidth, height: infoHeight }, setInfoSize] = useState<{
-    width: number;
-    height: number;
-  }>({ width: 0, height: 0 });
-
-  useResizeObserver(infoRef, ({ contentRect }) => setInfoSize(contentRect));
+  const { width: infoWidth, height: infoHeight } = useSize(infoRef) || { width: 0, height: 0 };
 
   return (
     <>
       <LayoutSetter />
-      <Background book={book} content={content} scrollHeight={infoHeight} />
+
+      {infoHeight && <Background book={book} content={content} scrollHeight={infoHeight} />}
 
       <div className="space-y-8">
         <div ref={infoRef}>
           <Container>
             <Info book={book} content={content} />
+            <SupportBanner book={book} content={content} />
           </Container>
         </div>
 
-        <SupportBanner book={book} content={content} />
-
-        <CursorVisibility>
-          <Reader book={book} content={content} viewportWidth={infoWidth} />
-        </CursorVisibility>
+        {infoWidth && (
+          <CursorVisibility>
+            <Reader book={book} content={content} viewportWidth={infoWidth} />
+          </CursorVisibility>
+        )}
       </div>
     </>
   );
