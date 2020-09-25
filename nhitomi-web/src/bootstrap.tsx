@@ -1,4 +1,6 @@
+import "react-app-polyfill/stable";
 import "preact/debug";
+
 import "./sentry";
 import "./umami";
 import "./cacheBuster";
