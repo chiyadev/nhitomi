@@ -2,7 +2,7 @@ import React, { Dispatch, ReactNode, useMemo, useState } from "react";
 import { animated, useSpring } from "react-spring";
 import { LeftOutlined, MenuOutlined } from "@ant-design/icons";
 import { getColor } from "../theme";
-import { useWindowScroll } from "../hooks";
+import { useSize, useWindowScroll } from "../hooks";
 import { useLayout } from "../LayoutManager";
 import { cx } from "emotion";
 import ScrollLock, { TouchScrollable } from "react-scrolllock";
@@ -82,12 +82,15 @@ const Body = ({ open, children }: { open: boolean; children?: ReactNode }) => {
     transform: open ? "scale(0.9)" : "scale(1)",
   });
 
-  const { x: originX, y: originY } = useMemo(() => {
-    return {
-      x: ((scrollX + width / 2) / document.body.clientWidth) * 100,
-      y: ((scrollY + height / 2) / document.body.clientHeight) * 100,
-    };
-  }, [scrollX, scrollY]);
+  const { width: bodyWidth, height: bodyHeight } = useSize({ current: document.body }) || { width: 0, height: 0 };
+
+  const { x: originX, y: originY } = useMemo(
+    () => ({
+      x: ((scrollX + width / 2) / bodyWidth) * 100,
+      y: ((scrollY + height / 2) / bodyHeight) * 100,
+    }),
+    [scrollX, scrollY, width, height, bodyWidth, bodyHeight]
+  );
 
   return (
     <animated.div
