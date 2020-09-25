@@ -1,4 +1,4 @@
-const { override, addWebpackAlias, setWebpackOptimizationSplitChunks } = require("customize-cra");
+const { override, addWebpackAlias } = require("customize-cra");
 const { execSync } = require("child_process");
 
 // compile Tailwind
@@ -12,7 +12,7 @@ module.exports = override(
   }),
 
   // https://medium.com/@poshakajay/heres-how-i-reduced-my-bundle-size-by-90-2e14c8a11c11
-  setWebpackOptimizationSplitChunks({
+  /*setWebpackOptimizationSplitChunks({
     chunks: "all",
     cacheGroups: {
       commons: {
@@ -21,5 +21,5 @@ module.exports = override(
         chunks: "all",
       },
     },
-  })
+  })*/
 );

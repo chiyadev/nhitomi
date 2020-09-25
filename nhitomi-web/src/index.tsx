@@ -1,22 +1,12 @@
-import "preact/debug";
-import "./sentry";
-import "./umami";
-import "./cacheBuster"
-
-import "./theme";
-import "./theme.css";
+import { startProgress, stopProgress } from "./progress";
 import "./index.css";
 
-import React, { StrictMode } from "react";
-import { render } from "react-dom";
-import { App } from "./App";
-import { withProfiler } from "@sentry/react";
+(async () => {
+  startProgress();
 
-const Root = withProfiler(App);
-
-render(
-  <StrictMode>
-    <Root />
-  </StrictMode>,
-  document.getElementById("root")
-);
+  try {
+    await import("./bootstrap");
+  } finally {
+    stopProgress();
+  }
+})();
