@@ -72,9 +72,6 @@ function wrapHandler<T extends Function>(name: string, func: T): T {
 }
 
 async function whileTyping<T>(channel: Message["channel"], action: () => Promise<T>): Promise<T> {
-  // make channel fields (specifically 'nsfw') availble for the code within action
-  await channel.fetch();
-
   let typing = true;
   channel.startTyping();
 
@@ -112,12 +109,22 @@ const commandErrorCount = new Counter({
 Discord.on(
   "message",
   wrapHandler("message", async (message) => {
-    if (message.channel.type !== "text") return;
+    if (message.channel.type !== "text" && message.channel.type !== "dm") return;
 
     messageCount.inc();
 
     if (!(await shouldHandleMessage(message))) return;
     if (await handleInteractiveMessage(message)) return;
+
+    const prepareMessage = async () => {
+      await message.fetch();
+
+      // needed for nsfw flag check of text channels
+      // for DMChannels discord.js-light@3.2.11 throws TypeError: Cannot read property 'createDM' of undefined
+      if (message.channel.type === "text") {
+        await message.channel.fetch();
+      }
+    };
 
     const prefix = config.get<string>("prefix");
 
@@ -135,6 +142,8 @@ Discord.on(
       const measure = commandTime.startTimer({ command: name });
 
       try {
+        await prepareMessage();
+
         await whileTyping(message.channel, async () => {
           const context = await MessageContext.create(message);
 
@@ -211,6 +220,8 @@ ${stack}
       });
 
       if (!result.matches.length) return;
+
+      await prepareMessage();
 
       await whileTyping(message.channel, async () => {
         const context = await MessageContext.create(message);

@@ -518,14 +518,14 @@ delayed-stream@~1.0.0:
   resolved "https://registry.yarnpkg.com/delayed-stream/-/delayed-stream-1.0.0.tgz#df3ae199acadfb7d440aaae0b29e2272b24ec619"
   integrity sha1-3zrhmayt+31ECqrgsp4icrJOxhk=
 
-discord.js-light@^3.2.3:
-  version "3.2.9"
-  resolved "https://registry.yarnpkg.com/discord.js-light/-/discord.js-light-3.2.9.tgz#46591ee8397239e32fa11af20746da553c793b44"
-  integrity sha512-ZPCS2BWWIDP1u+j7yVGm24wDgz+7YztldsF4AKGPiB+xMdKbbGCSNDyyskhNoUP8lOPtJcea5dmxg+9aVYiMow==
+discord.js-light@^3.2.11:
+  version "3.2.11"
+  resolved "https://registry.yarnpkg.com/discord.js-light/-/discord.js-light-3.2.11.tgz#8c53f1c2e6ae531f441b38a643f6b2a6bb412e6f"
+  integrity sha512-YRjf15z+yHPid32z8eNaF2TCU4ddZ8yfWPlIBjcKyuYl7yJ0g7OA2YPzmP19pv0mUomJs04RPzaf5nSZjMnjyA==
   dependencies:
     discord.js "12.3.1"
 
-discord.js@12.3.1, discord.js@^12.2.0:
+discord.js@12.3.1, discord.js@^12.3.1:
   version "12.3.1"
   resolved "https://registry.yarnpkg.com/discord.js/-/discord.js-12.3.1.tgz#8f58ac17d29b068dbfeb6c01fc7777bacd5324cf"
   integrity sha512-mSFyV/mbvzH12UXdS4zadmeUf8IMQOo/YdunubG1wWt1xjWvtaJz/s9CGsFD2B5pTw1W/LXxxUbrQjIZ/xlUdw==
