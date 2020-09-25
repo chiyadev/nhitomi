@@ -38,7 +38,11 @@
         "twitter": "Twitterでログイン"
       },
       "redirect": {
-        "progress": "{name}にリダイレクト中..."
+        "progress": "{name}にリダイレクト中...",
+        "failed": {
+          "text": "リダイレクトされなかった場合は{link}をクリックしてください。",
+          "link": "こちら"
+        }
       }
     },
     "bookListing": {

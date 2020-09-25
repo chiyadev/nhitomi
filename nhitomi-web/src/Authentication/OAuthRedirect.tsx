@@ -1,6 +1,6 @@
 import { PrefetchGenerator, PrefetchLink, TypedPrefetchLinkProps, usePostfetch } from "../Prefetch";
 import { useQueryState } from "../state";
-import React, { useLayoutEffect, useMemo } from "react";
+import React, { useLayoutEffect, useMemo, useState } from "react";
 import { PageContainer } from "../Components/PageContainer";
 import { Container } from "../Components/Container";
 import { Loading3QuartersOutlined } from "@ant-design/icons";
@@ -8,6 +8,7 @@ import { FormattedMessage } from "react-intl";
 import { stringify } from "qs";
 import { useConfig } from "../ConfigManager";
 import { Anchor } from "../Components/Anchor";
+import { useInterval } from "react-use";
 
 type OAuthClientInfo = {
   id: string;
@@ -77,6 +78,8 @@ export const OAuthRedirect = (options: PrefetchOptions) => {
   );
 };
 
+const redirectRetries = 5;
+
 const Loaded = ({ client, state }: PrefetchResult) => {
   const [token] = useConfig("token");
   const redirectUri = useMemo(() => {
@@ -85,10 +88,18 @@ const Loaded = ({ client, state }: PrefetchResult) => {
     return client.redirectUri + query;
   }, []);
 
-  useLayoutEffect(() => window.location.replace(redirectUri), []);
+  const [retry, setRetry] = useState(0);
+
+  useInterval(
+    () => {
+      window.location.replace(redirectUri);
+      setRetry((retry) => retry + 1);
+    },
+    retry < redirectRetries ? 1000 : null
+  );
 
   return (
-    <Container className="p-4">
+    <Container className="p-4 space-y-4">
       <div className="space-x-2">
         <Loading3QuartersOutlined className="animate-spin" />
 
@@ -105,6 +116,21 @@ const Loaded = ({ client, state }: PrefetchResult) => {
           />
         </span>
       </div>
+
+      {retry >= redirectRetries && (
+        <div className="text-sm text-gray-darker">
+          <FormattedMessage
+            id="pages.authentication.redirect.failed.text"
+            values={{
+              link: (
+                <Anchor className="text-blue" href={redirectUri}>
+                  <FormattedMessage id="pages.authentication.redirect.failed.link" />
+                </Anchor>
+              ),
+            }}
+          />
+        </div>
+      )}
     </Container>
   );
 };

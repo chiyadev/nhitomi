@@ -38,7 +38,11 @@
         "twitter": "Continue with Twitter"
       },
       "redirect": {
-        "progress": "Redirecting back to {name}..."
+        "progress": "Redirecting to {name}...",
+        "failed": {
+          "text": "Not redirected? Click {link}.",
+          "link": "here"
+        }
       }
     },
     "bookListing": {
