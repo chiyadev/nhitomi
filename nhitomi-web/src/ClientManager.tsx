@@ -39,11 +39,31 @@ import { reloadWithoutCache } from "./cacheBuster";
 
 export class Client {
   readonly httpConfig: ConfigurationParameters = {
+    fetchApi: async (input, init) => {
+      for (let i = 0; ; i++) {
+        if (i) {
+          await new Promise((resolve) => setTimeout(resolve, 1000));
+        }
+
+        try {
+          return await fetch(input, init);
+        } catch (e) {
+          // fetch errors are usually network errors
+          // if connection is offline, retry indefinitely (maybe don't use navigator.online https://stackoverflow.com/a/14283180/13160620)
+          if (!navigator.onLine) continue;
+
+          // otherwise retry up to three times
+          if (i < 3) continue;
+
+          throw e;
+        }
+      }
+    },
+
     middleware: [
       {
         post: async (context) => {
           const { response } = context;
-
           if (response.ok) return;
 
           // authorization failure when we should be authorized
