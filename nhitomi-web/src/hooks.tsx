@@ -26,11 +26,14 @@ export function useWindowSize() {
   });
 
   useLayoutEffect(() => {
-    const handler = () =>
-      setState({
-        width: window.innerWidth,
-        height: window.innerHeight,
+    const handler = () => {
+      requestAnimationFrame(() => {
+        setState({
+          width: window.innerWidth,
+          height: window.innerHeight,
+        });
       });
+    };
 
     window.addEventListener("resize", handler);
     return () => {
@@ -68,10 +71,13 @@ export function useWindowScroll() {
 
 const resizeCallbacks = new WeakMap<Element, (entry: ResizeObserverEntry) => void>();
 const resizeObserver = new ResizeObserver((entries) => {
-  for (const entry of entries) {
-    const callback = resizeCallbacks.get(entry.target);
-    callback?.(entry);
-  }
+  // https://stackoverflow.com/a/58701523/13160620
+  requestAnimationFrame(() => {
+    for (const entry of entries) {
+      const callback = resizeCallbacks.get(entry.target);
+      callback?.(entry);
+    }
+  });
 });
 
 export function useSize<T extends Element>(target: RefObject<T>) {
