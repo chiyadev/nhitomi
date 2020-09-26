@@ -161,7 +161,7 @@ const PageWrapper = ({
         </div>
       </VisibilitySensor>
     ),
-    [visible, style]
+    [preload, visible, style, book, content, index, setImage]
   );
 };
 

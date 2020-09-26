@@ -33,7 +33,12 @@ export const CoverImage = ({
   sizing?: "cover" | "contain";
 }) => {
   const [loaded, setLoaded] = useState<{ url: string; width: number; height: number } | undefined>(() => {
-    if (cacheKey) return getCachedImageRef(cacheKey);
+    if (cacheKey) {
+      const image = getCachedImageRef(cacheKey);
+      if (image) onLoaded?.(image);
+
+      return image;
+    }
   });
 
   const [loading, setLoading] = useState(!loaded);
