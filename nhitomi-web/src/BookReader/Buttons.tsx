@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useClientUtils } from "../ClientManager";
+import { useClientInfo, useClientUtils } from "../ClientManager";
 import { useNotify } from "../NotificationManager";
 import { Book, BookContent, ObjectType, SpecialCollection } from "nhitomi-api";
 import { PrefetchResult } from ".";
@@ -13,6 +13,9 @@ import { useProgress } from "../ProgressManager";
 import { Disableable } from "../Components/Disableable";
 import { useDownloads } from "../DownloadManager";
 import { trackEvent } from "../umami";
+import { NonSupporterPageLimit } from "../Support/Limits";
+import { Tooltip } from "../Components/Tooltip";
+import { SupportLink } from "../Support";
 
 export const Buttons = ({ book, content }: PrefetchResult) => {
   return (
@@ -72,8 +75,9 @@ const CollectionAddButton = ({ book }: { book: Book }) => {
 
 const DownloadButton = ({ book, content }: { book: Book; content: BookContent }) => {
   const { add } = useDownloads();
+  const { info } = useClientInfo();
 
-  return (
+  let button = (
     <FilledButton
       icon={<CloudDownloadOutlined />}
       color={getColor("gray", "darkest")}
@@ -95,4 +99,19 @@ const DownloadButton = ({ book, content }: { book: Book; content: BookContent })
       <FormattedMessage id="pages.bookReader.buttons.download" />
     </FilledButton>
   );
+
+  if ((!info.authenticated || !info.user.isSupporter) && content.pageCount > NonSupporterPageLimit) {
+    button = (
+      <Tooltip
+        placement="top"
+        overlay={<FormattedMessage id="pages.bookReader.limits.download" values={{ count: NonSupporterPageLimit }} />}
+      >
+        <SupportLink>
+          <Disableable disabled>{button}</Disableable>
+        </SupportLink>
+      </Tooltip>
+    );
+  }
+
+  return button;
 };
