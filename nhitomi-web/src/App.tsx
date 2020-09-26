@@ -3,6 +3,8 @@ import { Redirect, Route, Router, Switch } from "react-router-dom";
 import { Navigator, useNavigator } from "./state";
 import { ProgressManager } from "./ProgressManager";
 import { trackView } from "./umami";
+import { useErrorBoundary } from "preact/hooks";
+import { captureException } from "@sentry/react";
 
 import { ConfigManager } from "./ConfigManager";
 import { LayoutManager } from "./LayoutManager";
@@ -36,6 +38,14 @@ import { Debug } from "./Internal/Debug";
 import { NotFound } from "./NotFound";
 
 export const App = () => {
+  const [error, reset] = useErrorBoundary((e) => {
+    captureException(e);
+  });
+
+  if (error) {
+    return <ErrorDisplay error={error} reset={reset} />;
+  }
+
   return (
     <Router history={Navigator.history}>
       <ProgressManager>
@@ -176,5 +186,19 @@ const Routing = () => {
       </Switch>
     ),
     [path]
+  );
+};
+
+const ErrorDisplay = ({ error }: { error: Error; reset: () => void }) => {
+  return (
+    <div className="p-4">
+      <div>nhitomi has encountered a critical error.</div>
+      <div>This error has been automatically reported to the developers. Please try again later!</div>
+
+      <br />
+      <div className="text-sm whitespace-pre">
+        <code>{error.stack}</code>
+      </div>
+    </div>
   );
 };

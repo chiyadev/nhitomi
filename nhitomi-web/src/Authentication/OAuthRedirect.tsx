@@ -1,6 +1,6 @@
 import { PrefetchGenerator, PrefetchLink, TypedPrefetchLinkProps, usePostfetch } from "../Prefetch";
 import { useQueryState } from "../state";
-import React, { useLayoutEffect, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import { PageContainer } from "../Components/PageContainer";
 import { Container } from "../Components/Container";
 import { Loading3QuartersOutlined } from "@ant-design/icons";

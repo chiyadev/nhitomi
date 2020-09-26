@@ -13,6 +13,7 @@ import { TwitterColor, TwitterOutlined } from "../Components/Icons/TwitterOutlin
 import { animated, useSpring } from "react-spring";
 import GitHubButton from "react-github-btn";
 import { Anchor } from "../Components/Anchor";
+import { useErrorBoundary } from "preact/hooks";
 
 export type PrefetchResult = { info: ClientInfo; state: string };
 export type PrefetchOptions = { redirect?: NavigationArgs };
@@ -147,11 +148,18 @@ const Loaded = ({ info: { discordOAuthUrl }, state }: PrefetchResult) => {
 };
 
 const GitHubButtons = () => {
+  const [error] = useErrorBoundary();
   const [hover, setHover] = useState(false);
 
   const style = useSpring({
     opacity: hover ? 1 : 0.5,
   });
+
+  // react-github-btn seems to have problems
+  // https://sentry.io/share/issue/98f2a92621e44a07bafcdb55cd52d7c6/
+  if (error) {
+    return null;
+  }
 
   return (
     <animated.div
@@ -167,9 +175,11 @@ const GitHubButtons = () => {
       >
         Watch
       </GitHubButton>
+
       <GitHubButton href="https://github.com/chiyadev/nhitomi" data-icon="octicon-star" data-show-count={true}>
         Star
       </GitHubButton>
+
       <GitHubButton
         href="https://github.com/chiyadev/nhitomi/fork"
         data-icon="octicon-repo-forked"
