@@ -1,6 +1,6 @@
 import React, { ReactNode, useMemo } from "react";
 import { PrefetchGenerator, PrefetchLink, TypedPrefetchLinkProps, usePostfetch } from "../Prefetch";
-import { ClientInfo, useClientInfo } from "../ClientManager";
+import { ClientInfo, useClientInfo, usePermissions } from "../ClientManager";
 import { Container } from "../Components/Container";
 import { FormattedMessage } from "react-intl";
 import { Language } from "./Language";
@@ -91,7 +91,7 @@ export const Settings = (options: PrefetchOptions) => {
 };
 
 const Loaded = () => {
-  const { permissions } = useClientInfo();
+  const permissions = usePermissions();
 
   useTabTitle(useLocalized("pages.settings.title"));
 

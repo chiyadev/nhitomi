@@ -189,10 +189,15 @@ export function useClientInfo() {
   const { info, setInfo, fetchInfo } = useContext(ClientContext);
 
   const user = info.user;
-  const permissions = useMemo(() => new PermissionHelper(user), [user]);
   const isSupporter = user?.isSupporter || false;
 
-  return { info, setInfo, fetchInfo, user, permissions, isSupporter };
+  return { info, setInfo, fetchInfo, user, isSupporter };
+}
+
+export function usePermissions() {
+  const { user } = useClientInfo();
+
+  return useMemo(() => new PermissionHelper(user), [user]);
 }
 
 const cacheKey = "info_cached";
@@ -385,10 +390,6 @@ export class PermissionHelper {
       (this.user && collection.ownerIds.indexOf(this.user.id) !== -1)
     );
   }
-}
-
-export function usePermissions() {
-  return useClientInfo().permissions;
 }
 
 /** Provides commonly used client-related functions would otherwise be copy-pasted in several places. */

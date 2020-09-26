@@ -1,7 +1,7 @@
 import React, { ComponentProps } from "react";
 import { PrefetchGenerator, PrefetchLink, TypedPrefetchLinkProps, usePostfetch } from "../Prefetch";
 import { Book, Collection, ObjectType, User } from "nhitomi-api";
-import { useClient, useClientInfo } from "../ClientManager";
+import { useClient, useClientInfo, usePermissions } from "../ClientManager";
 import { PageContainer } from "../Components/PageContainer";
 import { Container } from "../Components/Container";
 import { FormattedMessage } from "react-intl";
@@ -87,7 +87,7 @@ export const CollectionListing = (options: PrefetchOptions) => {
 const Loaded = ({ user, books }: PrefetchResult) => {
   useTabTitle(useLocalized("pages.collectionListing.title"));
 
-  const { permissions } = useClientInfo();
+  const permissions = usePermissions();
 
   return (
     <Container className="divide-y divide-gray-darkest">
