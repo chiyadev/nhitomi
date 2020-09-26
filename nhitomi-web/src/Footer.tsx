@@ -82,7 +82,7 @@ const LinkText = ({ children }: { children?: ReactNode }) => {
 };
 
 const SupporterText = () => {
-  const { info } = useClientInfo();
+  const { isSupporter } = useClientInfo();
 
   // until https://github.com/pmndrs/react-spring/issues/1160 gets resolved...
   const animationDisabled = useRef(false);
@@ -97,7 +97,7 @@ const SupporterText = () => {
     },
   });
 
-  if (!info.user?.isSupporter) return null;
+  if (!isSupporter) return null;
 
   return (
     <div>

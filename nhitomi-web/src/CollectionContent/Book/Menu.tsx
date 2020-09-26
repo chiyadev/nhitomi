@@ -44,13 +44,13 @@ export const Menu = ({ collection }: { collection: Collection }) => (
 );
 
 const SpecialButton = ({ collection }: { collection: Collection }) => {
-  const { info } = useClientInfo();
+  const { user } = useClientInfo();
   const { updateUser } = useClientUtils();
   const { begin, end } = useProgress();
   const { notifyError } = useNotify();
   const [loading, setLoading] = useState(false);
 
-  if (!info.user) return null;
+  if (!user) return null;
 
   const setSpecial = async (special: SpecialCollection) => {
     begin();
@@ -84,7 +84,7 @@ const SpecialButton = ({ collection }: { collection: Collection }) => {
             icon={
               <HeartOutlined
                 className={cx({
-                  "text-red": info.user.specialCollections?.book?.favorites === collection.id,
+                  "text-red": user.specialCollections?.book?.favorites === collection.id,
                 })}
               />
             }
@@ -100,7 +100,7 @@ const SpecialButton = ({ collection }: { collection: Collection }) => {
             icon={
               <EyeOutlined
                 className={cx({
-                  "text-blue": info.user.specialCollections?.book?.later === collection.id,
+                  "text-blue": user.specialCollections?.book?.later === collection.id,
                 })}
               />
             }
@@ -115,9 +115,9 @@ const SpecialButton = ({ collection }: { collection: Collection }) => {
       }
     >
       <RoundIconButton>
-        {info.user.specialCollections?.book?.favorites === collection.id ? (
+        {user.specialCollections?.book?.favorites === collection.id ? (
           <HeartOutlined className="text-red" />
-        ) : info.user.specialCollections?.book?.later === collection.id ? (
+        ) : user.specialCollections?.book?.later === collection.id ? (
           <EyeOutlined className="text-blue" />
         ) : (
           <StarOutlined />
@@ -168,9 +168,9 @@ const RandomButton = ({ collection }: { collection: Collection }) => {
 };
 
 const DownloadButton = ({ collection }: { collection: Collection }) => {
-  const { info } = useClientInfo();
+  const { isSupporter } = useClientInfo();
 
-  if (info.user?.isSupporter) {
+  if (isSupporter) {
     return <DownloadButtonInner collection={collection} />;
   }
 

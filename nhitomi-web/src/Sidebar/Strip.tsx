@@ -32,7 +32,7 @@ import { useDownloads } from "../DownloadManager";
 import { getColor } from "../theme";
 
 export const Strip = ({ children, additionalMenu }: { children?: ReactNode; additionalMenu?: ReactNode }) => {
-  const { info } = useClientInfo();
+  const { user } = useClientInfo();
 
   const style = useSpring({
     from: { opacity: 0, marginLeft: -5 },
@@ -58,7 +58,7 @@ export const Strip = ({ children, additionalMenu }: { children?: ReactNode; addi
           `
         )}
       >
-        <Disableable disabled={!info.user} className="flex flex-col items-center">
+        <Disableable disabled={!user} className="flex flex-col items-center">
           <Logo />
           <Buttons />
 

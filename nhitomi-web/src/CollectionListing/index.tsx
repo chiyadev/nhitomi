@@ -56,10 +56,10 @@ export const useCollectionListingPrefetch: PrefetchGenerator<PrefetchResult, Pre
 };
 
 export const SelfCollectionListingLink = (props: Omit<ComponentProps<typeof CollectionListingLink>, "id">) => {
-  const { info } = useClientInfo();
+  const { user } = useClientInfo();
 
-  if (info.user) {
-    return <CollectionListingLink id={info.user.id} {...props} />;
+  if (user) {
+    return <CollectionListingLink id={user.id} {...props} />;
   }
 
   return <>{props.children}</>;

@@ -176,7 +176,6 @@ export type ClientInfo = GetInfoResponse & Partial<GetInfoAuthenticatedResponse>
 
 const ClientContext = createContext<{
   client: Client;
-  permissions: PermissionHelper;
   info: ClientInfo;
   setInfo: Dispatch<ClientInfo>;
   fetchInfo: () => Promise<ClientInfo>;
@@ -187,8 +186,13 @@ export function useClient() {
 }
 
 export function useClientInfo() {
-  const { permissions, info, setInfo, fetchInfo } = useContext(ClientContext);
-  return { permissions, info, setInfo, fetchInfo };
+  const { info, setInfo, fetchInfo } = useContext(ClientContext);
+
+  const user = info.user;
+  const permissions = useMemo(() => new PermissionHelper(user), [user]);
+  const isSupporter = user?.isSupporter || false;
+
+  return { info, setInfo, fetchInfo, user, permissions, isSupporter };
 }
 
 const cacheKey = "info_cached";
@@ -314,26 +318,27 @@ const Loaded = ({
   info: ClientInfo;
   setInfo: Dispatch<ClientInfo>;
   children?: ReactNode;
-}) => (
-  <ClientContext.Provider
-    value={useMemo(
-      () => ({
-        client,
-        permissions: new PermissionHelper(info.user),
-        info,
-        setInfo,
-        fetchInfo: async () => {
-          const info = await client.getInfo();
-          setInfo(info);
-          return info;
-        },
-      }),
-      [client, info, setInfo]
-    )}
-  >
-    {children}
-  </ClientContext.Provider>
-);
+}) => {
+  return (
+    <ClientContext.Provider
+      value={useMemo(
+        () => ({
+          client,
+          info,
+          setInfo,
+          fetchInfo: async () => {
+            const info = await client.getInfo();
+            setInfo(info);
+            return info;
+          },
+        }),
+        [client, info, setInfo]
+      )}
+    >
+      {children}
+    </ClientContext.Provider>
+  );
+};
 
 export class PermissionHelper {
   constructor(readonly user?: User) {}
@@ -389,14 +394,14 @@ export function usePermissions() {
 /** Provides commonly used client-related functions would otherwise be copy-pasted in several places. */
 export function useClientUtils() {
   const client = useClient();
-  const { info, setInfo, fetchInfo } = useClientInfo();
+  const { info, user, setInfo, fetchInfo } = useClientInfo();
 
   // optional
   const alertService: ReturnType<typeof useAlert> | undefined = useAlert();
 
   return {
     updateUser: async (update: (user: User) => UserBase) => {
-      const info = await fetchInfo();
+      const info = await fetchInfo(); // we want the latest user data when updating
       if (!info.user) throw Error("Unauthenticated.");
 
       setInfo({
@@ -409,16 +414,16 @@ export function useClientUtils() {
     },
 
     addToSpecialCollection: async (itemId: string, type: ObjectType, special: SpecialCollection) => {
-      if (!info.user) throw Error("Unauthenticated.");
+      if (!user) throw Error("Unauthenticated.");
 
       // get special collection id from user object
       // note that it is possible for this id to be invalid
-      let collectionId = info.user.specialCollections?.book?.[special];
+      let collectionId = user.specialCollections?.book?.[special];
 
       if (!collectionId) {
         collectionId = (
           await client.user.getUserSpecialCollection({
-            id: info.user.id,
+            id: user.id,
             type,
             collection: special,
           })
@@ -427,11 +432,11 @@ export function useClientUtils() {
         setInfo({
           ...info,
           user: {
-            ...info.user,
+            ...user,
             specialCollections: {
-              ...info.user.specialCollections,
+              ...user.specialCollections,
               book: {
-                ...info.user.specialCollections?.book,
+                ...user.specialCollections?.book,
                 [special]: collectionId,
               },
             },
@@ -458,7 +463,7 @@ export function useClientUtils() {
           // id was invalid so collection was probably deleted; this time actually request it
           collectionId = (
             await client.user.getUserSpecialCollection({
-              id: info.user.id,
+              id: user.id,
               type,
               collection: special,
             })

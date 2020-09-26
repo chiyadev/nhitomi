@@ -22,7 +22,7 @@ type BasicBook = {
 
 export const CollectionAddBookDropdownMenu = ({ book }: { book: BasicBook }) => {
   const client = useClient();
-  const { info } = useClientInfo();
+  const { user } = useClientInfo();
   const { notifyError } = useNotify();
   const [collections, setCollections] = usePageState<Collection[]>("userCollections");
 
@@ -30,10 +30,10 @@ export const CollectionAddBookDropdownMenu = ({ book }: { book: BasicBook }) => 
     if (collections) return;
 
     try {
-      if (!info.user) throw Error("Unauthenticated.");
+      if (!user) throw Error("Unauthenticated.");
 
       const { items } = await client.user.getUserCollections({
-        id: info.user.id,
+        id: user.id,
       });
 
       setCollections(items);

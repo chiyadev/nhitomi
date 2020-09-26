@@ -75,7 +75,7 @@ const CollectionAddButton = ({ book }: { book: Book }) => {
 
 const DownloadButton = ({ book, content }: { book: Book; content: BookContent }) => {
   const { add } = useDownloads();
-  const { info } = useClientInfo();
+  const { isSupporter } = useClientInfo();
 
   let button = (
     <FilledButton
@@ -100,7 +100,7 @@ const DownloadButton = ({ book, content }: { book: Book; content: BookContent })
     </FilledButton>
   );
 
-  if (!info.user?.isSupporter && content.pageCount > NonSupporterPageLimit) {
+  if (!isSupporter && content.pageCount > NonSupporterPageLimit) {
     button = (
       <Tooltip
         placement="top"

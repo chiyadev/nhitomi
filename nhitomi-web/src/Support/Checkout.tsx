@@ -16,7 +16,7 @@ import { PinkLabel } from "./PinkLabel";
 
 export const Checkout = ({ supporterPrice, apiKey }: PrefetchResult) => {
   const client = useClient();
-  const { info } = useClientInfo();
+  const { user } = useClientInfo();
   const { notifyError } = useNotify();
 
   const [loading, setLoading] = useState(false);
@@ -28,14 +28,14 @@ export const Checkout = ({ supporterPrice, apiKey }: PrefetchResult) => {
     setLoading(true);
 
     try {
-      if (!info.user) throw Error("Unauthorized.");
+      if (!user) throw Error("Unauthorized.");
 
       const stripe = await loadStripe(apiKey);
 
       if (!stripe) throw Error("Could not load Stripe.");
 
       const { sessionId } = await client.user.createUserSupporterCheckout({
-        id: info.user.id,
+        id: user.id,
         createSupporterCheckoutRequest: { amount },
       });
 
@@ -47,7 +47,7 @@ export const Checkout = ({ supporterPrice, apiKey }: PrefetchResult) => {
     } finally {
       setLoading(false);
     }
-  }, [amount, apiKey, client, info, notifyError]);
+  }, [amount, apiKey, client, user, notifyError]);
 
   return (
     <div className="space-y-8">
@@ -82,7 +82,7 @@ export const Checkout = ({ supporterPrice, apiKey }: PrefetchResult) => {
 };
 
 const CheckoutButton = ({ duration, loading, submit }: { duration: number; loading: boolean; submit: () => void }) => {
-  const { info } = useClientInfo();
+  const { isSupporter } = useClientInfo();
   const [hover, setHover] = useState(false);
 
   const imageStyle = useSpring({
@@ -127,7 +127,7 @@ const CheckoutButton = ({ duration, loading, submit }: { duration: number; loadi
           </div>
           <div className="text-sm">
             <FormattedMessage
-              id={info.user?.isSupporter ? "pages.support.duration_supporter" : "pages.support.duration"}
+              id={isSupporter ? "pages.support.duration_supporter" : "pages.support.duration"}
               values={{ duration }}
             />
           </div>

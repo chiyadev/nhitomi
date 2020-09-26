@@ -11,7 +11,7 @@ import { usePrefetch } from "../Prefetch";
 import { useSupportPrefetch } from ".";
 
 export const Pending = () => {
-  const { info, fetchInfo } = useClientInfo();
+  const { isSupporter, fetchInfo } = useClientInfo();
   const [, navigateSupport] = usePrefetch(useSupportPrefetch, {});
 
   useInterval(async () => {
@@ -22,12 +22,12 @@ export const Pending = () => {
     }
   }, 5000);
 
-  // just wait until user turns into supporter
+  // just wait until user turns supporter
   useLayoutEffect(() => {
-    if (info.user?.isSupporter) {
+    if (isSupporter) {
       navigateSupport("replace");
     }
-  }, [info, navigateSupport]);
+  }, [isSupporter, navigateSupport]);
 
   return (
     <PageContainer>

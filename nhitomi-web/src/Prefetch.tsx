@@ -192,7 +192,7 @@ export function usePostfetch<T, U extends {}>(
   generator: PrefetchGenerator<T, U>,
   options: U & { requireAuth?: boolean }
 ) {
-  const { info } = useClientInfo();
+  const { user } = useClientInfo();
   const { begin, end } = useProgress();
   const { notifyError } = useNotify();
   const navigator = useNavigator();
@@ -216,7 +216,7 @@ export function usePostfetch<T, U extends {}>(
 
   const { error, loading } = useAsync(async () => {
     // redirect to auth if not already authenticated
-    if (requireAuth && !info.user) {
+    if (requireAuth && !user) {
       await navigateAuth("replace");
       return;
     }
@@ -263,7 +263,7 @@ export function usePostfetch<T, U extends {}>(
     } finally {
       if (showProgress) end();
     } // we want to reload when the authenticated user changes
-  }, [info, result, navigator.stringify(navigator.evaluate(destination))]);
+  }, [user, result, navigator.stringify(navigator.evaluate(destination))]);
 
   return { result, setResult, error, loading };
 }
