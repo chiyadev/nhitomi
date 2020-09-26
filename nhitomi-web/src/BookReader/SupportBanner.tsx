@@ -81,7 +81,7 @@ const Inner = ({ thumb }: { thumb: string }) => {
     <div className="px-2">
       <animated.div
         style={widgetStyle}
-        className={cx("w-full max-w-xl text-black overflow-hidden rounded-lg flex flex-row mx-auto", {
+        className={cx("w-full max-w-xl text-black overflow-hidden rounded-lg flex flex-row mx-auto shadow-lg", {
           "cursor-pointer": !expanded,
         })}
         onMouseEnter={() => setHover(true)}
