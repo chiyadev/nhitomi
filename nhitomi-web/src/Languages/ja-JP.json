@@ -252,7 +252,7 @@
           "pending": "待機",
           "running": {
             "download": "ダウンロード中",
-            "process": "プロセシング中"
+            "process": "プロセス中"
           },
           "error": "エラー",
           "done": "成功"
