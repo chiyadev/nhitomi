@@ -72,7 +72,7 @@
       },
       "alerts": {
         "imagesPerRow": "Switched to {value, select, 1 {single} 2 {double} other {{value}}} page mode.",
-        "viewportBound": "Pages are {value, select, true {bound} false {unbound}} to window height.",
+        "viewportBound": "Pages are {value, select, true {bound to} false {unbound from}} window height.",
         "leftToRight": "Pages are ordered {value, select, true {left to right} false {right to left}}.",
         "singleCover": "Cover page is displayed {value, select, true {separately} false {with other pages}}"
       },
