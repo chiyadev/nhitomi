@@ -77,7 +77,14 @@
         "singleCover": "Cover page is displayed {value, select, true {separately} false {with other pages}}"
       },
       "limits": {
-        "download": "Cannot download books that are more than {count} pages."
+        "download": "Cannot download books that are more than {count} pages.",
+        "pages": {
+          "title": "Continue reading this book",
+          "support": {
+            "name": "Support nhitomi",
+            "description": "You can continue reading on nhitomi by becoming a supporter."
+          }
+        }
       }
     },
     "settings": {

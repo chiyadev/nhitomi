@@ -77,7 +77,14 @@
         "singleCover": "最初のページを別に表示{value, select, true {します} false {しません}}。"
       },
       "limits": {
-        "download": "{count}ページ以上の本はダウンロードできません。"
+        "download": "{count}ページ以上の本はダウンロードできません。",
+        "pages": {
+          "title": "この本の続きを読みましょう",
+          "support": {
+            "name": "nhitomiをサポートする",
+            "description": "サポーターになったらnhitomiで続きが読めます。"
+          }
+        }
       }
     },
     "settings": {

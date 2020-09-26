@@ -3,7 +3,7 @@ import { Book, BookContent } from "nhitomi-api";
 import { ImageBase, LayoutEngine, LayoutImage } from "./layoutEngine";
 import { useLayout } from "../LayoutManager";
 import { CoverImage } from "../Components/CoverImage";
-import { useClient } from "../ClientManager";
+import { useClient, useClientInfo } from "../ClientManager";
 import VisibilitySensor from "react-visibility-sensor";
 import { useConfig } from "../ConfigManager";
 import { ScrollPreserver } from "./ScrollPreserver";
@@ -11,6 +11,8 @@ import { ScrollManager } from "./ScrollManager";
 import { KeyHandler } from "./KeyHandler";
 import { useShortcutPress } from "../shortcut";
 import { animated, useSpring } from "react-spring";
+import { NonSupporterPageLimit } from "../Support/Limits";
+import { PageLimited } from "./PageLimited";
 
 export const Reader = ({
   book,
@@ -22,11 +24,22 @@ export const Reader = ({
   viewportWidth?: number;
 }) => {
   const { screen, height: viewportHeight } = useLayout();
+  const { isSupporter } = useClientInfo();
+
+  const pageCount = useMemo(() => {
+    let count = content.pageCount;
+
+    if (!isSupporter) {
+      count = Math.min(count, NonSupporterPageLimit);
+    }
+
+    return count;
+  }, [content, isSupporter]);
 
   const layoutEngine = useMemo(() => new LayoutEngine(), []);
-  const [images, setImages] = useState<(ImageBase | undefined)[]>(() => new Array(content.pageCount));
+  const [images, setImages] = useState<(ImageBase | undefined)[]>(() => new Array(pageCount));
 
-  useLayoutEffect(() => layoutEngine.initialize(content.pageCount), [book, content, layoutEngine]);
+  useLayoutEffect(() => layoutEngine.initialize(pageCount), [book, content, layoutEngine]);
 
   const [imagesPerRow] = useConfig("bookReaderImagesPerRow");
   const [viewportBound] = useConfig("bookReaderViewportBound");
@@ -51,7 +64,7 @@ export const Reader = ({
   const setImage = useMemo(() => {
     const list: Dispatch<ImageBase | undefined>[] = [];
 
-    for (let i = 0; i < content.pageCount; i++) {
+    for (let i = 0; i < pageCount; i++) {
       const index = i;
 
       list.push((image) => {
@@ -86,7 +99,7 @@ export const Reader = ({
   return (
     <div
       ref={ref}
-      className="relative select-none"
+      className="relative"
       style={{
         width: layout.width,
         height: layout.height,
@@ -159,8 +172,8 @@ const PageWrapper = ({
 };
 
 const PageContent = ({
-  book: { id },
-  content: { id: contentId },
+  book,
+  content,
   index,
   setImage,
 }: {
@@ -170,42 +183,61 @@ const PageContent = ({
   setImage: Dispatch<ImageBase | undefined>;
 }) => {
   const client = useClient();
+  const { isSupporter } = useClientInfo();
+
   const image = useMemo(
     () => (
       <CoverImage
-        cacheKey={`books/${id}/contents/${contentId}/pages/${index}`}
+        cacheKey={`books/${book.id}/contents/${content.id}/pages/${index}`}
         className="w-full h-full"
         sizing="contain"
-        onLoad={async () => await client.book.getBookImage({ id, contentId, index })}
+        onLoad={async () => await client.book.getBookImage({ id: book.id, contentId: content.id, index })}
         onLoaded={setImage}
       />
     ),
-    [client.book, contentId, id, index, setImage]
+    [client.book, book, content, index, setImage]
   );
 
-  const [pageNumber] = useShortcutPress("bookReaderPageNumberKey");
-  const [pageNumberVisible, setPageNumberVisible] = useState(false);
-
-  const numberStyle = useSpring({
-    opacity: pageNumber ? 0.75 : 0,
-    fontSize: pageNumber ? 120 : 108,
-    onChange: {
-      opacity: (v) => setPageNumberVisible(v > 0),
-    },
-  });
+  const isTruncatedPage =
+    !isSupporter && content.pageCount > NonSupporterPageLimit && index + 1 === NonSupporterPageLimit;
 
   return (
     <>
       {image}
 
-      {pageNumberVisible && (
-        <animated.div
-          style={numberStyle}
-          className="absolute top-0 w-full h-full bg-black pointer-events-none font-bold flex items-center justify-center"
-        >
-          <span className="opacity-50">{index + 1}</span>
-        </animated.div>
+      {isTruncatedPage ? (
+        <div className="absolute top-0 left-0 w-full h-full bg-black bg-blur">
+          <PageLimited book={book} content={content} />
+        </div>
+      ) : (
+        <PageNumberOverlay index={index} />
       )}
     </>
+  );
+};
+
+const PageNumberOverlay = ({ index }: { index: number }) => {
+  const [shouldShow] = useShortcutPress("bookReaderPageNumberKey");
+  const [visible, setVisible] = useState(false);
+
+  const numberStyle = useSpring({
+    opacity: shouldShow ? 0.75 : 0,
+    fontSize: shouldShow ? 120 : 100,
+    onChange: {
+      opacity: (v) => setVisible(v > 0),
+    },
+  });
+
+  if (!visible) {
+    return null;
+  }
+
+  return (
+    <animated.div
+      style={numberStyle}
+      className="absolute top-0 left-0 w-full h-full bg-black pointer-events-none font-bold flex items-center justify-center"
+    >
+      <span className="opacity-50">{index + 1}</span>
+    </animated.div>
   );
 };

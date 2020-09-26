@@ -74,21 +74,40 @@ const Loaded = ({ book, content }: PrefetchResult) => {
 
   return (
     <>
-      <LayoutSetter />
+      {useMemo(
+        () => (
+          <LayoutSetter />
+        ),
+        []
+      )}
 
-      {!!infoHeight && <Background book={book} content={content} scrollHeight={infoHeight} />}
+      {useMemo(() => !!infoHeight && <Background book={book} content={content} scrollHeight={infoHeight} />, [
+        book,
+        content,
+        infoHeight,
+      ])}
 
       <div className="space-y-8">
-        <div ref={infoRef}>
-          <Container>
-            <Info book={book} content={content} />
-            <SupportBanner book={book} content={content} />
-          </Container>
-        </div>
+        {useMemo(
+          () => (
+            <div ref={infoRef}>
+              <Container>
+                <Info book={book} content={content} />
+                <SupportBanner book={book} content={content} />
+              </Container>
+            </div>
+          ),
+          [book, content, infoRef]
+        )}
 
-        <CursorVisibility>
-          <Reader book={book} content={content} viewportWidth={infoWidth} />
-        </CursorVisibility>
+        {useMemo(
+          () => (
+            <CursorVisibility>
+              <Reader book={book} content={content} viewportWidth={infoWidth} />
+            </CursorVisibility>
+          ),
+          [book, content, infoWidth]
+        )}
       </div>
     </>
   );
