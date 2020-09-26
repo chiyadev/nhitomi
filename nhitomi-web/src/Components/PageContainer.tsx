@@ -3,9 +3,13 @@ import { animated, useSpring } from "react-spring";
 import { usePageState } from "../state";
 import { useErrorBoundary } from "preact/hooks";
 import { captureException } from "@sentry/react";
+import { useNotify } from "../NotificationManager";
 
 export const PageContainer = ({ children, className }: { children?: ReactNode; className?: string }) => {
+  const { notifyError } = useNotify();
+
   const [error] = useErrorBoundary((e) => {
+    notifyError(e, "There was a problem while displaying this page.");
     captureException(e);
   });
 
@@ -20,16 +24,7 @@ export const PageContainer = ({ children, className }: { children?: ReactNode; c
   });
 
   if (error) {
-    return (
-      <div>
-        <div>There was a problem while displaying this page. Please try again later!</div>
-
-        <br />
-        <div className="text-sm whitespace-pre">
-          <code>{error.stack}</code>
-        </div>
-      </div>
-    );
+    return null;
   }
 
   return (
