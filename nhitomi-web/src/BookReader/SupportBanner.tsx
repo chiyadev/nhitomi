@@ -14,7 +14,6 @@ import { trackEvent } from "../umami";
 export const SupportBanner = ({ book, content }: { book: Book; content: BookContent }) => {
   const client = useClient();
   const { info } = useClientInfo();
-  const supporter = info.authenticated && info.user.isSupporter;
 
   const { value: thumb } = useAsync(async () => {
     const blob = await client.book.getBookImage({
@@ -33,7 +32,7 @@ export const SupportBanner = ({ book, content }: { book: Book; content: BookCont
     opacity: thumb ? 1 : 0,
   });
 
-  if (!thumb || supporter) return null;
+  if (!thumb || info.user?.isSupporter) return null;
 
   return (
     <animated.div style={style}>

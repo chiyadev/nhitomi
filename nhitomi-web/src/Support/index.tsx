@@ -67,7 +67,6 @@ const Loaded = (result: PrefetchResult) => {
   useTabTitle(useLocalized("pages.support.title"));
 
   const { info } = useClientInfo();
-  const supporter = info.authenticated && info.user.isSupporter;
 
   return (
     <Container className="px-4 space-y-16">
@@ -86,7 +85,7 @@ const Loaded = (result: PrefetchResult) => {
                 />
 
                 <FormattedMessage
-                  id={supporter ? "pages.support.subtitle_supporter" : "pages.support.subtitle"}
+                  id={info.user?.isSupporter ? "pages.support.subtitle_supporter" : "pages.support.subtitle"}
                   values={{
                     nhitomi: <span className="text-lg font-bold">nhitomi</span>,
                   }}
@@ -94,12 +93,12 @@ const Loaded = (result: PrefetchResult) => {
               </div>
 
               <div className="text-gray-darker text-sm max-w-lg">
-                {supporter ? <ThanksDescription /> : <SupportDescription />}
+                {info.user?.isSupporter ? <ThanksDescription /> : <SupportDescription />}
               </div>
             </div>
           </MainCard>
         ),
-        [supporter]
+        [info]
       )}
 
       <div>

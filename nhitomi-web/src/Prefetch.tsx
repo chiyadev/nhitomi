@@ -216,7 +216,7 @@ export function usePostfetch<T, U extends {}>(
 
   const { error, loading } = useAsync(async () => {
     // redirect to auth if not already authenticated
-    if (requireAuth && !info.authenticated) {
+    if (requireAuth && !info.user) {
       await navigateAuth("replace");
       return;
     }
@@ -263,7 +263,7 @@ export function usePostfetch<T, U extends {}>(
     } finally {
       if (showProgress) end();
     } // we want to reload when the authenticated user changes
-  }, [info.authenticated && info.user.id, result, navigator.stringify(navigator.evaluate(destination))]);
+  }, [info, result, navigator.stringify(navigator.evaluate(destination))]);
 
   return { result, setResult, error, loading };
 }

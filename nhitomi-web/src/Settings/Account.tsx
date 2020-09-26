@@ -11,7 +11,7 @@ export const Account = () => {
   const { info, setInfo } = useClientInfo();
   const [, setToken] = useConfig("token");
 
-  if (!info.authenticated) return null;
+  if (!info.user) return null;
 
   return (
     <SettingsFocusContainer focus="account">
@@ -29,7 +29,7 @@ export const Account = () => {
           trackEvent("action", "settingsLogOut");
 
           setToken(undefined);
-          setInfo({ ...info, authenticated: false });
+          setInfo({ ...info, user: undefined });
         }}
       >
         <FormattedMessage id="pages.settings.user.account.logout" />

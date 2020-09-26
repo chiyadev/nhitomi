@@ -67,14 +67,7 @@ export const useSettingsPrefetch: PrefetchGenerator<PrefetchResult, PrefetchOpti
     },
 
     restoreScroll: !focus,
-
-    fetch: async () => {
-      const info = await fetchInfo();
-
-      if (!info.authenticated) throw Error("Unauthorized.");
-
-      return info;
-    },
+    fetch: fetchInfo,
   };
 };
 

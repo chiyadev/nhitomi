@@ -24,7 +24,9 @@ export const Pending = () => {
 
   // just wait until user turns into supporter
   useLayoutEffect(() => {
-    if (info.authenticated && info.user.isSupporter) navigateSupport("replace");
+    if (info.user?.isSupporter) {
+      navigateSupport("replace");
+    }
   }, [info, navigateSupport]);
 
   return (

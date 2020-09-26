@@ -50,7 +50,7 @@ const SpecialButton = ({ collection }: { collection: Collection }) => {
   const { notifyError } = useNotify();
   const [loading, setLoading] = useState(false);
 
-  if (!info.authenticated) return null;
+  if (!info.user) return null;
 
   const setSpecial = async (special: SpecialCollection) => {
     begin();
@@ -170,7 +170,7 @@ const RandomButton = ({ collection }: { collection: Collection }) => {
 const DownloadButton = ({ collection }: { collection: Collection }) => {
   const { info } = useClientInfo();
 
-  if (info.authenticated && info.user.isSupporter) {
+  if (info.user?.isSupporter) {
     return <DownloadButtonInner collection={collection} />;
   }
 

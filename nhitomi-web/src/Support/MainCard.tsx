@@ -19,8 +19,8 @@ export const SupportDescription = () => {
 
 export const ThanksDescription = () => {
   const { info } = useClientInfo();
-  const supportInfo = info.authenticated && info.user.supporterInfo;
 
+  const supportInfo = info.user?.supporterInfo;
   if (!supportInfo) return null;
 
   const months = Math.round((supportInfo.totalDays / 365) * 12);

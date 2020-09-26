@@ -30,7 +30,7 @@ export const CollectionAddBookDropdownMenu = ({ book }: { book: BasicBook }) => 
     if (collections) return;
 
     try {
-      if (!info.authenticated) throw Error("Unauthenticated.");
+      if (!info.user) throw Error("Unauthenticated.");
 
       const { items } = await client.user.getUserCollections({
         id: info.user.id,

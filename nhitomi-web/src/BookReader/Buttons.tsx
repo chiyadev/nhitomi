@@ -100,7 +100,7 @@ const DownloadButton = ({ book, content }: { book: Book; content: BookContent })
     </FilledButton>
   );
 
-  if ((!info.authenticated || !info.user.isSupporter) && content.pageCount > NonSupporterPageLimit) {
+  if (!info.user?.isSupporter && content.pageCount > NonSupporterPageLimit) {
     button = (
       <Tooltip
         placement="top"

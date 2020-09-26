@@ -29,7 +29,9 @@ export const useCollectionListingPrefetch: PrefetchGenerator<PrefetchResult, Pre
         client.user.getUserCollections({ id }).then((x) => x.items),
       ]);
 
-      if (info.authenticated && info.user.id === user.id) setInfo({ ...info, user });
+      if (info.user?.id === user.id) {
+        setInfo({ ...info, user });
+      }
 
       const bookCollections = collections.filter((c) => c.type === ObjectType.Book);
       const bookCoverIds = bookCollections.map((c) => c.items[0]).filter((x) => x);
@@ -56,7 +58,9 @@ export const useCollectionListingPrefetch: PrefetchGenerator<PrefetchResult, Pre
 export const SelfCollectionListingLink = (props: Omit<ComponentProps<typeof CollectionListingLink>, "id">) => {
   const { info } = useClientInfo();
 
-  if (info.authenticated) return <CollectionListingLink id={info.user.id} {...props} />;
+  if (info.user) {
+    return <CollectionListingLink id={info.user.id} {...props} />;
+  }
 
   return <>{props.children}</>;
 };

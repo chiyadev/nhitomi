@@ -58,7 +58,7 @@ export const Strip = ({ children, additionalMenu }: { children?: ReactNode; addi
           `
         )}
       >
-        <Disableable disabled={!info.authenticated} className="flex flex-col items-center">
+        <Disableable disabled={!info.user} className="flex flex-col items-center">
           <Logo />
           <Buttons />
 

@@ -97,7 +97,7 @@ const SupporterText = () => {
     },
   });
 
-  if (!info.authenticated || !info.user.isSupporter) return null;
+  if (!info.user?.isSupporter) return null;
 
   return (
     <div>

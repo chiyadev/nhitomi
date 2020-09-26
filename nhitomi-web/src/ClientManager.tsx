@@ -1,4 +1,13 @@
-import React, { createContext, Dispatch, ReactNode, useContext, useLayoutEffect, useMemo, useState } from "react";
+import React, {
+  createContext,
+  Dispatch,
+  ReactNode,
+  useCallback,
+  useContext,
+  useLayoutEffect,
+  useMemo,
+  useState,
+} from "react";
 import {
   BASE_PATH,
   BookApi,
@@ -26,10 +35,6 @@ import { useInterval } from "react-use";
 import { useProgress } from "./ProgressManager";
 import { ConfigSource, useConfig, useConfigManager } from "./ConfigManager";
 import { Container } from "./Components/Container";
-import { FlatButton } from "./Components/FlatButton";
-import { ClearOutlined, ReloadOutlined } from "@ant-design/icons";
-import { getColor } from "./theme";
-import { FilledButton } from "./Components/FilledButton";
 import { JSONex } from "./jsonEx";
 import { useAlert } from "./NotificationManager";
 import { FormattedMessage } from "react-intl";
@@ -128,15 +133,9 @@ export class Client {
 
   async getInfo(): Promise<ClientInfo> {
     if (this.token) {
-      return (this.currentInfo = {
-        ...(await this.info.getInfoAuthenticated()),
-        authenticated: true,
-      });
+      return (this.currentInfo = await this.info.getInfoAuthenticated());
     } else {
-      return (this.currentInfo = {
-        ...(await this.info.getInfo()),
-        authenticated: false,
-      });
+      return (this.currentInfo = await this.info.getInfo());
     }
   }
 }
@@ -173,9 +172,7 @@ export class ValidationError extends CustomError {
   }
 }
 
-export type ClientInfo =
-  | (GetInfoResponse & { authenticated: false })
-  | (GetInfoAuthenticatedResponse & { authenticated: true });
+export type ClientInfo = GetInfoResponse & Partial<GetInfoAuthenticatedResponse>;
 
 const ClientContext = createContext<{
   client: Client;
@@ -228,24 +225,23 @@ export const ClientManager = ({ children }: { children?: ReactNode }) => {
   const config = useConfigManager();
 
   const client = useMemo(() => new Client(config), [config]);
-  const [info, setInfo] = useState<ClientInfo | Error | undefined>(getCachedInfo);
   const { begin, end } = useProgress();
+  const [info, setInfoInternal] = useState<ClientInfo | Error | undefined>(getCachedInfo);
 
-  useLayoutEffect(() => {
-    let user: User | undefined;
+  const setInfo = useCallback(
+    (info: ClientInfo | Error | undefined) => {
+      if (info && !(info instanceof Error)) {
+        setCachedInfo(info);
 
-    if (info && !(info instanceof Error)) {
-      setCachedInfo(info);
-
-      if (info.authenticated) {
-        user = info.user;
+        if (info.user) {
+          setUser(info.user);
+        }
       }
-    } else {
-      setCachedInfo(undefined);
-    }
 
-    if (user) setUser(user);
-  }, [info]);
+      setInfoInternal(info);
+    },
+    [setInfoInternal]
+  );
 
   useLayoutEffect(() => {
     if (info && !(info instanceof Error)) {
@@ -280,43 +276,31 @@ export const ClientManager = ({ children }: { children?: ReactNode }) => {
     }
   }, 1000 * 60);
 
-  const [, setToken] = useConfig("token");
-  const [, setBaseUrl] = useConfig("baseUrl");
-
-  if (!info) return null;
+  if (!info) {
+    return null;
+  }
 
   if (info instanceof Error) {
-    return (
-      <Container className="p-4">
-        <div className="mb-2">nhitomi could not contact the API server. Please try again later!</div>
-        <code>{info.stack}</code>
-        <div className="mt-4 space-x-1">
-          <FilledButton
-            icon={<ReloadOutlined />}
-            onClick={() => reloadWithoutCache()}
-            color={getColor("red", "darker")}
-          >
-            Retry
-          </FilledButton>
-          <FlatButton
-            icon={<ClearOutlined />}
-            onClick={() => {
-              setToken(undefined);
-              setBaseUrl(undefined);
-              reloadWithoutCache();
-            }}
-          >
-            Reset
-          </FlatButton>
-        </div>
-      </Container>
-    );
+    return <ErrorDisplay error={info} />;
   }
 
   return (
     <Loaded client={client} info={info} setInfo={setInfo}>
       {children}
     </Loaded>
+  );
+};
+
+const ErrorDisplay = ({ error }: { error: Error }) => {
+  return (
+    <Container className="p-4">
+      <div>nhitomi could not contact the API server. Please try again later!</div>
+      <br />
+
+      <div className="text-sm whitespace-pre">
+        <code>{error.stack}</code>
+      </div>
+    </Container>
   );
 };
 
@@ -335,7 +319,7 @@ const Loaded = ({
     value={useMemo(
       () => ({
         client,
-        permissions: new PermissionHelper(info?.authenticated ? info.user : undefined),
+        permissions: new PermissionHelper(info.user),
         info,
         setInfo,
         fetchInfo: async () => {
@@ -413,12 +397,10 @@ export function useClientUtils() {
   return {
     updateUser: async (update: (user: User) => UserBase) => {
       const info = await fetchInfo();
-
-      if (!info.authenticated) throw Error("Unauthenticated.");
+      if (!info.user) throw Error("Unauthenticated.");
 
       setInfo({
         ...info,
-        authenticated: true,
         user: await client.user.updateUser({
           id: info.user.id,
           userBase: update(info.user),
@@ -427,7 +409,7 @@ export function useClientUtils() {
     },
 
     addToSpecialCollection: async (itemId: string, type: ObjectType, special: SpecialCollection) => {
-      if (!info.authenticated) throw Error("Unauthenticated.");
+      if (!info.user) throw Error("Unauthenticated.");
 
       // get special collection id from user object
       // note that it is possible for this id to be invalid

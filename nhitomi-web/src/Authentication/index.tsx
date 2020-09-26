@@ -78,12 +78,12 @@ const Loaded = ({ info: { discordOAuthUrl }, state }: PrefetchResult) => {
 
   useLayoutEffect(() => {
     // redirect immediately if already authenticated
-    if (info.authenticated) {
+    if (info.user) {
       const { redirect } = parseOAuthState(state);
 
       navigator.navigate("replace", { state: {}, ...redirect });
     }
-  }, [info.authenticated, navigator, state]);
+  }, [info, navigator, state]);
 
   const logoStyle = useSpring({
     from: { opacity: 0, transform: "scale(0.9)" },

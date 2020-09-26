@@ -54,7 +54,6 @@ export const OAuthCallback = ({ service }: { service: OAuthService }) => {
 
       setInfo({
         ...info,
-        authenticated: true,
         user: result.user,
       });
 

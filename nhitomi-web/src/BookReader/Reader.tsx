@@ -24,14 +24,9 @@ export const Reader = ({
   const { screen, height: viewportHeight } = useLayout();
 
   const layoutEngine = useMemo(() => new LayoutEngine(), []);
-  const [images, setImages] = useState<(ImageBase | undefined)[]>();
+  const [images, setImages] = useState<(ImageBase | undefined)[]>(() => new Array(content.pageCount));
 
-  useLayoutEffect(() => {
-    const pages = content.pageCount;
-
-    layoutEngine.initialize(pages);
-    setImages(new Array(pages));
-  }, [book, content, layoutEngine]);
+  useLayoutEffect(() => layoutEngine.initialize(content.pageCount), [book, content, layoutEngine]);
 
   const [imagesPerRow] = useConfig("bookReaderImagesPerRow");
   const [viewportBound] = useConfig("bookReaderViewportBound");
@@ -61,8 +56,6 @@ export const Reader = ({
 
       list.push((image) => {
         setImages((images) => {
-          if (!images) return;
-
           const array = images.slice();
           array[index] = image;
           return array;

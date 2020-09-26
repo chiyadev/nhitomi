@@ -28,7 +28,7 @@ export const Checkout = ({ supporterPrice, apiKey }: PrefetchResult) => {
     setLoading(true);
 
     try {
-      if (!info.authenticated) throw Error("Unauthorized.");
+      if (!info.user) throw Error("Unauthorized.");
 
       const stripe = await loadStripe(apiKey);
 
@@ -83,7 +83,6 @@ export const Checkout = ({ supporterPrice, apiKey }: PrefetchResult) => {
 
 const CheckoutButton = ({ duration, loading, submit }: { duration: number; loading: boolean; submit: () => void }) => {
   const { info } = useClientInfo();
-  const supporter = info.authenticated && info.user.isSupporter;
   const [hover, setHover] = useState(false);
 
   const imageStyle = useSpring({
@@ -128,7 +127,7 @@ const CheckoutButton = ({ duration, loading, submit }: { duration: number; loadi
           </div>
           <div className="text-sm">
             <FormattedMessage
-              id={supporter ? "pages.support.duration_supporter" : "pages.support.duration"}
+              id={info.user?.isSupporter ? "pages.support.duration_supporter" : "pages.support.duration"}
               values={{ duration }}
             />
           </div>
