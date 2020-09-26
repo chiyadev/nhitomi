@@ -36,6 +36,7 @@ import { FormattedMessage } from "react-intl";
 import { CollectionContentLink } from "./CollectionContent";
 import { useAsync } from "./hooks";
 import { reloadWithoutCache } from "./cacheBuster";
+import { setUser } from "@sentry/react";
 
 export class Client {
   readonly httpConfig: ConfigurationParameters = {
@@ -231,12 +232,20 @@ export const ClientManager = ({ children }: { children?: ReactNode }) => {
   const { begin, end } = useProgress();
 
   useLayoutEffect(() => {
+    let user: User | undefined;
+
     if (info && !(info instanceof Error)) {
       setCachedInfo(info);
+
+      if (info.authenticated) {
+        user = info.user;
+      }
     } else {
       setCachedInfo(undefined);
     }
-  });
+
+    if (user) setUser(user);
+  }, [info]);
 
   useLayoutEffect(() => {
     if (info && !(info instanceof Error)) {
