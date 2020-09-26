@@ -75,7 +75,7 @@ const Logo = () =>
       <Tooltip
         overlay={
           <span>
-            <FormattedMessage id="pages.home.title" /> <HeartOutlined />
+            <FormattedMessage id="pages.home.title" />
           </span>
         }
         placement="right"

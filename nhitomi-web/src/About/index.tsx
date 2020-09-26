@@ -182,7 +182,7 @@ const Content = ({ info }: PrefetchResult) => {
       <div className="space-y-2">
         <div className="text-2xl">Development</div>
         <div>
-          nhitomi is developed with <HeartFilled className="text-red" /> by{" "}
+          nhitomi is developed with <HeartFilled className="text-pink" /> by{" "}
           <Anchor target="_blank" className="font-bold" href="https://chiya.dev">
             chiya.dev
           </Anchor>
