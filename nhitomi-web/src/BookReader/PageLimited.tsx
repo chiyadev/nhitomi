@@ -3,7 +3,7 @@ import { Book, BookContent, ScraperType } from "nhitomi-api";
 import { useClientInfo } from "../ClientManager";
 import { ScraperTypes } from "../orderedConstants";
 import { useContentSelector } from "../Components/BookList";
-import { ArrowRightOutlined, BookFilled, HeartFilled } from "@ant-design/icons";
+import { ArrowRightOutlined, HeartFilled, ReadOutlined } from "@ant-design/icons";
 import { Anchor } from "../Components/Anchor";
 import { useSpring, animated } from "react-spring";
 import { getColor } from "../theme";
@@ -23,7 +23,7 @@ export const PageLimited = ({ book, content }: { book: Book; content: BookConten
     <animated.div style={style} className="absolute transform-center w-full max-w-xl p-4">
       <div className="bg-white text-black rounded-lg overflow-hidden divide-y divide-gray-lighter shadow-lg">
         <div className="p-4 text-sm text-gray-darker">
-          <BookFilled /> <FormattedMessage id="pages.bookReader.limits.pages.title" />
+          <ReadOutlined /> <FormattedMessage id="pages.bookReader.limits.pages.title" />
         </div>
 
         {ScraperTypes.map((type) => {
