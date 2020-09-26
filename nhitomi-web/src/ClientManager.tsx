@@ -187,9 +187,14 @@ export function useClient() {
 
 export function useClientInfo() {
   const { info, setInfo, fetchInfo } = useContext(ClientContext);
+  const [forceSupporter] = useConfig("forceSupporter");
 
   const user = info.user;
-  const isSupporter = user?.isSupporter || false;
+
+  const isSupporter =
+    process.env.NODE_ENV === "development" && typeof forceSupporter === "boolean"
+      ? forceSupporter
+      : user?.isSupporter || false;
 
   return { info, setInfo, fetchInfo, user, isSupporter };
 }

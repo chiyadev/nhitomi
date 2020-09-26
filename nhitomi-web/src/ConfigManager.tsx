@@ -67,6 +67,7 @@ export type ConfigStore = {
   animation: AnimationMode;
   blur: boolean;
   downloads: DownloadTarget[];
+  forceSupporter: boolean | null;
 
   cancelKey: ShortcutConfig[];
   scrollDownKey: ShortcutConfig[];
@@ -109,6 +110,7 @@ const DefaultStore: ConfigStore = {
   animation: "normal",
   blur: BlurSupported,
   downloads: [],
+  forceSupporter: null,
 
   cancelKey: [{ key: 27 }], // esc
   scrollDownKey: [{ key: 83 }, { key: 40 }], // s down
@@ -145,12 +147,12 @@ export const KeyModifiers: KeyModifier[] = ["alt", "ctrl", "meta", "shift"];
 export const ConfigKeys = Object.keys(DefaultStore) as ConfigKey[];
 export const ShortcutConfigKeys = ConfigKeys.filter((k) => k.toLowerCase().endsWith("key")) as ShortcutConfigKey[];
 
-export class ConfigSource
-  extends (EventEmitter as new () => StrictEventEmitter<
-    EventEmitter,
-    { [key in keyof ConfigStore]: (value: ConfigStore[key]) => void }
-  >)
-  implements ConfigStore {
+const ConfigSourceBase = EventEmitter as new () => StrictEventEmitter<
+  EventEmitter,
+  { [key in keyof ConfigStore]: (value: ConfigStore[key]) => void }
+>;
+
+export class ConfigSource extends ConfigSourceBase implements ConfigStore {
   token!: string | undefined;
   baseUrl!: string | undefined;
   sidebar!: boolean;
@@ -159,6 +161,7 @@ export class ConfigSource
   animation!: AnimationMode;
   blur!: boolean;
   downloads!: DownloadTarget[];
+  forceSupporter!: boolean | null;
 
   cancelKey!: ShortcutConfig[];
   scrollDownKey!: ShortcutConfig[];
