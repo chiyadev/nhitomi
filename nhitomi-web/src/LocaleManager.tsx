@@ -104,8 +104,6 @@ export const LocaleManager = ({ children }: { children?: ReactNode }) => {
 
       if (loadId.current === id) {
         setMessages(messages);
-
-        console.log("loaded language", language, messages);
       }
     } finally {
       end();
