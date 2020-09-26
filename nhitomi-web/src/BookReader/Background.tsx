@@ -15,7 +15,8 @@ export const Background = ({ book, content, scrollHeight }: PrefetchResult & { s
   const [blur] = useConfig("blur");
 
   const style = useSpring({
-    opacity: Math.max(0, 1 - scroll / Math.max(1, scrollHeight)),
+    from: { opacity: 0 }, // always fade in
+    to: { opacity: Math.max(0, 1 - scroll / Math.max(1, scrollHeight)) },
   });
 
   return createPortal(
