@@ -6,7 +6,7 @@ executors:
     environment:
       DOCKER_IMAGE_IDX: registry.digitalocean.com/chiyadev/nhitomi:latest
       DOCKER_IMAGE_DISCORD: registry.digitalocean.com/chiyadev/nhitomi-discord:latest
-      UMAMI_URL: https://a.chiya.dev/c4b642b9-515a-4159-8efc-b74bffb1ca89
+      GOAT_URL: https://a.chiya.dev/count
       SENTRY_DSN: https://a768b944b93b4c70be91bf4df488c978@o452268.ingest.sentry.io/5439405
 
 jobs:
@@ -43,6 +43,7 @@ workflows:
   default:
     jobs:
       - test-idx
+
       - deploy-idx:
           requires:
             - test-idx
@@ -51,6 +52,7 @@ workflows:
           filters:
             branches:
               only: deploy
+
       - deploy-discord:
           context:
             - do-registry
