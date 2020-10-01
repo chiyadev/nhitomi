@@ -5,7 +5,7 @@ import { useConfig } from "../ConfigManager";
 import { useClientInfo } from "../ClientManager";
 import { LogoutOutlined } from "@ant-design/icons";
 import { FlatButton } from "../Components/FlatButton";
-import { trackEvent } from "../umami";
+import { trackEvent } from "../track";
 
 export const Account = () => {
   const { info, setInfo } = useClientInfo();

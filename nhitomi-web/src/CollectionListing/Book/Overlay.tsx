@@ -12,7 +12,7 @@ import { useNotify } from "../../NotificationManager";
 import { useClient } from "../../ClientManager";
 import { CollectionContentLink } from "../../CollectionContent";
 import { CollectionEditLink } from "../Edit";
-import { trackEvent } from "../../umami";
+import { trackEvent } from "../../track";
 
 export const Overlay = ({ user, book: { id } }: { user: User; book: BookListItem }) => {
   return (

@@ -11,7 +11,7 @@ import { Disableable } from "../../Components/Disableable";
 import { useCollectionEditPrefetch } from "../Edit";
 import { useLocalized } from "../../LocaleManager";
 import { useDynamicPrefetch } from "../../Prefetch";
-import { trackEvent } from "../../umami";
+import { trackEvent } from "../../track";
 
 export const Menu = () => (
   <>

@@ -29,7 +29,7 @@ import { RandomOutlined } from "../../Components/Icons/RandomOutlined";
 import { DefaultQueryLimit } from "../../BookListing/search";
 import { DownloadTargetAddArgs, useDownloads } from "../../DownloadManager";
 import { SupportLink } from "../../Support";
-import { trackEvent } from "../../umami";
+import { trackEvent } from "../../track";
 import { captureException } from "@sentry/react";
 
 export const Menu = ({ collection }: { collection: Collection }) => (

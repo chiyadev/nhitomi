@@ -8,7 +8,7 @@ import { Disableable } from "../../Components/Disableable";
 import { DropdownDivider, DropdownItem } from "../../Components/Dropdown";
 import { DeleteOutlined } from "@ant-design/icons";
 import { FormattedMessage } from "react-intl";
-import { trackEvent } from "../../umami";
+import { trackEvent } from "../../track";
 
 export const Overlay = ({
   collection,

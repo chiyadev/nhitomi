@@ -15,7 +15,7 @@ import VisibilitySensor from "react-visibility-sensor";
 import { Progress } from "../Components/Progress";
 import { getColor } from "../theme";
 import { useQueryState } from "../state";
-import { trackEvent } from "../umami";
+import { trackEvent } from "../track";
 
 export const BookTaskDisplay = ({ task }: { task: DownloadTask }) => {
   const target = task.target;

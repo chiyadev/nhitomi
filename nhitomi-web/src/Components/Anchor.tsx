@@ -1,5 +1,5 @@
 import React, { ComponentProps } from "react";
-import { trackEvent } from "../umami";
+import { trackEvent } from "../track";
 
 export const Anchor = ({ onClick, href, ...props }: ComponentProps<"a">) => {
   return (

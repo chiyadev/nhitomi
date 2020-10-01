@@ -25,7 +25,7 @@ import { getColor } from "../theme";
 import { useCollectionContentPrefetch } from "../CollectionContent";
 import { useCollectionListingPrefetch } from ".";
 import { Edit as BookEdit } from "./Book/Edit";
-import { trackEvent } from "../umami";
+import { trackEvent } from "../track";
 
 export type PrefetchResult = { collection: Collection; owner: User };
 export type PrefetchOptions = { id: string };

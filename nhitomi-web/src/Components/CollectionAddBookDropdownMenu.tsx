@@ -13,7 +13,7 @@ import { usePageState } from "../state";
 import { useLocalized } from "../LocaleManager";
 import { useDynamicPrefetch } from "../Prefetch";
 import { useCollectionEditPrefetch } from "../CollectionListing/Edit";
-import { trackEvent } from "../umami";
+import { trackEvent } from "../track";
 import { captureException } from "@sentry/react";
 
 type BasicBook = {

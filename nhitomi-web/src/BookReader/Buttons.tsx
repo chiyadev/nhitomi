@@ -12,7 +12,7 @@ import { CollectionAddBookDropdownMenu } from "../Components/CollectionAddBookDr
 import { useProgress } from "../ProgressManager";
 import { Disableable } from "../Components/Disableable";
 import { useDownloads } from "../DownloadManager";
-import { trackEvent } from "../umami";
+import { trackEvent } from "../track";
 import { NonSupporterPageLimit } from "../Support/Limits";
 import { Tooltip } from "../Components/Tooltip";
 import { SupportLink } from "../Support";

@@ -23,7 +23,7 @@ import { Disableable } from "../Disableable";
 import { Anchor } from "../Anchor";
 import { CollectionAddBookDropdownMenu } from "../CollectionAddBookDropdownMenu";
 import { useDownloads } from "../../DownloadManager";
-import { trackEvent } from "../../umami";
+import { trackEvent } from "../../track";
 
 export const Overlay = ({ book, content }: { book: BookListItem; content?: BookContent }) => {
   const { OverlayComponent } = useBookList();

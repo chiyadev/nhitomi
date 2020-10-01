@@ -12,7 +12,7 @@ import { Footer } from "../Footer";
 import { RoundIconButton } from "../Components/RoundIconButton";
 import { FormattedMessage } from "react-intl";
 import { Tooltip } from "../Components/Tooltip";
-import { trackEvent } from "../umami";
+import { trackEvent } from "../track";
 
 export const Overlay = ({ children }: { children?: ReactNode }) => {
   const [open, setOpen] = useState(false);

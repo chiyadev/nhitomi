@@ -9,7 +9,7 @@ import { useAlert, useNotify } from "../../NotificationManager";
 import { useDynamicPrefetch } from "../../Prefetch";
 import { useCollectionContentPrefetch } from "../../CollectionContent";
 import { Disableable } from "../../Components/Disableable";
-import { trackEvent } from "../../umami";
+import { trackEvent } from "../../track";
 
 export const Edit = ({ collection }: { collection: Collection }) => (
   <>

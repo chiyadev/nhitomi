@@ -6,7 +6,7 @@ import { cx } from "emotion";
 import { LinkOutlined } from "@ant-design/icons";
 import { getColor } from "../theme";
 import { Anchor } from "../Components/Anchor";
-import { trackEvent } from "../umami";
+import { trackEvent } from "../track";
 
 export const Token = () => {
   const [token] = useConfig("token");

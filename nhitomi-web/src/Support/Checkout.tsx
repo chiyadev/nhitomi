@@ -11,7 +11,7 @@ import { Loading3QuartersOutlined } from "@ant-design/icons";
 import { useNotify } from "../NotificationManager";
 import { useClient, useClientInfo } from "../ClientManager";
 import { loadStripe } from "@stripe/stripe-js";
-import { trackEvent } from "../umami";
+import { trackEvent } from "../track";
 import { PinkLabel } from "./PinkLabel";
 
 export const Checkout = ({ supporterPrice, apiKey }: PrefetchResult) => {

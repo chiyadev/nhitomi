@@ -4,7 +4,7 @@ import keycode from "keycode";
 import { KeyModifiers, ShortcutConfig, ShortcutConfigKey, useConfig } from "./ConfigManager";
 import { useLayout } from "./LayoutManager";
 import { useSpring } from "react-spring";
-import { trackEvent } from "./umami";
+import { trackEvent } from "./track";
 
 /** Returns all modifier keys pressed in the given event. */
 export function getEventModifiers(e: { altKey: boolean; ctrlKey: boolean; metaKey: boolean; shiftKey: boolean }) {

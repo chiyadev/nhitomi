@@ -10,7 +10,7 @@ if (connectionStr) {
   };
 }
 
-/** Collects an arbitrary Umami metric. */
+/** Collects an arbitrary Goat metric. */
 export function collect(type: string, data: Record<string, any>) {
   if (!connection) return;
 

@@ -9,7 +9,7 @@ import { FormattedMessage } from "react-intl";
 import { SupportLink } from "../Support";
 import { usePageState } from "../state";
 import { SupportDescription } from "../Support/MainCard";
-import { trackEvent } from "../umami";
+import { trackEvent } from "../track";
 
 export const SupportBanner = ({ book, content }: { book: Book; content: BookContent }) => {
   const client = useClient();

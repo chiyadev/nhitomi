@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useRef } from "react";
 import { Redirect, Route, Router, Switch } from "react-router-dom";
 import { Navigator, useNavigator } from "./state";
 import { ProgressManager } from "./ProgressManager";
-import { trackView } from "./umami";
+import { trackView } from "./track";
 import { useErrorBoundary } from "preact/hooks";
 import { captureException } from "@sentry/react";
 

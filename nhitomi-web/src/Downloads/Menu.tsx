@@ -4,7 +4,7 @@ import { RoundIconButton } from "../Components/RoundIconButton";
 import { useDownloads } from "../DownloadManager";
 import { FormattedMessage } from "react-intl";
 import { CloseOutlined, ReloadOutlined } from "@ant-design/icons";
-import { trackEvent } from "../umami";
+import { trackEvent } from "../track";
 
 export const Menu = () => (
   <>
