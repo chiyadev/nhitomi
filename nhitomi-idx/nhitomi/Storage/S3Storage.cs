@@ -41,6 +41,9 @@ namespace nhitomi.Storage
 
         /// <inheritdoc cref="ClientConfig.ServiceURL"/>
         public string ServiceUrl { get; set; }
+
+        /// <inheritdoc cref="AmazonS3Config.ForcePathStyle"/>
+        public bool ForcePathStyle { get; set; }
     }
 
     public class S3AspNetHttpClientFactoryWrapper : HttpClientFactory
@@ -81,7 +84,8 @@ namespace nhitomi.Storage
                 MaxErrorRetry         = options.MaxErrorRetry,
                 UseAccelerateEndpoint = options.UseAccelerateEndpoint,
                 AuthenticationRegion  = options.Region,
-                RegionEndpoint        = options.Region == null ? RegionEndpoint.GetBySystemName(options.Region) : null
+                RegionEndpoint        = options.Region == null ? null : RegionEndpoint.GetBySystemName(options.Region),
+                ForcePathStyle        = options.ForcePathStyle
             }.Chain(c =>
             {
                 if (options.ServiceUrl != null)
