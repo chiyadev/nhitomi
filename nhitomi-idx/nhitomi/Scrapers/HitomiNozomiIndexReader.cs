@@ -54,7 +54,7 @@ namespace nhitomi.Scrapers
                 if (!response.IsSuccessStatusCode)
                     return Array.Empty<int>();
 
-                await using (var stream = await response.Content.ReadAsStreamAsync())
+                await using (var stream = await response.Content.ReadAsStreamAsync(cancellationToken))
                     await stream.CopyToAsync(memory, cancellationToken);
 
                 memory.Position = 0;

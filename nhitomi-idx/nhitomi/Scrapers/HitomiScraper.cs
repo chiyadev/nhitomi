@@ -343,7 +343,7 @@ namespace nhitomi.Scrapers
             {
                 Name      = response.RequestMessage.RequestUri.ToString(),
                 MediaType = response.Content.Headers.ContentType?.MediaType,
-                Stream    = await response.Content.ReadAsStreamAsync()
+                Stream    = await response.Content.ReadAsStreamAsync(cancellationToken)
             };
         }
     }
