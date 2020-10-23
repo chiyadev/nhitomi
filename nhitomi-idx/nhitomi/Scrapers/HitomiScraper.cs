@@ -325,7 +325,7 @@ namespace nhitomi.Scrapers
             var cdn = SubdomainFromGalleryId(galleryId, frontends);
             var url = index == -1
                 ? $"https://tn.hitomi.la/bigtn/{FullPathFromHash(hash)}.jpg" // it seems like hitomi thumbnails are always jpg
-                : $"https://{cdn}a.hitomi.la/images/{FullPathFromHash(hash)}{ext}";
+                : $"https://{cdn}b.hitomi.la/images/{FullPathFromHash(hash)}{ext}";
 
             var response = await _http.SendAsync(new HttpRequestMessage
             {
