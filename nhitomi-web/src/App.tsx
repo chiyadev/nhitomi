@@ -85,16 +85,17 @@ export const App = () => {
 };
 
 const Routing = () => {
-  const { path } = useNavigator();
+  const { path, query, stringify, evaluate } = useNavigator();
+
+  const trackedPath = useMemo(() => stringify(evaluate({ path, query })), [evaluate, path, query, stringify]);
   const tracked = useRef<number>();
 
   useEffect(() => {
     // timeout prevents multiple page views being tracked for redirects
     clearTimeout(tracked.current);
 
-    // do not include queries in metrics, because it pollutes the view
-    tracked.current = window.setTimeout(() => trackView(path), 1000);
-  }, [path]);
+    tracked.current = window.setTimeout(() => trackView(trackedPath), 1000);
+  }, [trackedPath]);
 
   return useMemo(
     () => (

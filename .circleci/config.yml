@@ -6,7 +6,7 @@ executors:
     environment:
       DOCKER_IMAGE_IDX: r.chiya.dev/nhitomi
       DOCKER_IMAGE_DISCORD: r.chiya.dev/nhitomi-discord
-      GOAT_URL: https://a.chiya.dev/count
+      GOAT_URL: https://a.chiya.dev/c2d0d520-639c-4191-ac6c-6e2700752882
       SENTRY_DSN: https://a768b944b93b4c70be91bf4df488c978@o452268.ingest.sentry.io/5439405
 
 jobs:
