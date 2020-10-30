@@ -1,4 +1,4 @@
-const connectionStr = process.env.REACT_APP_UMAMI_URL; // connection format "https://umami.is/{websiteId}"
+const connectionStr = process.env.REACT_APP_UMAMI_URL; // connection format "https://umami/websiteId"
 let connection: undefined | { collectUrl: string; websiteId: string };
 
 if (connectionStr) {
@@ -14,24 +14,33 @@ if (connectionStr) {
 export function collect(type: string, data: Record<string, any>) {
   if (!connection) return;
 
-  fetch(connection.collectUrl, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      type,
+  (async () => {
+    try {
+      const response = await fetch(connection.collectUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          type,
 
-      payload: {
-        website: connection.websiteId,
-        hostname: location.hostname,
-        screen: `${window.screen.width}x${window.screen.height}`,
-        language: navigator.language,
+          payload: {
+            website: connection.websiteId,
+            hostname: location.hostname,
+            screen: `${window.screen.width}x${window.screen.height}`,
+            language: navigator.language,
+            cache: localStorage.getItem("umami.cache") || undefined,
 
-        ...data,
-      },
-    }),
-  });
+            ...data,
+          },
+        }),
+      });
+
+      localStorage.setItem("umami.cache", await response.text());
+    } catch {
+      // ignored
+    }
+  })();
 }
 
 let currentPath: string | undefined;
