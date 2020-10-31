@@ -1,7 +1,7 @@
 ARG VERSION=Latest
 
 # build backend
-FROM mcr.microsoft.com/dotnet/sdk:5.0 AS idx
+FROM mcr.microsoft.com/dotnet/sdk:5.0 AS build
 WORKDIR /app
 
 COPY nhitomi-idx/nhitomi/nhitomi.csproj ./
@@ -10,45 +10,18 @@ RUN dotnet restore
 COPY nhitomi-idx/nhitomi ./
 RUN dotnet build -c Release -o build --no-restore
 
-# generate api spec file
-RUN dotnet "build/nhitomi.dll" -- --generate-spec > apispec.json
-
-# build frontend
-FROM node:lts-alpine AS web
-WORKDIR /app
-
-# genclient requires jre
-RUN apk add --no-cache openjdk8-jre
-
-COPY nhitomi-web/package.json nhitomi-web/yarn.lock ./
-COPY nhitomi-web/patches ./patches/
-COPY scripts ../scripts/
-RUN yarn
-
-COPY --from=idx /app/apispec.json ./
-RUN yarn genclient apispec.json
-
-ARG VERSION
-ARG UMAMI_URL
-ARG SENTRY_DSN
-ENV REACT_APP_VERSION $VERSION
-ENV REACT_APP_UMAMI_URL $UMAMI_URL
-ENV REACT_APP_SENTRY_DSN $SENTRY_DSN
-
-COPY nhitomi-web ./
-RUN yarn build
-
 # build final image
-FROM mcr.microsoft.com/dotnet/aspnet:5.0 as app
+FROM mcr.microsoft.com/dotnet/aspnet:5.0
 WORKDIR /app
 
-COPY --from=idx /app/build ./
-COPY --from=web /app/build ./static/
+COPY --from=build /app/build ./
 
 ARG VERSION
 ARG SENTRY_DSN
+
 ENV ASPNETCORE_ENVIRONMENT Production
 ENV ASPNETCORE_APP_VERSION $VERSION
 ENV SENTRY_ENVIRONMENT production
 ENV SENTRY_DSN $SENTRY_DSN
+
 ENTRYPOINT ["dotnet", "nhitomi.dll"]

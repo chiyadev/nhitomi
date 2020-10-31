@@ -20,8 +20,7 @@ namespace nhitomi
                 case CacheControlMode.Never:
                     headers.CacheControl = new CacheControlHeaderValue
                     {
-                        NoStore = true,
-                        MaxAge  = TimeSpan.Zero
+                        NoStore = true
                     };
                     break;
 
@@ -29,7 +28,7 @@ namespace nhitomi
                     headers.CacheControl = new CacheControlHeaderValue
                     {
                         Public = true,
-                        MaxAge = TimeSpan.FromSeconds(int.MaxValue),
+                        MaxAge = TimeSpan.FromSeconds(31536000),
                         Extensions =
                         {
                             new NameValueHeaderValue("immutable")
@@ -41,8 +40,7 @@ namespace nhitomi
                     headers.CacheControl = new CacheControlHeaderValue
                     {
                         Public  = true,
-                        NoCache = true,
-                        MaxAge  = TimeSpan.Zero
+                        NoCache = true
                     };
                     break;
             }

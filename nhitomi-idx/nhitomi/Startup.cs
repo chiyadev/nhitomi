@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
-using System.Net;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -293,78 +292,28 @@ namespace nhitomi
 
         public void Configure(IApplicationBuilder app)
         {
-            // backend
-            app.Map(ApiBasePath, ConfigureBackend);
-
-            // frontend
-            ConfigureFrontend(app);
-        }
-
-        static readonly string[] _aggressiveCachedPaths = { "/static", "/assets" };
-
-        void ConfigureFrontend(IApplicationBuilder app)
-        {
-            // route rewrite
-            app.Use((c, n) =>
-            {
-                switch (c.Request.Method)
-                {
-                    case "HEAD":
-                    case "GET":
-                        // frontend is an SPA; if route doesn't exist, rewrite to return the default file
-                        if (!_environment.WebRootFileProvider.GetFileInfo(c.Request.Path.Value).Exists)
-                            c.Request.Path = "/index.html";
-
-                        return n();
-
-                    default:
-                        return ResultUtilities.Status(HttpStatusCode.MethodNotAllowed).ExecuteResultAsync(c);
-                }
-            });
-
-            // caching
-            app.UseResponseCaching();
-
-            // compression
-            app.UseResponseCompression();
-
-            // static files
-            app.UseStaticFiles(new StaticFileOptions
-            {
-                ServeUnknownFileTypes = true,
-
-                OnPrepareResponse = context =>
-                {
-                    if (context.Context.Response.StatusCode != 200)
-                        return;
-
-                    var headers = context.Context.Response.GetTypedHeaders();
-
-                    // aggressively cache files in static folder (cache-busted by webpack)
-                    if (Array.FindIndex(_aggressiveCachedPaths, p => context.Context.Request.Path.StartsWithSegments(p)) != -1)
-                        headers.SetCacheControl(CacheControlMode.Aggressive);
-                    else
-                        headers.SetCacheControl(CacheControlMode.AllowWithRevalidate);
-                }
-            });
-
-            if (_environment.IsDevelopment())
-                app.Use((c, n) => c.Response.WriteAsync(
-                    "404 Not Found; It seems like nhitomi-web was not compiled into nhitomi-idx's static asset directory. This is not necessary during development. " +
-                    "However, you should be running nhitomi-web separately using `yarn start`. It is configured to proxy API requests automatically to nhitomi-idx."));
-        }
-
-        void ConfigureBackend(IApplicationBuilder app)
-        {
-            // redoc documentation
-            app.MapWhen(context => context.Request.Path == "/index.html" || context.Request.Path == "/redoc.standalone.js", ConfigureRedoc);
-
             // cors
             app.UseCors(o => o.AllowAnyHeader()
                               .AllowAnyMethod()
                               .AllowAnyOrigin());
 
-            // prevent api response caching
+            // http metrics
+            app.UseHttpMetrics();
+
+            // exception handling
+            app.UseExceptionHandler(ApiBasePath + "/error")
+               .UseStatusCodePagesWithReExecute(ApiBasePath + "/error/{0}");
+
+            // backend
+            app.Map(ApiBasePath, ConfigureCore);
+        }
+
+        void ConfigureCore(IApplicationBuilder app)
+        {
+            // redoc documentation
+            app.MapWhen(context => context.Request.Path == "/index.html" || context.Request.Path == "/redoc.standalone.js", ConfigureRedoc);
+
+            // prevent all caching
             app.Use((context, next) =>
             {
                 context.Response.GetTypedHeaders().SetCacheControl(CacheControlMode.Never);
@@ -374,15 +323,8 @@ namespace nhitomi
             // authentication
             app.UseAuthentication();
 
-            // exception handling (must appear before routing)
-            app.UseExceptionHandler("/error") // base path is not prepended here because we are using router
-               .UseStatusCodePagesWithReExecute("/error/{0}");
-
             // routing
             app.UseRouting();
-
-            // http metrics
-            app.UseHttpMetrics();
 
             // compression
             app.UseResponseCompression();

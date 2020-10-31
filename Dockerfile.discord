@@ -1,6 +1,6 @@
 ARG VERSION=Latest
 
-# build backend (for api specification file)
+# generate api spec
 FROM mcr.microsoft.com/dotnet/sdk:5.0 AS idx
 WORKDIR /app
 
@@ -11,7 +11,7 @@ COPY nhitomi-idx/nhitomi ./
 RUN dotnet run --no-restore -- --generate-spec > apispec.json
 
 # build discord
-FROM node:lts-alpine as discord
+FROM node:lts-alpine as build
 WORKDIR /app
 
 # genclient requires jre
@@ -28,12 +28,12 @@ COPY nhitomi-discord ./
 RUN yarn build
 
 # build final image
-FROM node:lts-alpine as app
+FROM node:lts-alpine
 WORKDIR /app
 
-COPY --from=discord /app/build ./
-COPY --from=discord /app/node_modules ./node_modules/
-COPY --from=discord /app/nhitomi-api ./nhitomi-api/
+COPY --from=build /app/build ./
+COPY --from=build /app/node_modules ./node_modules/
+COPY --from=build /app/nhitomi-api ./nhitomi-api/
 
 ARG VERSION
 ARG SENTRY_DSN
@@ -42,4 +42,5 @@ ENV NODE_ENV production
 ENV NODE_APP_VERSION $VERSION
 ENV SENTRY_ENVIRONMENT production
 ENV SENTRY_DSN $SENTRY_DSN
+
 ENTRYPOINT ["node", "index.js"]

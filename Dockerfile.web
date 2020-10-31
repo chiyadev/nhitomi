@@ -1,0 +1,43 @@
+ARG VERSION=Latest
+
+# generate api spec
+FROM mcr.microsoft.com/dotnet/sdk:5.0 AS idx
+WORKDIR /app
+
+COPY nhitomi-idx/nhitomi/nhitomi.csproj ./
+RUN dotnet restore
+
+COPY nhitomi-idx/nhitomi ./
+RUN dotnet run --no-restore -- --generate-spec > apispec.json
+
+# build web
+FROM node:lts-alpine AS build
+WORKDIR /app
+
+# genclient requires jre
+RUN apk add --no-cache openjdk8-jre
+
+COPY nhitomi-web/package.json nhitomi-web/yarn.lock ./
+COPY nhitomi-web/patches ./patches/
+COPY scripts ../scripts/
+RUN yarn
+
+COPY --from=idx /app/apispec.json ./
+RUN yarn genclient apispec.json
+
+ARG VERSION
+ARG UMAMI_URL
+ARG SENTRY_DSN
+
+ENV REACT_APP_VERSION $VERSION
+ENV REACT_APP_UMAMI_URL $UMAMI_URL
+ENV REACT_APP_SENTRY_DSN $SENTRY_DSN
+
+COPY nhitomi-web ./
+RUN yarn build
+
+# build final image
+FROM nginx:alpine
+
+COPY --from=build /app/build /usr/share/nginx/html
+COPY nhitomi-web/nginx.conf /etc/nginx/conf.d/default.conf
