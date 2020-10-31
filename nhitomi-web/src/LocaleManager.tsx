@@ -7,6 +7,7 @@ import { useClientInfo, useClientUtils } from "./ClientManager";
 import { AvailableLocalizations } from "./Languages/languages";
 import { useAsync } from "./hooks";
 import { captureException } from "@sentry/react";
+import DefaultLocalization from "./Languages/en-US.json";
 
 export const LanguageNames: { [lang in LanguageType]: string } = {
   "ja-JP": "日本語",
@@ -120,12 +121,12 @@ export const LocaleManager = ({ children }: { children?: ReactNode }) => {
 };
 
 async function loadLanguage(language: LanguageType): Promise<Record<string, string>> {
-  let data = JSON.parse(JSON.stringify((await import("./Languages/en-US.json")).default)); // use "en-US" constant! webpack seems to break with LanguageType.EnUS string interpolation
+  let data = JSON.parse(JSON.stringify(DefaultLocalization));
 
   // layer other languages on top of the default English
   if (language !== LanguageType.EnUS && AvailableLocalizations.indexOf(language) !== -1) {
     try {
-      const overlay = (await import(`./Languages/${language}.json`)).default;
+      const overlay = (await import(/* webpackMode: "eager" */ `./Languages/${language}.json`)).default;
 
       data = mergeObjects(data, overlay);
     } catch (e) {
