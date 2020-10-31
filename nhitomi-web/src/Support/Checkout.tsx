@@ -14,6 +14,8 @@ import { loadStripe } from "@stripe/stripe-js";
 import { trackEvent } from "../track";
 import { PinkLabel } from "./PinkLabel";
 
+import megumiButtonBg from "../assets/images/megumi_button_bg.jpg";
+
 export const Checkout = ({ supporterPrice, apiKey }: PrefetchResult) => {
   const client = useClient();
   const { user } = useClientInfo();
@@ -110,7 +112,7 @@ const CheckoutButton = ({ duration, loading, submit }: { duration: number; loadi
       <animated.img
         style={imageStyle}
         alt="buttonbg"
-        src="/assets/images/megumi_button_bg.jpg"
+        src={megumiButtonBg}
         className={cx(
           "absolute w-full object-cover select-none pointer-events-none",
           css`

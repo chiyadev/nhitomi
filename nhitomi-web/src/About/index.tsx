@@ -13,6 +13,9 @@ import { FormattedMessage } from "react-intl";
 import { ScraperType } from "nhitomi-api";
 import { Anchor } from "../Components/Anchor";
 
+import logo192x192 from "../assets/logo-192x192.png";
+import { SourceIcon } from "../Components/SourceIcon";
+
 export type PrefetchResult = { info: ClientInfo };
 export type PrefetchOptions = {};
 
@@ -77,7 +80,7 @@ const Loaded = ({ info }: PrefetchResult) => {
             style={logoStyle}
             alt="logo"
             className="w-48 h-48 pointer-events-none select-none"
-            src="/logo-192x192.png"
+            src={logo192x192}
           />
           <br />
 
@@ -143,12 +146,7 @@ const Content = ({ info }: PrefetchResult) => {
             .filter((s) => s.type !== ScraperType.Unknown)
             .map((scraper) => (
               <li key={scraper.type}>
-                <img
-                  className="inline rounded-full w-6 h-6 mr-2 align-middle"
-                  alt={scraper.type}
-                  src={`/assets/icons/${scraper.type}.jpg`}
-                />
-
+                <SourceIcon type={scraper.type} className="inline rounded-full w-6 h-6 mr-2 align-middle" />
                 {scraper.name}
                 {" — "}
                 <Anchor target="_blank" className="text-blue" href={scraper.url}>

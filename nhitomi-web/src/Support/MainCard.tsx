@@ -4,6 +4,8 @@ import { animated, useSpring } from "react-spring";
 import { css, cx } from "emotion";
 import { useClientInfo } from "../ClientManager";
 
+import megumiHappy from "../assets/images/megumi_happy.png";
+
 export const SupportDescription = () => {
   return (
     <div className="space-y-2">
@@ -68,7 +70,7 @@ export const MainCard = ({ children }: { children?: ReactNode }) => {
           >
             <img
               alt="megumi"
-              src="/assets/images/megumi_happy.png"
+              src={megumiHappy}
               className={cx(
                 "select-none pointer-events-none rounded absolute w-full max-w-xs",
                 css`
@@ -96,7 +98,7 @@ export const MainCard = ({ children }: { children?: ReactNode }) => {
           <animated.img
             style={imageStyle}
             alt="megumi"
-            src="/assets/images/megumi_happy.png"
+            src={megumiHappy}
             className="select-none pointer-events-none object-cover rounded absolute ml-8 w-64 h-full z-10"
           />
 

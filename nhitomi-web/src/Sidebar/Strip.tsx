@@ -31,6 +31,8 @@ import { DownloadsLink } from "../Downloads";
 import { useDownloads } from "../DownloadManager";
 import { getColor } from "../theme";
 
+import logo80x80 from "../assets/logo-80x80.png";
+
 export const Strip = ({ children, additionalMenu }: { children?: ReactNode; additionalMenu?: ReactNode }) => {
   const { user } = useClientInfo();
 
@@ -84,7 +86,7 @@ const Logo = () =>
         <BookListingLink>
           <img
             alt="logo"
-            src="/logo-80x80.png"
+            src={logo80x80}
             className={cx(
               "pointer-events-none rendering-crisp",
               css`

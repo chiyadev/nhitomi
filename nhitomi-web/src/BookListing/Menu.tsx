@@ -14,6 +14,7 @@ import { FormattedMessage } from "react-intl";
 import { CheckBox } from "../Components/Checkbox";
 import { animated, useSpring } from "react-spring";
 import { useClientInfo } from "../ClientManager";
+import { SourceIcon } from "../Components/SourceIcon";
 
 export const Menu = () => (
   <>
@@ -120,8 +121,7 @@ const FilterButton = () => {
                   >
                     <DropdownItem padding={false}>
                       <CheckBox type="check" value={active}>
-                        <img className="rounded-full h-5 w-auto inline" alt={type} src={`/assets/icons/${type}.jpg`} />{" "}
-                        {name}
+                        <SourceIcon type={type} className="rounded-full h-5 w-auto inline" /> {name}
                       </CheckBox>
                     </DropdownItem>
                   </BookListingLink>

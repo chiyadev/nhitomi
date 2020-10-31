@@ -5,6 +5,9 @@ import { getColor } from "../theme";
 import { FolderFilled, ThunderboltFilled } from "@ant-design/icons";
 import { PinkLabel } from "./PinkLabel";
 
+import downloadsLimitless from "../assets/images/downloads_limitless.jpg";
+import downloadsCollection from "../assets/images/downloads_collection.jpg";
+
 export const Benefits = () => {
   return (
     <div className="text-center space-y-8">
@@ -44,12 +47,12 @@ const DownloadLimitless = () => {
 
       <GradientImage>
         <img
+          alt="downloads_limitless"
+          src={downloadsLimitless}
           className={cx("w-full h-64", {
             "object-contain": screen !== "sm",
             "object-left object-cover": screen === "sm",
           })}
-          alt="downloads_limitless"
-          src="/assets/images/downloads_limitless.jpg"
         />
       </GradientImage>
     </div>
@@ -66,11 +69,7 @@ const DownloadCollection = () => {
       <div>Bulk download all collection items in a single click.</div>
 
       <GradientImage>
-        <img
-          alt="downloads_collection"
-          src="/assets/images/downloads_collection.jpg"
-          className="w-full h-40 object-contain"
-        />
+        <img alt="downloads_collection" src={downloadsCollection} className="w-full h-40 object-contain" />
       </GradientImage>
     </div>
   );

@@ -30,6 +30,7 @@ import { useAsync } from "../hooks";
 import { useNotify } from "../NotificationManager";
 import { Anchor } from "../Components/Anchor";
 import { Buttons } from "./Buttons";
+import { SourceIcon } from "../Components/SourceIcon";
 
 export const Info = ({ book, content }: PrefetchResult) => {
   const client = useClient();
@@ -238,9 +239,7 @@ const SourceButton = ({ type }: { type: ScraperType }) => {
   } = useClientInfo();
 
   return (
-    <FlatButton
-      icon={<img className="rounded-full h-6 w-auto align-middle" alt={type} src={`/assets/icons/${type}.jpg`} />}
-    >
+    <FlatButton icon={<SourceIcon type={type} className="rounded-full h-6 w-auto align-middle" />}>
       <span className="text-gray">{scrapers.find((s) => s.type === type)?.name}</span>
     </FlatButton>
   );

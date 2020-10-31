@@ -8,6 +8,8 @@ import { Tooltip } from "../Components/Tooltip";
 import { BackLink } from "../Prefetch";
 import { css, cx } from "emotion";
 
+import megu404 from "../assets/statuses/megu404.jpg";
+
 export const NotFound = () => {
   return (
     <PageContainer className="flex flex-col justify-center p-4 space-y-4">
@@ -19,7 +21,7 @@ export const NotFound = () => {
           `
         )}
         alt="404"
-        src="/assets/statuses/megu404.jpg"
+        src={megu404}
       />
 
       <div className="text-center">

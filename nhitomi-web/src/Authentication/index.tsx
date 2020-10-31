@@ -15,6 +15,8 @@ import GitHubButton from "react-github-btn";
 import { Anchor } from "../Components/Anchor";
 import { useErrorBoundary } from "preact/hooks";
 
+import logo192x192 from "../assets/logo-192x192.png";
+
 export type PrefetchResult = { info: ClientInfo; state: string };
 export type PrefetchOptions = { redirect?: NavigationArgs };
 
@@ -101,7 +103,7 @@ const Loaded = ({ info: { discordOAuthUrl }, state }: PrefetchResult) => {
         style={logoStyle}
         alt="logo"
         className="w-48 h-48 pointer-events-none select-none mx-auto mb-4 mt-8"
-        src="/logo-192x192.png"
+        src={logo192x192}
       />
 
       <animated.div style={infoStyle} className="space-y-8">

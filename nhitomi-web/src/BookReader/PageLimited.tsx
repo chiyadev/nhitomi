@@ -5,11 +5,12 @@ import { ScraperTypes } from "../orderedConstants";
 import { useContentSelector } from "../Components/BookList";
 import { ArrowRightOutlined, HeartFilled, ReadOutlined } from "@ant-design/icons";
 import { Anchor } from "../Components/Anchor";
-import { useSpring, animated } from "react-spring";
+import { animated, useSpring } from "react-spring";
 import { getColor } from "../theme";
 import { SupportLink } from "../Support";
 import { css, cx } from "emotion";
 import { FormattedMessage } from "react-intl";
+import { SourceIcon } from "../Components/SourceIcon";
 
 export const PageLimited = ({ book, content }: { book: Book; content: BookContent }) => {
   const selectContent = useContentSelector();
@@ -76,7 +77,7 @@ const SourceItem = ({ type, content }: { type: ScraperType; content: BookContent
   return (
     <Anchor className="block" target="_blank" href={content.sourceUrl}>
       <Item
-        icon={<img alt={type} src={`/assets/icons/${type}.jpg`} className="w-8 h-8 rounded-full" />}
+        icon={<SourceIcon type={type} className="w-8 h-8 rounded-full" />}
         name={scrapers.find((s) => s.type === type)?.name}
         description={content.sourceUrl}
       />

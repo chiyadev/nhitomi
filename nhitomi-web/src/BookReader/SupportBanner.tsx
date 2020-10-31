@@ -11,6 +11,8 @@ import { usePageState } from "../state";
 import { SupportDescription } from "../Support/MainCard";
 import { trackEvent } from "../track";
 
+import chinoBookMask from "../assets/images/chino_book_mask.png";
+
 export const SupportBanner = ({ book, content }: { book: Book; content: BookContent }) => {
   const client = useClient();
   const { isSupporter } = useClientInfo();
@@ -110,7 +112,8 @@ const Inner = ({ thumb }: { thumb: string }) => {
               className="origin-center"
               preserveAspectRatio="xMinYMin slice"
             />
-            <image href="/assets/images/chino_book_mask.png" />
+
+            <image href={chinoBookMask} />
           </svg>
         </div>
 
