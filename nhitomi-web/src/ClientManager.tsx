@@ -34,7 +34,6 @@ import { CustomError } from "ts-custom-error";
 import { useInterval } from "react-use";
 import { useProgress } from "./ProgressManager";
 import { ConfigSource, useConfig, useConfigManager } from "./ConfigManager";
-import { Container } from "./Components/Container";
 import { JSONex } from "./jsonEx";
 import { useAlert } from "./NotificationManager";
 import { FormattedMessage } from "react-intl";
@@ -42,6 +41,7 @@ import { CollectionContentLink } from "./CollectionContent";
 import { useAsync } from "./hooks";
 import { reloadWithoutCache } from "./cacheBuster";
 import { setUser } from "@sentry/react";
+import { Maintenance } from "./Maintenance";
 
 export class Client {
   readonly httpConfig: ConfigurationParameters = {
@@ -295,26 +295,13 @@ export const ClientManager = ({ children }: { children?: ReactNode }) => {
   }
 
   if (info instanceof Error) {
-    return <ErrorDisplay error={info} />;
+    return <Maintenance error={info} />;
   }
 
   return (
     <Loaded client={client} info={info} setInfo={setInfo}>
       {children}
     </Loaded>
-  );
-};
-
-const ErrorDisplay = ({ error }: { error: Error }) => {
-  return (
-    <Container className="p-4">
-      <div>nhitomi could not contact the API server. Please try again later!</div>
-      <br />
-
-      <div className="text-sm whitespace-pre">
-        <code>{error.stack}</code>
-      </div>
-    </Container>
   );
 };
 
