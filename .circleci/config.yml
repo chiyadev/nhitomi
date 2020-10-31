@@ -62,6 +62,13 @@ workflows:
             branches:
               only: deploy
 
+      - deploy-web:
+          context:
+            - do-registry
+          filters:
+            branches:
+              only: deploy
+
       - deploy-discord:
           context:
             - do-registry
