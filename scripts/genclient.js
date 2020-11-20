@@ -37,7 +37,7 @@ const name = 'nhitomi-api'
 emptyDirSync(name)
 
 execSync(
-  `yarn openapi-generator generate \
+  `yarn openapi-generator-cli generate \
     -psupportsES6=true \
     -ptypescriptThreePlus=true \
     -pprefixParameterInterfaces=true \

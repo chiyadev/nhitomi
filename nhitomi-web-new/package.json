@@ -5,12 +5,14 @@
     "dev": "next",
     "build": "next build",
     "start": "next start",
-    "type-check": "tsc"
+    "type-check": "tsc",
+    "genclient": "node ../scripts/genclient typescript-fetch"
   },
   "dependencies": {
     "@chakra-ui/react": "^1.0.0",
     "@emotion/react": "^11.1.1",
     "@emotion/styled": "^11.0.0",
+    "@openapitools/openapi-generator-cli": "^2.1.5",
     "framer-motion": "^2.9.4",
     "next": "latest",
     "prettier": "^2.2.0",
@@ -24,5 +26,8 @@
     "@types/react-dom": "^16.9.4",
     "typescript": "4.0"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "optionalDependencies": {
+    "nhitomi-api": "link:nhitomi-api"
+  }
 }
