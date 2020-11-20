@@ -1,41 +1,60 @@
 import React, { ReactNode } from "react";
-import Link from "next/link";
 import Head from "next/head";
+import Footer from "./Footer";
+import { Box, Flex, Spacer } from "@chakra-ui/layout";
 
-type Props = {
+const Layout = ({
+  children,
+  title = "nhitomi",
+}: {
   children?: ReactNode;
   title?: string;
-};
-
-const Layout = ({ children, title = "This is the default title" }: Props) => (
-  <div>
+}) => (
+  <>
     <Head>
-      <title>{title}</title>
       <meta charSet="utf-8" />
+
       <meta name="viewport" content="initial-scale=1.0, width=device-width" />
+      <meta name="application-name" content="nhitomi" />
+      <meta name="apple-mobile-web-app-title" content="nhitomi" />
+      <meta name="msapplication-TileColor" content="#74c0fc" />
+      <meta name="theme-color" content="#74c0fc" />
+
+      <link rel="manifest" href="/site.webmanifest" />
+
+      <link
+        rel="apple-touch-icon"
+        sizes="180x180"
+        href="/apple-touch-icon.png"
+      />
+
+      <link rel="icon" href="/favicon.ico" />
+
+      <link
+        rel="icon"
+        type="image/png"
+        sizes="32x32"
+        href="/favicon-32x32.png"
+      />
+
+      <link
+        rel="icon"
+        type="image/png"
+        sizes="16x16"
+        href="/favicon-16x16.png"
+      />
+
+      <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#74c0fc" />
+
+      <title>{title}</title>
     </Head>
-    <header>
-      <nav>
-        <Link href="/">
-          <a>Home</a>
-        </Link>{" "}
-        |{" "}
-        <Link href="/about">
-          <a>About</a>
-        </Link>{" "}
-        |{" "}
-        <Link href="/users">
-          <a>Users List</a>
-        </Link>{" "}
-        | <a href="/api/users">Users API</a>
-      </nav>
-    </header>
-    {children}
-    <footer>
-      <hr />
-      <span>I'm here to stay (Footer)</span>
-    </footer>
-  </div>
+
+    <Flex direction="column" w="full" h="100vh" maxW="1200px" mx="auto">
+      <Box>{children}</Box>
+      <Spacer />
+      <Footer />
+    </Flex>
+  </>
 );
 
 export default Layout;
