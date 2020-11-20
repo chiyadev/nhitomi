@@ -1,10 +1,13 @@
-import React from "react";
-import Layout from "../components/Layout";
+export function getServerSideProps() {
+  return {
+    props: {},
+    redirect: {
+      destination: "/books",
+      permanent: false,
+    },
+  };
+}
 
-const Index = () => (
-  <Layout title="nhitomi">
-    <h1>Hello, new nhitomi!</h1>
-  </Layout>
-);
+const Index = () => null;
 
 export default Index;
