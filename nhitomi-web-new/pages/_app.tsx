@@ -1,5 +1,7 @@
+import "inter-ui/inter.css";
+import "@openfonts/m-plus-1p_japanese/index.css";
 import { ChakraProvider, extendTheme } from "@chakra-ui/react";
-import React from "react";
+import React, { memo } from "react";
 import { AppProps } from "next/app";
 
 const App = ({ Component, pageProps }: AppProps) => {
@@ -13,6 +15,8 @@ const App = ({ Component, pageProps }: AppProps) => {
           global: {
             body: {
               bg: "gray.900",
+              fontFamily:
+                'Inter, "M PLUS 1p", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"',
             },
           },
         },
@@ -23,4 +27,4 @@ const App = ({ Component, pageProps }: AppProps) => {
   );
 };
 
-export default App;
+export default memo(App);

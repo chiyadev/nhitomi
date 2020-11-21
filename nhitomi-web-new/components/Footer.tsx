@@ -1,18 +1,10 @@
-import React from "react";
+import React, { memo } from "react";
 import { FaCode, FaDiscord, FaGithub } from "react-icons/fa";
 import { HStack, Icon, Tooltip } from "@chakra-ui/react";
 
 const Footer = () => {
   return (
-    <HStack
-      as="footer"
-      spacing={4}
-      justify="center"
-      pt={4}
-      pb={4}
-      textAlign="center"
-      textColor="gray.500"
-    >
+    <HStack as="footer" spacing={4} justify="center" pt={4} pb={4} textAlign="center" textColor="gray.500">
       <Tooltip label="GitHub">
         <a href="https://github.com/chiyadev/nhitomi">
           <Icon as={FaGithub} />
@@ -34,4 +26,4 @@ const Footer = () => {
   );
 };
 
-export default Footer;
+export default memo(Footer);

@@ -1,13 +1,17 @@
-export function getServerSideProps() {
+import { GetStaticProps } from "next";
+import { memo } from "react";
+
+type Props = {};
+
+export const getStaticProps: GetStaticProps<Props> = async () => {
   return {
-    props: {},
     redirect: {
       destination: "/books",
       permanent: false,
     },
   };
-}
+};
 
 const Index = () => null;
 
-export default Index;
+export default memo(Index);
