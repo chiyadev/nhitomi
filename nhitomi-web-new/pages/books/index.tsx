@@ -1,8 +1,8 @@
-import React, { memo, useMemo } from "react";
+import React, { memo, useMemo, useRef, useState } from "react";
 import Layout from "../../components/Layout";
 import { GetServerSideProps } from "next";
 import { createApiClient } from "../../utils/client";
-import { BookSearchResultFromJSON, BookSearchResultToJSON } from "nhitomi-api";
+import { Book, BookSearchResultFromJSON, BookSearchResultToJSON } from "nhitomi-api";
 import { sanitizeProps } from "../../utils/props";
 import { createQuery } from "../../components/BookSearch/query";
 import { parseCookies } from "nookies";
@@ -10,7 +10,11 @@ import ErrorDisplay from "../../components/BookSearch/ErrorDisplay";
 import { useQueryBoolean, useQueryString } from "../../utils/query";
 import Header from "../../components/BookSearch/Header";
 import Search from "../../components/BookSearch/Search";
-import { useRouter } from "next/router";
+import Router from "next/router";
+import Item from "../../components/BookGrid/Item";
+import { Flex, Grid } from "@chakra-ui/react";
+import styles from "../../components/BookGrid/Grid.module.css";
+import InfiniteLoader from "../../components/BookGrid/InfiniteLoader";
 
 type Props = {
   initial?: any;
@@ -55,9 +59,11 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ req, res, 
 };
 
 const Books = ({ initial, error }: Props) => {
-  const router = useRouter();
   const [query] = useQueryString("query");
   const [search, setSearch] = useQueryBoolean("search");
+
+  const pageId = useRef(0);
+  useMemo(() => pageId.current++, [initial]);
 
   return (
     <Layout title="nhitomi">
@@ -66,9 +72,9 @@ const Books = ({ initial, error }: Props) => {
       <Search
         value={query || ""}
         setValue={async (value) => {
-          await router.push({
+          await Router.push({
             query: {
-              ...router.query,
+              ...Router.query,
               query: value || [],
               search: [],
             },
@@ -78,20 +84,50 @@ const Books = ({ initial, error }: Props) => {
         setOpen={setSearch}
       />
 
-      {error ? <ErrorDisplay error={error} /> : <Content initial={initial} />}
+      {error ? <ErrorDisplay error={error} /> : <Content key={pageId.current} initial={initial} />}
     </Layout>
   );
 };
 
 const Content = ({ initial }: Props) => {
-  const { items } = useMemo(() => BookSearchResultFromJSON(initial), [initial]);
+  const [items, setItems] = useState<Book[]>(() => BookSearchResultFromJSON(initial).items);
+  const offset = useRef(items.length);
 
   return (
-    <div>
-      {items.map((book) => (
-        <div>{book.primaryName}</div>
-      ))}
-    </div>
+    <>
+      <Flex direction="column">
+        <Grid p={2} gap={2} className={styles.grid}>
+          {useMemo(() => items.map((book) => <Item key={book.id} book={book} />), [items])}
+        </Grid>
+
+        <InfiniteLoader
+          hasMore={async () => {
+            const client = createApiClient();
+
+            if (client) {
+              const { items: newItems } = await client.book.searchBooks({
+                bookQuery: {
+                  ...createQuery({
+                    ...parseCookies(),
+                    ...Router.query,
+                  }),
+                  offset: offset.current,
+                },
+              });
+
+              if (items.length) {
+                setItems((items) => [...items, ...newItems]);
+                offset.current += newItems.length;
+
+                return true;
+              }
+            }
+
+            return false;
+          }}
+        />
+      </Flex>
+    </>
   );
 };
 

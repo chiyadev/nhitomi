@@ -17,7 +17,7 @@ const Input = ({
   value: string;
   setValue: Dispatch<string>;
   loading: boolean;
-  onSubmit?: () => void;
+  onSubmit?: (force?: boolean) => void;
   onSuggestChange?: Dispatch<number>;
   onFocus?: Dispatch<boolean>;
 }) => {
@@ -82,7 +82,17 @@ const Input = ({
         }}
       />
 
-      <Square position="absolute" top={0} p={4} ml="1px">
+      <Square
+        position="absolute"
+        top={0}
+        p={4}
+        ml="1px"
+        cursor={loading ? undefined : "pointer"}
+        zIndex={1}
+        onClick={() => {
+          !loading && onSubmit?.(true);
+        }}
+      >
         <Icon as={loading ? Spinner : FaSearch} />
       </Square>
 

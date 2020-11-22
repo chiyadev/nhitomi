@@ -1,19 +1,17 @@
-import { useRouter } from "next/router";
+import Router, { useRouter } from "next/router";
 import { useCallback, useMemo } from "react";
 
 type Dispatch<T = any> = (value: T, mode?: "replace" | "push") => Promise<boolean>;
 
 export function useQuery(key: string): [string | string[] | undefined, Dispatch<string | string[] | undefined>] {
-  const router = useRouter();
-
-  const value = router.query[key];
+  const value = useRouter().query[key];
   const setValue = useCallback<Dispatch>(
     (value: string | string[] | undefined, mode) => {
-      return (mode === "push" ? router.push : router.replace).call(
-        router,
+      return (mode === "push" ? Router.push : Router.replace).call(
+        Router,
         {
           query: {
-            ...router.query,
+            ...Router.query,
             [key]: typeof value === "undefined" ? [] : value,
           },
         },
@@ -23,7 +21,7 @@ export function useQuery(key: string): [string | string[] | undefined, Dispatch<
         }
       );
     },
-    [router, key]
+    [key]
   );
 
   return [value, setValue];

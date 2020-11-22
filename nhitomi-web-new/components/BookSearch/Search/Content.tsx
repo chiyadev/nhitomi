@@ -72,11 +72,11 @@ const Content = ({ value, setValue }: { value: string; setValue: (value: string)
   }, [suggestQueryToken]);
 
   const complete = useCallback(
-    async (item?: TagSuggestion) => {
+    async (item?: TagSuggestion, force?: boolean) => {
       const token = suggestQueryToken;
       item = item || suggest;
 
-      if (!token || !item) {
+      if (force || !token || !item) {
         if (display.trim()) {
           setLoading(true);
 
@@ -198,7 +198,7 @@ const Content = ({ value, setValue }: { value: string; setValue: (value: string)
         value={display}
         setValue={setDisplay}
         loading={load > 0}
-        onSubmit={complete}
+        onSubmit={(force) => complete(undefined, force)}
         onSuggestChange={moveSuggest}
         onFocus={setInputFocus}
       />

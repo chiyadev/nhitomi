@@ -1,5 +1,5 @@
 import React, { memo, useMemo, useState } from "react";
-import { Box, chakra, Flex, Kbd, Spacer } from "@chakra-ui/react";
+import { Box, chakra, Flex, Kbd, Spacer, Tag } from "@chakra-ui/react";
 import { BookTag } from "nhitomi-api";
 import { BookTagColors } from "../../../../utils/colors";
 
@@ -25,6 +25,8 @@ const TagItem = ({
       pl={1000}
       mr={-1000}
       pr={1000}
+      pt={focused ? 1 : 0}
+      pb={focused ? 1 : 0}
       bg={focused || hover ? "gray.600" : undefined}
       transition="all .2s"
       cursor="pointer"
@@ -46,17 +48,13 @@ const TagItem = ({
             )),
           [comparand, text]
         )}
-
-        <chakra.span
-          ml={2}
-          fontSize={12}
-          transition="all .2s"
-          opacity={focused || hover ? 0.75 : 0}
-          color={`${BookTagColors[tag]}.300`}
-        >
-          {tag}
-        </chakra.span>
       </Box>
+
+      <Flex direction="column" justify="center" ml={2} transition="all .2s" opacity={focused || hover ? 1 : 0}>
+        <Tag size="sm" colorScheme={BookTagColors[tag]}>
+          {tag}
+        </Tag>
+      </Flex>
 
       <Spacer />
 
