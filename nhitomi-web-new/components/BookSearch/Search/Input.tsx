@@ -11,13 +11,15 @@ const Input = ({
   loading,
   onSubmit,
   onSuggestChange,
+  onFocus,
 }: {
   inputRef: Ref<HTMLInputElement>;
   value: string;
   setValue: Dispatch<string>;
   loading: boolean;
   onSubmit?: () => void;
-  onSuggestChange?: (delta: number) => void;
+  onSuggestChange?: Dispatch<number>;
+  onFocus?: Dispatch<boolean>;
 }) => {
   const ref = useRef<HTMLInputElement>(null);
   const [offset, setOffset] = useState(0);
@@ -48,6 +50,8 @@ const Input = ({
         css={{
           caretColor: "white",
         }}
+        onFocus={() => onFocus?.(true)}
+        onBlur={() => onFocus?.(false)}
         onKeyDown={(e) => {
           let handled = true;
 

@@ -17,8 +17,9 @@ const Content = ({ value, setValue }: { value: string; setValue: (value: string)
   const [load, setLoad] = useState(0);
   const setLoading = useCallback((value: boolean) => setLoad((i) => (value ? i + 1 : i - 1)), []);
 
-  const [inputIndex, setInputIndex] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
+  const [inputIndex, setInputIndex] = useState(0);
+  const [inputFocus, setInputFocus] = useState(false);
 
   useEffect(() => {
     const input = inputRef.current;
@@ -63,7 +64,7 @@ const Content = ({ value, setValue }: { value: string; setValue: (value: string)
   const suggestQuery = useMemo(() => {
     switch (suggestQueryToken?.type) {
       case "tag":
-        return suggestQueryToken.value;
+        return suggestQueryToken.value.replace(/_/g, " ");
 
       default:
         return suggestQueryToken?.text.trim() || "";
@@ -197,11 +198,12 @@ const Content = ({ value, setValue }: { value: string; setValue: (value: string)
         loading={load > 0}
         onSubmit={complete}
         onSuggestChange={moveSuggest}
+        onFocus={setInputFocus}
       />
 
       <Suggest
         value={suggestText}
-        focused={suggest}
+        focused={inputFocus ? suggest : undefined}
         onSelected={complete}
         tags={suggestTags}
         books={suggestBooks}

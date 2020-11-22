@@ -64,7 +64,7 @@ const TagItem = ({
 
       <Flex direction="column" justify="center">
         <Kbd fontSize={10} transition="all .2s" opacity={focused ? 1 : 0}>
-          enter
+          enter ↵
         </Kbd>
       </Flex>
     </Flex>

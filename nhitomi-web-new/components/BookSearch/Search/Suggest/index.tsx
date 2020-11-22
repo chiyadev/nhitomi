@@ -1,10 +1,10 @@
 import React, { Dispatch, memo, useLayoutEffect, useMemo, useRef, useState } from "react";
 import TagItem from "./TagItem";
-import { Box, Divider } from "@chakra-ui/react";
+import { Divider, Flex, Grid, Kbd, Spacer, Text } from "@chakra-ui/react";
 import { BookSuggestion, TagSuggestion } from "../Content";
-import BookItem from "./BookItem";
 import { Book } from "nhitomi-api";
 import { createApiClient } from "../../../../utils/client";
+import Item from "../../../BookGrid/Item";
 
 const Suggest = ({
   value,
@@ -62,7 +62,7 @@ const Suggest = ({
       {useMemo(
         () =>
           !!tags.length && (
-            <Box p={2} overflow="hidden">
+            <Flex direction="column" p={4} overflow="hidden">
               {tags.map((item) => (
                 <TagItem
                   key={item.id}
@@ -73,7 +73,17 @@ const Suggest = ({
                   tag={item.tag}
                 />
               ))}
-            </Box>
+
+              {tags.length > 1 && (
+                <Flex mt={2} mb={-2}>
+                  <Spacer />
+                  <Text fontSize={12}>
+                    use <Kbd>↑</Kbd>
+                    <Kbd>↓</Kbd>
+                  </Text>
+                </Flex>
+              )}
+            </Flex>
           ),
         [focused, onSelected, tags, value]
       )}
@@ -83,13 +93,31 @@ const Suggest = ({
       {useMemo(
         () =>
           !!bookItems.length && (
-            <Box p={2}>
-              {bookItems.map((book) => (
-                <BookItem key={book.id} book={book} />
-              ))}
-            </Box>
+            <Flex direction="column" p={4}>
+              <Grid templateColumns="repeat(auto-fill, minmax(8rem, 1fr))" gap={2}>
+                {bookItems.map((book) => (
+                  <Item key={book.id} book={book} />
+                ))}
+              </Grid>
+
+              <Flex mt={2} mb={-2}>
+                <Spacer />
+                <Text fontSize={12}>
+                  use <Kbd>tab ↹</Kbd>
+                </Text>
+              </Flex>
+            </Flex>
           ),
         [bookItems]
+      )}
+
+      {value && !tags.length && !bookItems.length && (
+        <Flex p={2}>
+          <Spacer />
+          <Text fontSize={12}>
+            search <Kbd>enter ↵</Kbd>
+          </Text>
+        </Flex>
       )}
     </>
   );
