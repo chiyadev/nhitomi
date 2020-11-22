@@ -1,7 +1,7 @@
 import { useCookieString } from "./config";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Book, BookContent, LanguageType } from "nhitomi-api";
-import { ScraperTypes } from "./constants";
+import { Book, BookContent, LanguageType, ScraperType } from "nhitomi-api";
+import { LanguageTypes, ScraperTypes } from "./constants";
 import { createApiClient } from "./client";
 
 export function useContent(book: Book) {
@@ -13,30 +13,36 @@ export function useContentSelector(): (contents: BookContent[]) => BookContent {
   const [language] = useCookieString("language");
   const languages = (language?.split(",") as LanguageType[]) || [];
 
-  return useCallback(
-    (contents) =>
-      contents.sort((a, b) => {
-        function indexCompare<T>(array: T[], a: T, b: T) {
-          const x = array.indexOf(a);
-          const y = array.indexOf(b);
+  return useCallback((contents) => selectContent(contents, { languages }), [languages]);
+}
 
-          // prefer existing first
-          if (x === -1) return 1;
-          if (y === -1) return -1;
+export function selectContent(
+  contents: BookContent[],
+  options: {
+    languages?: LanguageType[];
+    scrapers?: ScraperType[];
+  }
+): BookContent {
+  return contents.sort((a, b) => {
+    function indexCompare<T>(array: T[], a: T, b: T) {
+      const x = array.indexOf(a);
+      const y = array.indexOf(b);
 
-          return x - y;
-        }
+      // prefer existing first
+      if (x === -1) return 1;
+      if (y === -1) return -1;
 
-        const language = indexCompare(languages, a.language, b.language);
-        if (language) return language;
+      return x - y;
+    }
 
-        const source = indexCompare(ScraperTypes, a.source, b.source);
-        if (source) return source;
+    const language = indexCompare(options.languages || LanguageTypes, a.language, b.language);
+    if (language) return language;
 
-        return b.id.localeCompare(a.id);
-      })[0],
-    [languages]
-  );
+    const source = indexCompare(options.scrapers || ScraperTypes, a.source, b.source);
+    if (source) return source;
+
+    return b.id.localeCompare(a.id);
+  })[0];
 }
 
 export function useBookImage(book: Book, content: BookContent, index: number): Blob | Error | undefined {

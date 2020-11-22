@@ -17,7 +17,7 @@ type Props = {
   error?: Error;
 };
 
-export const getServerSideProps: GetServerSideProps<Props> = async ({ req, query }) => {
+export const getServerSideProps: GetServerSideProps<Props> = async ({ req, res, query }) => {
   try {
     const client = createApiClient(req);
 
@@ -26,6 +26,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ req, query
         redirect: {
           destination: "/auth",
           permanent: false,
+          statusCode: 401,
         },
       };
     }
@@ -43,6 +44,8 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ req, query
       }),
     };
   } catch (e) {
+    res.statusCode = 400;
+
     return {
       props: sanitizeProps({
         error: e,
@@ -75,12 +78,12 @@ const Books = ({ initial, error }: Props) => {
         setOpen={setSearch}
       />
 
-      {error ? <ErrorDisplay error={error} /> : <Items initial={initial} />}
+      {error ? <ErrorDisplay error={error} /> : <Content initial={initial} />}
     </Layout>
   );
 };
 
-const Items = ({ initial }: Props) => {
+const Content = ({ initial }: Props) => {
   const { items } = useMemo(() => BookSearchResultFromJSON(initial), [initial]);
 
   return (

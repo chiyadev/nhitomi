@@ -3,13 +3,16 @@ import { Book } from "nhitomi-api";
 import { AspectRatio, Box, Link, SlideFade, Text } from "@chakra-ui/react";
 import BookImage from "../BookImage";
 import NextLink from "next/link";
+import { useContent } from "../../utils/book";
 
 const Item = ({ book }: { book: Book }) => {
   const [hover, setHover] = useState(false);
   const [focus, setFocus] = useState(false);
 
+  const content = useContent(book);
+
   return (
-    <NextLink href={`/books/${book.id}`} passHref>
+    <NextLink href={`/books/${book.id}/contents/${content.id}`} passHref>
       <Link
         borderRadius={4}
         overflow="hidden"
@@ -20,7 +23,7 @@ const Item = ({ book }: { book: Book }) => {
         onBlur={() => setFocus(false)}
       >
         <AspectRatio ratio={13 / 19}>
-          <BookImage book={book} index={-1} objectFit="cover" />
+          <BookImage book={book} content={content} index={-1} objectFit="cover" />
         </AspectRatio>
 
         <SlideFade in={hover || focus}>
