@@ -3,8 +3,11 @@ import "@openfonts/m-plus-1p_japanese/index.css";
 import { ChakraProvider, extendTheme } from "@chakra-ui/react";
 import React, { memo } from "react";
 import { AppProps } from "next/app";
+import { useScrollPreserver } from "../utils/scrollPreserver";
 
 const App = ({ Component, pageProps }: AppProps) => {
+  useScrollPreserver();
+
   return (
     <ChakraProvider
       theme={extendTheme({
