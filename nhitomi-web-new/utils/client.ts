@@ -49,9 +49,9 @@ export class ApiClient {
 
           // validation failure (unprocessable entity)
           if (response.status === 422) {
-            const result: ValidationProblemArrayResult = await response.json();
+            const { value }: ValidationProblemArrayResult = await response.json();
 
-            throw new ValidationError(result.message, result.value);
+            throw new ValidationError(value);
           }
 
           throw Error((await response.json())?.message || response.statusText);
@@ -81,8 +81,17 @@ export class ApiClient {
 }
 
 function windowApiUrl() {
-  if (typeof window === "undefined") return;
-  return `${window.location.protocol}://${window.location.host}/api/v1`;
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  const { protocol, host, hostname } = window.location;
+
+  if (hostname === "localhost") {
+    return;
+  } else {
+    return `${protocol}//${host}/api/v1`;
+  }
 }
 
 const ChiyaApiUrl = "https://nhitomi.chiya.dev/api/v1";

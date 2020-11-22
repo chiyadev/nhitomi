@@ -1,25 +1,11 @@
 import { CustomError } from "ts-custom-error";
 import { ValidationProblem } from "nhitomi-api";
 
-export type SerializableError = {
-  name: string;
-  message: string;
-  stack?: string;
-};
-
-export function makeErrorSerializable(err: Error): SerializableError {
-  return {
-    name: err.name,
-    message: err.message,
-    stack: err.stack,
-  };
-}
-
 export class ValidationError extends CustomError {
   list: ValidationProblem[];
 
-  constructor(message: string, problems: ValidationProblem[]) {
-    super(message);
+  constructor(problems: ValidationProblem[]) {
+    super(problems.map(({ field, messages }) => `${field}: ${messages.join(" ")}`).join("\n"));
 
     this.list = problems;
   }

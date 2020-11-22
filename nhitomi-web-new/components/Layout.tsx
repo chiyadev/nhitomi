@@ -1,7 +1,7 @@
 import React, { memo, ReactNode } from "react";
 import Head from "next/head";
 import Footer from "./Footer";
-import { Box, Flex, Spacer } from "@chakra-ui/layout";
+import { Box, Flex, Spacer } from "@chakra-ui/react";
 
 const Layout = ({ children, title = "nhitomi" }: { children?: ReactNode; title?: string }) => (
   <>
