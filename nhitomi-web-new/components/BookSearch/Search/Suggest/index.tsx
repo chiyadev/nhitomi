@@ -111,7 +111,7 @@ const Suggest = ({
         [bookItems]
       )}
 
-      {value && !tags.length && !bookItems.length && (
+      {!tags.length && !bookItems.length && (
         <Flex p={2}>
           <Spacer />
           <Text fontSize={12}>

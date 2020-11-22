@@ -77,12 +77,14 @@ const Content = ({ value, setValue }: { value: string; setValue: (value: string)
       item = item || suggest;
 
       if (!token || !item) {
-        setLoading(true);
+        if (display.trim()) {
+          setLoading(true);
 
-        try {
-          await setValue(display);
-        } finally {
-          setLoading(false);
+          try {
+            await setValue(display);
+          } finally {
+            setLoading(false);
+          }
         }
 
         return;
@@ -201,14 +203,16 @@ const Content = ({ value, setValue }: { value: string; setValue: (value: string)
         onFocus={setInputFocus}
       />
 
-      <Suggest
-        value={suggestText}
-        focused={inputFocus ? suggest : undefined}
-        onSelected={complete}
-        tags={suggestTags}
-        books={suggestBooks}
-        setLoading={setLoading}
-      />
+      {display.trim() && (
+        <Suggest
+          value={suggestText}
+          focused={inputFocus ? suggest : undefined}
+          onSelected={complete}
+          tags={suggestTags}
+          books={suggestBooks}
+          setLoading={setLoading}
+        />
+      )}
     </Flex>
   );
 };
