@@ -1,5 +1,5 @@
 import React, { memo, useMemo, useState } from "react";
-import { Box, Flex, Kbd, Spacer } from "@chakra-ui/react";
+import { Box, chakra, Flex, Kbd, Spacer } from "@chakra-ui/react";
 import { BookTag } from "nhitomi-api";
 import { BookTagColors } from "../../../../utils/colors";
 
@@ -36,20 +36,18 @@ const TagItem = ({
         {useMemo(
           () =>
             text.split("").map((char, i) => (
-              <Box
-                as="span"
+              <chakra.span
                 key={i}
                 color={comparand.includes(char) ? undefined : "gray.500"}
                 //fontWeight={comparand.includes(char) ? "bold" : undefined}
               >
                 {char}
-              </Box>
+              </chakra.span>
             )),
           [comparand, text]
         )}
 
-        <Box
-          as="span"
+        <chakra.span
           ml={2}
           fontSize={12}
           transition="all .2s"
@@ -57,7 +55,7 @@ const TagItem = ({
           color={`${BookTagColors[tag]}.300`}
         >
           {tag}
-        </Box>
+        </chakra.span>
       </Box>
 
       <Spacer />

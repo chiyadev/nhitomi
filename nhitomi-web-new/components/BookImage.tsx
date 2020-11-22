@@ -2,10 +2,7 @@ import React, { ComponentProps, memo } from "react";
 import { Book, BookContent } from "nhitomi-api";
 import { useBookImage, useContent } from "../utils/book";
 import { useBlobUrl } from "../utils/image";
-import { Box, Center } from "@chakra-ui/layout";
-import { Spinner } from "@chakra-ui/spinner";
-import Icon from "@chakra-ui/icon";
-import { Fade, ScaleFade } from "@chakra-ui/transition";
+import { Box, Center, Fade, Icon, ScaleFade, Spinner } from "@chakra-ui/react";
 
 const BookImage = ({
   book,
