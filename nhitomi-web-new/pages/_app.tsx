@@ -4,6 +4,8 @@ import { ChakraProvider, extendTheme } from "@chakra-ui/react";
 import React, { memo } from "react";
 import { AppProps } from "next/app";
 import { useScrollPreserver } from "../utils/scrollPreserver";
+import NProgress from "../components/NProgress";
+import "../components/NProgress.css";
 
 const App = ({ Component, pageProps }: AppProps) => {
   useScrollPreserver();
@@ -25,6 +27,7 @@ const App = ({ Component, pageProps }: AppProps) => {
         },
       })}
     >
+      <NProgress />
       <Component {...pageProps} />
     </ChakraProvider>
   );
