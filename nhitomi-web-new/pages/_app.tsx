@@ -1,5 +1,5 @@
-import "inter-ui/inter.css";
-import "@openfonts/m-plus-1p_japanese/index.css";
+import "@openfonts/lexend-deca_all";
+import "@openfonts/m-plus-rounded-1c_japanese";
 import { ChakraProvider, extendTheme } from "@chakra-ui/react";
 import React, { memo } from "react";
 import { AppProps } from "next/app";
@@ -20,8 +20,8 @@ const App = ({ Component, pageProps }: AppProps) => {
           initialColorMode: "dark",
         },
         fonts: {
-          body: `Inter, "M PLUS 1p", ${fallbackFonts}`,
-          heading: `Inter, "M PLUS 1p", ${fallbackFonts}`,
+          body: `'Lexend Deca', "M PLUS 1p", ${fallbackFonts}`,
+          heading: `'Lexend Deca', "M PLUS 1p", ${fallbackFonts}`,
         },
         styles: {
           global: {

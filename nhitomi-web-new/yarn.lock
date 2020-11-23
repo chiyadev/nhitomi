@@ -2241,10 +2241,15 @@
     rxjs "6.6.3"
     tslib "2.0.3"
 
-"@openfonts/m-plus-1p_japanese@^1.44.2":
+"@openfonts/lexend-deca_all@^1.44.3":
+  version "1.44.3"
+  resolved "https://registry.yarnpkg.com/@openfonts/lexend-deca_all/-/lexend-deca_all-1.44.3.tgz#f622ac63b18f27c7a62f82f04ea84df6bd45da6e"
+  integrity sha512-PUJzA/UmJk2LBgrHXNw32xD60uXRwNLZMWgKY2TxewAEr3kczSFn7yEptCEibGyT3lVQdXaME1wmINTgUCycng==
+
+"@openfonts/m-plus-rounded-1c_japanese@^1.44.2":
   version "1.44.2"
-  resolved "https://registry.yarnpkg.com/@openfonts/m-plus-1p_japanese/-/m-plus-1p_japanese-1.44.2.tgz#4381652c1a7eb78e1e982743f1b8bf677935430c"
-  integrity sha512-q69wYZO1vc6STWIKdB/2A78gPJCnOCEcVAYk6nQ+2znoin2JdLKq8IXDjdxanMAVQhEbIJLeYku+HHFwKXCPkw==
+  resolved "https://registry.yarnpkg.com/@openfonts/m-plus-rounded-1c_japanese/-/m-plus-rounded-1c_japanese-1.44.2.tgz#2f914c82791c01258c381124de8e3dacbe3acadf"
+  integrity sha512-oojGUIeEutGQqjfByqBMQJ+eBWKFAEh4K7O6oUbc2D7q48xTfQeV6rEDO8HzjfDBHA6gD59Vw/ZXSXZIQyT4bQ==
 
 "@pmmmwh/react-refresh-webpack-plugin@0.4.2":
   version "0.4.2"
@@ -7247,11 +7252,6 @@ inquirer@7.3.3:
     string-width "^4.1.0"
     strip-ansi "^6.0.0"
     through "^2.3.6"
-
-inter-ui@^3.15.0:
-  version "3.15.0"
-  resolved "https://registry.yarnpkg.com/inter-ui/-/inter-ui-3.15.0.tgz#05f9a13e59c7c513cedc907d244809231a79f889"
-  integrity sha512-6v0WK8FHkVYbNQZ7L9O5tP8280pgTBR9ydxqYwssMuUH6SZO70ZFK/NQ1Ob8nNmOOzpUJAzT0WE73ty96z1tAQ==
 
 internal-ip@^4.3.0:
   version "4.3.0"
