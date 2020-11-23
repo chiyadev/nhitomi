@@ -115,7 +115,7 @@ const Content = ({ initial }: Props) => {
                 },
               });
 
-              if (items.length) {
+              if (newItems.length) {
                 setItems((items) => [...items, ...newItems]);
                 offset.current += newItems.length;
 
