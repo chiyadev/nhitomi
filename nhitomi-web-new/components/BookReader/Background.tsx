@@ -17,7 +17,7 @@ const Background = ({ book, content }: { book: Book; content: BookContent }) => 
         pointerEvents="none"
         opacity={0.1}
       >
-        <BookImage book={book} content={content} index={-1} objectFit="cover" />
+        <BookImage book={book} content={content} index={-1} objectFit="cover" objectPosition="center" />
       </Box>
     </Portal>
   );

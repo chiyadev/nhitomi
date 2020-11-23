@@ -16,6 +16,7 @@ import InfiniteLoader from "../../components/BookGrid/InfiniteLoader";
 import { createBookQuery, createBookQueryOptions } from "../../utils/book";
 import { createRawConfig, RawConfig } from "../../utils/config";
 import ConfigProvider from "../../components/ConfigProvider";
+import { useChangeCount } from "../../utils/hooks";
 
 type Props = {
   config: RawConfig;
@@ -60,11 +61,9 @@ export const getServerSideProps: GetServerSideProps<Props> = async (ctx) => {
 };
 
 const Books = ({ config, initial, error }: Props) => {
+  const contentId = useChangeCount(initial);
   const [query] = useQueryString("query");
   const [search, setSearch] = useQueryBoolean("search");
-
-  const pageId = useRef(0);
-  useMemo(() => pageId.current++, [initial]);
 
   return (
     <ConfigProvider config={config}>
@@ -86,7 +85,7 @@ const Books = ({ config, initial, error }: Props) => {
           setOpen={setSearch}
         />
 
-        {error ? <ErrorDisplay error={error} /> : <Content key={pageId.current} config={config} initial={initial} />}
+        {error ? <ErrorDisplay error={error} /> : <Content key={contentId} config={config} initial={initial} />}
       </Layout>
     </ConfigProvider>
   );

@@ -23,7 +23,7 @@ const Item = ({ book }: { book: Book }) => {
         onBlur={() => setFocus(false)}
       >
         <AspectRatio ratio={13 / 19}>
-          <BookImage book={book} content={content} index={-1} objectFit="cover" />
+          <BookImage book={book} content={content} index={-1} objectFit="cover" objectPosition="center" />
         </AspectRatio>
 
         <SlideFade in={hover || focus}>

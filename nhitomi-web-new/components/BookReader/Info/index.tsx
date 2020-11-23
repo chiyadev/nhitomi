@@ -9,11 +9,18 @@ import Tags from "./Tags";
 const Info = ({ book, content }: { book: Book; content: BookContent }) => {
   return (
     <Flex className={styles.container} w="full" p={4}>
-      <Flex className={styles.image} justify="center">
-        <AspectRatio flex={1} ratio={13 / 19} maxW="md">
-          <BookImage book={book} content={content} index={-1} objectFit="cover" borderRadius="md" />
+      <Box className={styles.image}>
+        <AspectRatio ratio={13 / 19} maxW="sm">
+          <BookImage
+            book={book}
+            content={content}
+            index={-1}
+            objectFit="cover"
+            objectPosition="center"
+            borderRadius="md"
+          />
         </AspectRatio>
-      </Flex>
+      </Box>
 
       <Box className={styles.info}>
         <VStack align="start" spacing={4}>
@@ -26,14 +33,14 @@ const Info = ({ book, content }: { book: Book; content: BookContent }) => {
 
             {book.englishName && (
               <NextLink href={`/books?query=${encodeURIComponent(book.englishName)}`} passHref>
-                <Link color="gray.500">
+                <Link>
                   <Heading size="sm">{book.englishName}</Heading>
                 </Link>
               </NextLink>
             )}
           </VStack>
 
-          <Tags book={book} />
+          <Tags book={book} content={content} />
         </VStack>
       </Box>
     </Flex>

@@ -29,6 +29,7 @@
     "jszip": "^3.5.0",
     "keycode": "^2.2.0",
     "next": "latest",
+    "next-images": "^1.6.2",
     "node-fetch": "^3.0.0-beta.9",
     "nookies": "^2.5.0",
     "nprogress": "^0.2.0",

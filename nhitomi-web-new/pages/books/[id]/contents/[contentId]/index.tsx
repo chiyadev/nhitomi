@@ -9,6 +9,7 @@ import { createRawConfig, RawConfig } from "../../../../../utils/config";
 import ConfigProvider from "../../../../../components/ConfigProvider";
 import Info from "../../../../../components/BookReader/Info";
 import Background from "../../../../../components/BookReader/Background";
+import { useChangeCount } from "../../../../../utils/hooks";
 
 type Props = {
   config: RawConfig;
@@ -66,10 +67,12 @@ export const getServerSideProps: GetServerSideProps<Props> = async (ctx) => {
 };
 
 const BookReader = ({ config, data, error }: Props) => {
+  const contentId = useChangeCount(data);
+
   return (
     <ConfigProvider config={config}>
       <Layout title="nhitomi">
-        {error ? <ErrorDisplay error={error} /> : <Content config={config} data={data} />}
+        {error ? <ErrorDisplay error={error} /> : <Content key={contentId} config={config} data={data} />}
       </Layout>
     </ConfigProvider>
   );

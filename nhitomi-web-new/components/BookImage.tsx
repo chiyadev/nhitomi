@@ -3,7 +3,7 @@ import { Book, BookContent } from "nhitomi-api";
 import { useBookContent, useBookImage } from "../utils/book";
 import { useBlobUrl } from "../utils/image";
 import { Box, Center, Fade, Icon, ScaleFade, Spinner } from "@chakra-ui/react";
-import { useTimerOnce } from "../utils/time";
+import { useTimerOnce } from "../utils/hooks";
 import SimpleLazy from "./SimpleLazy";
 
 const BookImage = ({
