@@ -7,6 +7,8 @@ import Layout from "../../../../../components/Layout";
 import ErrorDisplay from "../../../../../components/BookSearch/ErrorDisplay";
 import { createRawConfig, RawConfig } from "../../../../../utils/config";
 import ConfigProvider from "../../../../../components/ConfigProvider";
+import Info from "../../../../../components/BookReader/Info";
+import Background from "../../../../../components/BookReader/Background";
 
 type Props = {
   config: RawConfig;
@@ -82,7 +84,8 @@ const Content = ({ data }: Props) => {
 
   return (
     <div>
-      {book.primaryName} {book.id} {content.id}
+      <Background book={book} content={content} />
+      <Info book={book} content={content} />
     </div>
   );
 };

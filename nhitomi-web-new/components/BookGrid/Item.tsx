@@ -14,7 +14,7 @@ const Item = ({ book }: { book: Book }) => {
   return (
     <NextLink href={`/books/${book.id}/contents/${content.id}`} passHref>
       <Link
-        borderRadius={4}
+        borderRadius="md"
         overflow="hidden"
         position="relative"
         onMouseEnter={() => setHover(true)}
@@ -30,7 +30,7 @@ const Item = ({ book }: { book: Book }) => {
           <Box position="absolute" bottom={0} left={0} w="full" bg="white" color="black" p={1} opacity={0.9}>
             <Text fontWeight="bold">{book.primaryName}</Text>
 
-            {book.primaryName !== book.englishName && <Text fontSize={12}>{book.englishName}</Text>}
+            {book.primaryName !== book.englishName && <Text fontSize="xs">{book.englishName}</Text>}
           </Box>
         </SlideFade>
       </Link>

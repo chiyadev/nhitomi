@@ -1,0 +1,27 @@
+@media screen and (max-width: 52rem) {
+    .container {
+        flex-direction: column;
+    }
+
+    .container > * + * {
+        margin-top: 1rem;
+    }
+}
+
+@media screen and (min-width: 52rem) {
+    .container {
+        flex-direction: row;
+    }
+
+    .container > * + * {
+        margin-left: 1rem;
+    }
+
+    .image {
+        flex: 0.35;
+    }
+
+    .info {
+        flex: 0.75;
+    }
+}

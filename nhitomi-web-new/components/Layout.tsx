@@ -1,10 +1,10 @@
 import React, { memo, ReactNode } from "react";
 import Head from "next/head";
 import Footer from "./Footer";
-import { Box, Flex, Spacer } from "@chakra-ui/react";
+import { Box, Fade, Flex, Spacer } from "@chakra-ui/react";
 
 const Layout = ({ children, title = "nhitomi" }: { children?: ReactNode; title?: string }) => (
-  <>
+  <Fade in>
     <Head>
       <meta charSet="utf-8" />
 
@@ -29,7 +29,7 @@ const Layout = ({ children, title = "nhitomi" }: { children?: ReactNode; title?:
       <Spacer />
       <Footer />
     </Flex>
-  </>
+  </Fade>
 );
 
 export default memo(Layout);

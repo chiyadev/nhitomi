@@ -77,7 +77,7 @@ const Suggest = ({
               {tags.length > 1 && (
                 <Flex mt={2} mb={-2}>
                   <Spacer />
-                  <Text fontSize={12}>
+                  <Text fontSize="xs">
                     use <Kbd>↑</Kbd>
                     <Kbd>↓</Kbd>
                   </Text>
@@ -102,7 +102,7 @@ const Suggest = ({
 
               <Flex mt={2} mb={-2}>
                 <Spacer />
-                <Text fontSize={12}>
+                <Text fontSize="xs">
                   use <Kbd>tab ↹</Kbd>
                 </Text>
               </Flex>
@@ -114,7 +114,7 @@ const Suggest = ({
       {!tags.length && !bookItems.length && (
         <Flex p={2}>
           <Spacer />
-          <Text fontSize={12}>
+          <Text fontSize="xs">
             search <Kbd>enter ↵</Kbd>
           </Text>
         </Flex>
