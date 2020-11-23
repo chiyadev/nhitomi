@@ -4,7 +4,7 @@ import { GetServerSideProps } from "next";
 import { createApiClient } from "../../utils/client";
 import { Book, BookSearchResultFromJSON, BookSearchResultToJSON } from "nhitomi-api";
 import { sanitizeProps } from "../../utils/props";
-import ErrorDisplay from "../../components/BookSearch/ErrorDisplay";
+import ErrorPage from "../../components/ErrorPage";
 import { useQueryBoolean, useQueryString } from "../../utils/query";
 import Header from "../../components/BookSearch/Header";
 import Search from "../../components/BookSearch/Search";
@@ -62,41 +62,40 @@ export const getServerSideProps: GetServerSideProps<Props> = async (ctx) => {
 
 const Books = ({ config, initial, error }: Props) => {
   const contentId = useChangeCount(initial);
-  const [query] = useQueryString("query");
-  const [search, setSearch] = useQueryBoolean("search");
 
   return (
     <ConfigProvider config={config}>
-      <Layout title="nhitomi">
-        <Header onSearch={() => setSearch(true)} />
-
-        <Search
-          value={query || ""}
-          setValue={async (value) => {
-            await Router.push({
-              query: {
-                ...Router.query,
-                query: value || [],
-                search: [],
-              },
-            });
-          }}
-          open={search}
-          setOpen={setSearch}
-        />
-
-        {error ? <ErrorDisplay error={error} /> : <Content key={contentId} config={config} initial={initial} />}
-      </Layout>
+      {error ? <ErrorPage error={error} /> : <Content key={contentId} config={config} initial={initial} />}
     </ConfigProvider>
   );
 };
 
 const Content = ({ initial, config }: Props) => {
+  const [query] = useQueryString("query");
+  const [search, setSearch] = useQueryBoolean("search");
+
   const [items, setItems] = useState<Book[]>(() => BookSearchResultFromJSON(initial).items);
   const offset = useRef(items.length);
 
   return (
-    <>
+    <Layout title={[query?.trim()]}>
+      <Header onSearch={() => setSearch(true)} />
+
+      <Search
+        value={query || ""}
+        setValue={async (value) => {
+          await Router.push({
+            query: {
+              ...Router.query,
+              query: value || [],
+              search: [],
+            },
+          });
+        }}
+        open={search}
+        setOpen={setSearch}
+      />
+
       <Flex direction="column">
         <Grid p={2} gap={2} className={styles.grid}>
           {useMemo(() => items.map((book) => <Item key={book.id} book={book} />), [items])}
@@ -126,7 +125,7 @@ const Content = ({ initial, config }: Props) => {
           }}
         />
       </Flex>
-    </>
+    </Layout>
   );
 };
 

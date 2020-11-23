@@ -3,7 +3,7 @@ import Head from "next/head";
 import Footer from "./Footer";
 import { Box, Fade, Flex, Spacer } from "@chakra-ui/react";
 
-const Layout = ({ children, title = "nhitomi" }: { children?: ReactNode; title?: string }) => (
+const Layout = ({ children, title = [] }: { children?: ReactNode; title?: (string | undefined)[] }) => (
   <Fade in>
     <Head>
       <meta charSet="utf-8" />
@@ -21,7 +21,7 @@ const Layout = ({ children, title = "nhitomi" }: { children?: ReactNode; title?:
       <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
       <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#74c0fc" />
 
-      <title>{title}</title>
+      <title>{[...title.map((x) => x?.trim()).filter((x) => x), "nhitomi"].join(" · ")}</title>
     </Head>
 
     <Flex direction="column" w="full" h="100vh" maxW="1200px" mx="auto">

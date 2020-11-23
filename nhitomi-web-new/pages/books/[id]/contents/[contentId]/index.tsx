@@ -4,7 +4,7 @@ import { createApiClient } from "../../../../../utils/client";
 import { sanitizeProps } from "../../../../../utils/props";
 import { BookFromJSON, BookToJSON } from "nhitomi-api";
 import Layout from "../../../../../components/Layout";
-import ErrorDisplay from "../../../../../components/BookSearch/ErrorDisplay";
+import ErrorPage from "../../../../../components/ErrorPage";
 import { createRawConfig, RawConfig } from "../../../../../utils/config";
 import ConfigProvider from "../../../../../components/ConfigProvider";
 import Info from "../../../../../components/BookReader/Info";
@@ -71,9 +71,7 @@ const BookReader = ({ config, data, error }: Props) => {
 
   return (
     <ConfigProvider config={config}>
-      <Layout title="nhitomi">
-        {error ? <ErrorDisplay error={error} /> : <Content key={contentId} config={config} data={data} />}
-      </Layout>
+      {error ? <ErrorPage error={error} /> : <Content key={contentId} config={config} data={data} />}
     </ConfigProvider>
   );
 };
@@ -86,10 +84,10 @@ const Content = ({ data }: Props) => {
   ]);
 
   return (
-    <div>
+    <Layout title={[book.primaryName]}>
       <Background book={book} content={content} />
       <Info book={book} content={content} />
-    </div>
+    </Layout>
   );
 };
 
