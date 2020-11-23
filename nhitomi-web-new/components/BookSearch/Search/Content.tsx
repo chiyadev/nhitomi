@@ -5,14 +5,14 @@ import Suggest from "./Suggest";
 import { createApiClient } from "../../../utils/client";
 import { BookTag, SuggestItem } from "nhitomi-api";
 import levenshtein from "js-levenshtein";
-import { tokenizeQuery } from "../query";
+import { tokenizeBookQuery } from "../../../utils/book";
 
 export type TagSuggestion = SuggestItem & { type: "tag"; tag: BookTag };
 export type BookSuggestion = SuggestItem & { type: "book" };
 
 const Content = ({ value, setValue }: { value: string; setValue: (value: string) => Promise<void> }) => {
   const [display, setDisplay] = useState(value);
-  const tokens = useMemo(() => tokenizeQuery(display), [display]);
+  const tokens = useMemo(() => tokenizeBookQuery(display), [display]);
 
   const [load, setLoad] = useState(0);
   const setLoading = useCallback((value: boolean) => setLoad((i) => (value ? i + 1 : i - 1)), []);

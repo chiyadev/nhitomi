@@ -1,6 +1,6 @@
 import React, { ComponentProps, memo } from "react";
 import { Book, BookContent } from "nhitomi-api";
-import { useBookImage, useContent } from "../utils/book";
+import { useBookImage, useBookContent } from "../utils/book";
 import { useBlobUrl } from "../utils/image";
 import { Box, Center, Fade, Icon, ScaleFade, Spinner } from "@chakra-ui/react";
 import { useTimerOnce } from "../utils/time";
@@ -26,7 +26,7 @@ const BookImage = ({
 };
 
 const Content = ({ book, content, index, ...props }: ComponentProps<typeof BookImage>) => {
-  const defaultContent = useContent(book);
+  const defaultContent = useBookContent(book);
   content = content || defaultContent;
 
   const image = useBookImage(book, content, index);

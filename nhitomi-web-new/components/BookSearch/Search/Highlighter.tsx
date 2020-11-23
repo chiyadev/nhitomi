@@ -1,10 +1,10 @@
 import React, { Fragment, memo, useMemo } from "react";
 import { Box, chakra } from "@chakra-ui/react";
-import { tokenizeQuery } from "../query";
 import { BookTagColors } from "../../../utils/colors";
+import { tokenizeBookQuery } from "../../../utils/book";
 
 const Highlighter = ({ text }: { text: string }) => {
-  const tokens = useMemo(() => tokenizeQuery(text), [text]);
+  const tokens = useMemo(() => tokenizeBookQuery(text), [text]);
 
   return (
     <Box whiteSpace="pre">

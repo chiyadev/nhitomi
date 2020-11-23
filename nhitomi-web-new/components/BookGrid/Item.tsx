@@ -3,13 +3,13 @@ import { Book } from "nhitomi-api";
 import { AspectRatio, Box, Link, SlideFade, Text } from "@chakra-ui/react";
 import BookImage from "../BookImage";
 import NextLink from "next/link";
-import { useContent } from "../../utils/book";
+import { useBookContent } from "../../utils/book";
 
 const Item = ({ book }: { book: Book }) => {
   const [hover, setHover] = useState(false);
   const [focus, setFocus] = useState(false);
 
-  const content = useContent(book);
+  const content = useBookContent(book);
 
   return (
     <NextLink href={`/books/${book.id}/contents/${content.id}`} passHref>

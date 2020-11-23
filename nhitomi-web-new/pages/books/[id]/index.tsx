@@ -1,33 +1,36 @@
-import { memo } from "react";
+import React, { memo } from "react";
 import { GetServerSideProps } from "next";
 import { createApiClient } from "../../../utils/client";
-import { selectContent } from "../../../utils/book";
-import { parseCookies } from "nookies";
+import { createSelectBookContentOptions, selectBookContent } from "../../../utils/book";
 import { sanitizeProps } from "../../../utils/props";
+import { createRawConfig, RawConfig } from "../../../utils/config";
+import ConfigProvider from "../../../components/ConfigProvider";
 
 type Props = {
+  config: RawConfig;
   error?: Error;
 };
 
-export const getServerSideProps: GetServerSideProps<Props> = async ({ req, res, query: { id } }) => {
+export const getServerSideProps: GetServerSideProps<Props> = async (ctx) => {
+  const config = createRawConfig(ctx);
+  const client = createApiClient(ctx);
+
+  if (!client) {
+    return {
+      redirect: {
+        destination: "/auth",
+        permanent: false,
+      },
+    };
+  }
+
   try {
-    const client = createApiClient(req);
-
-    if (!client) {
-      return {
-        redirect: {
-          destination: "/auth",
-          permanent: false,
-          statusCode: 401,
-        },
-      };
-    }
-
+    const { id } = ctx.query;
     const book = await client.book.getBook({
       id: Array.isArray(id) ? id[0] : id,
     });
 
-    const content = selectContent(book.contents, parseCookies({ req }));
+    const content = selectBookContent(book.contents, createSelectBookContentOptions(config));
 
     return {
       redirect: {
@@ -36,18 +39,19 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ req, res, 
       },
     };
   } catch (e) {
-    res.statusCode = 400;
+    ctx.res.statusCode = 400;
 
     return {
       props: sanitizeProps({
+        config,
         error: e,
       }),
     };
   }
 };
 
-const BookRedirect = ({}: Props) => {
-  return null;
+const BookRedirect = ({ config }: Props) => {
+  return <ConfigProvider config={config}></ConfigProvider>;
 };
 
 export default memo(BookRedirect);

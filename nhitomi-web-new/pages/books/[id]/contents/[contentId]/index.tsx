@@ -5,8 +5,11 @@ import { sanitizeProps } from "../../../../../utils/props";
 import { BookFromJSON, BookToJSON } from "nhitomi-api";
 import Layout from "../../../../../components/Layout";
 import ErrorDisplay from "../../../../../components/BookSearch/ErrorDisplay";
+import { createRawConfig, RawConfig } from "../../../../../utils/config";
+import ConfigProvider from "../../../../../components/ConfigProvider";
 
 type Props = {
+  config: RawConfig;
   data?: {
     book: any;
     contentId: string;
@@ -14,20 +17,21 @@ type Props = {
   error?: Error;
 };
 
-export const getServerSideProps: GetServerSideProps<Props> = async ({ req, res, query: { id, contentId } }) => {
+export const getServerSideProps: GetServerSideProps<Props> = async (ctx) => {
+  const config = createRawConfig(ctx);
+  const client = createApiClient(ctx);
+
+  if (!client) {
+    return {
+      redirect: {
+        destination: "/auth",
+        permanent: false,
+      },
+    };
+  }
+
   try {
-    const client = createApiClient(req);
-
-    if (!client) {
-      return {
-        redirect: {
-          destination: "/auth",
-          permanent: false,
-          statusCode: 401,
-        },
-      };
-    }
-
+    const { id, contentId } = ctx.query;
     const book = await client.book.getBook({
       id: Array.isArray(id) ? id[0] : id,
     });
@@ -40,6 +44,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ req, res, 
 
     return {
       props: sanitizeProps({
+        config,
         data: {
           book: BookToJSON(book),
           contentId: content.id,
@@ -47,18 +52,25 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ req, res, 
       }),
     };
   } catch (e) {
-    res.statusCode = 400;
+    ctx.res.statusCode = 400;
 
     return {
       props: sanitizeProps({
+        config,
         error: e,
       }),
     };
   }
 };
 
-const BookReader = ({ data, error }: Props) => {
-  return <Layout title="nhitomi">{error ? <ErrorDisplay error={error} /> : <Content data={data} />}</Layout>;
+const BookReader = ({ config, data, error }: Props) => {
+  return (
+    <ConfigProvider config={config}>
+      <Layout title="nhitomi">
+        {error ? <ErrorDisplay error={error} /> : <Content config={config} data={data} />}
+      </Layout>
+    </ConfigProvider>
+  );
 };
 
 const Content = ({ data }: Props) => {

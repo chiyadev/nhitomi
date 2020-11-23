@@ -4,8 +4,6 @@ import { GetServerSideProps } from "next";
 import { createApiClient } from "../../utils/client";
 import { Book, BookSearchResultFromJSON, BookSearchResultToJSON } from "nhitomi-api";
 import { sanitizeProps } from "../../utils/props";
-import { createQuery } from "../../components/BookSearch/query";
-import { parseCookies } from "nookies";
 import ErrorDisplay from "../../components/BookSearch/ErrorDisplay";
 import { useQueryBoolean, useQueryString } from "../../utils/query";
 import Header from "../../components/BookSearch/Header";
@@ -15,50 +13,53 @@ import Item from "../../components/BookGrid/Item";
 import { Flex, Grid } from "@chakra-ui/react";
 import styles from "../../components/BookGrid/Grid.module.css";
 import InfiniteLoader from "../../components/BookGrid/InfiniteLoader";
+import { createBookQuery, createBookQueryOptions } from "../../utils/book";
+import { createRawConfig, RawConfig } from "../../utils/config";
+import ConfigProvider from "../../components/ConfigProvider";
 
 type Props = {
+  config: RawConfig;
   initial?: any;
   error?: Error;
 };
 
-export const getServerSideProps: GetServerSideProps<Props> = async ({ req, res, query }) => {
+export const getServerSideProps: GetServerSideProps<Props> = async (ctx) => {
+  const config = createRawConfig(ctx);
+  const client = createApiClient(ctx);
+
+  if (!client) {
+    return {
+      redirect: {
+        destination: "/auth",
+        permanent: false,
+      },
+    };
+  }
+
   try {
-    const client = createApiClient(req);
-
-    if (!client) {
-      return {
-        redirect: {
-          destination: "/auth",
-          permanent: false,
-          statusCode: 401,
-        },
-      };
-    }
-
     const result = await client.book.searchBooks({
-      bookQuery: createQuery({
-        ...parseCookies({ req }),
-        ...query,
-      }),
+      bookQuery: createBookQuery(createBookQueryOptions(config)),
     });
 
     return {
       props: sanitizeProps({
+        config,
         initial: BookSearchResultToJSON(result),
       }),
     };
   } catch (e) {
-    res.statusCode = 400;
+    ctx.res.statusCode = 400;
 
     return {
       props: sanitizeProps({
+        config,
         error: e,
       }),
     };
   }
 };
 
-const Books = ({ initial, error }: Props) => {
+const Books = ({ config, initial, error }: Props) => {
   const [query] = useQueryString("query");
   const [search, setSearch] = useQueryBoolean("search");
 
@@ -66,30 +67,32 @@ const Books = ({ initial, error }: Props) => {
   useMemo(() => pageId.current++, [initial]);
 
   return (
-    <Layout title="nhitomi">
-      <Header onSearch={() => setSearch(true)} />
+    <ConfigProvider config={config}>
+      <Layout title="nhitomi">
+        <Header onSearch={() => setSearch(true)} />
 
-      <Search
-        value={query || ""}
-        setValue={async (value) => {
-          await Router.push({
-            query: {
-              ...Router.query,
-              query: value || [],
-              search: [],
-            },
-          });
-        }}
-        open={search}
-        setOpen={setSearch}
-      />
+        <Search
+          value={query || ""}
+          setValue={async (value) => {
+            await Router.push({
+              query: {
+                ...Router.query,
+                query: value || [],
+                search: [],
+              },
+            });
+          }}
+          open={search}
+          setOpen={setSearch}
+        />
 
-      {error ? <ErrorDisplay error={error} /> : <Content key={pageId.current} initial={initial} />}
-    </Layout>
+        {error ? <ErrorDisplay error={error} /> : <Content key={pageId.current} config={config} initial={initial} />}
+      </Layout>
+    </ConfigProvider>
   );
 };
 
-const Content = ({ initial }: Props) => {
+const Content = ({ initial, config }: Props) => {
   const [items, setItems] = useState<Book[]>(() => BookSearchResultFromJSON(initial).items);
   const offset = useRef(items.length);
 
@@ -107,10 +110,7 @@ const Content = ({ initial }: Props) => {
             if (client) {
               const { items: newItems } = await client.book.searchBooks({
                 bookQuery: {
-                  ...createQuery({
-                    ...parseCookies(),
-                    ...Router.query,
-                  }),
+                  ...createBookQuery(createBookQueryOptions(config)),
                   offset: offset.current,
                 },
               });
