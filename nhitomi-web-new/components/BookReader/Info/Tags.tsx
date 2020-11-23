@@ -8,7 +8,7 @@ import Sources from "./Sources";
 
 const Tags = ({ book, content }: { book: Book; content: BookContent }) => {
   return (
-    <VStack align="start" spacing={4}>
+    <>
       {BookTags.map((tag) => {
         const values = book.tags[tag];
 
@@ -30,7 +30,7 @@ const Tags = ({ book, content }: { book: Book; content: BookContent }) => {
       <Row name="sources">
         <Sources book={book} selectedContent={content} />
       </Row>
-    </VStack>
+    </>
   );
 };
 

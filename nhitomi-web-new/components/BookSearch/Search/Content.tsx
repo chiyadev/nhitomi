@@ -81,7 +81,7 @@ const Content = ({ value, setValue }: { value: string; setValue: (value: string)
           setLoading(true);
 
           try {
-            await setValue(display);
+            await setValue(display.trim());
           } finally {
             setLoading(false);
           }
