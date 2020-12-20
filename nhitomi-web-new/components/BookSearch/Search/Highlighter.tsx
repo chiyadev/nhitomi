@@ -1,13 +1,13 @@
 import React, { Fragment, memo, useMemo } from "react";
-import { Box, chakra } from "@chakra-ui/react";
-import { BookTagColors } from "../../../utils/colors";
+import { chakra } from "@chakra-ui/react";
+import { BookTagColors } from "../../../utils/constants";
 import { tokenizeBookQuery } from "../../../utils/book";
 
 const Highlighter = ({ text }: { text: string }) => {
   const tokens = useMemo(() => tokenizeBookQuery(text), [text]);
 
   return (
-    <Box whiteSpace="pre">
+    <chakra.div whiteSpace="pre">
       {tokens.map((token) => {
         switch (token.type) {
           case "url":
@@ -29,7 +29,7 @@ const Highlighter = ({ text }: { text: string }) => {
             return <span key={token.index}>{token.text}</span>;
         }
       })}
-    </Box>
+    </chakra.div>
   );
 };
 

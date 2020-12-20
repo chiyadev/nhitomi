@@ -1,16 +1,16 @@
 import React, { memo, ReactNode } from "react";
 import styles from "./index.module.css";
 import { Book, BookContent } from "nhitomi-api";
-import { AspectRatio, Box, chakra, Flex, Heading, HStack, Icon, Link, VStack } from "@chakra-ui/react";
+import { AspectRatio, chakra, Flex, Heading, HStack, Icon, Link, VStack } from "@chakra-ui/react";
 import BookImage from "../../BookImage";
 import NextLink from "next/link";
-import Tags from "./Tags";
+import TagList from "./TagList";
 import { AiOutlineHistory, AiOutlineRead, AiOutlineUpload } from "react-icons/ai";
 
 const Info = ({ book, content }: { book: Book; content: BookContent }) => {
   return (
     <Flex className={styles.container} w="full" p={4}>
-      <Box className={styles.image}>
+      <div className={styles.image}>
         <AspectRatio ratio={13 / 19} maxW="sm">
           <BookImage
             book={book}
@@ -21,9 +21,9 @@ const Info = ({ book, content }: { book: Book; content: BookContent }) => {
             borderRadius="md"
           />
         </AspectRatio>
-      </Box>
+      </div>
 
-      <Box className={styles.info}>
+      <chakra.div className={styles.info}>
         <VStack align="start" spacing={4}>
           <VStack align="start" spacing={1}>
             <NextLink href={`/books?query=${encodeURIComponent(book.primaryName)}`} passHref>
@@ -35,13 +35,13 @@ const Info = ({ book, content }: { book: Book; content: BookContent }) => {
             {book.englishName && (
               <NextLink href={`/books?query=${encodeURIComponent(book.englishName)}`} passHref>
                 <Link>
-                  <Heading size="sm">{book.englishName}</Heading>
+                  <Heading size="md">{book.englishName}</Heading>
                 </Link>
               </NextLink>
             )}
           </VStack>
 
-          <Tags book={book} content={content} />
+          <TagList book={book} content={content} />
 
           <VStack align="start" spacing={0} color="gray.200">
             <InfoLine icon={AiOutlineRead}>{content.pageCount} pages</InfoLine>
@@ -49,7 +49,7 @@ const Info = ({ book, content }: { book: Book; content: BookContent }) => {
             <InfoLine icon={AiOutlineHistory}>Updated on {book.updatedTime.toDateString()}</InfoLine>
           </VStack>
         </VStack>
-      </Box>
+      </chakra.div>
     </Flex>
   );
 };
@@ -57,8 +57,8 @@ const Info = ({ book, content }: { book: Book; content: BookContent }) => {
 const InfoLine = ({ icon, children }: { icon: any; children?: ReactNode }) => {
   return (
     <HStack spacing={1}>
-      <Icon as={icon} fontSize="md" />
-      <chakra.div fontSize="sm">{children}</chakra.div>
+      <Icon as={icon} fontSize="lg" />
+      <div>{children}</div>
     </HStack>
   );
 };

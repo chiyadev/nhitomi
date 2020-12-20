@@ -6,6 +6,9 @@ import { AppProps } from "next/app";
 import { useScrollPreserver } from "../utils/scrollPreserver";
 import NProgress from "../components/NProgress";
 import "../components/NProgress.css";
+import { loadPolyfills } from "../utils/polyfills";
+
+loadPolyfills();
 
 const fallbackFonts =
   '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"';
@@ -23,10 +26,18 @@ const App = ({ Component, pageProps }: AppProps) => {
           body: `'Lexend Deca', "M PLUS 1p", ${fallbackFonts}`,
           heading: `'Lexend Deca', "M PLUS 1p", ${fallbackFonts}`,
         },
+        fontSizes: {
+          xs: "10px",
+          sm: "12px",
+          md: "14px",
+          lg: "16px",
+          xl: "18px",
+        },
         styles: {
           global: {
             body: {
               bg: "gray.900",
+              fontSize: "md",
             },
           },
         },

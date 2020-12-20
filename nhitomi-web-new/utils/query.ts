@@ -1,63 +1,92 @@
 import Router, { useRouter } from "next/router";
-import { useCallback, useMemo } from "react";
+import { SetStateAction, useCallback, useMemo } from "react";
+import { BookSort, SortDirection } from "nhitomi-api";
+import { ParsedUrlQuery } from "querystring";
 
 type Dispatch<T = any> = (value: T, mode?: "replace" | "push") => Promise<boolean>;
 
-export function useQuery(key: string): [string | string[] | undefined, Dispatch<string | string[] | undefined>] {
-  const value = useRouter().query[key];
-  const setValue = useCallback<Dispatch>(
-    (value: string | string[] | undefined, mode) => {
-      return (mode === "push" ? Router.push : Router.replace).call(
-        Router,
-        {
-          query: {
-            ...Router.query,
-            [key]: typeof value === "undefined" ? [] : value,
-          },
-        },
-        undefined,
-        {
-          shallow: mode !== "push",
+export function useQueryString(
+  key: string
+): [string | string[] | undefined, Dispatch<SetStateAction<string | string[] | undefined>>] {
+  return [
+    useRouter().query[key],
+    useCallback(
+      (value, mode = "replace") => {
+        if (typeof value === "function") {
+          value = value(Router.query[key]);
         }
-      );
-    },
-    [key]
-  );
 
-  return [value, setValue];
+        return (mode === "replace" ? Router.replace : Router.push).call(
+          Router,
+          {
+            query: {
+              ...Router.query,
+              [key]: typeof value === "undefined" ? [] : value,
+            },
+          },
+          undefined,
+          {
+            shallow: mode === "replace",
+          }
+        );
+      },
+      [key]
+    ),
+  ];
 }
 
-export function useQueryString(key: string): [string | undefined, Dispatch<string | undefined>] {
-  let [value, setValue] = useQuery(key);
+export type Queries = {
+  id: string;
+  contentId: string;
+  query: string;
+  sort: BookSort;
+  order: SortDirection;
+};
 
-  if (Array.isArray(value)) {
-    value = value[0];
+export const DefaultQueries: Queries = {
+  id: "",
+  contentId: "",
+  query: "",
+  sort: BookSort.UpdatedTime,
+  order: SortDirection.Descending,
+};
+
+function parseValueOrDefault(key: keyof Queries, value?: string | string[]): any {
+  if (Array.isArray(value) && value.length) {
+    return value[0];
+  } else {
+    return value || DefaultQueries[key];
+  }
+}
+
+export function parseQueries(queries: ParsedUrlQuery): Queries {
+  const result = { ...DefaultQueries };
+
+  for (const key in queries) {
+    (result as any)[key] = parseValueOrDefault(key as any, queries[key]);
   }
 
-  return [value, setValue];
+  return result;
 }
 
-export function useQueryBoolean(key: string): [boolean, Dispatch<boolean | undefined>] {
-  const [valueRaw, setValueRaw] = useQueryString(key);
+export function useQuery<TKey extends keyof Queries>(
+  key: TKey
+): [Queries[TKey], Dispatch<SetStateAction<Queries[TKey]>>] {
+  const [value, setValue] = useQueryString(key);
 
-  const value = useMemo(() => {
-    switch (valueRaw?.toLowerCase()) {
-      case "":
-      case "1":
-      case "true":
-        return true;
-
-      default:
-        return false;
-    }
-  }, [valueRaw]);
-
-  const setValue = useCallback<Dispatch>(
-    (value: boolean | undefined, mode) => {
-      return setValueRaw(value ? "1" : undefined, mode);
-    },
-    [setValueRaw]
-  );
-
-  return [value, setValue];
+  return [
+    useMemo(() => parseValueOrDefault(key, value), [key, value]),
+    useCallback(
+      (newValue, mode) => {
+        return setValue((value) => {
+          if (typeof newValue === "function") {
+            return newValue(parseValueOrDefault(key, value));
+          } else {
+            return newValue;
+          }
+        }, mode);
+      },
+      [key]
+    ),
+  ];
 }

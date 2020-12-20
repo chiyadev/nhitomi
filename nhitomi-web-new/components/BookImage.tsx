@@ -1,58 +1,107 @@
-import React, { ComponentProps, memo } from "react";
+import React, { ComponentProps, memo, useEffect, useRef, useState } from "react";
 import { Book, BookContent } from "nhitomi-api";
-import { useBookContent, useBookImage } from "../utils/book";
-import { useBlobUrl } from "../utils/image";
-import { Box, Center, Fade, Icon, ScaleFade, Spinner } from "@chakra-ui/react";
-import { useTimerOnce } from "../utils/hooks";
-import SimpleLazy from "./SimpleLazy";
+import { Center, chakra, Fade, Icon, Spinner } from "@chakra-ui/react";
+import { useBlobUrl } from "../utils/hooks";
+import { IntersectionOptions, useInView } from "react-intersection-observer";
+import { createApiClient } from "../utils/client";
+import TransparentPixel from "../assets/TransparentPixel.png";
 
 const BookImage = ({
   className,
   book,
   content,
   index,
+  animateIn = "fade",
+  intersection,
+  onLoaded,
   ...props
 }: {
   className?: string;
   book: Book;
-  content?: BookContent;
+  content: BookContent;
   index: number;
-} & ComponentProps<typeof Box>) => {
-  return (
-    <SimpleLazy
-      render={(load) => {
-        return load ? (
-          <Content className={className} book={book} content={content} index={index} {...props} />
-        ) : (
-          <Box className={className} {...props} />
-        );
-      }}
-    />
-  );
-};
+  animateIn?: "fade" | "scale" | "none";
+  intersection?: IntersectionOptions;
+  onLoaded?: (data: Blob) => void | Promise<void>;
+} & ComponentProps<typeof chakra.img>) => {
+  const loadId = useRef(0);
+  const [ref, visible] = useInView({
+    ...intersection,
+    triggerOnce: true,
+  });
 
-const Content = ({ className, book, content, index, ...props }: ComponentProps<typeof BookImage>) => {
-  const defaultContent = useBookContent(book);
-  content = content || defaultContent;
+  const [result, setResult] = useState<Blob | Error>();
+  const [loading, setLoading] = useState(false);
+  const src = useBlobUrl(typeof window !== "undefined" && result instanceof Blob ? result : undefined);
 
-  const image = useBookImage(book, content, index);
-  const url = useBlobUrl(image instanceof Error ? undefined : image);
-  const showLoading = useTimerOnce(3000);
+  const [animateProps, setAnimateProps] = useState(() => {
+    switch (animateIn) {
+      case "none":
+        return {};
 
-  if (!url) {
+      case "fade":
+        return { opacity: 0 };
+
+      case "scale":
+        return { opacity: 0, transform: "scale(0.95)" };
+    }
+  });
+
+  useEffect(() => {
+    if (!visible) return;
+
+    (async () => {
+      const loadingTimeout = setTimeout(() => setLoading(true), 3000);
+
+      try {
+        const id = ++loadId.current;
+        const client = createApiClient();
+
+        if (client) {
+          const data = await client.book.getBookImage({
+            id: book.id,
+            contentId: content.id,
+            index,
+          });
+
+          await onLoaded?.(data);
+
+          if (id === loadId.current) {
+            setLoading(false);
+            setResult(data);
+            setTimeout(() => setAnimateProps({}));
+          }
+        } else {
+          setResult(Error("Unauthorized."));
+        }
+      } catch (e) {
+        setResult(e);
+      } finally {
+        clearTimeout(loadingTimeout);
+      }
+    })();
+  }, [visible, book.id, content.id, index]);
+
+  if (loading) {
     return (
-      <Fade className={className} in={showLoading}>
-        <Center {...props}>
+      <Center {...props}>
+        <Fade in>
           <Icon as={Spinner} />
-        </Center>
-      </Fade>
+        </Fade>
+      </Center>
     );
   }
 
   return (
-    <ScaleFade className={className} in>
-      <Box as="img" alt={`${book.id}/${content.id}/${index}`} src={url} h="full" {...props} />
-    </ScaleFade>
+    <chakra.img
+      ref={ref}
+      alt={`${book.id}/${content.id}/${index}`}
+      src={src || TransparentPixel}
+      transition="all 0.6s cubic-bezier(0.16, 1, 0.3, 1)"
+      transitionProperty="opacity, transform"
+      {...animateProps}
+      {...props}
+    />
   );
 };
 

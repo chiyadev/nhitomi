@@ -1,5 +1,4 @@
 import { GetStaticProps } from "next";
-import { memo } from "react";
 
 type Props = {};
 
@@ -13,5 +12,4 @@ export const getStaticProps: GetStaticProps<Props> = async () => {
 };
 
 const Index = () => null;
-
-export default memo(Index);
+export default Index;

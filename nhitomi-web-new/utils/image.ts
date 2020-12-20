@@ -1,20 +1,7 @@
-import { useEffect, useMemo } from "react";
+// @ts-ignore
+import sync from "probe-image-size/sync";
+import { ProbeResult } from "probe-image-size";
 
-export function useBlobUrl(blob: Blob | undefined): string | undefined {
-  const url = useMemo(() => {
-    if (blob) {
-      return URL.createObjectURL(blob);
-    }
-  }, [blob]);
-
-  useEffect(
-    () => () => {
-      if (url) {
-        URL.revokeObjectURL(url);
-      }
-    },
-    [url]
-  );
-
-  return url;
+export function probeImage(buffer: ArrayBuffer): ProbeResult {
+  return sync(new Uint8Array(buffer));
 }

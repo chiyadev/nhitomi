@@ -1,20 +1,20 @@
-import React, { memo, useRef, useState } from "react";
+import React, { memo, useCallback, useEffect, useRef, useState } from "react";
 import { Center, Icon, Spinner } from "@chakra-ui/react";
-import VisibilitySensor from "react-visibility-sensor";
-import { useWindowSize } from "../../utils/window";
+import { useInView } from "react-intersection-observer";
 
 const InfiniteLoader = ({ hasMore }: { hasMore: () => Promise<boolean> }) => {
-  const visible = useRef(false);
-  const running = useRef(false);
-  const [end, setEnd] = useState(false);
-  const [, height] = useWindowSize() || [0, 0];
+  const runningRef = useRef(false);
+  const visibleRef = useRef(false);
 
-  const beginLoad = async () => {
-    if (running.current || end) return;
-    running.current = true;
+  const [ref, visible] = useInView({ rootMargin: "100%" });
+  const [end, setEnd] = useState(false);
+
+  const beginLoad = useCallback(async () => {
+    if (runningRef.current || end) return;
+    runningRef.current = true;
 
     try {
-      while (visible.current) {
+      while (visibleRef.current) {
         try {
           if (!(await hasMore())) {
             setEnd(true);
@@ -27,32 +27,26 @@ const InfiniteLoader = ({ hasMore }: { hasMore: () => Promise<boolean> }) => {
           break;
         }
 
-        await new Promise((resolve) => setTimeout(resolve));
+        await new Promise((resolve) => setTimeout(resolve, 1000));
       }
     } finally {
-      running.current = false;
+      runningRef.current = false;
     }
-  };
+  }, [end, hasMore]);
+
+  useEffect(() => {
+    visibleRef.current = visible;
+    visible && beginLoad();
+  }, [visible, beginLoad]);
 
   if (end) {
     return null;
   }
 
   return (
-    <VisibilitySensor
-      offset={{
-        top: -height,
-        bottom: -height,
-      }}
-      onChange={(v) => {
-        visible.current = v;
-        v && beginLoad();
-      }}
-    >
-      <Center pt={12} pb={12}>
-        <Icon as={Spinner} />
-      </Center>
-    </VisibilitySensor>
+    <Center ref={ref} pt={12} pb={12}>
+      <Icon as={Spinner} />
+    </Center>
   );
 };
 

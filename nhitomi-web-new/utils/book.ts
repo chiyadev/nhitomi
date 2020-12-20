@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useMemo } from "react";
 import {
   Book,
   BookContent,
@@ -11,9 +11,8 @@ import {
   ScraperType,
   SortDirection,
 } from "nhitomi-api";
-import { BookTags, LanguageTypes, ScraperTypes } from "./constants";
-import { createApiClient } from "./client";
-import { getConfigMultiple, getConfigSingle, RawConfig, useRawConfig } from "./config";
+import { BookTags } from "./constants";
+import { useConfig } from "./config";
 
 export function useBookContent(book: Book) {
   const selector = useBookContentSelector();
@@ -21,23 +20,17 @@ export function useBookContent(book: Book) {
 }
 
 export function useBookContentSelector(): (contents: BookContent[]) => BookContent {
-  const config = useRawConfig();
-  return useCallback((contents) => selectBookContent(contents, createSelectBookContentOptions(config)), [config]);
+  const [languages] = useConfig("searchLanguages");
+  const [sources] = useConfig("searchSources");
+
+  return useCallback((contents) => selectBookContent(contents, languages, sources), [languages, sources]);
 }
 
-export type SelectBookContentOptions = {
-  languages?: LanguageType[];
-  sources?: ScraperType[];
-};
-
-export function createSelectBookContentOptions(config: RawConfig): SelectBookContentOptions {
-  return {
-    languages: getConfigMultiple(config, "language") as LanguageType[],
-    sources: getConfigMultiple(config, "source") as ScraperType[],
-  };
-}
-
-export function selectBookContent(contents: BookContent[], options: SelectBookContentOptions): BookContent {
+export function selectBookContent(
+  contents: BookContent[],
+  languages: LanguageType[],
+  sources: ScraperType[]
+): BookContent {
   return contents.sort((a, b) => {
     function indexCompare<T>(array: T[], a: T, b: T) {
       const x = array.indexOf(a);
@@ -50,46 +43,14 @@ export function selectBookContent(contents: BookContent[], options: SelectBookCo
       return x - y;
     }
 
-    const language = indexCompare(options.languages || LanguageTypes, a.language, b.language);
+    const language = indexCompare(languages, a.language, b.language);
     if (language) return language;
 
-    const source = indexCompare(options.sources || ScraperTypes, a.source, b.source);
+    const source = indexCompare(sources, a.source, b.source);
     if (source) return source;
 
     return b.id.localeCompare(a.id);
   })[0];
-}
-
-export function useBookImage(book: Book, content: BookContent, index: number): Blob | Error | undefined {
-  const loadId = useRef(0);
-  const [state, setState] = useState<Blob | Error>();
-
-  useEffect(() => {
-    (async () => {
-      try {
-        const id = ++loadId.current;
-        const client = createApiClient();
-
-        if (client) {
-          const blob = await client.book.getBookImage({
-            id: book.id,
-            contentId: content.id,
-            index,
-          });
-
-          if (id === loadId.current) {
-            setState(blob);
-          }
-        } else {
-          setState(Error("Unauthorized."));
-        }
-      } catch (e) {
-        setState(e);
-      }
-    })();
-  }, [book.id, content.id, index]);
-
-  return state;
 }
 
 export type BookQueryToken = {
@@ -174,25 +135,13 @@ export function tokenizeBookQuery(text: string): BookQueryToken[] {
   return results;
 }
 
-export type CreateBookQueryOptions = {
-  query?: string;
-  languages?: LanguageType[];
-  sources?: ScraperType[];
-  sort?: BookSort;
-  order?: SortDirection;
-};
-
-export function createBookQueryOptions(config: RawConfig): CreateBookQueryOptions {
-  return {
-    query: getConfigSingle(config, "query"),
-    languages: getConfigMultiple(config, "language") as LanguageType[],
-    sources: getConfigMultiple(config, "source") as ScraperType[],
-    sort: getConfigSingle(config, "sort") as BookSort,
-    order: getConfigSingle(config, "order") as SortDirection,
-  };
-}
-
-export function createBookQuery({ query, languages, sources, sort, order }: CreateBookQueryOptions) {
+export function createBookQuery(
+  query: string,
+  languages: LanguageType[],
+  sources: ScraperType[],
+  sort: BookSort,
+  order: SortDirection
+) {
   const result: BookQuery = {
     mode: QueryMatchMode.All,
     language: !languages?.length
@@ -219,7 +168,7 @@ export function createBookQuery({ query, languages, sources, sort, order }: Crea
   const tokens = tokenizeBookQuery(query || "");
   const tags: BookQueryTags = (result.tags = {});
 
-  function wrapTag(tag: string) {
+  const wrapTag = (tag: string) => {
     let negate = false;
 
     if (tag.startsWith("-")) {
@@ -235,7 +184,7 @@ export function createBookQuery({ query, languages, sources, sort, order }: Crea
     }
 
     return tag;
-  }
+  };
 
   for (const token of tokens) {
     switch (token.type) {

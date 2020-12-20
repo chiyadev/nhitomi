@@ -24,7 +24,7 @@ const Layout = ({ children, title = [] }: { children?: ReactNode; title?: (strin
       <title>{[...title.map((x) => x?.trim()).filter((x) => x), "nhitomi"].join(" · ")}</title>
     </Head>
 
-    <Flex direction="column" w="full" h="100vh" maxW="1200px" mx="auto">
+    <Flex direction="column" h="100vh">
       <Box>{children}</Box>
       <Spacer />
       <Footer />

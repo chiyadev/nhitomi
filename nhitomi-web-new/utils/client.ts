@@ -12,7 +12,6 @@ import {
 import { ValidationError } from "./errors";
 import node_fetch from "node-fetch";
 import { parseCookies } from "nookies";
-import { GetServerSidePropsContext } from "next";
 
 export class ApiClient {
   readonly httpConfig: ConfigurationParameters = {
@@ -98,15 +97,17 @@ const ChiyaApiUrl = "https://nhitomi.chiya.dev/api/v1";
 const PublicApiUrl = process.env.NH_API_PUBLIC || windowApiUrl() || ChiyaApiUrl;
 const InternalApiUrl = process.env.NH_API_INTERNAL || PublicApiUrl;
 
-export function createApiClient(ctx?: Pick<GetServerSidePropsContext, "req">) {
-  const { token } = parseCookies(ctx);
-
+export function createApiClient(token?: string) {
   if (!token) {
-    return;
+    ({ token } = parseCookies());
+
+    if (!token) {
+      return;
+    }
   }
 
   // server
-  else if (ctx?.req) {
+  if (typeof window === "undefined") {
     return new ApiClient(InternalApiUrl, token);
   }
 

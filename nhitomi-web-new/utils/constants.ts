@@ -1,4 +1,6 @@
 import { BookTag, LanguageType, ScraperType } from "nhitomi-api";
+import nhentai from "../assets/icons/nhentai.jpg";
+import hitomi from "../assets/icons/hitomi.jpg";
 
 export const BookTags = [
   BookTag.Artist,
@@ -10,6 +12,19 @@ export const BookTags = [
   BookTag.Metadata,
   BookTag.Tag,
 ];
+
+export const BookTagColors: { [key in BookTag]: string } = {
+  artist: "orange",
+  circle: "yellow",
+  character: "pink",
+  // copyright: 'red',
+  parody: "green",
+  series: "lime",
+  // pool: 'cyan',
+  convention: "purple",
+  metadata: "violet",
+  tag: "blue",
+};
 
 export const ScraperTypes = [ScraperType.Nhentai, ScraperType.Hitomi];
 
@@ -28,3 +43,9 @@ export const LanguageTypes = [
   LanguageType.IdID,
   LanguageType.ViVN,
 ];
+
+export const ScraperIcons: Record<ScraperType, string> = {
+  [ScraperType.Unknown]: "",
+  [ScraperType.Nhentai]: nhentai,
+  [ScraperType.Hitomi]: hitomi,
+};

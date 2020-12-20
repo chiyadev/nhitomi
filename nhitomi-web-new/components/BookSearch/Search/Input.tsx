@@ -1,5 +1,5 @@
 import React, { Dispatch, memo, Ref, useEffect, useRef, useState } from "react";
-import { Box, Flex, Icon, Input as InputCore, Spinner, Square } from "@chakra-ui/react";
+import { Box, chakra, Flex, Icon, Input as InputCore, Spinner, Square } from "@chakra-ui/react";
 import { FaSearch } from "react-icons/fa";
 import mergeRefs from "react-merge-refs";
 import Highlighter from "./Highlighter";
@@ -35,7 +35,7 @@ const Input = ({
   }, [inputRef]);
 
   return (
-    <Box position="relative">
+    <chakra.div position="relative">
       <InputCore
         ref={mergeRefs([ref, inputRef])}
         autoFocus
@@ -44,7 +44,6 @@ const Input = ({
         placeholder="Search anything on nhitomi..."
         size="lg"
         pl={12}
-        fontSize="md"
         bg="none"
         color="transparent"
         css={{
@@ -87,6 +86,7 @@ const Input = ({
         top={0}
         p={4}
         ml="1px"
+        fontSize="lg"
         cursor={loading ? undefined : "pointer"}
         zIndex={1}
         onClick={() => {
@@ -103,6 +103,7 @@ const Input = ({
         pl={12}
         w="full"
         h="full"
+        fontSize="lg"
         zIndex={-1}
         direction="column"
         justify="center"
@@ -113,7 +114,7 @@ const Input = ({
           </Box>
         </Box>
       </Flex>
-    </Box>
+    </chakra.div>
   );
 };
 

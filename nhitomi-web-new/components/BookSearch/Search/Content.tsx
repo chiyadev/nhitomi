@@ -198,7 +198,7 @@ const Content = ({ value, setValue }: { value: string; setValue: (value: string)
         value={display}
         setValue={setDisplay}
         loading={load > 0}
-        onSubmit={(force) => complete(undefined, force)}
+        onSubmit={useCallback((force) => complete(undefined, force), [complete])}
         onSuggestChange={moveSuggest}
         onFocus={setInputFocus}
       />

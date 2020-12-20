@@ -1,21 +1,47 @@
-import React, { createContext, memo, ReactNode } from "react";
-import { parseCookies } from "nookies";
-import { useRouter } from "next/router";
-import { RawConfig } from "../utils/config";
+import React, { memo, ReactNode, SetStateAction, useCallback, useMemo, useRef, useState } from "react";
+import { CookieContainer, CookieContext } from "../utils/config";
+import { destroyCookie, setCookie } from "nookies";
 
-export const RawConfigContext = createContext<RawConfig>({});
+const ConfigProvider = ({ cookies, children }: { cookies: CookieContainer; children?: ReactNode }) => {
+  const [value, setValueCore] = useState(cookies);
+  const valueRef = useRef(cookies);
 
-const ConfigProvider = ({ config, children }: { config: RawConfig; children?: ReactNode }) => {
-  const router = useRouter();
+  const setValue = useCallback((value: SetStateAction<CookieContainer>) => {
+    if (typeof value === "function") {
+      value = value(valueRef.current);
+    }
 
-  if (typeof window !== "undefined") {
-    config = {
-      ...parseCookies(),
-      ...router.query,
-    };
-  }
+    const remainingKeys = new Set(Object.keys(valueRef.current));
 
-  return <RawConfigContext.Provider value={config}>{children}</RawConfigContext.Provider>;
+    for (const key in value) {
+      const current = value[key];
+
+      if (typeof current !== "undefined") {
+        remainingKeys.delete(key);
+
+        if (valueRef.current[key] !== current) {
+          setCookie(undefined, key, current, {
+            path: "/",
+            sameSite: "lax",
+            secure: window.location.protocol === "https:",
+            expires: new Date(2100, 1, 1),
+          });
+        }
+      }
+    }
+
+    for (const key of remainingKeys) {
+      destroyCookie(undefined, key);
+    }
+
+    setValueCore((valueRef.current = value));
+  }, []);
+
+  return (
+    <CookieContext.Provider value={useMemo(() => [value, setValue], [value, setValue])}>
+      {children}
+    </CookieContext.Provider>
+  );
 };
 
 export default memo(ConfigProvider);

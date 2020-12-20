@@ -1,7 +1,7 @@
 import React, { memo, useMemo, useState } from "react";
-import { Box, chakra, Flex, Kbd, Spacer, Tag } from "@chakra-ui/react";
+import { chakra, HStack, Kbd, Spacer, Tag } from "@chakra-ui/react";
 import { BookTag } from "nhitomi-api";
-import { BookTagColors } from "../../../../utils/colors";
+import { BookTagColors } from "../../../../utils/constants";
 
 const TagItem = ({
   focused,
@@ -19,7 +19,7 @@ const TagItem = ({
   const [hover, setHover] = useState(false);
 
   return (
-    <Flex
+    <HStack
       position="relative"
       ml={-1000}
       pl={1000}
@@ -34,7 +34,7 @@ const TagItem = ({
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
     >
-      <Box>
+      <div>
         {useMemo(
           () =>
             text.split("").map((char, i) => (
@@ -48,22 +48,18 @@ const TagItem = ({
             )),
           [comparand, text]
         )}
-      </Box>
+      </div>
 
-      <Flex direction="column" justify="center" ml={2} transition="all .2s" opacity={focused || hover ? 1 : 0}>
-        <Tag size="sm" colorScheme={BookTagColors[tag]}>
-          {tag}
-        </Tag>
-      </Flex>
+      <Tag colorScheme={BookTagColors[tag]} ml={2} transition="all .2s" opacity={focused || hover ? 1 : 0}>
+        {tag}
+      </Tag>
 
       <Spacer />
 
-      <Flex direction="column" justify="center">
-        <Kbd fontSize={10} transition="all .2s" opacity={focused ? 1 : 0}>
-          enter ↵
-        </Kbd>
-      </Flex>
-    </Flex>
+      <Kbd fontSize={10} transition="all .2s" opacity={focused ? 1 : 0}>
+        enter ↵
+      </Kbd>
+    </HStack>
   );
 };
 

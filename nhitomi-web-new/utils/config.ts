@@ -1,56 +1,96 @@
-import { destroyCookie, parseCookies, setCookie } from "nookies";
-import { Dispatch, useCallback, useContext } from "react";
-import { GetServerSidePropsContext } from "next";
-import { RawConfigContext } from "../components/ConfigProvider";
+import { createContext, Dispatch, SetStateAction, useCallback, useContext, useMemo } from "react";
+import { LanguageType, ScraperType } from "nhitomi-api";
+import { ScraperTypes } from "./constants";
 
-export type RawConfig = Record<string, string | string[] | undefined>;
+export type CookieContainer = Record<string, string | undefined>;
+export const CookieContext = createContext<[CookieContainer, Dispatch<SetStateAction<CookieContainer>>]>([
+  {},
+  () => {},
+]);
 
-export function createRawConfig(ctx: Pick<GetServerSidePropsContext, "req" | "query">): RawConfig {
-  const result = {
-    ...parseCookies(ctx),
-    ...ctx.query,
-  };
+export function useCookieString(key: string): [string | undefined, Dispatch<SetStateAction<string | undefined>>] {
+  const [cookies, setCookies] = useContext(CookieContext);
 
-  // security
-  delete result.token;
+  return [
+    cookies[key],
+    useCallback(
+      (value) => {
+        setCookies((cookies) => {
+          if (typeof value === "function") {
+            value = value(cookies[key]);
+          }
+
+          return {
+            ...cookies,
+            [key]: value,
+          };
+        });
+      },
+      [key, setCookies]
+    ),
+  ];
+}
+
+export type Configs = {
+  token?: string;
+  displayLanguage: LanguageType;
+  searchLanguages: LanguageType[];
+  searchSources: ScraperType[];
+
+  bookViewportBound: boolean;
+  bookLeftToRight: boolean;
+  bookImagesPerRow: number;
+  bookSingleCover: boolean;
+};
+
+export const DefaultConfigs: Configs = {
+  token: undefined,
+  displayLanguage: LanguageType.EnUS,
+  searchLanguages: [LanguageType.EnUS, LanguageType.JaJP],
+  searchSources: ScraperTypes,
+
+  bookViewportBound: false,
+  bookLeftToRight: false,
+  bookImagesPerRow: 2,
+  bookSingleCover: true,
+};
+
+function parseValueOrDefault(key: keyof Configs, value?: string): any {
+  try {
+    return JSON.parse(value || "");
+  } catch {
+    return value || DefaultConfigs[key];
+  }
+}
+
+export function parseConfigs(cookies: CookieContainer): Configs {
+  const result = { ...DefaultConfigs };
+
+  for (const key in cookies) {
+    (result as any)[key] = parseValueOrDefault(key as any, cookies[key]);
+  }
 
   return result;
 }
 
-export function getConfigSingle(config: RawConfig, key: string) {
-  const value = config[key];
-  return (Array.isArray(value) ? value[0] : value) || undefined;
-}
+export function useConfig<TKey extends keyof Configs>(
+  key: TKey
+): [Configs[TKey], Dispatch<SetStateAction<Configs[TKey]>>] {
+  const [value, setValue] = useCookieString(key);
 
-export function getConfigMultiple(config: RawConfig, key: string) {
-  let value = config[key];
-
-  if (Array.isArray(value)) {
-    value = value.join(",");
-  }
-
-  return value?.split(",");
-}
-
-export function useRawConfig(): RawConfig {
-  return useContext(RawConfigContext);
-}
-
-export function useCookieString(key: string): [string | undefined, Dispatch<string | undefined>] {
-  const value = parseCookies()[key] as string | undefined;
-  const setValue = useCallback(
-    (value: string | undefined) => {
-      if (typeof value === "undefined") {
-        destroyCookie({}, key);
-      } else {
-        setCookie({}, key, value, {
-          secure: true,
-          sameSite: true,
+  return [
+    useMemo(() => parseValueOrDefault(key, value), [key, value]),
+    useCallback(
+      (newValue) => {
+        setValue((value) => {
+          if (typeof newValue === "function") {
+            return JSON.stringify(newValue(parseValueOrDefault(key, value)));
+          } else {
+            return JSON.stringify(newValue);
+          }
         });
-      }
-    },
-    [key]
-  );
-
-  return [value, setValue];
+      },
+      [key]
+    ),
+  ];
 }

@@ -4,7 +4,7 @@ import { Divider, Flex, Grid, Kbd, Spacer, Text } from "@chakra-ui/react";
 import { BookSuggestion, TagSuggestion } from "../Content";
 import { Book } from "nhitomi-api";
 import { createApiClient } from "../../../../utils/client";
-import Item from "../../../BookGrid/Item";
+import BookItem from "../../../BookGrid/Item";
 
 const Suggest = ({
   value,
@@ -77,7 +77,7 @@ const Suggest = ({
               {tags.length > 1 && (
                 <Flex mt={2} mb={-2}>
                   <Spacer />
-                  <Text fontSize="xs">
+                  <Text fontSize="sm">
                     use <Kbd>↑</Kbd>
                     <Kbd>↓</Kbd>
                   </Text>
@@ -96,13 +96,13 @@ const Suggest = ({
             <Flex direction="column" p={4}>
               <Grid templateColumns="repeat(auto-fill, minmax(8rem, 1fr))" gap={2}>
                 {bookItems.map((book) => (
-                  <Item key={book.id} book={book} />
+                  <BookItem key={book.id} book={book} />
                 ))}
               </Grid>
 
               <Flex mt={2} mb={-2}>
                 <Spacer />
-                <Text fontSize="xs">
+                <Text fontSize="sm">
                   use <Kbd>tab ↹</Kbd>
                 </Text>
               </Flex>
@@ -114,7 +114,7 @@ const Suggest = ({
       {!tags.length && !bookItems.length && (
         <Flex p={2}>
           <Spacer />
-          <Text fontSize="xs">
+          <Text fontSize="sm">
             search <Kbd>enter ↵</Kbd>
           </Text>
         </Flex>

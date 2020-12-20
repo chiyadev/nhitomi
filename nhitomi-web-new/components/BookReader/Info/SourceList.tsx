@@ -16,12 +16,11 @@ import {
   Wrap,
   WrapItem,
 } from "@chakra-ui/react";
-import { LanguageTypes, ScraperTypes } from "../../../utils/constants";
-import { SourceIcons } from "../../../utils/icons";
+import { LanguageTypes, ScraperIcons, ScraperTypes } from "../../../utils/constants";
 import Router from "next/router";
 import { FaExternalLinkAlt } from "react-icons/fa";
 
-const Sources = ({ book, selectedContent }: { book: Book; selectedContent: BookContent }) => {
+const SourceList = ({ book, selectedContent }: { book: Book; selectedContent: BookContent }) => {
   return (
     <Wrap spacing={1}>
       {ScraperTypes.map((source) => {
@@ -51,9 +50,9 @@ const Item = ({
   return (
     <WrapItem>
       <Menu autoSelect={false} preventOverflow>
-        <MenuButton as={Tag} size="lg" cursor="pointer" lineHeight={undefined}>
-          <Avatar src={SourceIcons[source]} size="xs" ml={-1} mr={2} />
-          <TagLabel fontSize="sm">{source}</TagLabel>
+        <MenuButton as={Tag} size="lg" cursor="pointer">
+          <Avatar src={ScraperIcons[source]} size="xs" ml={-1} mr={2} verticalAlign="middle" />
+          <TagLabel verticalAlign="middle">{source}</TagLabel>
         </MenuButton>
 
         <MenuList>
@@ -120,4 +119,4 @@ const Item = ({
   );
 };
 
-export default memo(Sources);
+export default memo(SourceList);
