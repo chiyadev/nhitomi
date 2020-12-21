@@ -6,10 +6,14 @@ import BookImage from "../../BookImage";
 import NextLink from "next/link";
 import TagList from "./TagList";
 import { AiOutlineHistory, AiOutlineRead, AiOutlineUpload } from "react-icons/ai";
+import { useT } from "../../../locales";
+import DateDisplay from "../../DateDisplay";
 
 const Info = ({ book, content }: { book: Book; content: BookContent }) => {
+  const t = useT();
+
   return (
-    <Flex className={styles.container} w="full" p={4}>
+    <Flex className={styles.container} p={4}>
       <div className={styles.image}>
         <AspectRatio ratio={13 / 19} maxW="sm">
           <BookImage
@@ -26,14 +30,14 @@ const Info = ({ book, content }: { book: Book; content: BookContent }) => {
       <chakra.div className={styles.info}>
         <VStack align="start" spacing={4}>
           <VStack align="start" spacing={1}>
-            <NextLink href={`/books?query=${encodeURIComponent(book.primaryName)}`} passHref>
+            <NextLink href={{ pathname: "/books", query: { query: book.primaryName } }} passHref>
               <Link>
                 <Heading>{book.primaryName}</Heading>
               </Link>
             </NextLink>
 
             {book.englishName && (
-              <NextLink href={`/books?query=${encodeURIComponent(book.englishName)}`} passHref>
+              <NextLink href={{ pathname: "/books", query: { query: book.englishName } }} passHref>
                 <Link>
                   <Heading size="md">{book.englishName}</Heading>
                 </Link>
@@ -44,9 +48,13 @@ const Info = ({ book, content }: { book: Book; content: BookContent }) => {
           <TagList book={book} content={content} />
 
           <VStack align="start" spacing={0} color="gray.200">
-            <InfoLine icon={AiOutlineRead}>{content.pageCount} pages</InfoLine>
-            <InfoLine icon={AiOutlineUpload}>Uploaded on {book.createdTime.toDateString()}</InfoLine>
-            <InfoLine icon={AiOutlineHistory}>Updated on {book.updatedTime.toDateString()}</InfoLine>
+            <InfoLine icon={AiOutlineRead}>{t("BookReader.Info.pageCount", { count: content.pageCount })}</InfoLine>
+            <InfoLine icon={AiOutlineUpload}>
+              {t("BookReader.Info.createdTime", { time: <DateDisplay date={book.createdTime} /> })}
+            </InfoLine>
+            <InfoLine icon={AiOutlineHistory}>
+              {t("BookReader.Info.updatedTime", { time: <DateDisplay date={book.updatedTime} /> })}
+            </InfoLine>
           </VStack>
         </VStack>
       </chakra.div>

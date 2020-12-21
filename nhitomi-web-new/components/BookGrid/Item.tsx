@@ -18,7 +18,10 @@ const Item = ({ book }: { book: Book }) => {
         overflow="hidden"
         position="relative"
         onMouseEnter={() => setHover(true)}
+        onMouseMove={() => setHover(true)}
         onMouseLeave={() => setHover(false)}
+        onTouchStart={() => setHover(true)}
+        onTouchEnd={() => setHover(false)}
         onFocus={() => setFocus(true)}
         onBlur={() => setFocus(false)}
       >

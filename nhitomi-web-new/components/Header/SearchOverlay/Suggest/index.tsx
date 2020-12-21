@@ -5,6 +5,7 @@ import { BookSuggestion, TagSuggestion } from "../Content";
 import { Book } from "nhitomi-api";
 import { createApiClient } from "../../../../utils/client";
 import BookItem from "../../../BookGrid/Item";
+import { useT } from "../../../../locales";
 
 const Suggest = ({
   value,
@@ -21,6 +22,7 @@ const Suggest = ({
   books: BookSuggestion[];
   setLoading: Dispatch<boolean>;
 }) => {
+  const t = useT();
   const loadId = useRef<number>(0);
   const [bookItems, setBookItems] = useState<Book[]>([]);
 
@@ -78,8 +80,7 @@ const Suggest = ({
                 <Flex mt={2} mb={-2}>
                   <Spacer />
                   <Text fontSize="sm">
-                    use <Kbd>↑</Kbd>
-                    <Kbd>↓</Kbd>
+                    {t("Header.SearchOverlay.Suggest.tagHint", { up: <Kbd>↑</Kbd>, down: <Kbd>↓</Kbd> })}
                   </Text>
                 </Flex>
               )}
@@ -102,9 +103,7 @@ const Suggest = ({
 
               <Flex mt={2} mb={-2}>
                 <Spacer />
-                <Text fontSize="sm">
-                  use <Kbd>tab ↹</Kbd>
-                </Text>
+                <Text fontSize="sm">{t("Header.SearchOverlay.Suggest.itemHint", { tab: <Kbd>tab ↹</Kbd> })}</Text>
               </Flex>
             </Flex>
           ),
@@ -114,9 +113,7 @@ const Suggest = ({
       {!tags.length && !bookItems.length && (
         <Flex p={2}>
           <Spacer />
-          <Text fontSize="sm">
-            search <Kbd>enter ↵</Kbd>
-          </Text>
+          <Text fontSize="sm">{t("Header.SearchOverlay.Suggest.searchHint", { enter: <Kbd>enter ↵</Kbd> })}</Text>
         </Flex>
       )}
     </>

@@ -2,10 +2,16 @@ import { GetStaticProps } from "next";
 
 type Props = {};
 
-export const getStaticProps: GetStaticProps<Props> = async () => {
+export const getStaticProps: GetStaticProps<Props> = async ({ locale, defaultLocale }) => {
+  let prefix = "";
+
+  if (locale !== defaultLocale) {
+    prefix = `/${locale}`;
+  }
+
   return {
     redirect: {
-      destination: "/books",
+      destination: prefix + "/books",
       permanent: false,
     },
   };

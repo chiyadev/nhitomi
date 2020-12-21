@@ -23,7 +23,7 @@ const PageDisplay = ({ book, content }: { book: Book; content: BookContent }) =>
   const [singleCover] = useConfig("bookSingleCover");
 
   const screen = useBreakpointValue({ base: "sm", md: "md" });
-  const viewportBound = screen === "sm" ? true : viewportBoundCore;
+  const viewportBound = screen === "sm" ? false : viewportBoundCore;
   const imagesPerRow = screen === "sm" ? 1 : imagesPerRowCore;
 
   const layout = useMemo(() => {

@@ -1,0 +1,46 @@
+{
+  "BookListing": {
+    "HeaderMenu": {
+      "sort": "並び替え"
+    },
+    "QueryDrawer": {
+      "title": "検索オプション",
+      "SortRadio": {
+        "title": "並び替え"
+      },
+      "OrderRadio": {
+        "title": "並び順"
+      }
+    }
+  },
+  "BookReader": {
+    "Info": {
+      "pageCount": "{count}ページ",
+      "createdTime": "{time}にアップロード",
+      "updatedTime": "{time}に更新",
+      "TagList": {
+        "sources": "サイト"
+      }
+    }
+  },
+  "Header": {
+    "search": "検索",
+    "SearchOverlay": {
+      "Suggest": {
+        "tagHint": "{up}{down}で選択",
+        "itemHint": "{tab}で選択",
+        "searchHint": "{enter}で検索"
+      },
+      "Input": {
+        "placeholder": "nhitomiでなんでも検索... (英語入力)"
+      }
+    }
+  },
+  "SortDirection": "{value, select, ascending {昇順} descending {降順} other {{value}}}",
+  "BookTag": "{value, select, artist {アーティスト} circle {サークル} character {キャラクター} parody {パロディ} series {シリーズ} convention {イベント} metadata {メタ} tag {タグ} other {{value}}}",
+  "BookCategory": "{value, select, doujinshi {同人誌} manga {漫画} artistCg {アーティスト CG} gameCg {ゲーム CG} lightNovel {ライトノベル} other {{value}}}",
+  "BookSort": "{value, select, relevance {関連性} createdTime {アップロード時間} updatedTime {更新時間} pageCount {ページ数} noteCount {ノート数} tagCount {タグ数} refreshTime {リフレッシュ時間} other {{value}}}",
+  "MaterialRating": "{value, select, safe {成人向け} questionable {Questionable} explicit {Explicit} other {{value}}}",
+  "SpecialCollection": "{value, select, favorites {お気に入り} later {後で読む} other {{value}}}",
+  "ObjectType": "{value, select, user {ユーザー} book {本} image {画像} snapshot {スナップショット} collection {コレクション} other {{value}}}"
+}

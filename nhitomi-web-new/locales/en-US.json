@@ -1,0 +1,52 @@
+{
+  "BookListing": {
+    "HeaderMenu": {
+      "sort": "Sort"
+    },
+    "QueryDrawer": {
+      "title": "Query Options",
+      "SortRadio": {
+        "title": "Sort"
+      },
+      "OrderRadio": {
+        "title": "Order"
+      }
+    }
+  },
+  "BookReader": {
+    "Info": {
+      "pageCount": "{count} pages",
+      "createdTime": "Uploaded on {time}",
+      "updatedTime": "Updated on {time}",
+      "TagList": {
+        "sources": "Sources"
+      }
+    }
+  },
+  "Header": {
+    "search": "Search",
+    "SearchOverlay": {
+      "Suggest": {
+        "tagHint": "use {up}{down}",
+        "itemHint": "use {tab}",
+        "searchHint": "search {enter}"
+      },
+      "Input": {
+        "placeholder": "Search anything on nhitomi..."
+      }
+    }
+  },
+  "Footer": {
+    "github": "GitHub",
+    "discord": "Discord",
+    "api": "API"
+  },
+  "SortDirection": "{value, select, ascending {Ascending} descending {Descending} other {{value}}}",
+  "BookTag": "{value, select, artist {Artist} circle {Circle} character {Character} parody {Parody} series {Series} convention {Convention} metadata {Metadata} tag {Tag} other {{value}}}",
+  "BookCategory": "{value, select, doujinshi {Doujinshi} manga {Manga} artistCg {Artist CG} gameCg {Game CG} lightNovel {Light novel} other {{value}}}",
+  "BookSort": "{value, select, relevance {Relevance} createdTime {Uploaded time} updatedTime {Updated time} pageCount {Page count} noteCount {Note count} tagCount {Tag count} refreshTime {Refresh time} other {{value}}}",
+  "MaterialRating": "{value, select, safe {Safe} questionable {Questionable} explicit {Explicit} other {{value}}}",
+  "SpecialCollection": "{value, select, favorites {Favorites} later {Read later} other {{value}}}",
+  "ObjectType": "{value, select, user {User} book {Book} image {Image} snapshot {Snapshot} collection {Collection} other {{value}}}",
+  "LanguageType": "{value, select, enUS {English} jaJP {日本語} zhCN {中文} koKR {한국어} itIT {Italiano} esES {Español} deDE {Deutsch} frFR {français} trTR {Türkçe} nlNL {Nederlands} ruRU {русский} idID {Bahasa Indonesia} viVN {Tiếng Việt} other {{value}}}"
+}

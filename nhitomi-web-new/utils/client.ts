@@ -4,6 +4,8 @@ import {
   Configuration,
   ConfigurationParameters,
   DownloadApi,
+  GetInfoAuthenticatedResponse,
+  GetInfoResponse,
   InfoApi,
   InternalApi,
   UserApi,
@@ -12,6 +14,7 @@ import {
 import { ValidationError } from "./errors";
 import node_fetch from "node-fetch";
 import { parseCookies } from "nookies";
+import { createContext, useContext } from "react";
 
 export class ApiClient {
   readonly httpConfig: ConfigurationParameters = {
@@ -115,4 +118,15 @@ export function createApiClient(token?: string) {
   else {
     return new ApiClient(PublicApiUrl, token);
   }
+}
+
+export const ClientInfoContext = createContext<GetInfoResponse | GetInfoAuthenticatedResponse | undefined>(undefined);
+
+export function useClientInfo() {
+  return useContext(ClientInfoContext);
+}
+
+export function useClientInfoAuth() {
+  const value = useClientInfo();
+  return value && "user" in value ? value : undefined;
 }

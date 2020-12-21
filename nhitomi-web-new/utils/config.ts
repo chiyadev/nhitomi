@@ -33,7 +33,6 @@ export function useCookieString(key: string): [string | undefined, Dispatch<SetS
 
 export type Configs = {
   token?: string;
-  displayLanguage: LanguageType;
   searchLanguages: LanguageType[];
   searchSources: ScraperType[];
 
@@ -45,7 +44,6 @@ export type Configs = {
 
 export const DefaultConfigs: Configs = {
   token: undefined,
-  displayLanguage: LanguageType.EnUS,
   searchLanguages: [LanguageType.EnUS, LanguageType.JaJP],
   searchSources: ScraperTypes,
 

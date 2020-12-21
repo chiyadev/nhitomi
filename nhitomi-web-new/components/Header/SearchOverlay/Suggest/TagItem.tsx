@@ -2,6 +2,7 @@ import React, { memo, useMemo, useState } from "react";
 import { chakra, HStack, Kbd, Spacer, Tag } from "@chakra-ui/react";
 import { BookTag } from "nhitomi-api";
 import { BookTagColors } from "../../../../utils/constants";
+import { useT } from "../../../../locales";
 
 const TagItem = ({
   focused,
@@ -17,6 +18,7 @@ const TagItem = ({
   tag: BookTag;
 }) => {
   const [hover, setHover] = useState(false);
+  const t = useT();
 
   return (
     <HStack
@@ -51,7 +53,7 @@ const TagItem = ({
       </div>
 
       <Tag colorScheme={BookTagColors[tag]} ml={2} transition="all .2s" opacity={focused || hover ? 1 : 0}>
-        {tag}
+        {t("BookTag", { value: tag })}
       </Tag>
 
       <Spacer />

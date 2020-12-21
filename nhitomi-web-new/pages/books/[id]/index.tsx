@@ -8,6 +8,7 @@ import { parseCookies } from "nookies";
 import { parseQueries } from "../../../utils/query";
 import ErrorPage from "../../../components/ErrorPage";
 import { sanitizeProps } from "../../../utils/props";
+import { useChangeCount } from "../../../utils/hooks";
 
 type Props = {
   cookies: CookieContainer;
@@ -59,9 +60,11 @@ export const getServerSideProps: GetServerSideProps<Props> = async (ctx) => {
 };
 
 const BookRedirect = ({ cookies, result }: Props) => {
+  const renderId = useChangeCount(result);
+
   return (
-    <ConfigProvider cookies={cookies}>
-      <ErrorPage {...result} />
+    <ConfigProvider key={renderId} cookies={cookies}>
+      <ErrorPage message={result.message} />
     </ConfigProvider>
   );
 };

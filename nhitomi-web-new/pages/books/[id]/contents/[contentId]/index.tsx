@@ -1,7 +1,14 @@
 import React, { memo, useMemo, useState } from "react";
 import { GetServerSideProps } from "next";
 import { createApiClient } from "../../../../../utils/client";
-import { BookFromJSON, BookToJSON } from "nhitomi-api";
+import {
+  Book,
+  BookFromJSON,
+  BookToJSON,
+  GetInfoAuthenticatedResponse,
+  GetInfoAuthenticatedResponseFromJSON,
+  GetInfoAuthenticatedResponseToJSON,
+} from "nhitomi-api";
 import Layout from "../../../../../components/Layout";
 import ErrorPage from "../../../../../components/ErrorPage";
 import { CookieContainer, parseConfigs } from "../../../../../utils/config";
@@ -19,15 +26,18 @@ import ScrollKeyHandler from "../../../../../components/ScrollKeyHandler";
 import { useInView } from "react-intersection-observer";
 import { VStack } from "@chakra-ui/layout";
 import CursorManager from "../../../../../components/BookReader/CursorManager";
+import Header from "../../../../../components/Header";
+import HeaderTitle from "../../../../../components/BookReader/HeaderTitle";
 
 type Props = {
   cookies: CookieContainer;
   result:
     | {
         type: "success";
-        data: any;
         id: string;
         contentId: string;
+        info: GetInfoAuthenticatedResponse;
+        book: Book;
       }
     | {
         type: "error";
@@ -52,6 +62,8 @@ export const getServerSideProps: GetServerSideProps<Props> = async (ctx) => {
       };
     }
 
+    const info = await client.info.getInfoAuthenticated();
+
     const book = await client.book.getBook({ id });
     const content = book.contents.find((content) => content.id === contentId);
 
@@ -71,9 +83,10 @@ export const getServerSideProps: GetServerSideProps<Props> = async (ctx) => {
           cookies,
           result: {
             type: "success",
-            data: BookToJSON(book),
             id,
             contentId,
+            info: GetInfoAuthenticatedResponseToJSON(info),
+            book: BookToJSON(book),
           },
         }),
       };
@@ -99,22 +112,21 @@ const BookReader = ({ cookies, result }: Props) => {
   switch (result.type) {
     case "success":
       return (
-        <ConfigProvider key={renderId} cookies={cookies}>
-          <Content {...result} />
+        <ConfigProvider key={renderId} cookies={cookies} info={GetInfoAuthenticatedResponseFromJSON(result.info)}>
+          <Content book={BookFromJSON(result.book)} contentId={result.contentId} />
         </ConfigProvider>
       );
 
     case "error":
       return (
-        <ConfigProvider cookies={cookies}>
-          <ErrorPage {...result} />
+        <ConfigProvider key={renderId} cookies={cookies}>
+          <ErrorPage message={result.message} />
         </ConfigProvider>
       );
   }
 };
 
-const Content = ({ data, contentId }: { data: any; contentId: string }) => {
-  const book = useMemo(() => BookFromJSON(data), [data]);
+const Content = ({ book, contentId }: { book: Book; contentId: string }) => {
   const content = book.contents.find((content) => content.id === contentId) || book.contents[0];
 
   const [infoRef, infoVisible] = useInView();
@@ -125,6 +137,8 @@ const Content = ({ data, contentId }: { data: any; contentId: string }) => {
       <ReaderScrollContext.Provider value={useMemo(() => [scroll, setScroll], [scroll, setScroll])}>
         <ScrollKeyHandler />
         <Background book={book} content={content} visible={infoVisible} />
+
+        <Header shadow title={<HeaderTitle book={book} content={content} />} />
 
         <VStack align="stretch" spacing={8}>
           <div ref={infoRef}>

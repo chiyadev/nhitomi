@@ -19,6 +19,7 @@ import {
 import { LanguageTypes, ScraperIcons, ScraperTypes } from "../../../utils/constants";
 import Router from "next/router";
 import { FaExternalLinkAlt } from "react-icons/fa";
+import { useT } from "../../../locales";
 
 const SourceList = ({ book, selectedContent }: { book: Book; selectedContent: BookContent }) => {
   return (
@@ -28,7 +29,9 @@ const SourceList = ({ book, selectedContent }: { book: Book; selectedContent: Bo
           .filter((content) => content.source === source)
           .sort((a, b) => b.id.localeCompare(a.id));
 
-        if (!contents.length) return null;
+        if (!contents.length) {
+          return null;
+        }
 
         return <Item key={source} book={book} source={source} contents={contents} selectedContent={selectedContent} />;
       })}
@@ -47,6 +50,8 @@ const Item = ({
   contents: BookContent[];
   selectedContent: BookContent;
 }) => {
+  const t = useT();
+
   return (
     <WrapItem>
       <Menu autoSelect={false} preventOverflow>
@@ -62,7 +67,11 @@ const Item = ({
             return {
               language,
               child: !languageContents.length ? null : (
-                <MenuOptionGroup type="radio" title={language} value={selectedContent.id}>
+                <MenuOptionGroup
+                  type="radio"
+                  title={t("LanguageType", { value: language.replace("-", "") })}
+                  value={selectedContent.id}
+                >
                   {languageContents.map((content) => {
                     const url = new URL(content.sourceUrl);
                     const readerUrl = `/books/${book.id}/contents/${content.id}`;
@@ -77,11 +86,9 @@ const Item = ({
                           if (!e.ctrlKey && !e.shiftKey && !e.altKey) {
                             e.preventDefault();
 
-                            if (content !== selectedContent) {
-                              await Router.push({
-                                pathname: readerUrl,
-                              });
-                            }
+                            await Router.push({
+                              pathname: readerUrl,
+                            });
                           }
                         }}
                       >

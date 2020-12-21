@@ -1,8 +1,28 @@
 import React, { memo, ReactNode, SetStateAction, useCallback, useMemo, useRef, useState } from "react";
 import { CookieContainer, CookieContext } from "../utils/config";
 import { destroyCookie, setCookie } from "nookies";
+import { GetInfoAuthenticatedResponse, GetInfoResponse, LanguageType } from "nhitomi-api";
+import { ClientInfoContext } from "../utils/client";
+import { getFlatLocalization } from "../locales";
+import { IntlProvider } from "react-intl";
 
-const ConfigProvider = ({ cookies, children }: { cookies: CookieContainer; children?: ReactNode }) => {
+const ConfigProvider = ({
+  cookies,
+  info,
+  children,
+}: {
+  cookies: CookieContainer;
+  info?: GetInfoResponse | GetInfoAuthenticatedResponse;
+  children?: ReactNode;
+}) => {
+  return (
+    <CookieProvider cookies={cookies}>
+      <ClientInfoProvider info={info}>{children}</ClientInfoProvider>
+    </CookieProvider>
+  );
+};
+
+const CookieProvider = ({ cookies, children }: { cookies: CookieContainer; children?: ReactNode }) => {
   const [value, setValueCore] = useState(cookies);
   const valueRef = useRef(cookies);
 
@@ -41,6 +61,36 @@ const ConfigProvider = ({ cookies, children }: { cookies: CookieContainer; child
     <CookieContext.Provider value={useMemo(() => [value, setValue], [value, setValue])}>
       {children}
     </CookieContext.Provider>
+  );
+};
+
+const ClientInfoProvider = ({
+  info,
+  children,
+}: {
+  info?: GetInfoResponse | GetInfoAuthenticatedResponse;
+  children?: ReactNode;
+}) => {
+  const language = info && "user" in info ? info.user.language : LanguageType.EnUS;
+  const localization = useMemo(() => {
+    let result = getFlatLocalization(language);
+
+    if (language !== LanguageType.EnUS) {
+      result = {
+        ...getFlatLocalization(LanguageType.EnUS),
+        ...result,
+      };
+    }
+
+    return result;
+  }, [language]);
+
+  return (
+    <ClientInfoContext.Provider value={info}>
+      <IntlProvider locale={language} messages={localization}>
+        {children}
+      </IntlProvider>
+    </ClientInfoContext.Provider>
   );
 };
 
