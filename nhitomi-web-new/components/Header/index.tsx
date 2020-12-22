@@ -1,11 +1,12 @@
 import React, { memo, ReactNode, useState } from "react";
 import { chakra, HStack } from "@chakra-ui/react";
-import IconItem from "./IconItem";
-import { FaSearch } from "react-icons/fa";
+import ButtonItem from "./ButtonItem";
+import { FaCog, FaSearch } from "react-icons/fa";
 import SearchOverlay from "./SearchOverlay";
 import LayoutBody from "../LayoutBody";
 import StickyOverlay from "./StickyOverlay";
 import { useT } from "../../locales";
+import LinkItem from "./LinkItem";
 
 const Header = ({ title, menu, shadow }: { title?: ReactNode; menu?: ReactNode; shadow?: boolean }) => {
   const t = useT();
@@ -24,7 +25,8 @@ const Header = ({ title, menu, shadow }: { title?: ReactNode; menu?: ReactNode; 
 
             {menu}
 
-            <IconItem name={t("Header.search")} icon={FaSearch} onClick={() => setSearch(true)} />
+            <ButtonItem name={t("Header.search")} icon={FaSearch} onClick={() => setSearch(true)} />
+            <LinkItem name={t("Header.settings")} icon={FaCog} href="/settings" />
           </HStack>
         </LayoutBody>
       </StickyOverlay>

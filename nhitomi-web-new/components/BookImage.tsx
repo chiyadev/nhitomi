@@ -5,6 +5,8 @@ import { useBlobUrl } from "../utils/hooks";
 import { IntersectionOptions, useInView } from "react-intersection-observer";
 import { createApiClient } from "../utils/client";
 import TransparentPixel from "../assets/TransparentPixel.png";
+import { useConfig } from "../utils/config";
+import { getSfwPlaceholder } from "../utils/sfw";
 
 const BookImage = ({
   className,
@@ -29,6 +31,8 @@ const BookImage = ({
     ...intersection,
     triggerOnce: true,
   });
+
+  const [sfw] = useConfig("sfw");
 
   const [result, setResult] = useState<Blob | Error>();
   const [loading, setLoading] = useState(false);
@@ -58,11 +62,17 @@ const BookImage = ({
         const client = createApiClient();
 
         if (client) {
-          const data = await client.book.getBookImage({
-            id: book.id,
-            contentId: content.id,
-            index,
-          });
+          let data: Blob;
+
+          if (sfw) {
+            data = await getSfwPlaceholder();
+          } else {
+            data = await client.book.getBookImage({
+              id: book.id,
+              contentId: content.id,
+              index,
+            });
+          }
 
           await onLoaded?.(data);
 

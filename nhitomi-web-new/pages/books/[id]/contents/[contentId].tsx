@@ -1,6 +1,6 @@
 import React, { memo, useMemo, useState } from "react";
 import { GetServerSideProps } from "next";
-import { createApiClient } from "../../../../../utils/client";
+import { createApiClient } from "../../../../utils/client";
 import {
   Book,
   BookFromJSON,
@@ -9,25 +9,25 @@ import {
   GetInfoAuthenticatedResponseFromJSON,
   GetInfoAuthenticatedResponseToJSON,
 } from "nhitomi-api";
-import Layout from "../../../../../components/Layout";
-import ErrorPage from "../../../../../components/ErrorPage";
-import { CookieContainer, parseConfigs } from "../../../../../utils/config";
-import ConfigProvider from "../../../../../components/ConfigProvider";
-import Info from "../../../../../components/BookReader/Info";
-import Background from "../../../../../components/BookReader/Background";
-import { useChangeCount } from "../../../../../utils/hooks";
-import PageDisplay from "../../../../../components/BookReader/PageDisplay";
+import Layout from "../../../../components/Layout";
+import ErrorPage from "../../../../components/ErrorPage";
+import { CookieContainer, parseConfigs } from "../../../../utils/config";
+import ConfigProvider from "../../../../components/ConfigProvider";
+import Info from "../../../../components/BookReader/Info";
+import Background from "../../../../components/BookReader/Background";
+import { useChangeCount } from "../../../../utils/hooks";
+import PageDisplay from "../../../../components/BookReader/PageDisplay";
 import { parseCookies } from "nookies";
-import { parseQueries } from "../../../../../utils/query";
-import { sanitizeProps } from "../../../../../utils/props";
-import LayoutBody from "../../../../../components/LayoutBody";
-import { ReaderScrollContext, ReaderScrollState } from "../../../../../components/BookReader/scroll";
-import ScrollKeyHandler from "../../../../../components/ScrollKeyHandler";
+import { parseQueries } from "../../../../utils/query";
+import { sanitizeProps } from "../../../../utils/props";
+import LayoutBody from "../../../../components/LayoutBody";
+import { ReaderScrollContext, ReaderScrollState } from "../../../../components/BookReader/scroll";
+import ScrollKeyHandler from "../../../../components/ScrollKeyHandler";
 import { useInView } from "react-intersection-observer";
 import { VStack } from "@chakra-ui/layout";
-import CursorManager from "../../../../../components/BookReader/CursorManager";
-import Header from "../../../../../components/Header";
-import HeaderTitle from "../../../../../components/BookReader/HeaderTitle";
+import CursorManager from "../../../../components/BookReader/CursorManager";
+import Header from "../../../../components/Header";
+import HeaderTitle from "../../../../components/BookReader/HeaderTitle";
 
 type Props = {
   cookies: CookieContainer;

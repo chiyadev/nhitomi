@@ -38,7 +38,9 @@ const TagList = ({ book, content }: { book: Book; content: BookContent }) => {
 
 const Row = ({ name, children }: { name: ReactNode; children?: ReactNode }) => (
   <VStack align="start" spacing={1}>
-    <chakra.div color="gray.500">{name}</chakra.div>
+    <chakra.div fontSize="sm" color="gray.500">
+      {name}
+    </chakra.div>
     {children}
   </VStack>
 );

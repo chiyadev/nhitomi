@@ -17,7 +17,7 @@ import {
   WrapItem,
 } from "@chakra-ui/react";
 import { LanguageTypes, ScraperIcons, ScraperTypes } from "../../../utils/constants";
-import Router from "next/router";
+import { useRouter } from "next/router";
 import { FaExternalLinkAlt } from "react-icons/fa";
 import { useT } from "../../../locales";
 
@@ -51,6 +51,7 @@ const Item = ({
   selectedContent: BookContent;
 }) => {
   const t = useT();
+  const router = useRouter();
 
   return (
     <WrapItem>
@@ -86,7 +87,7 @@ const Item = ({
                           if (!e.ctrlKey && !e.shiftKey && !e.altKey) {
                             e.preventDefault();
 
-                            await Router.push({
+                            await router.push({
                               pathname: readerUrl,
                             });
                           }

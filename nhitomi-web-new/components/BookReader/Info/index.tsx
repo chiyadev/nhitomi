@@ -47,7 +47,7 @@ const Info = ({ book, content }: { book: Book; content: BookContent }) => {
 
           <TagList book={book} content={content} />
 
-          <VStack align="start" spacing={0} color="gray.200">
+          <chakra.div color="gray.200">
             <InfoLine icon={AiOutlineRead}>{t("BookReader.Info.pageCount", { count: content.pageCount })}</InfoLine>
             <InfoLine icon={AiOutlineUpload}>
               {t("BookReader.Info.createdTime", { time: <DateDisplay date={book.createdTime} /> })}
@@ -55,7 +55,7 @@ const Info = ({ book, content }: { book: Book; content: BookContent }) => {
             <InfoLine icon={AiOutlineHistory}>
               {t("BookReader.Info.updatedTime", { time: <DateDisplay date={book.updatedTime} /> })}
             </InfoLine>
-          </VStack>
+          </chakra.div>
         </VStack>
       </chakra.div>
     </Flex>

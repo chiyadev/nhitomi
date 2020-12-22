@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useHotkeys, useIsHotkeyPressed } from "react-hotkeys-hook";
+import { useToast } from "@chakra-ui/react";
+import { useT } from "../locales";
 
 export function useTimerOnce(ms: number) {
   const [value, setValue] = useState(false);
@@ -103,4 +105,19 @@ export function useHotkeyState(keys: string) {
   );
 
   return state;
+}
+
+export function useErrorToast() {
+  const t = useT();
+  const toast = useToast();
+
+  return (error: Error) => {
+    return toast({
+      title: t("error"),
+      description: error.message,
+      position: "top-right",
+      status: "error",
+      isClosable: true,
+    });
+  };
 }

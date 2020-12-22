@@ -1726,10 +1726,10 @@
     source-map "^0.5.7"
     stylis "^4.0.3"
 
-"@emotion/cache@^11.0.0":
-  version "11.0.0"
-  resolved "https://registry.yarnpkg.com/@emotion/cache/-/cache-11.0.0.tgz#473adcaf9e04c6a0e30fb1421e79a209a96818f8"
-  integrity sha512-NStfcnLkL5vj3mBILvkR2m/5vFxo3G0QEreYKDGHNHm9IMYoT/t3j6xwjx6lMI/S1LUJfVHQqn0m9wSINttTTQ==
+"@emotion/cache@^11.1.3":
+  version "11.1.3"
+  resolved "https://registry.yarnpkg.com/@emotion/cache/-/cache-11.1.3.tgz#c7683a9484bcd38d5562f2b9947873cf66829afd"
+  integrity sha512-n4OWinUPJVaP6fXxWZD9OUeQ0lY7DvtmtSuqtRWT0Ofo/sBLCVSgb4/Oa0Q5eFxcwablRKjUXqXtNZVyEwCAuA==
   dependencies:
     "@emotion/memoize" "^0.7.4"
     "@emotion/sheet" "^1.0.0"
@@ -1767,12 +1767,12 @@
   integrity sha512-igX9a37DR2ZPGYtV6suZ6whr8pTFtyHL3K/oLUotxpSVO2ASaprmAe2Dkq7tBo7CRY7MMDrAa9nuQP9/YG8FxQ==
 
 "@emotion/react@^11.1.1":
-  version "11.1.2"
-  resolved "https://registry.yarnpkg.com/@emotion/react/-/react-11.1.2.tgz#a635cfc6bc0974756f690b848c684338183b2593"
-  integrity sha512-zEpxynUhHm2GqjY556RnA12Ijt0v6rYUwV6WliyGoFbQKJKkXFuTzGHGQx4UY2jKUV1I4yjr66Ajj/qoQMVPeQ==
+  version "11.1.3"
+  resolved "https://registry.yarnpkg.com/@emotion/react/-/react-11.1.3.tgz#4a33f9bfdbcbe2d5449f5d44e48fca045b86dcc0"
+  integrity sha512-4kTKUm321key/capzff/AEIm8ow9IrcYltqaMQVdKlqMTUQpoO9GozDnDG1YXLYzgFnxYTZUbok3Z0vudylxiA==
   dependencies:
     "@babel/runtime" "^7.7.2"
-    "@emotion/cache" "^11.0.0"
+    "@emotion/cache" "^11.1.3"
     "@emotion/serialize" "^1.0.0"
     "@emotion/sheet" "^1.0.1"
     "@emotion/utils" "^1.0.0"
@@ -2130,20 +2130,20 @@
     "@types/yargs" "^15.0.0"
     chalk "^4.0.0"
 
-"@nestjs/common@7.6.3":
-  version "7.6.3"
-  resolved "https://registry.yarnpkg.com/@nestjs/common/-/common-7.6.3.tgz#95cd05af4f8f023b7ba34fd27e9fa5f3ce2b8da7"
-  integrity sha512-y6aOMZfWSBnAPi2g/UuhK0IIGNafIvgxAmOVjw9punui1mFpkBe0c0hkEnUOG3iDEVncqooqEgln48D160JA5g==
+"@nestjs/common@7.6.4":
+  version "7.6.4"
+  resolved "https://registry.yarnpkg.com/@nestjs/common/-/common-7.6.4.tgz#eabb92cc7f910a0d0d008b62eab57b7e93cef1dc"
+  integrity sha512-hpMqn26ec6sjmWmXoiOksWi3wzAn6laF1qNhb3PSikRpaafjzba1m+/vABdAqZ8JOrcrN6gQs5IjtwyzhTurzQ==
   dependencies:
     axios "0.21.0"
     iterare "1.2.1"
     tslib "2.0.3"
     uuid "8.3.2"
 
-"@nestjs/core@7.6.3":
-  version "7.6.3"
-  resolved "https://registry.yarnpkg.com/@nestjs/core/-/core-7.6.3.tgz#0b3c3518b6ec5e2ca3d5751820d4142639e3c24f"
-  integrity sha512-sOtIcuEYoj0PXhF/aULIXAUS5SW9wYLGkIAtkk8DMjW2CJJkCuAPIQk7LIqAS6tRDnXTluexnQ6artolVd/iDg==
+"@nestjs/core@7.6.4":
+  version "7.6.4"
+  resolved "https://registry.yarnpkg.com/@nestjs/core/-/core-7.6.4.tgz#90f9f1aec7bc5abc3b3eb477277c3bd8bdd25d3e"
+  integrity sha512-lKLlrWKf5Uo9wLH7vyrOvLYnhlfva7jlXsbevaQWKGQxp0N9F+eScvpWXv3xB2BTrFKmgBz2Z7h5KS/DWVteng==
   dependencies:
     "@nuxtjs/opencollective" "0.3.2"
     fast-safe-stringify "2.0.7"
@@ -2222,12 +2222,12 @@
     node-fetch "^2.6.1"
 
 "@openapitools/openapi-generator-cli@^2.1.5":
-  version "2.1.12"
-  resolved "https://registry.yarnpkg.com/@openapitools/openapi-generator-cli/-/openapi-generator-cli-2.1.12.tgz#c38fb110f1f1fa19b4c940efcbf1fcdaf8cc6de8"
-  integrity sha512-r/L5Fy5TBvWTYugqIJhsGUcC9f8godhtGiqMFkhm7vqBiM7MQj5jgV0pqBbFagHHb84tL3p1fqIeL0dW1I5vqA==
+  version "2.1.13"
+  resolved "https://registry.yarnpkg.com/@openapitools/openapi-generator-cli/-/openapi-generator-cli-2.1.13.tgz#04bcbbc2c28f93cde1036ffc66f6fb3c3949bbc6"
+  integrity sha512-XZELTyPA00QHNVRqnr2jr7T5yUCCTVnwDQaaS8aNc1yR6Fr9aFD/odZB9wWi1Bcod04wO1RVVy9zNlBAE8/JaQ==
   dependencies:
-    "@nestjs/common" "7.6.3"
-    "@nestjs/core" "7.6.3"
+    "@nestjs/common" "7.6.4"
+    "@nestjs/core" "7.6.4"
     "@nuxtjs/opencollective" "0.3.2"
     chalk "4.1.0"
     commander "6.2.1"
@@ -2744,6 +2744,13 @@
   version "16.9.9"
   resolved "https://registry.yarnpkg.com/@types/react-dom/-/react-dom-16.9.9.tgz#d2d0a6f720a0206369ccbefff752ba37b9583136"
   integrity sha512-jE16FNWO3Logq/Lf+yvEAjKzhpST/Eac8EMd1i4dgZdMczfgqC8EjpxwNgEe3SExHYLliabXDh9DEhhqnlXJhg==
+  dependencies:
+    "@types/react" "*"
+
+"@types/react-world-flags@^1.4.0":
+  version "1.4.0"
+  resolved "https://registry.yarnpkg.com/@types/react-world-flags/-/react-world-flags-1.4.0.tgz#e6f1156cf53cd9d2eb8b6e9a856628956ce7f38a"
+  integrity sha512-t69jl82ujAIXtAyUfCIl/dM6cDfjCyjFcMlNUB+5yaVaEq8TTcTpLMtLLeg3H56OK2JN1CD54IknSZvaT+IOhw==
   dependencies:
     "@types/react" "*"
 
@@ -10928,11 +10935,6 @@ react-fast-compare@3.2.0:
   resolved "https://registry.yarnpkg.com/react-fast-compare/-/react-fast-compare-3.2.0.tgz#641a9da81b6a6320f270e89724fb45a0b39e43bb"
   integrity sha512-rtGImPZ0YyLrscKI9xTpV8psd6I8VAtjKCzQDlzyDvqJA8XOW78TXYQwNRNd8g8JZnDu8q9Fu/1v4HPAVwVdHA==
 
-react-flag-kit@^0.3.1:
-  version "0.3.1"
-  resolved "https://registry.yarnpkg.com/react-flag-kit/-/react-flag-kit-0.3.1.tgz#31f93c26d50c8915d27c46f76a34e37aa8a7b164"
-  integrity sha512-mxbw6tF0JVHqsIP4s70LaqhLtAF3utljg2h9/cVLewoYhJNx52byQAerXO1jnnOIMOh717u31Y4c1lEyfpB3BQ==
-
 react-focus-lock@2.4.1:
   version "2.4.1"
   resolved "https://registry.yarnpkg.com/react-focus-lock/-/react-focus-lock-2.4.1.tgz#e842cc93da736b5c5d331799012544295cbcee4f"
@@ -11102,6 +11104,14 @@ react-style-singleton@^2.1.0:
     get-nonce "^1.0.0"
     invariant "^2.2.4"
     tslib "^1.0.0"
+
+react-world-flags@^1.4.0:
+  version "1.4.0"
+  resolved "https://registry.yarnpkg.com/react-world-flags/-/react-world-flags-1.4.0.tgz#1634f9e39510309d94675cb1eaee37c9ecc44d28"
+  integrity sha512-SkOzl/v6LYBphJNSeeQXTogAiLZN1Yy2HFx2Qjda/82MCWFimj9cenmOXASbfbKeqFbo/17M8HauY6mfzWmTDw==
+  dependencies:
+    svg-country-flags "^1.2.7"
+    world-countries "^4.0.0"
 
 react@^16.12.0:
   version "16.14.0"
@@ -12514,6 +12524,11 @@ supports-hyperlinks@^2.0.0:
     has-flag "^4.0.0"
     supports-color "^7.0.0"
 
+svg-country-flags@^1.2.7:
+  version "1.2.9"
+  resolved "https://registry.yarnpkg.com/svg-country-flags/-/svg-country-flags-1.2.9.tgz#f50136f33e6e9c036943a293b17d4c2e745cbbfb"
+  integrity sha512-P/0e635dopb0Yqt2qGbx88KiRG1+xou+QOiS4qiCLRE985zk4sxKQeMJYjc9/2PuUSOqvBv+roSklG7ZfglRmA==
+
 svg-parser@^2.0.2:
   version "2.0.4"
   resolved "https://registry.yarnpkg.com/svg-parser/-/svg-parser-2.0.4.tgz#fdc2e29e13951736140b76cb122c8ee6630eb6b5"
@@ -13714,6 +13729,11 @@ worker-rpc@^0.1.0:
   integrity sha512-P1WjMrUB3qgJNI9jfmpZ/htmBEjFh//6l/5y8SD9hg1Ef5zTTVVoRjTrTEzPrNBQvmhMxkoTsjOXN10GWU7aCg==
   dependencies:
     microevent.ts "~0.1.1"
+
+world-countries@^4.0.0:
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/world-countries/-/world-countries-4.0.0.tgz#a14757e2240d8c16249e3c6e6cdcd61d119a042d"
+  integrity sha512-LsFFYmggquj0U+i7VUaJOZYz5F4QNu+oceGw8odnyVHMT2LxYSdVncqdouOEnq1esr7yCakp9+3BZTztuSw1Pg==
 
 wrap-ansi@^5.1.0:
   version "5.1.0"

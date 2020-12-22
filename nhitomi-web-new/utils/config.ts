@@ -1,6 +1,5 @@
 import { createContext, Dispatch, SetStateAction, useCallback, useContext, useMemo } from "react";
-import { LanguageType, ScraperType } from "nhitomi-api";
-import { ScraperTypes } from "./constants";
+import { LanguageType } from "nhitomi-api";
 
 export type CookieContainer = Record<string, string | undefined>;
 export const CookieContext = createContext<[CookieContainer, Dispatch<SetStateAction<CookieContainer>>]>([
@@ -34,7 +33,7 @@ export function useCookieString(key: string): [string | undefined, Dispatch<SetS
 export type Configs = {
   token?: string;
   searchLanguages: LanguageType[];
-  searchSources: ScraperType[];
+  sfw: boolean;
 
   bookViewportBound: boolean;
   bookLeftToRight: boolean;
@@ -45,7 +44,7 @@ export type Configs = {
 export const DefaultConfigs: Configs = {
   token: undefined,
   searchLanguages: [LanguageType.EnUS, LanguageType.JaJP],
-  searchSources: ScraperTypes,
+  sfw: false,
 
   bookViewportBound: false,
   bookLeftToRight: false,
@@ -88,7 +87,7 @@ export function useConfig<TKey extends keyof Configs>(
           }
         });
       },
-      [key]
+      [key, setValue]
     ),
   ];
 }

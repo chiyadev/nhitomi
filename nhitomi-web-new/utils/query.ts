@@ -2,6 +2,7 @@ import Router, { useRouter } from "next/router";
 import { SetStateAction, useCallback, useMemo } from "react";
 import { BookSort, SortDirection } from "nhitomi-api";
 import { ParsedUrlQuery } from "querystring";
+import { ScraperTypes } from "./constants";
 
 type Dispatch<T = any> = (value: T, mode?: "replace" | "push") => Promise<boolean>;
 
@@ -41,6 +42,7 @@ export type Queries = {
   query: string;
   sort: BookSort;
   order: SortDirection;
+  source: string;
 };
 
 export const DefaultQueries: Queries = {
@@ -49,6 +51,7 @@ export const DefaultQueries: Queries = {
   query: "",
   sort: BookSort.UpdatedTime,
   order: SortDirection.Descending,
+  source: ScraperTypes.join(","),
 };
 
 function parseValueOrDefault(key: keyof Queries, value?: string | string[]): any {

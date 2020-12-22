@@ -1,14 +1,15 @@
 import React, { memo } from "react";
 import { GetServerSideProps } from "next";
-import { createApiClient } from "../../../utils/client";
-import { selectBookContent } from "../../../utils/book";
-import { CookieContainer, parseConfigs } from "../../../utils/config";
-import ConfigProvider from "../../../components/ConfigProvider";
+import { createApiClient } from "../../utils/client";
+import { selectBookContent } from "../../utils/book";
+import { CookieContainer, parseConfigs } from "../../utils/config";
+import ConfigProvider from "../../components/ConfigProvider";
 import { parseCookies } from "nookies";
-import { parseQueries } from "../../../utils/query";
-import ErrorPage from "../../../components/ErrorPage";
-import { sanitizeProps } from "../../../utils/props";
-import { useChangeCount } from "../../../utils/hooks";
+import { parseQueries } from "../../utils/query";
+import ErrorPage from "../../components/ErrorPage";
+import { sanitizeProps } from "../../utils/props";
+import { useChangeCount } from "../../utils/hooks";
+import { ScraperType } from "nhitomi-api";
 
 type Props = {
   cookies: CookieContainer;
@@ -20,8 +21,8 @@ type Props = {
 
 export const getServerSideProps: GetServerSideProps<Props> = async (ctx) => {
   const cookies = parseCookies(ctx);
-  const { token, searchLanguages, searchSources } = parseConfigs(cookies);
-  const { id } = parseQueries(ctx.query);
+  const { token, searchLanguages } = parseConfigs(cookies);
+  const { id, source } = parseQueries(ctx.query);
 
   try {
     const client = createApiClient(token);
@@ -36,7 +37,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async (ctx) => {
     }
 
     const book = await client.book.getBook({ id });
-    const content = selectBookContent(book.contents, searchLanguages, searchSources);
+    const content = selectBookContent(book.contents, searchLanguages, source.split(",") as ScraperType[]);
 
     return {
       redirect: {

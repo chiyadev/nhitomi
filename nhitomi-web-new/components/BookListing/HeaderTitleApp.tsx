@@ -10,9 +10,7 @@ const HeaderTitleApp = () => {
         <Link>
           <HStack spacing={2}>
             <chakra.img src={Logo40x40} w={6} />
-            <Heading size="md">
-              <div>nhitomi</div>
-            </Heading>
+            <Heading size="md">nhitomi</Heading>
           </HStack>
         </Link>
       </NextLink>

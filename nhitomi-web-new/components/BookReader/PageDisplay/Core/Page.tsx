@@ -18,34 +18,38 @@ const Page = ({
   setImage: Dispatch<SetStateAction<ImageInfo | undefined>>;
 }) => {
   return (
-    <BookImage
-      position="absolute"
-      book={book}
-      content={content}
-      index={index}
-      intersection={useMemo(() => ({ rootMargin: "100%" }), [])}
+    <div
       style={useMemo(
         () => ({
-          left: image.x,
-          top: image.y,
+          position: "absolute",
+          transform: `translate(${image.x}px, ${image.y}px)`,
           width: image.width,
           height: image.height,
         }),
         [image.x, image.y, image.width, image.height]
       )}
-      onLoaded={useCallback(
-        async (data: Blob) => {
-          const result = probeImage(await new Response(data).arrayBuffer());
+    >
+      <BookImage
+        book={book}
+        content={content}
+        index={index}
+        intersection={useMemo(() => ({ rootMargin: "100%" }), [])}
+        w="full"
+        h="full"
+        onLoaded={useCallback(
+          async (data: Blob) => {
+            const result = probeImage(await new Response(data).arrayBuffer());
 
-          if (result) {
-            setImage(result);
-          } else {
-            throw Error(`Could not detect image dimensions for ${book.id}/${content.id}/${index}.`);
-          }
-        },
-        [setImage]
-      )}
-    />
+            if (result) {
+              setImage(result);
+            } else {
+              throw Error(`Could not detect image dimensions for ${book.id}/${content.id}/${index}.`);
+            }
+          },
+          [setImage]
+        )}
+      />
+    </div>
   );
 };
 

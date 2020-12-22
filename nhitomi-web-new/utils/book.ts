@@ -11,8 +11,9 @@ import {
   ScraperType,
   SortDirection,
 } from "nhitomi-api";
-import { BookTags } from "./constants";
+import { BookTags, LanguageTypes, ScraperTypes } from "./constants";
 import { useConfig } from "./config";
+import { useQuery } from "./query";
 
 export function useBookContent(book: Book) {
   const selector = useBookContentSelector();
@@ -21,9 +22,17 @@ export function useBookContent(book: Book) {
 
 export function useBookContentSelector(): (contents: BookContent[]) => BookContent {
   const [languages] = useConfig("searchLanguages");
-  const [sources] = useConfig("searchSources");
+  const [source] = useQuery("source");
 
-  return useCallback((contents) => selectBookContent(contents, languages, sources), [languages, sources]);
+  return useCallback((contents) => selectBookContent(contents, languages, source.split(",") as ScraperType[]), [
+    languages,
+    source,
+  ]);
+}
+
+function reorderByRef<T>(array: T[], reference: T[]) {
+  const set = new Set(array);
+  return reference.filter((v) => set.has(v));
 }
 
 export function selectBookContent(
@@ -31,6 +40,9 @@ export function selectBookContent(
   languages: LanguageType[],
   sources: ScraperType[]
 ): BookContent {
+  languages = reorderByRef(languages, LanguageTypes);
+  sources = reorderByRef(sources, ScraperTypes);
+
   return contents.sort((a, b) => {
     function indexCompare<T>(array: T[], a: T, b: T) {
       const x = array.indexOf(a);

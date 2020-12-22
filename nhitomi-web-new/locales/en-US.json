@@ -1,7 +1,12 @@
 {
+  "error": "An error occurred.",
   "BookListing": {
+    "title": "Books",
     "HeaderMenu": {
       "sort": "Sort"
+    },
+    "HeaderTitleQuery": {
+      "cancel": "Cancel"
     },
     "QueryDrawer": {
       "title": "Query Options",
@@ -10,6 +15,9 @@
       },
       "OrderRadio": {
         "title": "Order"
+      },
+      "SourceCheck": {
+        "title": "Sources"
       }
     }
   },
@@ -25,6 +33,7 @@
   },
   "Header": {
     "search": "Search",
+    "settings": "Settings",
     "SearchOverlay": {
       "Suggest": {
         "tagHint": "use {up}{down}",
@@ -37,9 +46,81 @@
     }
   },
   "Footer": {
-    "github": "GitHub",
     "discord": "Discord",
-    "api": "API"
+    "github": "GitHub",
+    "api": "API",
+    "chiya": "chiya.dev"
+  },
+  "Settings": {
+    "title": "Settings",
+    "user": "User",
+    "appearance": "Appearance",
+    "reader": "Reader",
+    "debug": "Debug",
+    "HeaderTitle": {
+      "title": "Settings",
+      "description": "Customize nhitomi's appearance and behavior."
+    },
+    "User": {
+      "Account": {
+        "title": "Account",
+        "description": "You are signed in as {username}.",
+        "signOut": "Sign out"
+      },
+      "Token": {
+        "title": "API",
+        "description": "This is your API access information.",
+        "docLink": "View API documentation",
+        "copy": "Click to copy",
+        "copied": "Copied to clipboard",
+        "token": "Access token:",
+        "warning": "Do not share this token with others, because your account security can be compromised."
+      }
+    },
+    "Appearance": {
+      "DisplayLanguage": {
+        "title": "Display Language",
+        "description": "Display language affects the website UI and the Discord bot."
+      },
+      "SearchLanguages": {
+        "title": "Search Languages",
+        "description": "Search language affects search results."
+      }
+    },
+    "Reader": {
+      "ViewportBound": {
+        "title": "Bind to viewport size",
+        "description": "Ensure images do not overflow outside viewport.",
+        "toggle": "{value, select, true {On} false {Off}}"
+      },
+      "LeftToRight": {
+        "title": "Page ordering",
+        "description": "Change the horizontal order of pages.",
+        "toggle": "{value, select, true {Left to right} false {Right to left}}"
+      },
+      "ImagesPerRow": {
+        "title": "Pages per row",
+        "description": "Limit the number of pages in each row.",
+        "toggle": "{value, select, 1 {One page} 2 {Two pages}}"
+      },
+      "SingleCover": {
+        "title": "Cover as single page",
+        "description": "Show the cover image as a single page row.",
+        "toggle": "{value, select, true {On} false {Off}}"
+      }
+    },
+    "Debug": {
+      "Maintenance": {
+        "title": "Maintenance",
+        "description": "Toggle server maintenance mode.",
+        "toggle": "{value, select, true {Enable} false {Disable}}"
+      },
+      "SfwMode": {
+        "title": "SFW Mode",
+        "description": "All images will be replaced with placeholders.",
+        "toggle": "{value, select, true {Enabled} false {Disabled}}"
+      }
+    }
   },
   "SortDirection": "{value, select, ascending {Ascending} descending {Descending} other {{value}}}",
   "BookTag": "{value, select, artist {Artist} circle {Circle} character {Character} parody {Parody} series {Series} convention {Convention} metadata {Metadata} tag {Tag} other {{value}}}",

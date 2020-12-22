@@ -1,7 +1,12 @@
 {
+  "error": "エラーが発生しました。",
   "BookListing": {
+    "title": "ブックス",
     "HeaderMenu": {
       "sort": "並び替え"
+    },
+    "HeaderTitleQuery": {
+      "cancel": "キャンセル"
     },
     "QueryDrawer": {
       "title": "検索オプション",
@@ -10,6 +15,9 @@
       },
       "OrderRadio": {
         "title": "並び順"
+      },
+      "SourceCheck": {
+        "title": "サイト"
       }
     }
   },
@@ -25,6 +33,7 @@
   },
   "Header": {
     "search": "検索",
+    "settings": "設定",
     "SearchOverlay": {
       "Suggest": {
         "tagHint": "{up}{down}で選択",
@@ -33,6 +42,77 @@
       },
       "Input": {
         "placeholder": "nhitomiでなんでも検索... (英語入力)"
+      }
+    }
+  },
+  "Settings": {
+    "title": "設定",
+    "user": "ユーザー",
+    "appearance": "外見",
+    "reader": "リーダー",
+    "debug": "デバッグ",
+    "HeaderTitle": {
+      "title": "設定",
+      "description": "nhitomiの外見や行動が変更できます。"
+    },
+    "User": {
+      "Account": {
+        "title": "アカウント",
+        "description": "あなたは{username}さんです。",
+        "signOut": "ログアウト"
+      },
+      "Token": {
+        "title": "API",
+        "description": "あなたのAPIアクセス情報です。",
+        "docLink": "APIドキュメントを見に行く",
+        "copy": "トークンをコピーする",
+        "copied": "トークンをコピーしました",
+        "token": "アクセストークン:",
+        "warning": "このトークンが流出されないようにご注意ください。アカウントのセキュリティが侵害される可能性があります。"
+      }
+    },
+    "Appearance": {
+      "DisplayLanguage": {
+        "title": "表示言語",
+        "description": "表示言語はウェッブサイトとディスコードBotのインターフェース言語を変更します。"
+      },
+      "SearchLanguages": {
+        "title": "検索言語",
+        "description": "検索言語は検索結果に影響を与えます。"
+      }
+    },
+    "Reader": {
+      "ViewportBound": {
+        "title": "画面サイズに固定",
+        "description": "画像が画面の外に出ないようにサイズを固定します。",
+        "toggle": "{value, select, true {オン} false {オフ}}"
+      },
+      "LeftToRight": {
+        "title": "ページの並べ方",
+        "description": "ページの並び順を変更します。",
+        "toggle": "{value, select, true {左開き} false {右開き}}"
+      },
+      "ImagesPerRow": {
+        "title": "1行あたりのページ数",
+        "description": "1行に含められるページの数を限ります。",
+        "toggle": "{value, select, 1 {1枚} 2 {2枚}}"
+      },
+      "SingleCover": {
+        "title": "表紙の行は1枚に制限",
+        "description": "最初の行のページ数を1枚に限ります。",
+        "toggle": "{value, select, true {オン} false {オフ}}"
+      }
+    },
+    "Debug": {
+      "Maintenance": {
+        "title": "メンテナンス",
+        "description": "メンテナンスモードが開始できます。",
+        "toggle": "{value, select, true {オン} false {オフ}}"
+      },
+      "SfwMode": {
+        "title": "SFWモード",
+        "description": "全ての画像をプレースホルダーに代えます。",
+        "toggle": "{value, select, true {オン} false {オフ}}"
       }
     }
   },

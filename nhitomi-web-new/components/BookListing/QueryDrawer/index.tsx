@@ -11,6 +11,7 @@ import {
 import { useT } from "../../../locales";
 import SortRadio from "./SortRadio";
 import OrderRadio from "./OrderRadio";
+import SourceCheck from "./SourceCheck";
 
 const QueryDrawer = ({ open, setOpen }: { open: boolean; setOpen: Dispatch<boolean> }) => {
   const t = useT();
@@ -26,6 +27,7 @@ const QueryDrawer = ({ open, setOpen }: { open: boolean; setOpen: Dispatch<boole
             <VStack align="stretch" spacing={8}>
               <SortRadio setOpen={setOpen} />
               <OrderRadio setOpen={setOpen} />
+              <SourceCheck setOpen={setOpen} />
             </VStack>
           </DrawerBody>
         </DrawerContent>

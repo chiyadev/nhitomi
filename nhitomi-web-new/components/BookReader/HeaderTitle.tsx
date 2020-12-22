@@ -16,9 +16,9 @@ const HeaderTitle = ({ book, content }: { book: Book; content: BookContent }) =>
 
       {artist && (
         <NextLink href={{ pathname: "/books", query: { query: `artist:${artist.replace(/ /g, "_")}` } }} passHref>
-          <Heading as={Link} size="sm" color="gray.500" isTruncated>
+          <Link fontSize="sm" color="gray.500" isTruncated>
             {artist}
-          </Heading>
+          </Link>
         </NextLink>
       )}
     </HStack>

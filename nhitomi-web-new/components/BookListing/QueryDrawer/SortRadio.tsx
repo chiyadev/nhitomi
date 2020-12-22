@@ -1,16 +1,20 @@
 import React, { Dispatch, memo } from "react";
-import { Heading, HStack, Icon, Radio, RadioGroup, VStack } from "@chakra-ui/react";
+import { Heading, HStack, Icon, Link, Radio, VStack } from "@chakra-ui/react";
 import { useQuery } from "../../../utils/query";
 import { BookSort } from "nhitomi-api";
 import { useT } from "../../../locales";
 import { FaSortAmountUp } from "react-icons/fa";
+import NextLink from "next/link";
+import { useRouter } from "next/router";
 
 const SortRadio = ({ setOpen }: { setOpen: Dispatch<boolean> }) => {
   const t = useT();
-  const [sort, setSort] = useQuery("sort");
+  const [current] = useQuery("sort");
+
+  const { query } = useRouter();
 
   return (
-    <VStack align="stretch" spacing={4}>
+    <VStack align="start" spacing={4}>
       <Heading size="sm">
         <HStack spacing={2}>
           <Icon as={FaSortAmountUp} />
@@ -18,23 +22,18 @@ const SortRadio = ({ setOpen }: { setOpen: Dispatch<boolean> }) => {
         </HStack>
       </Heading>
 
-      <RadioGroup
-        name="sort"
-        value={sort}
-        onChange={async (value) => {
-          setOpen(false);
-
-          await setSort(value as BookSort, "push");
-        }}
-      >
-        <VStack align="start" spacing={2}>
-          {Object.values(BookSort).map((sort) => (
-            <Radio key={sort} value={sort} cursor="pointer">
-              {t("BookSort", { value: sort })}
-            </Radio>
-          ))}
-        </VStack>
-      </RadioGroup>
+      <VStack align="start" spacing={2}>
+        {Object.values(BookSort).map((sort) => (
+          <NextLink key={sort} href={{ query: { ...query, sort } }} passHref>
+            <Link onClick={() => setOpen(false)}>
+              <HStack>
+                <Radio isChecked={sort === current} />
+                <div>{t("BookSort", { value: sort })}</div>
+              </HStack>
+            </Link>
+          </NextLink>
+        ))}
+      </VStack>
     </VStack>
   );
 };

@@ -5,6 +5,8 @@ import flatten from "flat";
 import { useCallback } from "react";
 import { useIntl } from "react-intl";
 
+export const AvailableLocalizations: LanguageType[] = [LanguageType.JaJP, LanguageType.EnUS];
+
 export function getLocalization(language: LanguageType) {
   switch (language) {
     default:
