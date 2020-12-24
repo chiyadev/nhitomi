@@ -8,6 +8,7 @@ import TagList from "./TagList";
 import { AiOutlineHistory, AiOutlineRead, AiOutlineUpload } from "react-icons/ai";
 import { useT } from "../../../locales";
 import DateDisplay from "../../DateDisplay";
+import Buttons from "./Buttons";
 
 const Info = ({ book, content }: { book: Book; content: BookContent }) => {
   const t = useT();
@@ -56,6 +57,8 @@ const Info = ({ book, content }: { book: Book; content: BookContent }) => {
               {t("BookReader.Info.updatedTime", { time: <DateDisplay date={book.updatedTime} /> })}
             </InfoLine>
           </chakra.div>
+
+          <Buttons book={book} content={content} />
         </VStack>
       </chakra.div>
     </Flex>

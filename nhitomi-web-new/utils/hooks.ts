@@ -15,9 +15,7 @@ export function useTimerOnce(ms: number) {
 
 export function useChangeCount(value: any) {
   const count = useRef(0);
-  useMemo(() => count.current++, [value]);
-
-  return count.current;
+  return useMemo(() => count.current++, [value]);
 }
 
 export function useLastValue<T>(value: T) {

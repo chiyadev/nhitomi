@@ -28,7 +28,22 @@
       "updatedTime": "{time}に更新",
       "TagList": {
         "sources": "サイト"
+      },
+      "Buttons": {
+        "favorite": "いいね",
+        "addToCollection": "コレクションに追加",
+        "download": "ダウンロード"
       }
+    }
+  },
+  "BookDownloader": {
+    "title": "ダウンロード中...",
+    "cancel": "キャンセル",
+    "close": "閉じる",
+    "Item": {
+      "downloaded": "{name}",
+      "processing": "プロセス中",
+      "done": "ダウンロード完了"
     }
   },
   "Header": {

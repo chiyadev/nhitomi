@@ -20,6 +20,7 @@ import { LanguageTypes, ScraperIcons, ScraperTypes } from "../../../utils/consta
 import { useRouter } from "next/router";
 import { FaExternalLinkAlt } from "react-icons/fa";
 import { useT } from "../../../locales";
+import { useClientInfo } from "../../../utils/client";
 
 const SourceList = ({ book, selectedContent }: { book: Book; selectedContent: BookContent }) => {
   return (
@@ -52,13 +53,14 @@ const Item = ({
 }) => {
   const t = useT();
   const router = useRouter();
+  const info = useClientInfo();
 
   return (
     <WrapItem>
       <Menu autoSelect={false} preventOverflow>
-        <MenuButton as={Tag} size="lg" cursor="pointer">
+        <MenuButton as={Tag} size="lg" cursor="pointer" tabIndex={0} transition="all 0.15s ease-out">
           <Avatar src={ScraperIcons[source]} size="xs" ml={-1} mr={2} verticalAlign="middle" />
-          <TagLabel verticalAlign="middle">{source}</TagLabel>
+          <TagLabel verticalAlign="middle">{info?.scrapers.find((s) => s.type === source)?.name}</TagLabel>
         </MenuButton>
 
         <MenuList>

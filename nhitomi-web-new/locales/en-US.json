@@ -28,7 +28,22 @@
       "updatedTime": "Updated on {time}",
       "TagList": {
         "sources": "Sources"
+      },
+      "Buttons": {
+        "favorite": "Favorite",
+        "addToCollection": "Add to collection",
+        "download": "Download"
       }
+    }
+  },
+  "BookDownloader": {
+    "title": "Downloading...",
+    "cancel": "Cancel",
+    "close": "Close",
+    "Item": {
+      "downloaded": "{name}",
+      "processing": "Processing...",
+      "done": "Download complete"
     }
   },
   "Header": {
