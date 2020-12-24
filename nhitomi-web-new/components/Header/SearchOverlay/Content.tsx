@@ -6,6 +6,8 @@ import { createApiClient } from "../../../utils/client";
 import { BookTag, SuggestItem } from "nhitomi-api";
 import levenshtein from "js-levenshtein";
 import { tokenizeBookQuery } from "../../../utils/book";
+import { useErrorToast } from "../../../utils/hooks";
+import { QueryChunkSize } from "../../../utils/constants";
 
 export type TagSuggestion = SuggestItem & { type: "tag"; tag: BookTag };
 export type BookSuggestion = SuggestItem & { type: "book" };
@@ -13,6 +15,8 @@ export type BookSuggestion = SuggestItem & { type: "book" };
 const Content = ({ value, setValue }: { value: string; setValue: (value: string) => Promise<void> }) => {
   const [display, setDisplay] = useState(value);
   const tokens = useMemo(() => tokenizeBookQuery(display), [display]);
+
+  const error = useErrorToast();
 
   const [load, setLoad] = useState(0);
   const setLoading = useCallback((value: boolean) => setLoad((i) => (value ? i + 1 : i - 1)), []);
@@ -77,14 +81,12 @@ const Content = ({ value, setValue }: { value: string; setValue: (value: string)
       item = item || suggest;
 
       if (force || !token || !item) {
-        if (display.trim()) {
-          setLoading(true);
+        setLoading(true);
 
-          try {
-            await setValue(display.trim());
-          } finally {
-            setLoading(false);
-          }
+        try {
+          await setValue(display.trim());
+        } finally {
+          setLoading(false);
         }
 
         return;
@@ -148,7 +150,7 @@ const Content = ({ value, setValue }: { value: string; setValue: (value: string)
           const result = await client.book.suggestBooks({
             suggestQuery: {
               fuzzy: true,
-              limit: 50,
+              limit: QueryChunkSize,
               prefix: suggestQuery,
             },
           });
@@ -179,6 +181,7 @@ const Content = ({ value, setValue }: { value: string; setValue: (value: string)
           return;
         } catch (e) {
           console.error(e);
+          error(e);
         } finally {
           setLoading(false);
         }
@@ -189,7 +192,7 @@ const Content = ({ value, setValue }: { value: string; setValue: (value: string)
       setSuggestTags([]);
       setSuggestBooks([]);
     }, 200);
-  }, [suggestQuery, setLoading]);
+  }, [suggestQuery, setLoading, error]);
 
   return (
     <Flex direction="column">

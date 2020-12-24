@@ -29,10 +29,18 @@
       "TagList": {
         "sources": "サイト"
       },
-      "Buttons": {
-        "favorite": "いいね",
-        "addToCollection": "コレクションに追加",
-        "download": "ダウンロード"
+      "FavoriteButton": {
+        "text": "いいね",
+        "toastTitle": "成功",
+        "toastDescription": "{book}を{collection}に追加しました。"
+      },
+      "AddToCollectionButton": {
+        "text": "コレクションに追加",
+        "toastTitle": "成功",
+        "toastDescription": "{book}を{collection}に追加しました。"
+      },
+      "DownloadButton": {
+        "text": "ダウンロード"
       }
     }
   },
@@ -46,8 +54,26 @@
       "done": "ダウンロード完了"
     }
   },
+  "CollectionSelector": {
+    "title": "コレクションを選択",
+    "create": "新規",
+    "search": "検索"
+  },
+  "CollectionCreator": {
+    "title": "コレクションを作成",
+    "create": "作成",
+    "cancel": "キャンセル",
+    "name": "名前",
+    "description": "説明",
+    "type": "タイプ"
+  },
+  "CollectionListing": {
+    "title": "コレクション",
+    "titleUser": "{user}さんのコレクション"
+  },
   "Header": {
     "search": "検索",
+    "collections": "コレクション",
     "settings": "設定",
     "SearchOverlay": {
       "Suggest": {
@@ -94,6 +120,11 @@
       "SearchLanguages": {
         "title": "検索言語",
         "description": "検索言語は検索結果に影響を与えます。"
+      },
+      "ForceInfoOverlay": {
+        "title": "常に情報オーバーレイを表示",
+        "description": "カーソルが項目を出てもオーバーレイを隠しません。",
+        "toggle": "{value, select, true {常に表示} false {カーソルが出ると隠す}}"
       }
     },
     "Reader": {

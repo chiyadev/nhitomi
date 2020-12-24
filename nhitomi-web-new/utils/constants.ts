@@ -2,6 +2,8 @@ import { BookTag, LanguageType, ScraperType } from "nhitomi-api";
 import nhentai from "../assets/Icons/nhentai.jpg";
 import Hitomi from "../assets/Icons/Hitomi.jpg";
 
+export const QueryChunkSize = 50;
+
 export const BookTags = [
   BookTag.Artist,
   BookTag.Circle,

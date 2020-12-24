@@ -1,11 +1,13 @@
 import React, { memo, useCallback, useEffect, useRef, useState } from "react";
 import { Center, Icon, Spinner } from "@chakra-ui/react";
 import { useInView } from "react-intersection-observer";
+import { useErrorToast } from "../../utils/hooks";
 
 const InfiniteLoader = ({ hasMore }: { hasMore: () => Promise<boolean> }) => {
   const runningRef = useRef(false);
   const visibleRef = useRef(false);
 
+  const error = useErrorToast();
   const [ref, visible] = useInView({ rootMargin: "100%" });
   const [end, setEnd] = useState(false);
 
@@ -22,6 +24,7 @@ const InfiniteLoader = ({ hasMore }: { hasMore: () => Promise<boolean> }) => {
           }
         } catch (e) {
           console.error(e);
+          error(e);
 
           setEnd(true);
           break;
@@ -32,7 +35,7 @@ const InfiniteLoader = ({ hasMore }: { hasMore: () => Promise<boolean> }) => {
     } finally {
       runningRef.current = false;
     }
-  }, [end, hasMore]);
+  }, [end, hasMore, error]);
 
   useEffect(() => {
     visibleRef.current = visible;

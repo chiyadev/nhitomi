@@ -4,12 +4,14 @@ import { AspectRatio, chakra, Link, SlideFade, Text } from "@chakra-ui/react";
 import BookImage from "../BookImage";
 import NextLink from "next/link";
 import { useBookContent } from "../../utils/book";
+import { useConfig } from "../../utils/config";
 
 const Item = ({ book }: { book: Book }) => {
+  const content = useBookContent(book);
+
+  const [forceOverlay] = useConfig("bookForceInfoOverlay");
   const [hover, setHover] = useState(false);
   const [focus, setFocus] = useState(false);
-
-  const content = useBookContent(book);
 
   return (
     <NextLink href={`/books/${book.id}/contents/${content.id}`} passHref>
@@ -37,7 +39,7 @@ const Item = ({ book }: { book: Book }) => {
           />
         </AspectRatio>
 
-        <SlideFade in={hover || focus}>
+        <SlideFade in={forceOverlay || hover || focus}>
           <chakra.div position="absolute" bottom={0} left={0} w="full" bg="white" color="black" p={1} opacity={0.9}>
             <Text fontWeight="bold">{book.primaryName}</Text>
 

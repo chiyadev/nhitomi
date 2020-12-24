@@ -29,10 +29,18 @@
       "TagList": {
         "sources": "Sources"
       },
-      "Buttons": {
-        "favorite": "Favorite",
-        "addToCollection": "Add to collection",
-        "download": "Download"
+      "FavoriteButton": {
+        "text": "Favorite",
+        "toastTitle": "Success",
+        "toastDescription": "Added {book} to {collection}."
+      },
+      "AddToCollectionButton": {
+        "text": "Add to collection",
+        "toastTitle": "Success",
+        "toastDescription": "Added {book} to {collection}."
+      },
+      "DownloadButton": {
+        "text": "Download"
       }
     }
   },
@@ -46,8 +54,26 @@
       "done": "Download complete"
     }
   },
+  "CollectionSelector": {
+    "title": "Select collection",
+    "create": "Create new",
+    "search": "Search"
+  },
+  "CollectionCreator": {
+    "title": "Create collection",
+    "create": "Create",
+    "cancel": "Cancel",
+    "name": "Name",
+    "description": "Description",
+    "type": "Type"
+  },
+  "CollectionListing": {
+    "title": "Collections",
+    "titleUser": "{user}'s Collections"
+  },
   "Header": {
     "search": "Search",
+    "collections": "Collections",
     "settings": "Settings",
     "SearchOverlay": {
       "Suggest": {
@@ -100,6 +126,11 @@
       "SearchLanguages": {
         "title": "Search Languages",
         "description": "Search language affects search results."
+      },
+      "ForceInfoOverlay": {
+        "title": "Always show information overlay",
+        "description": "Do not hide information overlay when cursor is outside an item.",
+        "toggle": "{value, select, true {Always show regardless} false {Hide when cursor leaves}}"
       }
     },
     "Reader": {

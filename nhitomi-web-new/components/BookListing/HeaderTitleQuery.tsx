@@ -23,7 +23,7 @@ const HeaderTitleQuery = ({ query }: { query: string }) => {
       </Tooltip>
 
       <chakra.div minW={0}>
-        <chakra.div whiteSpace="pre" color="gray.500" isTruncated margin={-1} padding={1}>
+        <chakra.div whiteSpace="pre" color="gray.500" isTruncated m={-1} p={1}>
           {tokens.map((token) => {
             switch (token.type) {
               case "url":

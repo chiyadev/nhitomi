@@ -22,7 +22,7 @@ const SearchOverlay = ({ open, setOpen }: { open: boolean; setOpen: (value: bool
                 await router.push({
                   pathname: "/books",
                   query: {
-                    query: value,
+                    query: value || [],
                   },
                 });
               }

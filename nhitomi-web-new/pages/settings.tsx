@@ -32,6 +32,7 @@ import ViewportBound from "../components/Settings/Reader/ViewportBound";
 import LeftToRight from "../components/Settings/Reader/LeftToRight";
 import ImagesPerRow from "../components/Settings/Reader/ImagesPerRow";
 import SingleCover from "../components/Settings/Reader/SingleCover";
+import ForceInfoOverlay from "../components/Settings/Appearance/ForceInfoOverlay";
 
 type Props = {
   cookies: CookieContainer;
@@ -130,6 +131,7 @@ const Content = () => {
           <Section name={t("Settings.appearance")} icon={FaImage}>
             <DisplayLanguage />
             <SearchLanguages />
+            <ForceInfoOverlay />
           </Section>
 
           <Section name={t("Settings.reader")} icon={FaBook}>

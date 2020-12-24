@@ -68,29 +68,21 @@ export const getServerSideProps: GetServerSideProps<Props> = async (ctx) => {
     const content = book.contents.find((content) => content.id === contentId);
 
     if (!content) {
-      return {
-        props: sanitizeProps({
-          cookies,
-          result: {
-            type: "error",
-            message: `Book '${id}/${contentId}' not found.`,
-          },
-        }),
-      };
-    } else {
-      return {
-        props: sanitizeProps({
-          cookies,
-          result: {
-            type: "success",
-            id,
-            contentId,
-            info: GetInfoAuthenticatedResponseToJSON(info),
-            book: BookToJSON(book),
-          },
-        }),
-      };
+      throw Error(`Book '${id}/${contentId}' not found.`);
     }
+
+    return {
+      props: sanitizeProps({
+        cookies,
+        result: {
+          type: "success",
+          id,
+          contentId,
+          info: GetInfoAuthenticatedResponseToJSON(info),
+          book: BookToJSON(book),
+        },
+      }),
+    };
   } catch (e) {
     ctx.res.statusCode = 500;
 

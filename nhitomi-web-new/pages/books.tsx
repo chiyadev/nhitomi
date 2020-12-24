@@ -28,6 +28,7 @@ import HeaderTitleQuery from "../components/BookListing/HeaderTitleQuery";
 import HeaderTitleApp from "../components/BookListing/HeaderTitleApp";
 import HeaderMenu from "../components/BookListing/HeaderMenu";
 import { useT } from "../locales";
+import { QueryChunkSize } from "../utils/constants";
 
 type Props = {
   cookies: CookieContainer;
@@ -91,7 +92,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async (ctx) => {
   }
 };
 
-const Books = ({ cookies, result }: Props) => {
+const BookListing = ({ cookies, result }: Props) => {
   const renderId = useChangeCount(result);
 
   switch (result.type) {
@@ -125,7 +126,7 @@ const Content = ({ initial }: { initial: BookSearchResult }) => {
   const [source] = useQuery("source");
 
   const [items, setItems] = useState<Book[]>(initial.items);
-  const offset = useRef(items.length);
+  const offset = useRef(QueryChunkSize);
 
   return (
     <Layout title={[query || t("BookListing.title")]}>
@@ -134,13 +135,13 @@ const Content = ({ initial }: { initial: BookSearchResult }) => {
       <LayoutBody>
         <BookGrid items={items} />
 
-        {initial.items.length < initial.total && (
+        {QueryChunkSize < initial.total && (
           <InfiniteLoader
             hasMore={useCallback(async () => {
               const client = createApiClient();
 
               if (client) {
-                const { items: newItems } = await client.book.searchBooks({
+                const { items: newItems, total } = await client.book.searchBooks({
                   bookQuery: {
                     ...createBookQuery(query, languages, source.split(",") as ScraperType[], sort, order),
                     offset: offset.current,
@@ -151,7 +152,7 @@ const Content = ({ initial }: { initial: BookSearchResult }) => {
                   setItems((items) => removeDuplicates([...items, ...newItems]));
                   offset.current += newItems.length;
 
-                  return true;
+                  return offset.current < total;
                 }
               }
 
@@ -164,4 +165,4 @@ const Content = ({ initial }: { initial: BookSearchResult }) => {
   );
 };
 
-export default memo(Books);
+export default memo(BookListing);

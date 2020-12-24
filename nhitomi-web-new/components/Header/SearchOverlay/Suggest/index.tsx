@@ -6,6 +6,7 @@ import { Book } from "nhitomi-api";
 import { createApiClient } from "../../../../utils/client";
 import BookItem from "../../../BookGrid/Item";
 import { useT } from "../../../../locales";
+import { useErrorToast } from "../../../../utils/hooks";
 
 const Suggest = ({
   value,
@@ -24,6 +25,7 @@ const Suggest = ({
 }) => {
   const t = useT();
   const loadId = useRef<number>(0);
+  const error = useErrorToast();
   const [bookItems, setBookItems] = useState<Book[]>([]);
 
   useLayoutEffect(() => {
@@ -51,13 +53,14 @@ const Suggest = ({
         }
       } catch (e) {
         console.error(e);
+        error(e);
       } finally {
         setLoading(false);
       }
 
       setBookItems([]);
     })();
-  }, [books, setLoading]);
+  }, [books, setLoading, error]);
 
   return (
     <>

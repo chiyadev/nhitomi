@@ -11,7 +11,7 @@ import {
   ScraperType,
   SortDirection,
 } from "nhitomi-api";
-import { BookTags, LanguageTypes, ScraperTypes } from "./constants";
+import { BookTags, LanguageTypes, QueryChunkSize, ScraperTypes } from "./constants";
 import { useConfig } from "./config";
 import { useQuery } from "./query";
 
@@ -174,7 +174,7 @@ export function createBookQuery(
         direction: order || SortDirection.Descending,
       },
     ],
-    limit: 50,
+    limit: QueryChunkSize,
   };
 
   const tokens = tokenizeBookQuery(query || "");

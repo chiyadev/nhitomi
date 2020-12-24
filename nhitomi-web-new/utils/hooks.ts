@@ -13,9 +13,9 @@ export function useTimerOnce(ms: number) {
   return value;
 }
 
-export function useChangeCount(value: any) {
+export function useChangeCount(...values: any[]) {
   const count = useRef(0);
-  return useMemo(() => count.current++, [value]);
+  return useMemo(() => count.current++, values);
 }
 
 export function useLastValue<T>(value: T) {
@@ -109,13 +109,16 @@ export function useErrorToast() {
   const t = useT();
   const toast = useToast();
 
-  return (error: Error) => {
-    return toast({
-      title: t("error"),
-      description: error.message,
-      position: "top-right",
-      status: "error",
-      isClosable: true,
-    });
-  };
+  return useCallback(
+    (error: Error) => {
+      return toast({
+        title: t("error"),
+        description: error.message,
+        position: "top-right",
+        status: "error",
+        isClosable: true,
+      });
+    },
+    [t, toast]
+  );
 }

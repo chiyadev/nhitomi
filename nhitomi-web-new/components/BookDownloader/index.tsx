@@ -9,14 +9,14 @@ export type DownloadTarget = {
 };
 
 const BookDownloader = ({
-  targets,
   open,
   setOpen,
+  targets,
   autoClose = targets.length <= 1,
 }: {
-  targets: DownloadTarget[];
   open: boolean;
   setOpen: Dispatch<boolean>;
+  targets: DownloadTarget[];
   autoClose?: boolean;
 }) => {
   const focusRef = useRef<HTMLButtonElement>(null);

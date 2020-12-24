@@ -1,14 +1,16 @@
 import React, { memo, ReactNode } from "react";
 import styles from "./index.module.css";
 import { Book, BookContent } from "nhitomi-api";
-import { AspectRatio, chakra, Flex, Heading, HStack, Icon, Link, VStack } from "@chakra-ui/react";
+import { AspectRatio, chakra, Flex, Heading, HStack, Icon, Link, VStack, Wrap, WrapItem } from "@chakra-ui/react";
 import BookImage from "../../BookImage";
 import NextLink from "next/link";
 import TagList from "./TagList";
 import { AiOutlineHistory, AiOutlineRead, AiOutlineUpload } from "react-icons/ai";
 import { useT } from "../../../locales";
 import DateDisplay from "../../DateDisplay";
-import Buttons from "./Buttons";
+import FavoriteButton from "./FavoriteButton";
+import DownloadButton from "./DownloadButton";
+import AddToCollectionButton from "./AddToCollectionButton";
 
 const Info = ({ book, content }: { book: Book; content: BookContent }) => {
   const t = useT();
@@ -58,7 +60,17 @@ const Info = ({ book, content }: { book: Book; content: BookContent }) => {
             </InfoLine>
           </chakra.div>
 
-          <Buttons book={book} content={content} />
+          <Wrap spacing={2}>
+            <WrapItem>
+              <FavoriteButton book={book} />
+            </WrapItem>
+            <WrapItem>
+              <AddToCollectionButton book={book} />
+            </WrapItem>
+            <WrapItem>
+              <DownloadButton book={book} content={content} />
+            </WrapItem>
+          </Wrap>
         </VStack>
       </chakra.div>
     </Flex>

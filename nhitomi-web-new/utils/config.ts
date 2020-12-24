@@ -35,6 +35,7 @@ export type Configs = {
   searchLanguages: LanguageType[];
   sfw: boolean;
 
+  bookForceInfoOverlay: boolean;
   bookViewportBound: boolean;
   bookLeftToRight: boolean;
   bookImagesPerRow: number;
@@ -46,6 +47,7 @@ export const DefaultConfigs: Configs = {
   searchLanguages: [LanguageType.EnUS, LanguageType.JaJP],
   sfw: false,
 
+  bookForceInfoOverlay: false,
   bookViewportBound: false,
   bookLeftToRight: false,
   bookImagesPerRow: 2,
