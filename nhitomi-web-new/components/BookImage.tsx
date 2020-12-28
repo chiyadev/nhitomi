@@ -107,7 +107,7 @@ const BookImage = ({
       ref={ref}
       alt={`${book.id}/${content.id}/${index}`}
       src={src || TransparentPixel}
-      transition="all 0.6s cubic-bezier(0.16, 1, 0.3, 1)"
+      transition="all .6s cubic-bezier(0.16, 1, 0.3, 1)"
       transitionProperty="opacity, transform"
       {...animateProps}
       {...props}

@@ -5,8 +5,8 @@ import QueryDrawer from "./QueryDrawer";
 import { useT } from "../../locales";
 
 const HeaderMenu = () => {
-  const [sort, setSort] = useState(false);
   const t = useT();
+  const [sort, setSort] = useState(false);
 
   return (
     <>

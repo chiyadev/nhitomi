@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useHotkeys, useIsHotkeyPressed } from "react-hotkeys-hook";
+import { useHotkeys } from "react-hotkeys-hook";
 import { useToast } from "@chakra-ui/react";
 import { useT } from "../locales";
 
@@ -77,29 +77,28 @@ export function useWindowScroll() {
 
 // stateful useIsHotkeyPressed
 export function useHotkeyState(keys: string) {
-  const pressed = useIsHotkeyPressed();
   const [state, setState] = useState(false);
 
   useHotkeys(
     keys,
     (e) => {
       e.preventDefault();
-
-      setTimeout(() => {
-        let state = false;
-
-        for (const k of keys.split(",")) {
-          state = state || pressed(k.trim());
-        }
-
-        setState(state);
-      });
+      setState(true);
     },
     {
       keydown: true,
-      keyup: true,
+    }
+  );
+
+  useHotkeys(
+    keys,
+    (e) => {
+      e.preventDefault();
+      setState(false);
     },
-    [pressed]
+    {
+      keyup: true,
+    }
   );
 
   return state;

@@ -4,6 +4,7 @@ import {
   Avatar,
   HStack,
   Icon,
+  Link,
   Menu,
   MenuButton,
   MenuDivider,
@@ -57,8 +58,8 @@ const Item = ({
 
   return (
     <WrapItem>
-      <Menu autoSelect={false} preventOverflow>
-        <MenuButton as={Tag} size="lg" cursor="pointer" tabIndex={0} transition="all 0.15s ease-out">
+      <Menu isLazy autoSelect={false}>
+        <MenuButton as={Tag} size="lg" cursor="pointer" tabIndex={0} transition="all .15s ease-out">
           <Avatar src={ScraperIcons[source]} size="xs" ml={-1} mr={2} verticalAlign="middle" />
           <TagLabel verticalAlign="middle">{info?.scrapers.find((s) => s.type === source)?.name}</TagLabel>
         </MenuButton>
@@ -100,14 +101,9 @@ const Item = ({
                             {decodeURI(url.hostname + url.pathname + url.search)}
                           </Text>
 
-                          <a
-                            href={url.href}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            onClick={(e) => e.stopPropagation()}
-                          >
+                          <Link href={url.href} isExternal onClick={(e) => e.stopPropagation()}>
                             <Icon as={FaExternalLinkAlt} fontSize="sm" color="blue.300" />
-                          </a>
+                          </Link>
                         </HStack>
                       </MenuItemOption>
                     );

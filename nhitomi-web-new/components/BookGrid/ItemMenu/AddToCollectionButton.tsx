@@ -1,9 +1,10 @@
 import React, { memo, useState } from "react";
-import { Button, Icon, Link } from "@chakra-ui/react";
-import { FaPlus } from "react-icons/fa";
-import { useClientInfoAuth } from "../../../utils/client";
-import { Book, BookContent, ObjectType } from "nhitomi-api";
 import { useT } from "../../../locales";
+import { Icon, Link, MenuItem } from "@chakra-ui/react";
+import { FaPlus } from "react-icons/fa";
+import { Book, BookContent, ObjectType } from "nhitomi-api";
+import { useClientInfoAuth } from "../../../utils/client";
+import ElementPortal from "../../ElementPortal";
 import CollectionItemAdder from "../../CollectionSelector/CollectionItemAdder";
 
 const AddToCollectionButton = ({ book, content }: { book: Book; content: BookContent }) => {
@@ -28,9 +29,11 @@ const AddToCollectionButton = ({ book, content }: { book: Book; content: BookCon
         />
       )}
 
-      <Button leftIcon={<Icon as={FaPlus} />} onClick={() => setAdd(true)}>
-        {t("BookReader.Info.AddToCollectionButton.text")}
-      </Button>
+      <ElementPortal.Consumer>
+        <MenuItem icon={<Icon as={FaPlus} />} onClick={() => setAdd(true)}>
+          {t("BookGrid.ItemMenu.AddToCollectionButton.text")}
+        </MenuItem>
+      </ElementPortal.Consumer>
     </>
   );
 };

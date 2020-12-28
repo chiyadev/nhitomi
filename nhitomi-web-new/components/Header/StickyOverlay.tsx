@@ -29,7 +29,7 @@ const StickyOverlay = ({ shadow, children }: { shadow?: boolean; children?: Reac
         bg="gray.900"
         boxShadow={(overlay || shadow) && !hide ? "lg" : undefined}
         transform={overlay && hide ? "translateY(-100%)" : undefined}
-        transition="all 0.3s cubic-bezier(0.16, 1, 0.3, 1)"
+        transition="all .3s cubic-bezier(0.16, 1, 0.3, 1)"
       >
         {children}
       </chakra.div>

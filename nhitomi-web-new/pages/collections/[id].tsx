@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useRef, useState } from "react";
+import React, { memo } from "react";
 import { GetServerSideProps } from "next";
 import { createApiClient } from "../../utils/client";
 import { CookieContainer, parseConfigs } from "../../utils/config";
@@ -20,13 +20,8 @@ import {
   GetInfoAuthenticatedResponseToJSON,
   ObjectType,
 } from "nhitomi-api";
-import Layout from "../../components/Layout";
-import Header from "../../components/Header";
-import LayoutBody from "../../components/LayoutBody";
-import BookGrid from "../../components/BookGrid";
-import InfiniteLoader from "../../components/BookGrid/InfiniteLoader";
 import { QueryChunkSize } from "../../utils/constants";
-import HeaderTitle from "../../components/CollectionViewer/HeaderTitle";
+import ContentBook from "../../components/CollectionViewer/Book";
 
 type Props = {
   cookies: CookieContainer;
@@ -124,51 +119,6 @@ const CollectionViewer = ({ cookies, result }: Props) => {
         </ConfigProvider>
       );
   }
-};
-
-function removeDuplicates<T extends { id: string }>(items: T[]) {
-  const ids = new Set(items.map((book) => book.id));
-  return items.filter((book) => ids.delete(book.id));
-}
-
-const ContentBook = ({ collection, initial }: { collection: Collection; initial: Book[] }) => {
-  const [items, setItems] = useState(initial);
-  const offset = useRef(QueryChunkSize);
-
-  return (
-    <Layout title={[collection.name]}>
-      <Header title={<HeaderTitle collection={collection} />} />
-
-      <LayoutBody>
-        <BookGrid items={items} />
-
-        {QueryChunkSize < collection.items.length && (
-          <InfiniteLoader
-            hasMore={useCallback(async () => {
-              const client = createApiClient();
-
-              if (client) {
-                const newItems = await client.book.getBooks({
-                  getBookManyRequest: {
-                    ids: collection.items.slice(offset.current, offset.current + QueryChunkSize),
-                  },
-                });
-
-                if (newItems.length) {
-                  setItems((items) => removeDuplicates([...items, ...newItems]));
-                  offset.current += QueryChunkSize;
-
-                  return offset.current < collection.items.length;
-                }
-              }
-
-              return false;
-            }, [])}
-          />
-        )}
-      </LayoutBody>
-    </Layout>
-  );
 };
 
 export default memo(CollectionViewer);

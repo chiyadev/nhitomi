@@ -16,19 +16,14 @@ import {
 } from "nhitomi-api";
 import { GetServerSideProps } from "next";
 import { parseCookies } from "nookies";
-import { createApiClient, useClientInfoAuth } from "../../../utils/client";
+import { createApiClient } from "../../../utils/client";
 import { sanitizeProps } from "../../../utils/props";
 import React, { memo } from "react";
 import { useChangeCount } from "../../../utils/hooks";
 import ConfigProvider from "../../../components/ConfigProvider";
 import ErrorPage from "../../../components/ErrorPage";
 import { parseQueries } from "../../../utils/query";
-import { useT } from "../../../locales";
-import Layout from "../../../components/Layout";
-import Header from "../../../components/Header";
-import HeaderTitle from "../../../components/CollectionListing/HeaderTitle";
-import BookGrid from "../../../components/CollectionListing/BookGrid";
-import LayoutBody from "../../../components/LayoutBody";
+import Content from "../../../components/CollectionListing";
 
 type Props = {
   cookies: CookieContainer;
@@ -126,27 +121,6 @@ const CollectionListing = ({ cookies, result }: Props) => {
         </ConfigProvider>
       );
   }
-};
-
-const Content = ({ user, books }: { user: User; books: { cover?: Book; collection: Collection }[] }) => {
-  const t = useT();
-  const info = useClientInfoAuth();
-
-  return (
-    <Layout
-      title={[
-        info?.user.id === user.id
-          ? t("CollectionListing.title")
-          : t("CollectionListing.titleUser", { user: user.username }),
-      ]}
-    >
-      <Header title={<HeaderTitle user={user} />} />
-
-      <LayoutBody>
-        <BookGrid items={books} />
-      </LayoutBody>
-    </Layout>
-  );
 };
 
 export default memo(CollectionListing);

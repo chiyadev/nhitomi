@@ -23,8 +23,17 @@ export function getFlatLocalization(language: LanguageType) {
 
 type LocalizeFunc = (key: string, values?: Record<string, any>) => string;
 
-export function useT(): LocalizeFunc {
+export function useT(namespace?: string): LocalizeFunc {
   const { formatMessage } = useIntl();
 
-  return useCallback((key, values) => formatMessage({ id: key }, values), [formatMessage]);
+  return useCallback(
+    (key, values) => {
+      if (namespace) {
+        key = `${namespace}.${key}`;
+      }
+
+      return formatMessage({ id: key }, values);
+    },
+    [namespace, formatMessage]
+  );
 }

@@ -1,4 +1,4 @@
-import React, { memo, useMemo, useState } from "react";
+import React, { memo } from "react";
 import { GetServerSideProps } from "next";
 import { createApiClient } from "../../../../utils/client";
 import {
@@ -9,25 +9,14 @@ import {
   GetInfoAuthenticatedResponseFromJSON,
   GetInfoAuthenticatedResponseToJSON,
 } from "nhitomi-api";
-import Layout from "../../../../components/Layout";
 import ErrorPage from "../../../../components/ErrorPage";
 import { CookieContainer, parseConfigs } from "../../../../utils/config";
 import ConfigProvider from "../../../../components/ConfigProvider";
-import Info from "../../../../components/BookReader/Info";
-import Background from "../../../../components/BookReader/Background";
 import { useChangeCount } from "../../../../utils/hooks";
-import PageDisplay from "../../../../components/BookReader/PageDisplay";
 import { parseCookies } from "nookies";
 import { parseQueries } from "../../../../utils/query";
 import { sanitizeProps } from "../../../../utils/props";
-import LayoutBody from "../../../../components/LayoutBody";
-import { ReaderScrollContext, ReaderScrollState } from "../../../../components/BookReader/scroll";
-import ScrollKeyHandler from "../../../../components/ScrollKeyHandler";
-import { useInView } from "react-intersection-observer";
-import { VStack } from "@chakra-ui/layout";
-import CursorManager from "../../../../components/BookReader/CursorManager";
-import Header from "../../../../components/Header";
-import HeaderTitle from "../../../../components/BookReader/HeaderTitle";
+import Content from "../../../../components/BookReader";
 
 type Props = {
   cookies: CookieContainer;
@@ -116,36 +105,6 @@ const BookReader = ({ cookies, result }: Props) => {
         </ConfigProvider>
       );
   }
-};
-
-const Content = ({ book, contentId }: { book: Book; contentId: string }) => {
-  const content = book.contents.find((content) => content.id === contentId) || book.contents[0];
-
-  const [infoRef, infoVisible] = useInView();
-  const [scroll, setScroll] = useState<ReaderScrollState>({ currentPage: 0, currentRow: 0 });
-
-  return (
-    <Layout title={[book.primaryName]}>
-      <ReaderScrollContext.Provider value={useMemo(() => [scroll, setScroll], [scroll, setScroll])}>
-        <ScrollKeyHandler />
-        <Background book={book} content={content} visible={infoVisible} />
-
-        <Header shadow title={<HeaderTitle book={book} content={content} />} />
-
-        <VStack align="stretch" spacing={8}>
-          <div ref={infoRef}>
-            <LayoutBody>
-              <Info book={book} content={content} />
-            </LayoutBody>
-          </div>
-
-          <CursorManager>
-            <PageDisplay book={book} content={content} />
-          </CursorManager>
-        </VStack>
-      </ReaderScrollContext.Provider>
-    </Layout>
-  );
 };
 
 export default memo(BookReader);

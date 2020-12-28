@@ -18,20 +18,19 @@ const QueryDrawer = ({ open, setOpen }: { open: boolean; setOpen: Dispatch<boole
 
   return (
     <Drawer placement="right" isOpen={open} onClose={() => setOpen(false)}>
-      <DrawerOverlay>
-        <DrawerContent>
-          <DrawerCloseButton />
-          <DrawerHeader>{t("BookListing.QueryDrawer.title")}</DrawerHeader>
+      <DrawerOverlay />
+      <DrawerContent>
+        <DrawerCloseButton />
+        <DrawerHeader>{t("BookListing.QueryDrawer.title")}</DrawerHeader>
 
-          <DrawerBody>
-            <VStack align="stretch" spacing={8}>
-              <SortRadio setOpen={setOpen} />
-              <OrderRadio setOpen={setOpen} />
-              <SourceCheck setOpen={setOpen} />
-            </VStack>
-          </DrawerBody>
-        </DrawerContent>
-      </DrawerOverlay>
+        <DrawerBody>
+          <VStack align="stretch" spacing={8}>
+            <SortRadio setOpen={setOpen} />
+            <OrderRadio setOpen={setOpen} />
+            <SourceCheck setOpen={setOpen} />
+          </VStack>
+        </DrawerBody>
+      </DrawerContent>
     </Drawer>
   );
 };

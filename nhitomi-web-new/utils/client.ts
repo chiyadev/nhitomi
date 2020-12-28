@@ -1,6 +1,7 @@
 import {
   BookApi,
   CollectionApi,
+  CollectionInsertPosition,
   Configuration,
   ConfigurationParameters,
   DownloadApi,
@@ -8,6 +9,9 @@ import {
   GetInfoResponse,
   InfoApi,
   InternalApi,
+  ObjectType,
+  SpecialCollection,
+  User,
   UserApi,
   ValidationProblemArrayResult,
 } from "nhitomi-api";
@@ -117,6 +121,44 @@ export function createApiClient(token?: string) {
   // client
   else {
     return new ApiClient(PublicApiUrl, token);
+  }
+}
+
+export class ClientUtils {
+  static async addToSpecialCollection<T extends { id: string }>(
+    client: ApiClient,
+    user: User,
+    type: ObjectType,
+    collection: SpecialCollection,
+    item: T
+  ) {
+    let collectionId = user.specialCollections?.[type]?.[collection];
+
+    for (let i = 0; ; i++) {
+      try {
+        if (collectionId) {
+          return await client.collection.addCollectionItems({
+            id: collectionId,
+            addCollectionItemsRequest: {
+              items: [item.id],
+              position: CollectionInsertPosition.Start,
+            },
+          });
+        }
+      } catch (e) {
+        if (i) {
+          throw e;
+        }
+      }
+
+      collectionId = (
+        await client.user.getUserSpecialCollection({
+          id: user.id,
+          type,
+          collection,
+        })
+      ).id;
+    }
   }
 }
 

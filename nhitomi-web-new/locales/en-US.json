@@ -2,11 +2,15 @@
   "error": "An error occurred.",
   "BookListing": {
     "title": "Books",
+    "timing": "{count} {count, plural, one {result} other {results}} ({time} {time, plural, one {second} other {seconds}})",
     "HeaderMenu": {
       "sort": "Sort"
     },
     "HeaderTitleQuery": {
       "cancel": "Cancel"
+    },
+    "EmptyDisplay": {
+      "text": "No results"
     },
     "QueryDrawer": {
       "title": "Query Options",
@@ -18,6 +22,24 @@
       },
       "SourceCheck": {
         "title": "Sources"
+      }
+    }
+  },
+  "BookGrid": {
+    "ItemMenu": {
+      "DownloadButton": {
+        "text": "Download"
+      },
+      "SourceButton": {
+        "text": "Open source"
+      },
+      "FavoriteButton": {
+        "text": "Favorite",
+        "toastTitle": "Success",
+        "toastDescription": "Added {book} to {collection}."
+      },
+      "AddToCollectionButton": {
+        "text": "Add to collection"
       }
     }
   },
@@ -35,12 +57,23 @@
         "toastDescription": "Added {book} to {collection}."
       },
       "AddToCollectionButton": {
-        "text": "Add to collection",
-        "toastTitle": "Success",
-        "toastDescription": "Added {book} to {collection}."
+        "text": "Add to collection"
       },
       "DownloadButton": {
         "text": "Download"
+      }
+    },
+    "PageDisplay": {
+      "KeyHandler": {
+        "viewportBound": "Bind to viewport",
+        "leftToRight": "Page ordering",
+        "imagesPerRow": "Pages per row",
+        "singleCover": "Cover as single page"
+      },
+      "PageLimited": {
+        "title": "Continue reading this book",
+        "support": "Support nhitomi",
+        "supportDescription": "You can continue reading on nhitomi by becoming a supporter."
       }
     }
   },
@@ -57,7 +90,11 @@
   "CollectionSelector": {
     "title": "Select collection",
     "create": "Create new",
-    "search": "Search"
+    "search": "Search",
+    "CollectionItemAdder": {
+      "toastTitle": "Success",
+      "toastDescription": "Added {book} to {collection}."
+    }
   },
   "CollectionCreator": {
     "title": "Create collection",
@@ -67,9 +104,44 @@
     "description": "Description",
     "type": "Type"
   },
+  "CollectionDeleter": {
+    "title": "Delete collection?",
+    "description": "{collection} will be deleted forever. This action cannot be undone.",
+    "delete": "Delete",
+    "cancel": "Cancel"
+  },
   "CollectionListing": {
     "title": "Collections",
-    "titleUser": "{user}'s Collections"
+    "titleUser": "{user}'s Collections",
+    "HeaderMenu": {
+      "create": "Create"
+    },
+    "EmptyDisplay": {
+      "text": "No collections",
+      "create": "Create"
+    },
+    "Book": {
+      "ItemMenu": {
+        "DeleteButton": {
+          "text": "Delete"
+        }
+      }
+    }
+  },
+  "CollectionViewer": {
+    "Book": {
+      "EmptyDisplay": {
+        "text": "Collection is empty",
+        "add": "Add items"
+      },
+      "ItemMenu": {
+        "DeleteButton": {
+          "text": "Delete",
+          "toastTitle": "Success",
+          "toastDescription": "Removed {book} from {collection}."
+        }
+      }
+    }
   },
   "Header": {
     "search": "Search",

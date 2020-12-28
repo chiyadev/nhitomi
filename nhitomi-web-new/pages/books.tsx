@@ -1,9 +1,7 @@
-import React, { memo, useCallback, useRef, useState } from "react";
-import Layout from "../components/Layout";
+import React, { memo } from "react";
 import { GetServerSideProps } from "next";
 import { createApiClient } from "../utils/client";
 import {
-  Book,
   BookSearchResult,
   BookSearchResultFromJSON,
   BookSearchResultToJSON,
@@ -13,22 +11,14 @@ import {
   ScraperType,
 } from "nhitomi-api";
 import ErrorPage from "../components/ErrorPage";
-import { parseQueries, useQuery } from "../utils/query";
-import Header from "../components/Header";
-import InfiniteLoader from "../components/BookGrid/InfiniteLoader";
+import { parseQueries } from "../utils/query";
 import { createBookQuery } from "../utils/book";
 import ConfigProvider from "../components/ConfigProvider";
 import { useChangeCount } from "../utils/hooks";
-import BookGrid from "../components/BookGrid";
-import { CookieContainer, parseConfigs, useConfig } from "../utils/config";
+import { CookieContainer, parseConfigs } from "../utils/config";
 import { parseCookies } from "nookies";
 import { sanitizeProps } from "../utils/props";
-import LayoutBody from "../components/LayoutBody";
-import HeaderTitleQuery from "../components/BookListing/HeaderTitleQuery";
-import HeaderTitleApp from "../components/BookListing/HeaderTitleApp";
-import HeaderMenu from "../components/BookListing/HeaderMenu";
-import { useT } from "../locales";
-import { QueryChunkSize } from "../utils/constants";
+import Content from "../components/BookListing";
 
 type Props = {
   cookies: CookieContainer;
@@ -110,59 +100,6 @@ const BookListing = ({ cookies, result }: Props) => {
         </ConfigProvider>
       );
   }
-};
-
-function removeDuplicates(books: Book[]) {
-  const ids = new Set(books.map((book) => book.id));
-  return books.filter((book) => ids.delete(book.id));
-}
-
-const Content = ({ initial }: { initial: BookSearchResult }) => {
-  const t = useT();
-  const [query] = useQuery("query");
-  const [languages] = useConfig("searchLanguages");
-  const [sort] = useQuery("sort");
-  const [order] = useQuery("order");
-  const [source] = useQuery("source");
-
-  const [items, setItems] = useState<Book[]>(initial.items);
-  const offset = useRef(QueryChunkSize);
-
-  return (
-    <Layout title={[query || t("BookListing.title")]}>
-      <Header title={query ? <HeaderTitleQuery query={query} /> : <HeaderTitleApp />} menu={<HeaderMenu />} />
-
-      <LayoutBody>
-        <BookGrid items={items} />
-
-        {QueryChunkSize < initial.total && (
-          <InfiniteLoader
-            hasMore={useCallback(async () => {
-              const client = createApiClient();
-
-              if (client) {
-                const { items: newItems, total } = await client.book.searchBooks({
-                  bookQuery: {
-                    ...createBookQuery(query, languages, source.split(",") as ScraperType[], sort, order),
-                    offset: offset.current,
-                  },
-                });
-
-                if (newItems.length) {
-                  setItems((items) => removeDuplicates([...items, ...newItems]));
-                  offset.current += newItems.length;
-
-                  return offset.current < total;
-                }
-              }
-
-              return false;
-            }, [])}
-          />
-        )}
-      </LayoutBody>
-    </Layout>
-  );
 };
 
 export default memo(BookListing);

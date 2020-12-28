@@ -8,11 +8,15 @@ import { useConfig } from "../../../../utils/config";
 import ScrollPreserver from "./ScrollPreserver";
 import ScrollManager from "./ScrollManager";
 import KeyHandler from "./KeyHandler";
+import { useClientInfoAuth } from "../../../../utils/client";
+import { NonSupporterPageLimit } from "../../../../utils/constants";
+import PageLimited from "./PageLimited";
 
 const PageDisplay = ({ book, content }: { book: Book; content: BookContent }) => {
-  const pageCount = useMemo(() => {
-    return content.pageCount;
-  }, [content]);
+  const info = useClientInfoAuth();
+
+  const pageLimited = !info?.user.isSupporter && content.pageCount > NonSupporterPageLimit;
+  const pageCount = pageLimited ? NonSupporterPageLimit : content.pageCount;
 
   const layoutEngine = useMemo(() => new LayoutEngine(pageCount), []);
   const [images, setImages] = useState<(ImageInfo | undefined)[]>(() => new Array(pageCount));
@@ -80,9 +84,15 @@ const PageDisplay = ({ book, content }: { book: Book; content: BookContent }) =>
       <ScrollPreserver containerRef={ref} layout={layout} />
       <ScrollManager containerRef={ref} layout={layout} />
 
-      {layout.images.map((image, i) => (
-        <Page key={i} book={book} content={content} index={i} image={image} setImage={imageSetters[i]} />
-      ))}
+      {useMemo(
+        () =>
+          layout.images.map((image, i) => (
+            <Page key={i} book={book} content={content} index={i} image={image} setImage={imageSetters[i]} />
+          )),
+        [book, content, layout, imageSetters]
+      )}
+
+      {pageLimited && <PageLimited layout={layout} book={book} selectedContent={content} />}
     </chakra.div>
   );
 };

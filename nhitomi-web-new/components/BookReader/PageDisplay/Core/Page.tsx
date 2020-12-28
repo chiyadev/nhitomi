@@ -1,4 +1,4 @@
-import React, { Dispatch, memo, SetStateAction, useCallback, useMemo } from "react";
+import React, { Dispatch, memo, SetStateAction, useMemo } from "react";
 import { Book, BookContent } from "nhitomi-api";
 import BookImage from "../../../BookImage";
 import { ImageInfo, LayoutImage } from "./layoutEngine";
@@ -29,26 +29,28 @@ const Page = ({
         [image.x, image.y, image.width, image.height]
       )}
     >
-      <BookImage
-        book={book}
-        content={content}
-        index={index}
-        intersection={useMemo(() => ({ rootMargin: "100%" }), [])}
-        w="full"
-        h="full"
-        onLoaded={useCallback(
-          async (data: Blob) => {
-            const result = probeImage(await new Response(data).arrayBuffer());
+      {useMemo(
+        () => (
+          <BookImage
+            book={book}
+            content={content}
+            index={index}
+            intersection={{ rootMargin: "200%" }}
+            w="full"
+            h="full"
+            onLoaded={async (data: Blob) => {
+              const result = probeImage(await new Response(data).arrayBuffer());
 
-            if (result) {
-              setImage(result);
-            } else {
-              throw Error(`Could not detect image dimensions for ${book.id}/${content.id}/${index}.`);
-            }
-          },
-          [setImage]
-        )}
-      />
+              if (result) {
+                setImage(result);
+              } else {
+                throw Error(`Could not detect image dimensions for ${book.id}/${content.id}/${index}.`);
+              }
+            }}
+          />
+        ),
+        [book, content, index, setImage]
+      )}
     </div>
   );
 };

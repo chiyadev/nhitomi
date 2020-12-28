@@ -1,5 +1,5 @@
 import { Book, BookContent, DownloadSession } from "nhitomi-api";
-import React, { memo, MutableRefObject, useEffect, useMemo, useState } from "react";
+import React, { memo, MutableRefObject, useEffect, useState } from "react";
 import { chakra, Link, Progress, VStack } from "@chakra-ui/react";
 import JSZip from "jszip";
 import { createApiClient } from "../../utils/client";
@@ -28,16 +28,11 @@ const ItemDisplay = ({
   const t = useT();
   const [status, setStatus] = useState("blue");
   const [message, setMessage] = useState("");
-  const [progress, setProgress] = useState<
-    | {
-        type: "pending";
-        indeterminate?: boolean;
-      }
-    | {
-        type: "progress";
-        value: number;
-      }
-  >({ type: "pending" });
+  const [progress, setProgress] = useState<{
+    type: "pending" | "progress";
+    value?: number;
+    indeterminate?: boolean;
+  }>({ type: "pending" });
 
   useEffect(() => {
     const client = createApiClient();
@@ -48,6 +43,8 @@ const ItemDisplay = ({
 
     let proceed = true;
     let session: DownloadSession;
+
+    const onUnmount = new Set<() => void>();
 
     (async () => {
       while (true) {
@@ -80,12 +77,11 @@ const ItemDisplay = ({
       }, 10000);
 
       setStatus("blue");
-      setProgress({ type: "pending", indeterminate: true });
+      setProgress({ type: "progress", indeterminate: true });
+
+      const zip = new JSZip();
 
       try {
-        const zip = new JSZip();
-        const digits = content.pageCount.toString().length;
-
         // add book info
         zip.file("nhitomi.json", JSON.stringify(book, undefined, 2), {
           date: book.updatedTime,
@@ -94,7 +90,7 @@ const ItemDisplay = ({
         let loaded = 0;
 
         // download images concurrently
-        await PromiseEx.allN(
+        const imagesPromise = PromiseEx.allN(
           session.concurrency,
           Array.from(Array(content.pageCount).keys()).map((i) => async () => {
             for (let retry = 0; proceed; retry++) {
@@ -109,7 +105,7 @@ const ItemDisplay = ({
 
                 // name image with zero padding
                 const { type } = probeImage(await new Response(imageBlob).arrayBuffer());
-                const name = `${(i + 1).toString().padStart(digits, "0")}.${type}`;
+                const name = `${(i + 1).toString().padStart(content.pageCount.toString().length, "0")}.${type}`;
 
                 // add image to zip
                 zip.file(name, imageBlob, {
@@ -131,14 +127,33 @@ const ItemDisplay = ({
           })
         );
 
+        // exit immediately to delete session if unmounted before download completes
+        await Promise.race([imagesPromise, new Promise((resolve) => onUnmount.add(resolve))]);
+
         if (!proceed) {
           return;
         }
 
         setStatus("orange");
         setMessage(t("BookDownloader.Item.processing"));
-        setProgress({ type: "progress", value: 0 });
+        setProgress({ type: "progress", indeterminate: true });
+      } catch (e) {
+        setStatus("red");
+        setMessage(e.message);
+        return;
+      } finally {
+        // stop keepalive
+        clearInterval(keepalive);
 
+        // delete session
+        try {
+          await client.download.deleteDownloadSession({ id: session.id });
+        } catch {
+          // ignored
+        }
+      }
+
+      try {
         const readerPath = `/books/${book.id}/contents/${content.id}`;
 
         const zipBlob = await zip.generateAsync(
@@ -150,7 +165,10 @@ const ItemDisplay = ({
               level: 9,
             },
           },
-          ({ percent }) => setProgress({ type: "progress", value: percent / 100 })
+          ({ percent, currentFile }) => {
+            setMessage(currentFile);
+            setProgress({ type: "progress", value: percent / 100 });
+          }
         );
 
         if (!proceed) {
@@ -164,20 +182,19 @@ const ItemDisplay = ({
         saveAs(zipBlob, `${book.id} ${book.primaryName}.zip`);
 
         onComplete?.();
-      } finally {
-        clearInterval(keepalive);
-
-        // delete session
-        try {
-          await client.download.deleteDownloadSession({ id: session.id });
-        } catch {
-          // ignored
-        }
+      } catch (e) {
+        setStatus("red");
+        setMessage(e.message);
+        return;
       }
     })();
 
     return () => {
       proceed = false;
+
+      for (const callback of onUnmount) {
+        onUnmount.delete(callback) && callback();
+      }
     };
   }, []);
 
@@ -189,20 +206,13 @@ const ItemDisplay = ({
         </Link>
       </div>
 
-      {useMemo(() => {
-        const style = {
-          size: "xs",
-          borderRadius: "md",
-        };
-
-        switch (progress.type) {
-          case "pending":
-            return <Progress {...style} colorScheme={status} isIndeterminate={progress.indeterminate} />;
-
-          case "progress":
-            return <Progress {...style} colorScheme={status} value={progress.value * 100} />;
-        }
-      }, [content, progress, status])}
+      <Progress
+        size="xs"
+        borderRadius="full"
+        colorScheme={status}
+        value={progress.value ? progress.value * 100 : undefined}
+        isIndeterminate={progress.indeterminate}
+      />
 
       <chakra.div textAlign="center">{message}</chakra.div>
     </VStack>

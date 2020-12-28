@@ -18,4 +18,5 @@ export const getStaticProps: GetStaticProps<Props> = async ({ locale, defaultLoc
 };
 
 const Index = () => null;
+
 export default Index;

@@ -2,11 +2,15 @@
   "error": "エラーが発生しました。",
   "BookListing": {
     "title": "ブックス",
+    "timing": "{count}件 ({time}秒)",
     "HeaderMenu": {
       "sort": "並び替え"
     },
     "HeaderTitleQuery": {
       "cancel": "キャンセル"
+    },
+    "EmptyDisplay": {
+      "text": "結果なし"
     },
     "QueryDrawer": {
       "title": "検索オプション",
@@ -18,6 +22,24 @@
       },
       "SourceCheck": {
         "title": "サイト"
+      }
+    }
+  },
+  "BookGrid": {
+    "ItemMenu": {
+      "DownloadButton": {
+        "text": "ダウンロード"
+      },
+      "SourceButton": {
+        "text": "サイトを開く"
+      },
+      "FavoriteButton": {
+        "text": "いいね",
+        "toastTitle": "成功",
+        "toastDescription": "{book}を{collection}に追加しました。"
+      },
+      "AddToCollectionButton": {
+        "text": "コレクションに追加"
       }
     }
   },
@@ -35,12 +57,23 @@
         "toastDescription": "{book}を{collection}に追加しました。"
       },
       "AddToCollectionButton": {
-        "text": "コレクションに追加",
-        "toastTitle": "成功",
-        "toastDescription": "{book}を{collection}に追加しました。"
+        "text": "コレクションに追加"
       },
       "DownloadButton": {
         "text": "ダウンロード"
+      }
+    },
+    "PageDisplay": {
+      "KeyHandler": {
+        "viewportBound": "画面サイズに固定",
+        "leftToRight": "ページの並べ方",
+        "imagesPerRow": "1行あたりのページ数",
+        "singleCover": "表紙の行は1枚に制限"
+      },
+      "PageLimited": {
+        "title": "この本の続きを読みましょう",
+        "support": "nhitomiをサポートする",
+        "supportDescription": "サポーターになるとnhitomiで続きが読めるようになります。"
       }
     }
   },
@@ -57,7 +90,11 @@
   "CollectionSelector": {
     "title": "コレクションを選択",
     "create": "新規",
-    "search": "検索"
+    "search": "検索",
+    "CollectionItemAdder": {
+      "toastTitle": "成功",
+      "toastDescription": "{book}を{collection}に追加しました。"
+    }
   },
   "CollectionCreator": {
     "title": "コレクションを作成",
@@ -67,9 +104,44 @@
     "description": "説明",
     "type": "タイプ"
   },
+  "CollectionDeleter": {
+    "title": "コレクションを削除しますか？",
+    "description": "{collection}を永遠に削除します。復元はできません。",
+    "delete": "削除",
+    "cancel": "キャンセル"
+  },
   "CollectionListing": {
     "title": "コレクション",
-    "titleUser": "{user}さんのコレクション"
+    "titleUser": "{user}さんのコレクション",
+    "HeaderMenu": {
+      "create": "新規"
+    },
+    "EmptyDisplay": {
+      "text": "コレクションなし",
+      "create": "新規"
+    },
+    "Book": {
+      "ItemMenu": {
+        "DeleteButton": {
+          "text": "削除"
+        }
+      }
+    }
+  },
+  "CollectionViewer": {
+    "Book": {
+      "EmptyDisplay": {
+        "text": "コレクションが空っぽです",
+        "add": "項目を追加"
+      },
+      "ItemMenu": {
+        "DeleteButton": {
+          "text": "削除",
+          "toastTitle": "成功",
+          "toastDescription": "{book}を{collection}から削除しました。"
+        }
+      }
+    }
   },
   "Header": {
     "search": "検索",

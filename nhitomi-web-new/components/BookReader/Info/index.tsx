@@ -62,10 +62,10 @@ const Info = ({ book, content }: { book: Book; content: BookContent }) => {
 
           <Wrap spacing={2}>
             <WrapItem>
-              <FavoriteButton book={book} />
+              <FavoriteButton book={book} content={content} />
             </WrapItem>
             <WrapItem>
-              <AddToCollectionButton book={book} />
+              <AddToCollectionButton book={book} content={content} />
             </WrapItem>
             <WrapItem>
               <DownloadButton book={book} content={content} />
