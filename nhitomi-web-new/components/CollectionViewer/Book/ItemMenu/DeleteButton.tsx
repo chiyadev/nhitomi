@@ -28,33 +28,31 @@ const DeleteButton = ({ collection, book, content }: { collection: Collection; b
             try {
               const client = createApiClient();
 
-              if (client) {
-                await client.collection.removeCollectionItems({
-                  id: collection.id,
-                  collectionItemsRequest: {
-                    items: [book.id],
-                  },
-                });
+              await client.collection.removeCollectionItems({
+                id: collection.id,
+                collectionItemsRequest: {
+                  items: [book.id],
+                },
+              });
 
-                toast({
-                  title: t("CollectionViewer.Book.ItemMenu.DeleteButton.toastTitle"),
-                  description: t("CollectionViewer.Book.ItemMenu.DeleteButton.toastDescription", {
-                    book: (
-                      <Link href={`/books/${book.id}/contents/${content.id}`} color="blue.500" isExternal>
-                        {book.primaryName}
-                      </Link>
-                    ),
-                    collection: (
-                      <Link href={`/collections/${collection.id}`} color="blue.500" isExternal>
-                        {collection.name}
-                      </Link>
-                    ),
-                  }),
-                  position: "top-right",
-                  status: "success",
-                  isClosable: true,
-                });
-              }
+              toast({
+                title: t("CollectionViewer.Book.ItemMenu.DeleteButton.toastTitle"),
+                description: t("CollectionViewer.Book.ItemMenu.DeleteButton.toastDescription", {
+                  book: (
+                    <Link href={`/books/${book.id}/contents/${content.id}`} color="blue.500" isExternal>
+                      {book.primaryName}
+                    </Link>
+                  ),
+                  collection: (
+                    <Link href={`/collections/${collection.id}`} color="blue.500" isExternal>
+                      {collection.name}
+                    </Link>
+                  ),
+                }),
+                position: "top-right",
+                status: "success",
+                isClosable: true,
+              });
             } catch (e) {
               console.error(e);
               error(e);

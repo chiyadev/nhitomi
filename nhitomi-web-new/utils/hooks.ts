@@ -75,6 +75,15 @@ export function useWindowScroll() {
   return state;
 }
 
+// returns a value that is only computed on the client
+export function useWindowValue<T>(defaultValue: T, factory: () => T, deps: any[] = []) {
+  const [value, setValue] = useState(defaultValue);
+
+  useEffect(() => setValue(factory()), deps);
+
+  return value;
+}
+
 // stateful useIsHotkeyPressed
 export function useHotkeyState(keys: string) {
   const [state, setState] = useState(false);

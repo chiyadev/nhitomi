@@ -2,8 +2,7 @@ import React, { memo } from "react";
 import { useT } from "../../../locales";
 import SectionItem from "../SectionItem";
 import { useConfig } from "../../../utils/config";
-import { Switch } from "@chakra-ui/switch";
-import { HStack } from "@chakra-ui/layout";
+import { HStack, Switch } from "@chakra-ui/react";
 
 const SfwMode = () => {
   const t = useT();

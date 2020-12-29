@@ -7,7 +7,7 @@ import Layout from "../Layout";
 import Header from "../Header";
 import HeaderTitle from "./HeaderTitle";
 import LayoutBody from "../LayoutBody";
-import { VStack } from "@chakra-ui/layout";
+import { VStack } from "@chakra-ui/react";
 import Section from "./Section";
 import { FaBook, FaImage, FaUser, FaWrench } from "react-icons/fa";
 import Account from "./User/Account";

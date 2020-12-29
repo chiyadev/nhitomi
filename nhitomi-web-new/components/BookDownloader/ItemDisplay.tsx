@@ -37,10 +37,6 @@ const ItemDisplay = ({
   useEffect(() => {
     const client = createApiClient();
 
-    if (!client) {
-      return;
-    }
-
     let proceed = true;
     let session: DownloadSession;
 

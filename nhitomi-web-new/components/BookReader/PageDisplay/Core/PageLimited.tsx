@@ -35,7 +35,7 @@ const PageLimited = ({
 
   return (
     <Center
-      px="4"
+      px={2}
       bg="rgba(0, 0, 0, 0.75)"
       style={useMemo(
         () => ({
@@ -55,7 +55,7 @@ const PageLimited = ({
         maxW="lg"
         bg="gray.700"
         borderRadius="md"
-        boxShadow="md"
+        boxShadow="lg"
         divider={<Divider />}
       >
         <HStack>

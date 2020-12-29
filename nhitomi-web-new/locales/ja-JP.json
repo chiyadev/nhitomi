@@ -2,7 +2,6 @@
   "error": "エラーが発生しました。",
   "BookListing": {
     "title": "ブックス",
-    "timing": "{count}件 ({time}秒)",
     "HeaderMenu": {
       "sort": "並び替え"
     },
@@ -11,6 +10,9 @@
     },
     "EmptyDisplay": {
       "text": "結果なし"
+    },
+    "TimingText": {
+      "text": "{count}件 ({time}秒)"
     },
     "QueryDrawer": {
       "title": "検索オプション",
@@ -60,7 +62,8 @@
         "text": "コレクションに追加"
       },
       "DownloadButton": {
-        "text": "ダウンロード"
+        "text": "ダウンロード",
+        "limited": "サポーターになるとこの本をダウンロードできます！"
       }
     },
     "PageDisplay": {
@@ -75,6 +78,9 @@
         "support": "nhitomiをサポートする",
         "supportDescription": "サポーターになるとnhitomiで続きが読めるようになります。"
       }
+    },
+    "SupportBanner": {
+      "heading": "{name}を支援してください！"
     }
   },
   "BookDownloader": {
@@ -96,6 +102,15 @@
       "toastDescription": "{book}を{collection}に追加しました。"
     }
   },
+  "CollectionItemSelector": {
+    "Book": {
+      "title": "項目を選択",
+      "search": "検索",
+      "select": "選択",
+      "selectAll": "全て選択",
+      "cancel": "キャンセル"
+    }
+  },
   "CollectionCreator": {
     "title": "コレクションを作成",
     "create": "作成",
@@ -110,6 +125,28 @@
     "delete": "削除",
     "cancel": "キャンセル"
   },
+  "CollectionEditor": {
+    "title": "{collection}を編集",
+    "infoTab": "情報",
+    "InfoPanel": {
+      "save": "保存",
+      "cancel": "キャンセル",
+      "NameInput": {
+        "label": "名前"
+      },
+      "DescriptionInput": {
+        "label": "説明"
+      },
+      "TypeSelect": {
+        "label": "タイプ"
+      },
+      "InfoText": {
+        "createdTime": "{time}に作成",
+        "updatedTime": "{time}に更新",
+        "itemCount": "{count}項目"
+      }
+    }
+  },
   "CollectionListing": {
     "title": "コレクション",
     "titleUser": "{user}さんのコレクション",
@@ -122,6 +159,9 @@
     },
     "Book": {
       "ItemMenu": {
+        "EditButton": {
+          "text": "編集"
+        },
         "DeleteButton": {
           "text": "削除"
         }
@@ -129,6 +169,12 @@
     }
   },
   "CollectionViewer": {
+    "HeaderMenu": {
+      "edit": "編集",
+      "random": "ランダム",
+      "download": "ダウンロード",
+      "delete": "削除"
+    },
     "Book": {
       "EmptyDisplay": {
         "text": "コレクションが空っぽです",
@@ -146,6 +192,7 @@
   "Header": {
     "search": "検索",
     "collections": "コレクション",
+    "support": "サポート",
     "settings": "設定",
     "SearchOverlay": {
       "Suggest": {
@@ -232,6 +279,17 @@
         "description": "全ての画像をプレースホルダーに代えます。",
         "toggle": "{value, select, true {オン} false {オフ}}"
       }
+    }
+  },
+  "Support": {
+    "title": "サポート",
+    "HeaderTitle": {
+      "title": "サポート",
+      "description": "nhitomiのサポーターになりましょう！"
+    },
+    "PendingDisplay": {
+      "title": "決済完了",
+      "back": "戻る"
     }
   },
   "SortDirection": "{value, select, ascending {昇順} descending {降順} other {{value}}}",

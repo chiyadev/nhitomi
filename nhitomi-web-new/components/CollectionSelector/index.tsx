@@ -1,5 +1,5 @@
 import React, { Dispatch, memo, useRef } from "react";
-import { Drawer, DrawerContent, DrawerOverlay } from "@chakra-ui/modal";
+import { Drawer, DrawerContent, DrawerOverlay } from "@chakra-ui/react";
 import Content from "./Content";
 import { Collection } from "nhitomi-api";
 

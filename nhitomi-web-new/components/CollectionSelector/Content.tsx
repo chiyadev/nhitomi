@@ -21,6 +21,7 @@ import ItemDisplay from "./ItemDisplay";
 import { FaPlus, FaSearch } from "react-icons/fa";
 import CollectionCreator from "../CollectionCreator";
 import { useErrorToast } from "../../utils/hooks";
+import escapeStringRegexp from "escape-string-regexp";
 
 const Content = ({
   focusRef,
@@ -44,13 +45,11 @@ const Content = ({
       const client = createApiClient();
 
       try {
-        if (client) {
-          const { items } = await client?.user.getUserCollections({
-            id: userId,
-          });
+        const { items } = await client?.user.getUserCollections({
+          id: userId,
+        });
 
-          setCollections(items);
-        }
+        setCollections(items);
       } catch (e) {
         console.error(e);
         error(e);
@@ -83,21 +82,22 @@ const Content = ({
       <DrawerBody>
         {useMemo(() => {
           if (collections) {
-            const filter = new RegExp(search, "gi");
+            const filter = new RegExp(escapeStringRegexp(search), "gi");
+            const filtered = collections.filter(
+              (collection) => collection.name.match(filter) || (collection.description || "").match(filter)
+            );
 
             return (
               <Fade in>
                 <VStack align="stretch" spacing={2}>
-                  {collections
-                    .filter((c) => c.name.match(filter) || (c.description || "").match(filter))
-                    .map((collection) => (
-                      <ItemDisplay
-                        key={collection.id}
-                        collection={collection}
-                        disabled={onFilter ? !onFilter(collection) : false}
-                        onSelect={onSelect}
-                      />
-                    ))}
+                  {filtered.map((collection) => (
+                    <ItemDisplay
+                      key={collection.id}
+                      collection={collection}
+                      disabled={onFilter ? !onFilter(collection) : false}
+                      onSelect={onSelect}
+                    />
+                  ))}
                 </VStack>
               </Fade>
             );

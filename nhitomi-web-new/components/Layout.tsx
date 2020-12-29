@@ -1,9 +1,17 @@
 import React, { memo, ReactNode } from "react";
 import Head from "next/head";
 import Footer from "./Footer";
-import { Box, Fade, Flex, Spacer } from "@chakra-ui/react";
+import { chakra, Fade, Flex } from "@chakra-ui/react";
 
-const Layout = ({ children, title = [] }: { children?: ReactNode; title?: (string | undefined)[] }) => (
+const Layout = ({
+  children,
+  title = [],
+  showFooter = true,
+}: {
+  children?: ReactNode;
+  title?: (string | undefined)[];
+  showFooter?: boolean;
+}) => (
   <Fade in>
     <Head>
       <meta charSet="utf-8" />
@@ -24,10 +32,10 @@ const Layout = ({ children, title = [] }: { children?: ReactNode; title?: (strin
       <title>{[...title.map((x) => x?.trim()).filter((x) => x), "nhitomi"].join(" · ")}</title>
     </Head>
 
-    <Flex direction="column" h="100vh">
-      <Box>{children}</Box>
-      <Spacer />
-      <Footer />
+    <Flex direction="column" minH="100vh">
+      <chakra.div flex={1}>{children}</chakra.div>
+
+      {showFooter && <Footer />}
     </Flex>
   </Fade>
 );

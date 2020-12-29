@@ -3,15 +3,25 @@ import { Modal, ModalContent, ModalOverlay } from "@chakra-ui/react";
 import Content from "./Content";
 import { useQuery } from "../../../utils/query";
 import { useRouter } from "next/router";
+import { useHotkeys } from "react-hotkeys-hook";
 
 const SearchOverlay = ({ open, setOpen }: { open: boolean; setOpen: (value: boolean) => void }) => {
   const router = useRouter();
   const [value, setValue] = useQuery("query");
 
+  useHotkeys(
+    "f",
+    (e) => {
+      e.preventDefault();
+      setOpen(true);
+    },
+    [setOpen]
+  );
+
   return (
     <Modal isOpen={open} onClose={() => setOpen(false)} motionPreset="slideInBottom" size="xl">
       <ModalOverlay />
-      <ModalContent>
+      <ModalContent mx={4}>
         <Content
           value={value}
           setValue={useCallback(

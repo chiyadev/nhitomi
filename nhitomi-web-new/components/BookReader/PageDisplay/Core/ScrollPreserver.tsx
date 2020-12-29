@@ -2,7 +2,7 @@ import { memo, RefObject, useRef } from "react";
 import { isSafari, safariResizeDelay } from "../../../../utils/fuckSafari";
 import { LayoutResult } from "./layoutEngine";
 import { useLastValue, useWindowScroll, useWindowSize } from "../../../../utils/hooks";
-import { useBreakpointValue } from "@chakra-ui/media-query";
+import { useBreakpointValue } from "@chakra-ui/react";
 
 const ScrollPreserver = ({ containerRef, layout }: { containerRef: RefObject<HTMLElement>; layout: LayoutResult }) => {
   const container = containerRef.current;

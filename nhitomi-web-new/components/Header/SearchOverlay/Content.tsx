@@ -143,7 +143,7 @@ const Content = ({ value, setValue }: { value: string; setValue: (value: string)
       const id = suggestTimeout.current;
       const client = createApiClient();
 
-      if (client && suggestQuery.trim()) {
+      if (suggestQuery.trim()) {
         setLoading(true);
 
         try {

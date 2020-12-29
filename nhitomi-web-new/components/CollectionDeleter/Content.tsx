@@ -55,13 +55,11 @@ const Content = ({
               try {
                 const client = createApiClient();
 
-                if (client) {
-                  await client.collection.deleteCollection({
-                    id: collection.id,
-                  });
+                await client.collection.deleteCollection({
+                  id: collection.id,
+                });
 
-                  onDelete?.();
-                }
+                onDelete?.();
               } catch (e) {
                 console.error(e);
                 error(e);

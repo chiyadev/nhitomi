@@ -39,30 +39,28 @@ const CollectionItemAdder = ({
       try {
         const client = createApiClient();
 
-        if (client) {
-          await client.collection.addCollectionItems({
-            id: collection.id,
-            addCollectionItemsRequest: {
-              items: [itemId],
-              position: CollectionInsertPosition.Start,
-            },
-          });
+        await client.collection.addCollectionItems({
+          id: collection.id,
+          addCollectionItemsRequest: {
+            items: [itemId],
+            position: CollectionInsertPosition.Start,
+          },
+        });
 
-          toast({
-            title: t("CollectionSelector.CollectionItemAdder.toastTitle"),
-            description: t("CollectionSelector.CollectionItemAdder.toastDescription", {
-              book: itemName,
-              collection: (
-                <Link href={`/collections/${collection.id}`} color="blue.500" isExternal>
-                  {collection.name}
-                </Link>
-              ),
-            }),
-            position: "top-right",
-            status: "success",
-            isClosable: true,
-          });
-        }
+        toast({
+          title: t("CollectionSelector.CollectionItemAdder.toastTitle"),
+          description: t("CollectionSelector.CollectionItemAdder.toastDescription", {
+            book: itemName,
+            collection: (
+              <Link href={`/collections/${collection.id}`} color="blue.500" isExternal>
+                {collection.name}
+              </Link>
+            ),
+          }),
+          position: "top-right",
+          status: "success",
+          isClosable: true,
+        });
       } catch (e) {
         console.error(e);
         error(e);

@@ -69,7 +69,14 @@ namespace nhitomi.Models
         /// This is a convenience field for checking <see cref="SupporterInfo"/>'s end time.
         /// </remarks>
         [Required]
-        public bool IsSupporter => DateTime.UtcNow < SupporterInfo?.EndTime;
+        public bool IsSupporter
+        {
+            get => DateTime.UtcNow < SupporterInfo?.EndTime;
+            set
+            {
+                // exists to make openapi generator set isSupporter in ToJSON functions
+            }
+        }
 
         /// <summary>
         /// Supporter information.

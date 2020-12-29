@@ -5,14 +5,14 @@ import flatten from "flat";
 import { useCallback } from "react";
 import { useIntl } from "react-intl";
 
-export const AvailableLocalizations: LanguageType[] = [LanguageType.JaJP, LanguageType.EnUS];
+export const AvailableLocalizations: LanguageType[] = [LanguageType.JaJp, LanguageType.EnUs];
 
 export function getLocalization(language: LanguageType) {
   switch (language) {
     default:
       return EnUS;
 
-    case LanguageType.JaJP:
+    case LanguageType.JaJp:
       return JaJP;
   }
 }

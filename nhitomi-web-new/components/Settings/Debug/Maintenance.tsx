@@ -21,14 +21,12 @@ const Maintenance = () => {
           try {
             const client = createApiClient();
 
-            if (client) {
-              await client.internal.setServerConfig({
-                setConfigRequest: {
-                  key: "Server:BlockDatabaseWrites",
-                  value: value ? "true" : "false",
-                },
-              });
-            }
+            await client.internal.setServerConfig({
+              setConfigRequest: {
+                key: "Server:BlockDatabaseWrites",
+                value: value ? "true" : "false",
+              },
+            });
           } catch (e) {
             console.error(e);
             error(e);

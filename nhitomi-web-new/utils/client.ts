@@ -19,6 +19,7 @@ import { ValidationError } from "./errors";
 import node_fetch from "node-fetch";
 import { parseCookies } from "nookies";
 import { createContext, useContext } from "react";
+import { parseConfigs } from "./config";
 
 export class ApiClient {
   readonly httpConfig: ConfigurationParameters = {
@@ -73,7 +74,7 @@ export class ApiClient {
   readonly download: DownloadApi;
   readonly internal: InternalApi;
 
-  constructor(readonly baseUrl: string, readonly token: string) {
+  constructor(readonly baseUrl: string, readonly token?: string) {
     this.user = new UserApi(new Configuration(this.httpConfig));
     this.info = new InfoApi(new Configuration(this.httpConfig));
     this.book = new BookApi(new Configuration(this.httpConfig));
@@ -101,16 +102,12 @@ function windowApiUrl() {
 }
 
 const ChiyaApiUrl = "https://nhitomi.chiya.dev/api/v1";
-const PublicApiUrl = process.env.NH_API_PUBLIC || windowApiUrl() || ChiyaApiUrl;
-const InternalApiUrl = process.env.NH_API_INTERNAL || PublicApiUrl;
+const PublicApiUrl = process.env.NEXT_PUBLIC_API_PUBLIC || windowApiUrl() || ChiyaApiUrl;
+const InternalApiUrl = process.env.NEXT_PUBLIC_API_INTERNAL || PublicApiUrl;
 
 export function createApiClient(token?: string) {
   if (!token) {
-    ({ token } = parseCookies());
-
-    if (!token) {
-      return;
-    }
+    ({ token } = parseConfigs(parseCookies()));
   }
 
   // server

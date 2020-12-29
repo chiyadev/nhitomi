@@ -36,9 +36,9 @@ const Suggest = ({
       setLoading(true);
 
       try {
-        const client = createApiClient();
+        if (books.length) {
+          const client = createApiClient();
 
-        if (client && books.length) {
           const items = await client.book.getBooks({
             getBookManyRequest: {
               ids: books.slice(0, 6).map((book) => book.id),

@@ -23,9 +23,9 @@ const FavoriteButton = ({ book, content }: { book: Book; content: BookContent })
           setLoad(true);
 
           try {
-            const client = createApiClient();
+            if (info?.user) {
+              const client = createApiClient();
 
-            if (client && info?.user) {
               const collection = await ClientUtils.addToSpecialCollection(
                 client,
                 info.user,

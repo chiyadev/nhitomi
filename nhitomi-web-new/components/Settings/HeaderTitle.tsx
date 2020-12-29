@@ -8,7 +8,7 @@ const HeaderTitle = () => {
 
   return (
     <HStack align="baseline" spacing={2}>
-      <NextLink href="/" passHref>
+      <NextLink href="/settings" passHref>
         <Link>
           <Heading size="md" isTruncated>
             {t("Settings.HeaderTitle.title")}

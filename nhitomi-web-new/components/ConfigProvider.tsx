@@ -43,7 +43,7 @@ const CookieProvider = ({ cookies, children }: { cookies: CookieContainer; child
           setCookie(undefined, key, current, {
             path: "/",
             sameSite: "lax",
-            secure: window.location.protocol === "https:",
+            secure: process.env.NODE_ENV !== "development",
             expires: new Date(2100, 1, 1),
           });
         }
@@ -71,13 +71,13 @@ const ClientInfoProvider = ({
   info?: GetInfoResponse | GetInfoAuthenticatedResponse;
   children?: ReactNode;
 }) => {
-  const language = info && "user" in info ? info.user.language : LanguageType.EnUS;
+  const language = info && "user" in info ? info.user.language : LanguageType.EnUs;
   const localization = useMemo(() => {
     let result = getFlatLocalization(language);
 
-    if (language !== LanguageType.EnUS) {
+    if (language !== LanguageType.EnUs) {
       result = {
-        ...getFlatLocalization(LanguageType.EnUS),
+        ...getFlatLocalization(LanguageType.EnUs),
         ...result,
       };
     }

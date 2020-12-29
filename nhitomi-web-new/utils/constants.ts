@@ -32,19 +32,19 @@ export const BookTagColors: { [key in BookTag]: string } = {
 export const ScraperTypes = [ScraperType.Nhentai, ScraperType.Hitomi];
 
 export const LanguageTypes = [
-  LanguageType.JaJP,
-  LanguageType.EnUS,
-  LanguageType.ZhCN,
-  LanguageType.KoKR,
-  LanguageType.ItIT,
-  LanguageType.EsES,
-  LanguageType.DeDE,
-  LanguageType.FrFR,
-  LanguageType.TrTR,
-  LanguageType.NlNL,
-  LanguageType.RuRU,
-  LanguageType.IdID,
-  LanguageType.ViVN,
+  LanguageType.JaJp,
+  LanguageType.EnUs,
+  LanguageType.ZhCn,
+  LanguageType.KoKr,
+  LanguageType.ItIt,
+  LanguageType.EsEs,
+  LanguageType.DeDe,
+  LanguageType.FrFr,
+  LanguageType.TrTr,
+  LanguageType.NlNl,
+  LanguageType.RuRu,
+  LanguageType.IdId,
+  LanguageType.ViVn,
 ];
 
 export const ScraperIcons: Record<ScraperType, string> = {

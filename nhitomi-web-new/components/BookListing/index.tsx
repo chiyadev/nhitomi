@@ -10,12 +10,12 @@ import HeaderTitleQuery from "./HeaderTitleQuery";
 import HeaderTitleApp from "./HeaderTitleApp";
 import HeaderMenu from "./HeaderMenu";
 import LayoutBody from "../LayoutBody";
-import { chakra } from "@chakra-ui/react";
 import BookGrid from "../BookGrid";
 import EmptyDisplay from "./EmptyDisplay";
 import InfiniteLoader from "../BookGrid/InfiniteLoader";
 import { createApiClient } from "../../utils/client";
 import { createBookQuery } from "../../utils/book";
+import TimingText from "./TimingText";
 
 function removeDuplicates(books: Book[]) {
   const ids = new Set(books.map((book) => book.id));
@@ -38,12 +38,7 @@ const BookListing = ({ initial }: { initial: BookSearchResult }) => {
       <Header title={query ? <HeaderTitleQuery query={query} /> : <HeaderTitleApp />} menu={<HeaderMenu />} />
 
       <LayoutBody>
-        <chakra.div px={2} color="gray.500" fontSize="sm">
-          {t("BookListing.timing", {
-            count: initial.total,
-            time: Math.round(parseFloat(initial.took.split(":").slice(-1)[0]) * 100) / 100,
-          })}
-        </chakra.div>
+        <TimingText result={initial} />
 
         {items.length ? <BookGrid items={items} /> : <EmptyDisplay />}
 
@@ -52,20 +47,18 @@ const BookListing = ({ initial }: { initial: BookSearchResult }) => {
             hasMore={useCallback(async () => {
               const client = createApiClient();
 
-              if (client) {
-                const { items: newItems, total } = await client.book.searchBooks({
-                  bookQuery: {
-                    ...createBookQuery(query, languages, source.split(",") as ScraperType[], sort, order),
-                    offset: offset.current,
-                  },
-                });
+              const { items: newItems, total } = await client.book.searchBooks({
+                bookQuery: {
+                  ...createBookQuery(query, languages, source.split(",") as ScraperType[], sort, order),
+                  offset: offset.current,
+                },
+              });
 
-                if (newItems.length) {
-                  setItems((items) => removeDuplicates([...items, ...newItems]));
-                  offset.current += newItems.length;
+              if (newItems.length) {
+                setItems((items) => removeDuplicates([...items, ...newItems]));
+                offset.current += newItems.length;
 
-                  return offset.current < total;
-                }
+                return offset.current < total;
               }
 
               return false;

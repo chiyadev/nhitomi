@@ -49,9 +49,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async (ctx) => {
   const { id } = parseQueries(ctx.query);
 
   try {
-    const client = createApiClient(token);
-
-    if (!client) {
+    if (!token) {
       return {
         redirect: {
           destination: "/auth",
@@ -59,6 +57,8 @@ export const getServerSideProps: GetServerSideProps<Props> = async (ctx) => {
         },
       };
     }
+
+    const client = createApiClient(token);
 
     const info = await client.info.getInfoAuthenticated();
     const user = info.user.id === id ? info.user : await client.user.getUser({ id });

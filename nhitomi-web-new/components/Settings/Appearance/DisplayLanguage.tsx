@@ -32,22 +32,19 @@ const DisplayLanguage = () => {
 
           try {
             const client = createApiClient();
+            const language = value as LanguageType;
+            const user = await client.user.getSelfUser();
 
-            if (client) {
-              const language = value as LanguageType;
-              const user = await client.user.getSelfUser();
+            await client.user.updateUser({
+              id: user.id,
+              userBase: {
+                ...user,
+                language,
+              },
+            });
 
-              await client.user.updateUser({
-                id: user.id,
-                userBase: {
-                  ...user,
-                  language,
-                },
-              });
-
-              setSearchLanguages((l) => l.concat(language).filter((v, i, a) => a.indexOf(v) === i));
-              router.reload();
-            }
+            setSearchLanguages((l) => l.concat(language).filter((v, i, a) => a.indexOf(v) === i));
+            router.reload();
           } catch (e) {
             console.error(e);
             error(e);

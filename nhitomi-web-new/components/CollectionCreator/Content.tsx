@@ -49,19 +49,17 @@ const Content = ({
           try {
             const client = createApiClient();
 
-            if (client) {
-              const collection = await client.collection.createCollection({
-                createCollectionRequest: {
-                  type,
-                  collection: {
-                    name,
-                    description,
-                  },
+            const collection = await client.collection.createCollection({
+              createCollectionRequest: {
+                type,
+                collection: {
+                  name,
+                  description,
                 },
-              });
+              },
+            });
 
-              onCreate?.(collection);
-            }
+            onCreate?.(collection);
           } catch (e) {
             console.error(e);
             error(e);

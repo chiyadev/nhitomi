@@ -2,8 +2,7 @@ import React, { memo } from "react";
 import { useConfig } from "../../../utils/config";
 import SectionItem from "../SectionItem";
 import { useT } from "../../../locales";
-import { HStack } from "@chakra-ui/react";
-import { Switch } from "@chakra-ui/switch";
+import { HStack, Switch } from "@chakra-ui/react";
 
 const ForceInfoOverlay = () => {
   const t = useT();

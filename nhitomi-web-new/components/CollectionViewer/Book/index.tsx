@@ -10,6 +10,7 @@ import BookEmptyDisplay from "./EmptyDisplay";
 import InfiniteLoader from "../../BookGrid/InfiniteLoader";
 import { createApiClient } from "../../../utils/client";
 import ItemMenu from "./ItemMenu";
+import HeaderMenu from "./HeaderMenu";
 
 function removeDuplicates<T extends { id: string }>(items: T[]) {
   const ids = new Set(items.map((book) => book.id));
@@ -22,7 +23,7 @@ const CollectionViewer = ({ collection, initial }: { collection: Collection; ini
 
   return (
     <Layout title={[collection.name]}>
-      <Header title={<HeaderTitle collection={collection} />} />
+      <Header title={<HeaderTitle collection={collection} />} menu={<HeaderMenu collection={collection} />} />
 
       <LayoutBody>
         {items.length ? (
@@ -38,19 +39,17 @@ const CollectionViewer = ({ collection, initial }: { collection: Collection; ini
             hasMore={useCallback(async () => {
               const client = createApiClient();
 
-              if (client) {
-                const newItems = await client.book.getBooks({
-                  getBookManyRequest: {
-                    ids: collection.items.slice(offset.current, offset.current + QueryChunkSize),
-                  },
-                });
+              const newItems = await client.book.getBooks({
+                getBookManyRequest: {
+                  ids: collection.items.slice(offset.current, offset.current + QueryChunkSize),
+                },
+              });
 
-                if (newItems.length) {
-                  setItems((items) => removeDuplicates([...items, ...newItems]));
-                  offset.current += QueryChunkSize;
+              if (newItems.length) {
+                setItems((items) => removeDuplicates([...items, ...newItems]));
+                offset.current += QueryChunkSize;
 
-                  return offset.current < collection.items.length;
-                }
+                return offset.current < collection.items.length;
               }
 
               return false;

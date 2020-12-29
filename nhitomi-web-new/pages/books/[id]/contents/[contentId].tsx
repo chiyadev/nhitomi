@@ -40,9 +40,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async (ctx) => {
   const { id, contentId } = parseQueries(ctx.query);
 
   try {
-    const client = createApiClient(token);
-
-    if (!client) {
+    if (!token) {
       return {
         redirect: {
           destination: "/auth",
@@ -51,8 +49,9 @@ export const getServerSideProps: GetServerSideProps<Props> = async (ctx) => {
       };
     }
 
-    const info = await client.info.getInfoAuthenticated();
+    const client = createApiClient(token);
 
+    const info = await client.info.getInfoAuthenticated();
     const book = await client.book.getBook({ id });
     const content = book.contents.find((content) => content.id === contentId);
 

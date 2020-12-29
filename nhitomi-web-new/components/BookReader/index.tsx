@@ -7,13 +7,16 @@ import ScrollKeyHandler from "../ScrollKeyHandler";
 import Background from "./Background";
 import Header from "../Header";
 import HeaderTitle from "./HeaderTitle";
-import { VStack } from "@chakra-ui/layout";
+import { VStack } from "@chakra-ui/react";
 import LayoutBody from "../LayoutBody";
 import Info from "./Info";
 import CursorManager from "./CursorManager";
 import PageDisplay from "./PageDisplay";
+import SupportBanner from "./SupportBanner";
+import { useClientInfoAuth } from "../../utils/client";
 
 const BookReader = ({ book, contentId }: { book: Book; contentId: string }) => {
+  const info = useClientInfoAuth();
   const content = book.contents.find((content) => content.id === contentId) || book.contents[0];
 
   const [infoRef, infoVisible] = useInView();
@@ -33,6 +36,8 @@ const BookReader = ({ book, contentId }: { book: Book; contentId: string }) => {
               <Info book={book} content={content} />
             </LayoutBody>
           </div>
+
+          {!info?.user.isSupporter && <SupportBanner book={book} content={content} />}
 
           <CursorManager>
             <PageDisplay book={book} content={content} />

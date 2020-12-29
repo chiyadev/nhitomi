@@ -1,24 +1,18 @@
-import React, { memo } from "react";
-import { GetServerSideProps } from "next";
-import { createApiClient } from "../utils/client";
+import { CookieContainer, parseConfigs } from "../../utils/config";
 import {
-  BookSearchResult,
-  BookSearchResultFromJSON,
-  BookSearchResultToJSON,
   GetInfoAuthenticatedResponse,
   GetInfoAuthenticatedResponseFromJSON,
   GetInfoAuthenticatedResponseToJSON,
-  ScraperType,
 } from "nhitomi-api";
-import ErrorPage from "../components/ErrorPage";
-import { parseQueries } from "../utils/query";
-import { createBookQuery } from "../utils/book";
-import ConfigProvider from "../components/ConfigProvider";
-import { useChangeCount } from "../utils/hooks";
-import { CookieContainer, parseConfigs } from "../utils/config";
+import { GetServerSideProps } from "next";
 import { parseCookies } from "nookies";
-import { sanitizeProps } from "../utils/props";
-import Content from "../components/BookListing";
+import { createApiClient } from "../../utils/client";
+import { sanitizeProps } from "../../utils/props";
+import React, { memo } from "react";
+import { useChangeCount } from "../../utils/hooks";
+import ConfigProvider from "../../components/ConfigProvider";
+import Content from "../../components/Support/PendingDisplay";
+import ErrorPage from "../../components/ErrorPage";
 
 type Props = {
   cookies: CookieContainer;
@@ -26,7 +20,6 @@ type Props = {
     | {
         type: "success";
         info: GetInfoAuthenticatedResponse;
-        initial: BookSearchResult;
       }
     | {
         type: "error";
@@ -36,13 +29,10 @@ type Props = {
 
 export const getServerSideProps: GetServerSideProps<Props> = async (ctx) => {
   const cookies = parseCookies(ctx);
-  const { token, searchLanguages } = parseConfigs(cookies);
-  const { query, sort, order, source } = parseQueries(ctx.query);
+  const { token } = parseConfigs(cookies);
 
   try {
-    const client = createApiClient(token);
-
-    if (!client) {
+    if (!token) {
       return {
         redirect: {
           destination: "/auth",
@@ -51,11 +41,8 @@ export const getServerSideProps: GetServerSideProps<Props> = async (ctx) => {
       };
     }
 
+    const client = createApiClient(token);
     const info = await client.info.getInfoAuthenticated();
-
-    const result = await client.book.searchBooks({
-      bookQuery: createBookQuery(query, searchLanguages, source.split(",") as ScraperType[], sort, order),
-    });
 
     return {
       props: sanitizeProps({
@@ -63,7 +50,6 @@ export const getServerSideProps: GetServerSideProps<Props> = async (ctx) => {
         result: {
           type: "success",
           info: GetInfoAuthenticatedResponseToJSON(info),
-          initial: BookSearchResultToJSON(result),
         },
       }),
     };
@@ -82,14 +68,14 @@ export const getServerSideProps: GetServerSideProps<Props> = async (ctx) => {
   }
 };
 
-const BookListing = ({ cookies, result }: Props) => {
+const Pending = ({ cookies, result }: Props) => {
   const renderId = useChangeCount(result);
 
   switch (result.type) {
     case "success":
       return (
         <ConfigProvider key={renderId} cookies={cookies} info={GetInfoAuthenticatedResponseFromJSON(result.info)}>
-          <Content initial={BookSearchResultFromJSON(result.initial)} />
+          <Content />
         </ConfigProvider>
       );
 
@@ -102,4 +88,4 @@ const BookListing = ({ cookies, result }: Props) => {
   }
 };
 
-export default memo(BookListing);
+export default memo(Pending);

@@ -32,9 +32,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async (ctx) => {
   const { token } = parseConfigs(cookies);
 
   try {
-    const client = createApiClient(token);
-
-    if (!client) {
+    if (!token) {
       return {
         redirect: {
           destination: "/auth",
@@ -43,6 +41,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async (ctx) => {
       };
     }
 
+    const client = createApiClient(token);
     const info = await client.info.getInfoAuthenticated();
 
     return {

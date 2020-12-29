@@ -4,6 +4,7 @@ import { Collection } from "nhitomi-api";
 import { CollectionMenuContext } from "../..";
 import DeleteButton from "./DeleteButton";
 import ElementPortal from "../../../ElementPortal";
+import EditButton from "./EditButton";
 
 const ItemMenu = ({ collection, setMenu }: { collection: Collection; setMenu: Dispatch<ReactNode> }) => {
   const { render } = useContext(CollectionMenuContext);
@@ -11,6 +12,7 @@ const ItemMenu = ({ collection, setMenu }: { collection: Collection; setMenu: Di
 
   return (
     <ElementPortal.Provider onRender={setMenu}>
+      <EditButton collection={collection} />
       <DeleteButton collection={collection} />
 
       {additional && (

@@ -9,7 +9,6 @@ import { useConfig } from "../utils/config";
 import { getSfwPlaceholder } from "../utils/sfw";
 
 const BookImage = ({
-  className,
   book,
   content,
   index,
@@ -18,7 +17,6 @@ const BookImage = ({
   onLoaded,
   ...props
 }: {
-  className?: string;
   book: Book;
   content: BookContent;
   index: number;
@@ -61,28 +59,24 @@ const BookImage = ({
         const id = ++loadId.current;
         const client = createApiClient();
 
-        if (client) {
-          let data: Blob;
+        let data: Blob;
 
-          if (sfw) {
-            data = await getSfwPlaceholder();
-          } else {
-            data = await client.book.getBookImage({
-              id: book.id,
-              contentId: content.id,
-              index,
-            });
-          }
-
-          await onLoaded?.(data);
-
-          if (id === loadId.current) {
-            setLoading(false);
-            setResult(data);
-            setTimeout(() => setAnimateProps({}));
-          }
+        if (sfw) {
+          data = await getSfwPlaceholder();
         } else {
-          setResult(Error("Unauthorized."));
+          data = await client.book.getBookImage({
+            id: book.id,
+            contentId: content.id,
+            index,
+          });
+        }
+
+        await onLoaded?.(data);
+
+        if (id === loadId.current) {
+          setLoading(false);
+          setResult(data);
+          setTimeout(() => setAnimateProps({}));
         }
       } catch (e) {
         setResult(e);

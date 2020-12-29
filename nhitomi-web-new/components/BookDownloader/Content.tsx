@@ -76,10 +76,10 @@ const Content = ({
         <ButtonGroup>
           <Button
             ref={focusRef}
-            leftIcon={completed ? undefined : <Icon as={FaTimes} />}
+            leftIcon={completed === targets.length ? undefined : <Icon as={FaTimes} />}
             onClick={() => setOpen(false)}
           >
-            {t(completed ? "BookDownloader.close" : "BookDownloader.cancel")}
+            {t(completed === targets.length ? "BookDownloader.close" : "BookDownloader.cancel")}
           </Button>
         </ButtonGroup>
       </ModalFooter>

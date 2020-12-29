@@ -2,7 +2,6 @@
   "error": "An error occurred.",
   "BookListing": {
     "title": "Books",
-    "timing": "{count} {count, plural, one {result} other {results}} ({time} {time, plural, one {second} other {seconds}})",
     "HeaderMenu": {
       "sort": "Sort"
     },
@@ -11,6 +10,9 @@
     },
     "EmptyDisplay": {
       "text": "No results"
+    },
+    "TimingText": {
+      "text": "{count} {count, plural, one {result} other {results}} ({time} {time, plural, one {second} other {seconds}})"
     },
     "QueryDrawer": {
       "title": "Query Options",
@@ -60,7 +62,8 @@
         "text": "Add to collection"
       },
       "DownloadButton": {
-        "text": "Download"
+        "text": "Download",
+        "limited": "Become a supporter to download this book!"
       }
     },
     "PageDisplay": {
@@ -75,6 +78,9 @@
         "support": "Support nhitomi",
         "supportDescription": "You can continue reading on nhitomi by becoming a supporter."
       }
+    },
+    "SupportBanner": {
+      "heading": "{name} needs your help!"
     }
   },
   "BookDownloader": {
@@ -96,6 +102,15 @@
       "toastDescription": "Added {book} to {collection}."
     }
   },
+  "CollectionItemSelector": {
+    "Book": {
+      "title": "Select items",
+      "search": "Search",
+      "select": "Select",
+      "selectAll": "Select all",
+      "cancel": "Cancel"
+    }
+  },
   "CollectionCreator": {
     "title": "Create collection",
     "create": "Create",
@@ -110,6 +125,28 @@
     "delete": "Delete",
     "cancel": "Cancel"
   },
+  "CollectionEditor": {
+    "title": "Edit {collection}",
+    "infoTab": "Information",
+    "InfoPanel": {
+      "save": "Save",
+      "cancel": "Cancel",
+      "NameInput": {
+        "label": "Name"
+      },
+      "DescriptionInput": {
+        "label": "Description"
+      },
+      "TypeSelect": {
+        "label": "Type"
+      },
+      "InfoText": {
+        "createdTime": "Created on {time}",
+        "updatedTime": "Updated on {time}",
+        "itemCount": "{count} {count, plural, one {item} other {items}}"
+      }
+    }
+  },
   "CollectionListing": {
     "title": "Collections",
     "titleUser": "{user}'s Collections",
@@ -122,6 +159,9 @@
     },
     "Book": {
       "ItemMenu": {
+        "EditButton": {
+          "text": "Edit"
+        },
         "DeleteButton": {
           "text": "Delete"
         }
@@ -129,6 +169,12 @@
     }
   },
   "CollectionViewer": {
+    "HeaderMenu": {
+      "edit": "Edit",
+      "random": "Random",
+      "download": "Download",
+      "delete": "Delete"
+    },
     "Book": {
       "EmptyDisplay": {
         "text": "Collection is empty",
@@ -146,6 +192,7 @@
   "Header": {
     "search": "Search",
     "collections": "Collections",
+    "support": "Support",
     "settings": "Settings",
     "SearchOverlay": {
       "Suggest": {
@@ -238,6 +285,17 @@
         "description": "All images will be replaced with placeholders.",
         "toggle": "{value, select, true {Enabled} false {Disabled}}"
       }
+    }
+  },
+  "Support": {
+    "title": "Support",
+    "HeaderTitle": {
+      "title": "Support",
+      "description": "Become an nhitomi supporter!"
+    },
+    "PendingDisplay": {
+      "title": "Payment success",
+      "back": "Back"
     }
   },
   "SortDirection": "{value, select, ascending {Ascending} descending {Descending} other {{value}}}",
