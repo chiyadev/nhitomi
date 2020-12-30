@@ -25,7 +25,7 @@ export const LanguageNames: { [lang in LanguageType]: string } = {
   "vi-VN": "Tiếng Việt",
 };
 
-export const CJKLanguages: LanguageType[] = [LanguageType.JaJP, LanguageType.ZhCN, LanguageType.KoKR];
+export const CJKLanguages: LanguageType[] = [LanguageType.JaJp, LanguageType.ZhCn, LanguageType.KoKr];
 
 export function useLocalized(
   id: string,
@@ -124,7 +124,7 @@ async function loadLanguage(language: LanguageType): Promise<Record<string, stri
   let data = JSON.parse(JSON.stringify(DefaultLocalization));
 
   // layer other languages on top of the default English
-  if (language !== LanguageType.EnUS && AvailableLocalizations.indexOf(language) !== -1) {
+  if (language !== LanguageType.EnUs && AvailableLocalizations.indexOf(language) !== -1) {
     try {
       const overlay = (await import(/* webpackMode: "eager" */ `./Languages/${language}.json`)).default;
 

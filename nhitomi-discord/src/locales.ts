@@ -15,7 +15,7 @@ configure({
 
 /** Contains localized strings that can be formatted. */
 export class Locale {
-  static default: Locale = Locale.get(LanguageType.EnUS);
+  static default: Locale = Locale.get(LanguageType.EnUs);
 
   static get(language: LanguageType): Locale {
     return new Locale(language);

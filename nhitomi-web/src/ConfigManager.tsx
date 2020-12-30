@@ -105,8 +105,8 @@ export const UserPreferredLanguages = navigator.languages
 const DefaultStore: ConfigStore = {
   token: undefined,
   baseUrl: undefined,
-  language: UserPreferredLanguages.find((lang) => AvailableLocalizations.indexOf(lang) !== -1) || LanguageType.EnUS,
-  searchLanguages: [...UserPreferredLanguages, LanguageType.JaJP].filter((v, i, a) => a.indexOf(v) === i),
+  language: UserPreferredLanguages.find((lang) => AvailableLocalizations.indexOf(lang) !== -1) || LanguageType.EnUs,
+  searchLanguages: [...UserPreferredLanguages, LanguageType.JaJp].filter((v, i, a) => a.indexOf(v) === i),
   animation: "normal",
   blur: BlurSupported,
   downloads: [],
