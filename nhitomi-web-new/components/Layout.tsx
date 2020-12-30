@@ -1,16 +1,17 @@
 import React, { memo, ReactNode } from "react";
 import Head from "next/head";
 import Footer from "./Footer";
-import { chakra, Fade, Flex } from "@chakra-ui/react";
+import { Center, chakra, Fade, Flex } from "@chakra-ui/react";
+import MaintenanceAlert from "./MaintenanceAlert";
 
 const Layout = ({
   children,
   title = [],
-  showFooter = true,
+  center = false,
 }: {
   children?: ReactNode;
   title?: (string | undefined)[];
-  showFooter?: boolean;
+  center?: boolean;
 }) => (
   <Fade in>
     <Head>
@@ -33,9 +34,11 @@ const Layout = ({
     </Head>
 
     <Flex direction="column" minH="100vh">
-      <chakra.div flex={1}>{children}</chakra.div>
+      <MaintenanceAlert />
 
-      {showFooter && <Footer />}
+      {center ? <Center flex={1}>{children}</Center> : <chakra.div flex={1}>{children}</chakra.div>}
+
+      <Footer />
     </Flex>
   </Fade>
 );

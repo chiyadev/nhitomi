@@ -1,9 +1,10 @@
 import React, { memo } from "react";
-import { Button } from "@chakra-ui/react";
-import { useClientInfo } from "../../utils/client";
-import { useWindowValue } from "../../utils/hooks";
+import { Button, Icon, LightMode } from "@chakra-ui/react";
+import { useClientInfo } from "../../../utils/client";
+import { useWindowValue } from "../../../utils/hooks";
+import { FaDiscord } from "react-icons/fa";
 
-const DiscordOAuthButton = () => {
+const DiscordButton = () => {
   const info = useClientInfo();
 
   const url = useWindowValue(
@@ -32,10 +33,12 @@ const DiscordOAuthButton = () => {
   );
 
   return (
-    <Button as="a" href={url} disabled={!url}>
-      Sign in
-    </Button>
+    <LightMode>
+      <Button as="a" size="sm" colorScheme="discord" href={url} disabled={!url} leftIcon={<Icon as={FaDiscord} />}>
+        Continue with Discord
+      </Button>
+    </LightMode>
   );
 };
 
-export default memo(DiscordOAuthButton);
+export default memo(DiscordButton);

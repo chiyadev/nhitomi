@@ -47,11 +47,15 @@
   },
   "BookReader": {
     "Info": {
-      "pageCount": "{count}ページ",
-      "createdTime": "{time}にアップロード",
-      "updatedTime": "{time}に更新",
       "TagList": {
         "sources": "サイト"
+      },
+      "InfoText": {
+        "pageCount": "{count}ページ",
+        "createdTime": "{time}にアップロード",
+        "updatedTime": "{time}に更新",
+        "refreshing": "リフレッシュ中...",
+        "refreshFail": "リフレッシュを失敗しました。"
       },
       "FavoriteButton": {
         "text": "いいね",
@@ -291,6 +295,9 @@
       "title": "決済完了",
       "back": "戻る"
     }
+  },
+  "MaintenanceAlert": {
+    "text": "nhitomiは現在メンテナンスを行っています。"
   },
   "SortDirection": "{value, select, ascending {昇順} descending {降順} other {{value}}}",
   "BookTag": "{value, select, artist {アーティスト} circle {サークル} character {キャラクター} parody {パロディ} series {シリーズ} convention {イベント} metadata {メタ} tag {タグ} other {{value}}}",

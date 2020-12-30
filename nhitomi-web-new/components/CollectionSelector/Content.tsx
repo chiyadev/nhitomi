@@ -81,7 +81,7 @@ const Content = ({
 
       <DrawerBody>
         {useMemo(() => {
-          if (collections) {
+          if (collections?.length) {
             const filter = new RegExp(escapeStringRegexp(search), "gi");
             const filtered = collections.filter(
               (collection) => collection.name.match(filter) || (collection.description || "").match(filter)
@@ -101,6 +101,8 @@ const Content = ({
                 </VStack>
               </Fade>
             );
+          } else if (collections) {
+            return null;
           } else {
             return (
               <Center>

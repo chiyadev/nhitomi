@@ -44,11 +44,11 @@ export type Configs = {
 
 export const DefaultConfigs: Configs = {
   token: undefined,
-  searchLanguages: [LanguageType.EnUS, LanguageType.JaJP],
+  searchLanguages: [LanguageType.EnUs, LanguageType.JaJp],
   sfw: false,
 
   bookForceInfoOverlay: false,
-  bookViewportBound: false,
+  bookViewportBound: true,
   bookLeftToRight: false,
   bookImagesPerRow: 2,
   bookSingleCover: true,

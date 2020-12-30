@@ -10,6 +10,10 @@ import { useErrorToast } from "../../../utils/hooks";
 import LanguageFlag from "../../LanguageFlag";
 import { useConfig } from "../../../utils/config";
 
+function getLanguageOrDefault(language?: LanguageType) {
+  return language && AvailableLocalizations.includes(language) ? language : LanguageType.EnUs;
+}
+
 const DisplayLanguage = () => {
   const t = useT();
   const info = useClientInfoAuth();
@@ -26,7 +30,7 @@ const DisplayLanguage = () => {
       <BlockingSpinner visible={load} />
 
       <RadioGroup
-        value={info?.user.language}
+        value={getLanguageOrDefault(info?.user.language)}
         onChange={async (value) => {
           setLoad(true);
 

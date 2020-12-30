@@ -23,7 +23,7 @@ const Account = () => {
           leftIcon={<Icon as={FaSignOutAlt} />}
           onClick={() => {
             setToken(undefined);
-            router.reload();
+            setTimeout(() => router.reload(), 200);
           }}
         >
           {t("Settings.User.Account.signOut")}

@@ -1,6 +1,6 @@
 import React, { memo, useState } from "react";
-import { chakra, Icon, Link, VStack } from "@chakra-ui/react";
-import { FaFolder } from "react-icons/fa";
+import { chakra, HStack, Icon, Link, VStack } from "@chakra-ui/react";
+import { FaFolder, FaPlus } from "react-icons/fa";
 import { useT } from "../../locales";
 import CollectionCreator from "../CollectionCreator";
 import { useRouter } from "next/router";
@@ -28,7 +28,10 @@ const EmptyDisplay = () => {
         <chakra.div fontSize="sm">{t("CollectionListing.EmptyDisplay.text")}</chakra.div>
 
         <Link as="button" color="blue.500" fontSize="sm" onClick={() => setCreate(true)}>
-          {t("CollectionListing.EmptyDisplay.create")}
+          <HStack spacing={2}>
+            <Icon as={FaPlus} />
+            <div>{t("CollectionListing.EmptyDisplay.create")}</div>
+          </HStack>
         </Link>
       </VStack>
     </>

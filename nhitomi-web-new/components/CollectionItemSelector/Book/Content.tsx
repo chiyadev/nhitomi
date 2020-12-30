@@ -44,6 +44,10 @@ const Content = ({
   const [selected, setSelected] = useState<string[]>([]);
 
   useEffect(() => {
+    if (!collection.items.length) {
+      setItems([]);
+    }
+
     (async () => {
       try {
         const client = createApiClient();

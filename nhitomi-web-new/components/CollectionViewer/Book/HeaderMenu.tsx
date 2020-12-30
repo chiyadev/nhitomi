@@ -36,9 +36,11 @@ const HeaderMenu = ({ collection }: { collection: Collection }) => {
         name={t("CollectionViewer.HeaderMenu.random")}
         icon={FaRandom}
         onClick={async () => {
-          const id = collection.items[Math.floor(Math.random() * collection.items.length)];
+          if (collection.items.length) {
+            const id = collection.items[Math.floor(Math.random() * collection.items.length)];
 
-          await router.push(`/books/${id}`);
+            await router.push(`/books/${id}`);
+          }
         }}
       />
 

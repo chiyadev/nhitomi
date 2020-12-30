@@ -24,7 +24,7 @@ const StickyOverlay = ({ shadow, children }: { shadow?: boolean; children?: Reac
   }, [scrollY]);
 
   return (
-    <chakra.div ref={ref} as="nav" position="sticky" zIndex="sticky" top="-1px">
+    <chakra.div ref={ref} as="nav" position="sticky" zIndex="sticky" top="-1px" overflow="hidden">
       <chakra.div
         bg="gray.900"
         boxShadow={(overlay || shadow) && !hide ? "lg" : undefined}

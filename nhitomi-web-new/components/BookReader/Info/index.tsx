@@ -1,20 +1,16 @@
-import React, { memo, ReactNode } from "react";
+import React, { memo } from "react";
 import styles from "./index.module.css";
 import { Book, BookContent } from "nhitomi-api";
-import { AspectRatio, chakra, Flex, Heading, HStack, Icon, Link, VStack, Wrap, WrapItem } from "@chakra-ui/react";
+import { AspectRatio, chakra, Flex, Heading, Link, VStack, Wrap, WrapItem } from "@chakra-ui/react";
 import BookImage from "../../BookImage";
 import NextLink from "next/link";
 import TagList from "./TagList";
-import { AiOutlineHistory, AiOutlineRead, AiOutlineUpload } from "react-icons/ai";
-import { useT } from "../../../locales";
-import DateDisplay from "../../DateDisplay";
 import FavoriteButton from "./FavoriteButton";
 import DownloadButton from "./DownloadButton";
 import AddToCollectionButton from "./AddToCollectionButton";
+import InfoText from "./InfoText";
 
 const Info = ({ book, content }: { book: Book; content: BookContent }) => {
-  const t = useT();
-
   return (
     <Flex className={styles.container} p={4}>
       <div className={styles.image}>
@@ -49,16 +45,7 @@ const Info = ({ book, content }: { book: Book; content: BookContent }) => {
           </VStack>
 
           <TagList book={book} content={content} />
-
-          <chakra.div color="gray.200">
-            <InfoLine icon={AiOutlineRead}>{t("BookReader.Info.pageCount", { count: content.pageCount })}</InfoLine>
-            <InfoLine icon={AiOutlineUpload}>
-              {t("BookReader.Info.createdTime", { time: <DateDisplay date={book.createdTime} /> })}
-            </InfoLine>
-            <InfoLine icon={AiOutlineHistory}>
-              {t("BookReader.Info.updatedTime", { time: <DateDisplay date={book.updatedTime} /> })}
-            </InfoLine>
-          </chakra.div>
+          <InfoText book={book} content={content} />
 
           <Wrap spacing={2}>
             <WrapItem>
@@ -74,15 +61,6 @@ const Info = ({ book, content }: { book: Book; content: BookContent }) => {
         </VStack>
       </chakra.div>
     </Flex>
-  );
-};
-
-const InfoLine = ({ icon, children }: { icon: any; children?: ReactNode }) => {
-  return (
-    <HStack spacing={1}>
-      <Icon as={icon} fontSize="lg" />
-      <div>{children}</div>
-    </HStack>
   );
 };
 

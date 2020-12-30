@@ -52,9 +52,31 @@ export const getServerSideProps: GetServerSideProps<Props> = async (ctx) => {
     const client = createApiClient(token);
     const info = await client.info.getInfoAuthenticated();
 
-    const result = await client.book.searchBooks({
-      bookQuery: createBookQuery(query, searchLanguages, source.split(",") as ScraperType[], sort, order),
-    });
+    let result: BookSearchResult | undefined;
+
+    if (query) {
+      const time = Date.now();
+      const { matches } = await client.book.getBooksByLink({
+        strict: false,
+        getBookByLinkRequest: {
+          link: query,
+        },
+      });
+
+      if (matches.length) {
+        result = {
+          total: matches.length,
+          items: matches.map(({ book }) => book),
+          took: `00:00:${(Date.now() - time) / 1000}`,
+        };
+      }
+    }
+
+    if (!result) {
+      result = await client.book.searchBooks({
+        bookQuery: createBookQuery(query, searchLanguages, source.split(",") as ScraperType[], sort, order),
+      });
+    }
 
     return {
       props: sanitizeProps({

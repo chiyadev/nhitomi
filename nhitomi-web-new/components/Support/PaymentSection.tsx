@@ -48,13 +48,13 @@ const PaymentSection = ({ stripe }: { stripe: GetStripeInfoResponse }) => {
       </VStack>
 
       {isMirror && (
-        <div>
+        <chakra.div color="red.300">
           Payment is not supported on mirror domains! Please visit the{" "}
-          <Link href={info?.publicUrl} color="blue.300">
+          <Link href={info?.publicUrl} color="red.100">
             main website
           </Link>
           .
-        </div>
+        </chakra.div>
       )}
 
       <Center>

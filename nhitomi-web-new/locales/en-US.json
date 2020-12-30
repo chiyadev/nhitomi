@@ -47,11 +47,15 @@
   },
   "BookReader": {
     "Info": {
-      "pageCount": "{count} pages",
-      "createdTime": "Uploaded on {time}",
-      "updatedTime": "Updated on {time}",
       "TagList": {
         "sources": "Sources"
+      },
+      "InfoText": {
+        "pageCount": "{count} pages",
+        "createdTime": "Uploaded on {time}",
+        "updatedTime": "Updated on {time}",
+        "refreshing": "Refreshing...",
+        "refreshFail": "Could not refresh this book."
       },
       "FavoriteButton": {
         "text": "Favorite",
@@ -297,6 +301,9 @@
       "title": "Payment success",
       "back": "Back"
     }
+  },
+  "MaintenanceAlert": {
+    "text": "nhitomi is currently under maintenance."
   },
   "SortDirection": "{value, select, ascending {Ascending} descending {Descending} other {{value}}}",
   "BookTag": "{value, select, artist {Artist} circle {Circle} character {Character} parody {Parody} series {Series} convention {Convention} metadata {Metadata} tag {Tag} other {{value}}}",
