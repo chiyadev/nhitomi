@@ -1,0 +1,50 @@
+# generate api spec
+FROM mcr.microsoft.com/dotnet/sdk:5.0 AS idx
+WORKDIR /app
+
+COPY nhitomi-idx/nhitomi/nhitomi.csproj ./
+RUN dotnet restore
+
+COPY nhitomi-idx/nhitomi ./
+RUN dotnet run --no-restore -- --generate-spec > apispec.json
+
+# build web
+FROM node:lts-alpine AS build
+WORKDIR /app
+
+# genclient requires jre
+RUN apk add --no-cache openjdk8-jre
+
+COPY nhitomi-web-new/package.json nhitomi-web-new/yarn.lock ./
+RUN yarn install --production --frozen-lockfile
+RUN cp -R ./node_modules /tmp/node_modules
+RUN yarn install --frozen-lockfile
+
+COPY scripts ../scripts/
+COPY --from=idx /app/apispec.json ./
+RUN yarn genclient apispec.json
+
+ARG UMAMI_URL
+ARG SENTRY_DSN
+ARG API_PUBLIC
+ARG API_INTERNAL
+
+ENV NEXT_PUBLIC_UMAMI_URL $UMAMI_URL
+ENV NEXT_PUBLIC_SENTRY_DSN $SENTRY_DSN
+ENV NEXT_PUBLIC_API_PUBLIC $API_PUBLIC
+ENV NEXT_PUBLIC_API_INTERNAL $API_INTERNAL
+
+COPY nhitomi-web-new ./
+RUN yarn build
+
+# build final image
+FROM node:lts-alpine
+WORKDIR /app
+
+COPY --from=build /app/package.json ./
+COPY --from=build /tmp/node_modules ./node_modules
+COPY --from=build /app/.next ./.next
+COPY --from=build /app/public ./public
+
+EXPOSE 3000
+CMD ["yarn", "start"]
