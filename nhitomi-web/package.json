@@ -7,7 +7,7 @@
     "@ant-design/icons": "^4.2.2",
     "@ctrl/tinycolor": "^3.1.4",
     "@juggle/resize-observer": "^3.2.0",
-    "@openapitools/openapi-generator-cli": "^1.0.15-4.3.1",
+    "@openapitools/openapi-generator-cli": "^2.1.15",
     "@sentry/react": "^5.24.2",
     "@sentry/tracing": "^5.24.2",
     "@stripe/stripe-js": "^1.9.0",
