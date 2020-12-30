@@ -27,7 +27,7 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
       },
     };
   } catch (e) {
-    // ignored
+    console.error(e);
   }
 
   destroyCookie(ctx, "token");
