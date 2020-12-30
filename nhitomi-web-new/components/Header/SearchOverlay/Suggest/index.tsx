@@ -7,6 +7,7 @@ import { createApiClient } from "../../../../utils/client";
 import BookItem from "../../../BookGrid/Item";
 import { useT } from "../../../../locales";
 import { useErrorToast } from "../../../../utils/hooks";
+import { captureException } from "@sentry/minimal";
 
 const Suggest = ({
   value,
@@ -52,7 +53,7 @@ const Suggest = ({
           return;
         }
       } catch (e) {
-        console.error(e);
+        captureException(e);
         error(e);
       } finally {
         setLoading(false);
@@ -100,7 +101,7 @@ const Suggest = ({
             <Flex direction="column" p={4}>
               <Grid templateColumns="repeat(auto-fill, minmax(8rem, 1fr))" gap={2}>
                 {bookItems.map((book) => (
-                  <BookItem key={book.id} book={book} />
+                  <BookItem key={book.id} book={book} showMenu={false} />
                 ))}
               </Grid>
 

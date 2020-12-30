@@ -2,6 +2,7 @@ import React, { memo, useCallback, useEffect, useRef, useState } from "react";
 import { Center, Icon, Spinner } from "@chakra-ui/react";
 import { useInView } from "react-intersection-observer";
 import { useErrorToast } from "../../utils/hooks";
+import { captureException } from "@sentry/minimal";
 
 const InfiniteLoader = ({ hasMore }: { hasMore: () => Promise<boolean> }) => {
   const runningRef = useRef(false);
@@ -23,7 +24,7 @@ const InfiniteLoader = ({ hasMore }: { hasMore: () => Promise<boolean> }) => {
             break;
           }
         } catch (e) {
-          console.error(e);
+          captureException(e);
           error(e);
 
           setEnd(true);

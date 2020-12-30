@@ -3,6 +3,7 @@ import { Button, Icon, LightMode } from "@chakra-ui/react";
 import { useClientInfo } from "../../../utils/client";
 import { useWindowValue } from "../../../utils/hooks";
 import { FaDiscord } from "react-icons/fa";
+import { encode } from "js-base64";
 
 const DiscordButton = () => {
   const info = useClientInfo();
@@ -20,7 +21,7 @@ const DiscordButton = () => {
       const redirectUri = new URL("/oauth/discord", window.location.href).href;
 
       url.searchParams.set("redirect_uri", redirectUri);
-      url.searchParams.set("state", btoa(JSON.stringify({ redirectUri })));
+      url.searchParams.set("state", encode(JSON.stringify({ redirectUri })));
 
       return url.href;
     },

@@ -6,6 +6,7 @@ import { FaRegCircle, FaTimes } from "react-icons/fa";
 import { useErrorToast } from "../../../utils/hooks";
 import BlockingSpinner from "../../BlockingSpinner";
 import { createApiClient } from "../../../utils/client";
+import { captureException } from "@sentry/minimal";
 
 const Maintenance = () => {
   const t = useT();
@@ -28,7 +29,7 @@ const Maintenance = () => {
               },
             });
           } catch (e) {
-            console.error(e);
+            captureException(e);
             error(e);
           } finally {
             setLoad(false);

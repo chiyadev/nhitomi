@@ -6,6 +6,7 @@ import { Book, BookContent, ObjectType } from "nhitomi-api";
 import { useClientInfoAuth } from "../../../utils/client";
 import ElementPortal from "../../ElementPortal";
 import CollectionItemAdder from "../../CollectionSelector/CollectionItemAdder";
+import { trackEvent } from "../../../utils/umami";
 
 const AddToCollectionButton = ({ book, content }: { book: Book; content: BookContent }) => {
   const t = useT();
@@ -30,7 +31,13 @@ const AddToCollectionButton = ({ book, content }: { book: Book; content: BookCon
       )}
 
       <ElementPortal.Consumer>
-        <MenuItem icon={<Icon as={FaPlus} />} onClick={() => setAdd(true)}>
+        <MenuItem
+          icon={<Icon as={FaPlus} />}
+          onClick={() => {
+            setAdd(true);
+            trackEvent("bookGrid", "itemAddToCollection");
+          }}
+        >
           {t("BookGrid.ItemMenu.AddToCollectionButton.text")}
         </MenuItem>
       </ElementPortal.Consumer>

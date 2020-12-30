@@ -6,6 +6,7 @@ import { FaEdit } from "react-icons/fa";
 import CollectionEditor from "../../../CollectionEditor";
 import { Collection } from "nhitomi-api";
 import { useRouter } from "next/router";
+import { trackEvent } from "../../../../utils/umami";
 
 const EditButton = ({ collection }: { collection: Collection }) => {
   const t = useT();
@@ -25,7 +26,13 @@ const EditButton = ({ collection }: { collection: Collection }) => {
       />
 
       <ElementPortal.Consumer>
-        <MenuItem icon={<Icon as={FaEdit} />} onClick={() => setEdit(true)}>
+        <MenuItem
+          icon={<Icon as={FaEdit} />}
+          onClick={() => {
+            setEdit(true);
+            trackEvent("collectionListing", "itemEdit");
+          }}
+        >
           {t("CollectionListing.Book.ItemMenu.EditButton.text")}
         </MenuItem>
       </ElementPortal.Consumer>

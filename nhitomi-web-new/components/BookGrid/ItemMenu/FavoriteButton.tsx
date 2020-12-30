@@ -7,6 +7,8 @@ import { ClientUtils, createApiClient, useClientInfoAuth } from "../../../utils/
 import { useErrorToast } from "../../../utils/hooks";
 import ElementPortal from "../../ElementPortal";
 import BlockingSpinner from "../../BlockingSpinner";
+import { trackEvent } from "../../../utils/umami";
+import { captureException } from "@sentry/minimal";
 
 const FavoriteButton = ({ book, content }: { book: Book; content: BookContent }) => {
   const t = useT();
@@ -24,6 +26,7 @@ const FavoriteButton = ({ book, content }: { book: Book; content: BookContent })
           icon={<Icon as={FaHeart} color="red.300" />}
           onClick={async () => {
             setLoad(true);
+            trackEvent("bookGrid", "itemFavorite");
 
             try {
               if (info?.user) {
@@ -57,7 +60,7 @@ const FavoriteButton = ({ book, content }: { book: Book; content: BookContent })
                 });
               }
             } catch (e) {
-              console.error(e);
+              captureException(e);
               error(e);
             } finally {
               setLoad(false);

@@ -6,6 +6,7 @@ import { useT } from "../../../locales";
 import { FaSortAlphaUp } from "react-icons/fa";
 import NextLink from "next/link";
 import { useRouter } from "next/router";
+import { trackEvent } from "../../../utils/umami";
 
 const OrderRadio = ({ setOpen }: { setOpen: Dispatch<boolean> }) => {
   const t = useT();
@@ -25,7 +26,12 @@ const OrderRadio = ({ setOpen }: { setOpen: Dispatch<boolean> }) => {
       <VStack align="start" spacing={2}>
         {Object.values(SortDirection).map((order) => (
           <NextLink key={order} href={{ query: { ...query, order } }} passHref>
-            <Link onClick={() => setOpen(false)}>
+            <Link
+              onClick={() => {
+                setOpen(false);
+                trackEvent("bookListing", `order${order}`);
+              }}
+            >
               <HStack>
                 <Radio isChecked={order === current} />
                 <div>{t("SortDirection", { value: order })}</div>

@@ -14,7 +14,7 @@ const PendingDisplay = () => {
 
   return (
     <Layout title={[t("Support.PendingDisplay.title"), t("Support.title")]}>
-      <Header title={<HeaderTitle />} />
+      <Header back title={<HeaderTitle />} />
 
       <LayoutBody>
         <VStack align="stretch" spacing={8}>
@@ -35,7 +35,7 @@ const PendingDisplay = () => {
           </VStack>
 
           <ButtonGroup>
-            <NextLink href="/" passHref>
+            <NextLink href="/support" passHref>
               <Button as="a" colorScheme="blue" leftIcon={<Icon as={FaChevronLeft} />}>
                 {t("Support.PendingDisplay.back")}
               </Button>

@@ -22,6 +22,7 @@ import { FaPlus, FaSearch } from "react-icons/fa";
 import CollectionCreator from "../CollectionCreator";
 import { useErrorToast } from "../../utils/hooks";
 import escapeStringRegexp from "escape-string-regexp";
+import { captureException } from "@sentry/minimal";
 
 const Content = ({
   focusRef,
@@ -51,7 +52,7 @@ const Content = ({
 
         setCollections(items);
       } catch (e) {
-        console.error(e);
+        captureException(e);
         error(e);
       }
     })();

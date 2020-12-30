@@ -13,6 +13,8 @@ import { useT } from "../../locales";
 import { Collection } from "nhitomi-api";
 import { useErrorToast } from "../../utils/hooks";
 import { createApiClient } from "../../utils/client";
+import { trackEvent } from "../../utils/umami";
+import { captureException } from "@sentry/minimal";
 
 const Content = ({
   cancelRef,
@@ -51,6 +53,7 @@ const Content = ({
             isLoading={load}
             onClick={async () => {
               setLoad(true);
+              trackEvent("collectionDeleter", `delete${collection.type}`);
 
               try {
                 const client = createApiClient();
@@ -61,7 +64,7 @@ const Content = ({
 
                 onDelete?.();
               } catch (e) {
-                console.error(e);
+                captureException(e);
                 error(e);
               } finally {
                 setLoad(false);

@@ -6,6 +6,8 @@ import { useT } from "../../locales";
 import { useErrorToast } from "../../utils/hooks";
 import CollectionSelector from ".";
 import BlockingSpinner from "../BlockingSpinner";
+import { trackEvent } from "../../utils/umami";
+import { captureException } from "@sentry/minimal";
 
 const CollectionItemAdder = ({
   open,
@@ -29,12 +31,13 @@ const CollectionItemAdder = ({
 
   const filter = useCallback(
     (collection: Collection) => collection.type === itemType && !collection.items.includes(itemId),
-    [itemId]
+    [itemType, itemId]
   );
 
   const add = useCallback(
     async (collection: Collection) => {
       setLoad(true);
+      trackEvent("collectionItemAdder", `add${itemType}`);
 
       try {
         const client = createApiClient();
@@ -62,13 +65,13 @@ const CollectionItemAdder = ({
           isClosable: true,
         });
       } catch (e) {
-        console.error(e);
+        captureException(e);
         error(e);
       } finally {
         setLoad(false);
       }
     },
-    [itemId, itemName, error]
+    [itemId, itemType, itemName, error]
   );
 
   return (

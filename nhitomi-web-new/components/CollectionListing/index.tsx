@@ -28,7 +28,7 @@ const CollectionListing = ({ user, books }: { user: User; books: { cover?: Book;
           : t("CollectionListing.titleUser", { user: user.username }),
       ]}
     >
-      <Header title={<HeaderTitle user={user} />} menu={<HeaderMenu />} />
+      <Header back={info?.user.id !== user.id} title={<HeaderTitle user={user} />} menu={<HeaderMenu />} />
 
       <LayoutBody>{books.length ? <BookGrid items={books} /> : <EmptyDisplay />}</LayoutBody>
     </Layout>

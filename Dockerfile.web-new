@@ -1,3 +1,5 @@
+ARG VERSION=Latest
+
 # generate api spec
 FROM mcr.microsoft.com/dotnet/sdk:5.0 AS idx
 WORKDIR /app
@@ -24,11 +26,13 @@ COPY scripts ../scripts/
 COPY --from=idx /app/apispec.json ./
 RUN yarn genclient apispec.json
 
+ARG VERSION
 ARG UMAMI_URL
 ARG SENTRY_DSN
 ARG API_PUBLIC
 ARG API_INTERNAL
 
+ENV NEXT_PUBLIC_VERSION $VERSION
 ENV NEXT_PUBLIC_UMAMI_URL $UMAMI_URL
 ENV NEXT_PUBLIC_SENTRY_DSN $SENTRY_DSN
 ENV NEXT_PUBLIC_API_PUBLIC $API_PUBLIC

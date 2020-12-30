@@ -19,6 +19,8 @@ import { FaCheck } from "react-icons/fa";
 import { createApiClient } from "../../utils/client";
 import { Collection, ObjectType } from "nhitomi-api";
 import { useErrorToast } from "../../utils/hooks";
+import { trackEvent } from "../../utils/umami";
+import { captureException } from "@sentry/minimal";
 
 const Content = ({
   focusRef,
@@ -46,6 +48,8 @@ const Content = ({
           e.preventDefault();
           setLoad(true);
 
+          trackEvent("collectionCreator", `create${type}`);
+
           try {
             const client = createApiClient();
 
@@ -61,7 +65,7 @@ const Content = ({
 
             onCreate?.(collection);
           } catch (e) {
-            console.error(e);
+            captureException(e);
             error(e);
           } finally {
             setLoad(false);

@@ -8,6 +8,7 @@ import { useClientInfo } from "../../../utils/client";
 import NextLink from "next/link";
 import { useRouter } from "next/router";
 import { ScraperType } from "nhitomi-api";
+import { trackEvent } from "../../../utils/umami";
 
 function toggleSource(str: string, value: ScraperType) {
   const array = str.split(",");
@@ -38,7 +39,12 @@ const SourceCheck = ({ setOpen }: { setOpen: Dispatch<boolean> }) => {
       <VStack align="start" spacing={2}>
         {info?.scrapers.map(({ type, name }) => (
           <NextLink key={type} href={{ query: { ...query, source: toggleSource(current, type) } }} passHref>
-            <Link onClick={() => setOpen(false)}>
+            <Link
+              onClick={() => {
+                setOpen(false);
+                trackEvent("bookListing", `source${type}`);
+              }}
+            >
               <HStack>
                 <Checkbox isChecked={current.includes(type)} />
                 <chakra.img w={6} src={ScraperIcons[type]} borderRadius="md" />

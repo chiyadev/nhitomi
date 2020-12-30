@@ -4,6 +4,7 @@ import CollectionCreator from "../CollectionCreator";
 import { useRouter } from "next/router";
 import ButtonItem from "../Header/ButtonItem";
 import { FaPlus } from "react-icons/fa";
+import { trackEvent } from "../../utils/umami";
 
 const HeaderMenu = () => {
   const t = useT();
@@ -22,7 +23,14 @@ const HeaderMenu = () => {
         }}
       />
 
-      <ButtonItem name={t("CollectionListing.HeaderMenu.create")} icon={FaPlus} onClick={() => setCreate(true)} />
+      <ButtonItem
+        name={t("CollectionListing.HeaderMenu.create")}
+        icon={FaPlus}
+        onClick={() => {
+          setCreate(true);
+          trackEvent("collectionListing", "create");
+        }}
+      />
     </>
   );
 };

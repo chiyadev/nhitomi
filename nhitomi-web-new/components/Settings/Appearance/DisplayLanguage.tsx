@@ -9,6 +9,8 @@ import { useRouter } from "next/router";
 import { useErrorToast } from "../../../utils/hooks";
 import LanguageFlag from "../../LanguageFlag";
 import { useConfig } from "../../../utils/config";
+import { trackEvent } from "../../../utils/umami";
+import { captureException } from "@sentry/minimal";
 
 function getLanguageOrDefault(language?: LanguageType) {
   return language && AvailableLocalizations.includes(language) ? language : LanguageType.EnUs;
@@ -33,6 +35,7 @@ const DisplayLanguage = () => {
         value={getLanguageOrDefault(info?.user.language)}
         onChange={async (value) => {
           setLoad(true);
+          trackEvent("settings", `displayLanguage${value}`);
 
           try {
             const client = createApiClient();
@@ -50,7 +53,7 @@ const DisplayLanguage = () => {
             setSearchLanguages((l) => l.concat(language).filter((v, i, a) => a.indexOf(v) === i));
             router.reload();
           } catch (e) {
-            console.error(e);
+            captureException(e);
             error(e);
 
             setLoad(false);

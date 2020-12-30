@@ -14,6 +14,7 @@ import {
 import { FaDownload, FaTimes } from "react-icons/fa";
 import ItemDisplay from "./ItemDisplay";
 import { useT } from "../../locales";
+import { trackEvent } from "../../utils/umami";
 
 const Content = ({
   focusRef,
@@ -77,7 +78,11 @@ const Content = ({
           <Button
             ref={focusRef}
             leftIcon={completed === targets.length ? undefined : <Icon as={FaTimes} />}
-            onClick={() => setOpen(false)}
+            onClick={() => {
+              setOpen(false);
+
+              completed !== targets.length && trackEvent("bookDownloader", "cancelAll");
+            }}
           >
             {t(completed === targets.length ? "BookDownloader.close" : "BookDownloader.cancel")}
           </Button>

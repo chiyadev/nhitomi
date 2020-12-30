@@ -6,6 +6,7 @@ import SectionItem from "../SectionItem";
 import { useT } from "../../../locales";
 import { useConfig } from "../../../utils/config";
 import ImageRadioButton from "./ImageRadioButton";
+import { trackEvent } from "../../../utils/umami";
 
 const ViewportBound = () => {
   const t = useT();
@@ -17,11 +18,25 @@ const ViewportBound = () => {
       description={t("Settings.Reader.ViewportBound.description")}
     >
       <ButtonGroup>
-        <ImageRadioButton src={ViewportBoundOn} isChecked={value} onClick={() => setValue(true)}>
+        <ImageRadioButton
+          src={ViewportBoundOn}
+          isChecked={value}
+          onClick={() => {
+            setValue(true);
+            trackEvent("settings", `viewportBound${true}`);
+          }}
+        >
           {t("Settings.Reader.ViewportBound.toggle", { value: true })}
         </ImageRadioButton>
 
-        <ImageRadioButton src={ViewportBoundOff} isChecked={!value} onClick={() => setValue(false)}>
+        <ImageRadioButton
+          src={ViewportBoundOff}
+          isChecked={!value}
+          onClick={() => {
+            setValue(false);
+            trackEvent("settings", `viewportBound${false}`);
+          }}
+        >
           {t("Settings.Reader.ViewportBound.toggle", { value: false })}
         </ImageRadioButton>
       </ButtonGroup>

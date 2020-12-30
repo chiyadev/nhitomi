@@ -4,6 +4,7 @@ import { useConfig } from "../../../utils/config";
 import SectionItem from "../SectionItem";
 import { chakra, Fade, HStack, Icon, Link, Tooltip, useClipboard, VStack } from "@chakra-ui/react";
 import { FaExclamationTriangle, FaLink } from "react-icons/fa";
+import { trackEvent } from "../../../utils/umami";
 
 const Token = () => {
   const t = useT();
@@ -40,6 +41,8 @@ const Token = () => {
               onClick={() => {
                 setVisible(true);
                 onCopy();
+
+                trackEvent("settings", "tokenCopy");
               }}
             >
               {token}

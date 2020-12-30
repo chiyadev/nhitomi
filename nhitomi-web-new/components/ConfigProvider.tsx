@@ -1,22 +1,29 @@
-import React, { memo, ReactNode, SetStateAction, useCallback, useMemo, useRef, useState } from "react";
+import React, { memo, ReactNode, SetStateAction, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { CookieContainer, CookieContext } from "../utils/config";
 import { destroyCookie, setCookie } from "nookies";
 import { GetInfoAuthenticatedResponse, GetInfoResponse, LanguageType } from "nhitomi-api";
 import { ClientInfoContext } from "../utils/client";
 import { getFlatLocalization } from "../locales";
 import { IntlProvider } from "react-intl";
+import { setUser } from "@sentry/minimal";
 
 const ConfigProvider = ({
   cookies,
   info,
   children,
 }: {
-  cookies: CookieContainer;
+  cookies?: CookieContainer;
   info?: GetInfoResponse | GetInfoAuthenticatedResponse;
   children?: ReactNode;
 }) => {
+  useEffect(() => {
+    if (info && "user" in info) {
+      setUser(info.user);
+    }
+  }, [info]);
+
   return (
-    <CookieProvider cookies={cookies}>
+    <CookieProvider cookies={cookies || {}}>
       <ClientInfoProvider info={info}>{children}</ClientInfoProvider>
     </CookieProvider>
   );

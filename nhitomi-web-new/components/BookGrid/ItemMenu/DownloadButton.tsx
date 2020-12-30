@@ -7,6 +7,7 @@ import { Book, BookContent } from "nhitomi-api";
 import ElementPortal from "../../ElementPortal";
 import { NonSupporterPageLimit } from "../../../utils/constants";
 import { useClientInfoAuth } from "../../../utils/client";
+import { trackEvent } from "../../../utils/umami";
 
 const DownloadButton = ({ book, content }: { book: Book; content: BookContent }) => {
   const info = useClientInfoAuth();
@@ -20,7 +21,14 @@ const DownloadButton = ({ book, content }: { book: Book; content: BookContent })
       <BookDownloader open={open} setOpen={setOpen} targets={useMemo(() => [{ book, content }], [book, content])} />
 
       <ElementPortal.Consumer>
-        <MenuItem icon={<Icon as={FaDownload} />} onClick={() => setOpen(true)} isDisabled={pageLimited}>
+        <MenuItem
+          icon={<Icon as={FaDownload} />}
+          onClick={() => {
+            setOpen(true);
+            trackEvent("bookGrid", "itemDownload");
+          }}
+          isDisabled={pageLimited}
+        >
           {t("BookGrid.ItemMenu.DownloadButton.text")}
         </MenuItem>
       </ElementPortal.Consumer>

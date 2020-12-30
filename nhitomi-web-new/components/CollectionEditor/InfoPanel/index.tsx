@@ -10,6 +10,8 @@ import { FaCheck } from "react-icons/fa";
 import { useErrorToast } from "../../../utils/hooks";
 import { useT } from "../../../locales";
 import TypeSelect from "./TypeSelect";
+import { trackEvent } from "../../../utils/umami";
+import { captureException } from "@sentry/minimal";
 
 const InfoPanel = ({
   focusRef,
@@ -41,6 +43,8 @@ const InfoPanel = ({
         e.preventDefault();
         setLoad(true);
 
+        trackEvent("collectionEditor", "save");
+
         try {
           const client = createApiClient();
 
@@ -51,7 +55,7 @@ const InfoPanel = ({
 
           onSubmit?.(updated);
         } catch (e) {
-          console.error(e);
+          captureException(e);
           error(e);
         } finally {
           setLoad(false);

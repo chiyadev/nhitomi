@@ -8,6 +8,7 @@ import levenshtein from "js-levenshtein";
 import { tokenizeBookQuery } from "../../../utils/book";
 import { useErrorToast } from "../../../utils/hooks";
 import { QueryChunkSize } from "../../../utils/constants";
+import { captureException } from "@sentry/minimal";
 
 export type TagSuggestion = SuggestItem & { type: "tag"; tag: BookTag };
 export type BookSuggestion = SuggestItem & { type: "book" };
@@ -180,7 +181,7 @@ const Content = ({ value, setValue }: { value: string; setValue: (value: string)
 
           return;
         } catch (e) {
-          console.error(e);
+          captureException(e);
           error(e);
         } finally {
           setLoading(false);

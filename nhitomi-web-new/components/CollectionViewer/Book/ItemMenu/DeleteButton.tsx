@@ -7,6 +7,8 @@ import { FaTrash } from "react-icons/fa";
 import BlockingSpinner from "../../../BlockingSpinner";
 import { createApiClient } from "../../../../utils/client";
 import { useErrorToast } from "../../../../utils/hooks";
+import { trackEvent } from "../../../../utils/umami";
+import { captureException } from "@sentry/minimal";
 
 const DeleteButton = ({ collection, book, content }: { collection: Collection; book: Book; content: BookContent }) => {
   const t = useT();
@@ -24,6 +26,7 @@ const DeleteButton = ({ collection, book, content }: { collection: Collection; b
           icon={<Icon as={FaTrash} />}
           onClick={async () => {
             setLoad(true);
+            trackEvent("collectionViewer", "itemDelete");
 
             try {
               const client = createApiClient();
@@ -54,7 +57,7 @@ const DeleteButton = ({ collection, book, content }: { collection: Collection; b
                 isClosable: true,
               });
             } catch (e) {
-              console.error(e);
+              captureException(e);
               error(e);
             } finally {
               setLoad(false);

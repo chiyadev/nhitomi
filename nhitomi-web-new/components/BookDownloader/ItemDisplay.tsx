@@ -7,6 +7,7 @@ import { useT } from "../../locales";
 import { PromiseEx } from "../../utils/promises";
 import { probeImage } from "../../utils/image";
 import { saveAs } from "file-saver";
+import { captureException } from "@sentry/minimal";
 
 function sleep(ms: number) {
   return new Promise<void>((resolve) => setTimeout(resolve, ms));
@@ -114,7 +115,7 @@ const ItemDisplay = ({
 
                 return;
               } catch (e) {
-                console.error(e);
+                console.warn(e);
 
                 // retry failure indefinitely with linear backoff
                 await new Promise((resolve) => setTimeout(resolve, 1000 * Math.min(retry, session.concurrency)));
@@ -134,6 +135,8 @@ const ItemDisplay = ({
         setMessage(t("BookDownloader.Item.processing"));
         setProgress({ type: "progress", indeterminate: true });
       } catch (e) {
+        captureException(e);
+
         setStatus("red");
         setMessage(e.message);
         return;
@@ -179,6 +182,8 @@ const ItemDisplay = ({
 
         onComplete?.();
       } catch (e) {
+        captureException(e);
+
         setStatus("red");
         setMessage(e.message);
         return;

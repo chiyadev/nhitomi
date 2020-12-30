@@ -13,6 +13,7 @@ import SingleCoverOff from "../../../../assets/Settings/SingleCoverOff.png";
 import ViewportBoundOn from "../../../../assets/Settings/ViewportBoundOn.png";
 import ViewportBoundOff from "../../../../assets/Settings/ViewportBoundOff.png";
 import { useT } from "../../../../locales";
+import { trackEvent } from "../../../../utils/umami";
 
 const KeyHandler = ({ layout }: { layout: LayoutResult }) => {
   const t = useT();
@@ -83,6 +84,8 @@ const KeyHandler = ({ layout }: { layout: LayoutResult }) => {
         showOverlay({ key: "viewportBound", img: value ? ViewportBoundOff : ViewportBoundOn });
         return !value;
       });
+
+      trackEvent("bookReader", "viewportBound");
     },
     [showOverlay, setViewportBound]
   );
@@ -96,6 +99,8 @@ const KeyHandler = ({ layout }: { layout: LayoutResult }) => {
         showOverlay({ key: "leftToRight", img: value ? LeftToRightOff : LeftToRightOn });
         return !value;
       });
+
+      trackEvent("bookReader", "leftToRight");
     },
     [showOverlay, setLeftToRight]
   );
@@ -109,6 +114,8 @@ const KeyHandler = ({ layout }: { layout: LayoutResult }) => {
         showOverlay({ key: "imagesPerRow", img: value === 1 ? ImagesPerRow2 : ImagesPerRow1 });
         return value === 1 ? 2 : 1;
       });
+
+      trackEvent("bookReader", "imagesPerRow");
     },
     [showOverlay, setImagesPerRow]
   );
@@ -122,6 +129,8 @@ const KeyHandler = ({ layout }: { layout: LayoutResult }) => {
         showOverlay({ key: "singleCover", img: value ? SingleCoverOff : SingleCoverOn });
         return !value;
       });
+
+      trackEvent("bookReader", "singleCover");
     },
     [showOverlay, setSingleCover]
   );

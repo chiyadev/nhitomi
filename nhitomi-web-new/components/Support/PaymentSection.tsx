@@ -19,6 +19,8 @@ import { createApiClient, useClientInfoAuth } from "../../utils/client";
 import { GetStripeInfoResponse } from "nhitomi-api";
 import { useErrorToast, useWindowValue } from "../../utils/hooks";
 import { loadStripe } from "@stripe/stripe-js";
+import { trackEvent } from "../../utils/umami";
+import { captureException } from "@sentry/minimal";
 
 const PaymentSection = ({ stripe }: { stripe: GetStripeInfoResponse }) => {
   const info = useClientInfoAuth();
@@ -48,9 +50,9 @@ const PaymentSection = ({ stripe }: { stripe: GetStripeInfoResponse }) => {
       </VStack>
 
       {isMirror && (
-        <chakra.div color="red.200">
+        <chakra.div color="red.300">
           Payment is not supported on mirror domains! Please visit the{" "}
-          <Link href={new URL("/support", info?.publicUrl).href} color="red.300" isExternal>
+          <Link href={new URL("/support", info?.publicUrl).href} color="white" isExternal>
             main website
           </Link>
           .
@@ -106,6 +108,7 @@ const PaymentButton = ({
         borderWidth={1}
         onClick={async () => {
           setLoad(true);
+          trackEvent("support", "pay");
 
           try {
             const client = createApiClient();
@@ -125,7 +128,7 @@ const PaymentButton = ({
 
             await stripe.redirectToCheckout({ sessionId });
           } catch (e) {
-            console.error(e);
+            captureException(e);
             error(e);
           } finally {
             setLoad(false);

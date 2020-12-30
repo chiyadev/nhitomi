@@ -6,6 +6,7 @@ import SectionItem from "../SectionItem";
 import { useT } from "../../../locales";
 import { useConfig } from "../../../utils/config";
 import ImageRadioButton from "./ImageRadioButton";
+import { trackEvent } from "../../../utils/umami";
 
 const SingleCover = () => {
   const t = useT();
@@ -21,7 +22,10 @@ const SingleCover = () => {
         <ImageRadioButton
           src={SingleCoverOn}
           isChecked={imagesPerRow !== 2 || value}
-          onClick={() => setValue(true)}
+          onClick={() => {
+            setValue(true);
+            trackEvent("settings", `singleCover${true}`);
+          }}
           disabled={imagesPerRow !== 2}
         >
           {t("Settings.Reader.SingleCover.toggle", { value: true })}
@@ -30,7 +34,10 @@ const SingleCover = () => {
         <ImageRadioButton
           src={SingleCoverOff}
           isChecked={imagesPerRow === 2 && !value}
-          onClick={() => setValue(false)}
+          onClick={() => {
+            setValue(false);
+            trackEvent("settings", `singleCover${false}`);
+          }}
           disabled={imagesPerRow !== 2}
         >
           {t("Settings.Reader.SingleCover.toggle", { value: false })}

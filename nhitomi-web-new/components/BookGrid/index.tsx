@@ -10,10 +10,10 @@ export const BookMenuContext = createContext<{
   render: () => undefined,
 });
 
-const BookGrid = ({ items }: { items: Book[] }) => {
+const BookGrid = ({ items, showMenu = true }: { items: Book[]; showMenu?: boolean }) => {
   return (
     <Grid p={2} gap={2} className={styles.grid}>
-      {useMemo(() => items.map((book) => <Item key={book.id} book={book} />), [items])}
+      {useMemo(() => items.map((book) => <Item key={book.id} book={book} showMenu={showMenu} />), [items, showMenu])}
     </Grid>
   );
 };

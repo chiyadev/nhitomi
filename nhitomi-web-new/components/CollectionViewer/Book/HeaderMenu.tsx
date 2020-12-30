@@ -9,6 +9,7 @@ import CollectionDeleter from "../../CollectionDeleter";
 import CollectionDownloader from "./CollectionDownloader";
 import { useClientInfoAuth } from "../../../utils/client";
 import LinkItem from "../../Header/LinkItem";
+import { trackEvent } from "../../../utils/umami";
 
 const HeaderMenu = ({ collection }: { collection: Collection }) => {
   const t = useT();
@@ -30,12 +31,21 @@ const HeaderMenu = ({ collection }: { collection: Collection }) => {
         }}
       />
 
-      <ButtonItem name={t("CollectionViewer.HeaderMenu.edit")} icon={FaEdit} onClick={() => setEdit(true)} />
+      <ButtonItem
+        name={t("CollectionViewer.HeaderMenu.edit")}
+        icon={FaEdit}
+        onClick={() => {
+          setEdit(true);
+          trackEvent("collectionViewer", "edit");
+        }}
+      />
 
       <ButtonItem
         name={t("CollectionViewer.HeaderMenu.random")}
         icon={FaRandom}
         onClick={async () => {
+          trackEvent("collectionViewer", "random");
+
           if (collection.items.length) {
             const id = collection.items[Math.floor(Math.random() * collection.items.length)];
 
@@ -51,7 +61,10 @@ const HeaderMenu = ({ collection }: { collection: Collection }) => {
           <ButtonItem
             name={t("CollectionViewer.HeaderMenu.download")}
             icon={FaDownload}
-            onClick={() => setDownload(true)}
+            onClick={() => {
+              setDownload(true);
+              trackEvent("collectionViewer", "download");
+            }}
           />
         </>
       ) : (
@@ -68,7 +81,14 @@ const HeaderMenu = ({ collection }: { collection: Collection }) => {
         }}
       />
 
-      <ButtonItem name={t("CollectionViewer.HeaderMenu.delete")} icon={FaTrash} onClick={() => setDelete(true)} />
+      <ButtonItem
+        name={t("CollectionViewer.HeaderMenu.delete")}
+        icon={FaTrash}
+        onClick={() => {
+          setDelete(true);
+          trackEvent("collectionViewer", "delete");
+        }}
+      />
     </>
   );
 };

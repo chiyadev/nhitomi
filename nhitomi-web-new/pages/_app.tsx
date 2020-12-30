@@ -1,20 +1,33 @@
 import "@openfonts/lexend-deca_all";
 import "@openfonts/m-plus-rounded-1c_japanese";
 import { ChakraProvider, extendTheme } from "@chakra-ui/react";
-import React, { memo } from "react";
+import React, { memo, useEffect } from "react";
 import { AppProps } from "next/app";
 import { useScrollPreserver } from "../utils/scrollPreserver";
 import NProgress from "../components/NProgress";
 import "../components/NProgress.css";
 import { loadPolyfills } from "../utils/polyfills";
+import { trackView } from "../utils/umami";
+import { ErrorBoundary, withProfiler } from "@sentry/react";
+import { enableSentry } from "../utils/errors";
 
 loadPolyfills();
+enableSentry();
 
 const fallbackFonts =
   '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"';
 
-const App = ({ Component, pageProps }: AppProps) => {
+const App = (props: AppProps) => {
+  return (
+    <ErrorBoundary>
+      <Content {...props} />
+    </ErrorBoundary>
+  );
+};
+
+const Content = ({ Component, pageProps, router }: AppProps) => {
   useScrollPreserver();
+  useEffect(() => trackView(router.asPath), [router.asPath]);
 
   return (
     <ChakraProvider
@@ -62,4 +75,4 @@ const App = ({ Component, pageProps }: AppProps) => {
   );
 };
 
-export default memo(App);
+export default memo(withProfiler(App));

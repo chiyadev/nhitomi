@@ -28,7 +28,7 @@ const BookReader = ({ book, contentId }: { book: Book; contentId: string }) => {
         <ScrollKeyHandler />
         <Background book={book} content={content} visible={infoVisible} />
 
-        <Header shadow title={<HeaderTitle book={book} content={content} />} />
+        <Header shadow back title={<HeaderTitle book={book} content={content} />} />
 
         <VStack align="stretch" spacing={8}>
           <div ref={infoRef}>

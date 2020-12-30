@@ -5,6 +5,8 @@ import { useT } from "../../../locales";
 import { Book, BookContent, ObjectType, SpecialCollection } from "nhitomi-api";
 import { ClientUtils, createApiClient, useClientInfoAuth } from "../../../utils/client";
 import { useErrorToast } from "../../../utils/hooks";
+import { trackEvent } from "../../../utils/umami";
+import { captureException } from "@sentry/minimal";
 
 const FavoriteButton = ({ book, content }: { book: Book; content: BookContent }) => {
   const t = useT();
@@ -21,6 +23,7 @@ const FavoriteButton = ({ book, content }: { book: Book; content: BookContent })
         isLoading={load}
         onClick={async () => {
           setLoad(true);
+          trackEvent("bookReader", "favorite");
 
           try {
             if (info?.user) {
@@ -54,7 +57,7 @@ const FavoriteButton = ({ book, content }: { book: Book; content: BookContent })
               });
             }
           } catch (e) {
-            console.error(e);
+            captureException(e);
             error(e);
           } finally {
             setLoad(false);

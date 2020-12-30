@@ -6,6 +6,7 @@ import SectionItem from "../SectionItem";
 import { useT } from "../../../locales";
 import { useConfig } from "../../../utils/config";
 import ImageRadioButton from "./ImageRadioButton";
+import { trackEvent } from "../../../utils/umami";
 
 const LeftToRight = () => {
   const t = useT();
@@ -21,7 +22,10 @@ const LeftToRight = () => {
         <ImageRadioButton
           src={LeftToRightOn}
           isChecked={imagesPerRow === 2 && value}
-          onClick={() => setValue(true)}
+          onClick={() => {
+            setValue(true);
+            trackEvent("settings", `leftToRight${true}`);
+          }}
           disabled={imagesPerRow !== 2}
         >
           {t("Settings.Reader.LeftToRight.toggle", { value: true })}
@@ -30,7 +34,10 @@ const LeftToRight = () => {
         <ImageRadioButton
           src={LeftToRightOff}
           isChecked={imagesPerRow === 2 && !value}
-          onClick={() => setValue(false)}
+          onClick={() => {
+            setValue(false);
+            trackEvent("settings", `leftToRight${false}`);
+          }}
           disabled={imagesPerRow !== 2}
         >
           {t("Settings.Reader.LeftToRight.toggle", { value: false })}

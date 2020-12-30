@@ -6,6 +6,7 @@ import { useT } from "../../../../locales";
 import { Collection } from "nhitomi-api";
 import CollectionDeleter from "../../../CollectionDeleter";
 import { useRouter } from "next/router";
+import { trackEvent } from "../../../../utils/umami";
 
 const DeleteButton = ({ collection }: { collection: Collection }) => {
   const t = useT();
@@ -25,7 +26,14 @@ const DeleteButton = ({ collection }: { collection: Collection }) => {
       />
 
       <ElementPortal.Consumer>
-        <MenuItem color="red.300" icon={<Icon as={FaTrash} />} onClick={() => setConfirm(true)}>
+        <MenuItem
+          color="red.300"
+          icon={<Icon as={FaTrash} />}
+          onClick={() => {
+            setConfirm(true);
+            trackEvent("collectionListing", "itemDelete");
+          }}
+        >
           {t("CollectionListing.Book.ItemMenu.DeleteButton.text")}
         </MenuItem>
       </ElementPortal.Consumer>

@@ -5,6 +5,7 @@ import { useClientInfoAuth } from "../../../utils/client";
 import { Book, BookContent, ObjectType } from "nhitomi-api";
 import { useT } from "../../../locales";
 import CollectionItemAdder from "../../CollectionSelector/CollectionItemAdder";
+import { trackEvent } from "../../../utils/umami";
 
 const AddToCollectionButton = ({ book, content }: { book: Book; content: BookContent }) => {
   const t = useT();
@@ -28,7 +29,13 @@ const AddToCollectionButton = ({ book, content }: { book: Book; content: BookCon
         />
       )}
 
-      <Button leftIcon={<Icon as={FaPlus} />} onClick={() => setAdd(true)}>
+      <Button
+        leftIcon={<Icon as={FaPlus} />}
+        onClick={() => {
+          setAdd(true);
+          trackEvent("bookReader", "addToCollection");
+        }}
+      >
         {t("BookReader.Info.AddToCollectionButton.text")}
       </Button>
     </>

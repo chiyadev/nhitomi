@@ -6,6 +6,7 @@ import { useT } from "../../../locales";
 import { FaSortAmountUp } from "react-icons/fa";
 import NextLink from "next/link";
 import { useRouter } from "next/router";
+import { trackEvent } from "../../../utils/umami";
 
 const SortRadio = ({ setOpen }: { setOpen: Dispatch<boolean> }) => {
   const t = useT();
@@ -25,7 +26,12 @@ const SortRadio = ({ setOpen }: { setOpen: Dispatch<boolean> }) => {
       <VStack align="start" spacing={2}>
         {Object.values(BookSort).map((sort) => (
           <NextLink key={sort} href={{ query: { ...query, sort } }} passHref>
-            <Link onClick={() => setOpen(false)}>
+            <Link
+              onClick={() => {
+                setOpen(false);
+                trackEvent("bookListing", `sort${sort}`);
+              }}
+            >
               <HStack>
                 <Radio isChecked={sort === current} />
                 <div>{t("BookSort", { value: sort })}</div>

@@ -1,13 +1,14 @@
 import { GetServerSideProps } from "next";
 import { createApiClient } from "../../utils/client";
 import { destroyCookie, setCookie } from "nookies";
+import { decode } from "js-base64";
 
 export const getServerSideProps: GetServerSideProps = async (ctx) => {
   try {
     const client = createApiClient();
     const { code, state } = ctx.query;
 
-    const { redirectUri } = JSON.parse(atob(Array.isArray(state) ? state[0] : state));
+    const { redirectUri } = JSON.parse(decode(Array.isArray(state) ? state[0] : state));
 
     const { token } = await client.user.authenticateUserDiscord({
       authenticateDiscordRequest: {
@@ -30,7 +31,7 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
       },
     };
   } catch (e) {
-    console.error(e);
+    console.warn(e);
   }
 
   destroyCookie(ctx, "token");

@@ -8,7 +8,7 @@ import { useConfig } from "../../utils/config";
 import ItemMenu from "./ItemMenu";
 import { FaEllipsisV } from "react-icons/fa";
 
-const Item = ({ book }: { book: Book }) => {
+const Item = ({ book, showMenu = true }: { book: Book; showMenu?: boolean }) => {
   const linkRef = useRef<HTMLAnchorElement>(null);
   const content = useBookContent(book);
 
@@ -84,7 +84,7 @@ const Item = ({ book }: { book: Book }) => {
           </Link>
         </NextLink>
 
-        {menuNode}
+        {showMenu && menuNode}
       </chakra.div>
 
       <ItemMenu book={book} content={content} setMenu={setMenu} />

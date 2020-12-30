@@ -7,6 +7,7 @@ import { useT } from "../../../locales";
 import { useClientInfoAuth } from "../../../utils/client";
 import { NonSupporterPageLimit } from "../../../utils/constants";
 import NextLink from "next/link";
+import { trackEvent } from "../../../utils/umami";
 
 const DownloadButton = ({ book, content }: { book: Book; content: BookContent }) => {
   const info = useClientInfoAuth();
@@ -30,7 +31,13 @@ const DownloadButton = ({ book, content }: { book: Book; content: BookContent })
           </span>
         </Tooltip>
       ) : (
-        <Button leftIcon={<Icon as={FaDownload} />} onClick={() => setOpen(true)}>
+        <Button
+          leftIcon={<Icon as={FaDownload} />}
+          onClick={() => {
+            setOpen(true);
+            trackEvent("bookReader", "download");
+          }}
+        >
           {t("BookReader.Info.DownloadButton.text")}
         </Button>
       )}

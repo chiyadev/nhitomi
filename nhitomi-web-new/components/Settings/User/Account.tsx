@@ -6,6 +6,7 @@ import { Button, ButtonGroup, Icon } from "@chakra-ui/react";
 import { FaSignOutAlt } from "react-icons/fa";
 import { useConfig } from "../../../utils/config";
 import { useRouter } from "next/router";
+import { trackEvent } from "../../../utils/umami";
 
 const Account = () => {
   const t = useT();
@@ -24,6 +25,8 @@ const Account = () => {
           onClick={() => {
             setToken(undefined);
             setTimeout(() => router.reload(), 200);
+
+            trackEvent("settings", "signOut");
           }}
         >
           {t("Settings.User.Account.signOut")}

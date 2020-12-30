@@ -25,6 +25,8 @@ import { useErrorToast } from "../../../utils/hooks";
 import { createApiClient } from "../../../utils/client";
 import { QueryChunkSize } from "../../../utils/constants";
 import escapeStringRegexp from "escape-string-regexp";
+import { trackEvent } from "../../../utils/umami";
+import { captureException } from "@sentry/minimal";
 
 const Content = ({
   focusRef,
@@ -67,7 +69,7 @@ const Content = ({
           setItems(items);
         }
       } catch (e) {
-        console.error(e);
+        captureException(e);
         error(e);
       }
     })();
@@ -172,6 +174,8 @@ const Content = ({
               onClick={() => {
                 const ids = new Set(selected);
                 onSelect?.((books || []).filter(({ id }) => ids.has(id)));
+
+                trackEvent("collectionBookSelector", "select");
               }}
             >
               {t("CollectionItemSelector.Book.select")}

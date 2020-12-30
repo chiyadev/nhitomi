@@ -23,7 +23,7 @@ const CollectionViewer = ({ collection, initial }: { collection: Collection; ini
 
   return (
     <Layout title={[collection.name]}>
-      <Header title={<HeaderTitle collection={collection} />} menu={<HeaderMenu collection={collection} />} />
+      <Header back title={<HeaderTitle collection={collection} />} menu={<HeaderMenu collection={collection} />} />
 
       <LayoutBody>
         {items.length ? (
