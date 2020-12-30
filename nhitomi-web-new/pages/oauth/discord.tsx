@@ -5,11 +5,14 @@ import { destroyCookie, setCookie } from "nookies";
 export const getServerSideProps: GetServerSideProps = async (ctx) => {
   try {
     const client = createApiClient();
-    const { code } = ctx.query;
+    const { code, state } = ctx.query;
+
+    const { redirectUri } = JSON.parse(atob(Array.isArray(state) ? state[0] : state));
 
     const { token } = await client.user.authenticateUserDiscord({
       authenticateDiscordRequest: {
         code: Array.isArray(code) ? code[0] : code,
+        redirectUri,
       },
     });
 

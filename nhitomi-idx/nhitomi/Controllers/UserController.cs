@@ -14,9 +14,8 @@ namespace nhitomi.Controllers
     public interface IOAuthHandler
     {
         string AuthorizeUrl { get; }
-        string RedirectUrl { get; }
 
-        Task<DbUser> GetOrCreateUserAsync(string code, CancellationToken cancellationToken = default);
+        Task<DbUser> GetOrCreateUserAsync(string code, string redirectUri = null, CancellationToken cancellationToken = default);
     }
 
     /// <summary>
@@ -49,6 +48,11 @@ namespace nhitomi.Controllers
             /// </summary>
             [Required]
             public string Code { get; set; }
+
+            /// <summary>
+            /// OAuth redirect URL.
+            /// </summary>
+            public string RedirectUri { get; set; }
         }
 
         public class AuthenticateResponse
@@ -73,7 +77,7 @@ namespace nhitomi.Controllers
         [HttpPost("oauth/discord", Name = "authenticateUserDiscord"), AllowAnonymous, RequireDbWrite]
         public async Task<ActionResult<AuthenticateResponse>> AuthDiscordAsync(AuthenticateDiscordRequest request)
         {
-            var user = User = await _discord.GetOrCreateUserAsync(request.Code);
+            var user = User = await _discord.GetOrCreateUserAsync(request.Code, request.RedirectUri);
 
             return new AuthenticateResponse
             {

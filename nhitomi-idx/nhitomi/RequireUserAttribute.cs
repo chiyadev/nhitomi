@@ -27,7 +27,7 @@ namespace nhitomi
             var now = DateTime.UtcNow;
 
             // retrieve user
-            var users  = context.HttpContext.RequestServices.GetService<IUserService>();
+            var users  = context.HttpContext.RequestServices.GetRequiredService<IUserService>();
             var userId = context.HttpContext.Items.TryGetValue(AuthHandler.PayloadItemKey, out var token) ? ((AuthTokenPayload) token).UserId : default;
 
             var result = await users.GetAsync(userId, cancellationToken);

@@ -13,7 +13,6 @@ namespace nhitomi
 
     public class MetricsService : BackgroundService, IMetricsService
     {
-        readonly IOptionsMonitor<ServerOptions> _options;
         readonly ILogger<MetricsService> _logger;
 
         readonly IDisposable _runtimeStatsRegistration;
@@ -22,8 +21,7 @@ namespace nhitomi
 
         public MetricsService(IOptionsMonitor<ServerOptions> options, ILogger<MetricsService> logger)
         {
-            _options = options;
-            _logger  = logger;
+            _logger = logger;
 
             _runtimeStatsRegistration = DotNetRuntimeStatsBuilder.Default().StartCollecting();
 

@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading;
@@ -80,14 +79,11 @@ namespace nhitomi.Controllers.OAuth
             {
                 var options = _options.CurrentValue;
 
-                return $"https://discord.com/oauth2/authorize?response_type=code&prompt=none&client_id={options.ClientId}&scope={string.Join("%20", options.Scopes)}&redirect_uri={WebUtility.UrlEncode(RedirectUrl)}";
+                return $"https://discord.com/oauth2/authorize?response_type=code&prompt=none&client_id={options.ClientId}&scope={string.Join("%20", options.Scopes)}";
             }
         }
 
-        public string RedirectUrl => _link.GetWebLink("oauth/discord");
-
-        public DiscordOAuthHandler(IUserService users, IElasticClient client, IHttpClientFactory http, ISnapshotService snapshots,
-                                   IOptionsMonitor<DiscordOAuthOptions> options, IResourceLocker locker, ILinkGenerator link)
+        public DiscordOAuthHandler(IUserService users, IElasticClient client, IHttpClientFactory http, ISnapshotService snapshots, IOptionsMonitor<DiscordOAuthOptions> options, IResourceLocker locker, ILinkGenerator link)
         {
             _users     = users;
             _client    = client;
@@ -98,7 +94,7 @@ namespace nhitomi.Controllers.OAuth
             _link      = link;
         }
 
-        async Task<DiscordOAuthUser> ExchangeCodeAsync(string code, CancellationToken cancellationToken = default)
+        async Task<DiscordOAuthUser> ExchangeCodeAsync(string code, string redirectUri, CancellationToken cancellationToken = default)
         {
             var options = _options.CurrentValue;
 
@@ -118,14 +114,14 @@ namespace nhitomi.Controllers.OAuth
                     ["client_secret"] = options.ClientSecret,
                     ["grant_type"]    = "authorization_code",
                     ["code"]          = code,
-                    ["redirect_uri"]  = RedirectUrl,
+                    ["redirect_uri"]  = redirectUri,
                     ["scope"]         = string.Join(' ', options.Scopes)
                 })
             }, cancellationToken))
             {
                 response.EnsureSuccessStatusCode();
 
-                dynamic obj = JsonConvert.DeserializeObject(await response.Content.ReadAsStringAsync());
+                dynamic obj = JsonConvert.DeserializeObject(await response.Content.ReadAsStringAsync(cancellationToken));
 
                 token = obj.access_token;
             }
@@ -142,7 +138,7 @@ namespace nhitomi.Controllers.OAuth
             {
                 response.EnsureSuccessStatusCode();
 
-                return JsonConvert.DeserializeObject<DiscordOAuthUser>(await response.Content.ReadAsStringAsync());
+                return JsonConvert.DeserializeObject<DiscordOAuthUser>(await response.Content.ReadAsStringAsync(cancellationToken));
             }
         }
 
@@ -167,9 +163,9 @@ namespace nhitomi.Controllers.OAuth
             return result.Items.Length == 0 ? null : result.Items[0];
         }
 
-        public async Task<DbUser> GetOrCreateUserAsync(string code, CancellationToken cancellationToken = default)
+        public async Task<DbUser> GetOrCreateUserAsync(string code, string redirectUri = null, CancellationToken cancellationToken = default)
         {
-            var user = await ExchangeCodeAsync(code, cancellationToken);
+            var user = await ExchangeCodeAsync(code, redirectUri ?? _link.GetWebLink("oauth/discord"), cancellationToken);
 
             return await GetOrCreateUserAsync(user, cancellationToken);
         }

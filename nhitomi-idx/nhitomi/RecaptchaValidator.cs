@@ -71,7 +71,7 @@ namespace nhitomi
 
             success &= response.StatusCode == HttpStatusCode.OK;
 
-            dynamic result = JObject.Parse(await response.Content.ReadAsStringAsync());
+            dynamic result = JObject.Parse(await response.Content.ReadAsStringAsync(cancellationToken));
 
             success &= (bool) result.success;
 

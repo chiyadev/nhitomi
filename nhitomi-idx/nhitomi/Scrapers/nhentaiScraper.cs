@@ -139,7 +139,7 @@ namespace nhitomi.Scrapers
 
             response.EnsureSuccessStatusCode();
 
-            return JsonConvert.DeserializeObject<nhentaiBook>(await response.Content.ReadAsStringAsync());
+            return JsonConvert.DeserializeObject<nhentaiBook>(await response.Content.ReadAsStringAsync(cancellationToken));
         }
 
         public override async Task<BookAdaptor> RetrieveAsync(DbBookContent content, CancellationToken cancellationToken = default)
@@ -165,7 +165,7 @@ namespace nhitomi.Scrapers
 
                 response.EnsureSuccessStatusCode();
 
-                var list = JsonConvert.DeserializeObject<nhentaiList>(await response.Content.ReadAsStringAsync());
+                var list = JsonConvert.DeserializeObject<nhentaiList>(await response.Content.ReadAsStringAsync(cancellationToken));
 
                 if (list.Results.Length == 0)
                     break;

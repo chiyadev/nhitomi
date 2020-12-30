@@ -15,17 +15,12 @@ const DiscordButton = () => {
       }
 
       const url = new URL(info.discordOAuthUrl);
-      const redirectUri = url.searchParams.get("redirect_uri");
 
-      if (redirectUri) {
-        const redirectUrl = new URL(redirectUri);
+      // override redirect uri for mirror domain support
+      const redirectUri = new URL("/oauth/discord", window.location.href).href;
 
-        // support for mirror domain authentication
-        redirectUrl.protocol = window.location.protocol;
-        redirectUrl.host = window.location.host;
-
-        url.searchParams.set("redirect_uri", redirectUrl.href);
-      }
+      url.searchParams.set("redirect_uri", redirectUri);
+      url.searchParams.set("state", btoa(JSON.stringify({ redirectUri })));
 
       return url.href;
     },

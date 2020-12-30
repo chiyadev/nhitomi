@@ -6,7 +6,6 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Http;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Polly;
 using Polly.Extensions.Http;
@@ -45,19 +44,15 @@ namespace nhitomi
 
     public class HttpProxiedMessageHandlerBuilder : HttpMessageHandlerBuilder
     {
-        readonly IServiceProvider _services;
         readonly IOptionsMonitor<HttpMessageHandlerOptions> _options;
-        readonly ILogger<HttpProxiedMessageHandlerBuilder> _logger;
 
         public override string Name { get; set; }
         public override HttpMessageHandler PrimaryHandler { get; set; }
         public override IList<DelegatingHandler> AdditionalHandlers { get; } = new List<DelegatingHandler>();
 
-        public HttpProxiedMessageHandlerBuilder(IServiceProvider services, IOptionsMonitor<HttpMessageHandlerOptions> options, ILogger<HttpProxiedMessageHandlerBuilder> logger)
+        public HttpProxiedMessageHandlerBuilder(IOptionsMonitor<HttpMessageHandlerOptions> options)
         {
-            _services = services;
-            _options  = options;
-            _logger   = logger;
+            _options = options;
         }
 
         public override HttpMessageHandler Build()

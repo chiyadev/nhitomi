@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Microsoft.IO;
 
 namespace nhitomi.Database.Migrations
 {
@@ -48,7 +47,7 @@ namespace nhitomi.Database.Migrations
         readonly IWriteControl _writeControl;
         readonly ILogger<MigrationManager> _logger;
 
-        public MigrationManager(IServiceProvider services, IElasticClient elastic, IRedisClient redis, IResourceLocker locker, IOptionsMonitor<ElasticOptions> options, IWriteControl writeControl, RecyclableMemoryStreamManager memory, ILogger<MigrationManager> logger)
+        public MigrationManager(IServiceProvider services, IElasticClient elastic, IRedisClient redis, IResourceLocker locker, IOptionsMonitor<ElasticOptions> options, IWriteControl writeControl, ILogger<MigrationManager> logger)
         {
             _services     = services;
             _elastic      = elastic;
@@ -85,7 +84,7 @@ namespace nhitomi.Database.Migrations
             await using (await _locker.EnterAsync("maintenance:migrations", cancellationToken))
             {
                 var options = _options.CurrentValue;
-                var indexes = await _elastic.RequestAsync(c => c.Cat.IndicesAsync(c => c.Index($"{options.IndexPrefix}*"), cancellationToken));
+                var indexes = await _elastic.RequestAsync(c => c.Cat.IndicesAsync(cc => cc.Index($"{options.IndexPrefix}*"), cancellationToken));
                 var count   = 0;
 
                 // not all indexes get migrated every migration, so use the max

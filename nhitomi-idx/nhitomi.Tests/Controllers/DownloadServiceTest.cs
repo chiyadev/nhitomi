@@ -12,8 +12,8 @@ namespace nhitomi.Controllers
         {
             var user = await MakeUserAsync();
 
-            var options = Services.GetService<IOptionsMonitor<DownloadServiceOptions>>().CurrentValue;
-            var service = Services.GetService<IDownloadService>();
+            var options = Services.GetRequiredService<IOptionsMonitor<DownloadServiceOptions>>().CurrentValue;
+            var service = Services.GetRequiredService<IDownloadService>();
 
             var sessionId = null as string;
 
@@ -45,8 +45,7 @@ namespace nhitomi.Controllers
         {
             var user = await MakeUserAsync();
 
-            var service = Services.GetService<IDownloadService>();
-
+            var service = Services.GetRequiredService<IDownloadService>();
             var session = (await service.CreateSessionAsync(user.Id)).AsT0;
 
             Assert.That(session.Concurrency, Is.Not.Zero);

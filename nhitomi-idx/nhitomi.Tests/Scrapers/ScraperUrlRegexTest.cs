@@ -8,7 +8,7 @@ namespace nhitomi.Scrapers
         [Test]
         public void nhentai()
         {
-            var regex = Services.GetService<nhentaiScraper>().UrlRegex;
+            var regex = Services.GetRequiredService<nhentaiScraper>().UrlRegex;
 
             Assert.That(regex.IsMatch("https://nhentai.net/g/123/"), Is.True);
             Assert.That(regex.IsMatch("https://nhentai.net/g/123"), Is.True);

@@ -169,7 +169,7 @@ namespace nhitomi.Scrapers
                 response.EnsureSuccessStatusCode();
 
                 // content is javascript like "var galleryinfo = {json}"
-                var script = await response.Content.ReadAsStringAsync();
+                var script = await response.Content.ReadAsStringAsync(cancellationToken);
 
                 const string declare = "var galleryinfo =";
 
@@ -195,7 +195,7 @@ namespace nhitomi.Scrapers
                 response.EnsureSuccessStatusCode();
 
                 var doc = new HtmlDocument();
-                doc.LoadHtml(await response.Content.ReadAsStringAsync());
+                doc.LoadHtml(await response.Content.ReadAsStringAsync(cancellationToken));
 
                 node = doc.DocumentNode;
             }

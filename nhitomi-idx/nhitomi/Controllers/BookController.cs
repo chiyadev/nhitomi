@@ -23,15 +23,13 @@ namespace nhitomi.Controllers
         readonly IBookService _books;
         readonly ISnapshotService _snapshots;
         readonly IVoteService _votes;
-        readonly IDownloadService _downloads;
 
-        public BookController(IServiceProvider services, IBookService books, ISnapshotService snapshots, IVoteService votes, IDownloadService downloads)
+        public BookController(IServiceProvider services, IBookService books, ISnapshotService snapshots, IVoteService votes)
         {
             _services  = services;
             _books     = books;
             _snapshots = snapshots;
             _votes     = votes;
-            _downloads = downloads;
         }
 
         /// <summary>

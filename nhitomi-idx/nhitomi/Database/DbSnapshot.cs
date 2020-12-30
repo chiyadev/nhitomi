@@ -11,8 +11,8 @@ namespace nhitomi.Database
     /// The actual object can be serialized and stored in <see cref="Data"/> or persisted on an external storage depending on its size.
     /// Snapshot data may not always be available.
     /// </summary>
-    [MessagePackObject, ElasticsearchType(RelationName = nameof(Models.Snapshot))]
-    public class DbSnapshot : DbObjectBase<Models.Snapshot>, IDbHasType, IDbModelConvertible<DbSnapshot, Models.Snapshot>, IHasCreatedTime
+    [MessagePackObject, ElasticsearchType(RelationName = nameof(Snapshot))]
+    public class DbSnapshot : DbObjectBase<Snapshot>, IDbHasType, IDbModelConvertible<DbSnapshot, Snapshot>, IHasCreatedTime
     {
         [IgnoreMember, Ignore]
         ObjectType IDbHasType.Type => ObjectType.Snapshot;

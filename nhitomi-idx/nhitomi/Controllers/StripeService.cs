@@ -43,16 +43,14 @@ namespace nhitomi.Controllers
     public class StripeService : IStripeService
     {
         readonly IStripeClient _stripe;
-        readonly IElasticClient _elastic;
         readonly IOptionsMonitor<StripeServiceOptions> _options;
         readonly ILinkGenerator _link;
         readonly IWriteControl _writeControl;
         readonly IUserService _users;
 
-        public StripeService(IHttpClientFactory http, IElasticClient elastic, IOptionsMonitor<StripeServiceOptions> options, ILinkGenerator link, IWriteControl writeControl, IUserService users)
+        public StripeService(IHttpClientFactory http, IOptionsMonitor<StripeServiceOptions> options, ILinkGenerator link, IWriteControl writeControl, IUserService users)
         {
             _stripe       = new StripeClient(options.CurrentValue.SecretKey, null, new SystemNetHttpClient(http.CreateClient(nameof(StripeClient))));
-            _elastic      = elastic;
             _options      = options;
             _link         = link;
             _writeControl = writeControl;
