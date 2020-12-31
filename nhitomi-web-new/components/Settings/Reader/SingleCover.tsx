@@ -1,5 +1,5 @@
 import React, { memo } from "react";
-import { ButtonGroup } from "@chakra-ui/react";
+import { ButtonGroup, Kbd } from "@chakra-ui/react";
 import SingleCoverOn from "../../../assets/Settings/SingleCoverOn.png";
 import SingleCoverOff from "../../../assets/Settings/SingleCoverOff.png";
 import SectionItem from "../SectionItem";
@@ -15,7 +15,11 @@ const SingleCover = () => {
 
   return (
     <SectionItem
-      title={t("Settings.Reader.SingleCover.title")}
+      title={
+        <span>
+          {t("Settings.Reader.SingleCover.title")} <Kbd>k</Kbd>
+        </span>
+      }
       description={t("Settings.Reader.SingleCover.description")}
     >
       <ButtonGroup>

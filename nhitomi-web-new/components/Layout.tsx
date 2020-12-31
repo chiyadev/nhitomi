@@ -17,7 +17,7 @@ const Layout = ({
     <Head>
       <meta charSet="utf-8" />
 
-      <meta name="viewport" content="initial-scale=1.0, width=device-width" />
+      <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
       <meta name="application-name" content="nhitomi" />
       <meta name="apple-mobile-web-app-title" content="nhitomi" />
       <meta name="msapplication-TileColor" content="#74c0fc" />

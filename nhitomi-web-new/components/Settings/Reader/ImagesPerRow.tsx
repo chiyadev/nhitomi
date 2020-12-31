@@ -1,5 +1,5 @@
 import React, { memo } from "react";
-import { ButtonGroup } from "@chakra-ui/react";
+import { ButtonGroup, Kbd } from "@chakra-ui/react";
 import ImagesPerRow1 from "../../../assets/Settings/ImagesPerRow1.png";
 import ImagesPerRow2 from "../../../assets/Settings/ImagesPerRow2.png";
 import SectionItem from "../SectionItem";
@@ -14,7 +14,11 @@ const ImagesPerRow = () => {
 
   return (
     <SectionItem
-      title={t("Settings.Reader.ImagesPerRow.title")}
+      title={
+        <span>
+          {t("Settings.Reader.ImagesPerRow.title")} <Kbd>x</Kbd>
+        </span>
+      }
       description={t("Settings.Reader.ImagesPerRow.description")}
     >
       <ButtonGroup>

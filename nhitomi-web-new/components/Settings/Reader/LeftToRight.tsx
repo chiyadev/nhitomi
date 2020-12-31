@@ -1,5 +1,5 @@
 import React, { memo } from "react";
-import { ButtonGroup } from "@chakra-ui/react";
+import { ButtonGroup, Kbd } from "@chakra-ui/react";
 import LeftToRightOn from "../../../assets/Settings/LeftToRightOn.png";
 import LeftToRightOff from "../../../assets/Settings/LeftToRightOff.png";
 import SectionItem from "../SectionItem";
@@ -15,7 +15,11 @@ const LeftToRight = () => {
 
   return (
     <SectionItem
-      title={t("Settings.Reader.LeftToRight.title")}
+      title={
+        <span>
+          {t("Settings.Reader.LeftToRight.title")} <Kbd>l</Kbd>
+        </span>
+      }
       description={t("Settings.Reader.LeftToRight.description")}
     >
       <ButtonGroup>

@@ -125,7 +125,7 @@ const ItemDisplay = ({
         );
 
         // exit immediately to delete session if unmounted before download completes
-        await Promise.race([imagesPromise, new Promise((resolve) => onUnmount.add(resolve))]);
+        await Promise.race([imagesPromise, new Promise<void>((resolve) => onUnmount.add(resolve))]);
 
         if (!proceed) {
           return;

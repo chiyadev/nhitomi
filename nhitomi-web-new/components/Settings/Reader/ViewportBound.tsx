@@ -1,5 +1,5 @@
 import React, { memo } from "react";
-import { ButtonGroup } from "@chakra-ui/react";
+import { ButtonGroup, Kbd } from "@chakra-ui/react";
 import ViewportBoundOn from "../../../assets/Settings/ViewportBoundOn.png";
 import ViewportBoundOff from "../../../assets/Settings/ViewportBoundOff.png";
 import SectionItem from "../SectionItem";
@@ -14,7 +14,11 @@ const ViewportBound = () => {
 
   return (
     <SectionItem
-      title={t("Settings.Reader.ViewportBound.title")}
+      title={
+        <span>
+          {t("Settings.Reader.ViewportBound.title")} <Kbd>c</Kbd>
+        </span>
+      }
       description={t("Settings.Reader.ViewportBound.description")}
     >
       <ButtonGroup>
