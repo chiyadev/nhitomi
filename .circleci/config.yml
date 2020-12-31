@@ -6,7 +6,6 @@ executors:
     environment:
       DOCKER_IMAGE_IDX: r.chiya.dev/nhitomi
       DOCKER_IMAGE_WEB: r.chiya.dev/nhitomi-web
-      DOCKER_IMAGE_WEB_NEW: r.chiya.dev/nhitomi-web-new
       DOCKER_IMAGE_DISCORD: r.chiya.dev/nhitomi-discord
       UMAMI_URL: https://a.chiya.dev/c2d0d520-639c-4191-ac6c-6e2700752882
       SENTRY_DSN: https://a768b944b93b4c70be91bf4df488c978@o452268.ingest.sentry.io/5439405
@@ -37,17 +36,9 @@ jobs:
     executor: default
     steps:
       - checkout
-      - run: docker build -t $DOCKER_IMAGE_WEB -f Dockerfile.web --build-arg VERSION=$CIRCLE_SHA1 --build-arg UMAMI_URL --build-arg SENTRY_DSN .
+      - run: docker build -t $DOCKER_IMAGE_WEB -f Dockerfile.web --build-arg VERSION=$CIRCLE_SHA1 --build-arg UMAMI_URL --build-arg SENTRY_DSN --build-arg API_INTERNAL .
       - run: echo "$DOCKER_PASSWORD" | docker login $DOCKER_REGISTRY -u "$DOCKER_USERNAME" --password-stdin
       - run: docker push $DOCKER_IMAGE_WEB
-
-  deploy-web-new:
-    executor: default
-    steps:
-      - checkout
-      - run: docker build -t $DOCKER_IMAGE_WEB_NEW -f Dockerfile.web-new --build-arg VERSION=$CIRCLE_SHA1 --build-arg UMAMI_URL --build-arg SENTRY_DSN --build-arg API_INTERNAL .
-      - run: echo "$DOCKER_PASSWORD" | docker login $DOCKER_REGISTRY -u "$DOCKER_USERNAME" --password-stdin
-      - run: docker push $DOCKER_IMAGE_WEB_NEW
 
   deploy-discord:
     executor: default
@@ -74,13 +65,6 @@ workflows:
               only: deploy
 
       - deploy-web:
-          context:
-            - do-registry
-          filters:
-            branches:
-              only: deploy
-
-      - deploy-web-new:
           context:
             - do-registry
           filters:
