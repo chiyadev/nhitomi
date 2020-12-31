@@ -36,7 +36,9 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
     console.warn(e);
   }
 
-  destroyCookie(ctx, "token");
+  destroyCookie(ctx, "token", {
+    path: "/",
+  });
 
   return {
     redirect: {

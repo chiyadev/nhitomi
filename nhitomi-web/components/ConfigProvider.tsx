@@ -58,7 +58,9 @@ const CookieProvider = ({ cookies, children }: { cookies: CookieContainer; child
     }
 
     for (const key of remainingKeys) {
-      destroyCookie(undefined, key);
+      destroyCookie(undefined, key, {
+        path: "/",
+      });
     }
 
     setValueCore((valueRef.current = value));

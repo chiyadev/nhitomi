@@ -38,6 +38,15 @@ const KeyHandler = ({ layout }: { layout: LayoutResult }) => {
   );
 
   useHotkeys(
+    "space",
+    (e) => {
+      e.preventDefault();
+      setScroll((scroll) => ({ ...scroll, inducedRow: scroll.currentRow }));
+    },
+    [setScroll]
+  );
+
+  useHotkeys(
     "right, d, pageUp",
     (e) => {
       e.preventDefault();
@@ -141,7 +150,7 @@ const KeyHandler = ({ layout }: { layout: LayoutResult }) => {
 
   return (
     <chakra.div position="fixed" zIndex="overlay" top="50%" left="50%" transform="translate(-50%, -50%)">
-      <ScaleFade in={overlay}>
+      <ScaleFade in={overlay} unmountOnExit>
         <VStack spacing={4} p={4} boxShadow="md" borderRadius="md" bg="gray.800" color="white">
           <chakra.img src={status.img} w={44} />
           <div>{t(`BookReader.PageDisplay.KeyHandler.${status.key}`)}</div>
