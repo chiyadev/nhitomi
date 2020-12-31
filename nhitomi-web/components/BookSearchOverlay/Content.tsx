@@ -2,12 +2,12 @@ import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from "
 import { Flex } from "@chakra-ui/react";
 import Input from "./Input";
 import Suggest from "./Suggest";
-import { createApiClient } from "../../../utils/client";
+import { createApiClient } from "../../utils/client";
 import { BookTag, SuggestItem } from "nhitomi-api";
 import levenshtein from "js-levenshtein";
-import { tokenizeBookQuery } from "../../../utils/book";
-import { useErrorToast } from "../../../utils/hooks";
-import { QueryChunkSize } from "../../../utils/constants";
+import { tokenizeBookQuery } from "../../utils/book";
+import { useErrorToast } from "../../utils/hooks";
+import { QueryChunkSize } from "../../utils/constants";
 import { captureException } from "@sentry/minimal";
 
 export type TagSuggestion = SuggestItem & { type: "tag"; tag: BookTag };

@@ -3,6 +3,7 @@
   "BookListing": {
     "title": "ブックス",
     "HeaderMenu": {
+      "search": "検索",
       "sort": "並び替え"
     },
     "HeaderTitleQuery": {
@@ -25,6 +26,16 @@
       "SourceCheck": {
         "title": "サイト"
       }
+    }
+  },
+  "BookSearchOverlay": {
+    "Suggest": {
+      "tagHint": "{up}{down}で選択",
+      "itemHint": "{tab}で選択",
+      "searchHint": "{enter}で検索"
+    },
+    "Input": {
+      "placeholder": "nhitomiでなんでも検索... (英語入力)"
     }
   },
   "BookGrid": {
@@ -194,20 +205,10 @@
     }
   },
   "Header": {
-    "search": "検索",
+    "books": "ブックス",
     "collections": "コレクション",
     "support": "サポート",
-    "settings": "設定",
-    "SearchOverlay": {
-      "Suggest": {
-        "tagHint": "{up}{down}で選択",
-        "itemHint": "{tab}で選択",
-        "searchHint": "{enter}で検索"
-      },
-      "Input": {
-        "placeholder": "nhitomiでなんでも検索... (英語入力)"
-      }
-    }
+    "settings": "設定"
   },
   "Settings": {
     "title": "設定",

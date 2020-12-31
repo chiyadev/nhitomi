@@ -1,7 +1,7 @@
 import React, { Fragment, memo, useMemo } from "react";
 import { chakra } from "@chakra-ui/react";
-import { BookTagColors } from "../../../utils/constants";
-import { tokenizeBookQuery } from "../../../utils/book";
+import { BookTagColors } from "../../utils/constants";
+import { tokenizeBookQuery } from "../../utils/book";
 
 const Highlighter = ({ text }: { text: string }) => {
   const tokens = useMemo(() => tokenizeBookQuery(text), [text]);

@@ -1,14 +1,11 @@
-import React, { memo, ReactNode, useState } from "react";
-import { chakra, Divider, HStack, IconButton, Icon } from "@chakra-ui/react";
-import ButtonItem from "./ButtonItem";
-import { FaChevronLeft, FaCog, FaFolder, FaHeart, FaSearch } from "react-icons/fa";
-import SearchOverlay from "./SearchOverlay";
+import React, { memo, ReactNode } from "react";
+import { chakra, Divider, HStack, Icon, IconButton } from "@chakra-ui/react";
+import { FaBook, FaChevronLeft, FaCog, FaFolder, FaHeart } from "react-icons/fa";
 import LayoutBody from "../LayoutBody";
 import StickyOverlay from "./StickyOverlay";
 import { useT } from "../../locales";
 import LinkItem from "./LinkItem";
 import { useClientInfoAuth } from "../../utils/client";
-import { trackEvent } from "../../utils/umami";
 import { useRouter } from "next/router";
 
 const Header = ({
@@ -25,12 +22,9 @@ const Header = ({
   const t = useT();
   const info = useClientInfoAuth();
   const router = useRouter();
-  const [search, setSearch] = useState(false);
 
   return (
     <>
-      <SearchOverlay open={search} setOpen={setSearch} />
-
       <StickyOverlay shadow={shadow}>
         <LayoutBody>
           <HStack spacing={0}>
@@ -56,15 +50,7 @@ const Header = ({
                 </>
               )}
 
-              <ButtonItem
-                name={t("Header.search")}
-                icon={FaSearch}
-                onClick={() => {
-                  setSearch(true);
-                  trackEvent("header", "search");
-                }}
-              />
-
+              <LinkItem name={t("Header.books")} icon={FaBook} href="/books" />
               <LinkItem name={t("Header.collections")} icon={FaFolder} href={`/users/${info?.user.id}/collections`} />
               <LinkItem name={t("Header.support")} icon={FaHeart} href="/support" />
               <LinkItem name={t("Header.settings")} icon={FaCog} href="/settings" />

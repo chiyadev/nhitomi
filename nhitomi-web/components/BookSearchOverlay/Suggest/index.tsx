@@ -3,10 +3,10 @@ import TagItem from "./TagItem";
 import { Divider, Flex, Grid, Kbd, Spacer, Text } from "@chakra-ui/react";
 import { BookSuggestion, TagSuggestion } from "../Content";
 import { Book } from "nhitomi-api";
-import { createApiClient } from "../../../../utils/client";
-import BookItem from "../../../BookGrid/Item";
-import { useT } from "../../../../locales";
-import { useErrorToast } from "../../../../utils/hooks";
+import { createApiClient } from "../../../utils/client";
+import BookItem from "../../BookGrid/Item";
+import { useT } from "../../../locales";
+import { useErrorToast } from "../../../utils/hooks";
 import { captureException } from "@sentry/minimal";
 
 const Suggest = ({
@@ -84,7 +84,7 @@ const Suggest = ({
                 <Flex mt={2} mb={-2}>
                   <Spacer />
                   <Text fontSize="sm">
-                    {t("Header.SearchOverlay.Suggest.tagHint", { up: <Kbd>↑</Kbd>, down: <Kbd>↓</Kbd> })}
+                    {t("BookSearchOverlay.Suggest.tagHint", { up: <Kbd>↑</Kbd>, down: <Kbd>↓</Kbd> })}
                   </Text>
                 </Flex>
               )}
@@ -107,7 +107,7 @@ const Suggest = ({
 
               <Flex mt={2} mb={-2}>
                 <Spacer />
-                <Text fontSize="sm">{t("Header.SearchOverlay.Suggest.itemHint", { tab: <Kbd>tab ↹</Kbd> })}</Text>
+                <Text fontSize="sm">{t("BookSearchOverlay.Suggest.itemHint", { tab: <Kbd>tab ↹</Kbd> })}</Text>
               </Flex>
             </Flex>
           ),
@@ -117,7 +117,7 @@ const Suggest = ({
       {!tags.length && !bookItems.length && (
         <Flex p={2}>
           <Spacer />
-          <Text fontSize="sm">{t("Header.SearchOverlay.Suggest.searchHint", { enter: <Kbd>enter ↵</Kbd> })}</Text>
+          <Text fontSize="sm">{t("BookSearchOverlay.Suggest.searchHint", { enter: <Kbd>enter ↵</Kbd> })}</Text>
         </Flex>
       )}
     </>

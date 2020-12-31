@@ -3,7 +3,7 @@ import { Box, chakra, Flex, Icon, Input as InputCore, Spinner, Square } from "@c
 import { FaSearch } from "react-icons/fa";
 import mergeRefs from "react-merge-refs";
 import Highlighter from "./Highlighter";
-import { useT } from "../../../locales";
+import { useT } from "../../locales";
 
 const Input = ({
   inputRef,
@@ -43,7 +43,7 @@ const Input = ({
         autoFocus
         value={value}
         onChange={({ target: { value } }) => setValue(value)}
-        placeholder={t("Header.SearchOverlay.Input.placeholder")}
+        placeholder={t("BookSearchOverlay.Input.placeholder")}
         size="lg"
         pl={12}
         bg="none"

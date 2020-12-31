@@ -1,8 +1,8 @@
 import React, { memo, useMemo, useState } from "react";
 import { chakra, HStack, Kbd, Spacer, Tag } from "@chakra-ui/react";
 import { BookTag } from "nhitomi-api";
-import { BookTagColors } from "../../../../utils/constants";
-import { useT } from "../../../../locales";
+import { BookTagColors } from "../../../utils/constants";
+import { useT } from "../../../locales";
 
 const TagItem = ({
   focused,

@@ -3,6 +3,7 @@
   "BookListing": {
     "title": "Books",
     "HeaderMenu": {
+      "search": "Search",
       "sort": "Sort"
     },
     "HeaderTitleQuery": {
@@ -25,6 +26,16 @@
       "SourceCheck": {
         "title": "Sources"
       }
+    }
+  },
+  "BookSearchOverlay": {
+    "Suggest": {
+      "tagHint": "use {up}{down}",
+      "itemHint": "use {tab}",
+      "searchHint": "search {enter}"
+    },
+    "Input": {
+      "placeholder": "Search anything on nhitomi..."
     }
   },
   "BookGrid": {
@@ -194,20 +205,10 @@
     }
   },
   "Header": {
-    "search": "Search",
+    "books": "Books",
     "collections": "Collections",
     "support": "Support",
-    "settings": "Settings",
-    "SearchOverlay": {
-      "Suggest": {
-        "tagHint": "use {up}{down}",
-        "itemHint": "use {tab}",
-        "searchHint": "search {enter}"
-      },
-      "Input": {
-        "placeholder": "Search anything on nhitomi..."
-      }
-    }
+    "settings": "Settings"
   },
   "Footer": {
     "discord": "Discord",
