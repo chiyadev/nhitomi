@@ -20,7 +20,7 @@ const StickyOverlay = ({ shadow, children }: { shadow?: boolean; children?: Reac
       lastScrollDown.current = scrollY;
     }
 
-    setHide(scrollY >= lastScrollDown.current - 100);
+    setHide(scrollY >= lastScrollDown.current - 250);
   }, [scrollY]);
 
   return (

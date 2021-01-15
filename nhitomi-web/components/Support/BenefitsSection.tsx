@@ -10,9 +10,7 @@ import BenefitCollectionDownload from "../../assets/Support/BenefitCollectionDow
 const BenefitsSection = () => {
   return (
     <VStack align="stretch" spacing={8}>
-      <HStack spacing={2}>
-        <Heading size="lg">What do I get?</Heading>
-      </HStack>
+      <Heading size="lg">What do I get?</Heading>
 
       <Grid className={styles.grid} gap={4}>
         <GridItem>

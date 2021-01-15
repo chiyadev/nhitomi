@@ -19,6 +19,7 @@ namespace nhitomi.Controllers
     /// </summary>
     /// <remarks>
     /// Regular users should ignore these endpoints because they will not be able to access them.
+    /// Attempts to access these endpoints unauthorized may result in a restriction or ban.
     /// </remarks>
     [Route("internal")]
     public class InternalController : nhitomiControllerBase
@@ -152,11 +153,9 @@ namespace nhitomi.Controllers
         /// Requires <see cref="UserPermissions.CreateUsers"/> permission.
         /// </remarks>
         /// <param name="request">Discord connection information.</param>
-        [HttpPost("auth/discord", Name = "getOrCreateUserDiscord"), RequireUser(Permissions = UserPermissions.CreateUsers)] // no RequireDbWrite
+        [HttpPost("auth/discord", Name = "getOrCreateUserDiscord"), RequireUser(Permissions = UserPermissions.CreateUsers)] // no RequireDbWrite to avoid breaking nhitomi-discord
         public async Task<UserController.AuthenticateResponse> GetOrCreateDiscordUserAsync(GetOrCreateDiscordUserRequest request)
         {
-            // RequireDbWrite is missing because it's probably better for some user information to get lost, than to block this route which nhitomi-discord critically depends on
-
             var user = await _discord.GetOrCreateUserAsync(new DiscordOAuthUser
             {
                 Id            = ulong.Parse(request.Id),
@@ -173,6 +172,30 @@ namespace nhitomi.Controllers
                 Token = await _auth.GenerateTokenAsync(user),
                 User  = ProcessUser(user.Convert(_services))
             };
+        }
+
+        public class DonationProgressRequest
+        {
+            /// <summary>
+            /// Donation amount in USD.
+            /// </summary>
+            [Required]
+            public double Amount { get; set; }
+        }
+
+        /// <summary>
+        /// Adds progress to the donation goal for the current month.
+        /// </summary>
+        /// <remarks>
+        /// Requires <see cref="UserPermissions.ManageServer"/> permission.
+        /// </remarks>
+        /// <param name="request">Donation request.</param>
+        [HttpPost("donations", Name = "addDonationProgress"), RequireUser(Permissions = UserPermissions.ManageServer)]
+        public async Task<ActionResult<DonationInfo>> AddDonationProgress(DonationProgressRequest request)
+        {
+            var result = await _stripe.AddDonationProgress(DateTime.UtcNow, request.Amount);
+
+            return result.Convert(_services);
         }
 
         /// <summary>

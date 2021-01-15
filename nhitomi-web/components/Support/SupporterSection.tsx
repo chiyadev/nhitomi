@@ -38,7 +38,7 @@ const SupporterSection = () => {
           development time for new features, and deliver a free service without annoying advertisements and pop-ups.
         </div>
 
-        <div>Thank you.</div>
+        <div>We can't thank you enough! You're absolutely amazing.</div>
       </QuoteWrap>
     </VStack>
   );

@@ -12,6 +12,7 @@ import { GetStripeInfoResponse } from "nhitomi-api";
 import Banner from "./Banner";
 import { useClientInfoAuth } from "../../utils/client";
 import SupporterSection from "./SupporterSection";
+import ProgressSection from "./ProgressSection";
 
 const Support = ({ stripe }: { stripe: GetStripeInfoResponse }) => {
   const t = useT();
@@ -27,7 +28,7 @@ const Support = ({ stripe }: { stripe: GetStripeInfoResponse }) => {
 
           <VStack align="stretch" spacing={8} divider={<Divider />}>
             {info?.user.isSupporter ? <SupporterSection /> : <PleadSection />}
-
+            <ProgressSection stripe={stripe} />
             <BenefitsSection />
             <PaymentSection stripe={stripe} />
           </VStack>

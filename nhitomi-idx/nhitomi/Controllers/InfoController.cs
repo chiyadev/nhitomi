@@ -1,5 +1,6 @@
 using System;
 using System.ComponentModel.DataAnnotations;
+using System.Threading.Tasks;
 using Force.DeepCloner;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -24,8 +25,9 @@ namespace nhitomi.Controllers
         readonly IDiscordOAuthHandler _discordOAuth;
         readonly IScraperService _scrapers;
         readonly IOptionsMonitor<RecaptchaOptions> _recaptchaOptions;
+        readonly IStripeService _stripe;
 
-        public InfoController(IServiceProvider services, IOptionsMonitor<ServerOptions> serverOptions, IOptionsMonitor<StripeServiceOptions> stripeOptions, ILinkGenerator link, IOptionsMonitor<RecaptchaOptions> recaptchaOptions, IDiscordOAuthHandler discordOAuth, IScraperService scrapers)
+        public InfoController(IServiceProvider services, IOptionsMonitor<ServerOptions> serverOptions, IOptionsMonitor<StripeServiceOptions> stripeOptions, ILinkGenerator link, IOptionsMonitor<RecaptchaOptions> recaptchaOptions, IDiscordOAuthHandler discordOAuth, IScraperService scrapers, IStripeService stripe)
         {
             _services         = services;
             _serverOptions    = serverOptions;
@@ -34,6 +36,7 @@ namespace nhitomi.Controllers
             _discordOAuth     = discordOAuth;
             _scrapers         = scrapers;
             _recaptchaOptions = recaptchaOptions;
+            _stripe           = stripe;
         }
 
         [HttpGet, AllowAnonymous, ApiExplorerSettings(IgnoreApi = true)]
@@ -137,13 +140,31 @@ namespace nhitomi.Controllers
             /// </summary>
             [Required]
             public double SupporterPrice { get; set; }
+
+            /// <summary>
+            /// Donation progress in USD.
+            /// </summary>
+            [Required]
+            public double DonationProgress { get; set; }
+
+            /// <summary>
+            /// Donation goal in USD.
+            /// </summary>
+            public double? DonationGoal { get; set; }
         }
 
         [HttpGet("info/stripe", Name = "getStripeInfo"), RequireUser]
-        public GetStripeInfoResponse GetStripeInfo() => new GetStripeInfoResponse
+        public async Task<GetStripeInfoResponse> GetStripeInfoAsync()
         {
-            ApiKey         = _stripeOptions.CurrentValue.PublicKey,
-            SupporterPrice = _stripeOptions.CurrentValue.SupporterPrice
-        };
+            var donation = await _stripe.GetDonationInfo(DateTime.UtcNow);
+
+            return new GetStripeInfoResponse
+            {
+                ApiKey           = _stripeOptions.CurrentValue.PublicKey,
+                SupporterPrice   = _stripeOptions.CurrentValue.SupporterPrice,
+                DonationProgress = donation.Progress,
+                DonationGoal     = _stripeOptions.CurrentValue.DonationGoal
+            };
+        }
     }
 }

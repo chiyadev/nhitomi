@@ -26,7 +26,10 @@ const PleadSection = () => {
           have made a crappy PHP website and slap a few ads in every corner. But that's not what we did.
         </div>
 
-        <div>Small donations are what keeps nhitomi alive. Please help us by becoming a supporter!</div>
+        <div>
+          Small donations are what keeps nhitomi alive. If you are financially able, please help us by becoming a
+          supporter!
+        </div>
       </QuoteWrap>
     </VStack>
   );

@@ -4,7 +4,6 @@ import {
   Center,
   chakra,
   Heading,
-  HStack,
   Link,
   ListItem,
   Slider,
@@ -30,9 +29,7 @@ const PaymentSection = ({ stripe }: { stripe: GetStripeInfoResponse }) => {
 
   return (
     <VStack align="stretch" spacing={8}>
-      <HStack spacing={2}>
-        <Heading size="lg">Let's get it!</Heading>
-      </HStack>
+      <Heading size="lg">Let's get it!</Heading>
 
       <VStack align="start" spacing={2}>
         <div>Please note:</div>
