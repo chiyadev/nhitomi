@@ -1,6 +1,6 @@
 import { BookTag, LanguageType, ScraperType } from "nhitomi-api";
-import nhentai from "../assets/Icons/nhentai.jpg";
-import Hitomi from "../assets/Icons/Hitomi.jpg";
+import nhentai from "../public/assets/icons/nhentai.jpg";
+import Hitomi from "../public/assets/icons/hitomi.jpg";
 
 export const QueryChunkSize = 50;
 export const NonSupporterPageLimit = 50;

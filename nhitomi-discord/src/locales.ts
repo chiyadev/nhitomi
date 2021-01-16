@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { __mf, configure } from "i18n";
 import { LanguageType } from "nhitomi-api";
 
@@ -13,28 +12,28 @@ configure({
   updateFiles: false,
 });
 
-/** Contains localized strings that can be formatted. */
 export class Locale {
-  static default: Locale = Locale.get(LanguageType.EnUs);
+  static readonly default = Locale.get(LanguageType.EnUs);
 
-  static get(language: LanguageType): Locale {
+  static get(language: LanguageType) {
     return new Locale(language);
   }
 
-  get default(): boolean {
+  get isDefault() {
     return this.language === Locale.default.language;
   }
 
   constructor(readonly language: LanguageType) {}
 
-  /** Selects a message given a message key and formats it using the given replacements. */
   get(key: string, values?: Record<string, any>): string {
     let result = __mf({ phrase: key, locale: this.language }, values);
 
-    // until key-level fallback is implemented, we use this hack for fallback to default language.
+    // until i18n supports locale fallbacks, use this hack for fall back to default language
     // https://github.com/mashpie/i18n-node/issues/80
     // https://github.com/mashpie/i18n-node/issues/167
-    if (result === key && !this.default) result = Locale.default.get(key, values);
+    if (result === key && !this.isDefault) {
+      result = Locale.default.get(key, values);
+    }
 
     return result;
   }

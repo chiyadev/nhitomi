@@ -9,16 +9,15 @@
   "interactive": {
     "timeout": 7200,
     "inputTimeout": 60,
-    "notifTimeout": 10
+    "notificationTimeout": 10
   },
   "api": {
-    "baseUrl": "",
-    "token": "",
-    "cachedTokenExpiry": 3600
+    "baseUrl": "https://nhitomi.chiya.dev/api/v1",
+    "token": ""
   },
   "status": {
     "format": "with adjective noun",
-    "adjectives": "petite;lewd;oppai;wild",
+    "adjectives": "petite;lewd;oppai;wild;smol",
     "nouns": "nekos;maids;furries;lolis",
     "interval": 600
   }
