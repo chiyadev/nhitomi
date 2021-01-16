@@ -19,6 +19,7 @@ collectDefaultMetrics({ register });
     .get("/metrics", async (_, response) => {
       try {
         // collect all shard metrics
+        // note: prom-client MUST NOT BE ^13.0.0 because getMetricsJson will return a promise instead
         const metrics: ReturnType<typeof register["getMetricsAsJSON"]>[] = await shards.broadcastEval(
           "require('prom-client').register.getMetricsAsJSON()"
         );
